@@ -20,12 +20,6 @@ Even as a one-person project, you can contribute in many ways:
     - Pull requests that break core platform compatibility.
     - Changes that don’t follow the code style or testing guidelines.
 
-## Ground rules 
-We value respectful collaboration and high-quality contributions: Test all changes on all supported platforms (Windows, Linux, MacOS, iOS, Android) if possible. Follow our coding standards (C++17, consistent formatting, modular code). Keep new features focused and incremental. Document your changes clearly in code and README/examples. Be welcoming to all contributors and encourage diverse participation. Follow the Moss Framework Code of Conduct
-
-## Your first contribution 
-New contributors are welcome! Start by looking at: docs – improve guides or tutorials examples – add simple demo projects test – help with unit and integration tests Beginner-friendly issues are labeled as good first issue. For help understanding Git, GitHub, or making your first pull request, these are great resources: Make a Pull Request First Timers Only
-
 ## Reporting a bug 
 Before reporting, check if the bug exists in the latest version. 
 
