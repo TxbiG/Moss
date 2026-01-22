@@ -1,2 +1,15 @@
-# Auto detect text files and perform LF normalization
-* text=auto
+# Enforce consistent line endings
+* text=auto eol=lf
+
+*.cpp text
+*.inl text
+*.h text
+*.tof text
+*.bat text
+
+*.sh text eol=lf
+gradlew text eol=lf
+
+*.tga binary
+*.bof binary
+*.bin binary
