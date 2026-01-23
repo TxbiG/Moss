@@ -7,17 +7,6 @@ Platforms supported ```Windows```, ```Linux```, ```MacOS```, ```FreeBSD```, ```A
 > [!NOTE]  
 Working with VR vendors or any other platform not specified here will require manual creation, such as creating a window and input.
 
-## Platforms
-| Windows | MacOS | Linux  | IOS  | Android  |
-| ------------- | ------------- | ------------- | ------------- | ------------- |
-| Content Cell  | Content Cell  | Content Cell  | Content Cell  | Content Cell  |
-| Content Cell  | Content Cell  | Content Cell  | Content Cell  | Content Cell  |
-| Content Cell  | Content Cell  | Content Cell  | Content Cell  | Content Cell  |
-| Content Cell  | Content Cell  | Content Cell  | Content Cell  | Content Cell  |
-| Content Cell  | Content Cell  | Content Cell  | Content Cell  | Content Cell  |
-| Content Cell  | Content Cell  | Content Cell  | Content Cell  | Content Cell  |
-| Content Cell  | Content Cell  | Content Cell  | Content Cell  | Content Cell  |
-
 ### Input Support
 | Input Devices | Windows | MacOS | Linux  | IOS  | Android  |
 | ------------- | ------------- | ------------- | ------------- | ------------- | ------------- |
@@ -32,14 +21,14 @@ Working with VR vendors or any other platform not specified here will require ma
 | PlayStation 5 Controllers | ✅ | ✅ | ✅ | ❌ | ❌ |
 
 ### Haptic Feedback support
-| Haptic Feedback | Playstation (DualSense) | Xbox Impulse Triggers | Mouses | Keyboard | IOS Haptic  | Android Haptic |
-| -------------   | -------------           | ------------- | ------------- | ------------- | ------------- | ------------- |
-| Supported       | ✅                     | ✅            | ❌            | ❌           | ✅           | ✅           |
+| Haptic Feedback | Playstation (DualSense) | Xbox Impulse Triggers | Mouses        | Keyboard      | IOS Haptic  | Android Haptic |
+| -------------   | -------------           | -------------         | ------------- | ------------- | ------------- | ------------- |
+| Supported       | ✅                      | ✅                   | ❌            | ❌           | ✅           | ✅            |
 
 ### Graphics API Support
-| Platforms     |Windows                          | MacOS  | Linux          | IOS              | Android           |
-| ------------- | -------------                   | -------| -------------  | -------------    | -------------     |
-| Recommended   | OpenGL, Vulkan, DirectX 12 or 12 | Metal  | OpenGL, Vulkan | OpenGL ES, Metal | OpenGL ES, Vulkan | 
+| Platforms     |Windows                       | MacOS  | Linux          | IOS              | Android               |
+| ------------- | -------------                | -------| -------------  | -------------    | -------------         |
+| Supported     | OpenGL, Vulkan, DirectX 12 or 12 | Metal  | OpenGL, Vulkan | OpenGL ES, Metal | OpenGL ES, Vulkan | 
 
 ## Macros
 ```cpp
