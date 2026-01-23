@@ -5,7 +5,7 @@
 Platforms supported ```Windows```, ```Linux```, ```MacOS```, ```FreeBSD```, ```Android```, ```IOS```.
 
 > [!NOTE]  
-Working with VR vendors or any other platform not specified here will require manual creation, such as creating a window and input.
+Working with any other platform not specified here will require manual creation, such as creating a window and input.
 
 ### Input Support
 | Input Devices | Windows | MacOS | Linux  | IOS  | Android  |
