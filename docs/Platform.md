@@ -36,7 +36,7 @@ Working with VR vendors or any other platform not specified here will require ma
 | -------------   | -------------           | ------------- | ------------- | ------------- | ------------- | ------------- |
 | Supported       | ✅                     | ✅            | ❌            | ❌           | ✅           | ✅           |
 
-### Graphics APIs to use
+### Graphics API Support
 | Platforms     |Windows                          | MacOS  | Linux          | IOS              | Android           |
 | ------------- | -------------                   | -------| -------------  | -------------    | -------------     |
 | Recommended   | OpenGL, Vulkan, DirectX 12 or 12 | Metal  | OpenGL, Vulkan | OpenGL ES, Metal | OpenGL ES, Vulkan | 
