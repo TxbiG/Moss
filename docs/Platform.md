@@ -63,7 +63,6 @@ enum Moss_MessageBoxFlags;
 enum Moss_WindowMode;
 enum Moss_CursorMode;
 enum Moss_CursorShape;
-enum InputEventType;
 ```
 
 ## Structs
