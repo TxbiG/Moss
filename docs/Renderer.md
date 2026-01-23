@@ -8,7 +8,8 @@ Renderer supports ```Windows```, ```Linux```, ```MacOS```, ```FreeBSD```, ```IOS
 > When working with Vulkan, ensure your graphics card supports it and you've installed [Vulkan SDK](https://vulkan.lunarg.com/sdk/home)
 
 > [!TIP]
-> For noise textures I recommend using this website [https://opengameart.org/content/700-noise-textures]
+> For noise textures I recommend using this website [opengameart.org/content/700-noise-textures](https://opengameart.org/content/700-noise-textures)
+> 
 > Moss does support making noise texureing using FastNoiseLite
 
 
