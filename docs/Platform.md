@@ -169,7 +169,7 @@ int main()
 
 
 ## Graphics API Specific
-### OpenGL
+### OpenGL / OpenGL ES
 ```cpp
 void Moss_MakeContextCurrent(Moss_Window* window);
 ```
@@ -183,9 +183,6 @@ void Moss_SwapBuffersInterval(int interval);
 
 ```cpp
 void* Moss_GetProcAddress(const char* procname);
-```
-### OpenGL ES
-```cpp
 ```
 
 ### Vulkan
