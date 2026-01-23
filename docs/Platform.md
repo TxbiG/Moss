@@ -154,48 +154,55 @@ int main()
 }
 ```
 
-//! @brief Callback for framebuffer resize events. @param width  New framebuffer width, in pixels. @param height New framebuffer height, in pixels.
+Callback for framebuffer resize events. @param width  New framebuffer width, in pixels. @param height New framebuffer height, in pixels.
+```cpp
 typedef void (*Moss_FramebufferResizeCallback)(int width, int height);
-
+```
 Sets the framebuffer resize callback. callback Pointer to a function to be invoked when framebuffer size changes.
 ```cpp
 MOSS_API void Moss_SetFramebufferResizeCallback(Moss_FramebufferResizeCallback callback);
 ```
 
-//! @brief Callback for logical window size changes. @param width  New window width, in screen coordinates. @param height New window height, in screen coordinates.
+Callback for logical window size changes. @param width  New window width, in screen coordinates. @param height New window height, in screen coordinates.
+```cpp
 typedef void (*Moss_WindowSizeCallback)(int width, int height);
+```
 Sets the window size callback. Callback Pointer to a function invoked when the window size changes.
 ```cpp
 MOSS_API void Moss_SetWindowSizeCallback(Moss_WindowSizeCallback callback);
 ```
 
-//! @brief Callback for window position changes on screen. @param xpos New X coordinate of the window’s top-left corner. @param ypos New Y coordinate of the window’s top-left corner.
+Callback for window position changes on screen. @param xpos New X coordinate of the window’s top-left corner. @param ypos New Y coordinate of the window’s top-left corner.
+```cpp
 typedef void (*Moss_WindowPositionCallback)(int xpos, int ypos);
-
+```
 Sets the window resize callback (platform-level, e.g. minimize/maximize). @param callback Pointer to a function invoked when window resizing events occur.
 ```cpp
 MOSS_API void Moss_SetWindowResizeCallback(Moss_WindowResizeCallback callback);
 ```
 
-//! @brief Callback for window focus events. @param focused True if the window gained focus; false if it lost focus.
+Callback for window focus events. @param focused True if the window gained focus; false if it lost focus.
+```cpp
 typedef void (*Moss_WindowFocusCallback)(bool focused);
-
+```
 Sets the window position callback. Callback Pointer to a function invoked when the window position changes.
 ```cpp
 MOSS_API void Moss_SetWindowPositionCallback(Moss_WindowPositionCallback callback);
 ```
 
-//! @brief Callback for content scale changes (e.g., HiDPI scaling). @param xscale X-axis content scale factor. @param yscale Y-axis content scale factor.
+Callback for content scale changes (e.g., HiDPI scaling). @param xscale X-axis content scale factor. @param yscale Y-axis content scale factor.
+```cpp
 typedef void (*Moss_WindowContentScaleCallback)(float xscale, float yscale);
-
+```
 Sets the window focus callback. Callback Pointer to a function invoked when the window focus changes.
 ```cpp
 MOSS_API void Moss_SetWindowFocusCallback(Moss_WindowFocusCallback callback);
 ```
 
-//! @brief Callback for general window resize notifications (platform-driven). @param width  New window width in pixels. @param height New window height in pixels.
+Callback for general window resize notifications (platform-driven). @param width  New window width in pixels. @param height New window height in pixels.
+```cpp
 typedef void (*Moss_WindowResizeCallback)(int width, int height);
-
+```
 Sets the window content scale callback (for HiDPI / Retina support). @param callback Pointer to a function invoked when the content scale changes
 ```cpp
 MOSS_API void Moss_SetWindowContentScaleCallback(Moss_WindowContentScaleCallback callback);
@@ -214,9 +221,11 @@ MOSS_API void Moss_Embedded_OnPause();
 ### Monitor
 ```cpp
 ```
-//! @brief Callback for monitor configuration changes (e.g. hotplug events). @param monitorName Name or ID of the monitor that changed. @param connected True if the monitor was connected; false if disconnected.
+Callback for monitor configuration changes (e.g. hotplug events). @param monitorName Name or ID of the monitor that changed. connected True if the monitor was connected; false if disconnected.
+```cpp
 typedef void (*Moss_MonitorCallback)(const char* monitorName, bool connected);
-Sets the monitor connection or configuration callback. @param callback Pointer to a function invoked when a monitor is connected or disconnected
+```
+Sets the monitor connection or configuration callback. Callback pointer to a function invoked when a monitor is connected or disconnected
 ```cpp
 MOSS_API void Moss_SetMonitorCallback(Moss_MonitorCallback callback);
 ```
