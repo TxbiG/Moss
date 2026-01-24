@@ -34,7 +34,7 @@ typedef unsigned long long uint64;
 #define MIN_UINT64  ((uint64)(0x0000000000000000))
 ```
 
-## AABB
+## AABB & OOB
 ```cpp
 AABB();
 AABB();
@@ -43,8 +43,6 @@ AABB();
 | --- | --- |
 | `git status` | List all *new or modified* files |
 | `git diff` | Show file differences that **haven't been** staged |
-
-## OOB
 
 ## Basis
 ```cpp
