@@ -65,10 +65,6 @@ void Moss_AudioUpdate(float deltaTime);
 ```cpp
 ```
 
-### AudioLoadType
-```cpp
-```
-
 ### Audio Effects
 ```cpp
 ```
@@ -236,7 +232,6 @@ Audio_RemoveChannel(sfx);
 ...
 
 ```
-
 ## Effects
 ```cpp
 // Create a reverb effect
@@ -327,6 +322,8 @@ Moss_Stop();
 ```cpp
 AudioStream3D* stream3D = Moss_AudioStream3DCreate();
 
+...
+
 // Configure spatial parameters
 Moss_AudioStream3DSetVolume(stream3D, 1.0f);
 Moss_AudioStream3DSetPitch(stream3D, 1.0f);
@@ -334,20 +331,25 @@ Moss_AudioStream3DSetLoop(stream3D, true);
 Moss_AudioStream3DSetMaxDistance(stream3D);
 Moss_AudioStream3DSetDistanceModel(stream3D, DistanceModel::INVERSE);
 
+...
+
 // Update transform (typically each frame)
 Moss_AudioStream3DSetPosition(stream3D);
 Moss_AudioStream3DSetVelocity(stream3D);
 
+...
+
 // Play
 Moss_AudioStream3DPlay(stream3D);
+
+...
 
 // Stop & remove
 Moss_AudioStream3DStop(stream3D);
 Moss_AudioStream3DRemove(stream3D);
 ```
-
 ### Speaker
-
+Example
 ```cpp
 // Open default speaker device
 Moss_AudioSpeakerOpen();
@@ -364,9 +366,6 @@ Moss_AudioSelectSpeakerDevice(0);
 // Pause / resume output
 Moss_AudioSpeakerPause();
 Moss_AudioSpeakerResume();
-```
-Example
-```cpp
 ```
 ### Microphone
 ```cpp
