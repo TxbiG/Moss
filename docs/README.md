@@ -94,8 +94,8 @@
 ## XR (Virtual/Augmented/Mixed Reality)
 - [Overview](/docs/XR.md#overview)
     - [XROrigin](/docs/XR.md), [XRSpace](/docs/XR.md), [XRAnchor](/docs/XR.md), [XRSession](/docs/XR.md)
-    - [XRCamera](/docs/XR.md), [XRRigidBody](/docs/XR.md)
-    - [XRActions](/docs/XR.md)
+    - [XRCamera](/docs/XR.md)
+    - [XRActionSet](/docs/XR.md), [XRActions](/docs/XR.md)
     - [XRControls](/docs/XR.md), [XRHaptic](/docs/XR.md)
     - [XRFaceModifier](/docs/XR.md),  [XRBodyModifier](/docs/XR.md), [XRHandModifier](/docs/XR.md),
     - [XRCharacterBody](/docs/XR.md)
