@@ -287,7 +287,7 @@ MOSS_API bool Moss_WriteStorageFile(Moss_Storage *storage, const char *path, con
 ### Window
 ```cpp
 #pragma once
-#include <Moss.h>
+#include <Moss/Moss.h>
 
 int main()
 {
@@ -375,16 +375,25 @@ MOSS_API void Moss_SetMonitorCallback(Moss_MonitorCallback callback);
 
 ### Input
 ```cpp
+#pragma once
+#include <Moss/Moss.h>
+
 ```
 ### Haptic Feedback
 ```cpp
+
 ```
 ### Video Capture
 ```cpp
+#pragma once
+#include <Moss/Moss.h>
 ```
 
 ## Storage / File
 ```cpp
+#pragma once
+#include <Moss/Moss.h>
+
 ```
 ## Miscellaneous
 ```cpp
@@ -396,9 +405,17 @@ MOSS_API void Moss_SetMonitorCallback(Moss_MonitorCallback callback);
 These are used for creating windows for mobile and console-specific
 ```cpp
 MOSS_API void Moss_CreateEmbeddedWindow();
+```
+```cpp
 MOSS_API void Moss_Terminate_EmbeddedWindow();
+```
+```cpp
 MOSS_API void Moss_EmbeddedWindow_OnOrientationChanged(bool focused);
+```
+```cpp
 MOSS_API void Moss_EmbeddedWindow_OnResume();
+```
+```cpp
 MOSS_API void Moss_EmbeddedWindow_OnPause();
 ```
 
