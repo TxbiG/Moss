@@ -48,12 +48,12 @@
 
 ## Components
 - 2D
-    - [ParticleEffects](/docs/2D.md#cpuparticle2d),
+    - [ParticleEffects](/docs/2D.md#cpuparticle2d)
     - [Tilemap](/docs/2D.md#tilemap)
 - 3D
-    - [ParticleEffects](/docs/3D.md#cpuparticle3d)
-    - [GridMap]()
-    - [Terrain](/docs/3D.md#terrain),
+    - [ParticleEffects](/docs/Components.md#cpuparticle3d)
+    - [GridMap](/docs/Components.md#)
+    - [Terrain](/docs/Components.md#terrain)
 
 ## UI
 - [Overview](/docs/UI.md#overview)
