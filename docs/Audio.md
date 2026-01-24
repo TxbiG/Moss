@@ -7,10 +7,6 @@ Supported Audio - ```XAudio2 / WASAPI```, ```CoreAudio```, ```ALSA```.
 
 Supports ```Mono```, ```Stereo```, ```Quadraphonic```, ```4.1 Surround```, ```5.1 Surround```, ```6.1 Surround```, ```7.1 Surround```, ```Spatial```
 
-## Macros
-```cpp
-// Provided by Moss
-```
 ## Enums
 ```cpp
 enum class AudioEffectType {
