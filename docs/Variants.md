@@ -493,18 +493,3 @@ TStaticArray<vec3> tvector;
 | --- | --- |
 | `git status` | List all *new or modified* files |
 | `git diff` | Show file differences that **haven't been** staged |
-
-## TVector
-TVector is a ```template``` Vector that is not to be confused with Vecs.
-```cpp
-template<T>
-TVector<T>;
-```
-Example
-```cpp
-TVector<vec3> tvector;
-```
-| Variant | Operator |
-| --- | --- |
-| `git status` | List all *new or modified* files |
-| `git diff` | Show file differences that **haven't been** staged |
