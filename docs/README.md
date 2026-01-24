@@ -72,6 +72,7 @@
     - [uVec2](/docs/Variants.md#uvec2), [uVec3](/docs/Variants.md#uvec3), [uVec4](/docs/Variants.md#uvec4)
     - [dVec2](/docs/Variants.md#bvec2), [dVec3](/docs/Variants.md#bvec3), [dVec4](/docs/Variants.md#bvec4)
     - [Float2](/docs/Variants.md#float2), [Float3](/docs/Variants.md#float3), [Float4](/docs/Variants.md#float4)
+    - [Int2](/docs/Variants.md#float2), [Int3](/docs/Variants.md#float3), [Int4](/docs/Variants.md#float4)
     - [Double2](/docs/Variants.md#double2), [Double3](/docs/Variants.md#double3), [Double4](/docs/Variants.md#double4)
     - [Mat2x2](/docs/Variants.md#mat2x2), [Mat2x3](/docs/Variants.md#mat2x3), [Mat2x4](/docs/Variants.md#mat2x4), [Mat3x2](/docs/Variants.md#mat3x2), [Mat3x3](/docs/Variants.md#mat3x3), [Mat3x4](/docs/Variants.md#mat3x4), [Mat4x2](/docs/Variants.md#mat4x2), [Mat4x3](/docs/Variants.md#mat4x3), [Mat4x4](/docs/Variants.md#mat4x4)
     - [Quat](/docs/Variants.md#quat), [Basis](/docs/Variants.md#basis),
