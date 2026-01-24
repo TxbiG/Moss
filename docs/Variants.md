@@ -1,11 +1,16 @@
 # Variants
-## Signed Integers
+## Signed Integers & Unsigned Integers
 ```cpp
 // Provided by Moss
 typedef signed char int8;
 typedef signed short int16;
 typedef signed int int32;
 typedef signed long long int64;
+
+typedef unsigned char uint8;
+typedef unsigned short uint16;
+typedef unsigned int uint32;
+typedef unsigned long long uint64;
 ```
 #### Macros
 ```cpp
@@ -18,18 +23,7 @@ typedef signed long long int64;
 #define MIN_INT16   ((int16)~0x7FFF)
 #define MIN_INT32   ((int32)(~0x7FFFFFFF))
 #define MIN_INT64   ((int64)(~0x7FFFFFFFFFFFFFFF))
-```
-## Unsigned Integers
-```cpp
-// Provided by Moss
-typedef unsigned char uint8;
-typedef unsigned short uint16;
-typedef unsigned int uint32;
-typedef unsigned long long uint64;
-```
-#### Macros
-```cpp
-// Provided by Moss
+
 #define MAX_UINT8   ((uint8)(0xFF))
 #define MAX_UINT16  ((uint16)(0xFFFF))
 #define MAX_UINT32  ((uint32)(0xFFFFFFFFu))
@@ -49,6 +43,8 @@ AABB();
 | --- | --- |
 | `git status` | List all *new or modified* files |
 | `git diff` | Show file differences that **haven't been** staged |
+
+## OOB
 
 ## Basis
 ```cpp
