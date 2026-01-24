@@ -30,26 +30,6 @@ Working with any other platform not specified here will require manual creation,
 | ------------- | -------------                | -------| -------------  | -------------    | -------------         |
 | Supported     | OpenGL, Vulkan, DirectX 12 or 12 | Metal  | OpenGL, Vulkan | OpenGL ES, Metal | OpenGL ES, Vulkan | 
 
-## Macros
-```cpp
-// Provided by Moss
-#define MOSS_PLATFORM_WINDOWS
-#define MOSS_PLATFORM_WINDOWS_UWP
-#define MOSS_PLATFORM_XBOXONE
-#define MOSS_PLATFORM_XBOXSCARLETT
-#define MOSS_PLATFORM_PS4
-#define MOSS_PLATFORM_PS5
-#define MOSS_PLATFORM_LINUX
-#define MOSS_PLATFORM_UNIX
-#define MOSS_PLATFORM_BSD
-#define MOSS_PLATFORM_WAYLAND
-#define MOSS_PLATFORM_X11
-#define MOSS_PLATFORM_ANDROID
-#define MOSS_PLATFORM_MACOS
-#define MOSS_PLATFORM_IOS
-#define MOSS_PLATFORM_TVOS
-#define MOSS_PLATFORM_WASM
-```
 
 ## Enums
 ```cpp
