@@ -361,16 +361,6 @@ Sets the window content scale callback (for HiDPI / Retina support). @param call
 MOSS_API void Moss_SetWindowContentScaleCallback(Moss_WindowContentScaleCallback callback);
 ```
 
-## Embedded window Specific
-These are used for creating windows for mobile and console-specific
-```cpp
-MOSS_API void Moss_CreateEmbeddedWindow();
-MOSS_API void Moss_Terminate_EmbeddedWindow();
-MOSS_API void Moss_EmbeddedWindow_OnOrientationChanged(bool focused);
-MOSS_API void Moss_EmbeddedWindow_OnResume();
-MOSS_API void Moss_EmbeddedWindow_OnPause();
-```
-
 ### Monitor
 ```cpp
 ```
@@ -392,6 +382,17 @@ MOSS_API void Moss_SetMonitorCallback(Moss_MonitorCallback callback);
 ### Video Capture
 ```cpp
 ```
+## 
+
+## Embedded window Specific
+These are used for creating windows for mobile and console-specific
+```cpp
+MOSS_API void Moss_CreateEmbeddedWindow();
+MOSS_API void Moss_Terminate_EmbeddedWindow();
+MOSS_API void Moss_EmbeddedWindow_OnOrientationChanged(bool focused);
+MOSS_API void Moss_EmbeddedWindow_OnResume();
+MOSS_API void Moss_EmbeddedWindow_OnPause();
+```
 
 ## Graphics API Specific
 ### OpenGL / OpenGL ES
@@ -409,6 +410,7 @@ void Moss_SwapBuffersInterval(int interval);
 ```cpp
 void* Moss_GetProcAddress(const char* procname);
 ```
+##
 
 ### Vulkan
 ```cpp
