@@ -27,16 +27,21 @@
 
 ## Components
 - 2D
-    - [CPUParticle2D](/docs/2D.md#cpuparticle2d), [GPUParticle2D](/docs/2D.md#gpuparticle2d), [Sprite2D](/docs/2D.md#sprite2d), [Tilemap](/docs/2D.md#tilemap), DampedSpringJoint2D, GrooveJoint2D, PinJoint2D, Line2D, ParallaxLayer, Path2D, PathFollow
+    - [ParticleEffects](/docs/2D.md#cpuparticle2d),
+    - [Tilemap](/docs/2D.md#tilemap)
 - 3D
-    - [CPUParticle3D](/docs/3D.md#cpuparticle3d), [Decal](/docs/3D.md#decal),  [GPUParticle3D](/docs/3D.md#gpuparticle3d), [GridMap](), [Sprite3D](), [Terrain](/docs/3D.md#terrain), [World3D](), FogVolume, VehicleWheel3D, SpringArm3D, DampedSpringJoint3D, GrooveJoint3D, PinJoint3D
+    - [ParticleEffects](/docs/3D.md#cpuparticle3d)
+    - [GridMap]()
+    - [Terrain](/docs/3D.md#terrain),
 
 ## Physics
 - [Overview](/docs/Physics.md#overview)
 ### Physics 2D
 - [Collision detection](/docs/), [Vehicles 2D](/docs/), [Softbody simulation](/docs/), [Animated ragdolls](/docs/), [Game character simulation](/docs/), [Water buoyancy calculations](/docs/), [Motors](/docs/)
+- DampedSpringJoint2D, GrooveJoint2D, PinJoint2D, Path2D, PathFollow
 ### Physics 3D
 - [Collision detection](/docs/), [Vehicles 3D](/docs/), [Softbody simulation](/docs/) [Animated ragdolls](/docs/), [Game character simulation](/docs/), [Water buoyancy calculations](/docs/), [Motors](/docs/)
+-  VehicleWheel3D, SpringArm3D, DampedSpringJoint3D, GrooveJoint3D, PinJoint3D
 
 ## Renderer
 - [Overview](/docs/Renderer.md#overview)
@@ -44,6 +49,7 @@
     - [Choosing a Renderer](/docs/Renderer.md#choosing-a-renderer)
     - [Renderer Life-cycle](/docs/Renderer.md#renderer-life-cycles)
     - [Textures](/docs/Renderer.md#), [Shaders](/docs/Renderer.md#shaders), [Surface](/docs/Renderer.md#surface), [Mesh](/docs/Renderer.md#mesh), [Model](/docs/Renderer.md#Model)
+    - [ParallaxLayer], [Line2D], [FogVolume], [Decal](/docs/3D.md#decal), [Sprite2D](/docs/2D.md#sprite2d), [Sprite3D]()
     - [Viewport & SubViewports](/docs/Renderer.md#), [Cameras](/docs/Renderer.md#)
     - [Lighting](/docs/Renderer.md#)
     - [Postprocessing](/docs/Renderer.md#post-processing), [Compositor]()
@@ -55,7 +61,7 @@
     - [TextureRect](/docs/UI.md#), [ColorRect](/docs/UI.md#)
     - [RichText](/docs/UI.md#), [Text](/docs/UI.md#)
     - [Button](UI.md#), [ToggleSwitch](/docs/UI.md#), [Checkbox](/docs/UI.md#), [RadioButton](/docs/UI.md#)
-    - [ProgressBar](UI.md#), [ComboBox](/docs/UI.md#), [Drag](UI.md#), [Slider](#), [Input](/docs/UI.md#), [Color Edit/Picker](/docs/UI.md#), [TreeNode](/docs/UI.md#), [ListBox](/docs/UI.md#), [MenuBar](/docs/UI.md#), [Tooltip](/docs/UI.md#), [Popup](/docs/UI.md#), [Table](/docs/UI.md#), [TabBar](/docs/UI.md#), [Graphs](/docs/UI.md#), [AnimatedIcon](/docs/UI.md#), [Dialogue](/docs/UI.md#), [CodeEditor](/docs/UI.md#), [HexEditor](UI.md#), [DatePicker](/docs/UI.md#)
+    - [ProgressBar](UI.md#), [ComboBox](/docs/UI.md#), [Drag](UI.md#), [Slider](/docs/UI.md#), [Input](/docs/UI.md#), [Color Edit/Picker](/docs/UI.md#), [TreeNode](/docs/UI.md#), [ListBox](/docs/UI.md#), [MenuBar](/docs/UI.md#), [Tooltip](/docs/UI.md#), [Popup](/docs/UI.md#), [Table](/docs/UI.md#), [TabBar](/docs/UI.md#), [Graphs](/docs/UI.md#), [AnimatedIcon](/docs/UI.md#), [Dialogue](/docs/UI.md#), [CodeEditor](/docs/UI.md#), [HexEditor](UI.md#), [DatePicker](/docs/UI.md#)
     - [TextLink](/docs/UI.md#), [TextLinkOpenURL](/docs/UI.md#)
 
 
