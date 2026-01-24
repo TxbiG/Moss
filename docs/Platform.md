@@ -382,7 +382,15 @@ MOSS_API void Moss_SetMonitorCallback(Moss_MonitorCallback callback);
 ### Video Capture
 ```cpp
 ```
-## 
+
+## Storage / File
+```cpp
+```
+## Miscellaneous
+```cpp
+```
+
+##
 
 ## Embedded window Specific
 These are used for creating windows for mobile and console-specific
