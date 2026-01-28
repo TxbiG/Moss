@@ -1,1 +1,0 @@
-Tutorial 06 shares the application source with tutorial 04.

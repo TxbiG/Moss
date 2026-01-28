@@ -1,1 +1,0 @@
-Tutorial 07 shares the application source with tutorial 04.
