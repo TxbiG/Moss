@@ -1,8 +1,21 @@
 #include <Moss/Platform/Windows/win32_platform.h>
-
 #include <Xinput.h>
 
 #pragma comment(lib,"xinput9_1_0.lib")
+
+// Helpers:
+static float ApplyDeadzone(float v, float dz)
+{
+    if (fabsf(v) <= dz)
+        return 0.0f;
+
+    float sign = (v < 0.0f) ? -1.0f : 1.0f;
+    return sign * ((fabsf(v) - dz) / (1.0f - dz));
+}
+static bool TriggerPressed(float value) { return value >= g_trigger_button_threshold; }
+void Moss_SetTriggerButtonThreshold(float t) { g_trigger_button_threshold = t; }
+
+/////////////////////////////////////
 
 _frame g_frame {};
 INPUT_STATE io;
@@ -62,6 +75,65 @@ const uint16_t VirtualKeyMap[static_cast<int>(Keyboard::COUNT)] = {
     VK_ADD, VK_DECIMAL, VK_DIVIDE, VK_RETURN, VK_OEM_PLUS, VK_MULTIPLY, VK_SUBTRACT
 };
 static const uint8_t g_vk_mouse[Mouse::COUNT] = { VK_LBUTTON, VK_RBUTTON, VK_MBUTTON, VK_XBUTTON1, VK_XBUTTON2, 0,0,0 };
+
+
+static const Gamepad g_moss_to_gamepad_button[Moss_GamepadButton::COUNT] =
+{
+    /* INVALID */        Gamepad::GAMEPAD_BUTTON_LAST,
+
+    /* SOUTH */          Gamepad::GAMEPAD_BUTTON_A,
+    /* EAST */           Gamepad::GAMEPAD_BUTTON_B,
+    /* WEST */           Gamepad::GAMEPAD_BUTTON_X,
+    /* NORTH */          Gamepad::GAMEPAD_BUTTON_Y,
+
+    /* BACK */           Gamepad::GAMEPAD_BUTTON_BACK,
+    /* GUIDE */          Gamepad::GAMEPAD_BUTTON_GUIDE,
+    /* START */          Gamepad::GAMEPAD_BUTTON_START,
+
+    /* LEFT_STICK */     Gamepad::GAMEPAD_BUTTON_LEFT_THUMB,
+    /* RIGHT_STICK */    Gamepad::GAMEPAD_BUTTON_RIGHT_THUMB,
+
+    /* LEFT_SHOULDER */  Gamepad::GAMEPAD_BUTTON_LEFT_BUMPER,
+    /* RIGHT_SHOULDER */ Gamepad::GAMEPAD_BUTTON_RIGHT_BUMPER,
+
+    /* DPAD_UP */        Gamepad::GAMEPAD_BUTTON_DPAD_UP,
+    /* DPAD_DOWN */      Gamepad::GAMEPAD_BUTTON_DPAD_DOWN,
+    /* DPAD_LEFT */      Gamepad::GAMEPAD_BUTTON_DPAD_LEFT,
+    /* DPAD_RIGHT */     Gamepad::GAMEPAD_BUTTON_DPAD_RIGHT,
+
+    /* MISC1 */          Gamepad::GAMEPAD_BUTTON_LAST, // Share (not in XInput)
+    /* RIGHT_PADDLE1 */  Gamepad::GAMEPAD_BUTTON_LAST,
+    /* LEFT_PADDLE1 */   Gamepad::GAMEPAD_BUTTON_LAST,
+    /* RIGHT_PADDLE2 */  Gamepad::GAMEPAD_BUTTON_LAST,
+    /* LEFT_PADDLE2 */   Gamepad::GAMEPAD_BUTTON_LAST,
+    /* TOUCHPAD */       Gamepad::GAMEPAD_BUTTON_LAST,
+    /* MISC2 */          Gamepad::GAMEPAD_BUTTON_LAST,
+    /* MISC3 */          Gamepad::GAMEPAD_BUTTON_LAST,
+    /* MISC4 */          Gamepad::GAMEPAD_BUTTON_LAST,
+    /* MISC5 */          Gamepad::GAMEPAD_BUTTON_LAST,
+    /* MISC6 */          Gamepad::GAMEPAD_BUTTON_LAST,
+};
+
+static const Joystick g_moss_to_gamepad_axis[Moss_GamepadAxis::COUNT] =
+{
+    /* INVALID */        Joystick::GAMEPAD_AXIS_LEFT_X,
+
+    /* LEFT_X */         Joystick::GAMEPAD_AXIS_LEFT_X,
+    /* LEFT_Y */         Joystick::GAMEPAD_AXIS_LEFT_Y,
+    /* RIGHT_X */        Joystick::GAMEPAD_AXIS_RIGHT_X,
+    /* RIGHT_Y */        Joystick::GAMEPAD_AXIS_RIGHT_Y,
+    /* LEFT_TRIGGER */   Joystick::GAMEPAD_AXIS_LEFT_TRIGGER,
+    /* RIGHT_TRIGGER */  Joystick::GAMEPAD_AXIS_RIGHT_TRIGGER,
+};
+
+static Moss_GamepadAxisConfig g_axis_config[Moss_GamepadAxis::COUNT] = {
+    /* LEFT_X */        { 0.15f, false },
+    /* LEFT_Y */        { 0.15f, true  }, // Y inverted by default (common)
+    /* RIGHT_X */       { 0.15f, false },
+    /* RIGHT_Y */       { 0.15f, true  },
+    /* LEFT_TRIGGER */  { 0.05f, false },
+    /* RIGHT_TRIGGER */ { 0.05f, false },
+};
 
 /*-------------------  RawInput registration  --------------------*/
 static BOOL g_raw_mouse_supported = FALSE;
@@ -167,32 +239,30 @@ void Input_Poll(INPUT_STATE* io)
     PollGamepads(io);
 }
 
-inline bool IsPressed(Keyboard k) { return io.keys[static_cast<size_t>(k)] != 0; }
-inline bool IsReleased(Keyboard k) { return io.keys[static_cast<size_t>(k)] == 0; }
-inline bool IsJustPressed(Keyboard k) { return io.keys[static_cast<size_t>(k)] && !io.keys_prev[static_cast<size_t>(k)]; }
-inline bool IsJustReleased(Keyboard k) { size_t i = static_cast<size_t>(k); return !io.keys[i] &&  io.keys_prev[i]; }
-inline bool IsPressed(Mouse b) { return io.mouse_buttons[static_cast<size_t>(b)] != 0; }
-inline bool IsReleased(Mouse b) { return io.mouse_buttons[static_cast<size_t>(b)] == 0; }
-inline bool IsJustPressed(Mouse b) { return io.mouse_buttons[static_cast<size_t>(b)] && !io.mouse_buttons_prev[static_cast<size_t>(b)]; }
-inline bool IsJustReleased(Mouse b) { return !io.mouse_buttons[static_cast<size_t>(b)] &&  io.mouse_buttons_prev[static_cast<size_t>(b)]; }
 
+////////////////////////////////////////////////////////////////
 inline bool IsPressed(size_t padIndex, Gamepad b) { return io.pads[padIndex].buttons[static_cast<size_t>(b)] != 0; }
 inline bool IsReleased(size_t padIndex, Gamepad b) { return io.pads[padIndex].buttons[static_cast<size_t>(b)] == 0; }
 inline bool IsJustPressed(size_t padIndex, Gamepad b) { return false; }
 inline float GetAxis(size_t padIndex, Joystick a) { return io.pads[padIndex].axes[static_cast<size_t>(a)]; }
+////////////////////////////////////////////////////////////////
 
 
+bool Moss_IsKeyPressed(Moss_Keyboard key) { return io.keys[static_cast<size_t>(k)] != 0; }
+bool Moss_IsReleased(Moss_Keyboard k) { return io.keys[static_cast<size_t>(k)] == 0; }
+bool Moss_IsKeyJustPressed(Moss_Keyboard key) { return io.keys[static_cast<size_t>(k)] && !io.keys_prev[static_cast<size_t>(k)]; }
+bool Moss_IsKeyJustReleased(Moss_Keyboard key)  { size_t i = static_cast<size_t>(k); return !io.keys[i] &&  io.keys_prev[i]; }
+Moss_Keyboard Moss_InputGetKey() { size_t i = static_cast<size_t>(k); return !io.keys[i]; }
 
-bool Moss_IsKeyPressed(Moss_Key key) { }
-bool Moss_IsKeyJustPressed(Moss_Key key) { }
-bool Moss_IsKeyJustReleased(Moss_Key key) { }
+bool Moss_IsMousePressed(Mouse button) { return io.mouse_buttons[static_cast<size_t>(b)] != 0; }
+bool Moss_IsMouseReleased(Mouse b) { return io.mouse_buttons[static_cast<size_t>(b)] == 0; }
+bool Moss_IsMouseJustPressed(Mouse button) { return io.mouse_buttons[static_cast<size_t>(b)] && !io.mouse_buttons_prev[static_cast<size_t>(b)]; }
+bool Moss_IsMouseJustReleased(Mouse button) { return !io.mouse_buttons[static_cast<size_t>(b)] &&  io.mouse_buttons_prev[static_cast<size_t>(b)]; }
+Moss_Keyboard Moss_InputGetMouseButton() { return !io.mouse_buttons[static_cast<size_t>(b)] }
 
-bool Moss_IsMousePressed(Moss_MouseButton button) { }
-bool Moss_IsMouseJustPressed(Moss_MouseButton button) { }
-bool Moss_IsMouseJustReleased(Moss_MouseButton button) { }
-void Moss_GetMousePosition(int* x, int* y) { }
-void Moss_SetMousePosition(int x, int y) { }
-void Moss_SetMouseVisible(bool visible) { }
+void Moss_GetMousePosition(int* x, int* y) { if (x) *x = io.mouse_x; if (y) *y = io.mouse_y; }
+void Moss_SetMousePosition(int x, int y) { POINT p = { x, y }; ClientToScreen(handle, &p); SetCursorPos(p.x, p.y); }
+void Moss_SetMouseVisible(bool visible) { ShowCursor(visible); }
 
 
 // Gamepad management
@@ -203,21 +273,125 @@ bool Moss_GamepadConnected(Moss_Gamepad* gp) { }
 void Moss_UpdateGamepads(void) { }
 
 // Button & axis
-bool Moss_IsGamepadButtonPressed(Moss_Gamepad* gp, Moss_GamepadButton button) { }
-bool Moss_IsGamepadButtonJustPressed(Moss_Gamepad* gp, Moss_GamepadButton button) { }
-bool Moss_IsGamepadButtonJustReleased(Moss_Gamepad* gp, Moss_GamepadButton button) { }
-float Moss_GetGamepadAxis(Moss_Gamepad* gp, Moss_GamepadAxis axis) { }
+bool Moss_IsGamepadButtonPressed(Moss_Gamepad* gp, Moss_GamepadButton button) {
+    if (!gp) return false;
+
+    // Trigger-as-button support
+    if (button == Moss_GamepadButton::LEFT_TRIGGER)
+        return TriggerPressed(Moss_GetGamepadAxis(gp, Moss_GamepadAxis::LEFT_TRIGGER));
+
+    if (button == Moss_GamepadButton::RIGHT_TRIGGER)
+        return TriggerPressed(Moss_GetGamepadAxis(gp, Moss_GamepadAxis::RIGHT_TRIGGER));
+
+    Gamepad g = g_moss_to_gamepad_button[(size_t)button];
+    if (g == Gamepad::GAMEPAD_BUTTON_LAST)
+        return false;
+
+    return io.pads[gp->index].buttons[(size_t)g] != 0;
+}
+
+bool Moss_IsGamepadButtonJustPressed(Moss_Gamepad* gp, Moss_GamepadButton button) {
+    if (!gp || button <= Moss_GamepadButton::INVALID)
+        return false;
+
+    Gamepad g = g_moss_to_gamepad_button[(size_t)button];
+    if (g == Gamepad::GAMEPAD_BUTTON_LAST)
+        return false;
+
+    GamepadState& p = io.pads[gp->index];
+    size_t i = (size_t)g;
+    return p.buttons[i] && !p.buttons_prev[i];
+}
+
+bool Moss_IsGamepadButtonJustReleased(Moss_Gamepad* gp, Moss_GamepadButton button) {
+    if (!gp || button <= Moss_GamepadButton::INVALID)
+        return false;
+
+    Gamepad g = g_moss_to_gamepad_button[(size_t)button];
+    if (g == Gamepad::GAMEPAD_BUTTON_LAST)
+        return false;
+
+    GamepadState& p = io.pads[gp->index];
+    size_t i = (size_t)g;
+    return !p.buttons[i] && p.buttons_prev[i];
+}
+float Moss_GetGamepadAxis(Moss_Gamepad* gp, Moss_GamepadAxis axis) {
+    if (!gp || axis <= Moss_GamepadAxis::INVALID)
+        return 0.0f;
+
+    Joystick src = g_moss_to_gamepad_axis[(size_t)axis];
+    float v = io.pads[gp->index].axes[(size_t)src];
+
+    Moss_GamepadAxisConfig cfg = g_axis_config[(size_t)axis];
+
+    // Deadzone
+    v = ApplyDeadzone(v, cfg.deadzone);
+
+    // Inversion
+    if (cfg.invert)
+        v = -v;
+
+    return v;
+}
+
+void Moss_SetGamepadAxisDeadzone(Moss_GamepadAxis axis, float dz) { g_axis_config[(size_t)axis].deadzone = dz; }
+void Moss_SetGamepadAxisInverted(Moss_GamepadAxis axis, bool inverted) { g_axis_config[(size_t)axis].invert = inverted; }
+
 
 // Rumble / LED
-bool Moss_RumbleGamepad(Moss_Gamepad* gp, uint16_t low, uint16_t high, uint32_t duration_ms) { }
-bool Moss_RumbleGamepadTriggers(Moss_Gamepad* gp, uint16_t left, uint16_t right, uint32_t duration_ms) { }
-bool Moss_SetGamepadLED(Moss_Gamepad* gp, uint8_t r, uint8_t g, uint8_t b) { }
+bool Moss_RumbleGamepad(Moss_Gamepad* gp, uint16_t low, uint16_t high, uint32_t duration_ms) {
+    if (!gp || gp->backend != MOSS_GAMEPAD_BACKEND_XINPUT)
+        return false;
+
+    XINPUT_VIBRATION vib = {};
+    vib.wLeftMotorSpeed  = low;
+    vib.wRightMotorSpeed = high;
+
+    return XInputSetState(gp->index, &vib) == ERROR_SUCCESS;
+
+    // Playstation 4 / 5
+    if (!gp) return false;
+
+    if (gp->backend == MOSS_GAMEPAD_BACKEND_XINPUT) {
+        XINPUT_VIBRATION vib = {};
+        vib.wLeftMotorSpeed  = low;
+        vib.wRightMotorSpeed = high;
+        return XInputSetState(gp->index, &vib) == ERROR_SUCCESS;
+    }
+
+    // DS4 / DS5 require HID output reports (not implemented)
+    return false;
+}
+bool Moss_RumbleGamepadTriggers(Moss_Gamepad* gp, uint16_t left, uint16_t right, uint32_t duration_ms) {
+    // Trigger rumble is NOT exposed by XInput
+    return false;
+}
+bool Moss_SetGamepadLED(Moss_Gamepad* gp, uint8_t r, uint8_t g, uint8_t b) {
+    // Not supported without vendor HID output
+    return false;
+}
 
 // Metadata
 const char* Moss_GetGamepadName(Moss_Gamepad* gp) { }
 Moss_GamepadID Moss_GetGamepadID(Moss_Gamepad* gp) { }
 int Moss_GetGamepadPlayerIndex(Moss_Gamepad* gp) { }
-Moss_PowerState Moss_GetGamepadPowerInfo(Moss_Gamepad* gp, int* percent) { }
+Moss_PowerState Moss_GetGamepadPowerInfo(Moss_Gamepad* gp, int* percent) {
+    if (percent) *percent = -1;
+
+    if (!gp || gp->backend != MOSS_GAMEPAD_BACKEND_XINPUT)
+        return MOSS_POWERSTATE_UNKNOWN;
+
+    XINPUT_BATTERY_INFORMATION bat;
+    if (XInputGetBatteryInformation(gp->index, XINPUT_BATTERY_DEVTYPE_GAMEPAD, &bat) != ERROR_SUCCESS)
+        return MOSS_POWERSTATE_UNKNOWN;
+
+    if (percent) {
+        static const int map[] = { 0, 25, 50, 75, 100 };
+        *percent = map[bat.BatteryLevel];
+    }
+
+    return (bat.BatteryType == XINPUT_BATTERY_TYPE_WIRED) ? MOSS_POWERSTATE_CHARGING : MOSS_POWERSTATE_ON_BATTERY;
+}
 int Moss_GetNumGamepadTouchpads(Moss_Gamepad* gp) { }
 int Moss_GetNumGamepadTouchpadFingers(Moss_Gamepad* gp) { }
 bool Moss_GetGamepadTouchpadFinger(Moss_Gamepad* gp, int pad, int finger, bool* down, float* x, float* y, float* pressure) { }
@@ -228,8 +402,33 @@ bool Moss_SetGamepadMapping(Moss_Gamepad* gp, const char* mapping) { }
 void Moss_ReloadGamepadMappings(void) { }
 
 
-Moss_PenDeviceType Moss_GetPenDeviceType(Moss_PenID instance_id);
-const char* Moss_GetTouchDeviceName(Moss_TouchID touchID);
-Moss_TouchID* Moss_GetTouchDevices(int *count);
-Moss_TouchDeviceType Moss_GetTouchDeviceType(Moss_TouchID touchID);
-Moss_Finger** Moss_GetTouchFingers(Moss_TouchID touchID, int *count);
+
+// Pen and Fingers
+Moss_PenDeviceType Moss_GetPenDeviceType(Moss_PenID instance_id){ return MOSS_PEN_DEVICE_UNKNOWN; }
+const char* Moss_GetTouchDeviceName(Moss_TouchID touchID) { return "Windows Touch Device"; }
+Moss_TouchID* Moss_GetTouchDevices(int *count) { 
+    static Moss_TouchID ids[1] = { 0 };
+    if (count) *count = 1;
+    return ids; 
+}
+Moss_TouchDeviceType Moss_GetTouchDeviceType(Moss_TouchID touchID) { return MOSS_TOUCH_DEVICE_UNKNOWN; }
+Moss_Finger** Moss_GetTouchFingers(Moss_TouchID touchID, int *count) {
+    static Moss_Finger* fingers[16];
+    int n = 0;
+
+    for (int i = 0; i < g_pointer_count; ++i) {
+        Moss_Pointer* p = &g_pointers[i];
+        if (p->type == PT_TOUCH && p->down) {
+            static Moss_Finger f;
+            f.id = p->pointerId;
+            f.x = p->x;
+            f.y = p->y;
+            f.pressure = 1.0f;
+
+            fingers[n++] = &f;
+        }
+    }
+
+    if (count) *count = n;
+    return fingers;
+}

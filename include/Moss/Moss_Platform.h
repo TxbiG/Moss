@@ -62,7 +62,7 @@ struct Moss_Window;
 struct Moss_Monitor;
 struct Moss_Curser;
 struct Moss_GamepadBinding;
-
+struct Moss_Camera; // Camera Device Dont use as the rendering camera
 struct Moss_Storage;
 
 struct Moss_HapticDirection;
@@ -315,8 +315,6 @@ enum class Moss_GamepadButton {
     COUNT
 };
 
-enum class Moss_GamepadBindingType { NONE = 0, BUTTON, AXIS, HAT };
-
 ////////////////////////////////////////////////////////////////
 //          Haptic          
 ////////////////////////////////////////////////////////////////
@@ -410,17 +408,6 @@ enum class Moss_WindowMode {
     EXCLUSIVE_FULLSCREEN = 4,  //
 };
 
-enum class InputEventType {
-    NONE,
-    KEYDOWN,
-    KEYUP,
-    MOUSEBUTTONDOWN,
-    MOUSEBUTTONUP,
-    MOUSEMOVE,
-    CONTROLLERBUTTONDOWN,
-    CONTROLLERBUTTONUP
-};
-
 // Gesture used for ios and android
 enum class Moss_Gesture {
     NONE        = 0<<0,     // No gesture
@@ -502,10 +489,39 @@ enum class Moss_PathType {
     SYMLINK
 };
 
+enum class Moss_CameraPermissionState { 
+    DENIED = -1, 
+    PENDING, 
+    APPROVED 
+};
 
-struct Moss_GammaRamp { uint8_t* size, red, green, blue; };
-struct Moss_VideoMode { int width, height, redBits, greenBits, blueBits, refreshRate; };
-struct Moss_Image { int width, height; unsigned char* pixels; };
+enum class Moss_CameraPosition { 
+    UNKNOWN, 
+    FRONT_FACING, 
+    BACK_FACING 
+};
+
+struct Moss_CameraSpec {
+    PixelFormat format;         // Frame format
+    Colorspace colorspace;      // Frame colorspace
+    int width;                  // Frame width
+    int height;                 // Frame height
+    int framerate_numerator;    // Frame rate numerator ((num / denom) == FPS, (denom / num) == duration in seconds)
+    int framerate_denominator;  // Frame rate demoninator ((num / denom) == FPS, (denom / num) == duration in seconds)
+};
+
+struct Moss_GammaRamp { 
+    uint8_t* size, red, green, blue; 
+};
+
+struct Moss_VideoMode { 
+    int width, height, redBits, greenBits, blueBits, refreshRate; 
+};
+
+struct Moss_Image { 
+    int width, height; 
+    unsigned char* pixels; 
+};
 
 
 struct Moss_Locale {
@@ -514,8 +530,71 @@ struct Moss_Locale {
 };
 
 
+struct Moss_PenAxisEvent {
+    Moss_EventType type;     // Moss_EVENT_PEN_AXIS */
+    uint32_t reserved;
+    uint64 timestamp;       // In nanoseconds, populated using Moss_GetTicksNS() */
+    Moss_PenID which;        // The pen instance id */
+    Moss_PenInputFlags pen_state;   // Complete pen input state at time of event */
+    float x;                // X coordinate, relative to window */
+    float y;                // Y coordinate, relative to window */
+    Moss_PenAxis axis;       // Axis that has changed */
+    float value;            // New value of axis */
+} Moss_PenAxisEvent;
+
+struct Moss_PenButtonEvent {
+    Moss_EventType type; // Moss_EVENT_PEN_BUTTON_DOWN or Moss_EVENT_PEN_BUTTON_UP */
+    uint32_t reserved;
+    uint64 timestamp;   // In nanoseconds, populated using Moss_GetTicksNS() */
+    Moss_PenID which;        // The pen instance id */
+    Moss_PenInputFlags pen_state;   // Complete pen input state at time of event */
+    float x;                // X coordinate, relative to window */
+    float y;                // Y coordinate, relative to window */
+    uint8_t button;       // The pen button index (first button is 1). */
+    bool down;      // true if the button is pressed */
+};
+
+struct Moss_PenMotionEvent {
+    Moss_EventType type; // Moss_EVENT_PEN_MOTION */
+    uint32_t reserved;
+    uint64 timestamp;   // In nanoseconds, populated using Moss_GetTicksNS() */
+    Moss_PenID which;        // The pen instance id */
+    Moss_PenInputFlags pen_state;   // Complete pen input state at time of event */
+    float x;                // X coordinate, relative to window */
+    float y;                // Y coordinate, relative to window */
+};
+
+struct Moss_PenProximityEvent {
+    Moss_EventType type; // Moss_EVENT_PEN_PROXIMITY_IN or Moss_EVENT_PEN_PROXIMITY_OUT */
+    uint32_t reserved;
+    uint64 timestamp;   // In nanoseconds, populated using Moss_GetTicksNS() */
+    Moss_PenID which;        // The pen instance id */
+};
+
+struct Moss_PenTouchEvent {
+    Moss_EventType type;     // Moss_EVENT_PEN_DOWN or Moss_EVENT_PEN_UP */
+    uint32_t reserved;
+    uint64 timestamp;       // In nanoseconds, populated using Moss_GetTicksNS() */
+    Moss_PenID which;        // The pen instance id */
+    Moss_PenInputFlags pen_state;   // Complete pen input state at time of event */
+    float x;                // X coordinate, relative to window */
+    float y;                // Y coordinate, relative to window */
+    bool eraser;        // true if eraser end is used (not all pens support this). */
+    bool down;          // true if the pen is touching or false if the pen is lifted off */
+};
+
+struct Moss_Finger {
+    Moss_FingerID id;  // the finger ID */
+    float x;  // the x-axis location of the touch event, normalized (0...1) */
+    float y;  // the y-axis location of the touch event, normalized (0...1) */
+    float pressure; // the quantity of pressure applied, normalized (0...1) */
+};
+
 /*! @param type The type of encoding. @param dir The encoded direction. */
-typedef struct Moss_HapticDirection { uint8_t type; int32_t dir[3]; };
+typedef struct Moss_HapticDirection { 
+    uint8_t type; 
+    int32_t dir[3]; 
+};
 
 /*! @param type Header (HAPTIC_LEFTRIGHT). @param length Duration of the effect in milliseconds. (Replay) @param large_magnitude Control of the large controller motor. (Rumble) @param small_magnitude Control of the small controller motor. (Rumble) */
 typedef struct Moss_HapticLeftRight { 
@@ -669,66 +748,6 @@ typedef struct Moss_Haptic {
     uint16_t fade_level;      // Level at the end of the fade.
 };
 
-struct Moss_PenAxisEvent {
-    Moss_EventType type;     // Moss_EVENT_PEN_AXIS */
-    uint32_t reserved;
-    uint64 timestamp;       // In nanoseconds, populated using Moss_GetTicksNS() */
-    Moss_PenID which;        // The pen instance id */
-    Moss_PenInputFlags pen_state;   // Complete pen input state at time of event */
-    float x;                // X coordinate, relative to window */
-    float y;                // Y coordinate, relative to window */
-    Moss_PenAxis axis;       // Axis that has changed */
-    float value;            // New value of axis */
-} Moss_PenAxisEvent;
-
-struct Moss_PenButtonEvent {
-    Moss_EventType type; // Moss_EVENT_PEN_BUTTON_DOWN or Moss_EVENT_PEN_BUTTON_UP */
-    uint32_t reserved;
-    uint64 timestamp;   // In nanoseconds, populated using Moss_GetTicksNS() */
-    Moss_PenID which;        // The pen instance id */
-    Moss_PenInputFlags pen_state;   // Complete pen input state at time of event */
-    float x;                // X coordinate, relative to window */
-    float y;                // Y coordinate, relative to window */
-    uint8_t button;       // The pen button index (first button is 1). */
-    bool down;      // true if the button is pressed */
-};
-
-struct Moss_PenMotionEvent {
-    Moss_EventType type; // Moss_EVENT_PEN_MOTION */
-    uint32_t reserved;
-    uint64 timestamp;   // In nanoseconds, populated using Moss_GetTicksNS() */
-    Moss_PenID which;        // The pen instance id */
-    Moss_PenInputFlags pen_state;   // Complete pen input state at time of event */
-    float x;                // X coordinate, relative to window */
-    float y;                // Y coordinate, relative to window */
-};
-
-struct Moss_PenProximityEvent {
-    Moss_EventType type; // Moss_EVENT_PEN_PROXIMITY_IN or Moss_EVENT_PEN_PROXIMITY_OUT */
-    uint32_t reserved;
-    uint64 timestamp;   // In nanoseconds, populated using Moss_GetTicksNS() */
-    Moss_PenID which;        // The pen instance id */
-};
-
-struct Moss_PenTouchEvent {
-    Moss_EventType type;     // Moss_EVENT_PEN_DOWN or Moss_EVENT_PEN_UP */
-    uint32_t reserved;
-    uint64 timestamp;       // In nanoseconds, populated using Moss_GetTicksNS() */
-    Moss_PenID which;        // The pen instance id */
-    Moss_PenInputFlags pen_state;   // Complete pen input state at time of event */
-    float x;                // X coordinate, relative to window */
-    float y;                // Y coordinate, relative to window */
-    bool eraser;        // true if eraser end is used (not all pens support this). */
-    bool down;          // true if the pen is touching or false if the pen is lifted off */
-};
-
-struct Moss_Finger {
-    Moss_FingerID id;  // the finger ID */
-    float x;  // the x-axis location of the touch event, normalized (0...1) */
-    float y;  // the y-axis location of the touch event, normalized (0...1) */
-    float pressure; // the quantity of pressure applied, normalized (0...1) */
-};
-
 struct Moss_PathInfo {
     Moss_PathType type;      // the path type */
     uint64 size;            // the file size in bytes */
@@ -821,15 +840,17 @@ MOSS_API void Moss_MonitorSetGamma(Moss_Monitor monitor, float gamma);
 
 
 
-MOSS_API bool Moss_IsKeyPressed(Moss_Key key);
-MOSS_API bool Moss_IsKeyJustPressed(Moss_Key key);
-MOSS_API bool Moss_IsKeyJustReleased(Moss_Key key);
+MOSS_API bool Moss_IsKeyPressed(Moss_Keyboard key);
+MOSS_API bool Moss_IsReleased(Moss_Keyboard key);
+MOSS_API bool Moss_IsKeyJustPressed(Moss_Keyboard key);
+MOSS_API bool Moss_IsKeyJustReleased(Moss_Keyboard key);
 MOSS_API Moss_Keyboard Moss_InputGetKey();
 
 MOSS_API bool Moss_IsMousePressed(Moss_MouseButton button);
+MOSS_API bool Moss_IsMouseReleased(Mouse b);
 MOSS_API bool Moss_IsMouseJustPressed(Moss_MouseButton button);
 MOSS_API bool Moss_IsMouseJustReleased(Moss_MouseButton button);
-MOSS_API Moss_Keyboard Moss_InputGetMouse();
+MOSS_API Moss_Keyboard Moss_InputGetMouseButton();
 MOSS_API void Moss_GetMousePosition(int* x, int* y);
 MOSS_API void Moss_SetMousePosition(int x, int y);
 MOSS_API void Moss_SetMouseVisible(bool visible);
@@ -848,6 +869,10 @@ MOSS_API bool Moss_IsGamepadButtonJustPressed(Moss_Gamepad* gp, Moss_GamepadButt
 MOSS_API bool Moss_IsGamepadButtonJustReleased(Moss_Gamepad* gp, Moss_GamepadButton button);
 MOSS_API float Moss_GetGamepadAxis(Moss_Gamepad* gp, Moss_Joystick axis);
 
+
+void Moss_SetGamepadAxisDeadzone(Moss_GamepadAxis axis, float dz);
+
+void Moss_SetGamepadAxisInverted(Moss_GamepadAxis axis, bool inverted);
 // Rumble / LED
 MOSS_API bool Moss_RumbleGamepad(Moss_Gamepad* gp, uint16_t low, uint16_t high, uint32_t duration_ms);
 MOSS_API bool Moss_RumbleGamepadTriggers(Moss_Gamepad* gp, uint16_t left, uint16_t right, uint32_t duration_ms);
@@ -986,24 +1011,8 @@ MOSS_API void Moss_SetWindowContentScaleCallback(Moss_WindowContentScaleCallback
 MOSS_API void Moss_SetMonitorCallback(Moss_MonitorCallback callback);
 
 
-/*          Camera          */
-enum class Moss_CameraPermissionState { DENIED = -1, PENDING, APPROVED };
-enum class Moss_CameraPosition { UNKNOWN, FRONT_FACING, BACK_FACING };
-
-typedef struct Moss_Camera Moss_Camera; // Camera Device Dont use as the rendering camera
-
-struct Moss_CameraSpec {
-    PixelFormat format;         // Frame format
-    Colorspace colorspace;      // Frame colorspace
-    int width;                  // Frame width
-    int height;                 // Frame height
-    int framerate_numerator;    // Frame rate numerator ((num / denom) == FPS, (denom / num) == duration in seconds)
-    int framerate_denominator;  // Frame rate demoninator ((num / denom) == FPS, (denom / num) == duration in seconds)
-} Moss_CameraSpec;
-
 MOSS_API Moss_CameraID* Moss_GetCameras(int* count);
 /* Returned array valid until next call or shutdown */
-
 MOSS_API const char* Moss_GetCameraName(Moss_CameraID camera_id);
 MOSS_API Moss_CameraPosition Moss_GetCameraPosition(Moss_CameraID camera_id);
 MOSS_API const char* Moss_GetCurrentCameraDriver(void);
@@ -1024,7 +1033,6 @@ MOSS_API Moss_VideoCapture* Moss_OpenVideoCapture(Moss_VideoCaptureID captureID)
 MOSS_API void Moss_CloseVideoCapture(Moss_VideoCapture* cap);
 /*! @brief X. @param X X @ingroup Video Capture. */
 MOSS_API uint8_t* Moss_VideoCaptureReadFrame(Moss_VideoCapture* cap);
-
 
 
 MOSS_API bool Moss_CopyFile(const char* src_path, const char* dst_path, bool overwrite);
@@ -1070,11 +1078,11 @@ MOSS_API bool Moss_WriteStorageFile(Moss_Storage *storage, const char *path, con
 // Mobile Android / IOS App Creation
 #if defined(MOSS_PLATFORM_ANDROID) || defined(MOSS_PLATFORM_IOS) || defined(MOSS_PLATFORM_TVOS) || defined(MOSS_PLATFORM_XBOXSERIES) || defined(MOSS_PLATFORM_XBOXONE)
 /*! @brief Embedded window intended for creating mobile, consoles and tv applications. @param X X. @ingroup window */
-MOSS_API Moss_Window* Moss_CreateEmbeddedWindow(struct android_app* app);
-MOSS_API void Moss_Terminate_MobileWindow(void);
-MOSS_API void Moss_Mobile_OnOrientationChanged(bool focused);
-MOSS_API void Moss_Mobile_OnResume();
-MOSS_API void Moss_Mobile_OnPause();
+MOSS_API Moss_Window* Moss_CreateEmbeddedWindow();
+MOSS_API void Moss_Terminate_EmbeddedWindow();
+MOSS_API void Moss_EmbeddedWindow_OnOrientationChanged(bool focused);
+MOSS_API void Moss_EmbeddedWindow_OnResume();
+MOSS_API void Moss_EmbeddedWindow_OnPause();
 #endif
 
 // OpenGL / OpenGL-ES
@@ -1113,5 +1121,4 @@ MOSS_API void Moss_Metal_DestroyView(Moss_MetalView view);
 MOSS_API void* Moss_Metal_GetLayer(Moss_MetalView view);
 MOSS_API void Moss_Metal_Resize(Moss_MetalView handle, uint32_t width, uint32_t height);
 #endif // MOSS_GRAPHICS_METAL
-
 #endif // MOSS_PLATFORM_H

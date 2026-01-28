@@ -34,15 +34,6 @@
 
 
 /*
-https://github.com/nem0/OpenFBX
-
-https://github.com/kmkolasinski/AwesomeBump
-https://github.com/dariomanesku/cmft
-
-https://github.com/google/filament/tree/main/filament/include/filament
-https://github.com/FNA-XNA/FNA3D/blob/master/include/FNA3D.h
-https://github.com/bkaradzic/bgfx/blob/master/include/bgfx/bgfx.h
-
 Celeste In C++ - https://youtube.com/playlist?list=PLFAIgTeqcARmowCzcOMil78OxcPNsac70&si=vbuU5P9kpJoOikIH
 C++ OpenGL 3D Tutorial by Suraj Sharma - https://youtube.com/playlist?list=PL6xSOsbVA1eYSZTKBxnoXYboy7wc4yg-Z&si=it66RuUf0umytGNN
 Intermediate OpenGL - https://youtube.com/playlist?list=PLA0dXqQjCx0TKQiXRyQU62KQgcTE6E92f&si=bP8_RuutQt73ZGM3
@@ -53,9 +44,6 @@ OpenGL Tutorials - https://youtube.com/playlist?list=PLPaoO-vpZnumdcb4tZc4x5Q-v7
 https://youtu.be/x2FHHU50ktQ?si=1zYR1lmBug518mDj
 https://youtu.be/oETErEkFICE?si=hiUsH7HcI1ES35mm
 https://youtu.be/Uc8FEI5bg3w?si=bPz9i05X0zCh9Dz2
-
-https://wiki.libsdl.org/SDL3/CategoryGPU
-https://wiki.libsdl.org/SDL3/CategoryRender
 
 Improving Learn OpenGL's Text Rendering Example | Adventures in Coding - https://youtu.be/S0PyZKX4lyI?si=ezp1-jTYYxw6wJY2
 Bindless Textures // Intermediate OpenGL Series - https://youtu.be/Gk3JsDCBp1o?si=fMMsROe6ELQuSx9d
@@ -84,12 +72,12 @@ Uniform Buffers // Vulkan For Beginners #17 - https://youtu.be/i6NpPdX4M4w?si=jS
 https://youtu.be/kpA5X6eI6fM?si=yvA86N9AHoOAuoBJ
 Deriving 3D Rigid Body Physics and implementing it in C/C++ (with intuitions) - https://youtu.be/4r_EvmPKOvY?si=I4PWbyXfvgudb4Cu
 Building a Physics Engine with C++ and Simulating Machines - https://youtu.be/TtgS-b191V0?si=i74pfZTFMfHpZG4p
-// https://youtu.be/lp9cqlngCZQ?si=RGvsJZKpSMFw0WXk
+https://youtu.be/lp9cqlngCZQ?si=RGvsJZKpSMFw0WXk
+https://wiki.libsdl.org/SDL3/CategoryGPU
+https://wiki.libsdl.org/SDL3/CategoryRender
 */
 
 
-
-// Test passed for now
 #include <Moss/Moss_stdinc.h>
 #include <Moss/Core/Variants/TArray.h>
 #include <Moss/Core/Variants/Vector/Vec4.h>

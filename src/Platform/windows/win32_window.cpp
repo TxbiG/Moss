@@ -165,6 +165,43 @@ static LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM l
         }
         return 0;
     }
+    case WM_POINTERDOWN:
+    case WM_POINTERUPDATE:
+    case WM_POINTERUP: {
+        UINT32 pointerId = GET_POINTERID_WPARAM(wParam);
+
+        POINTER_INPUT_TYPE type;
+        GetPointerType(pointerId, &type);
+
+        POINTER_INFO pi;
+        GetPointerInfo(pointerId, &pi);
+
+        Moss_Pointer* p = FindOrCreatePointer(pointerId, type);
+
+        p->down = (msg != WM_POINTERUP);
+
+        POINT pt = pi.ptPixelLocation;
+        ScreenToClient(hwnd, &pt);
+
+        p->x = (float)pt.x;
+        p->y = (float)pt.y;
+
+        if (type == PT_PEN) {
+            POINTER_PEN_INFO pen;
+            if (GetPointerPenInfo(pointerId, &pen)) {
+                p->pressure = pen.pressure / 1024.0f;
+                p->tilt_x   = pen.tiltX / 90.0f;
+                p->tilt_y   = pen.tiltY / 90.0f;
+                p->rotation = (float)pen.rotation;
+                p->eraser   = (pen.penFlags & PEN_FLAG_ERASER) != 0;
+            }
+        }
+
+        if (msg == WM_POINTERUP)
+            RemovePointer(pointerId);
+
+        return 0;
+    }
 
 	default:
 		return DefWindowProc(hWnd, message, wParam, lParam);
@@ -174,10 +211,6 @@ static LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM l
 }
 
 Moss_Window* Moss_CreateWindow(const char* title, int width, int height, Moss_Monitor* monitor, Moss_Window* share) {
-    FreeConsole();
-    //HWND cons = GetConsoleWindow();
-    //ShowWindow(cons, SW_HIDE);
-
     hInstance = GetModuleHandleA(nullptr);
     WNDCLASS wc = {0};
     wc.lpfnWndProc = WndProc;
@@ -189,7 +222,7 @@ Moss_Window* Moss_CreateWindow(const char* title, int width, int height, Moss_Mo
 
     Moss_Window* window = (Moss_Window*) malloc(sizeof(Moss_Window));
 
-    #if defined(MOSS_USE_DIRECTX) || defined(MOSS_USE_VULKAN)
+    #if defined(MOSS_GRAPHICS_DIRECTX) || defined(MOSS_GRAPHICS_VULKAN)
     if (!window) { return NULL; }
     HWND handle = CreateWindowExA(0, wc.lpszClassName, title, WS_OVERLAPPEDWINDOW, 100, 100, width, height, NULL, NULL, hInstance, NULL);
     window->handle = handle;
@@ -297,8 +330,7 @@ Moss_Window* Moss_CreateWindow(const char* title, int width, int height, Moss_Mo
       return NULL;
     }
 
-    const int contextAttribs[] =
-    {
+    const int contextAttribs[] = {
       WGL_CONTEXT_MAJOR_VERSION_ARB, 4,
       WGL_CONTEXT_MINOR_VERSION_ARB, 3,
       WGL_CONTEXT_PROFILE_MASK_ARB, WGL_CONTEXT_CORE_PROFILE_BIT_ARB,
@@ -307,14 +339,12 @@ Moss_Window* Moss_CreateWindow(const char* title, int width, int height, Moss_Mo
     };
 
     HGLRC rc = wglCreateContextAttribsARB(dc, 0, contextAttribs);
-    if(!rc)
-    {
+    if(!rc) {
       MOSS_ERROR(0, "Failed to crate Render Context for OpenGL");
       return NULL;
     }
 
-    if(!wglMakeCurrent(dc, rc))
-    {
+    if(!wglMakeCurrent(dc, rc)) {
       MOSS_ERROR(0, "Faield to wglMakeCurrent");
       return NULL;
     }
@@ -354,28 +384,6 @@ void Moss_TerminateWindow(Moss_Window* window) { if (!window) return; if (IsWind
 bool Moss_ShouldWindowClose(Moss_Window* window) { return !isRunning; }
 void Moss_CloseWindow() { isRunning = false; }
 
-void* Moss_LoadDynamicLibrary(const char* dll)
-{
-  HMODULE result = LoadLibraryA(dll);
-
-  return result;
-}
-
-void* Moss_LoadDynamicFunction(void* dll, const char* funName)
-{
-  FARPROC proc = GetProcAddress((HMODULE)dll, funName);
-  MOSS_ERROR("Failed to load function: %s from DLL", funName);
-
-  return (void*)proc;
-}
-
-bool Moss_RemoveDynamicLibrary(void* dll)
-{
-  BOOL freeResult = FreeLibrary((HMODULE)dll);
-  MOSS_ASSERT(freeResult, "Failed to FreeLibrary");
-
-  return (bool)freeResult;
-}
 
 /*! @brief Change Window Mode. e.g. MINAMIZED, MAXIMIZED, FULLSCREEN, BORDERLESS. @param X X. @ingroup window */
 void setWindowMode(int mode) {}
@@ -484,38 +492,6 @@ int Moss_GetCPUCacheLineSize(void) {
 }
 
 
-int Moss_GetSystemRAM(void) {
-    MEMORYSTATUSEX statex;
-    statex.dwLength = sizeof(statex);
-    if (GlobalMemoryStatusEx(&statex)) {
-        return (int)(statex.ullTotalPhys / 1024 / 1024); // Convert to MB
-    }
-    return -1;
-}
-
-bool Moss_OpenURL(const char* url) {
-    if (!url) {  MOSS_ERROR("URL is null.");  return false; }
-
-    const wchar_t* wurl = convertCharToWchar(url);
-
-    // Initialize COM as per MSDN recommendation
-    HRESULT hr = CoInitializeEx(nullptr, COINIT_APARTMENTTHREADED);
-    bool comInitialized = SUCCEEDED(hr);
-
-    HINSTANCE rc = ShellExecuteW(nullptr, L"open", wurl, nullptr, nullptr, SW_SHOWNORMAL);
-
-    if (comInitialized)
-        CoUninitialize();
-
-    if ((INT_PTR)rc <= 32) {
-        MOSS_ERROR("Couldn't open given URL.");
-        return false;
-    }
-
-    return true;
-}
-
-
 void Moss_SwapBuffersInterval(int interval) {
 #ifdef MOSS_USE_OPENGL
     // Load function pointer if not loaded yet
@@ -550,10 +526,12 @@ void* Moss_GetProcAdress(const char* procname)
 #endif
 }
 
-#ifdef MOSS_USE_VULKAN
+
+
+
+#if defined(MOSS_GRAPHICS_VULKAN) && defined(MOSS_PLATFORM_WINDOWS)
 #define VK_USE_PLATFORM_WIN32_KHR
 #include <vulkan/vulkan_win32.h>
-
 
 HMODULE vulkanLib = NULL;
 PFN_vkGetInstanceProcAddr my_vkGetInstanceProcAddr = NULL;

@@ -173,6 +173,8 @@ enum class KeyMod : uint8_t {
 };
 
 
+struct Moss_Storage { char root[MAX_PATH]; };
+
 extern int VirtualMouseButtonMap[static_cast<int>(Mouse::COUNT)];
 
 struct _frame {
@@ -181,6 +183,21 @@ struct _frame {
 };
 
 extern _frame g_frame;
+
+struct GamepadState {
+    bool connected;
+    float axes[JOYSTICK_AXIS_COUNT];
+    uint8_t buttons[GAMEPAD_BUTTON_COUNT];
+    uint8_t buttons_prev[GAMEPAD_BUTTON_COUNT];
+
+    bool is_dualshock;
+    bool is_dualsense;
+};
+
+struct Moss_GamepadAxisConfig {
+    float deadzone;     // e.g. 0.15f
+    bool  invert;       // axis inversion
+};
 
 MOSS_API void PollKeyboard(INPUT_STATE* io);
 MOSS_API void PollGamepads(INPUT_STATE* input);
@@ -195,37 +212,6 @@ static char* strdup_safe(const char* s) {
     char* r = (char*)malloc(len + 1);
     if (r) memcpy(r, s, len + 1);
     return r;
-}
-
-Moss_Locale* Moss_GetLocale() {
-    WCHAR wbuf[LOCALE_NAME_MAX_LENGTH];
-    if (GetUserDefaultLocaleName(wbuf, LOCALE_NAME_MAX_LENGTH) == 0) {
-        locale->language = strdup_safe("en");
-        locale->country  = strdup_safe("US");
-        return locale;
-    }
-
-    // Convert wide char to UTF-8
-    int size_needed = WideCharToMultiByte(CP_UTF8, 0, wbuf, -1, NULL, 0, NULL, NULL);
-    char* buf = (char*)malloc(size_needed);
-    if (!buf) {
-        locale->language = strdup_safe("en");
-        locale->country  = strdup_safe("US");
-        return locale;
-    }
-    WideCharToMultiByte(CP_UTF8, 0, wbuf, -1, buf, size_needed, NULL, NULL);
-
-    // Split into lang + country
-    char* dash = strchr(buf, '-');
-    if (dash) {
-        *dash = '\0';
-        locale->language = strdup_safe(buf);
-        locale->country  = strdup_safe(dash + 1);
-    } else {
-        locale->language = strdup_safe(buf);
-        locale->country  = strdup_safe("US");
-    }
-    free(buf);
 }
 
 void RegisterRawInput(HWND hwnd) {
@@ -246,6 +232,9 @@ void ParseDS4(RAWINPUT* raw) {
 
     GamepadState& pad = io.pads[0]; // TODO: pick correct slot
     pad.connected = true;
+
+    pad.is_dualshock = true;
+    pad.is_dualsense = false;
 
     // Sticks [-1, 1]
     pad.axes[(size_t)Joystick::GAMEPAD_AXIS_LEFT_X]  = (data[1] - 128) / 127.0f;
@@ -277,6 +266,9 @@ void ParseDS5(RAWINPUT* raw) {
 
     GamepadState& pad = io.pads[1];
     pad.connected = true;
+
+    pad.is_dualshock = false;
+    pad.is_dualsense = true;
 
     pad.axes[(size_t)Joystick::GAMEPAD_AXIS_LEFT_X]  = (data[1] - 128) / 127.0f;
     pad.axes[(size_t)Joystick::GAMEPAD_AXIS_LEFT_Y]  = (data[2] - 128) / 127.0f;
@@ -315,52 +307,5 @@ void HandleHIDInput(RAWINPUT* raw) {
 
 
 
-
-
-
-MOSS_API int Moss_GetAvailableCPUCores(void) {
-    SYSTEM_INFO sysInfo;
-    GetSystemInfo(&sysInfo);
-    return (int)sysInfo.dwNumberOfProcessors;
-}
-
-int Moss_GetCPUCacheLineSize(void) {
-    DWORD buffer_size = 0;
-    SYSTEM_LOGICAL_PROCESSOR_INFORMATION *buffer = NULL;
-    GetLogicalProcessorInformation(NULL, &buffer_size);
-    buffer = (SYSTEM_LOGICAL_PROCESSOR_INFORMATION*)malloc(buffer_size);
-    if (!buffer) return 64;
-
-    if (GetLogicalProcessorInformation(buffer, &buffer_size))
-    {
-        for (DWORD i = 0; i < buffer_size / sizeof(SYSTEM_LOGICAL_PROCESSOR_INFORMATION); i++)
-        {
-            if (buffer[i].Relationship == RelationCache &&
-                buffer[i].Cache.Level == 1)
-            {
-                int line_size = buffer[i].Cache.LineSize;
-                free(buffer);
-                return line_size;
-            }
-        }
-    }
-    free(buffer);
-    return 64;
-}
-
-int Moss_GetSystemRAM(void) {
-    MEMORYSTATUSEX statex;
-    statex.dwLength = sizeof(statex);
-    if (GlobalMemoryStatusEx(&statex))
-        return (int)(statex.ullTotalPhys / (1024 * 1024));
-    return -1;
-}
-
-// ---------------------------------------------------------------------------
-// Dynamic Library Management
-// ---------------------------------------------------------------------------
-void* Moss_LoadDynamicLibrary(const char* lib_path) { return (void*)LoadLibraryA(lib_path); }
-void* Moss_GetLibrarySymbol(void* handle, const char* symbol_name) { return (void*)GetProcAddress((HMODULE)handle, symbol_name); }
-void Moss_UnloadDynamicLibrary(void* handle) { if (handle) FreeLibrary((HMODULE)handle); }
 
 #endif // MOSS_PLATFORM_WIN32_H

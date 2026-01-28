@@ -149,7 +149,6 @@ MOSS_API Moss_AudioSource* Moss_AudioCaptureMicrophone(Microphone* mic);
 // Effects
 /*! @brief Create an audio effect. @param type Type of effect to create. @return Created audio effect. */
 MOSS_API AudioEffect Moss_AudioCreateEffect(AudioEffectType type);
-
 /*! @brief Set a parameter on an audio effect. @param effect Effect to modify. @param paramName Name of the parameter. @param value Parameter value. */
 MOSS_API void Moss_AudioCreateEffect(AudioEffect* effect, const char* paramName, float value);
 /*! @brief Remove and destroy an audio effect. @param effect Effect to remove. */
