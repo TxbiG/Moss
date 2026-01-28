@@ -1,5 +1,5 @@
 # Moss Framework [Development]
-Moss Framework is a lightweight, modular, and high-performance game development framework designed for creating both 2D and 3D applications across multiple platforms.
+Moss Framework is a modular and high-performance game development framework designed for creating both 2D and 3D applications across multiple platforms.
 
 
 ## Features
