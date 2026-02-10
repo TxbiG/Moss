@@ -13,7 +13,7 @@ Moss Framework is a modular and high-performance game development framework desi
 - Navigation support for 2D and 3D.
 
 ## Documentation
-Comprehensive documentation is available in the [Docs](https://github.com/TxbiG/MossFramework/tree/main/docs#docs)
+Comprehensive documentation is available in the [Docs](/docs/README.md)
 
 ## Required CPU features
 - x86/x64
