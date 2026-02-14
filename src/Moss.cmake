@@ -405,6 +405,10 @@ if(USE_OPENGL OR USE_OPENGLES)
         endif()
         target_link_libraries(Moss PRIVATE Threads::Threads)
     endif()
+	if(ANDROID)
+	    target_compile_definitions(Moss PUBLIC MOSS_USE_OPENGLES)
+	    target_link_libraries(Moss PRIVATE GLESv3 EGL)
+	endif()
 endif()
 
 if(USE_VULKAN)
@@ -438,7 +442,31 @@ if(USE_DIRECTX12 AND WIN32)
 endif()
 
 if(USE_METAL)
-    # Add Metal framework linking for Apple here if needed
+    target_compile_definitions(Moss PUBLIC MOSS_USE_METAL)
+    if(APPLE)
+        find_library(METAL_FRAMEWORK Metal REQUIRED)
+        find_library(METALKIT_FRAMEWORK MetalKit REQUIRED)
+        find_library(QUARTZCORE_FRAMEWORK QuartzCore REQUIRED)
+        find_library(FOUNDATION_FRAMEWORK Foundation REQUIRED)
+        target_link_libraries(Moss PRIVATE
+            ${METAL_FRAMEWORK}
+            ${METALKIT_FRAMEWORK}
+            ${QUARTZCORE_FRAMEWORK}
+            ${FOUNDATION_FRAMEWORK}
+        )
+        # Platform-specific frameworks
+        if(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
+            # macOS
+            find_library(APPKIT_FRAMEWORK AppKit REQUIRED)
+            target_link_libraries(Moss PRIVATE ${APPKIT_FRAMEWORK})
+        elseif(CMAKE_SYSTEM_NAME STREQUAL "iOS")
+            find_library(UIKIT_FRAMEWORK UIKit REQUIRED)
+            target_link_libraries(Moss PRIVATE ${UIKIT_FRAMEWORK})
+        elseif(CMAKE_SYSTEM_NAME STREQUAL "tvOS")
+            find_library(UIKIT_FRAMEWORK UIKit REQUIRED)
+            target_link_libraries(Moss PRIVATE ${UIKIT_FRAMEWORK})
+        endif()
+    endif()
 endif()
 if (CMAKE_GENERATOR STREQUAL "Ninja Multi-Config" AND MSVC)
 	# The Ninja Multi-Config generator errors out when selectively disabling precompiled headers for certain configurations.
