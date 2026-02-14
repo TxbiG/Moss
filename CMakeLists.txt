@@ -359,7 +359,7 @@ SET_INTERPROCEDURAL_OPTIMIZATION()
 set(REPO_ROOT ${CMAKE_CURRENT_SOURCE_DIR})
 
 # Make Jolt Library
-include(${REPO_ROOT}/Moss/Moss.cmake)
+include(${REPO_ROOT}/src/Moss.cmake)
 
 if (XCODE)
 	# Ensure that we enable SSE4.2 for the x86_64 build, XCode builds multiple architectures
