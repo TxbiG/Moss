@@ -442,7 +442,11 @@ if(USE_DIRECTX12 AND WIN32)
 endif()
 
 if(USE_METAL AND APPLE)
+	enable_language(OBJC)
+    enable_language(OBJCXX)
+	
     target_compile_definitions(Moss PUBLIC MOSS_USE_METAL)
+	
     find_library(METAL_FRAMEWORK Metal REQUIRED)
     find_library(METALKIT_FRAMEWORK MetalKit REQUIRED)
     find_library(QUARTZCORE_FRAMEWORK QuartzCore REQUIRED)
@@ -465,6 +469,8 @@ if(USE_METAL AND APPLE)
         find_library(UIKIT_FRAMEWORK UIKit REQUIRED)
         target_link_libraries(Moss PRIVATE ${UIKIT_FRAMEWORK})
     endif()
+
+	target_compile_options(Moss PRIVATE "$<$<COMPILE_LANGUAGE:OBJCXX>:-fobjc-arc>")
 endif()
 
 if (CMAKE_GENERATOR STREQUAL "Ninja Multi-Config" AND MSVC)
