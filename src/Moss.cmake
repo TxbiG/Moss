@@ -30,7 +30,6 @@ set(MOSS_SRC_FILES
 	${MOSS_ROOT}/Core/BinaryHeap.h
 	${MOSS_ROOT}/Core/ByteBuffer.h
 	${MOSS_ROOT}/Core/Variants/Color.cpp
-	${MOSS_ROOT}/Core/Variants/Color.h
 	${MOSS_ROOT}/Core/Factory.cpp
 	${MOSS_ROOT}/Core/Factory.h
 	${MOSS_ROOT}/Core/FixedSizeFreeList.h
@@ -86,7 +85,6 @@ set(MOSS_SRC_FILES
 	${MOSS_ROOT}/Core/Variants/TMap.h
 	${MOSS_ROOT}/Core/Variants/TSet.h
 	${MOSS_ROOT}/Physics/Geometry.cpp
-	${MOSS_ROOT}/Moss.cmake
 	${MOSS_ROOT}/Moss.h
 	${MOSS_ROOT}/Core/Variants/Vector/BVec16.h
 	${MOSS_ROOT}/Core/Variants/Vector/BVec16.inl
@@ -156,8 +154,6 @@ set(MOSS_SRC_FILES
 	${MOSS_ROOT}/TriangleSplitter/TriangleSplitterMean.cpp
 	${MOSS_ROOT}/TriangleSplitter/TriangleSplitterMean.h
 
-	${MOSS_ROOT}/Moss_stdinc.h
-	${MOSS_ROOT}/Moss_Platform.h
 	#${MOSS_ROOT}/Platform/platform_intern.h
 
 	# Renderer
@@ -318,13 +314,14 @@ elseif(USE_METAL)
 	${MOSS_ROOT}/Renderer/MTL/Renderer_MTL.cpp
 	)
 endif()
-#add_library(Moss ${MOSS_HEADER_FILES} ${MOSS_SRC_FILES})
+# add_library(Moss ${MOSS_HEADER_FILES} ${MOSS_SRC_FILES})
 add_library(Moss ${MOSS_SRC_FILES})
 add_library(Moss::Moss ALIAS Moss)
 
 if (BUILD_SHARED_LIBS)
 	# Set default visibility to hidden
 	set(CMAKE_CXX_VISIBILITY_PRESET hidden)
+	# set_target_properties(Moss PROPERTIESCXX_VISIBILITY_PRESET hidden VISIBILITY_INLINES_HIDDEN YES)
 
 	if (GENERATE_DEBUG_SYMBOLS)
 		if (MSVC)
@@ -351,10 +348,7 @@ if (BUILD_SHARED_LIBS)
 endif()
 
 
-target_include_directories(Moss PUBLIC
-	$<BUILD_INTERFACE:${REPO_ROOT}>
-	$<INSTALL_INTERFACE:include/>)
-
+target_include_directories(Moss PUBLIC $<BUILD_INTERFACE:${MOSS_ROOT}> $<BUILD_INTERFACE:${MOSS_ROOT_INCLUDE}> $<INSTALL_INTERFACE:include>)
 
 if(WIN32)
     target_link_libraries(Moss PRIVATE user32 gdi32)
@@ -377,32 +371,15 @@ if(USE_OPENGL)
             pkg_check_modules(EGL egl)
             pkg_check_modules(GL gl)
 
-            target_include_directories(Moss PRIVATE
-                ${WAYLAND_CLIENT_INCLUDE_DIRS}
-                ${WAYLAND_EGL_INCLUDE_DIRS}
-                ${EGL_INCLUDE_DIRS}
-                ${GL_INCLUDE_DIRS}
-            )
-            target_link_libraries(Moss PRIVATE
-                ${WAYLAND_CLIENT_LIBRARIES}
-                ${WAYLAND_EGL_LIBRARIES}
-                ${EGL_LIBRARIES}
-                ${GL_LIBRARIES}
-                pthread
-            )
+            target_include_directories(Moss PRIVATE ${WAYLAND_CLIENT_INCLUDE_DIRS} ${WAYLAND_EGL_INCLUDE_DIRS} ${EGL_INCLUDE_DIRS} ${GL_INCLUDE_DIRS})
+            target_link_libraries(Moss PRIVATE ${WAYLAND_CLIENT_LIBRARIES} ${WAYLAND_EGL_LIBRARIES} ${EGL_LIBRARIES} ${GL_LIBRARIES} pthread)
         else()
             find_package(X11 REQUIRED)
             find_package(OpenGL REQUIRED)
 
-            target_include_directories(Moss PRIVATE
-                ${X11_INCLUDE_DIRS}
-                ${OPENGL_INCLUDE_DIR}
-            )
-            target_link_libraries(Moss PRIVATE
-                ${X11_LIBRARIES}
-                ${OPENGL_gl_LIBRARY}
-                pthread
-            )
+            target_include_directories(Moss PRIVATE ${X11_INCLUDE_DIRS} ${OPENGL_INCLUDE_DIR})
+            # target_link_libraries(Moss PRIVATE ${X11_LIBRARIES} ${OPENGL_gl_LIBRARY} pthread)
+			target_link_libraries(Moss PRIVATE OpenGL::GL)
         endif()
     endif()
 endif()  # End USE_OPENGL
