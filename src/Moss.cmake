@@ -4,9 +4,9 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
 # Root
-set(MOSS_ROOT ${REPO_ROOT}/Moss) # Switch Moss to src
+set(MOSS_ROOT ${REPO_ROOT}/src) # Switch Moss to src
 
-set(MOSS_ROOT_INCLUDE ${REPO_ROOT}/Moss) # Switch Moss to src
+set(MOSS_ROOT_INCLUDE ${REPO_ROOT}/Moss/include) # Switch Moss to src
 
 set(MOSS_HEADER_FILES
 	${MOSS_ROOT_INCLUDE}/Moss_stdinc.h
