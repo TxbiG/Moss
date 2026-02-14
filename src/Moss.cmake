@@ -16,7 +16,7 @@ set(MOSS_HEADER_FILES
 	${MOSS_ROOT_INCLUDE}/Moss_Physics.h
 	${MOSS_ROOT_INCLUDE}/Moss_Renderer.h
 	${MOSS_ROOT_INCLUDE}/Moss_XR.h
-	#${MOSS_ROOT_INCLUDE}/Moss_Navigation.h
+	${MOSS_ROOT_INCLUDE}/Moss_Navigation.h
 	${MOSS_ROOT_INCLUDE}/Moss.h
 )
 
@@ -157,7 +157,6 @@ set(MOSS_SRC_FILES
 	#${MOSS_ROOT}/Platform/platform_intern.h
 
 	# Renderer
-	${MOSS_ROOT}/Moss_Renderer.h
 	${MOSS_ROOT}/Renderer/Camera2.h
 	${MOSS_ROOT}/Renderer/Camera2.cpp
 	${MOSS_ROOT}/Renderer/Camera3.h
@@ -170,7 +169,6 @@ set(MOSS_SRC_FILES
 	#${MOSS_ROOT}/GUI/GUI_internal.h
 
 	# Network
-	${MOSS_ROOT}/Moss_Network.h
 	${MOSS_ROOT}/Network/address.c
 	${MOSS_ROOT}/Network/callbacks.c
 	${MOSS_ROOT}/Network/host.c
@@ -180,11 +178,9 @@ set(MOSS_SRC_FILES
 	${MOSS_ROOT}/Network/protocol.c
 
 	# Audio
-	${MOSS_ROOT}/Moss_Audio.h
 	${MOSS_ROOT}/Audio/audio_intern.h
 
 	# XR
-	#${MOSS_ROOT}/Moss_XR.h
 	#${MOSS_ROOT}/XR/Moss_XR.cpp
 	#${MOSS_ROOT}/XR/Moss_XR_intern.h
 )
