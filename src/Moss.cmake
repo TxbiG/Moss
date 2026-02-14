@@ -441,33 +441,32 @@ if(USE_DIRECTX12 AND WIN32)
     target_link_libraries(Moss PRIVATE user32 gdi32)
 endif()
 
-if(USE_METAL)
+if(USE_METAL AND APPLE)
     target_compile_definitions(Moss PUBLIC MOSS_USE_METAL)
-    if(APPLE)
-        find_library(METAL_FRAMEWORK Metal REQUIRED)
-        find_library(METALKIT_FRAMEWORK MetalKit REQUIRED)
-        find_library(QUARTZCORE_FRAMEWORK QuartzCore REQUIRED)
-        find_library(FOUNDATION_FRAMEWORK Foundation REQUIRED)
-        target_link_libraries(Moss PRIVATE
-            ${METAL_FRAMEWORK}
-            ${METALKIT_FRAMEWORK}
-            ${QUARTZCORE_FRAMEWORK}
-            ${FOUNDATION_FRAMEWORK}
-        )
-        # Platform-specific frameworks
-        if(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
-            # macOS
-            find_library(APPKIT_FRAMEWORK AppKit REQUIRED)
-            target_link_libraries(Moss PRIVATE ${APPKIT_FRAMEWORK})
-        elseif(CMAKE_SYSTEM_NAME STREQUAL "iOS")
-            find_library(UIKIT_FRAMEWORK UIKit REQUIRED)
-            target_link_libraries(Moss PRIVATE ${UIKIT_FRAMEWORK})
-        elseif(CMAKE_SYSTEM_NAME STREQUAL "tvOS")
-            find_library(UIKIT_FRAMEWORK UIKit REQUIRED)
-            target_link_libraries(Moss PRIVATE ${UIKIT_FRAMEWORK})
-        endif()
+    find_library(METAL_FRAMEWORK Metal REQUIRED)
+    find_library(METALKIT_FRAMEWORK MetalKit REQUIRED)
+    find_library(QUARTZCORE_FRAMEWORK QuartzCore REQUIRED)
+    find_library(FOUNDATION_FRAMEWORK Foundation REQUIRED)
+    target_link_libraries(Moss PRIVATE
+        ${METAL_FRAMEWORK}
+        ${METALKIT_FRAMEWORK}
+        ${QUARTZCORE_FRAMEWORK}
+        ${FOUNDATION_FRAMEWORK}
+    )
+
+    if(CMAKE_OSX_SYSROOT MATCHES "macosx")
+        find_library(APPKIT_FRAMEWORK AppKit REQUIRED)
+        target_link_libraries(Moss PRIVATE ${APPKIT_FRAMEWORK})
+    elseif(CMAKE_OSX_SYSROOT MATCHES "iphoneos" OR
+           CMAKE_OSX_SYSROOT MATCHES "iphonesimulator" OR
+           CMAKE_OSX_SYSROOT MATCHES "appletvos" OR
+           CMAKE_OSX_SYSROOT MATCHES "appletvsimulator")
+
+        find_library(UIKIT_FRAMEWORK UIKit REQUIRED)
+        target_link_libraries(Moss PRIVATE ${UIKIT_FRAMEWORK})
     endif()
 endif()
+
 if (CMAKE_GENERATOR STREQUAL "Ninja Multi-Config" AND MSVC)
 	# The Ninja Multi-Config generator errors out when selectively disabling precompiled headers for certain configurations.
 	# See: https://github.com/jrouwe/JoltPhysics/issues/1211
