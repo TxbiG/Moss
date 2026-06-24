@@ -1,6 +1,16 @@
-# Moss Framework [Development]
-Moss Framework is a modular and high-performance game development framework designed for creating both 2D and 3D applications across multiple platforms.
+# Moss Framework
+**Moss Framework** is a modular, high-performance game development framework designed for building **2D and 3D applications** across multiple platforms.
 
+It provides a flexible architecture for rendering, physics, audio, input, networking, and real-time simulation systems.
+
+> **Status:** Active development
+
+## Overview
+
+Moss Framework is designed to be a **low-level, extensible foundation for game and simulation development**.
+It aims to give developers control over performance-critical systems while maintaining portability across major platforms.
+
+The framework supports modern graphics APIs and is structured for scalability from small 2D projects to complex 3D applications and multiplayer simulations.
 
 ## Features
 - Physics - 2D and 3D simulation and collision.
@@ -13,7 +23,18 @@ Moss Framework is a modular and high-performance game development framework desi
 - Navigation support for 2D and 3D.
 
 ## Documentation
-Comprehensive documentation is available in the [Docs](/docs/README.md)
+
+Comprehensive documentation is available in the [`docs/`](./docs) directory:
+
+* Architecture overview
+* Rendering system design
+* Physics system design
+* Audio pipeline
+* Input system
+* Networking model
+* Platform backend architecture
+* Performance guidelines
+
 
 ## Required CPU features
 - x86/x64
@@ -25,17 +46,49 @@ Comprehensive documentation is available in the [Docs](/docs/README.md)
 - Other Architectures
   - RISC-V64/LoongArch64/PowerPC64LE support
 
+---
+
+## Design Philosophy
+
+Moss Framework is built around:
+
+* **Modularity** — systems are independent and replaceable
+* **Performance** — designed for real-time applications
+* **Portability** — multiple platforms and architectures supported
+* **Low-level control** — minimal abstraction overhead
+* **Scalability** — from simple 2D games to complex 3D engines
+
+---
+
+## Roadmap Highlights
+
+* Fully stable rendering abstraction layer
+* Expanded Vulkan and DirectX 12 backend support
+* Physics engine stabilization
+* Multiplayer networking stack
+* Editor tooling (future)
+* Asset pipeline system
+* ECS architecture expansion
+
+---
+
 ## Compiling
 - C++ 17.
 
-## Folder structure
-- ```docs``` - Project documentation and developer guides.
-- ```examples``` - Example projects demonstrating framework usage.
-- ```external``` - Third-party libraries and source code.
-- ```include``` - 	Core header code of the framework.
-- ```src``` - 	Core source code of the framework.
-- ```performance``` - Benchmarks and profiling tools.
-- ```test``` - Unit and integration test.
+## Repository Structure
+
+```text id="moss1"
+.
+├─ docs/           # Documentation and developer guides
+├─ examples/       # Example projects
+├─ external/       # Third-party dependencies
+├─ include/        # Public framework headers
+├─ src/            # Core framework source code
+├─ performance/    # Benchmarks and profiling tools
+└─ test/           # Unit and integration tests
+```
 
 ## License
 The project is distributed under the [MIT license](LICENSE).
+
+---
