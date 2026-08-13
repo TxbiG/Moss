@@ -8,141 +8,166 @@ set(MOSS_ROOT ${REPO_ROOT}/src) # Switch Moss to src
 
 set(MOSS_ROOT_INCLUDE ${REPO_ROOT}/Moss/include) # Switch Moss to src
 
-set(MOSS_HEADER_FILES
-	${MOSS_ROOT_INCLUDE}/*.h
-    ${MOSS_ROOT_INCLUDE}/*.inl
+# -----------------------------------------------------------------------------
+# File discovery
+#
+# Everything below uses file(GLOB_RECURSE ... CONFIGURE_DEPENDS ...) instead of
+# a hand-maintained file list, so dropping a new .cpp/.h into one of these
+# folders is picked up automatically - no editing this script.
+#
+# CONFIGURE_DEPENDS makes CMake re-check the glob on every build and
+# re-configure if it changed. This is well supported by the Ninja and
+# Makefiles generators; some IDE/VS generators only re-glob when you
+# re-run CMake manually, so if a new file doesn't show up, re-configure once.
+#
+# Two things glob can't safely replace here:
+#  1) Mutually-exclusive backends (Win32 vs X11 vs Wayland vs Cocoa, GL vs
+#     Vulkan vs DX12 vs Metal) still need their own if()/elseif() - globbing
+#     the whole tree would compile all of them at once and you'd get
+#     duplicate-symbol link errors.
+#  2) Files that exist on disk but are deliberately excluded from the build
+#     (e.g. Renderer/GL/PipelineStateGL.*, which was commented out below) -
+#     a glob would silently pull those back in, so they're filtered out
+#     explicitly after the glob. If you want a file gone for good, it's
+#     cleaner to delete it / rename it out of the tree than to rely on this
+#     exclude list.
+# -----------------------------------------------------------------------------
+
+# Headers - not compiled (add_library below only takes MOSS_SRC_FILES), kept
+# around so they show up as part of the target in IDEs / can be installed.
+file(GLOB_RECURSE MOSS_HEADER_FILES CONFIGURE_DEPENDS
+	"${MOSS_ROOT_INCLUDE}/*.h"
+	"${MOSS_ROOT_INCLUDE}/*.inl"
 )
 
-set(MOSS_SRC_FILES
-	${MOSS_ROOT}/*.cpp
-    ${MOSS_ROOT}/*.c
+# ---- Core sources: platform- and backend-independent ----
+file(GLOB_RECURSE MOSS_SRC_FILES CONFIGURE_DEPENDS
+	"${MOSS_ROOT}/Physics/*.cpp"
+	"${MOSS_ROOT}/TriangleSplitter/*.cpp"
+	"${MOSS_ROOT}/XR/*.cpp"
+)
+
+# enet networking core (address/host/peer/protocol/etc.) - third-party-ish,
+# stable, and platform.c backends (win32.c/unix.c) live in the same folder,
+# so this is kept as an explicit list rather than globbed to avoid pulling
+# the wrong platform backend in.
+list(APPEND MOSS_SRC_FILES
+	${MOSS_ROOT}/Network/address.c
+	${MOSS_ROOT}/Network/callbacks.c
+	${MOSS_ROOT}/Network/host.c
+	${MOSS_ROOT}/Network/list.c
+	${MOSS_ROOT}/Network/packet.c
+	${MOSS_ROOT}/Network/peer.c
+	${MOSS_ROOT}/Network/protocol.c
+)
+
+# Generic audio backend (non-platform-specific). Non-recursive glob so it
+# doesn't reach into Audio/xaudio, Audio/linux, Audio/macos.
+file(GLOB MOSS_AUDIO_GENERIC_FILES CONFIGURE_DEPENDS
+	"${MOSS_ROOT}/Audio/*.cpp"
+)
+list(APPEND MOSS_SRC_FILES ${MOSS_AUDIO_GENERIC_FILES})
+
+# Files that exist on disk but should stay out of the build (mirrors what
+# was previously commented out). Add to this list instead of re-commenting
+# entries in a hand-written file list.
+set(MOSS_EXCLUDED_SRC_FILES
+	"${MOSS_ROOT}/Renderer/GL/PipelineStateGL.h"
+	"${MOSS_ROOT}/Renderer/GL/PipelineStateGL.cpp"
 )
 
 # Platform-specific sources
 if(WIN32)
-    list(APPEND MOSS_SRC_FILES
-        ${MOSS_ROOT}/Platform/windows/win32_platform.h
-        ${MOSS_ROOT}/Platform/windows/win32_window.cpp
-        ${MOSS_ROOT}/Platform/windows/win32_monitor.cpp
-        ${MOSS_ROOT}/Platform/windows/win32_input.cpp
-        ${MOSS_ROOT}/Network/win32.c
-
-		${MOSS_ROOT}/Audio/xaudio/win32_audio.h
-		${MOSS_ROOT}/Audio/xaudio/win32_audio.cpp
-		${MOSS_ROOT}/Audio/xaudio/win32_microphone.cpp
-		${MOSS_ROOT}/Audio/xaudio/win32_speaker.cpp
-    )
+	file(GLOB_RECURSE MOSS_PLATFORM_FILES CONFIGURE_DEPENDS
+		"${MOSS_ROOT}/Platform/windows/*.h"
+		"${MOSS_ROOT}/Platform/windows/*.cpp"
+	)
+	file(GLOB_RECURSE MOSS_AUDIO_PLATFORM_FILES CONFIGURE_DEPENDS
+		"${MOSS_ROOT}/Audio/xaudio/*.h"
+		"${MOSS_ROOT}/Audio/xaudio/*.cpp"
+	)
+	list(APPEND MOSS_SRC_FILES
+		${MOSS_PLATFORM_FILES}
+		${MOSS_AUDIO_PLATFORM_FILES}
+		${MOSS_ROOT}/Network/win32.c
+	)
 elseif(UNIX AND NOT APPLE) # catches Linux/FreeBSD
 	if(USE_WAYLAND)
-		list(APPEND MOSS_SRC_FILES 
-			${MOSS_ROOT}/Platform/linux/wl_platform.h
-			${MOSS_ROOT}/Platform/linux/wl_window.c
-			${MOSS_ROOT}/Platform/linux/wl_monitor.c
-			${MOSS_ROOT}/Platform/linux/wl_input.c
-			)
+		file(GLOB_RECURSE MOSS_PLATFORM_FILES CONFIGURE_DEPENDS
+			"${MOSS_ROOT}/Platform/linux/wl_*.h"
+			"${MOSS_ROOT}/Platform/linux/wl_*.c"
+		)
 	else()
-		list(APPEND MOSS_SRC_FILES 
-			${MOSS_ROOT}/Platform/linux/x11_platform.h
-			${MOSS_ROOT}/Platform/linux/x11_window.c
-			${MOSS_ROOT}/Platform/linux/x11_monitor.c
-			${MOSS_ROOT}/Platform/linux/x11_input.c
-			)
-    list(APPEND MOSS_SRC_FILES
-        ${MOSS_ROOT}/Network/unix.c
-    	)
+		file(GLOB_RECURSE MOSS_PLATFORM_FILES CONFIGURE_DEPENDS
+			"${MOSS_ROOT}/Platform/linux/x11_*.h"
+			"${MOSS_ROOT}/Platform/linux/x11_*.c"
+		)
 	endif()
-elseif(APPLE)
-    list(APPEND MOSS_SRC_FILES
-        ${MOSS_ROOT}/Platform/apple/mac/cocoa_platform.h
-        ${MOSS_ROOT}/Platform/apple/mac/cocoa_monitor.mm
-        ${MOSS_ROOT}/Platform/apple/mac/cocoa_window.mm
-        ${MOSS_ROOT}/Platform/apple/mac/input.mm
-        ${MOSS_ROOT}/Platform/apple/mac/joystick.mm
+
+	file(GLOB_RECURSE MOSS_AUDIO_PLATFORM_FILES CONFIGURE_DEPENDS
+		"${MOSS_ROOT}/Audio/linux/*.h"
+		"${MOSS_ROOT}/Audio/linux/*.cpp"
+	)
+
+	list(APPEND MOSS_SRC_FILES
+		${MOSS_PLATFORM_FILES}
+		${MOSS_AUDIO_PLATFORM_FILES}
 		${MOSS_ROOT}/Network/unix.c
-    	)
+	)
+	# NOTE: previously Network/unix.c was only appended in the X11 branch,
+	# so a Wayland build never got the enet unix backend. That looked like
+	# an unintentional gap, so it's now appended for both - revert to the
+	# old conditional if that exclusion was actually intentional.
+
+elseif(APPLE)
+	file(GLOB_RECURSE MOSS_PLATFORM_FILES CONFIGURE_DEPENDS
+		"${MOSS_ROOT}/Platform/apple/mac/*.h"
+		"${MOSS_ROOT}/Platform/apple/mac/*.mm"
+	)
+	file(GLOB_RECURSE MOSS_AUDIO_PLATFORM_FILES CONFIGURE_DEPENDS
+		"${MOSS_ROOT}/audio/macos/*.h"
+		"${MOSS_ROOT}/audio/macos/*.cpp"
+	)
+	list(APPEND MOSS_SRC_FILES
+		${MOSS_PLATFORM_FILES}
+		${MOSS_AUDIO_PLATFORM_FILES}
+		${MOSS_ROOT}/Network/unix.c
+	)
 endif()
+
+# Renderer backend sources (mutually exclusive - only one of these is built)
 if(USE_OPENGL)
-	list(APPEND MOSS_SRC_FILES
-	${MOSS_ROOT}/Renderer/GL/glad.h
-
-	${MOSS_ROOT}/Renderer/GL/SurfaceGL.h
-	${MOSS_ROOT}/Renderer/GL/SurfaceGL.cpp
-	${MOSS_ROOT}/Renderer/GL/TextureGL.h
-	${MOSS_ROOT}/Renderer/GL/TextureGL.cpp
-	${MOSS_ROOT}/Renderer/GL/ShaderGL.h
-	${MOSS_ROOT}/Renderer/GL/ShaderGL.cpp
-	${MOSS_ROOT}/Renderer/GL/FontGL.h
-	${MOSS_ROOT}/Renderer/GL/FontGL.cpp
-	${MOSS_ROOT}/Renderer/GL/MeshGL.h
-	#${MOSS_ROOT}/Renderer/GL/PipelineStateGL.h
-	#${MOSS_ROOT}/Renderer/GL/PipelineStateGL.cpp
-	${MOSS_ROOT}/Renderer/GL/PostProcess.h
-	${MOSS_ROOT}/Renderer/GL/PostProcess.cpp
-
-	${MOSS_ROOT}/Renderer/GL/Renderer_GL.h
-	${MOSS_ROOT}/Renderer/GL/Renderer_GL.cpp
-
-	#${MOSS_ROOT}/GUI/GL/Moss_gui_gl.cpp
+	file(GLOB_RECURSE MOSS_RENDERER_FILES CONFIGURE_DEPENDS
+		"${MOSS_ROOT}/Renderer/GL/*.h"
+		"${MOSS_ROOT}/Renderer/GL/*.cpp"
 	)
+	list(APPEND MOSS_SRC_FILES ${MOSS_RENDERER_FILES})
 elseif(USE_VULKAN)
-	list(APPEND MOSS_SRC_FILES
-	#${MOSS_ROOT}/Renderer/VK/SurfaceVK.h
-	#${MOSS_ROOT}/Renderer/VK/SurfaceVK.cpp
-	#${MOSS_ROOT}/Renderer/VK/TextureVK.h
-	#${MOSS_ROOT}/Renderer/VK/TextureVK.cpp
-	${MOSS_ROOT}/Renderer/VK/ShaderVK.h
-	${MOSS_ROOT}/Renderer/VK/ShaderVK.cpp
-	${MOSS_ROOT}/Renderer/VK/PipelineStateVK.h
-	${MOSS_ROOT}/Renderer/VK/PipelineStateVK.cpp
-	#${MOSS_ROOT}/Renderer/VK/SubViewport.h
-	#${MOSS_ROOT}/Renderer/VK/PipelineVK.h
-	#${MOSS_ROOT}/Renderer/VK/MeshVK.h
-
-	${MOSS_ROOT}/Renderer/VK/Renderer_VK.h
-	${MOSS_ROOT}/Renderer/VK/Renderer_VK.cpp
-	${MOSS_ROOT}/Renderer/VK/ConstantBufferVK.h
-	${MOSS_ROOT}/Renderer/VK/ConstantBufferVK.cpp
-	${MOSS_ROOT}/Moss_Platform.h
-	#${MOSS_ROOT}/Renderer/VK/VKTEST.h
-	#${MOSS_ROOT}/Renderer/VK/VKTEST.cpp
-
-	${MOSS_ROOT}/Renderer/VK/Moss_Impli_Vulkan.h
-	
+	file(GLOB_RECURSE MOSS_RENDERER_FILES CONFIGURE_DEPENDS
+		"${MOSS_ROOT}/Renderer/VK/*.h"
+		"${MOSS_ROOT}/Renderer/VK/*.cpp"
 	)
+	list(APPEND MOSS_SRC_FILES ${MOSS_RENDERER_FILES} ${MOSS_ROOT}/Moss_Platform.h)
 elseif(USE_DIRECTX12)
-	list(APPEND MOSS_SRC_FILES
-	${MOSS_ROOT}/Renderer/DX12/Surface.h
-	${MOSS_ROOT}/Renderer/DX12/Surface.cpp
-	${MOSS_ROOT}/Renderer/DX12/Texture.h
-	${MOSS_ROOT}/Renderer/DX12/Texture.cpp
-	${MOSS_ROOT}/Renderer/DX12/Shader.h
-	${MOSS_ROOT}/Renderer/DX12/Shader.cpp
-	${MOSS_ROOT}/Renderer/DX12/SubViewportDX12.h
-	${MOSS_ROOT}/Renderer/DX12/PipelineDX12.h
-	${MOSS_ROOT}/Renderer/DX12/MeshDX12.h
-
-	${MOSS_ROOT}/Renderer/DX12/Renderer_DX12.h
-	${MOSS_ROOT}/Renderer/DX12/Renderer_DX12.cpp
+	file(GLOB_RECURSE MOSS_RENDERER_FILES CONFIGURE_DEPENDS
+		"${MOSS_ROOT}/Renderer/DX12/*.h"
+		"${MOSS_ROOT}/Renderer/DX12/*.cpp"
 	)
+	list(APPEND MOSS_SRC_FILES ${MOSS_RENDERER_FILES})
 elseif(USE_METAL)
-	list(APPEND MOSS_SRC_FILES
-	${MOSS_ROOT}/Renderer/MTL/Surface.h
-	${MOSS_ROOT}/Renderer/MTL/Surface.cpp
-	${MOSS_ROOT}/Renderer/MTL/Texture.h
-	${MOSS_ROOT}/Renderer/MTL/Texture.cpp
-	${MOSS_ROOT}/Renderer/MTL/Shader.h
-	${MOSS_ROOT}/Renderer/MTL/Shader.cpp
-	# Font			${MOSS_ROOT}/Renderer/Metal/FontMTL.h
-	# Font			${MOSS_ROOT}/Renderer/Metal/FontMTL.cpp
-	# SubViewport	${MOSS_ROOT}/Renderer/Metal/SubViewportMTL.h
-
-	# Pipeline		${MOSS_ROOT}/Renderer/Metal/PipelineMTL.h
-	#${MOSS_ROOT}/Renderer/Metal/MeshMTL.h
-
-	${MOSS_ROOT}/Renderer/MTL/Renderer_MTL.h
-	${MOSS_ROOT}/Renderer/MTL/Renderer_MTL.cpp
+	file(GLOB_RECURSE MOSS_RENDERER_FILES CONFIGURE_DEPENDS
+		"${MOSS_ROOT}/Renderer/MTL/*.h"
+		"${MOSS_ROOT}/Renderer/MTL/*.cpp"
 	)
+	list(APPEND MOSS_SRC_FILES ${MOSS_RENDERER_FILES})
 endif()
+
+# Drop anything that's explicitly excluded from the build (see
+# MOSS_EXCLUDED_SRC_FILES above), and de-duplicate in case a glob pattern
+# overlapped with the explicit Network/Audio lists.
+list(REMOVE_ITEM MOSS_SRC_FILES ${MOSS_EXCLUDED_SRC_FILES})
+list(REMOVE_DUPLICATES MOSS_SRC_FILES)
+
 # add_library(Moss ${MOSS_HEADER_FILES} ${MOSS_SRC_FILES})
 add_library(Moss ${MOSS_SRC_FILES})
 add_library(Moss::Moss ALIAS Moss)
