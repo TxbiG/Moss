@@ -134,24 +134,24 @@ set(MOSS_HEADER_FILES
 	${MOSS_ROOT_INCLUDE}/TriangleSplitter/TriangleSplitter.h
 	${MOSS_ROOT_INCLUDE}/TriangleSplitter/TriangleSplitterBinning.h
 	${MOSS_ROOT_INCLUDE}/TriangleSplitter/TriangleSplitterMean.h
+	${MOSS_ROOT_INCLUDE}/Core/Factory.cpp
+	${MOSS_ROOT_INCLUDE}/Core/JobSystemSingleThreaded.cpp
+	${MOSS_ROOT_INCLUDE}/Core/JobSystemThreadPool.cpp
+	${MOSS_ROOT_INCLUDE}/Core/JobSystemWithBarrier.cpp
+	${MOSS_ROOT_INCLUDE}/Core/LinearCurve.cpp
+	${MOSS_ROOT_INCLUDE}/Core/LockFreeHashMap.inl
+	${MOSS_ROOT_INCLUDE}/Core/Memory.cpp
+	${MOSS_ROOT_INCLUDE}/Core/Profiler.cpp
+	${MOSS_ROOT_INCLUDE}/Core/RTTI.cpp
+	${MOSS_ROOT_INCLUDE}/Core/Semaphore.cpp
+	${MOSS_ROOT_INCLUDE}/Core/StringTools.cpp
+	${MOSS_ROOT_INCLUDE}/Core/TickCounter.cpp
+	${MOSS_ROOT_INCLUDE}/Core/Variants/Vector/Vec3.cpp
 )
 
 set(MOSS_SRC_FILES
 	${MOSS_ROOT}/Physics/AABBTree/AABBTreeBuilder.cpp
-	${MOSS_ROOT}/Core/Factory.cpp
-	${MOSS_ROOT}/Core/JobSystemSingleThreaded.cpp
-	${MOSS_ROOT}/Core/JobSystemThreadPool.cpp
-	${MOSS_ROOT}/Core/JobSystemWithBarrier.cpp
-	${MOSS_ROOT}/Core/LinearCurve.cpp
-	${MOSS_ROOT}/Core/LockFreeHashMap.inl
-	${MOSS_ROOT}/Core/Memory.cpp
-	${MOSS_ROOT}/Core/Profiler.cpp
-	${MOSS_ROOT}/Core/RTTI.cpp
-	${MOSS_ROOT}/Core/Semaphore.cpp
-	${MOSS_ROOT}/Core/StringTools.cpp
-	${MOSS_ROOT}/Core/TickCounter.cpp
 	${MOSS_ROOT}/Physics/Geometry.cpp
-	${MOSS_ROOT}/Core/Variants/Vector/Vec3.cpp
 	${MOSS_ROOT}/Physics/Body.cpp
 	${MOSS_ROOT}/Physics/Character.cpp
 	${MOSS_ROOT}/Physics/DeterminismLog.cpp
