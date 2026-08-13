@@ -15,8 +15,8 @@
 #include <Moss/Core/StreamIn.h>
 #include <Moss/Core/StreamOut.h>
 #include <Moss/Core/QuickSort.h>
-#include <Moss/Core/Variants/TMap.h>
-#include <Moss/Core/Variants/TSet.h>
+#include <Moss/Variants/TMap.h>
+#include <Moss/Variants/TSet.h>
 #include <Moss/Core/BinaryHeap.h>
 #include <Moss/Core/Profiler.h>
 #include <Moss/Physics/Geometry/RayTriangle.h>

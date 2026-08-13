@@ -1,7 +1,7 @@
 #ifndef MOSS_GRADIENT_H
 #define MOSS_GRADIENT_H
 
-#include <Moss/Core/Variants/Color.h>
+#include <Moss/Variants/Color.h>
 #include <Moss/Core/TArray.h>
 #include <Moss/Moss_stdinc.h>
 

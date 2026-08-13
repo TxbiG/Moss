@@ -1,7 +1,7 @@
 #pragma once
 
-#include <Moss/Core/Variants/Vector/Float2.h>
-#include <Moss/Core/Variants/Vector/Float3.h>
+#include <Moss/Variants/Vector/Float2.h>
+#include <Moss/Variants/Vector/Float3.h>
 
 #include <vector>
 

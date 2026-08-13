@@ -7,7 +7,7 @@
 #include <Moss/Core/Result.h>
 #include <Moss/Core/StreamIn.h>
 #include <Moss/Core/StreamOut.h>
-#include <Moss/Core/Variants/TMap.h>
+#include <Moss/Variants/TMap.h>
 #include <Moss/Core/Factory.h>
 
 MOSS_SUPRESS_WARNINGS_BEGIN

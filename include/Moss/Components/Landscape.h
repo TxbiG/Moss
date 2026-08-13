@@ -51,8 +51,8 @@
 #include <Moss/Renderer/Frustum.h>
 
 #include <Moss/Math/AABox.h>
-#include <Moss/Core/Variants/Vector/Vec2.h>
-#include <Moss/Core/Variants/Vector/Vec3.h>
+#include <Moss/Variants/Vector/Vec2.h>
+#include <Moss/Variants/Vector/Vec3.h>
 
 #include "Camera3.h"
 

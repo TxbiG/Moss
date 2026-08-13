@@ -4,9 +4,9 @@
 
 #pragma once
 
-#include <Moss/Core/Variants/Vector/Vec3.h>
-#include <Moss/Core/Variants/Vector/Vec4.h>
-#include <Moss/Core/Variants/Quat.h>
+#include <Moss/Variants/Vector/Vec3.h>
+#include <Moss/Variants/Vector/Vec4.h>
+#include <Moss/Variants/Quat.h>
 
 MOSS_SUPRESS_WARNINGS_BEGIN
 

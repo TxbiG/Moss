@@ -12,12 +12,12 @@
 	#define MOSS_DEBUG_RENDERER_EXPORT MOSS_EXPORT
 #endif // !MOSS_DEBUG_RENDERER_EXPORT
 
-#include <Moss/Core/Variants/Color.h>
+#include <Moss/Variants/Color.h>
 #include <Moss/Core/Reference.h>
 #include <Moss/Core/HashCombine.h>
-#include <Moss/Core/Variants/TMap.h>
+#include <Moss/Variants/TMap.h>
 #include <Moss/Core/NonCopyable.h>
-#include <Moss/Core/Variants/Vector/Float2.h>
+#include <Moss/Variants/Vector/Float2.h>
 #include <Moss/Physics/Geometry/IndexedTriangle.h>
 #include <Moss/Physics/Geometry/AABox.h>
 

@@ -15,12 +15,12 @@
 #include <vulkan/vulkan.h>
 #include <Moss/Moss_Platform.h>
 //#include <Moss/Renderer/VK/Moss_Impli_Vulkan.h>
-#include <Moss/Core/Variants/Color.h>
-#include <Moss/Core/Variants/Vector/Float2.h>
-#include <Moss/Core/Variants/Vector/Vec2.h>
-#include <Moss/Core/Variants/Vector/Vec3.h>
-#include <Moss/Core/Variants/TMap.h>
-#include <Moss/Core/Variants/TSet.h>
+#include <Moss/Variants/Color.h>
+#include <Moss/Variants/Vector/Float2.h>
+#include <Moss/Variants/Vector/Vec2.h>
+#include <Moss/Variants/Vector/Vec3.h>
+#include <Moss/Variants/TMap.h>
+#include <Moss/Variants/TSet.h>
 
 //#include <Moss/Renderer/Shader.h>
 //#include <Moss/Renderer/Texture.h>

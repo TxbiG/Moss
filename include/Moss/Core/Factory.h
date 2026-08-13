@@ -5,7 +5,7 @@
 #pragma once
 
 #include <Moss/Core/RTTI.h>
-#include <Moss/Core/Variants/TMap.h>
+#include <Moss/Variants/TMap.h>
 
 MOSS_SUPRESS_WARNINGS_BEGIN
 

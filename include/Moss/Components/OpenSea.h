@@ -37,7 +37,7 @@
 #include <vector>
 #include <memory>
 #include <string>
-#include <Moss/Core/Variants/Vector/Vec3.h>
+#include <Moss/Variants/Vector/Vec3.h>
 #include <Moss/Renderer/Shader.h>
 #include <Moss/Renderer/Texture.h>
 #include "Camera3.h"

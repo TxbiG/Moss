@@ -4,8 +4,8 @@
 #include <fstream>
 #include <sstream>
 #include <string>
-#include <Moss/Core/Variants/TMap.h>
-#include <Moss/Core/Variants/Vector.h>
+#include <Moss/Variants/TMap.h>
+#include <Moss/Variants/Vector.h>
 #include <stdexcept>
 
 #include <filesystem>

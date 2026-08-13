@@ -9,7 +9,7 @@
 #include <Moss/Renderer/DebugRenderer.h>
 #include <Moss/Core/StreamOut.h>
 #include <Moss/Core/Mutex.h>
-#include <Moss/Core/Variants/TMap.h>
+#include <Moss/Variants/TMap.h>
 
 MOSS_SUPRESS_WARNINGS_BEGIN
 

@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include <Moss/Core/Variants/Vector/BVec16.h>
+#include <Moss/Variants/Vector/BVec16.h>
 
 MOSS_SUPRESS_WARNINGS_BEGIN
 

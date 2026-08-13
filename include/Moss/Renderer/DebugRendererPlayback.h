@@ -8,7 +8,7 @@
 
 #include <Moss/Renderer/DebugRendererRecorder.h>
 #include <Moss/Core/StreamIn.h>
-#include <Moss/Core/Variants/TMap.h>
+#include <Moss/Variants/TMap.h>
 
 MOSS_SUPRESS_WARNINGS_BEGIN
 

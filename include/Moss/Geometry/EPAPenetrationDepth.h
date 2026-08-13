@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include <Moss/Core/Variants/TStaticArray.h>
+#include <Moss/Variants/TStaticArray.h>
 #include <Moss/Core/Profiler.h>
 #include <Moss/Physics/Geometry/GJKClosestPoint.h>
 #include <Moss/Physics/Geometry/EPAConvexHullBuilder.h>

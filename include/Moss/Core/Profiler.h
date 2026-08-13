@@ -11,7 +11,7 @@ MOSS_SUPPRESS_WARNINGS_STD_END
 
 #include <Moss/Core/NonCopyable.h>
 #include <Moss/Core/TickCounter.h>
-#include <Moss/Core/Variants/TMap.h>
+#include <Moss/Variants/TMap.h>
 
 #if defined(MOSS_EXTERNAL_PROFILE)
 

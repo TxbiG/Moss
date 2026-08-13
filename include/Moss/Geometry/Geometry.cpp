@@ -20,7 +20,7 @@ MOSS_SUPPRESS_WARNINGS_STD_END
 #include <Moss/Physics/Geometry/AABox.h>
 #include <Moss/Physics/Geometry/ClosestPoint.h>
 #include <Moss/Core/StringTools.h>
-#include <Moss/Core/Variants/TSet.h>
+#include <Moss/Variants/TSet.h>
 
 
 MOSS_SUPRESS_WARNINGS_BEGIN

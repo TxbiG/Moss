@@ -10,9 +10,9 @@
 #include <Moss/External/stb_truetype.h>
 
 #include <Moss/Core/Reference.h>
-#include <Moss/Core/Variants/Color.h>
-#include <Moss/Core/Variants/Vector/Float2.h>
-#include <Moss/Core/Variants/Vector/Float3.h>
+#include <Moss/Variants/Color.h>
+#include <Moss/Variants/Vector/Float2.h>
+#include <Moss/Variants/Vector/Float3.h>
 #include <Moss/Renderer/GL/SurfaceGL.h>
 #include <Moss/Renderer/GL/TextureGL.h>
 #include <Moss/Renderer/PipelineState.h>

@@ -11,7 +11,7 @@
 	#include <Moss/Core/Color.h>
 #endif
 
-#include <Moss/Core/Variants/TStaticArray.h>
+#include <Moss/Variants/TStaticArray.h>
 #include <Moss/Core/NonCopyable.h>
 
 MOSS_NAMESPACE_BEGIN

@@ -7,7 +7,7 @@
 #include <Moss/Physics/Body/BodyPair.h>
 #include <Moss/Physics/Collision/ContactListener.h>
 #include <Moss/Physics/Collision/BroadPhase/BroadPhase.h>
-#include <Moss/Core/Variants/TStaticArray.h>
+#include <Moss/Variants/TStaticArray.h>
 #include <Moss/Core/JobSystem.h>
 #include <Moss/Core/STLTempAllocator.h>
 

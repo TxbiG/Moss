@@ -45,7 +45,7 @@
 #include <string>
 #include <cstdint>
 
-#include <Moss/Core/Variants/Vector/Vec3.h>
+#include <Moss/Variants/Vector/Vec3.h>
 #include <Moss/Renderer/Shader.h>
 #include <Moss/Renderer/Texture.h>
 #include "Camera3.h"

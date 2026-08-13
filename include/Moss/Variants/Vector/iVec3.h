@@ -1,9 +1,9 @@
 #pragma once
 
-#include <Moss/Core/Variants/TStaticArray.h>
-#include <Moss/Core/Variants/Vector/Float2.h>
-#include <Moss/Core/Variants/Math/Swizzle.h>
-#include <Moss/Core/Variants/Math/MathTypes.h>
+#include <Moss/Variants/TStaticArray.h>
+#include <Moss/Variants/Vector/Float2.h>
+#include <Moss/Variants/Math/Swizzle.h>
+#include <Moss/Variants/Math/MathTypes.h>
 
 
 // AVX2 supports integers (2013) 8xint32

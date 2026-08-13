@@ -5,13 +5,13 @@
 #include <Moss/Renderer/Shader.h>
 #include <Moss/Renderer/GL/glad.h>
 
-#include <Moss/Core/Variants/Vector/Float2.h>
-#include <Moss/Core/Variants/Vector/Float3.h>
-#include <Moss/Core/Variants/Vector/Float4.h>
-#include <Moss/Core/Variants/Vector/Int2.h>
-#include <Moss/Core/Variants/Vector/Int3.h>
-#include <Moss/Core/Variants/Vector/Int4.h>
-#include <Moss/Core/Variants/Color.h>
+#include <Moss/Variants/Vector/Float2.h>
+#include <Moss/Variants/Vector/Float3.h>
+#include <Moss/Variants/Vector/Float4.h>
+#include <Moss/Variants/Vector/Int2.h>
+#include <Moss/Variants/Vector/Int3.h>
+#include <Moss/Variants/Vector/Int4.h>
+#include <Moss/Variants/Color.h>
 
 struct Moss_Renderer;
 

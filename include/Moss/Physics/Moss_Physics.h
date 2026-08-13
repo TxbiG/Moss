@@ -86,18 +86,18 @@
 #include <Moss/Moss_stdinc.h>
 #include <Moss/Moss_Renderer.h>
 
-#include <Moss/Core/Variants/AABB2.h>
-#include <Moss/Core/Variants/AABB3.h>
-#include <Moss/Core/Variants/Color.h>
-#include <Moss/Core/Variants/Quat.h>
-#include <Moss/Core/Variants/OBB2.h>
-#include <Moss/Core/Variants/OBB3.h>
-#include <Moss/Core/Variants/TArray.h>
+#include <Moss/Variants/AABB2.h>
+#include <Moss/Variants/AABB3.h>
+#include <Moss/Variants/Color.h>
+#include <Moss/Variants/Quat.h>
+#include <Moss/Variants/OBB2.h>
+#include <Moss/Variants/OBB3.h>
+#include <Moss/Variants/TArray.h>
 
-#include <Moss/Core/Variants/Vector/Vec2.h>
-#include <Moss/Core/Variants/Vector/Vec3.h>
-#include <Moss/Core/Variants/Vector/Vec4.h>
-#include <Moss/Core/Variants/Matrix/Mat.h>
+#include <Moss/Variants/Vector/Vec2.h>
+#include <Moss/Variants/Vector/Vec3.h>
+#include <Moss/Variants/Vector/Vec4.h>
+#include <Moss/Variants/Matrix/Mat.h>
 
 
 #define PHSICS_DEFAULT_COLLISION_TOLERANCE (1.0e-4f) // float cDefaultCollisionTolerance = 1.0e-4f

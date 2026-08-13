@@ -3,7 +3,7 @@
 #include <Moss/Core/Mutex.h>
 #include <Moss/Core/HashCombine.h>
 #include <Moss/Core/NonCopyable.h>
-#include <Moss/Core/Variants/TStaticArray.h>
+#include <Moss/Variants/TStaticArray.h>
 #include <Moss/Core/LockFreeHashMap.h>
 
 

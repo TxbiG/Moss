@@ -1,7 +1,7 @@
 #ifndef MOSS_MATERIAL_H
 #define MOSS_MATERIAL_H
 #include <Moss/Core/Core.h>
-#include <Moss/Core/Variants/Color.h>
+#include <Moss/Variants/Color.h>
 #include <Moss/Renderer/gl/TextureGL.h>
 #include <Moss/Moss_Platform.h>
 //#include <Moss/Renderer/Shader.h>

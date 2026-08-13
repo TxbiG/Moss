@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include <Moss/Core/Variants/Math/FindRoot.h>
+#include <Moss/Variants/Math/FindRoot.h>
 
 MOSS_NAMESPACE_BEGIN
 

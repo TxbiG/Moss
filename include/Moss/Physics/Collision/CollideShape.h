@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include <Moss/Core/Variants/TStaticArray.h>
+#include <Moss/Variants/TStaticArray.h>
 #include <Moss/Physics/Collision/BackFaceMode.h>
 #include <Moss/Physics/Collision/ActiveEdgeMode.h>
 #include <Moss/Physics/Collision/CollectFacesMode.h>

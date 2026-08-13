@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include <Moss/Core/Variants/Matrix/Mat44.h>
+#include <Moss/Variants/Matrix/Mat44.h>
 
 MOSS_NAMESPACE_BEGIN
 

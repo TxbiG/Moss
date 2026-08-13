@@ -15,9 +15,9 @@
 #include <Moss/Physics/Collision/PhysicsMaterial.h>
 #include <Moss/Physics/Constraints/TwoBodyConstraint.h>
 #include <Moss/Physics/StateRecorder.h>
-#include <Moss/Core/Variants/Matrix/TMatrix.h>
-#include <Moss/Core/Variants/Vector/TVec.h>
-#include <Moss/Core/Variants/Math/EigenValueSymmetric.h>
+#include <Moss/Variants/Matrix/TMatrix.h>
+#include <Moss/Variants/Vector/TVec.h>
+#include <Moss/Variants/Math/EigenValueSymmetric.h>
 #include <Moss/Core/StreamIn.h>
 #include <Moss/Core/StreamOut.h>
 #include <Moss/Core/InsertionSort.h>

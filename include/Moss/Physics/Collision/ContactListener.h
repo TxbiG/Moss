@@ -5,7 +5,7 @@
 #pragma once
 
 #include <Moss/Physics/Collision/Shape/SubShapeIDPair.h>
-#include <Moss/Core/Variants/TStaticArray.h>
+#include <Moss/Variants/TStaticArray.h>
 
 MOSS_NAMESPACE_BEGIN
 

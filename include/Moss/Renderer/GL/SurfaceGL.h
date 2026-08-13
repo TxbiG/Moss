@@ -3,9 +3,9 @@
 
 #include <Moss/Renderer/GL/Renderer_GL.h>
 #include <Moss/Core/Core.h>
-#include <Moss/Core/Variants/Color.h>
-#include <Moss/Core/Variants/Rect.h>
-#include <Moss/Core/Variants/Vector/Float2.h>
+#include <Moss/Variants/Color.h>
+#include <Moss/Variants/Rect.h>
+#include <Moss/Variants/Vector/Float2.h>
 #include <Moss/Moss_Platform.h>
 #include <Moss/Renderer/GL/ShaderGL.h>
 #include <Moss/Renderer/GL/TextureGL.h>

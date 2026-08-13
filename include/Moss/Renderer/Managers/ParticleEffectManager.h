@@ -2,10 +2,10 @@
 #define MOSS_PARTICLE_EFFECT_H
 
 #include <Moss/Core/Core.h>
-#include <Moss/Core/Variants/Vector/Float3.h>
-#include <Moss/Core/Variants/Vector/Float2.h>
-#include <Moss/Core/Variants/TMap.h>
-#include <Moss/Core/Variants/TArray.h>
+#include <Moss/Variants/Vector/Float3.h>
+#include <Moss/Variants/Vector/Float2.h>
+#include <Moss/Variants/TMap.h>
+#include <Moss/Variants/TArray.h>
 
 typedef uint32 ParticleEmitterID;
 

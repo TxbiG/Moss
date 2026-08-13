@@ -5,7 +5,7 @@
 #pragma once
 
 #include <Moss/Core/ByteBuffer.h>
-#include <Moss/Core/Variants/Math/HalfFloat.h>
+#include <Moss/Variants/Math/HalfFloat.h>
 #include <Moss/Physics/AABBTree/AABBTreeBuilder.h>
 
 MOSS_SUPRESS_WARNINGS_BEGIN

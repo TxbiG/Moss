@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: MIT
 
 #include <Moss/Core/Profiler.h>
-#include <Moss/Core/Variants/Color.h>
+#include <Moss/Variants/Color.h>
 #include <Moss/Core/StringTools.h>
 #include <Moss/Core/QuickSort.h>
 

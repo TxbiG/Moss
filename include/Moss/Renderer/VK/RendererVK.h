@@ -4,7 +4,7 @@
 #include <vulkan/vulkan.h>
 #include <Moss/Renderer/VK/ConstantBufferVK.h>
 #include <Moss/Renderer/VK/TextureVK.h>
-#include <Moss/Core/Variants/TMap.h>
+#include <Moss/Variants/TMap.h>
 
 class RendererVK
 {

@@ -5,10 +5,10 @@
 #pragma once
 
 #include <Moss/Core/Reference.h>
-#include <Moss/Core/Variants/Color.h>
+#include <Moss/Variants/Color.h>
 #include <Moss/Core/Profiler.h>
 #include <Moss/Core/NonCopyable.h>
-#include <Moss/Core/Variants/TStaticArray.h>
+#include <Moss/Variants/TStaticArray.h>
 #include <Moss/Moss_stdinc.h>
 
 MOSS_SUPRESS_WARNINGS_BEGIN
