@@ -18,141 +18,152 @@ set(MOSS_HEADER_FILES
 	${MOSS_ROOT_INCLUDE}/Moss_XR.h
 	${MOSS_ROOT_INCLUDE}/Moss_Navigation.h
 	${MOSS_ROOT_INCLUDE}/Moss.h
+	${MOSS_ROOT_INCLUDE}/Physics/AABBTree/AABBTreeBuilder.h
+	${MOSS_ROOT_INCLUDE}/Physics/AABBTree/AABBTreeToBuffer.h
+	${MOSS_ROOT_INCLUDE}/Physics/AABBTree/NodeCodec/NodeCodecQuadTreeHalfFloat.h
+	${MOSS_ROOT_INCLUDE}/Physics/AABBTree/TriangleCodec/TriangleCodecIndexed8BitPackSOA4Flags.h
+	${MOSS_ROOT_INCLUDE}/Core/Variants/TArray.h
+	${MOSS_ROOT_INCLUDE}/Core/BinaryHeap.h
+	${MOSS_ROOT_INCLUDE}/Core/ByteBuffer.h
+	${MOSS_ROOT_INCLUDE}/Core/Factory.h
+	${MOSS_ROOT_INCLUDE}/Core/FixedSizeFreeList.h
+	${MOSS_ROOT_INCLUDE}/Core/FixedSizeFreeList.inl
+	${MOSS_ROOT_INCLUDE}/Core/FPControlWord.h
+	${MOSS_ROOT_INCLUDE}/Core/FPException.h
+	${MOSS_ROOT_INCLUDE}/Core/FPFlushDenormals.h
+	${MOSS_ROOT_INCLUDE}/Core/HashCombine.h
+	${MOSS_ROOT_INCLUDE}/Core/HashTable.h
+	${MOSS_ROOT_INCLUDE}/Core/InsertionSort.h
+	${MOSS_ROOT_INCLUDE}/Core/JobSystem.h
+	${MOSS_ROOT_INCLUDE}/Core/JobSystem.inl
+	${MOSS_ROOT_INCLUDE}/Core/JobSystemSingleThreaded.h
+	${MOSS_ROOT_INCLUDE}/Core/JobSystemThreadPool.h
+	${MOSS_ROOT_INCLUDE}/Core/JobSystemWithBarrier.h
+	${MOSS_ROOT_INCLUDE}/Core/LinearCurve.cpp
+	${MOSS_ROOT_INCLUDE}/Core/LinearCurve.h
+	${MOSS_ROOT_INCLUDE}/Core/LockFreeHashMap.h
+	${MOSS_ROOT_INCLUDE}/Core/LockFreeHashMap.inl
+	${MOSS_ROOT_INCLUDE}/Core/Memory.cpp
+	${MOSS_ROOT_INCLUDE}/Core/Mutex.h
+	${MOSS_ROOT_INCLUDE}/Core/MutexArray.h
+	${MOSS_ROOT_INCLUDE}/Core/NonCopyable.h
+	${MOSS_ROOT_INCLUDE}/Core/Profiler.cpp
+	${MOSS_ROOT_INCLUDE}/Core/Profiler.h
+	${MOSS_ROOT_INCLUDE}/Core/Profiler.inl
+	${MOSS_ROOT_INCLUDE}/Core/QuickSort.h
+	${MOSS_ROOT_INCLUDE}/Core/Reference.h
+	${MOSS_ROOT_INCLUDE}/Core/Result.h
+	${MOSS_ROOT_INCLUDE}/Core/RTTI.cpp
+	${MOSS_ROOT_INCLUDE}/Core/RTTI.h
+	${MOSS_ROOT_INCLUDE}/Core/ScopeExit.h
+	${MOSS_ROOT_INCLUDE}/Core/Semaphore.cpp
+	${MOSS_ROOT_INCLUDE}/Core/Semaphore.h
+	${MOSS_ROOT_INCLUDE}/Core/Variants/TStaticArray.h
+	${MOSS_ROOT_INCLUDE}/Core/STLAlignedAllocator.h
+	${MOSS_ROOT_INCLUDE}/Core/STLAllocator.h
+	${MOSS_ROOT_INCLUDE}/Core/STLLocalAllocator.h
+	${MOSS_ROOT_INCLUDE}/Core/STLTempAllocator.h
+	${MOSS_ROOT_INCLUDE}/Core/StreamIn.h
+	${MOSS_ROOT_INCLUDE}/Core/StreamOut.h
+	${MOSS_ROOT_INCLUDE}/Core/StreamUtils.h
+	${MOSS_ROOT_INCLUDE}/Core/StreamWrapper.h
+	${MOSS_ROOT_INCLUDE}/Core/StridedPtr.h
+	${MOSS_ROOT_INCLUDE}/Core/StringTools.cpp
+	${MOSS_ROOT_INCLUDE}/Core/StringTools.h
+	${MOSS_ROOT_INCLUDE}/Core/TempAllocator.h
+	${MOSS_ROOT_INCLUDE}/Core/TickCounter.cpp
+	${MOSS_ROOT_INCLUDE}/Core/TickCounter.h
+	${MOSS_ROOT_INCLUDE}/Core/Variants/TMap.h
+	${MOSS_ROOT_INCLUDE}/Core/Variants/TSet.h
+	${MOSS_ROOT_INCLUDE}/Physics/Geometry.cpp
+	${MOSS_ROOT_INCLUDE}/Moss.h
+	${MOSS_ROOT_INCLUDE}/Core/Variants/Vector/BVec16.h
+	${MOSS_ROOT_INCLUDE}/Core/Variants/Vector/BVec16.inl
+	${MOSS_ROOT_INCLUDE}/Core/Variants/Matrix/DMat44.h
+	${MOSS_ROOT_INCLUDE}/Core/Variants/Matrix/DMat44.inl
+	${MOSS_ROOT_INCLUDE}/Core/Variants/Vector/Double3.h
+	${MOSS_ROOT_INCLUDE}/Core/Variants/Vector/DVec3.h
+	${MOSS_ROOT_INCLUDE}/Core/Variants/Vector/DVec3.inl
+	${MOSS_ROOT_INCLUDE}/Core/Variants/Matrix/DynMatrix.h
+	${MOSS_ROOT_INCLUDE}/Core/Variants/Math/EigenValueSymmetric.h
+	${MOSS_ROOT_INCLUDE}/Core/Variants/Math/FindRoot.h
+	${MOSS_ROOT_INCLUDE}/Core/Variants/Vector/Float2.h
+	${MOSS_ROOT_INCLUDE}/Core/Variants/Vector/Float3.h
+	${MOSS_ROOT_INCLUDE}/Core/Variants/Vector/Float4.h
+	${MOSS_ROOT_INCLUDE}/Core/Variants/Vector/Int2.h
+	${MOSS_ROOT_INCLUDE}/Core/Variants/Vector/Int3.h
+	${MOSS_ROOT_INCLUDE}/Core/Variants/Vector/Int4.h
+	${MOSS_ROOT_INCLUDE}/Core/Variants/Math/GaussianElimination.h
+	${MOSS_ROOT_INCLUDE}/Core/Variants/Math/HalfFloat.h
+	${MOSS_ROOT_INCLUDE}/Core/Variants/Matrix/Mat44.h
+	${MOSS_ROOT_INCLUDE}/Core/Variants/Matrix/Mat44.inl
+	${MOSS_ROOT_INCLUDE}/Core/Variants/Math/MathTypes.h
+	${MOSS_ROOT_INCLUDE}/Core/Variants/Matrix/TMatrix.h
+	${MOSS_ROOT_INCLUDE}/Core/Variants/Quat.h
+	${MOSS_ROOT_INCLUDE}/Core/Variants/Quat.inl
+	${MOSS_ROOT_INCLUDE}/Core/Variants/Math/Real.h
+	${MOSS_ROOT_INCLUDE}/Core/Variants/Math/Swizzle.h
+	${MOSS_ROOT_INCLUDE}/Core/Variants/Math/Trigonometry.h
+	${MOSS_ROOT_INCLUDE}/Core/Variants/Vector/UVec4.h
+	${MOSS_ROOT_INCLUDE}/Core/Variants/Vector/UVec4.inl
+	${MOSS_ROOT_INCLUDE}/Core/Variants/Vector/Vec3.h
+	${MOSS_ROOT_INCLUDE}/Core/Variants/Vector/Vec3.inl
+	${MOSS_ROOT_INCLUDE}/Core/Variants/Vector/Vec4.h
+	${MOSS_ROOT_INCLUDE}/Core/Variants/Vector/Vec4.inl
+
+	${MOSS_ROOT_INCLUDE}/Core/Variants/Vector/TVec.h
+	${MOSS_ROOT_INCLUDE}/Physics/Collision.h
+	${MOSS_ROOT_INCLUDE}/Physics/Constraints.h
+	${MOSS_ROOT_INCLUDE}/Physics/DeterminismLog.h
+	${MOSS_ROOT_INCLUDE}/Physics/EPhysicsUpdateError.h
+	${MOSS_ROOT_INCLUDE}/Physics/IslandBuilder.h
+	${MOSS_ROOT_INCLUDE}/Physics/LargeIslandSplitter.h
+	${MOSS_ROOT_INCLUDE}/Physics/PhysicsLock.h
+	${MOSS_ROOT_INCLUDE}/Physics/PhysicsScene.cpp
+	${MOSS_ROOT_INCLUDE}/Physics/PhysicsScene.h
+	${MOSS_ROOT_INCLUDE}/Physics/PhysicsSettings.h
+	${MOSS_ROOT_INCLUDE}/Physics/PhysicsStepListener.h
+	${MOSS_ROOT_INCLUDE}/Physics/PhysicsSystem.cpp
+	${MOSS_ROOT_INCLUDE}/Physics/PhysicsSystem.h
+	${MOSS_ROOT_INCLUDE}/Physics/PhysicsUpdateContext.h
+	${MOSS_ROOT_INCLUDE}/Physics/StateRecorder.h
+	${MOSS_ROOT_INCLUDE}/Physics/StateRecorderImpl.h
+	${MOSS_ROOT_INCLUDE}/TriangleSplitter/TriangleSplitter.h
+	${MOSS_ROOT_INCLUDE}/TriangleSplitter/TriangleSplitterBinning.h
+	${MOSS_ROOT_INCLUDE}/TriangleSplitter/TriangleSplitterMean.h
 )
 
 set(MOSS_SRC_FILES
 	${MOSS_ROOT}/Physics/AABBTree/AABBTreeBuilder.cpp
-	${MOSS_ROOT}/Physics/AABBTree/AABBTreeBuilder.h
-	${MOSS_ROOT}/Physics/AABBTree/AABBTreeToBuffer.h
-	${MOSS_ROOT}/Physics/AABBTree/NodeCodec/NodeCodecQuadTreeHalfFloat.h
-	${MOSS_ROOT}/Physics/AABBTree/TriangleCodec/TriangleCodecIndexed8BitPackSOA4Flags.h
-	${MOSS_ROOT}/Core/Variants/TArray.h
-	${MOSS_ROOT}/Core/BinaryHeap.h
-	${MOSS_ROOT}/Core/ByteBuffer.h
 	${MOSS_ROOT}/Core/Variants/Color.cpp
 	${MOSS_ROOT}/Core/Factory.cpp
-	${MOSS_ROOT}/Core/Factory.h
-	${MOSS_ROOT}/Core/FixedSizeFreeList.h
-	${MOSS_ROOT}/Core/FixedSizeFreeList.inl
-	${MOSS_ROOT}/Core/FPControlWord.h
-	${MOSS_ROOT}/Core/FPException.h
-	${MOSS_ROOT}/Core/FPFlushDenormals.h
-	${MOSS_ROOT}/Core/HashCombine.h
-	${MOSS_ROOT}/Core/HashTable.h
-	${MOSS_ROOT}/Core/InsertionSort.h
-	${MOSS_ROOT}/Core/JobSystem.h
-	${MOSS_ROOT}/Core/JobSystem.inl
 	${MOSS_ROOT}/Core/JobSystemSingleThreaded.cpp
-	${MOSS_ROOT}/Core/JobSystemSingleThreaded.h
 	${MOSS_ROOT}/Core/JobSystemThreadPool.cpp
-	${MOSS_ROOT}/Core/JobSystemThreadPool.h
 	${MOSS_ROOT}/Core/JobSystemWithBarrier.cpp
-	${MOSS_ROOT}/Core/JobSystemWithBarrier.h
 	${MOSS_ROOT}/Core/LinearCurve.cpp
-	${MOSS_ROOT}/Core/LinearCurve.h
-	${MOSS_ROOT}/Core/LockFreeHashMap.h
 	${MOSS_ROOT}/Core/LockFreeHashMap.inl
 	${MOSS_ROOT}/Core/Memory.cpp
-	${MOSS_ROOT}/Core/Mutex.h
-	${MOSS_ROOT}/Core/MutexArray.h
-	${MOSS_ROOT}/Core/NonCopyable.h
 	${MOSS_ROOT}/Core/Profiler.cpp
-	${MOSS_ROOT}/Core/Profiler.h
-	${MOSS_ROOT}/Core/Profiler.inl
-	${MOSS_ROOT}/Core/QuickSort.h
-	${MOSS_ROOT}/Core/Reference.h
-	${MOSS_ROOT}/Core/Result.h
 	${MOSS_ROOT}/Core/RTTI.cpp
-	${MOSS_ROOT}/Core/RTTI.h
-	${MOSS_ROOT}/Core/ScopeExit.h
 	${MOSS_ROOT}/Core/Semaphore.cpp
-	${MOSS_ROOT}/Core/Semaphore.h
-	${MOSS_ROOT}/Core/Variants/TStaticArray.h
-	${MOSS_ROOT}/Core/STLAlignedAllocator.h
-	${MOSS_ROOT}/Core/STLAllocator.h
-	${MOSS_ROOT}/Core/STLLocalAllocator.h
-	${MOSS_ROOT}/Core/STLTempAllocator.h
-	${MOSS_ROOT}/Core/StreamIn.h
-	${MOSS_ROOT}/Core/StreamOut.h
-	${MOSS_ROOT}/Core/StreamUtils.h
-	${MOSS_ROOT}/Core/StreamWrapper.h
-	${MOSS_ROOT}/Core/StridedPtr.h
 	${MOSS_ROOT}/Core/StringTools.cpp
-	${MOSS_ROOT}/Core/StringTools.h
-	${MOSS_ROOT}/Core/TempAllocator.h
 	${MOSS_ROOT}/Core/TickCounter.cpp
-	${MOSS_ROOT}/Core/TickCounter.h
-	${MOSS_ROOT}/Core/Variants/TMap.h
-	${MOSS_ROOT}/Core/Variants/TSet.h
 	${MOSS_ROOT}/Physics/Geometry.cpp
-	${MOSS_ROOT}/Moss.h
-	${MOSS_ROOT}/Core/Variants/Vector/BVec16.h
-	${MOSS_ROOT}/Core/Variants/Vector/BVec16.inl
-	${MOSS_ROOT}/Core/Variants/Matrix/DMat44.h
-	${MOSS_ROOT}/Core/Variants/Matrix/DMat44.inl
-	${MOSS_ROOT}/Core/Variants/Vector/Double3.h
-	${MOSS_ROOT}/Core/Variants/Vector/DVec3.h
-	${MOSS_ROOT}/Core/Variants/Vector/DVec3.inl
-	${MOSS_ROOT}/Core/Variants/Matrix/DynMatrix.h
-	${MOSS_ROOT}/Core/Variants/Math/EigenValueSymmetric.h
-	${MOSS_ROOT}/Core/Variants/Math/FindRoot.h
-	${MOSS_ROOT}/Core/Variants/Vector/Float2.h
-	${MOSS_ROOT}/Core/Variants/Vector/Float3.h
-	${MOSS_ROOT}/Core/Variants/Vector/Float4.h
-	${MOSS_ROOT}/Core/Variants/Vector/Int2.h
-	${MOSS_ROOT}/Core/Variants/Vector/Int3.h
-	${MOSS_ROOT}/Core/Variants/Vector/Int4.h
-	${MOSS_ROOT}/Core/Variants/Math/GaussianElimination.h
-	${MOSS_ROOT}/Core/Variants/Math/HalfFloat.h
-	${MOSS_ROOT}/Core/Variants/Matrix/Mat44.h
-	${MOSS_ROOT}/Core/Variants/Matrix/Mat44.inl
-	${MOSS_ROOT}/Core/Variants/Math/MathTypes.h
-	${MOSS_ROOT}/Core/Variants/Matrix/TMatrix.h
-	${MOSS_ROOT}/Core/Variants/Quat.h
-	${MOSS_ROOT}/Core/Variants/Quat.inl
-	${MOSS_ROOT}/Core/Variants/Math/Real.h
-	${MOSS_ROOT}/Core/Variants/Math/Swizzle.h
-	${MOSS_ROOT}/Core/Variants/Math/Trigonometry.h
-	${MOSS_ROOT}/Core/Variants/Vector/UVec4.h
-	${MOSS_ROOT}/Core/Variants/Vector/UVec4.inl
 	${MOSS_ROOT}/Core/Variants/Vector/Vec3.cpp
-	${MOSS_ROOT}/Core/Variants/Vector/Vec3.h
-	${MOSS_ROOT}/Core/Variants/Vector/Vec3.inl
-	${MOSS_ROOT}/Core/Variants/Vector/Vec4.h
-	${MOSS_ROOT}/Core/Variants/Vector/Vec4.inl
-	${MOSS_ROOT}/Core/Variants/Vector/TVec.h
 	${MOSS_ROOT}/Physics/Body.cpp
 	${MOSS_ROOT}/Physics/Character.cpp
-	${MOSS_ROOT}/Physics/Collision.h
-	${MOSS_ROOT}/Physics/Constraints.h
 	${MOSS_ROOT}/Physics/DeterminismLog.cpp
-	${MOSS_ROOT}/Physics/DeterminismLog.h
-	${MOSS_ROOT}/Physics/EPhysicsUpdateError.h
 	${MOSS_ROOT}/Physics/IslandBuilder.cpp
-	${MOSS_ROOT}/Physics/IslandBuilder.h
 	${MOSS_ROOT}/Physics/LargeIslandSplitter.cpp
-	${MOSS_ROOT}/Physics/LargeIslandSplitter.h
-	${MOSS_ROOT}/Physics/PhysicsLock.h
-	${MOSS_ROOT}/Physics/PhysicsScene.cpp
-	${MOSS_ROOT}/Physics/PhysicsScene.h
-	${MOSS_ROOT}/Physics/PhysicsSettings.h
-	${MOSS_ROOT}/Physics/PhysicsStepListener.h
-	${MOSS_ROOT}/Physics/PhysicsSystem.cpp
-	${MOSS_ROOT}/Physics/PhysicsSystem.h
 	${MOSS_ROOT}/Physics/PhysicsUpdateContext.cpp
-	${MOSS_ROOT}/Physics/PhysicsUpdateContext.h
 	${MOSS_ROOT}/Physics/Ragdoll/Ragdoll.cpp
 	${MOSS_ROOT}/Physics/SoftBody.cpp
-	${MOSS_ROOT}/Physics/StateRecorder.h
 	${MOSS_ROOT}/Physics/StateRecorderImpl.cpp
-	${MOSS_ROOT}/Physics/StateRecorderImpl.h
 	${MOSS_ROOT}/Physics/Vehicle.cpp
 	${MOSS_ROOT}/TriangleSplitter/TriangleSplitter.cpp
-	${MOSS_ROOT}/TriangleSplitter/TriangleSplitter.h
 	${MOSS_ROOT}/TriangleSplitter/TriangleSplitterBinning.cpp
-	${MOSS_ROOT}/TriangleSplitter/TriangleSplitterBinning.h
 	${MOSS_ROOT}/TriangleSplitter/TriangleSplitterMean.cpp
-	${MOSS_ROOT}/TriangleSplitter/TriangleSplitterMean.h
+	
 
 	#${MOSS_ROOT}/Platform/platform_intern.h
 
