@@ -113,7 +113,7 @@ struct ValueTest : JsonTest::TestCase {
 
   void checkIs(const Json::Value& value, const IsCheck& check);
 
-  void checkIsLess(const Json::Value& x, const Json::Value& y);
+  void checkILess(const Json::Value& x, const Json::Value& y);
 
   void checkIsEqual(const Json::Value& x, const Json::Value& y);
 
@@ -1544,38 +1544,38 @@ JSONTEST_FIXTURE_LOCAL(ValueTest, compareNull) {
 }
 
 JSONTEST_FIXTURE_LOCAL(ValueTest, compareInt) {
-  JSONTEST_ASSERT_PRED(checkIsLess(0, 10));
+  JSONTEST_ASSERT_PRED(checkILess(0, 10));
   JSONTEST_ASSERT_PRED(checkIsEqual(10, 10));
   JSONTEST_ASSERT_PRED(checkIsEqual(-10, -10));
-  JSONTEST_ASSERT_PRED(checkIsLess(-10, 0));
+  JSONTEST_ASSERT_PRED(checkILess(-10, 0));
 }
 
 JSONTEST_FIXTURE_LOCAL(ValueTest, compareUInt) {
-  JSONTEST_ASSERT_PRED(checkIsLess(0u, 10u));
-  JSONTEST_ASSERT_PRED(checkIsLess(0u, Json::Value::maxUInt));
+  JSONTEST_ASSERT_PRED(checkILess(0u, 10u));
+  JSONTEST_ASSERT_PRED(checkILess(0u, Json::Value::maxUInt));
   JSONTEST_ASSERT_PRED(checkIsEqual(10u, 10u));
 }
 
 JSONTEST_FIXTURE_LOCAL(ValueTest, compareDouble) {
-  JSONTEST_ASSERT_PRED(checkIsLess(0.0, 10.0));
+  JSONTEST_ASSERT_PRED(checkILess(0.0, 10.0));
   JSONTEST_ASSERT_PRED(checkIsEqual(10.0, 10.0));
   JSONTEST_ASSERT_PRED(checkIsEqual(-10.0, -10.0));
-  JSONTEST_ASSERT_PRED(checkIsLess(-10.0, 0.0));
+  JSONTEST_ASSERT_PRED(checkILess(-10.0, 0.0));
 }
 
 JSONTEST_FIXTURE_LOCAL(ValueTest, compareString) {
-  JSONTEST_ASSERT_PRED(checkIsLess("", " "));
-  JSONTEST_ASSERT_PRED(checkIsLess("", "a"));
-  JSONTEST_ASSERT_PRED(checkIsLess("abcd", "zyui"));
-  JSONTEST_ASSERT_PRED(checkIsLess("abc", "abcd"));
+  JSONTEST_ASSERT_PRED(checkILess("", " "));
+  JSONTEST_ASSERT_PRED(checkILess("", "a"));
+  JSONTEST_ASSERT_PRED(checkILess("abcd", "zyui"));
+  JSONTEST_ASSERT_PRED(checkILess("abc", "abcd"));
   JSONTEST_ASSERT_PRED(checkIsEqual("abcd", "abcd"));
   JSONTEST_ASSERT_PRED(checkIsEqual(" ", " "));
-  JSONTEST_ASSERT_PRED(checkIsLess("ABCD", "abcd"));
+  JSONTEST_ASSERT_PRED(checkILess("ABCD", "abcd"));
   JSONTEST_ASSERT_PRED(checkIsEqual("ABCD", "ABCD"));
 }
 
 JSONTEST_FIXTURE_LOCAL(ValueTest, compareBoolean) {
-  JSONTEST_ASSERT_PRED(checkIsLess(false, true));
+  JSONTEST_ASSERT_PRED(checkILess(false, true));
   JSONTEST_ASSERT_PRED(checkIsEqual(false, false));
   JSONTEST_ASSERT_PRED(checkIsEqual(true, true));
 }
@@ -1593,11 +1593,11 @@ JSONTEST_FIXTURE_LOCAL(ValueTest, compareArray) {
   Json::Value l2bArray;
   l2bArray.append(0);
   l2bArray.append(10);
-  JSONTEST_ASSERT_PRED(checkIsLess(emptyArray, l1aArray));
-  JSONTEST_ASSERT_PRED(checkIsLess(emptyArray, l2aArray));
-  JSONTEST_ASSERT_PRED(checkIsLess(l1aArray, l1bArray));
-  JSONTEST_ASSERT_PRED(checkIsLess(l1bArray, l2aArray));
-  JSONTEST_ASSERT_PRED(checkIsLess(l2aArray, l2bArray));
+  JSONTEST_ASSERT_PRED(checkILess(emptyArray, l1aArray));
+  JSONTEST_ASSERT_PRED(checkILess(emptyArray, l2aArray));
+  JSONTEST_ASSERT_PRED(checkILess(l1aArray, l1bArray));
+  JSONTEST_ASSERT_PRED(checkILess(l1bArray, l2aArray));
+  JSONTEST_ASSERT_PRED(checkILess(l2aArray, l2bArray));
   JSONTEST_ASSERT_PRED(checkIsEqual(emptyArray, Json::Value(emptyArray)));
   JSONTEST_ASSERT_PRED(checkIsEqual(l1aArray, Json::Value(l1aArray)));
   JSONTEST_ASSERT_PRED(checkIsEqual(l1bArray, Json::Value(l1bArray)));
@@ -1618,10 +1618,10 @@ JSONTEST_FIXTURE_LOCAL(ValueTest, compareObject) {
   Json::Value l2bObject;
   l2bObject["key1"] = 10;
   l2bObject["key2"] = 0;
-  JSONTEST_ASSERT_PRED(checkIsLess(emptyObject, l1aObject));
-  JSONTEST_ASSERT_PRED(checkIsLess(l1aObject, l1bObject));
-  JSONTEST_ASSERT_PRED(checkIsLess(l1bObject, l2aObject));
-  JSONTEST_ASSERT_PRED(checkIsLess(l2aObject, l2bObject));
+  JSONTEST_ASSERT_PRED(checkILess(emptyObject, l1aObject));
+  JSONTEST_ASSERT_PRED(checkILess(l1aObject, l1bObject));
+  JSONTEST_ASSERT_PRED(checkILess(l1bObject, l2aObject));
+  JSONTEST_ASSERT_PRED(checkILess(l2aObject, l2bObject));
   JSONTEST_ASSERT_PRED(checkIsEqual(emptyObject, Json::Value(emptyObject)));
   JSONTEST_ASSERT_PRED(checkIsEqual(l1aObject, Json::Value(l1aObject)));
   JSONTEST_ASSERT_PRED(checkIsEqual(l1bObject, Json::Value(l1bObject)));
@@ -1638,9 +1638,9 @@ JSONTEST_FIXTURE_LOCAL(ValueTest, compareObject) {
     Json::Value dObject;
     dObject["d"] = -2;
     dObject["e"] = 10;
-    JSONTEST_ASSERT_PRED(checkIsLess(aObject, bObject));
-    JSONTEST_ASSERT_PRED(checkIsLess(bObject, cObject));
-    JSONTEST_ASSERT_PRED(checkIsLess(cObject, dObject));
+    JSONTEST_ASSERT_PRED(checkILess(aObject, bObject));
+    JSONTEST_ASSERT_PRED(checkILess(bObject, cObject));
+    JSONTEST_ASSERT_PRED(checkILess(cObject, dObject));
     JSONTEST_ASSERT_PRED(checkIsEqual(aObject, Json::Value(aObject)));
     JSONTEST_ASSERT_PRED(checkIsEqual(bObject, Json::Value(bObject)));
     JSONTEST_ASSERT_PRED(checkIsEqual(cObject, Json::Value(cObject)));
@@ -1650,14 +1650,14 @@ JSONTEST_FIXTURE_LOCAL(ValueTest, compareObject) {
 
 JSONTEST_FIXTURE_LOCAL(ValueTest, compareType) {
   // object of different type are ordered according to their type
-  JSONTEST_ASSERT_PRED(checkIsLess(Json::Value(), Json::Value(1)));
-  JSONTEST_ASSERT_PRED(checkIsLess(Json::Value(1), Json::Value(1u)));
-  JSONTEST_ASSERT_PRED(checkIsLess(Json::Value(1u), Json::Value(1.0)));
-  JSONTEST_ASSERT_PRED(checkIsLess(Json::Value(1.0), Json::Value("a")));
-  JSONTEST_ASSERT_PRED(checkIsLess(Json::Value("a"), Json::Value(true)));
+  JSONTEST_ASSERT_PRED(checkILess(Json::Value(), Json::Value(1)));
+  JSONTEST_ASSERT_PRED(checkILess(Json::Value(1), Json::Value(1u)));
+  JSONTEST_ASSERT_PRED(checkILess(Json::Value(1u), Json::Value(1.0)));
+  JSONTEST_ASSERT_PRED(checkILess(Json::Value(1.0), Json::Value("a")));
+  JSONTEST_ASSERT_PRED(checkILess(Json::Value("a"), Json::Value(true)));
   JSONTEST_ASSERT_PRED(
-      checkIsLess(Json::Value(true), Json::Value(Json::arrayValue)));
-  JSONTEST_ASSERT_PRED(checkIsLess(Json::Value(Json::arrayValue),
+      checkILess(Json::Value(true), Json::Value(Json::arrayValue)));
+  JSONTEST_ASSERT_PRED(checkILess(Json::Value(Json::arrayValue),
                                    Json::Value(Json::objectValue)));
 }
 
@@ -1713,7 +1713,7 @@ JSONTEST_FIXTURE_LOCAL(ValueTest, CopyObject) {
   }
 }
 
-void ValueTest::checkIsLess(const Json::Value& x, const Json::Value& y) {
+void ValueTest::checkILess(const Json::Value& x, const Json::Value& y) {
   JSONTEST_ASSERT(x < y);
   JSONTEST_ASSERT(y > x);
   JSONTEST_ASSERT(x <= y);

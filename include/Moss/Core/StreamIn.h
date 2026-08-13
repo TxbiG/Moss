@@ -92,14 +92,14 @@ public:
 	void				Read(Vec3 &outVec)
 	{
 		ReadBytes(&outVec, 3 * sizeof(float));
-		outVec = Vec3::sFixW(outVec.mValue);
+		outVec = Vec3::FixW(outVec.mValue);
 	}
 
 	/// Read a DVec3 (don't read W)
 	void				Read(DVec3 &outVec)
 	{
 		ReadBytes(&outVec, 3 * sizeof(double));
-		outVec = DVec3::sFixW(outVec.mValue);
+		outVec = DVec3::FixW(outVec.mValue);
 	}
 
 	/// Read a DMat44 (don't read W component of translation)

@@ -44,7 +44,7 @@ MOSS_INLINE Vec2::Type Vec2::FixW(Type inValue)
 #endif // MOSS_FLOATING_POINT_EXCEPTIONS_ENABLED
 }
 
-//Vec2::Vec2(const Vec2& inRHS) : mValue(sFixW(inRHS.mValue)) {}
+//Vec2::Vec2(const Vec2& inRHS) : mValue(FixW(inRHS.mValue)) {}
 
 Vec2::Vec2(const Float2 &inV)
 {
@@ -129,7 +129,7 @@ Vec2 Vec2::Replicate(float inV)
 
 Vec2 Vec2::NaN()
 {
-	return sReplicate(numeric_limits<float>::quiet_NaN());
+	return Replicate(numeric_limits<float>::quiet_NaN());
 }
 
 Vec2 Vec2::LoadFloat2Unsafe(const Float2 &inV)
@@ -141,7 +141,7 @@ Vec2 Vec2::LoadFloat2Unsafe(const Float2 &inV)
 #else
 	Type v = { inV.x, inV.y };
 #endif
-	return sFixW(v);
+	return FixW(v);
 }
 
 Vec2 Vec2::Min(Vec2 inV1, Vec2 inV2)
@@ -170,7 +170,7 @@ Vec2 Vec2::Max(const Vec2 inV1, const Vec2 inV2)
 
 Vec2 Vec2::Clamp(const Vec2 inV, const Vec2 inMin, const Vec2 inMax)
 {
-	return sMax(sMin(inV, inMax), inMin);
+	return Max(Min(inV, inMax), inMin);
 }
 
 UVec4 Vec2::Equals(const Vec2 inV1, const Vec2 inV2)
@@ -269,14 +269,14 @@ Vec2 Vec2::Select(const Vec2 inNotSet, const Vec2 inSet, const UVec4 inControl)
 {
 #if defined(MOSS_SIMD_SSE4_1) && !defined(MOSS_PLATFORM_WASM) // _mm_blendv_ps has problems on FireFox
 	Type v = _mm_blendv_ps(inNotSet.mValue, inSet.mValue, _mm_castsi128_ps(inControl.mValue));
-	return sFixW(v);
+	return FixW(v);
 #elif defined(MOSS_SIMD_SSE)
 	__m128 is_set = _mm_castsi128_ps(_mm_srai_epi32(inControl.mValue, 31));
 	Type v = _mm_or_ps(_mm_and_ps(is_set, inSet.mValue), _mm_andnot_ps(is_set, inNotSet.mValue));
-	return sFixW(v);
+	return FixW(v);
 #elif defined(MOSS_SIMD_NEON)
 	Type v = vbslq_f32(vreinterpretq_u32_s32(vshrq_n_s32(vreinterpretq_s32_u32(inControl.mValue), 31)), inSet.mValue, inNotSet.mValue);
-	return sFixW(v);
+	return FixW(v);
 #else
 	Vec2 result;
 	for (int i = 0; i < 3; i++)
@@ -581,7 +581,7 @@ Vec2 Vec2::Abs() const
 
 Vec2 Vec2::Reciprocal() const
 {
-	return sReplicate(1.0f) / mValue;
+	return Replicate(1.0f) / mValue;
 }
 
 Vec2 Vec2::Cross(const Vec2 inV2) const

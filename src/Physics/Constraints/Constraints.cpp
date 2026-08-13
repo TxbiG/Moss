@@ -6098,7 +6098,7 @@ bool SixDOFConstraint::SolvePositionConstraint(float inDeltaTime, float inBaumga
 		// Definition of initial orientation r0: q2 = q1 r0
 		// Initial rotation (see: GetRotationInConstraintSpace): q2 = q1 c1 c2^-1
 		// So: r0^-1 = (c1 c2^-1)^-1 = c2 * c1^-1
-		Quat constraint_to_body1 = mConstraintToBody1 * Quat::EulerAngles(GetRotationLimitsMin());
+		Quat constraint_to_body1 = mConstraintToBody1 * Quat::EulerAngles(GetRotationLimitMin());
 		Quat inv_initial_orientation = mConstraintToBody2 * constraint_to_body1.Conjugated();
 
 		// Solve rotation violations
@@ -6118,7 +6118,7 @@ bool SixDOFConstraint::SolvePositionConstraint(float inDeltaTime, float inBaumga
 	if (IsTranslationFullyConstrained())
 	{
 		// Translation locked: Solve point constraint
-		Vec3 local_space_position1 = mLocalSpacePosition1 + mConstraintToBody1 * GetTranslationLimitsMin();
+		Vec3 local_space_position1 = mLocalSpacePosition1 + mConstraintToBody1 * GetTranslationLimitMin();
 		mPointConstraintPart.CalculateConstraintProperties(*mBody1, Mat44::Rotation(mBody1->GetRotation()), local_space_position1, *mBody2, Mat44::Rotation(mBody2->GetRotation()), mLocalSpacePosition2);
 		impulse |= mPointConstraintPart.SolvePositionConstraint(*mBody1, *mBody2, inBaumgarte);
 	}

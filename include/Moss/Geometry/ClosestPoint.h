@@ -171,7 +171,7 @@ namespace ClosestPoint
 		{
 			Vec3 ac = inC - inA;
 			Vec3 bc = inC - inB;
-			swap_ac = Vec4::sLess(bc.DotV4(bc), ac.DotV4(ac));
+			swap_ac = Vec4::Less(bc.DotV4(bc), ac.DotV4(ac));
 		}
 		Vec3 a = Vec3::sSelect(inA, inC, swap_ac);
 		Vec3 c = Vec3::sSelect(inC, inA, swap_ac);
@@ -394,15 +394,15 @@ namespace ClosestPoint
 		{
 		case 0:
 			// All positive
-			return Vec4::sGreaterOrEqual(signp, Vec4::sReplicate(-FLT_EPSILON));
+			return Vec4::sGreaterOrEqual(signp, Vec4::Replicate(-FLT_EPSILON));
 
 		case 0xf:
 			// All negative
-			return Vec4::sLessOrEqual(signp, Vec4::sReplicate(FLT_EPSILON));
+			return Vec4::sLessOrEqual(signp, Vec4::Replicate(FLT_EPSILON));
 
 		default:
 			// Mixed signs, degenerate tetrahedron
-			return UVec4::sReplicate(0xffffffff);
+			return UVec4::Replicate(0xffffffff);
 		}
 	}
 

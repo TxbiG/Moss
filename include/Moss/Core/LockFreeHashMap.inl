@@ -145,7 +145,7 @@ void LockFreeHashMap<Key, Value>::Clear()
 
 	// Reset buckets 4 at a time
 	static_assert(sizeof(atomic<uint32>) == sizeof(uint32));
-	UVec4 invalid_handle = UVec4::sReplicate(cInvalidHandle);
+	UVec4 invalid_handle = UVec4::Replicate(cInvalidHandle);
 	uint32 *start = reinterpret_cast<uint32 *>(mBuckets);
 	const uint32 *end = start + mNumBuckets;
 	MOSS_ASSERT(IsAligned(start, 16));

@@ -277,7 +277,7 @@ void ConvexHullBuilder::Face::CalculateNormalAndCentroid(const Vec3 *inPositions
 		// The difference in normals is most pronounced when one edge is much smaller than the others (in which case the others must have roughly the same length).
 		// Therefore we can suffice by just picking the shortest from 2 edges and use that with the 3rd edge to calculate the normal.
 		// We first check which of the edges is shorter: e1 or e2
-		UVec4 e1_shorter_than_e2 = Vec4::sLess(e1.DotV4(e1), e2.DotV4(e2));
+		UVec4 e1_shorter_than_e2 = Vec4::Less(e1.DotV4(e1), e2.DotV4(e2));
 
 		// We calculate both normals and then select the one that had the shortest edge for our normal (this avoids branching)
 		Vec3 normal_e01 = e0.Cross(e1);
@@ -330,11 +330,11 @@ ConvexHullBuilder::ConvexHullBuilder(const Positions &inPositions) :
 	}
 	else
 	{
-		Vec3 maxv = Vec3::sReplicate(-FLT_MAX), minv = Vec3::sReplicate(FLT_MAX);
+		Vec3 maxv = Vec3::Replicate(-FLT_MAX), minv = Vec3::Replicate(FLT_MAX);
 		for (Vec3 v : mPositions)
 		{
-			minv = Vec3::sMin(minv, v);
-			maxv = Vec3::sMax(maxv, v);
+			minv = Vec3::Min(minv, v);
+			maxv = Vec3::Max(maxv, v);
 			mOffset -= v;
 		}
 		mOffset /= Real(mPositions.size());
@@ -449,7 +449,7 @@ float ConvexHullBuilder::DetermineCoplanarDistance() const
 	// Formula as per: Implementing Quickhull - Dirk Gregorius.
 	Vec3 vmax = Vec3::sZero();
 	for (Vec3 v : mPositions)
-		vmax = Vec3::sMax(vmax, v.Abs());
+		vmax = Vec3::Max(vmax, v.Abs());
 	return 3.0f * FLT_EPSILON * (vmax.GetX() + vmax.GetY() + vmax.GetZ());
 }
 
@@ -1701,11 +1701,11 @@ ConvexHullBuilder2D::ConvexHullBuilder2D(const Positions &inPositions) :
 	}
 	else
 	{
-		Vec3 maxv = Vec3::sReplicate(-FLT_MAX), minv = Vec3::sReplicate(FLT_MAX);
+		Vec3 maxv = Vec3::Replicate(-FLT_MAX), minv = Vec3::Replicate(FLT_MAX);
 		for (Vec3 v : mPositions)
 		{
-			minv = Vec3::sMin(minv, v);
-			maxv = Vec3::sMax(maxv, v);
+			minv = Vec3::Min(minv, v);
+			maxv = Vec3::Max(maxv, v);
 			mOffset -= v;
 		}
 		mOffset /= Real(mPositions.size());
@@ -1819,7 +1819,7 @@ ConvexHullBuilder2D::EResult ConvexHullBuilder2D::Initialize(int inIdx1, int inI
 	// Formula as per: Implementing Quickhull - Dirk Gregorius.
 	Vec3 vmax = Vec3::sZero();
 	for (Vec3 v : mPositions)
-		vmax = Vec3::sMax(vmax, v.Abs());
+		vmax = Vec3::Max(vmax, v.Abs());
 	float colinear_tolerance_sq = Square(2.0f * FLT_EPSILON * (vmax.GetX() + vmax.GetY()));
 
 	// Increase desired tolerance if accuracy doesn't allow it

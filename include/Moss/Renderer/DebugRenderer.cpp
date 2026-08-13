@@ -722,7 +722,7 @@ void DebugRenderer::DrawBox(const AABox &inBox, ColorArg inColor, ECastShadow in
 {
 	MOSS_PROFILE_FUNCTION();
 
-	RMat44 m = RMat44::sScale(Vec3::sMax(inBox.GetExtent(), Vec3::sReplicate(1.0e-6f))); // Prevent div by zero when one of the edges has length 0
+	RMat44 m = RMat44::sScale(Vec3::Max(inBox.GetExtent(), Vec3::Replicate(1.0e-6f))); // Prevent div by zero when one of the edges has length 0
 	m.SetTranslation(RVec3(inBox.GetCenter()));
 	DrawGeometry(m, inColor, mBox, ECullMode::CullBackFace, inCastShadow, inDrawMode);
 }
@@ -731,7 +731,7 @@ void DebugRenderer::DrawBox(RMat44Arg inMatrix, const AABox &inBox, ColorArg inC
 {
 	MOSS_PROFILE_FUNCTION();
 
-	Mat44 m = Mat44::sScale(Vec3::sMax(inBox.GetExtent(), Vec3::sReplicate(1.0e-6f))); // Prevent div by zero when one of the edges has length 0
+	Mat44 m = Mat44::sScale(Vec3::Max(inBox.GetExtent(), Vec3::Replicate(1.0e-6f))); // Prevent div by zero when one of the edges has length 0
 	m.SetTranslation(inBox.GetCenter());
 	DrawGeometry(inMatrix * m, inColor, mBox, ECullMode::CullBackFace, inCastShadow, inDrawMode);
 }

@@ -136,7 +136,7 @@ BVec16 BVec16::And(BVec16Arg inV1, BVec16Arg inV2)
 BVec16 BVec16::Not(BVec16Arg inV1)
 {
 #if defined(MOSS_SIMD_SSE)
-	return sXor(inV1, sReplicate(0xff));
+	return sXor(inV1, Replicate(0xff));
 #elif defined(MOSS_SIMD_NEON)
 	return vmvnq_u8(inV1.mValue);
 #else

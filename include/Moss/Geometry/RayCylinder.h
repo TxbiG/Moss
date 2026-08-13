@@ -194,7 +194,7 @@ MOSS_INLINE float RayCapsule(Vec3Arg inRayOrigin, Vec3Arg inRayDirection, float 
 /// Adapted from: http://en.wikipedia.org/wiki/M%C3%B6ller%E2%80%93Trumbore_intersection_algorithm
 MOSS_INLINE float RayTriangle(Vec3Arg inOrigin, Vec3Arg inDirection, Vec3Arg inV0, Vec3Arg inV1, Vec3Arg inV2) {
 	// Epsilon
-	Vec3 epsilon = Vec3::sReplicate(1.0e-12f);
+	Vec3 epsilon = Vec3::Replicate(1.0e-12f);
 
 	// Zero & one
 	Vec3 zero = Vec3::sZero();
@@ -208,10 +208,10 @@ MOSS_INLINE float RayTriangle(Vec3Arg inOrigin, Vec3Arg inDirection, Vec3Arg inV
 	Vec3 p = inDirection.Cross(e2);
 
 	// if determinant is near zero, ray lies in plane of triangle
-	Vec3 det = Vec3::sReplicate(e1.Dot(p));
+	Vec3 det = Vec3::Replicate(e1.Dot(p));
 
 	// Check if determinant is near zero
-	UVec4 det_near_zero = Vec3::sLess(det.Abs(), epsilon);
+	UVec4 det_near_zero = Vec3::Less(det.Abs(), epsilon);
 
 	// When the determinant is near zero, set it to one to avoid dividing by zero
 	det = Vec3::sSelect(det, Vec3::sOne(), det_near_zero);
@@ -220,28 +220,28 @@ MOSS_INLINE float RayTriangle(Vec3Arg inOrigin, Vec3Arg inDirection, Vec3Arg inV
 	Vec3 s = inOrigin - inV0;
 
 	// Calculate u parameter
-	Vec3 u = Vec3::sReplicate(s.Dot(p)) / det;
+	Vec3 u = Vec3::Replicate(s.Dot(p)) / det;
 
 	// Prepare to test v parameter
 	Vec3 q = s.Cross(e1);
 
 	// Calculate v parameter
-	Vec3 v = Vec3::sReplicate(inDirection.Dot(q)) / det;
+	Vec3 v = Vec3::Replicate(inDirection.Dot(q)) / det;
 
 	// Get intersection point
-	Vec3 t = Vec3::sReplicate(e2.Dot(q)) / det;
+	Vec3 t = Vec3::Replicate(e2.Dot(q)) / det;
 
 	// Check if there is an intersection
-	UVec4 no_intersection = UVec4::sOr(UVec4::sOr(UVec4::sOr(det_near_zero, Vec3::sLess(u, zero)), UVec4::sOr(Vec3::sLess(v, zero), Vec3::sGreater(u + v, one))), Vec3::sLess(t, zero));
+	UVec4 no_intersection = UVec4::sOr(UVec4::sOr(UVec4::sOr(det_near_zero, Vec3::Less(u, zero)), UVec4::sOr(Vec3::Less(v, zero), Vec3::Greater(u + v, one))), Vec3::Less(t, zero));
 
 	// Select intersection point or FLT_MAX based on if there is an intersection or not
-	return Vec3::sSelect(t, Vec3::sReplicate(FLT_MAX), no_intersection).GetX();
+	return Vec3::sSelect(t, Vec3::Replicate(FLT_MAX), no_intersection).GetX();
 }
 
 /// Intersect ray with 4 triangles in SOA format, returns 4 vector of closest points or FLT_MAX if no hit (uses bit tricks to do less divisions)
 MOSS_INLINE Vec4 RayTriangle4(Vec3Arg inOrigin, Vec3Arg inDirection, Vec4Arg inV0X, Vec4Arg inV0Y, Vec4Arg inV0Z, Vec4Arg inV1X, Vec4Arg inV1Y, Vec4Arg inV1Z, Vec4Arg inV2X, Vec4Arg inV2Y, Vec4Arg inV2Z) {
 	// Epsilon
-	Vec4 epsilon = Vec4::sReplicate(1.0e-12f);
+	Vec4 epsilon = Vec4::Replicate(1.0e-12f);
 
 	// Zero
 	Vec4 zero = Vec4::sZero();
@@ -268,11 +268,11 @@ MOSS_INLINE Vec4 RayTriangle4(Vec3Arg inOrigin, Vec3Arg inDirection, Vec4Arg inV
 	Vec4 det = e1x * px + e1y * py + e1z * pz;
 
 	// Get sign bit for determinant and make positive
-	Vec4 det_sign = Vec4::sAnd(det, UVec4::sReplicate(0x80000000).ReinterpretAsFloat());
+	Vec4 det_sign = Vec4::sAnd(det, UVec4::Replicate(0x80000000).ReinterpretAsFloat());
 	det = Vec4::sXor(det, det_sign);
 
 	// Check which determinants are near zero
-	UVec4 det_near_zero = Vec4::sLess(det, epsilon);
+	UVec4 det_near_zero = Vec4::Less(det, epsilon);
 
 	// Set components of the determinant to 1 that are near zero to avoid dividing by zero
 	det = Vec4::sSelect(det, Vec4::sOne(), det_near_zero);
@@ -297,10 +297,10 @@ MOSS_INLINE Vec4 RayTriangle4(Vec3Arg inOrigin, Vec3Arg inDirection, Vec4Arg inV
 	Vec4 t = Vec4::sXor(e2x * qx + e2y * qy + e2z * qz, det_sign);
 
 	// Check if there is an intersection
-	UVec4 no_intersection = UVec4::sOr(UVec4::sOr(UVec4::sOr(det_near_zero,Vec4::sLess(u, zero)), UVec4::sOr(Vec4::sLess(v, zero),Vec4::sGreater(u + v, det))), Vec4::sLess(t, zero));
+	UVec4 no_intersection = UVec4::sOr(UVec4::sOr(UVec4::sOr(det_near_zero,Vec4::Less(u, zero)), UVec4::sOr(Vec4::Less(v, zero),Vec4::Greater(u + v, det))), Vec4::Less(t, zero));
 
 	// Select intersection point or FLT_MAX based on if there is an intersection or not
-	return Vec4::sSelect(t / det, Vec4::sReplicate(FLT_MAX), no_intersection);
+	return Vec4::sSelect(t / det, Vec4::Replicate(FLT_MAX), no_intersection);
 }
 
 
@@ -315,7 +315,7 @@ public:
 	/// Set reciprocal from ray direction
 	inline void Set(Vec3Arg inDirection) {
 		// if (abs(inDirection) <= Epsilon) the ray is nearly parallel to the slab.
-		mIsParallel = Vec3::sLessOrEqual(inDirection.Abs(), Vec3::sReplicate(1.0e-20f));
+		mIsParallel = Vec3::sLessOrEqual(inDirection.Abs(), Vec3::Replicate(1.0e-20f));
 
 		// Calculate 1 / direction while avoiding division by zero
 		mInvDirection = Vec3::sSelect(inDirection, Vec3::sOne(), mIsParallel).Reciprocal();
@@ -329,8 +329,8 @@ public:
 /// Note: Can return negative value if ray starts in box
 MOSS_INLINE float RayAABox(Vec3Arg inOrigin, const RayInvDirection &inInvDirection, Vec3Arg inBoundsMin, Vec3Arg inBoundsMax) {
 	// Constants
-	Vec3 flt_min = Vec3::sReplicate(-FLT_MAX);
-	Vec3 flt_max = Vec3::sReplicate(FLT_MAX);
+	Vec3 flt_min = Vec3::Replicate(-FLT_MAX);
+	Vec3 flt_max = Vec3::Replicate(FLT_MAX);
 
 	// Test against all three axes simultaneously.
 	Vec3 t1 = (inBoundsMin - inOrigin) * inInvDirection.mInvDirection;
@@ -338,25 +338,25 @@ MOSS_INLINE float RayAABox(Vec3Arg inOrigin, const RayInvDirection &inInvDirecti
 
 	// Compute the max of min(t1,t2) and the min of max(t1,t2) ensuring we don't
 	// use the results from any directions parallel to the slab.
-	Vec3 t_min = Vec3::sSelect(Vec3::sMin(t1, t2), flt_min, inInvDirection.mIsParallel);
-	Vec3 t_max = Vec3::sSelect(Vec3::sMax(t1, t2), flt_max, inInvDirection.mIsParallel);
+	Vec3 t_min = Vec3::sSelect(Vec3::Min(t1, t2), flt_min, inInvDirection.mIsParallel);
+	Vec3 t_max = Vec3::sSelect(Vec3::Max(t1, t2), flt_max, inInvDirection.mIsParallel);
 
 	// t_min.xyz = maximum(t_min.x, t_min.y, t_min.z);
-	t_min = Vec3::sMax(t_min, t_min.Swizzle<SWIZZLE_Y, SWIZZLE_Z, SWIZZLE_X>());
-	t_min = Vec3::sMax(t_min, t_min.Swizzle<SWIZZLE_Z, SWIZZLE_X, SWIZZLE_Y>());
+	t_min = Vec3::Max(t_min, t_min.Swizzle<SWIZZLE_Y, SWIZZLE_Z, SWIZZLE_X>());
+	t_min = Vec3::Max(t_min, t_min.Swizzle<SWIZZLE_Z, SWIZZLE_X, SWIZZLE_Y>());
 
 	// t_max.xyz = minimum(t_max.x, t_max.y, t_max.z);
-	t_max = Vec3::sMin(t_max, t_max.Swizzle<SWIZZLE_Y, SWIZZLE_Z, SWIZZLE_X>());
-	t_max = Vec3::sMin(t_max, t_max.Swizzle<SWIZZLE_Z, SWIZZLE_X, SWIZZLE_Y>());
+	t_max = Vec3::Min(t_max, t_max.Swizzle<SWIZZLE_Y, SWIZZLE_Z, SWIZZLE_X>());
+	t_max = Vec3::Min(t_max, t_max.Swizzle<SWIZZLE_Z, SWIZZLE_X, SWIZZLE_Y>());
 
 	// if (t_min > t_max) return FLT_MAX;
-	UVec4 no_intersection = Vec3::sGreater(t_min, t_max);
+	UVec4 no_intersection = Vec3::Greater(t_min, t_max);
 
 	// if (t_max < 0.0f) return FLT_MAX;
-	no_intersection = UVec4::sOr(no_intersection, Vec3::sLess(t_max, Vec3::sZero()));
+	no_intersection = UVec4::sOr(no_intersection, Vec3::Less(t_max, Vec3::sZero()));
 
 	// if (inInvDirection.mIsParallel && !(Min <= inOrigin && inOrigin <= Max)) return FLT_MAX; else return t_min;
-	UVec4 no_parallel_overlap = UVec4::sOr(Vec3::sLess(inOrigin, inBoundsMin), Vec3::sGreater(inOrigin, inBoundsMax));
+	UVec4 no_parallel_overlap = UVec4::sOr(Vec3::Less(inOrigin, inBoundsMin), Vec3::Greater(inOrigin, inBoundsMax));
 	no_intersection = UVec4::sOr(no_intersection, UVec4::sAnd(inInvDirection.mIsParallel, no_parallel_overlap));
 	no_intersection = UVec4::sOr(no_intersection, no_intersection.SplatY());
 	no_intersection = UVec4::sOr(no_intersection, no_intersection.SplatZ());
@@ -367,8 +367,8 @@ MOSS_INLINE float RayAABox(Vec3Arg inOrigin, const RayInvDirection &inInvDirecti
 /// Note: Can return negative value if ray starts in box
 MOSS_INLINE Vec4 RayAABox4(Vec3Arg inOrigin, const RayInvDirection &inInvDirection, Vec4Arg inBoundsMinX, Vec4Arg inBoundsMinY, Vec4Arg inBoundsMinZ, Vec4Arg inBoundsMaxX, Vec4Arg inBoundsMaxY, Vec4Arg inBoundsMaxZ) {
 	// Constants
-	Vec4 flt_min = Vec4::sReplicate(-FLT_MAX);
-	Vec4 flt_max = Vec4::sReplicate(FLT_MAX);
+	Vec4 flt_min = Vec4::Replicate(-FLT_MAX);
+	Vec4 flt_max = Vec4::Replicate(FLT_MAX);
 
 	// Origin
 	Vec4 originx = inOrigin.SplatX();
@@ -395,33 +395,33 @@ MOSS_INLINE Vec4 RayAABox4(Vec3Arg inOrigin, const RayInvDirection &inInvDirecti
 
 	// Compute the max of min(t1,t2) and the min of max(t1,t2) ensuring we don't
 	// use the results from any directions parallel to the slab.
-	Vec4 t_minx = Vec4::sSelect(Vec4::sMin(t1x, t2x), flt_min, parallelx);
-	Vec4 t_miny = Vec4::sSelect(Vec4::sMin(t1y, t2y), flt_min, parallely);
-	Vec4 t_minz = Vec4::sSelect(Vec4::sMin(t1z, t2z), flt_min, parallelz);
-	Vec4 t_maxx = Vec4::sSelect(Vec4::sMax(t1x, t2x), flt_max, parallelx);
-	Vec4 t_maxy = Vec4::sSelect(Vec4::sMax(t1y, t2y), flt_max, parallely);
-	Vec4 t_maxz = Vec4::sSelect(Vec4::sMax(t1z, t2z), flt_max, parallelz);
+	Vec4 t_minx = Vec4::sSelect(Vec4::Min(t1x, t2x), flt_min, parallelx);
+	Vec4 t_miny = Vec4::sSelect(Vec4::Min(t1y, t2y), flt_min, parallely);
+	Vec4 t_minz = Vec4::sSelect(Vec4::Min(t1z, t2z), flt_min, parallelz);
+	Vec4 t_maxx = Vec4::sSelect(Vec4::Max(t1x, t2x), flt_max, parallelx);
+	Vec4 t_maxy = Vec4::sSelect(Vec4::Max(t1y, t2y), flt_max, parallely);
+	Vec4 t_maxz = Vec4::sSelect(Vec4::Max(t1z, t2z), flt_max, parallelz);
 
 	// t_min.xyz = maximum(t_min.x, t_min.y, t_min.z);
-	Vec4 t_min = Vec4::sMax(Vec4::sMax(t_minx, t_miny), t_minz);
+	Vec4 t_min = Vec4::Max(Vec4::Max(t_minx, t_miny), t_minz);
 
 	// t_max.xyz = minimum(t_max.x, t_max.y, t_max.z);
-	Vec4 t_max = Vec4::sMin(Vec4::sMin(t_maxx, t_maxy), t_maxz);
+	Vec4 t_max = Vec4::Min(Vec4::Min(t_maxx, t_maxy), t_maxz);
 
 	// if (t_min > t_max) return FLT_MAX;
-	UVec4 no_intersection = Vec4::sGreater(t_min, t_max);
+	UVec4 no_intersection = Vec4::Greater(t_min, t_max);
 
 	// if (t_max < 0.0f) return FLT_MAX;
-	no_intersection = UVec4::sOr(no_intersection, Vec4::sLess(t_max, Vec4::sZero()));
+	no_intersection = UVec4::sOr(no_intersection, Vec4::Less(t_max, Vec4::sZero()));
 
 	// if bounds are invalid return FLOAT_MAX;
-	UVec4 bounds_invalid = UVec4::sOr(UVec4::sOr(Vec4::sGreater(inBoundsMinX, inBoundsMaxX), Vec4::sGreater(inBoundsMinY, inBoundsMaxY)), Vec4::sGreater(inBoundsMinZ, inBoundsMaxZ));
+	UVec4 bounds_invalid = UVec4::sOr(UVec4::sOr(Vec4::Greater(inBoundsMinX, inBoundsMaxX), Vec4::Greater(inBoundsMinY, inBoundsMaxY)), Vec4::Greater(inBoundsMinZ, inBoundsMaxZ));
 	no_intersection = UVec4::sOr(no_intersection, bounds_invalid);
 
 	// if (inInvDirection.mIsParallel && !(Min <= inOrigin && inOrigin <= Max)) return FLT_MAX; else return t_min;
-	UVec4 no_parallel_overlapx = UVec4::sAnd(parallelx, UVec4::sOr(Vec4::sLess(originx, inBoundsMinX), Vec4::sGreater(originx, inBoundsMaxX)));
-	UVec4 no_parallel_overlapy = UVec4::sAnd(parallely, UVec4::sOr(Vec4::sLess(originy, inBoundsMinY), Vec4::sGreater(originy, inBoundsMaxY)));
-	UVec4 no_parallel_overlapz = UVec4::sAnd(parallelz, UVec4::sOr(Vec4::sLess(originz, inBoundsMinZ), Vec4::sGreater(originz, inBoundsMaxZ)));
+	UVec4 no_parallel_overlapx = UVec4::sAnd(parallelx, UVec4::sOr(Vec4::Less(originx, inBoundsMinX), Vec4::Greater(originx, inBoundsMaxX)));
+	UVec4 no_parallel_overlapy = UVec4::sAnd(parallely, UVec4::sOr(Vec4::Less(originy, inBoundsMinY), Vec4::Greater(originy, inBoundsMaxY)));
+	UVec4 no_parallel_overlapz = UVec4::sAnd(parallelz, UVec4::sOr(Vec4::Less(originz, inBoundsMinZ), Vec4::Greater(originz, inBoundsMaxZ)));
 	no_intersection = UVec4::sOr(no_intersection, UVec4::sOr(UVec4::sOr(no_parallel_overlapx, no_parallel_overlapy), no_parallel_overlapz));
 	return Vec4::sSelect(t_min, flt_max, no_intersection);
 }
@@ -430,8 +430,8 @@ MOSS_INLINE Vec4 RayAABox4(Vec3Arg inOrigin, const RayInvDirection &inInvDirecti
 /// Note: Can return negative value for outMin if ray starts in box
 MOSS_INLINE void RayAABox(Vec3Arg inOrigin, const RayInvDirection &inInvDirection, Vec3Arg inBoundsMin, Vec3Arg inBoundsMax, float &outMin, float &outMax) {
 	// Constants
-	Vec3 flt_min = Vec3::sReplicate(-FLT_MAX);
-	Vec3 flt_max = Vec3::sReplicate(FLT_MAX);
+	Vec3 flt_min = Vec3::Replicate(-FLT_MAX);
+	Vec3 flt_max = Vec3::Replicate(FLT_MAX);
 
 	// Test against all three axes simultaneously.
 	Vec3 t1 = (inBoundsMin - inOrigin) * inInvDirection.mInvDirection;
@@ -439,25 +439,25 @@ MOSS_INLINE void RayAABox(Vec3Arg inOrigin, const RayInvDirection &inInvDirectio
 
 	// Compute the max of min(t1,t2) and the min of max(t1,t2) ensuring we don't
 	// use the results from any directions parallel to the slab.
-	Vec3 t_min = Vec3::sSelect(Vec3::sMin(t1, t2), flt_min, inInvDirection.mIsParallel);
-	Vec3 t_max = Vec3::sSelect(Vec3::sMax(t1, t2), flt_max, inInvDirection.mIsParallel);
+	Vec3 t_min = Vec3::sSelect(Vec3::Min(t1, t2), flt_min, inInvDirection.mIsParallel);
+	Vec3 t_max = Vec3::sSelect(Vec3::Max(t1, t2), flt_max, inInvDirection.mIsParallel);
 
 	// t_min.xyz = maximum(t_min.x, t_min.y, t_min.z);
-	t_min = Vec3::sMax(t_min, t_min.Swizzle<SWIZZLE_Y, SWIZZLE_Z, SWIZZLE_X>());
-	t_min = Vec3::sMax(t_min, t_min.Swizzle<SWIZZLE_Z, SWIZZLE_X, SWIZZLE_Y>());
+	t_min = Vec3::Max(t_min, t_min.Swizzle<SWIZZLE_Y, SWIZZLE_Z, SWIZZLE_X>());
+	t_min = Vec3::Max(t_min, t_min.Swizzle<SWIZZLE_Z, SWIZZLE_X, SWIZZLE_Y>());
 
 	// t_max.xyz = minimum(t_max.x, t_max.y, t_max.z);
-	t_max = Vec3::sMin(t_max, t_max.Swizzle<SWIZZLE_Y, SWIZZLE_Z, SWIZZLE_X>());
-	t_max = Vec3::sMin(t_max, t_max.Swizzle<SWIZZLE_Z, SWIZZLE_X, SWIZZLE_Y>());
+	t_max = Vec3::Min(t_max, t_max.Swizzle<SWIZZLE_Y, SWIZZLE_Z, SWIZZLE_X>());
+	t_max = Vec3::Min(t_max, t_max.Swizzle<SWIZZLE_Z, SWIZZLE_X, SWIZZLE_Y>());
 
 	// if (t_min > t_max) return FLT_MAX;
-	UVec4 no_intersection = Vec3::sGreater(t_min, t_max);
+	UVec4 no_intersection = Vec3::Greater(t_min, t_max);
 
 	// if (t_max < 0.0f) return FLT_MAX;
-	no_intersection = UVec4::sOr(no_intersection, Vec3::sLess(t_max, Vec3::sZero()));
+	no_intersection = UVec4::sOr(no_intersection, Vec3::Less(t_max, Vec3::sZero()));
 
 	// if (inInvDirection.mIsParallel && !(Min <= inOrigin && inOrigin <= Max)) return FLT_MAX; else return t_min;
-	UVec4 no_parallel_overlap = UVec4::sOr(Vec3::sLess(inOrigin, inBoundsMin), Vec3::sGreater(inOrigin, inBoundsMax));
+	UVec4 no_parallel_overlap = UVec4::sOr(Vec3::Less(inOrigin, inBoundsMin), Vec3::Greater(inOrigin, inBoundsMax));
 	no_intersection = UVec4::sOr(no_intersection, UVec4::sAnd(inInvDirection.mIsParallel, no_parallel_overlap));
 	no_intersection = UVec4::sOr(no_intersection, no_intersection.SplatY());
 	no_intersection = UVec4::sOr(no_intersection, no_intersection.SplatZ());
@@ -468,8 +468,8 @@ MOSS_INLINE void RayAABox(Vec3Arg inOrigin, const RayInvDirection &inInvDirectio
 /// Intersect AABB with ray, returns true if there is a hit closer than inClosest
 MOSS_INLINE bool RayAABoxHits(Vec3Arg inOrigin, const RayInvDirection &inInvDirection, Vec3Arg inBoundsMin, Vec3Arg inBoundsMax, float inClosest) {
 	// Constants
-	Vec3 flt_min = Vec3::sReplicate(-FLT_MAX);
-	Vec3 flt_max = Vec3::sReplicate(FLT_MAX);
+	Vec3 flt_min = Vec3::Replicate(-FLT_MAX);
+	Vec3 flt_max = Vec3::Replicate(FLT_MAX);
 
 	// Test against all three axes simultaneously.
 	Vec3 t1 = (inBoundsMin - inOrigin) * inInvDirection.mInvDirection;
@@ -477,28 +477,28 @@ MOSS_INLINE bool RayAABoxHits(Vec3Arg inOrigin, const RayInvDirection &inInvDire
 
 	// Compute the max of min(t1,t2) and the min of max(t1,t2) ensuring we don't
 	// use the results from any directions parallel to the slab.
-	Vec3 t_min = Vec3::sSelect(Vec3::sMin(t1, t2), flt_min, inInvDirection.mIsParallel);
-	Vec3 t_max = Vec3::sSelect(Vec3::sMax(t1, t2), flt_max, inInvDirection.mIsParallel);
+	Vec3 t_min = Vec3::sSelect(Vec3::Min(t1, t2), flt_min, inInvDirection.mIsParallel);
+	Vec3 t_max = Vec3::sSelect(Vec3::Max(t1, t2), flt_max, inInvDirection.mIsParallel);
 
 	// t_min.xyz = maximum(t_min.x, t_min.y, t_min.z);
-	t_min = Vec3::sMax(t_min, t_min.Swizzle<SWIZZLE_Y, SWIZZLE_Z, SWIZZLE_X>());
-	t_min = Vec3::sMax(t_min, t_min.Swizzle<SWIZZLE_Z, SWIZZLE_X, SWIZZLE_Y>());
+	t_min = Vec3::Max(t_min, t_min.Swizzle<SWIZZLE_Y, SWIZZLE_Z, SWIZZLE_X>());
+	t_min = Vec3::Max(t_min, t_min.Swizzle<SWIZZLE_Z, SWIZZLE_X, SWIZZLE_Y>());
 
 	// t_max.xyz = minimum(t_max.x, t_max.y, t_max.z);
-	t_max = Vec3::sMin(t_max, t_max.Swizzle<SWIZZLE_Y, SWIZZLE_Z, SWIZZLE_X>());
-	t_max = Vec3::sMin(t_max, t_max.Swizzle<SWIZZLE_Z, SWIZZLE_X, SWIZZLE_Y>());
+	t_max = Vec3::Min(t_max, t_max.Swizzle<SWIZZLE_Y, SWIZZLE_Z, SWIZZLE_X>());
+	t_max = Vec3::Min(t_max, t_max.Swizzle<SWIZZLE_Z, SWIZZLE_X, SWIZZLE_Y>());
 
 	// if (t_min > t_max) return false;
-	UVec4 no_intersection = Vec3::sGreater(t_min, t_max);
+	UVec4 no_intersection = Vec3::Greater(t_min, t_max);
 
 	// if (t_max < 0.0f) return false;
-	no_intersection = UVec4::sOr(no_intersection, Vec3::sLess(t_max, Vec3::sZero()));
+	no_intersection = UVec4::sOr(no_intersection, Vec3::Less(t_max, Vec3::sZero()));
 
 	// if (t_min > inClosest) return false;
-	no_intersection = UVec4::sOr(no_intersection, Vec3::sGreater(t_min, Vec3::sReplicate(inClosest)));
+	no_intersection = UVec4::sOr(no_intersection, Vec3::Greater(t_min, Vec3::Replicate(inClosest)));
 
 	// if (inInvDirection.mIsParallel && !(Min <= inOrigin && inOrigin <= Max)) return false; else return true;
-	UVec4 no_parallel_overlap = UVec4::sOr(Vec3::sLess(inOrigin, inBoundsMin), Vec3::sGreater(inOrigin, inBoundsMax));
+	UVec4 no_parallel_overlap = UVec4::sOr(Vec3::Less(inOrigin, inBoundsMin), Vec3::Greater(inOrigin, inBoundsMax));
 	no_intersection = UVec4::sOr(no_intersection, UVec4::sAnd(inInvDirection.mIsParallel, no_parallel_overlap));
 
 	return !no_intersection.TestAnyXYZTrue();
@@ -512,7 +512,7 @@ MOSS_INLINE bool RayAABoxHits(Vec3Arg inOrigin, Vec3Arg inDirection, Vec3Arg inB
 	Vec3 diff = 2.0f * inOrigin - inBoundsMin - inBoundsMax;
 	Vec3 abs_diff = diff.Abs();
 
-	UVec4 no_intersection = UVec4::sAnd(Vec3::sGreater(abs_diff, extents), Vec3::sGreaterOrEqual(diff * inDirection, Vec3::sZero()));
+	UVec4 no_intersection = UVec4::sAnd(Vec3::Greater(abs_diff, extents), Vec3::sGreaterOrEqual(diff * inDirection, Vec3::sZero()));
 
 	Vec3 abs_dir = inDirection.Abs();
 	Vec3 abs_dir_yzz = abs_dir.Swizzle<SWIZZLE_Y, SWIZZLE_Z, SWIZZLE_Z>();
@@ -525,7 +525,7 @@ MOSS_INLINE bool RayAABoxHits(Vec3Arg inOrigin, Vec3Arg inDirection, Vec3Arg inB
 
 	Vec3 dir_yzx = inDirection.Swizzle<SWIZZLE_Y, SWIZZLE_Z, SWIZZLE_X>();
 
-	no_intersection = UVec4::sOr(no_intersection, Vec3::sGreater((inDirection * diff_yzx - dir_yzx * diff).Abs(), extents_xyx * abs_dir_yzz + extents_yzz * abs_dir_xyx));
+	no_intersection = UVec4::sOr(no_intersection, Vec3::Greater((inDirection * diff_yzx - dir_yzx * diff).Abs(), extents_xyx * abs_dir_yzz + extents_yzz * abs_dir_xyx));
 
 	return !no_intersection.TestAnyXYZTrue();
 }

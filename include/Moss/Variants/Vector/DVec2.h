@@ -158,7 +158,7 @@ public:
 	MOSS_INLINE double			operator [] (uint32 inCoordinate) const			{ MOSS_ASSERT(inCoordinate < 3); return mF64[inCoordinate]; }
 
 	/// Set double component by index
-	MOSS_INLINE void			SetComponent(uint32 inCoordinate, double inValue)	{ MOSS_ASSERT(inCoordinate < 3); mF64[inCoordinate] = inValue; mValue = sFixW(mValue); } // Assure Z and W are the same
+	MOSS_INLINE void			SetComponent(uint32 inCoordinate, double inValue)	{ MOSS_ASSERT(inCoordinate < 3); mF64[inCoordinate] = inValue; mValue = FixW(mValue); } // Assure Z and W are the same
 
 	/// Comparison
 	MOSS_INLINE bool			operator == (DVec2Arg inV2) const;

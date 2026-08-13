@@ -149,7 +149,7 @@ DVec2 DVec2::Replicate(double inV)
 
 DVec2 DVec2::NaN()
 {
-	return sReplicate(numeric_limits<double>::quiet_NaN());
+	return Replicate(numeric_limits<double>::quiet_NaN());
 }
 
 DVec2 DVec2::LoadDouble3Unsafe(const Double3 &inV)
@@ -165,7 +165,7 @@ DVec2 DVec2::LoadDouble3Unsafe(const Double3 &inV)
 #else
 	Type v = { inV.x, inV.y, inV.z };
 #endif
-	return sFixW(v);
+	return FixW(v);
 }
 
 void DVec2::StoreDouble3(Double3 *outV) const
@@ -222,7 +222,7 @@ DVec2 DVec2::Max(const DVec2 inV1, const DVec2 inV2)
 
 DVec2 DVec2::Clamp(const DVec2 inV, const DVec2 inMin, const DVec2 inMax)
 {
-	return Max(sMin(inV, inMax), inMin);
+	return Max(Min(inV, inMax), inMin);
 }
 
 DVec2 DVec2::Equals(const DVec2 inV1, const DVec2 inV2)
@@ -321,11 +321,11 @@ DVec2 DVec2::Select(const DVec2 inNotSet, const DVec2 inSet, const DVec2 inContr
 	return _mm256_blendv_pd(inNotSet.mValue, inSet.mValue, inControl.mValue);
 #elif defined(MOSS_SIMD_SSE4_1)
 	Type v = { _mm_blendv_pd(inNotSet.mValue.mLow, inSet.mValue.mLow, inControl.mValue.mLow), _mm_blendv_pd(inNotSet.mValue.mHigh, inSet.mValue.mHigh, inControl.mValue.mHigh) };
-	return sFixW(v);
+	return FixW(v);
 #elif defined(MOSS_SIMD_NEON)
 	Type v = { vbslq_f64(vreinterpretq_u64_s64(vshrq_n_s64(vreinterpretq_s64_f64(inControl.mValue.val[0]), 63)), inSet.mValue.val[0], inNotSet.mValue.val[0]),
 			   vbslq_f64(vreinterpretq_u64_s64(vshrq_n_s64(vreinterpretq_s64_f64(inControl.mValue.val[1]), 63)), inSet.mValue.val[1], inNotSet.mValue.val[1]) };
-	return sFixW(v);
+	return FixW(v);
 #else
 	DVec2 result;
 	for (int i = 0; i < 3; i++)
@@ -727,7 +727,7 @@ DVec2 DVec2::Abs() const
 
 DVec2 DVec2::Reciprocal() const
 {
-	return sReplicate(1.0) / mValue;
+	return Replicate(1.0) / mValue;
 }
 
 DVec2 DVec2::Cross(const DVec2 inV2) const

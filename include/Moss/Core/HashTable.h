@@ -268,9 +268,9 @@ protected:
 		// Linear probing
 		KeyEqual equal;
 		size_type bucket_mask = mMaxSize - 1;
-		BVec16 control16 = BVec16::sReplicate(control);
+		BVec16 control16 = BVec16::Replicate(control);
 		BVec16 bucket_empty = BVec16::sZero();
-		BVec16 bucket_deleted = BVec16::sReplicate(cBucketDeleted);
+		BVec16 bucket_deleted = BVec16::Replicate(cBucketDeleted);
 		for (;;)
 		{
 			// Read 16 control values (note that we added 15 bytes at the end of the control values that mirror the first 15 bytes)
@@ -638,7 +638,7 @@ public:
 		// Linear probing
 		KeyEqual equal;
 		size_type bucket_mask = mMaxSize - 1;
-		BVec16 control16 = BVec16::sReplicate(control);
+		BVec16 control16 = BVec16::Replicate(control);
 		BVec16 bucket_empty = BVec16::sZero();
 		for (;;)
 		{
@@ -775,7 +775,7 @@ public:
 			mControl[mMaxSize + i] = mControl[i];
 
 		// Loop over all elements that have been 'deleted' and move them to their new spot
-		BVec16 bucket_used = BVec16::sReplicate(cBucketUsed);
+		BVec16 bucket_used = BVec16::Replicate(cBucketUsed);
 		size_type bucket_mask = mMaxSize - 1;
 		uint32 probe_mask = bucket_mask & ~uint32(0b1111); // Mask out lower 4 bits because we test 16 buckets at a time
 		for (size_type src = 0; src < mMaxSize; ++src)

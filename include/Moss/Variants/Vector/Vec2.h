@@ -113,9 +113,9 @@ public:
 
 	inline bool sAllLessOrEqual(Vec2 v1, Vec2 v2) { UVec4 mask = sLessOrEqual(v1, v2); return mask.GetX() && mask.GetY(); } // optional: && mask.GetZ() && mask.GetW()
 
-	inline bool sAllLess(Vec2 v1, Vec2 v2) { UVec4 mask = sLess(v1, v2); return mask.GetX() && mask.GetY(); }
+	inline bool sAllLess(Vec2 v1, Vec2 v2) { UVec4 mask = Less(v1, v2); return mask.GetX() && mask.GetY(); }
 
-	inline bool sAllGreater(Vec2 v1, Vec2 v2) { UVec4 mask = sGreater(v1, v2); return mask.GetX() && mask.GetY(); }
+	inline bool sAllGreater(Vec2 v1, Vec2 v2) { UVec4 mask = Greater(v1, v2); return mask.GetX() && mask.GetY(); }
 
 	inline bool sAllGreaterOrEqual(Vec2 v1, Vec2 v2) { UVec4 mask = sGreaterOrEqual(v1, v2); return mask.GetX() && mask.GetY(); }
 
@@ -142,7 +142,7 @@ public:
 	MOSS_INLINE float			operator [] (uint32 inCoordinate) const			{ MOSS_ASSERT(inCoordinate < 3); return mF32[inCoordinate]; }
 
 	/// Set float component by index
-	MOSS_INLINE void			SetComponent(uint32 inCoordinate, float inValue)	{ MOSS_ASSERT(inCoordinate < 3); mF32[inCoordinate] = inValue; mValue = sFixW(mValue); } // Assure Z and W are the same
+	MOSS_INLINE void			SetComponent(uint32 inCoordinate, float inValue)	{ MOSS_ASSERT(inCoordinate < 3); mF32[inCoordinate] = inValue; mValue = FixW(mValue); } // Assure Z and W are the same
 
 	/// Comparison
 	MOSS_INLINE bool			operator == (Vec2 inV2) const;

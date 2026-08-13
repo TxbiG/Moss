@@ -2,7 +2,7 @@
 
 #include <Moss/Variants/TStaticArray.h>
 #include <Moss/Variants/Vector/Float2.h>
-#include <Moss/Variants/Math/Swizzle.h>
+#include <Moss/Moss_stdinc.h>
 #include <Moss/Variants/Math/MathTypes.h>
 
 
@@ -137,7 +137,7 @@ public:
 	MOSS_INLINE float			operator [] (uint32 inCoordinate) const			{ MOSS_ASSERT(inCoordinate < 3); return mF32[inCoordinate]; }
 
 	/// Set float component by index
-	MOSS_INLINE void			SetComponent(uint32 inCoordinate, float inValue)	{ MOSS_ASSERT(inCoordinate < 3); mF32[inCoordinate] = inValue; mValue = sFixW(mValue); } // Assure Z and W are the same
+	MOSS_INLINE void			SetComponent(uint32 inCoordinate, float inValue)	{ MOSS_ASSERT(inCoordinate < 3); mF32[inCoordinate] = inValue; mValue = FixW(mValue); } // Assure Z and W are the same
 
 	/// Comparison
 	MOSS_INLINE bool			operator == (Vec2Arg inV2) const;

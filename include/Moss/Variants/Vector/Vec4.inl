@@ -79,7 +79,7 @@ Vec4 Vec4::Replicate(float inV)
 
 Vec4 Vec4::One() { return Replicate(1.0f); }
 
-Vec4 Vec4::NaN() { return sReplicate(numeric_limits<float>::quiet_NaN()); }
+Vec4 Vec4::NaN() { return Replicate(numeric_limits<float>::quiet_NaN()); }
 
 Vec4 Vec4::LoadFloat4(const Float4 *inV)
 {
@@ -607,7 +607,7 @@ Vec4 Vec4::Abs() const
 
 Vec4 Vec4::Reciprocal() const
 {
-	return sReplicate(1.0f) / mValue;
+	return Replicate(1.0f) / mValue;
 }
 
 Vec4 Vec4::DotV(const Vec4 inV2) const
@@ -756,15 +756,15 @@ int Vec4::GetSignBits() const
 
 float Vec4::ReduceMin() const
 {
-	Vec4 v = sMin(mValue, Swizzle<SWIZZLE_Y, SWIZZLE_UNUSED, SWIZZLE_W, SWIZZLE_UNUSED>());
-	v = sMin(v, v.Swizzle<SWIZZLE_Z, SWIZZLE_UNUSED, SWIZZLE_UNUSED, SWIZZLE_UNUSED>());
+	Vec4 v = Min(mValue, Swizzle<SWIZZLE_Y, SWIZZLE_UNUSED, SWIZZLE_W, SWIZZLE_UNUSED>());
+	v = Min(v, v.Swizzle<SWIZZLE_Z, SWIZZLE_UNUSED, SWIZZLE_UNUSED, SWIZZLE_UNUSED>());
 	return v.GetX();
 }
 
 float Vec4::ReduceMax() const
 {
-	Vec4 v = sMax(mValue, Swizzle<SWIZZLE_Y, SWIZZLE_UNUSED, SWIZZLE_W, SWIZZLE_UNUSED>());
-	v = sMax(v, v.Swizzle<SWIZZLE_Z, SWIZZLE_UNUSED, SWIZZLE_UNUSED, SWIZZLE_UNUSED>());
+	Vec4 v = Max(mValue, Swizzle<SWIZZLE_Y, SWIZZLE_UNUSED, SWIZZLE_W, SWIZZLE_UNUSED>());
+	v = Max(v, v.Swizzle<SWIZZLE_Z, SWIZZLE_UNUSED, SWIZZLE_UNUSED, SWIZZLE_UNUSED>());
 	return v.GetX();
 }
 
@@ -889,7 +889,7 @@ Vec4 Vec4::ASin() const
 	Vec4 x = Vec4::Select(x1, x2, greater);
 
 	// Polynomial approximation of asin
-	z = ((((4.2163199048e-2f * z + Vec4::Replicate(2.4181311049e-2f)) * z + Vec4::Replicate(4.5470025998e-2f)) * z + Vec4::Replicate(7.4953002686e-2f)) * z + Vec4::sReplicate(1.6666752422e-1f)) * z * x + x;
+	z = ((((4.2163199048e-2f * z + Vec4::Replicate(2.4181311049e-2f)) * z + Vec4::Replicate(4.5470025998e-2f)) * z + Vec4::Replicate(7.4953002686e-2f)) * z + Vec4::Replicate(1.6666752422e-1f)) * z * x + x;
 
 	// If |x| > 0.5 we need to apply the remainder of the identity above
 	z = Vec4::Select(z, Vec4::Replicate(0.5f * MOSS_PI) - (z + z), greater);

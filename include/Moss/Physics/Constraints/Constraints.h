@@ -2221,7 +2221,7 @@ public:
 				Vec4 half_angle = Vec4::sATan2(ioSwing.GetXYZW().Swizzle<SWIZZLE_Y, SWIZZLE_Y, SWIZZLE_Z, SWIZZLE_Z>(), ioSwing.GetXYZW().SplatW());
 				Vec4 min_half_angle(mSwingYHalfMinAngle, mSwingYHalfMinAngle, mSwingZHalfMinAngle, mSwingZHalfMinAngle);
 				Vec4 max_half_angle(mSwingYHalfMaxAngle, mSwingYHalfMaxAngle, mSwingZHalfMaxAngle, mSwingZHalfMaxAngle);
-				Vec4 clamped_half_angle = Vec4::sMin(Vec4::sMax(half_angle, min_half_angle), max_half_angle);
+				Vec4 clamped_half_angle = Vec4::Min(Vec4::Max(half_angle, min_half_angle), max_half_angle);
 				UVec4 unclamped = Vec4::sEquals(half_angle, clamped_half_angle);
 				if (!unclamped.TestAllTrue()) {
 					// We now calculate the quaternion again using the formula for q above,
@@ -3480,8 +3480,8 @@ public:
 
 	/// Update the rotation limits of the hinge, value in radians (see HingeConstraintSettings)
 	void						SetLimits(float inLimitsMin, float inLimitsMax);
-	float						GetLimitsMin() const									{ return mLimitsMin; }
-	float						GetLimitsMax() const									{ return mLimitsMax; }
+	float						GetLimitMin() const									{ return mLimitsMin; }
+	float						GetLimitMax() const									{ return mLimitsMax; }
 	bool						HasLimits() const										{ return mHasLimits; }
 
 	/// Update the limits spring settings
@@ -3652,8 +3652,8 @@ public:
 
 	/// Update the limits of the slider constraint (see SliderConstraintSettings)
 	void						SetLimits(float inLimitsMin, float inLimitsMax);
-	float						GetLimitsMin() const									{ return mLimitsMin; }
-	float						GetLimitsMax() const									{ return mLimitsMax; }
+	float						GetLimitMin() const									{ return mLimitsMin; }
+	float						GetLimitMax() const									{ return mLimitsMax; }
 	bool						HasLimits() const										{ return mHasLimits; }
 
 	/// Update the limits spring settings
@@ -4161,12 +4161,12 @@ public:
 	void						SetRotationLimits(Vec3Arg inLimitMin, Vec3Arg inLimitMax);
 
 	/// Get constraint Limits
-	float						GetLimitsMin(EAxis inAxis) const							{ return mLimitMin[inAxis]; }
-	float						GetLimitsMax(EAxis inAxis) const							{ return mLimitMax[inAxis]; }
-	Vec3						GetTranslationLimitsMin() const								{ return Vec3::sLoadFloat3Unsafe(*reinterpret_cast<const Float3*>(&mLimitMin[EAxis::TranslationX])); }
-	Vec3						GetTranslationLimitsMax() const								{ return Vec3::sLoadFloat3Unsafe(*reinterpret_cast<const Float3*>(&mLimitMax[EAxis::TranslationX])); }
-	Vec3						GetRotationLimitsMin() const								{ return Vec3::sLoadFloat3Unsafe(*reinterpret_cast<const Float3*>(&mLimitMin[EAxis::RotationX])); }
-	Vec3						GetRotationLimitsMax() const								{ return Vec3::sLoadFloat3Unsafe(*reinterpret_cast<const Float3*>(&mLimitMax[EAxis::RotationX])); }
+	float						GetLimitMin(EAxis inAxis) const							{ return mLimitMin[inAxis]; }
+	float						GetLimitMax(EAxis inAxis) const							{ return mLimitMax[inAxis]; }
+	Vec3						GetTranslationLimitMin() const								{ return Vec3::sLoadFloat3Unsafe(*reinterpret_cast<const Float3*>(&mLimitMin[EAxis::TranslationX])); }
+	Vec3						GetTranslationLimitMax() const								{ return Vec3::sLoadFloat3Unsafe(*reinterpret_cast<const Float3*>(&mLimitMax[EAxis::TranslationX])); }
+	Vec3						GetRotationLimitMin() const								{ return Vec3::sLoadFloat3Unsafe(*reinterpret_cast<const Float3*>(&mLimitMin[EAxis::RotationX])); }
+	Vec3						GetRotationLimitMax() const								{ return Vec3::sLoadFloat3Unsafe(*reinterpret_cast<const Float3*>(&mLimitMax[EAxis::RotationX])); }
 
 	/// Check which axis are fixed/free
 	inline bool					IsFixedAxis(EAxis inAxis) const								{ return (mFixedAxis&  (1 << inAxis)) != 0; }
