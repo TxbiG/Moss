@@ -57,6 +57,7 @@ using Moss_FingerID = uint32_t;
 using Moss_TouchID = uint32_t;
 using Moss_HapticID = uint32_t;
 using Moss_CameraID = uint32_t;
+using Moss_GamepadID = uint32_t;
 
 struct Moss_Window;
 struct Moss_Monitor;
@@ -74,6 +75,7 @@ struct Moss_HapticLeftRight;
 struct Moss_HapticCustom; 
 union Moss_HapticEffect;
 struct Moss_Haptic;
+struct Moss_Gamepad;
 
 enum class Moss_Keyboard : uint16_t {
     KEY_0, 
@@ -384,7 +386,6 @@ enum class Moss_WindowFlags {
     FOREIGN = 0x00000800,            // window not created by Moss
     ALLOW_HIGHDPI = 0x00002000,      // window should be created in high-DPI mode if supported. On macOS NSHighResolutionCapable must be set true in the application's Info.plist for this to have any effect.
     
-    ALWAYS_ON_TOP    = 0x00008000,   // window should always be above others
     KEYBOARD_GRABBED = 0x00100000,   // window has grabbed Moss_keyboard input
 
     INPUT_GRABBED = MOUSE_GRABBED // equivalent to MOUSE_GRABBED for compatibility

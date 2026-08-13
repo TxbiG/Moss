@@ -44,10 +44,7 @@ MOSS_INLINE Vec3::Type Vec3::FixW(Type inValue) {
 
 }
 
-Vec3::Vec3(const Vec4 inRHS) :
-	mValue(sFixW(inRHS.mValue))
-{
-}
+Vec3::Vec3(const Vec4 inRHS) : mValue(FixW(inRHS.mValue)) { }
 
 Vec3::Vec3(const Float3 &inV) {
 
@@ -130,12 +127,12 @@ Vec3 Vec3::Replicate(float inV)
 
 Vec3 Vec3::One()
 {
-	return sReplicate(1.0f);
+	return Replicate(1.0f);
 }
 
 Vec3 Vec3::NaN()
 {
-	return sReplicate(numeric_limits<float>::quiet_NaN());
+	return Replicate(numeric_limits<float>::quiet_NaN());
 }
 
 Vec3 Vec3::LoadFloat3Unsafe(const Float3 &inV)
@@ -147,7 +144,7 @@ Vec3 Vec3::LoadFloat3Unsafe(const Float3 &inV)
 #else
 	Type v = { inV.x, inV.y, inV.z };
 #endif
-	return sFixW(v);
+	return FixW(v);
 }
 
 Vec3 Vec3::Min(const Vec3 inV1, const Vec3 inV2)
@@ -178,7 +175,7 @@ Vec3 Vec3::Max(const Vec3 inV1, const Vec3 inV2)
 
 Vec3 Vec3::Clamp(const Vec3 inV, const Vec3 inMin, const Vec3 inMax)
 {
-	return sMax(sMin(inV, inMax), inMin);
+	return Vec3::Max(Vec3::Min(inV, inMax), inMin);
 }
 
 UVec4 Vec3::Equals(const Vec3 inV1, const Vec3 inV2)
@@ -196,8 +193,7 @@ UVec4 Vec3::Equals(const Vec3 inV1, const Vec3 inV2)
 #endif
 }
 
-UVec4 Vec3::Less(const Vec3 inV1, const Vec3 inV2)
-{
+UVec4 Vec3::Less(const Vec3 inV1, const Vec3 inV2) {
 #if defined(MOSS_SIMD_SSE)
 	return _mm_castps_si128(_mm_cmplt_ps(inV1.mValue, inV2.mValue));
 #elif defined(MOSS_SIMD_NEON)
@@ -277,14 +273,14 @@ Vec3 Vec3::Select(const Vec3 inNotSet, const Vec3 inSet, const UVec4 inControl)
 {
 #if defined(MOSS_SIMD_SSE4_1) && !defined(MOSS_PLATFORM_WASM) // _mm_blendv_ps has problems on FireFox
 	Type v = _mm_blendv_ps(inNotSet.mValue, inSet.mValue, _mm_castsi128_ps(inControl.mValue));
-	return sFixW(v);
+	return FixW(v);
 #elif defined(MOSS_SIMD_SSE)
 	__m128 is_set = _mm_castsi128_ps(_mm_srai_epi32(inControl.mValue, 31));
 	Type v = _mm_or_ps(_mm_and_ps(is_set, inSet.mValue), _mm_andnot_ps(is_set, inNotSet.mValue));
-	return sFixW(v);
+	return FixW(v);
 #elif defined(MOSS_SIMD_NEON)
 	Type v = vbslq_f32(vreinterpretq_u32_s32(vshrq_n_s32(vreinterpretq_s32_u32(inControl.mValue), 31)), inSet.mValue, inNotSet.mValue);
-	return sFixW(v);
+	return FixW(v);
 #else
 	Vec3 result;
 	for (int i = 0; i < 3; i++)
@@ -347,7 +343,7 @@ Vec3 Vec3::Random(Random &inRandom)
 
 bool Vec3::operator == (const Vec3 inV2) const
 {
-	return sEquals(*this, inV2).TestAllXYZTrue();
+	return Equals(*this, inV2).TestAllXYZTrue();
 }
 
 bool Vec3::IsClose(const Vec3 inV2, float inMaxDistSq) const
@@ -593,10 +589,7 @@ Vec3 Vec3::Abs() const
 #endif
 }
 
-Vec3 Vec3::Reciprocal() const
-{
-	return sReplicate(1.0f) / mValue;
-}
+Vec3 Vec3::Reciprocal() const { return Replicate(1.0f) / mValue; }
 
 Vec3 Vec3::Cross(const Vec3 inV2) const
 {
@@ -815,15 +808,15 @@ UVec4 Vec3::ReinterpretAsInt() const
 
 float Vec3::ReduceMin() const
 {
-	Vec3 v = sMin(mValue, Swizzle<SWIZZLE_Y, SWIZZLE_UNUSED, SWIZZLE_Z>());
-	v = sMin(v, v.Swizzle<SWIZZLE_Z, SWIZZLE_UNUSED, SWIZZLE_UNUSED>());
+	Vec3 v = Vec3::Min(mValue, Swizzle<SWIZZLE_Y, SWIZZLE_UNUSED, SWIZZLE_Z>());
+	v = Vec3::Min(v, v.Swizzle<SWIZZLE_Z, SWIZZLE_UNUSED, SWIZZLE_UNUSED>());
 	return v.GetX();
 }
 
 float Vec3::ReduceMax() const
 {
-	Vec3 v = sMax(mValue, Swizzle<SWIZZLE_Y, SWIZZLE_UNUSED, SWIZZLE_Z>());
-	v = sMax(v, v.Swizzle<SWIZZLE_Z, SWIZZLE_UNUSED, SWIZZLE_UNUSED>());
+	Vec3 v = Vec3::Max(mValue, Swizzle<SWIZZLE_Y, SWIZZLE_UNUSED, SWIZZLE_Z>());
+	v = Vec3::Max(v, v.Swizzle<SWIZZLE_Z, SWIZZLE_UNUSED, SWIZZLE_UNUSED>());
 	return v.GetX();
 }
 

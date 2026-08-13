@@ -20,14 +20,12 @@ UVec4::UVec4(uint32 inX, uint32 inY, uint32 inZ, uint32 inW)
 #endif
 }
 
-bool UVec4::operator == (const UVec4 inV2) const
-{
-	return sEquals(*this, inV2).TestAllTrue();
+bool UVec4::operator == (const UVec4 inV2) const {
+	return Equals(*this, inV2).TestAllTrue();
 }
 
 template<uint32 SwizzleX, uint32 SwizzleY, uint32 SwizzleZ, uint32 SwizzleW>
-UVec4 UVec4::Swizzle() const
-{
+UVec4 UVec4::Swizzle() const {
 	static_assert(SwizzleX <= 3, "SwizzleX template parameter out of range");
 	static_assert(SwizzleY <= 3, "SwizzleY template parameter out of range");
 	static_assert(SwizzleZ <= 3, "SwizzleZ template parameter out of range");
@@ -219,7 +217,7 @@ UVec4 UVec4::Not(const UVec4 inV1)
 #if defined(MOSS_SIMD_AVX512)
 	return _mm_ternarylogic_epi32(inV1.mValue, inV1.mValue, inV1.mValue, 0b01010101);
 #elif defined(MOSS_SIMD_SSE)
-	return sXor(inV1, sReplicate(0xffffffff));
+	return Xor(inV1, Replicate(0xffffffff));
 #elif defined(MOSS_SIMD_NEON)
 	return vmvnq_u32(inV1.mValue);
 #else
@@ -555,7 +553,7 @@ UVec4 UVec4::Expand4Byte12() const
 UVec4 UVec4::ShiftComponents4Minus(int inCount) const
 {
 #if defined(MOSS_SIMD_SSE4_11) || defined(MOSS_SIMD_NEON)
-	alignas(UVec4) static constexpr uint32 sFourMinusXShuffle[5][4] =
+	alignas(UVec4) static constexpr uint32 FourMinusXShuffle[5][4] =
 	{
 		{ 0xffffffff, 0xffffffff, 0xffffffff, 0xffffffff },
 		{ 0x0f0e0d0c, 0xffffffff, 0xffffffff, 0xffffffff },
@@ -566,9 +564,9 @@ UVec4 UVec4::ShiftComponents4Minus(int inCount) const
 #endif
 
 #if defined(MOSS_SIMD_SSE4_1)
-	return _mm_shuffle_epi8(mValue, *reinterpret_cast<const UVec4::Type *>(sFourMinusXShuffle[inCount]));
+	return _mm_shuffle_epi8(mValue, *reinterpret_cast<const UVec4::Type *>(FourMinusXShuffle[inCount]));
 #elif defined(MOSS_SIMD_NEON)
-	uint8x16_t idx = vreinterpretq_u8_u32(*reinterpret_cast<const UVec4::Type *>(sFourMinusXShuffle[inCount]));
+	uint8x16_t idx = vreinterpretq_u8_u32(*reinterpret_cast<const UVec4::Type *>(FourMinusXShuffle[inCount]));
 	return vreinterpretq_u32_s8(vqtbl1q_s8(vreinterpretq_s8_u32(mValue), idx));
 #else
 	UVec4 result = UVec4::Zero();

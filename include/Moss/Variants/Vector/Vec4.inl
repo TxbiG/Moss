@@ -299,22 +299,22 @@ void Vec4::Sort4(Vec4 &ioValue, UVec4 &ioIndex)
 	// Pass 1, test 1st vs 3rd, 2nd vs 4th
 	Vec4 v1 = ioValue.Swizzle<SWIZZLE_Z, SWIZZLE_W, SWIZZLE_X, SWIZZLE_Y>();
 	UVec4 i1 = ioIndex.Swizzle<SWIZZLE_Z, SWIZZLE_W, SWIZZLE_X, SWIZZLE_Y>();
-	UVec4 c1 = sLess(ioValue, v1).Swizzle<SWIZZLE_Z, SWIZZLE_W, SWIZZLE_Z, SWIZZLE_W>();
-	ioValue = sSelect(ioValue, v1, c1);
+	UVec4 c1 = Less(ioValue, v1).Swizzle<SWIZZLE_Z, SWIZZLE_W, SWIZZLE_Z, SWIZZLE_W>();
+	ioValue = Select(ioValue, v1, c1);
 	ioIndex = UVec4::Select(ioIndex, i1, c1);
 
 	// Pass 2, test 1st vs 2nd, 3rd vs 4th
 	Vec4 v2 = ioValue.Swizzle<SWIZZLE_Y, SWIZZLE_X, SWIZZLE_W, SWIZZLE_Z>();
 	UVec4 i2 = ioIndex.Swizzle<SWIZZLE_Y, SWIZZLE_X, SWIZZLE_W, SWIZZLE_Z>();
-	UVec4 c2 = sLess(ioValue, v2).Swizzle<SWIZZLE_Y, SWIZZLE_Y, SWIZZLE_W, SWIZZLE_W>();
-	ioValue = sSelect(ioValue, v2, c2);
+	UVec4 c2 = Less(ioValue, v2).Swizzle<SWIZZLE_Y, SWIZZLE_Y, SWIZZLE_W, SWIZZLE_W>();
+	ioValue = Select(ioValue, v2, c2);
 	ioIndex = UVec4::Select(ioIndex, i2, c2);
 
 	// Pass 3, test 2nd vs 3rd component
 	Vec4 v3 = ioValue.Swizzle<SWIZZLE_X, SWIZZLE_Z, SWIZZLE_Y, SWIZZLE_W>();
 	UVec4 i3 = ioIndex.Swizzle<SWIZZLE_X, SWIZZLE_Z, SWIZZLE_Y, SWIZZLE_W>();
-	UVec4 c3 = sLess(ioValue, v3).Swizzle<SWIZZLE_X, SWIZZLE_Z, SWIZZLE_Z, SWIZZLE_W>();
-	ioValue = sSelect(ioValue, v3, c3);
+	UVec4 c3 = Less(ioValue, v3).Swizzle<SWIZZLE_X, SWIZZLE_Z, SWIZZLE_Z, SWIZZLE_W>();
+	ioValue = Select(ioValue, v3, c3);
 	ioIndex = UVec4::Select(ioIndex, i3, c3);
 }
 
@@ -323,22 +323,22 @@ void Vec4::Sort4Reverse(Vec4 &ioValue, UVec4 &ioIndex)
 	// Pass 1, test 1st vs 3rd, 2nd vs 4th
 	Vec4 v1 = ioValue.Swizzle<SWIZZLE_Z, SWIZZLE_W, SWIZZLE_X, SWIZZLE_Y>();
 	UVec4 i1 = ioIndex.Swizzle<SWIZZLE_Z, SWIZZLE_W, SWIZZLE_X, SWIZZLE_Y>();
-	UVec4 c1 = sGreater(ioValue, v1).Swizzle<SWIZZLE_Z, SWIZZLE_W, SWIZZLE_Z, SWIZZLE_W>();
-	ioValue = sSelect(ioValue, v1, c1);
+	UVec4 c1 = Greater(ioValue, v1).Swizzle<SWIZZLE_Z, SWIZZLE_W, SWIZZLE_Z, SWIZZLE_W>();
+	ioValue = Select(ioValue, v1, c1);
 	ioIndex = UVec4::Select(ioIndex, i1, c1);
 
 	// Pass 2, test 1st vs 2nd, 3rd vs 4th
 	Vec4 v2 = ioValue.Swizzle<SWIZZLE_Y, SWIZZLE_X, SWIZZLE_W, SWIZZLE_Z>();
 	UVec4 i2 = ioIndex.Swizzle<SWIZZLE_Y, SWIZZLE_X, SWIZZLE_W, SWIZZLE_Z>();
-	UVec4 c2 = sGreater(ioValue, v2).Swizzle<SWIZZLE_Y, SWIZZLE_Y, SWIZZLE_W, SWIZZLE_W>();
-	ioValue = sSelect(ioValue, v2, c2);
+	UVec4 c2 = Greater(ioValue, v2).Swizzle<SWIZZLE_Y, SWIZZLE_Y, SWIZZLE_W, SWIZZLE_W>();
+	ioValue = Select(ioValue, v2, c2);
 	ioIndex = UVec4::Select(ioIndex, i2, c2);
 
 	// Pass 3, test 2nd vs 3rd component
 	Vec4 v3 = ioValue.Swizzle<SWIZZLE_X, SWIZZLE_Z, SWIZZLE_Y, SWIZZLE_W>();
 	UVec4 i3 = ioIndex.Swizzle<SWIZZLE_X, SWIZZLE_Z, SWIZZLE_Y, SWIZZLE_W>();
-	UVec4 c3 = sGreater(ioValue, v3).Swizzle<SWIZZLE_X, SWIZZLE_Z, SWIZZLE_Z, SWIZZLE_W>();
-	ioValue = sSelect(ioValue, v3, c3);
+	UVec4 c3 = Greater(ioValue, v3).Swizzle<SWIZZLE_X, SWIZZLE_Z, SWIZZLE_Z, SWIZZLE_W>();
+	ioValue = Select(ioValue, v3, c3);
 	ioIndex = UVec4::Select(ioIndex, i3, c3);
 }
 

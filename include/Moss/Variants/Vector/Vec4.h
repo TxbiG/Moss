@@ -16,7 +16,6 @@ public:
 	MOSS_OVERRIDE_NEW_DELETE
 
 	// Underlying vector type
-	// using Type = Moss_f32vec4_t;
 #if defined(MOSS_SIMD_SSE)
 	using Type = __m128;
 #elif defined(MOSS_SIMD_NEON)
@@ -133,7 +132,7 @@ public:
 	Vec4&						operator = (const Vec4 &inRHS) = default;
 	/// Get float component by index
 	MOSS_INLINE float			operator [] (uint32 inCoordinate) const			{ MOSS_ASSERT(inCoordinate < 4); return mF32[inCoordinate]; }
-	MOSS_INLINE float&			operator [] (uint32 inCoordinate)					{ MOSS_ASSERT(inCoordinate < 4); return mF32[inCoordinate]; }
+	//MOSS_INLINE float&			operator [] (uint32 inCoordinate)					{ MOSS_ASSERT(inCoordinate < 4); return mF32[inCoordinate]; }
 
 	/// Comparison
 	MOSS_INLINE bool			operator == (const Vec4 inV2) const;
