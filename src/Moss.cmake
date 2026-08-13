@@ -6,7 +6,7 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 # Root
 set(MOSS_ROOT ${REPO_ROOT}/src) # Switch Moss to src
 
-set(MOSS_ROOT_INCLUDE ${REPO_ROOT}/Moss/include) # Switch Moss to src
+set(MOSS_ROOT_INCLUDE ${REPO_ROOT}/include/Moss) # matches the repo's include/Moss layout
 
 # -----------------------------------------------------------------------------
 # File discovery
