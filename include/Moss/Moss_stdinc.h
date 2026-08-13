@@ -144,6 +144,8 @@
  * (Renderer, Audio, Platform, Physics, etc.) are initialized and operated.
  */
 
+// Add SIMD, Multithreading
+
 #ifndef MOSS_STDINC_H
 #define MOSS_STDINC_H
 
@@ -426,7 +428,7 @@
 // Macro used by the RTTI macros to not export a function
 #define MOSS_NO_EXPORT
 
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////
 
 
 // Pragmas to store / restore the warning state and to disable individual warnings
@@ -627,7 +629,7 @@
 #define MOSS_STACK_ALLOC(n)		alloca(n)
 
 
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
 
 
 // Standard C++ includes
@@ -752,13 +754,6 @@ using std::lock_guard;
 using std::shared_lock;
 using std::unique_lock;
 
-// Assert sizes of types
-static_assert(sizeof(uint8) == 1, "Invalid size of uint8");
-static_assert(sizeof(uint16) == 2, "Invalid size of uint16");
-static_assert(sizeof(uint32) == 4, "Invalid size of uint32");
-static_assert(sizeof(uint64) == 8, "Invalid size of uint64");
-static_assert(sizeof(void *) == (MOSS_CPU_ADDRESS_BITS == 64? 8 : 4), "Invalid size of pointer" );
-
 
 #ifndef MOSS_DISABLE_CUSTOM_ALLOCATOR
 
@@ -778,10 +773,10 @@ MOSS_EXPORT extern FreeFunction Free;
 MOSS_EXPORT extern AlignedAllocateFunction AlignedAllocate;
 MOSS_EXPORT extern AlignedFreeFunction AlignedFree;
 
-/// Register platform default allocation / free functions
+// Register platform default allocation / free functions
 MOSS_EXPORT void RegisterDefaultAllocator();
 
-/// Macro to override the new and delete functions
+// Macro to override the new and delete functions
 #define MOSS_OVERRIDE_NEW_DELETE 																																		\
 	MOSS_INLINE void *operator new (size_t inCount)												{ return Allocate(inCount); } 											\
 	MOSS_INLINE void operator delete (void *inPointer) noexcept									{ Free(inPointer); } 													\
@@ -1018,15 +1013,15 @@ inline bool MossAssertHelper(const char* expr, const char* file, uint32_t line, 
 
 #define ArraySize(x) (sizeof(x)) / (sizeof((x)[0]))
 
-typedef signed char         int8;
-typedef signed short        int16;
-typedef signed int          int32;
-typedef signed long long    int64;
+using int8 = signed char;
+using int16 = signed short;
+using int32 = signed int;
+using int64 = signed long long;
 
-typedef unsigned char       uint8;
-typedef unsigned short      uint16;
-typedef unsigned int        uint32;
-typedef unsigned long long  uint64;
+using uint8 = unsigned char;
+using uint16 = unsigned short;
+using uint32 = unsigned int;
+using uint64 = unsigned long long;
 
 // Signed
 
@@ -1049,6 +1044,14 @@ typedef unsigned long long  uint64;
 #define MIN_UINT16  ((uint16)0x0000)
 #define MIN_UINT32  ((uint32)0x00000000)
 #define MIN_UINT64  ((uint64)(0x0000000000000000))
+
+
+// Assert sizes of types
+static_assert(sizeof(uint8) == 1, "Invalid size of uint8");
+static_assert(sizeof(uint16) == 2, "Invalid size of uint16");
+static_assert(sizeof(uint32) == 4, "Invalid size of uint32");
+static_assert(sizeof(uint64) == 8, "Invalid size of uint64");
+static_assert(sizeof(void *) == (MOSS_CPU_ADDRESS_BITS == 64? 8 : 4), "Invalid size of pointer" );
 
 static constexpr float cLargeFloat = 1.0e15f;
 #define MOSS_LARGE_FLOAT cLargeFloat
@@ -1076,97 +1079,97 @@ static void Moss_Free(void* ptr) { if (ptr) free(ptr); }
     #define MOSS_ALIGNED_FREE(mem) aligned_free(void *mem)
 #endif
 
-typedef enum Colorspace {
-    COLORSPACE_UNKNOWN = 0,
-    COLORSPACE_SRGB = 0x120005a0u,
-    COLORSPACE_SRGB_LINEAR = 0x12000500u,
-    COLORSPACE_HDR10 = 0x12002600u, 
-    COLORSPACE_JPEG = 0x220004c6u,
-    COLORSPACE_BT601_LIMITED = 0x211018c6u,
-    COLORSPACE_BT601_FULL = 0x221018c6u,
-    COLORSPACE_BT709_LIMITED = 0x21100421u,
-    COLORSPACE_BT709_FULL = 0x22100421u, 
-    COLORSPACE_BT2020_LIMITED = 0x21102609u,
-    COLORSPACE_BT2020_FULL = 0x22102609u,
+enum class Colorspace {
+    UNKNOWN = 0,
+    SRGB = 0x120005a0u,
+    SRGB_LINEAR = 0x12000500u,
+    HDR10 = 0x12002600u, 
+    JPEG = 0x220004c6u,
+    BT601_LIMITED = 0x211018c6u,
+    BT601_FULL = 0x221018c6u,
+    BT709_LIMITED = 0x21100421u,
+    BT709_FULL = 0x22100421u, 
+    BT2020_LIMITED = 0x21102609u,
+    BT2020_FULL = 0x22102609u,
 
-    COLORSPACE_RGB_DEFAULT = COLORSPACE_SRGB,
-    COLORSPACE_YUV_DEFAULT = COLORSPACE_BT601_LIMITED
+    RGB_DEFAULT = SRGB,
+    YUV_DEFAULT = BT601_LIMITED
 };
 
 enum class PixelFormat {
-    PIXELFORMAT_UNKNOWN = 0,
-    PIXELFORMAT_INDEX1LSB = 0x11100100u,
-    PIXELFORMAT_INDEX1MSB = 0x11200100u,
-    PIXELFORMAT_INDEX2LSB = 0x1c100200u,
-    PIXELFORMAT_INDEX2MSB = 0x1c200200u,
-    PIXELFORMAT_INDEX4LSB = 0x12100400u,
-    PIXELFORMAT_INDEX4MSB = 0x12200400u,
-    PIXELFORMAT_INDEX8 = 0x13000801u,
-    PIXELFORMAT_RGB332 = 0x14110801u,
-    PIXELFORMAT_XRGB4444 = 0x15120c02u,
-    PIXELFORMAT_XBGR4444 = 0x15520c02u,
-    PIXELFORMAT_XRGB1555 = 0x15130f02u,
-    PIXELFORMAT_XBGR1555 = 0x15530f02u,
-    PIXELFORMAT_ARGB4444 = 0x15321002u,
-    PIXELFORMAT_RGBA4444 = 0x15421002u,
-    PIXELFORMAT_ABGR4444 = 0x15721002u,
-    PIXELFORMAT_BGRA4444 = 0x15821002u,
-    PIXELFORMAT_ARGB1555 = 0x15331002u,
-    PIXELFORMAT_RGBA5551 = 0x15441002u,
-    PIXELFORMAT_ABGR1555 = 0x15731002u,
-    PIXELFORMAT_BGRA5551 = 0x15841002u,
-    PIXELFORMAT_RGB565 = 0x15151002u,
-    PIXELFORMAT_BGR565 = 0x15551002u,
-    PIXELFORMAT_RGB24 = 0x17101803u,
-    PIXELFORMAT_BGR24 = 0x17401803u,
-    PIXELFORMAT_XRGB8888 = 0x16161804u,
-    PIXELFORMAT_RGBX8888 = 0x16261804u,
-    PIXELFORMAT_XBGR8888 = 0x16561804u,
-    PIXELFORMAT_BGRX8888 = 0x16661804u,
-    PIXELFORMAT_ARGB8888 = 0x16362004u,
-    PIXELFORMAT_RGBA8888 = 0x16462004u,
-    PIXELFORMAT_ABGR8888 = 0x16762004u,
-    PIXELFORMAT_BGRA8888 = 0x16862004u,
-    PIXELFORMAT_XRGB2101010 = 0x16172004u,
-    PIXELFORMAT_XBGR2101010 = 0x16572004u,
-    PIXELFORMAT_ARGB2101010 = 0x16372004u,
-    PIXELFORMAT_ABGR2101010 = 0x16772004u,
-    PIXELFORMAT_RGB48 = 0x18103006u,
-    PIXELFORMAT_BGR48 = 0x18403006u,
-    PIXELFORMAT_RGBA64 = 0x18204008u,
-    PIXELFORMAT_ARGB64 = 0x18304008u,
-    PIXELFORMAT_BGRA64 = 0x18504008u,
-    PIXELFORMAT_ABGR64 = 0x18604008u,
-    PIXELFORMAT_RGB48_FLOAT = 0x1a103006u,
-    PIXELFORMAT_BGR48_FLOAT = 0x1a403006u,
-    PIXELFORMAT_RGBA64_FLOAT = 0x1a204008u,
-    PIXELFORMAT_ARGB64_FLOAT = 0x1a304008u,
-    PIXELFORMAT_BGRA64_FLOAT = 0x1a504008u,
-    PIXELFORMAT_ABGR64_FLOAT = 0x1a604008u,
-    PIXELFORMAT_RGB96_FLOAT = 0x1b10600cu,
-    PIXELFORMAT_BGR96_FLOAT = 0x1b40600cu,
-    PIXELFORMAT_RGBA128_FLOAT = 0x1b208010u,
-    PIXELFORMAT_ARGB128_FLOAT = 0x1b308010u,
-    PIXELFORMAT_BGRA128_FLOAT = 0x1b508010u,
-    PIXELFORMAT_ABGR128_FLOAT = 0x1b608010u,
-    PIXELFORMAT_YV12 = 0x32315659u,
-    PIXELFORMAT_IYUV = 0x56555949u,
-    PIXELFORMAT_YUY2 = 0x32595559u,
-    PIXELFORMAT_UYVY = 0x59565955u,
-    PIXELFORMAT_YVYU = 0x55595659u,
-    PIXELFORMAT_NV12 = 0x3231564eu,
-    PIXELFORMAT_NV21 = 0x3132564eu,
-    PIXELFORMAT_P010 = 0x30313050u,
-    PIXELFORMAT_EXTERNAL_OES = 0x2053454fu,
-    PIXELFORMAT_MJPG = 0x47504a4du,
+    UNKNOWN = 0,
+    INDEX1LSB = 0x11100100u,
+    INDEX1MSB = 0x11200100u,
+    INDEX2LSB = 0x1c100200u,
+    INDEX2MSB = 0x1c200200u,
+    INDEX4LSB = 0x12100400u,
+    INDEX4MSB = 0x12200400u,
+    INDEX8 = 0x13000801u,
+    RGB332 = 0x14110801u,
+    XRGB4444 = 0x15120c02u,
+    XBGR4444 = 0x15520c02u,
+    XRGB1555 = 0x15130f02u,
+    XBGR1555 = 0x15530f02u,
+    ARGB4444 = 0x15321002u,
+    RGBA4444 = 0x15421002u,
+    ABGR4444 = 0x15721002u,
+    BGRA4444 = 0x15821002u,
+    ARGB1555 = 0x15331002u,
+    RGBA5551 = 0x15441002u,
+    ABGR1555 = 0x15731002u,
+    BGRA5551 = 0x15841002u,
+    RGB565 = 0x15151002u,
+    BGR565 = 0x15551002u,
+    RGB24 = 0x17101803u,
+    BGR24 = 0x17401803u,
+    XRGB8888 = 0x16161804u,
+    RGBX8888 = 0x16261804u,
+    XBGR8888 = 0x16561804u,
+    BGRX8888 = 0x16661804u,
+    ARGB8888 = 0x16362004u,
+    RGBA8888 = 0x16462004u,
+    ABGR8888 = 0x16762004u,
+    BGRA8888 = 0x16862004u,
+    XRGB2101010 = 0x16172004u,
+    XBGR2101010 = 0x16572004u,
+    ARGB2101010 = 0x16372004u,
+    ABGR2101010 = 0x16772004u,
+    RGB48 = 0x18103006u,
+    BGR48 = 0x18403006u,
+    RGBA64 = 0x18204008u,
+    ARGB64 = 0x18304008u,
+    BGRA64 = 0x18504008u,
+    ABGR64 = 0x18604008u,
+    RGB48_FLOAT = 0x1a103006u,
+    BGR48_FLOAT = 0x1a403006u,
+    RGBA64_FLOAT = 0x1a204008u,
+    ARGB64_FLOAT = 0x1a304008u,
+    BGRA64_FLOAT = 0x1a504008u,
+    ABGR64_FLOAT = 0x1a604008u,
+    RGB96_FLOAT = 0x1b10600cu,
+    BGR96_FLOAT = 0x1b40600cu,
+    RGBA128_FLOAT = 0x1b208010u,
+    ARGB128_FLOAT = 0x1b308010u,
+    BGRA128_FLOAT = 0x1b508010u,
+    ABGR128_FLOAT = 0x1b608010u,
+    YV12 = 0x32315659u,
+    IYUV = 0x56555949u,
+    YUY2 = 0x32595559u,
+    UYVY = 0x59565955u,
+    YVYU = 0x55595659u,
+    NV12 = 0x3231564eu,
+    NV21 = 0x3132564eu,
+    P010 = 0x30313050u,
+    EXTERNAL_OES = 0x2053454fu,
+    MJPG = 0x47504a4du,
 };
 
 enum {
-	SWIZZLE_X = 0,			///< Use the X component
-	SWIZZLE_Y = 1,			///< Use the Y component
-	SWIZZLE_Z = 2,			///< Use the Z component
-	SWIZZLE_W = 3,			///< Use the W component
-	SWIZZLE_UNUSED = 2,		///< We always use the Z component when we don't specifically want to initialize a value, this is consistent with what is done in Vec3(x, y, z), Vec3(Float3 &) and Vec3::sLoadFloat3Unsafe
+	SWIZZLE_X = 0,			// Use the X component
+	SWIZZLE_Y = 1,			// Use the Y component
+	SWIZZLE_Z = 2,			// Use the Z component
+	SWIZZLE_W = 3,			// Use the W component
+	SWIZZLE_UNUSED = 2,		// We always use the Z component when we don't specifically want to initialize a value, this is consistent with what is done in Vec3(x, y, z), Vec3(Float3 &) and Vec3::sLoadFloat3Unsafe
 };
 
 struct BumpAlloc {
@@ -1175,9 +1178,9 @@ struct BumpAlloc {
     char* memory;
 };
 
-/// Convert a value from degrees to radians
+// Convert a value from degrees to radians
 MOSS_INLINE constexpr float DegreesToRadians(float value) { return value * (MOSS_PI / 180.0f); }
-/// Convert a value from radians to degrees
+// Convert a value from radians to degrees
 MOSS_INLINE constexpr float RadiansToDegrees(float value) { return value * (180.0f / MOSS_PI); }
 //
 MOSS_INLINE constexpr void seed_random() { std::srand(static_cast<unsigned int>(std::time(nullptr))); }
@@ -1209,17 +1212,17 @@ MOSS_API Moss_Time Moss_GetTicks();
 /*! @brief Get Seconds. @ingroup Time.
 MOSS_API double Moss_GetSeconds(Moss_Time time);
 
-/// Get the milliseconds passed from an initial tick value.
+// Get the milliseconds passed from an initial tick value.
 MOSS_API float Moss_GetMilliseconds(Moss_Time ticks);
 
-/// Get the milliseconds passed from an initial tick value. Resets the passed in
-/// value to the current tick value.
+// Get the milliseconds passed from an initial tick value. Resets the passed in
+// value to the current tick value.
 MOSS_API float Moss_GetMillisecondsAndReset(Moss_Time* ticks);
 
 /*! @brief Get Nanoseconds. @ingroup Time.
 void Moss_GetNanoseconds(uint64 nanoseconds);
 
-/// Yield to be used in a busy loop.
+// Yield to be used in a busy loop.
 MOSS_API void Moss_Yield(void);
 
 /*! @brief Delay Makes a time delay for the next below to run. @param delay milliseconds. @ingroup Time.
@@ -1393,7 +1396,7 @@ template<class T> inline T Sqr(T a) { return a * a; }
 template <typename T>
 MOSS_INLINE constexpr T Square(T inV) { return inV * inV; }
 
-/// Returns \f$inV^3\f$.
+// Returns \f$inV^3\f$.
 template <typename T>
 MOSS_INLINE constexpr T Cubed(T inV) { return inV * inV * inV; }
 
@@ -1613,9 +1616,6 @@ MOSS_INLINE float32x4_t NeonShuffleFloat32x4<1, 2, 0, 0>(float32x4_t inV1, float
 // Shuffle a vector
 #define MOSS_NEON_SHUFFLE_F32x4(vec1, vec2, index1, index2, index3, index4) NeonShuffleFloat32x4<index1, index2, index3, index4>(vec1, vec2)
 #define MOSS_NEON_SHUFFLE_U32x4(vec1, vec2, index1, index2, index3, index4) vreinterpretq_u32_f32((NeonShuffleFloat32x4<index1, index2, index3, index4>(vreinterpretq_f32_u32(vec1), vreinterpretq_f32_u32(vec2))))
-#endif
-#endif // MOSS_SIMD_NEON
-
 
 
 void Moss_Create_BumpAlloc(BumpAlloc* alloc, size_t size)
@@ -1679,8 +1679,7 @@ long Moss_get_FileSize(char* filepath)
 * memory and therefore want more control over where it 
 * is allocated
 */
-char* Moss_FileRead(char* filepath, int fileSize, char* buffer)
-{
+char* Moss_FileRead(char* filepath, int fileSize, char* buffer) {
     MOSS_ERROR(filePath, "No filePath supplied!");
     MOSS_ERROR(fileSize, "No fileSize supplied!");
     MOSS_ERROR(buffer, "No buffer supplied!");
@@ -1782,9 +1781,9 @@ MOSS_SUPRESS_WARNINGS_END
 #endif // MOSS_STDINC_H
 
 
-/// Find the roots of \f$inA \: x^2 + inB \: x + inC = 0\f$.
-/// @return The number of roots, actual roots in outX1 and outX2.
-/// If number of roots returned is 1 then outX1 == outX2.
+// Find the roots of \f$inA \: x^2 + inB \: x + inC = 0\f$.
+// @return The number of roots, actual roots in outX1 and outX2.
+// If number of roots returned is 1 then outX1 == outX2.
 template <typename T>
 inline int FindRoot(const T inA, const T inB, const T inC, T &outX1, T &outX2) {
 	// Check if this is a linear equation
@@ -2064,3 +2063,6 @@ bool Moss_TryLockSpinlock(Moss_SpinLock *lock);
 Uint32 Moss_SetAtomicU32(Moss_AtomicU32 *a, Uint32 v);
 void Moss_UnlockSpinlock(Moss_SpinLock *lock);
 */
+
+#endif
+#endif // MOSS_SIMD_NEON

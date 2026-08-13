@@ -33,17 +33,18 @@
 #pragma once
 
 #include <Moss/Moss_stdinc.h>
-#include <Moss/Core/Variants/TArray.h>
-#include <Moss/Core/Variants/Vector/Vec4.h>
-#include <Moss/Core/Variants/Matrix/Mat44.h>
-#include <Moss/Core/Variants/Math/Real.h>
+#include <Moss/Variants/TArray.h>
+#include <Moss/Variants/Vector/Vec4.h>
+#include <Moss/Variants/Matrix/Mat44.h>
+#include <Moss/Variants/Math/Real.h>
 
 
 #include <Moss/Moss_Platform.h>             // Contains creating window, device input, threads, timer, and time.
-#include <Moss/Moss_Audio.h>                  // Contains the code for setting up Audio and drivers.
+#include <Moss/Moss_Audio.h>                // Contains the code for setting up Audio and drivers.
+#include <Moss/Moss_GPU.h>                  // Contains the rendering side of the framework.
 #include <Moss/Moss_Renderer.h>             // Contains the rendering side of the framework.
-#include <Moss/Moss_GUI.h>
+#include <Moss/Moss_GUI.h>                  // Contains
 #include <Moss/Moss_Physics.h>              // Contains all the physics side for 2D & 3D
 #include <Moss/Moss_Network.h>              // Contains all network libraries needed by enet6.
-#include <Moss/Moss_XR.h>
-#include <Moss/Moss_Navigation.h>
+#include <Moss/Moss_XR.h>                   // Contains
+#include <Moss/Moss_Navigation.h>           // Contains
