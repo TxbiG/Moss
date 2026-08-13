@@ -1205,7 +1205,7 @@ MOSS_API float  Moss_rand_unit();
 */
 
 
-
+using Moss_Time = int64_t;
 /*            Timer          */
 
 /*! @brief Get every Tick. @ingroup Time.

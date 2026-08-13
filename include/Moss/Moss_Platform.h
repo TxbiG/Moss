@@ -58,6 +58,7 @@ using Moss_TouchID = uint32_t;
 using Moss_HapticID = uint32_t;
 using Moss_CameraID = uint32_t;
 using Moss_GamepadID = uint32_t;
+using Moss_PropertiesID = uint32_t;
 
 struct Moss_Window;
 struct Moss_Monitor;
@@ -727,7 +728,7 @@ struct Moss_HapticPeriodic {
     uint16_t fade_level;  // Level at the end of the fade.
 };
 
-typedef union Moss_HapticEffect {
+union Moss_HapticEffect {
     uint16_t type;                        // Effect type.
     Moss_HapticConstant constant;       // Constant effect.
     Moss_HapticPeriodic periodic;       // Periodic effect.
@@ -783,10 +784,11 @@ typedef void (*Moss_WindowResizeCallback)(int width, int height);
 //! @brief Callback for monitor configuration changes (e.g. hotplug events). @param monitorName Name or ID of the monitor that changed. @param connected True if the monitor was connected; false if disconnected.
 typedef void (*Moss_MonitorCallback)(const char* monitorName, bool connected);
 //! @brief X. @param width X. @param X. */
-typedef void (MOSS_CALL* Moss_DialogFileCallback)(void *userdata, const char * const *filelist, int filter);
+typedef void (MOSS_CALL* Moss_DialogFileCallback)(void* userdata, const char*  const* filelist, int filter);
 //! @brief X. @param width X. @param X. */
 typedef bool (*Moss_DirectoryIterateFn)(const Moss_PathInfo* info, const char* path, void* user_data);
-
+//! @brief X. @param width X. @param X. */
+typedef bool (*Moss_EnumerateDirectoryCallback)(const Moss_PathInfo* info, const char* path, void* user_data);
 
 /*! @brief Initialization of Moss. Must be called before anything else. @param X X. @ingroup Moss */
 //MOSS_API bool Moss_Init();
@@ -901,9 +903,9 @@ MOSS_API Moss_GamepadAxis Moss_InputGetGamepadAxis();
 
 MOSS_API Moss_PenDeviceType Moss_GetPenDeviceType(Moss_PenID instance_id);
 MOSS_API const char* Moss_GetTouchDeviceName(Moss_TouchID touchID);
-MOSS_API Moss_TouchID* Moss_GetTouchDevices(int *count);
+MOSS_API Moss_TouchID* Moss_GetTouchDevices(int* count);
 MOSS_API Moss_TouchDeviceType Moss_GetTouchDeviceType(Moss_TouchID touchID);
-MOSS_API Moss_Finger** Moss_GetTouchFingers(Moss_TouchID touchID, int *count);
+MOSS_API Moss_Finger** Moss_GetTouchFingers(Moss_TouchID touchID, int* count);
 
 /*            Haptic Feedback          */
 /*! @brief X. @param X X.*/
@@ -981,7 +983,7 @@ MOSS_API int Moss_GetSystemRAM(void);
 
 /*             OS Spesific        */
 /*! @brief URL to a website link. Supported on PC and mobile. @param url URL link. @ingroup Platform Misc. */
-MOSS_API bool Moss_OpenURL(const char *url);
+MOSS_API bool Moss_OpenURL(const char* url);
 /*! @brief Get Locale of the Operating system. @return Country "UK" for United Kingdom and language "en" for English. @ingroup Platform Misc. */
 MOSS_API Moss_Locale* Moss_GetLocale();
 /*! @brief */
@@ -1027,10 +1029,10 @@ MOSS_API void Moss_ReleaseCameraFrame(Moss_Camera* camera, Moss_Surface* frame);
 MOSS_API bool Moss_GetCameraFormat(Moss_Camera* camera, Moss_CameraSpec* out_spec);
 MOSS_API Moss_CameraPermissionState Moss_GetCameraPermissionState(Moss_Camera* camera);
 MOSS_API Moss_PropertiesID Moss_GetCameraProperties(Moss_Camera* camera);
-MOSS_API void Moss_CloseCamera(Moss_Camera *camera);
-MOSS_API Moss_CameraID Moss_GetCameraID(Moss_Camera *camera);
-MOSS_API Moss_PropertiesID Moss_GetCameraProperties(Moss_Camera *camera);
-MOSS_API Moss_Camera * Moss_OpenCamera(Moss_CameraID instance_id, const Moss_CameraSpec *spec);
+MOSS_API void Moss_CloseCamera(Moss_Camera* camera);
+MOSS_API Moss_CameraID Moss_GetCameraID(Moss_Camera* camera);
+MOSS_API Moss_PropertiesID Moss_GetCameraProperties(Moss_Camera* camera);
+MOSS_API Moss_Camera * Moss_OpenCamera(Moss_CameraID instance_id, const Moss_CameraSpec* spec);
 /*! @brief X. @param X X @ingroup Video Capture. */
 MOSS_API Moss_VideoCapture* Moss_OpenVideoCapture(Moss_VideoCaptureID captureID);
 /*! @brief X. @param X X @ingroup Video Capture. */
@@ -1055,28 +1057,31 @@ MOSS_API bool Moss_EnumerateDirectory( const char* path, bool recursive, Moss_Di
 MOSS_API bool Moss_GlobDirectory(const char* pattern, Moss_DirectoryIterateFn callback, void* user_data);
 
 
-MOSS_API void Moss_ShowFileDialogWithProperties(Moss_DialogFileCallback callback, void *userdata, Moss_Window *window, const Moss_DialogFileFilter *filters, int nfilters, const char *default_location);
-MOSS_API void Moss_ShowOpenFileDialog(Moss_DialogFileCallback callback, void *userdata, Moss_Window *window, const char *default_location, bool allow_many);
-MOSS_API void Moss_ShowOpenFolderDialog(Moss_DialogFileCallback callback, void *userdata, Moss_Window *window, const Moss_DialogFileFilter *filters, int nfilters, const char *default_location, bool allow_many);
-MOSS_API void Moss_ShowSaveFileDialog(Moss_FileDialogType type, Moss_DialogFileCallback callback, void *userdata, Moss_PropertiesID props);
+MOSS_API void Moss_ShowFileDialogWithProperties(Moss_DialogFileCallback callback, void* userdata, Moss_Window* window, const Moss_DialogFileFilter* filters, int nfilters, const char* default_location);
+MOSS_API void Moss_ShowOpenFileDialog(Moss_DialogFileCallback callback, void* userdata, Moss_Window* window, const char* default_location, bool allow_many);
+MOSS_API void Moss_ShowOpenFolderDialog(Moss_DialogFileCallback callback, void* userdata, Moss_Window* window, const Moss_DialogFileFilter* filters, int nfilters, const char* default_location, bool allow_many);
+MOSS_API void Moss_ShowSaveFileDialog(Moss_FileDialogType type, Moss_DialogFileCallback callback, void* userdata, Moss_PropertiesID props);
 
-MOSS_API bool Moss_CloseStorage(Moss_Storage *storage);
-MOSS_API bool Moss_CopyStorageFile(Moss_Storage *storage, const char *oldpath, const char *newpath);
-MOSS_API bool Moss_CreateStorageDirectory(Moss_Storage *storage, const char *path);
-MOSS_API bool Moss_EnumerateStorageDirectory(Moss_Storage *storage, const char *path, Moss_EnumerateDirectoryCallback callback, void *userdata);
-MOSS_API bool Moss_GetStorageFileSize(Moss_Storage *storage, const char *path, uint64 *length);
-MOSS_API uint64_t Moss_GetStorageSpaceRemaining(Moss_Storage *storage);
-MOSS_API bool Moss_GetStoragePathInfo(Moss_Storage *storage, const char *path, Moss_PathInfo *info);
-MOSS_API char** Moss_GlobStorageDirectory(Moss_Storage *storage, const char *path, const char *pattern, Moss_GlobFlags flags, int *count);
-MOSS_API Moss_Storage* Moss_OpenFileStorage(const char *path);
-MOSS_API Moss_Storage* Moss_OpenStorage(const Moss_Storage *iface, void *userdata);
-MOSS_API Moss_Storage* Moss_OpenTitleStorage(const char *override, Moss_PropertiesID props);
-MOSS_API Moss_Storage* Moss_OpenUserStorage(const char *org, const char *app, Moss_PropertiesID props);
-MOSS_API bool Moss_ReadStorageFile(Moss_Storage *storage, const char *path, void *destination, uint64 length);
-MOSS_API bool Moss_RemoveStoragePath(Moss_Storage *storage, const char *path);
-MOSS_API bool Moss_RenameStoragePath(Moss_Storage *storage, const char *oldpath, const char *newpath);
-MOSS_API bool Moss_StorageReady(Moss_Storage *storage);
-MOSS_API bool Moss_WriteStorageFile(Moss_Storage *storage, const char *path, const void *source, uint64 length);
+
+enum Moss_GlobFlags;
+
+MOSS_API bool Moss_CloseStorage(Moss_Storage* storage);
+MOSS_API bool Moss_CopyStorageFile(Moss_Storage* storage, const char *oldpath, const char* newpath);
+MOSS_API bool Moss_CreateStorageDirectory(Moss_Storage* storage, const char* path);
+MOSS_API bool Moss_EnumerateStorageDirectory(Moss_Storage* storage, const char* path, Moss_EnumerateDirectoryCallback callback, void* userdata);
+MOSS_API bool Moss_GetStorageFileSize(Moss_Storage* storage, const char *path, uint64* length);
+MOSS_API uint64_t Moss_GetStorageSpaceRemaining(Moss_Storage* storage);
+MOSS_API bool Moss_GetStoragePathInfo(Moss_Storage* storage, const char *path, Moss_PathInfo* info);
+MOSS_API char** Moss_GlobStorageDirectory(Moss_Storage* storage, const char* path, const char* pattern, Moss_GlobFlags flags, int* count);
+MOSS_API Moss_Storage* Moss_OpenFileStorage(const char* path);
+MOSS_API Moss_Storage* Moss_OpenStorage(const Moss_Storage* iface, void* userdata);
+MOSS_API Moss_Storage* Moss_OpenTitleStorage(const char* override, Moss_PropertiesID props);
+MOSS_API Moss_Storage* Moss_OpenUserStorage(const char* org, const char* app, Moss_PropertiesID props);
+MOSS_API bool Moss_ReadStorageFile(Moss_Storage* storage, const char* path, void* destination, uint64 length);
+MOSS_API bool Moss_RemoveStoragePath(Moss_Storage* storage, const char* path);
+MOSS_API bool Moss_RenameStoragePath(Moss_Storage* storage, const char* oldpath, const char* newpath);
+MOSS_API bool Moss_StorageReady(Moss_Storage* storage);
+MOSS_API bool Moss_WriteStorageFile(Moss_Storage* storage, const char* path, const void* source, uint64 length);
 
 
 // Mobile Android / IOS App Creation
@@ -1104,7 +1109,7 @@ MOSS_API void* Moss_GetProcAddress(const char* procname);
 // Vulkan
 #if defined(MOSS_GRAPHICS_VULKAN)
 /*! @brief Creates the window for vulkan @param X X @ingroup Vulkan. */
-MOSS_API VkResult Moss_CreateWindowSurface(Moss_Window* window, VkInstance vk_instance, const VkAllocationCallbacks *allocator, VkSurfaceKHR* vk_surface);
+MOSS_API VkResult Moss_CreateWindowSurface(Moss_Window* window, VkInstance vk_instance, const VkAllocationCallbacks* allocator, VkSurfaceKHR* vk_surface);
 /*! @brief X @param X X @ingroup Vulkan. */
 MOSS_API int Moss_VulkanSupported(void);
 /*! @brief X @param X X @ingroup Vulkan. */

@@ -75,9 +75,6 @@
 #include <Moss/Moss_stdinc.h>
 #include <Moss/Moss_Platform.h>
 
-#define MOSS_API		// < Delete this
-
-
 using Moss_CullMask = uint32_t;
 using Moss_LightMask = uint32_t;
 using Moss_VisibleMask = uint32_t;
@@ -104,7 +101,11 @@ struct ModelInstance;
 struct Frustum2D;
 struct Frustum3D;
 
-typedef struct Camera2D {
+enum LightMask;
+enum CullMask;
+enum VisibleLayer;
+
+struct Camera2D {
     RVec2 position;
 	RVec2 offset;
     float zoom = 1.0f;
@@ -117,7 +118,7 @@ typedef struct Camera2D {
 	VisibleLayer visible_layer;
 };
 
-typedef struct Camera3D {
+struct Camera3D {
     RVec3 position;
 	Vec3 up = Vec3(0.0f, 1.0f, 0.0f);    // Y is up
     Vec3 target;
@@ -138,13 +139,13 @@ typedef struct Camera3D {
 	LightMask light_mask;
 };
 
-typedef struct Material2D {
+struct Material2D {
     Color* albedo;
     Texture* albedoMap;
     Texture* normalMap;
 };
 
-typedef struct Material3D {
+struct Material3D {
     Color* albedo;
     float* metallic;
     float* roughness;
@@ -227,7 +228,7 @@ struct SurfaceRectInstance {
     float transform[16]; /* column-major mat4 */
 };
 
-typedef struct Mesh {
+struct Mesh {
     Material3D material;
     Moss_GPUBuffer* vertex_buffer;
     Moss_GPUBuffer* index_buffer;
@@ -237,31 +238,31 @@ typedef struct Mesh {
 
     uint32_t vertex_stride;
 };
-typedef struct MeshInstance {
+struct MeshInstance {
     Mesh* mesh;
     float transform[16]; /* column-major mat4 */
     Moss_VisibleMask visibility;
 };
 
-typedef struct Model {
+struct Model {
     Mesh** meshes;
     uint32_t mesh_count;
 };
 
-typedef struct ModelInstance {
+struct ModelInstance {
     Model* model;
     float transform[16];
     Moss_VisibleMask visibility;
 };
 
-typedef struct SkyBox {
+struct SkyBox {
     Moss_Texture* cubemap;
     Moss_GPUSampler* sampler;
     Moss_PipelineState* pipeline;
     Moss_ResourceSet* resource_set;
 };
 
-typedef struct FogVolume {
+struct FogVolume {
     float transform[16];
     float density;
     float falloff;
@@ -270,7 +271,7 @@ typedef struct FogVolume {
     Moss_CullMask cull_mask;
 };
 
-typedef struct Sprite2D {
+struct Sprite2D {
     Texture* texture;
     Rect* rect;
     Moss_PipelineState* pipeline;
@@ -283,7 +284,7 @@ typedef struct Sprite2D {
     Moss_VisibleMask visibility;
 };
 
-typedef struct Sprite3D {
+struct Sprite3D {
     Mesh* sampler;
 
     float transform[16];  /* world matrix */
@@ -294,7 +295,7 @@ typedef struct Sprite3D {
     Moss_VisibleMask visibility;
 };
 
-typedef struct Decal { 
+struct Decal { 
     Texture* Albedo, 
     Texture* Normal, 
     Texture* Orm, 
@@ -446,7 +447,7 @@ MOSS_API void Moss_RendererDrawPolygonShape3D(Moss_Renderer* renderer, );
 MOSS_API void Moss_RendererDrawGizmo3D(Moss_Renderer* renderer, const RMat4x4* transform, float size);
 #endif
 
-typedef enum Moss_Upscaler {
+enum Moss_Upscaler {
     MOSS_UPSCALER_NONE,
     MOSS_UPSCALER_FSR1,
     MOSS_UPSCALER_FSR2
