@@ -334,9 +334,9 @@ endif()
 if (CMAKE_GENERATOR STREQUAL "Ninja Multi-Config" AND MSVC)
 	# The Ninja Multi-Config generator errors out when selectively disabling precompiled headers for certain configurations.
 	# See: https://github.com/jrouwe/JoltPhysics/issues/1211
-	target_precompile_headers(Moss PRIVATE "${MOSS_ROOT}/Moss.h")
+	target_precompile_headers(Moss PRIVATE "${MOSS_ROOT_INCLUDE}/Moss.h")
 else()
-	target_precompile_headers(Moss PRIVATE "$<$<NOT:$<CONFIG:ReleaseCoverage>>:${MOSS_ROOT}/Moss.h>")
+	target_precompile_headers(Moss PRIVATE "$<$<NOT:$<CONFIG:ReleaseCoverage>>:${MOSS_ROOT_INCLUDE}/Moss.h>")
 endif()
 
 # Set the debug/non-debug build flags
