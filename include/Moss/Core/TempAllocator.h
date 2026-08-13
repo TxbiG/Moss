@@ -21,10 +21,10 @@ public:
 	virtual							~TempAllocator() = default;
 
 	/// Allocates inSize bytes of memory, returned memory address must be MOSS_RVECTOR_ALIGNMENT byte aligned
-	virtual void *					Allocate(uint inSize) = 0;
+	virtual void *					Allocate(uint32 inSize) = 0;
 
 	/// Frees inSize bytes of memory located at inAddress
-	virtual void					Free(void *inAddress, uint inSize) = 0;
+	virtual void					Free(void *inAddress, uint32 inSize) = 0;
 };
 
 /// Default implementation of the temp allocator that allocates a large block through malloc upfront
@@ -48,7 +48,7 @@ public:
 	}
 
 	// See: TempAllocator
-	virtual void *					Allocate(uint inSize) override
+	virtual void *					Allocate(uint32 inSize) override
 	{
 		if (inSize == 0)
 		{
@@ -69,7 +69,7 @@ public:
 	}
 
 	// See: TempAllocator
-	virtual void					Free(void *inAddress, uint inSize) override
+	virtual void					Free(void *inAddress, uint32 inSize) override
 	{
 		if (inAddress == nullptr)
 		{
@@ -105,7 +105,7 @@ public:
 	}
 
 	/// Check if an allocation of inSize can be made in this fixed buffer allocator
-	bool							CanAllocate(uint inSize) const
+	bool							CanAllocate(uint32 inSize) const
 	{
 		return mTop + AlignUp(inSize, MOSS_RVECTOR_ALIGNMENT) <= mSize;
 	}
@@ -130,13 +130,13 @@ public:
 	//MOSS_OVERRIDE_NEW_DELETE
 
 	// See: TempAllocator
-	virtual void *					Allocate(uint inSize) override
+	virtual void *					Allocate(uint32 inSize) override
 	{
 		return inSize > 0? AlignedAllocate(inSize, MOSS_RVECTOR_ALIGNMENT) : nullptr;
 	}
 
 	// See: TempAllocator
-	virtual void					Free(void *inAddress, [[maybe_unused]] uint inSize) override
+	virtual void					Free(void *inAddress, [[maybe_unused]] uint32 inSize) override
 	{
 		if (inAddress != nullptr)
 			AlignedFree(inAddress);
@@ -150,12 +150,12 @@ public:
 	//MOSS_OVERRIDE_NEW_DELETE
 
 	/// Constructs the allocator with an initial fixed block if inSize
-	explicit TempAllocatorImplWithMallocFallback(uint inSize) : mAllocator(inSize)
+	explicit TempAllocatorImplWithMallocFallback(uint32 inSize) : mAllocator(inSize)
 	{
 	}
 
 	// See: TempAllocator
-	virtual void* Allocate(uint inSize) override
+	virtual void* Allocate(uint32 inSize) override
 	{
 		if (mAllocator.CanAllocate(inSize))
 			return mAllocator.Allocate(inSize);
@@ -164,7 +164,7 @@ public:
 	}
 
 	// See: TempAllocator
-	virtual void Free(void *inAddress, uint inSize) override
+	virtual void Free(void *inAddress, uint32 inSize) override
 	{
 		if (inAddress == nullptr){ MOSS_ASSERT(inSize == 0); }
 		else

@@ -36,10 +36,10 @@ public:
 							~Semaphore();
 
 	/// Release the semaphore, signaling the thread waiting on the barrier that there may be work
-	void					Release(uint inNumber = 1);
+	void					Release(uint32 inNumber = 1);
 
 	/// Acquire the semaphore inNumber times
-	void					Acquire(uint inNumber = 1);
+	void					Acquire(uint32 inNumber = 1);
 
 	/// Get the current value of the semaphore
 	inline int				GetValue() const								{ return mCount.load(std::memory_order_relaxed); }

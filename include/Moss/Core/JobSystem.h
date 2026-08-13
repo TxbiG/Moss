@@ -105,10 +105,10 @@ public:
 		inline void			RemoveDependency(int inCount = 1) const		{ GetPtr()->RemoveDependencyAndQueue(inCount); }
 
 		/// Remove a dependency from a batch of jobs at once, this can be more efficient than removing them one by one as it requires less locking
-		static inline void	sRemoveDependencies(const JobHandle *inHandles, uint inNumHandles, int inCount = 1);
+		static inline void	sRemoveDependencies(const JobHandle *inHandles, uint32 inNumHandles, int inCount = 1);
 
 		/// Helper function to remove dependencies on a static array of job handles
-		template <uint N>
+		template <uint32 N>
 		static inline void	sRemoveDependencies(TStaticArray<JobHandle, N> &inHandles, int inCount = 1)
 		{
 			sRemoveDependencies(inHandles.data(), inHandles.size(), inCount);
@@ -130,7 +130,7 @@ public:
 
 		/// Add multiple jobs to this barrier
 		/// Note that jobs can keep being added to the barrier while waiting for the barrier
-		virtual void		AddJobs(const JobHandle *inHandles, uint inNumHandles) = 0;
+		virtual void		AddJobs(const JobHandle *inHandles, uint32 inNumHandles) = 0;
 
 	protected:
 		/// Job needs to be able to call OnJobFinished
@@ -298,7 +298,7 @@ private:
 	virtual void			QueueJob(Job *inJob) = 0;
 
 	/// Adds a number of jobs at once to the job queue
-	virtual void			QueueJobs(Job **inJobs, uint inNumJobs) = 0;
+	virtual void			QueueJobs(Job **inJobs, uint32 inNumJobs) = 0;
 
 	/// Frees a job
 	virtual void			FreeJob(Job *inJob) = 0;

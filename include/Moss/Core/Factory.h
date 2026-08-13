@@ -28,7 +28,7 @@ public:
 	bool						Register(const RTTI *inRTTI);
 
 	/// Register a list of objects with the factory. Returns false on failure.
-	bool						Register(const RTTI **inRTTIs, uint inNumber);
+	bool						Register(const RTTI **inRTTIs, uint32 inNumber);
 
 	/// Unregisters all types
 	void						Clear();

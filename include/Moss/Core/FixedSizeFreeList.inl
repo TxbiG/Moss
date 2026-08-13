@@ -22,7 +22,7 @@ FixedSizeFreeList<Object>::~FixedSizeFreeList()
 }
 
 template <typename Object>
-void FixedSizeFreeList<Object>::Init(uint inMaxObjects, uint inPageSize)
+void FixedSizeFreeList<Object>::Init(uint32 inMaxObjects, uint32 inPageSize)
 {
 	// Check sanity
 	MOSS_ASSERT(inPageSize > 0 && IsPowerOf2(inPageSize));

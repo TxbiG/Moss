@@ -131,13 +131,13 @@ bool OSIsType(Array<T, A> *, int inArrayDepth, EOSDataType inDataType, const cha
 	return (inArrayDepth > 0 && OSIsType(static_cast<T *>(nullptr), inArrayDepth - 1, inDataType, inClassName));
 }
 
-template <class T, uint N>
+template <class T, uint32 N>
 bool OSIsType(StaticArray<T, N> *, int inArrayDepth, EOSDataType inDataType, const char *inClassName)
 {
 	return (inArrayDepth > 0 && OSIsType(static_cast<T *>(nullptr), inArrayDepth - 1, inDataType, inClassName));
 }
 
-template <class T, uint N>
+template <class T, uint32 N>
 bool OSIsType(T (*)[N], int inArrayDepth, EOSDataType inDataType, const char *inClassName)
 {
 	return (inArrayDepth > 0 && OSIsType(static_cast<T *>(nullptr), inArrayDepth - 1, inDataType, inClassName));
@@ -178,7 +178,7 @@ bool OSReadData(IObjectStreamIn &ioStream, Array<T, A> &inArray)
 }
 
 /// Define serialization templates for static arrays
-template <class T, uint N>
+template <class T, uint32 N>
 bool OSReadData(IObjectStreamIn &ioStream, StaticArray<T, N> &inArray)
 {
 	bool continue_reading = true;
@@ -204,7 +204,7 @@ bool OSReadData(IObjectStreamIn &ioStream, StaticArray<T, N> &inArray)
 }
 
 /// Define serialization templates for C style arrays
-template <class T, uint N>
+template <class T, uint32 N>
 bool OSReadData(IObjectStreamIn &ioStream, T (&inArray)[N])
 {
 	bool continue_reading = true;
@@ -258,14 +258,14 @@ void OSWriteData(IObjectStreamOut &ioStream, const Array<T, A> &inArray)
 }
 
 /// Define serialization templates for static arrays
-template <class T, uint N>
+template <class T, uint32 N>
 void OSWriteDataType(IObjectStreamOut &ioStream, StaticArray<T, N> *)
 {
 	ioStream.WriteDataType(EOSDataType::Array);
 	OSWriteDataType(ioStream, static_cast<T *>(nullptr));
 }
 
-template <class T, uint N>
+template <class T, uint32 N>
 void OSWriteData(IObjectStreamOut &ioStream, const StaticArray<T, N> &inArray)
 {
 	// Write size of array
@@ -280,14 +280,14 @@ void OSWriteData(IObjectStreamOut &ioStream, const StaticArray<T, N> &inArray)
 }
 
 /// Define serialization templates for C style arrays
-template <class T, uint N>
+template <class T, uint32 N>
 void OSWriteDataType(IObjectStreamOut &ioStream, T (*)[N])
 {
 	ioStream.WriteDataType(EOSDataType::Array);
 	OSWriteDataType(ioStream, static_cast<T *>(nullptr));
 }
 
-template <class T, uint N>
+template <class T, uint32 N>
 void OSWriteData(IObjectStreamOut &ioStream, const T (&inArray)[N])
 {
 	// Write size of array

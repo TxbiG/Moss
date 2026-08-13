@@ -199,7 +199,7 @@ public:
 		/// Calculate the bend compliance at a fraction along the strand
 		float			GetBendCompliance(float inStrandFraction) const {
 			float fraction = inStrandFraction * 3.0f;
-			uint idx = min(uint(fraction), 2u);
+			uint32 idx = min(uint32(fraction), 2u);
 			fraction = fraction - float(idx);
 			MOSS_ASSERT(fraction >= 0.0f && fraction <= 1.0f);
 			float multiplier = mBendComplianceMultiplier[idx] * (1.0f - fraction) + mBendComplianceMultiplier[idx + 1] * fraction;
@@ -335,7 +335,7 @@ public:
 	Array<IndexedTriangleNoMaterial> mScalpTriangles;				// Triangles of the scalp mesh.
 	Array<Mat44>		mScalpInverseBindPose;						// Inverse bind pose of the scalp mesh, joints are in model space
 	Array<SkinWeight>	mScalpSkinWeights;							// Skin weights of the scalp mesh, for each vertex we have mScalpNumSkinWeightsPerVertex entries
-	uint				mScalpNumSkinWeightsPerVertex = 0;			// Number of skin weights per vertex
+	uint32				mScalpNumSkinWeightsPerVertex = 0;			// Number of skin weights per vertex
 
 	uint32				mNumIterationsPerSecond = cDefaultIterationsPerSecond;
 	float				mMaxDeltaTime = 1.0f / 30.0f;				// Maximum delta time for the simulation step (to avoid running an excessively long step, note that this will effectively slow down time)
@@ -409,7 +409,7 @@ public:
 	void								SetScalpToHead(Mat44Arg inMat)					{ mScalpToHead = inMat; }
 
 	/// Function that converts the render positions buffer to Float3 vertices for debugging purposes. It maps an application defined format to Float3. Third parameter is the number of vertices.
-	using RenderPositionsToFloat3 = std::function<void(ComputeBuffer *, Float3 *, uint)>;
+	using RenderPositionsToFloat3 = std::function<void(ComputeBuffer *, Float3 *, uint32)>;
 
 	/// Enable externally set render vertices buffer (with potentially different vertex layout). Note that this also requires replacing the HairCalculateRenderPositions shader.
 	void								OverrideRenderPositionsCB(const RenderPositionsToFloat3 &inRenderPositionsToFloat3) { MOSS_ASSERT(mRenderPositionsCB == nullptr, "Must be called before Init"); mRenderPositionsOverridden = true; mRenderPositionsToFloat3 = inRenderPositionsToFloat3; }
@@ -466,8 +466,8 @@ public:
 	struct DrawSettings
 	{
 		/// This specifies the range of simulation strands to draw, when drawing render strands we only draw the strands that belong to these simulation strands.
-		uint							mSimulationStrandBegin = 0;
-		uint							mSimulationStrandEnd = UINT_MAX;
+		uint32							mSimulationStrandBegin = 0;
+		uint32							mSimulationStrandEnd = UINT_MAX;
 
 		bool							mDrawRods = true;								// Draws the simulated rods
 		bool							mDrawUnloadedRods = false;						// Draw rods in their unloaded pose. This pose is obtained by removing gravity influence from the modeled pose.
@@ -508,7 +508,7 @@ protected:
 	{
 		Mat44							mDeltaTransform;								// Transforms positions from the old hair transform to the new
 		Quat							mDeltaTransformQuat;							// Rotation part of mDeltaTransform
-		uint							mNumIterations;									// Number of iterations to run the solver for
+		uint32							mNumIterations;									// Number of iterations to run the solver for
 		bool							mNeedsCollision;								// If collision detection should be performed
 		bool							mNeedsGrid;										// If the grid should be calculated
 		bool							mGlobalPoseOnly;								// If no simulation is needed and only the global pose needs to be applied

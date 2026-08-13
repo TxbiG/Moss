@@ -112,8 +112,8 @@ public:
 	MOSS_INLINE void			SetW(uint32 inW)									{ mU32[3] = inW; }
 
 	/// Get component by index
-	MOSS_INLINE uint32			operator [] (uint inCoordinate) const				{ MOSS_ASSERT(inCoordinate < 4); return mU32[inCoordinate]; }
-	MOSS_INLINE uint32 &		operator [] (uint inCoordinate)						{ MOSS_ASSERT(inCoordinate < 4); return mU32[inCoordinate]; }
+	MOSS_INLINE uint32			operator [] (uint32 inCoordinate) const				{ MOSS_ASSERT(inCoordinate < 4); return mU32[inCoordinate]; }
+	MOSS_INLINE uint32 &		operator [] (uint32 inCoordinate)						{ MOSS_ASSERT(inCoordinate < 4); return mU32[inCoordinate]; }
 
 	/// Multiplies each of the 4 integer components with an integer (discards any overflow)
 	MOSS_INLINE UVec4			operator * (UVec4Arg inV2) const;
@@ -167,15 +167,15 @@ public:
 	MOSS_INLINE int				GetTrues() const;
 
 	/// Shift all components by Count bits to the left (filling with zeros from the left)
-	template <const uint Count>
+	template <const uint32 Count>
 	MOSS_INLINE UVec4			LogicalShiftLeft() const;
 
 	/// Shift all components by Count bits to the right (filling with zeros from the right)
-	template <const uint Count>
+	template <const uint32 Count>
 	MOSS_INLINE UVec4			LogicalShiftRight() const;
 
 	/// Shift all components by Count bits to the right (shifting in the value of the highest bit)
-	template <const uint Count>
+	template <const uint32 Count>
 	MOSS_INLINE UVec4			ArithmeticShiftRight() const;
 
 	/// Takes the lower 4 16 bits and expands them to X, Y, Z and W

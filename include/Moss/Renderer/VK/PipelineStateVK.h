@@ -11,7 +11,7 @@ class PipelineStateVK : public PipelineState
 {
 public:
 	/// Constructor
-										PipelineStateVK(RendererVK *inRenderer, const VertexShaderVK *inVertexShader, const EInputDescription *inInputDescription, uint inInputDescriptionCount, const PixelShaderVK *inPixelShader, EDrawPass inDrawPass, EFillMode inFillMode, ETopology inTopology, EDepthTest inDepthTest, EBlendMode inBlendMode, ECullMode inCullMode);
+										PipelineStateVK(RendererVK *inRenderer, const VertexShaderVK *inVertexShader, const EInputDescription *inInputDescription, uint32 inInputDescriptionCount, const PixelShaderVK *inPixelShader, EDrawPass inDrawPass, EFillMode inFillMode, ETopology inTopology, EDepthTest inDepthTest, EBlendMode inBlendMode, ECullMode inCullMode);
 	virtual								~PipelineStateVK() override;
 
 	/// Make this pipeline state active (any primitives rendered after this will use this state)

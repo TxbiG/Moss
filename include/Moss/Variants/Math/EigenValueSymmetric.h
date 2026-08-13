@@ -36,7 +36,7 @@ bool EigenValueSymmetric(const Matrix &inMatrix, Matrix &outEigVec, Vector &outE
 	const int cMaxSweeps = 50;
 
 	// Get problem dimension
-	const uint n = inMatrix.GetRows();
+	const uint32 n = inMatrix.GetRows();
 
 	// Make sure the dimensions are right
 	MOSS_ASSERT(inMatrix.GetRows() == n);
@@ -51,7 +51,7 @@ bool EigenValueSymmetric(const Matrix &inMatrix, Matrix &outEigVec, Vector &outE
 
 	Vector b, z;
 
-	for (uint ip = 0; ip < n; ++ip)
+	for (uint32 ip = 0; ip < n; ++ip)
 	{
 		// Initialize b to diagonal of a
 		b[ip] = a(ip, ip);
@@ -67,8 +67,8 @@ bool EigenValueSymmetric(const Matrix &inMatrix, Matrix &outEigVec, Vector &outE
 	{
 		// Get the sum of the off-diagonal elements of a
 		float sm = 0.0f;
-		for (uint ip = 0; ip < n - 1; ++ip)
-			for (uint iq = ip + 1; iq < n; ++iq)
+		for (uint32 ip = 0; ip < n - 1; ++ip)
+			for (uint32 iq = ip + 1; iq < n; ++iq)
 				sm += abs(a(ip, iq));
 		float avg_sm = sm / Square(n);
 
@@ -77,7 +77,7 @@ bool EigenValueSymmetric(const Matrix &inMatrix, Matrix &outEigVec, Vector &outE
 		{
 			// Sanity checks
 			#ifdef MOSS_DEBUG
-				for (uint c = 0; c < n; ++c)
+				for (uint32 c = 0; c < n; ++c)
 				{
 					// Check if the eigenvector is normalized
 					MOSS_ASSERT(outEigVec.GetColumn(c).IsNormalized());
@@ -97,8 +97,8 @@ bool EigenValueSymmetric(const Matrix &inMatrix, Matrix &outEigVec, Vector &outE
 		// Note that we pick a minimum threshold of FLT_MIN because dividing by a denormalized number is likely to result in infinity.
 		float tresh = sweep < 4? 0.2f * avg_sm : FLT_MIN; // Original code: 0.0f instead of FLT_MIN
 
-		for (uint ip = 0; ip < n - 1; ++ip)
-			for (uint iq = ip + 1; iq < n; ++iq)
+		for (uint32 ip = 0; ip < n - 1; ++ip)
+			for (uint32 iq = ip + 1; iq < n; ++iq)
 			{
 				float &a_pq = a(ip, iq);
 				float &eigval_p = outEigVal[ip];
@@ -150,7 +150,7 @@ bool EigenValueSymmetric(const Matrix &inMatrix, Matrix &outEigVec, Vector &outE
 						a(i, j) = g - s * (h + g * tau),		\
 						a(k, l) = h + s * (g - h * tau)
 
-					uint j;
+					uint32 j;
 					for (j = 0; j < ip; ++j)		MOSS_EVS_ROTATE(a, j, ip, j, iq);
 					for (j = ip + 1; j < iq; ++j)	MOSS_EVS_ROTATE(a, ip, j, j, iq);
 					for (j = iq + 1; j < n; ++j)	MOSS_EVS_ROTATE(a, ip, j, iq, j);
@@ -161,7 +161,7 @@ bool EigenValueSymmetric(const Matrix &inMatrix, Matrix &outEigVec, Vector &outE
 			}
 
 		// Update eigenvalues with the sum of ta_pq and reinitialize z
-		for (uint ip = 0; ip < n; ++ip)
+		for (uint32 ip = 0; ip < n; ++ip)
 		{
 			b[ip] += z[ip];
 			outEigVal[ip] = b[ip];

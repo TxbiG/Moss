@@ -415,7 +415,7 @@ bool UVec4::TestAllXYZTrue() const
 	return (GetTrues() & 0b111) == 0b111;
 }
 
-template <const uint Count>
+template <const uint32 Count>
 UVec4 UVec4::LogicalShiftLeft() const
 {
 	static_assert(Count <= 31, "Invalid shift");
@@ -429,7 +429,7 @@ UVec4 UVec4::LogicalShiftLeft() const
 #endif
 }
 
-template <const uint Count>
+template <const uint32 Count>
 UVec4 UVec4::LogicalShiftRight() const
 {
 	static_assert(Count <= 31, "Invalid shift");
@@ -443,7 +443,7 @@ UVec4 UVec4::LogicalShiftRight() const
 #endif
 }
 
-template <const uint Count>
+template <const uint32 Count>
 UVec4 UVec4::ArithmeticShiftRight() const
 {
 	static_assert(Count <= 31, "Invalid shift");

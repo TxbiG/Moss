@@ -586,7 +586,7 @@ public:
 	using IndexedTriangleNoMaterial::IndexedTriangleNoMaterial;
 
 	// Constructor
-	constexpr		IndexedTriangle(uint32 inI1, uint32 inI2, uint32 inI3, uint32 inMaterialIndex, uint inUserData = 0) : IndexedTriangleNoMaterial(inI1, inI2, inI3), mMaterialIndex(inMaterialIndex), mUserData(inUserData) { }
+	constexpr		IndexedTriangle(uint32 inI1, uint32 inI2, uint32 inI3, uint32 inMaterialIndex, uint32 inUserData = 0) : IndexedTriangleNoMaterial(inI1, inI2, inI3), mMaterialIndex(inMaterialIndex), mUserData(inUserData) { }
 
 	// Check if two triangles are identical
 	bool			operator == (const IndexedTriangle& inRHS) const
@@ -917,10 +917,10 @@ public:
 	uint32						mConstraintPriority = 0;
 
 	// Used only when the constraint is active. Override for the number of solver velocity iterations to run, 0 means use the default in PhysicsSettings::mNumVelocitySteps. The number of iterations to use is the max of all contacts and constraints in the island.
-	uint						mNumVelocityStepsOverride = 0;
+	uint32						mNumVelocityStepsOverride = 0;
 
 	// Used only when the constraint is active. Override for the number of solver position iterations to run, 0 means use the default in PhysicsSettings::mNumPositionSteps. The number of iterations to use is the max of all contacts and constraints in the island.
-	uint						mNumPositionStepsOverride = 0;
+	uint32						mNumPositionStepsOverride = 0;
 
 	// Size of constraint when drawing it through the debug renderer
 	float						mDrawConstraintSize = 1.0f;
@@ -1220,17 +1220,17 @@ public:
 	~PhysicsSystem();
 
 	// The maximum value that can be passed to Init for inMaxBodies.
-	static constexpr uint		cMaxBodiesLimit = BodyID::cMaxBodyIndex + 1;
+	static constexpr uint32		cMaxBodiesLimit = BodyID::cMaxBodyIndex + 1;
 
 	// The maximum value that can be passed to Init for inMaxBodyPairs.
 	// Note you should really use a lower value, using this value will cost a lot of memory!
 	// On a 32 bit platform, you'll run out of memory way before you reach this limit.
-	static constexpr uint		cMaxBodyPairsLimit = ContactConstraintManager::cMaxBodyPairsLimit;
+	static constexpr uint32		cMaxBodyPairsLimit = ContactConstraintManager::cMaxBodyPairsLimit;
 
 	// The maximum value that can be passed to Init for inMaxContactConstraints.
 	// Note you should really use a lower value, using this value will cost a lot of memory!
 	// On a 32 bit platform, you'll run out of memory way before you reach this limit.
-	static constexpr uint		cMaxContactConstraintsLimit = ContactConstraintManager::cMaxContactConstraintsLimit;
+	static constexpr uint32		cMaxContactConstraintsLimit = ContactConstraintManager::cMaxContactConstraintsLimit;
 
 	// Initialize the system.
 	// @param inMaxBodies Maximum number of bodies to support.
@@ -1240,7 +1240,7 @@ public:
 	// @param inBroadPhaseLayerInterface Information on the mapping of object layers to broad phase layers. Since this is a virtual interface, the instance needs to stay alive during the lifetime of the PhysicsSystem.
 	// @param inObjectVsBroadPhaseLayerFilter Filter callback function that is used to determine if an object layer collides with a broad phase layer. Since this is a virtual interface, the instance needs to stay alive during the lifetime of the PhysicsSystem.
 	// @param inObjectLayerPairFilter Filter callback function that is used to determine if two object layers collide. Since this is a virtual interface, the instance needs to stay alive during the lifetime of the PhysicsSystem.
-	void						Init(uint inMaxBodies, uint inNumBodyMutexes, uint inMaxBodyPairs, uint inMaxContactConstraints, const BroadPhaseLayerInterface& inBroadPhaseLayerInterface, const ObjectVsBroadPhaseLayerFilter& inObjectVsBroadPhaseLayerFilter, const ObjectLayerPairFilter& inObjectLayerPairFilter);
+	void						Init(uint32 inMaxBodies, uint32 inNumBodyMutexes, uint32 inMaxBodyPairs, uint32 inMaxContactConstraints, const BroadPhaseLayerInterface& inBroadPhaseLayerInterface, const ObjectVsBroadPhaseLayerFilter& inObjectVsBroadPhaseLayerFilter, const ObjectLayerPairFilter& inObjectLayerPairFilter);
 
 	// Listener that is notified whenever a body is activated/deactivated
 	void						SetBodyActivationListener(BodyActivationListener*inListener) { mBodyManager.SetBodyActivationListener(inListener); }
@@ -1391,13 +1391,13 @@ public:
 	DefaultObjectLayerFilter	GetDefaultLayerFilter(ObjectLayer inLayer) const			{ return DefaultObjectLayerFilter(*mObjectLayerPairFilter, inLayer); }
 
 	// Gets the current amount of bodies that are in the body manager
-	uint						GetNumBodies() const										{ return mBodyManager.GetNumBodies(); }
+	uint32						GetNumBodies() const										{ return mBodyManager.GetNumBodies(); }
 
 	// Gets the current amount of active bodies that are in the body manager
 	uint32						GetNumActiveBodies(EBodyType inType) const					{ return mBodyManager.GetNumActiveBodies(inType); }
 
 	// Get the maximum amount of bodies that this physics system supports
-	uint						GetMaxBodies() const										{ return mBodyManager.GetMaxBodies(); }
+	uint32						GetMaxBodies() const										{ return mBodyManager.GetMaxBodies(); }
 
 	// Helper struct that counts the number of bodies of each type
 	using BodyStats = BodyManager::BodyStats;
@@ -1455,7 +1455,7 @@ private:
 	void						JobSolvePositionConstraints(PhysicsUpdateContext*ioContext, PhysicsUpdateContext::Step*ioStep);
 	void						JobSoftBodyPrepare(PhysicsUpdateContext*ioContext, PhysicsUpdateContext::Step*ioStep);
 	void						JobSoftBodyCollide(PhysicsUpdateContext*ioContext) const;
-	void						JobSoftBodySimulate(PhysicsUpdateContext*ioContext, uint inThreadIndex) const;
+	void						JobSoftBodySimulate(PhysicsUpdateContext*ioContext, uint32 inThreadIndex) const;
 	void						JobSoftBodyFinalize(PhysicsUpdateContext*ioContext);
 
 	// Tries to spawn a new FindCollisions job if max concurrency hasn't been reached yet
@@ -2315,12 +2315,12 @@ public:
 	}
 
 	// Used only when this body is dynamic and colliding. Override for the number of solver velocity iterations to run, 0 means use the default in PhysicsSettings::mNumVelocitySteps. The number of iterations to use is the max of all contacts and constraints in the island.
-	void					SetNumVelocityStepsOverride(uint inN)							{ MOSS_ASSERT(inN < 256); mNumVelocityStepsOverride = uint8(inN); }
-	uint					GetNumVelocityStepsOverride() const								{ return mNumVelocityStepsOverride; }
+	void					SetNumVelocityStepsOverride(uint32 inN)							{ MOSS_ASSERT(inN < 256); mNumVelocityStepsOverride = uint8(inN); }
+	uint32					GetNumVelocityStepsOverride() const								{ return mNumVelocityStepsOverride; }
 
 	// Used only when this body is dynamic and colliding. Override for the number of solver position iterations to run, 0 means use the default in PhysicsSettings::mNumPositionSteps. The number of iterations to use is the max of all contacts and constraints in the island.
-	void					SetNumPositionStepsOverride(uint inN)							{ MOSS_ASSERT(inN < 256); mNumPositionStepsOverride = uint8(inN); }
-	uint					GetNumPositionStepsOverride() const								{ return mNumPositionStepsOverride; }
+	void					SetNumPositionStepsOverride(uint32 inN)							{ MOSS_ASSERT(inN < 256); mNumPositionStepsOverride = uint8(inN); }
+	uint32					GetNumPositionStepsOverride() const								{ return mNumPositionStepsOverride; }
 
 	////////////////////////////////////////
 	// FUNCTIONS BELOW THIS LINE ARE FOR INTERNAL USE ONLY
@@ -3996,8 +3996,8 @@ public:
 class SoftBodyUpdateContext : public NonCopyable
 {
 public:
-	static constexpr uint				cVertexCollisionBatch = 64;					// Number of vertices to process in a batch in DetermineCollisionPlanes
-	static constexpr uint				cVertexConstraintBatch = 256;				// Number of vertices to group for processing batches of constraints in ApplyEdgeConstraints
+	static constexpr uint32				cVertexCollisionBatch = 64;					// Number of vertices to process in a batch in DetermineCollisionPlanes
+	static constexpr uint32				cVertexConstraintBatch = 256;				// Number of vertices to group for processing batches of constraints in ApplyEdgeConstraints
 
 	// Input
 	Body*								mBody;										// Body that is being updated
@@ -4021,13 +4021,13 @@ public:
 
 	// State of the update
 	atomic<EState>						mState { EState::DetermineCollisionPlanes };// Current state of the update
-	atomic<uint>						mNextCollisionVertex { 0 };					// Next vertex to process for DetermineCollisionPlanes
-	atomic<uint>						mNumCollisionVerticesProcessed { 0 };		// Number of vertices processed by DetermineCollisionPlanes, used to determine if we can go to the next step
-	atomic<uint>						mNextSensorIndex { 0 };						// Next sensor to process for DetermineCollisionPlanes
-	atomic<uint>						mNumSensorsProcessed { 0 };					// Number of sensors processed by DetermineSensorCollisions, used to determine if we can go to the next step
-	atomic<uint>						mNextIteration { 0 };						// Next simulation iteration to process
-	atomic<uint>						mNextConstraintGroup { 0 };					// Next constraint group to process
-	atomic<uint>						mNumConstraintGroupsProcessed { 0 };		// Number of groups processed, used to determine if we can go to the next iteration
+	atomic<uint32>						mNextCollisionVertex { 0 };					// Next vertex to process for DetermineCollisionPlanes
+	atomic<uint32>						mNumCollisionVerticesProcessed { 0 };		// Number of vertices processed by DetermineCollisionPlanes, used to determine if we can go to the next step
+	atomic<uint32>						mNextSensorIndex { 0 };						// Next sensor to process for DetermineCollisionPlanes
+	atomic<uint32>						mNumSensorsProcessed { 0 };					// Number of sensors processed by DetermineSensorCollisions, used to determine if we can go to the next step
+	atomic<uint32>						mNextIteration { 0 };						// Next simulation iteration to process
+	atomic<uint32>						mNextConstraintGroup { 0 };					// Next constraint group to process
+	atomic<uint32>						mNumConstraintGroupsProcessed { 0 };		// Number of groups processed, used to determine if we can go to the next iteration
 
 	// Output
 	Vec3								mDeltaPosition;								// Delta position of the body in the current time step, should be applied after the update
@@ -4092,13 +4092,13 @@ public:
 	}
 
 	// Get the number of sensors that are in contact with the soft body
-	MOSS_INLINE uint					GetNumSensorContacts() const
+	MOSS_INLINE uint32					GetNumSensorContacts() const
 	{
-		return (uint)mCollidingSensors.size();
+		return (uint32)mCollidingSensors.size();
 	}
 
 	// Get the i-th sensor that is in contact with the soft body
-	MOSS_INLINE BodyID				GetSensorContactBodyID(uint inIndex) const
+	MOSS_INLINE BodyID				GetSensorContactBodyID(uint32 inIndex) const
 	{
 		return mCollidingSensors[inIndex].mBodyID;
 	}
@@ -4147,8 +4147,8 @@ public:
 	TArray<Vertex>& 						GetVertices()								{ return mVertices; }
 
 	// Access an individual vertex
-	const Vertex& 						GetVertex(uint inIndex) const				{ return mVertices[inIndex]; }
-	Vertex& 							GetVertex(uint inIndex)						{ return mVertices[inIndex]; }
+	const Vertex& 						GetVertex(uint32 inIndex) const				{ return mVertices[inIndex]; }
+	Vertex& 							GetVertex(uint32 inIndex)						{ return mVertices[inIndex]; }
 
 	// Get the materials of the soft body
 	const PhysicsMaterialList& 			GetMaterials() const						{ return mSettings->mMaterials; }
@@ -4157,7 +4157,7 @@ public:
 	const TArray<Face>& 					GetFaces() const							{ return mSettings->mFaces; }
 
 	// Access to an individual face
-	const Face& 						GetFace(uint inIndex) const					{ return mSettings->mFaces[inIndex]; }
+	const Face& 						GetFace(uint32 inIndex) const					{ return mSettings->mFaces[inIndex]; }
 
 	// Get the number of solver iterations
 	uint32								GetNumIterations() const					{ return mNumIterations; }
@@ -4212,7 +4212,7 @@ public:
 	// @param inNumJoints Indicates how large the inJointMatrices array is (used only for validating out of bounds).
 	// @param inHardSkinAll Can be used to position all vertices on the skinned vertices and can be used to hard reset the soft body.
 	// @param ioTempAllocator Allocator.
-	void								SkinVertices(RMat44Arg inCenterOfMassTransform, const Mat44*inJointMatrices, uint inNumJoints, bool inHardSkinAll, TempAllocator& ioTempAllocator);
+	void								SkinVertices(RMat44Arg inCenterOfMassTransform, const Mat44*inJointMatrices, uint32 inNumJoints, bool inHardSkinAll, TempAllocator& ioTempAllocator);
 
 	// This function allows you to update the soft body immediately without going through the PhysicsSystem.
 	// This is useful if the soft body is teleported and needs to 'settle' or it can be used if a the soft body
@@ -4309,7 +4309,7 @@ private:
 	};
 
 	// Do a narrow phase check and determine the closest feature that we can collide with
-	void								DetermineCollisionPlanes(uint inVertexStart, uint inNumVertices);
+	void								DetermineCollisionPlanes(uint32 inVertexStart, uint32 inNumVertices);
 
 	// Do a narrow phase check between a single sensor and the soft body
 	void								DetermineSensorCollisions(CollidingSensor& ioSensor);
@@ -4321,19 +4321,19 @@ private:
 	void								IntegratePositions(const SoftBodyUpdateContext& inContext);
 
 	// Enforce all bend constraints
-	void								ApplyDihedralBendConstraints(const SoftBodyUpdateContext& inContext, uint inStartIndex, uint inEndIndex);
+	void								ApplyDihedralBendConstraints(const SoftBodyUpdateContext& inContext, uint32 inStartIndex, uint32 inEndIndex);
 
 	// Enforce all volume constraints
-	void								ApplyVolumeConstraints(const SoftBodyUpdateContext& inContext, uint inStartIndex, uint inEndIndex);
+	void								ApplyVolumeConstraints(const SoftBodyUpdateContext& inContext, uint32 inStartIndex, uint32 inEndIndex);
 
 	// Enforce all skin constraints
-	void								ApplySkinConstraints(const SoftBodyUpdateContext& inContext, uint inStartIndex, uint inEndIndex);
+	void								ApplySkinConstraints(const SoftBodyUpdateContext& inContext, uint32 inStartIndex, uint32 inEndIndex);
 
 	// Enforce all edge constraints
-	void								ApplyEdgeConstraints(const SoftBodyUpdateContext& inContext, uint inStartIndex, uint inEndIndex);
+	void								ApplyEdgeConstraints(const SoftBodyUpdateContext& inContext, uint32 inStartIndex, uint32 inEndIndex);
 
 	// Enforce all LRA constraints
-	void								ApplyLRAConstraints(uint inStartIndex, uint inEndIndex);
+	void								ApplyLRAConstraints(uint32 inStartIndex, uint32 inEndIndex);
 
 	// Enforce all collision constraints&  update all velocities according the XPBD algorithm
 	void								ApplyCollisionConstraintsAndUpdateVelocities(const SoftBodyUpdateContext& inContext);
@@ -4357,7 +4357,7 @@ private:
 	EStatus								ParallelApplyConstraints(SoftBodyUpdateContext& ioContext, const PhysicsSettings& inPhysicsSettings);
 
 	// Helper function to update a single group of constraints
-	void								ProcessGroup(const SoftBodyUpdateContext& ioContext, uint inGroupIndex);
+	void								ProcessGroup(const SoftBodyUpdateContext& ioContext, uint32 inGroupIndex);
 
 	// Returns 6 times the volume of the soft body
 	float								GetVolumeTimesSix() const;
@@ -4378,7 +4378,7 @@ private:
 	AABox								mLocalBounds;								// Bounding box of all vertices
 	AABox								mLocalPredictedBounds;						// Predicted bounding box for all vertices using extrapolation of velocity by last step delta time
 	uint32								mNumIterations;								// Number of solver iterations
-	uint								mNumSensors;								// Workaround for TSAN false positive: store mCollidingSensors.size() in a separate variable.
+	uint32								mNumSensors;								// Workaround for TSAN false positive: store mCollidingSensors.size() in a separate variable.
 	float								mPressure;									// n* R* T, amount of substance* ideal gas constant* absolute temperature, see https://en.wikipedia.org/wiki/Pressure
 	float								mSkinnedMaxDistanceMultiplier = 1.0f;		// Multiplier applied to Skinned::mMaxDistance to allow tightening or loosening of the skin constraints
 	bool								mUpdatePosition;							// Update the position of the body while simulating (set to false for something that is attached to the static world)
@@ -4429,7 +4429,7 @@ public:
 	// @param inVertexAttributesLength The length of inVertexAttributes
 	// @param inBendType The type of bend constraint to create
 	// @param inAngleTolerance Shear edges are created when two connected triangles form a quad (are roughly in the same plane and form a square with roughly 90 degree angles). This defines the tolerance (in radians).
-	void				CreateConstraints(const VertexAttributes*inVertexAttributes, uint inVertexAttributesLength, EBendType inBendType = EBendType::Distance, float inAngleTolerance = DegreesToRadians(8.0f));
+	void				CreateConstraints(const VertexAttributes*inVertexAttributes, uint32 inVertexAttributesLength, EBendType inBendType = EBendType::Distance, float inAngleTolerance = DegreesToRadians(8.0f));
 
 	// Calculate the initial lengths of all springs of the edges of this soft body (if you use CreateConstraint, this is already done)
 	void				CalculateEdgeLengths();
@@ -4451,11 +4451,11 @@ public:
 	class OptimizationResults
 	{
 	public:
-		TArray<uint>		mEdgeRemap;									// Maps old edge index to new edge index
-		TArray<uint>		mLRARemap;									// Maps old LRA index to new LRA index
-		TArray<uint>		mDihedralBendRemap;							// Maps old dihedral bend index to new dihedral bend index
-		TArray<uint>		mVolumeRemap;								// Maps old volume constraint index to new volume constraint index
-		TArray<uint>		mSkinnedRemap;								// Maps old skinned constraint index to new skinned constraint index
+		TArray<uint32>		mEdgeRemap;									// Maps old edge index to new edge index
+		TArray<uint32>		mLRARemap;									// Maps old LRA index to new LRA index
+		TArray<uint32>		mDihedralBendRemap;							// Maps old dihedral bend index to new dihedral bend index
+		TArray<uint32>		mVolumeRemap;								// Maps old volume constraint index to new volume constraint index
+		TArray<uint32>		mSkinnedRemap;								// Maps old skinned constraint index to new skinned constraint index
 	};
 
 	// Optimize the soft body settings for simulation. This will reorder constraints so they can be executed in parallel.
@@ -4490,7 +4490,7 @@ public:
 	// It will contain edge constraints, volume constraints and faces.
 	// @param inGridSize Number of points along each axis
 	// @param inGridSpacing Distance between points
-	static Ref<SoftBodySharedSettings> sCreateCube(uint inGridSize, float inGridSpacing);
+	static Ref<SoftBodySharedSettings> sCreateCube(uint32 inGridSize, float inGridSpacing);
 
 	// A vertex is a particle, the data in this structure is only used during creation of the soft body and not during simulation
 	struct MOSS_EXPORT Vertex
@@ -4637,7 +4637,7 @@ public:
 		}
 
 		// Maximum number of skin weights
-		static constexpr uint cMaxSkinWeights = 4;
+		static constexpr uint32 cMaxSkinWeights = 4;
 
 		uint32			mVertex = 0;								// Index in mVertices which indicates which vertex is being skinned
 		SkinWeight		mWeights[cMaxSkinWeights];					// Skin weights, the bind pose of the vertex is assumed to be stored in Vertex::mPosition. The first weight that is zero indicates the end of the list. Weights should add up to 1.
@@ -4693,11 +4693,11 @@ private:
 
 	// Tracks the end indices of the various constraint groups
 	struct UpdateGroup {
-		uint			mEdgeEndIndex;								// The end index of the edge constraints in this group
-		uint			mLRAEndIndex;								// The end index of the LRA constraints in this group
-		uint			mDihedralBendEndIndex;						// The end index of the dihedral bend constraints in this group
-		uint			mVolumeEndIndex;							// The end index of the volume constraints in this group
-		uint			mSkinnedEndIndex;							// The end index of the skinned constraints in this group
+		uint32			mEdgeEndIndex;								// The end index of the edge constraints in this group
+		uint32			mLRAEndIndex;								// The end index of the LRA constraints in this group
+		uint32			mDihedralBendEndIndex;						// The end index of the dihedral bend constraints in this group
+		uint32			mVolumeEndIndex;							// The end index of the volume constraints in this group
+		uint32			mSkinnedEndIndex;							// The end index of the skinned constraints in this group
 	};
 
 	TArray<ClosestKinematic> mClosestKinematic;						// The closest kinematic vertex to each vertex in mVertices
@@ -4842,8 +4842,8 @@ public:
 	float					mMaxLinearVelocity = 500.0f;									// Maximum linear velocity that this body can reach (m/s)
 	float					mMaxAngularVelocity = 0.25f* MOSS_PI* 60.0f;					// Maximum angular velocity that this body can reach (rad/s)
 	float					mGravityFactor = 1.0f;											// Value to multiply gravity with for this body
-	uint					mNumVelocityStepsOverride = 0;									// Used only when this body is dynamic and colliding. Override for the number of solver velocity iterations to run, 0 means use the default in PhysicsSettings::mNumVelocitySteps. The number of iterations to use is the max of all contacts and constraints in the island.
-	uint					mNumPositionStepsOverride = 0;									// Used only when this body is dynamic and colliding. Override for the number of solver position iterations to run, 0 means use the default in PhysicsSettings::mNumPositionSteps. The number of iterations to use is the max of all contacts and constraints in the island.
+	uint32					mNumVelocityStepsOverride = 0;									// Used only when this body is dynamic and colliding. Override for the number of solver velocity iterations to run, 0 means use the default in PhysicsSettings::mNumVelocitySteps. The number of iterations to use is the max of all contacts and constraints in the island.
+	uint32					mNumPositionStepsOverride = 0;									// Used only when this body is dynamic and colliding. Override for the number of solver position iterations to run, 0 means use the default in PhysicsSettings::mNumPositionSteps. The number of iterations to use is the max of all contacts and constraints in the island.
 
 	//@name Mass properties of the body (by default calculated by the shape)
 	EOverrideMassProperties	mOverrideMassProperties = EOverrideMassProperties::CalculateMassAndInertia; // Determines how mMassPropertiesOverride will be used

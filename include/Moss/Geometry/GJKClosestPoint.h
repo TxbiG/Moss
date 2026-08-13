@@ -492,9 +492,9 @@ public:
 
 	/// Get the resulting simplex after the GetClosestPoints algorithm finishes.
 	/// If it returned a squared distance of 0, the origin will be contained in the simplex.
-	void		GetClosestPointsSimplex(Vec3 *outY, Vec3 *outP, Vec3 *outQ, uint &outNumPoints) const
+	void		GetClosestPointsSimplex(Vec3 *outY, Vec3 *outP, Vec3 *outQ, uint32 &outNumPoints) const
 	{
-		uint size = sizeof(Vec3) * mNumPoints;
+		uint32 size = sizeof(Vec3) * mNumPoints;
 		memcpy(outY, mY, size);
 		memcpy(outP, mP, size);
 		memcpy(outQ, mQ, size);

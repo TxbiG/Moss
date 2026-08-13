@@ -206,11 +206,11 @@ public:
 	inline						ProfileThread(const string_view &inThreadName);
 	inline						~ProfileThread();
 
-	static const uint cMaxSamples = 65536;
+	static const uint32 cMaxSamples = 65536;
 
 	String						mThreadName;														///< Name of the thread that we're collecting information for
 	ProfileSample				mSamples[cMaxSamples];												///< Buffer of samples
-	uint						mCurrentSample = 0;													///< Next position to write a sample to
+	uint32						mCurrentSample = 0;													///< Next position to write a sample to
 
 #ifdef MOSS_SHARED_LIBRARY
 	MOSS_EXPORT static void		sSetInstance(ProfileThread *inInstance);

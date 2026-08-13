@@ -85,8 +85,8 @@ public:
 
 		atomic<JobMask>		mActiveFindCollisionJobs;								// A bitmask that indicates which jobs are still active
 
-		atomic<uint>		mNumBodyPairs { 0 };									// The number of body pairs found in this step (used to size the contact cache in the next step)
-		atomic<uint>		mNumManifolds { 0 };									// The number of manifolds found in this step (used to size the contact cache in the next step)
+		atomic<uint32>		mNumBodyPairs { 0 };									// The number of body pairs found in this step (used to size the contact cache in the next step)
+		atomic<uint32>		mNumManifolds { 0 };									// The number of manifolds found in this step (used to size the contact cache in the next step)
 
 		atomic<uint32>		mSolveVelocityConstraintsNextIsland { 0 };				// Next island that needs to be processed for the solve velocity constraints step (doesn't need own cache line since position jobs don't run at same time)
 		atomic<uint32>		mSolvePositionConstraintsNextIsland { 0 };				// Next island that needs to be processed for the solve position constraints step (doesn't need own cache line since velocity jobs don't run at same time)
@@ -163,9 +163,9 @@ public:
 
 	Steps					mSteps;
 
-	uint					mNumSoftBodies;											// Number of active soft bodies in the simulation
+	uint32					mNumSoftBodies;											// Number of active soft bodies in the simulation
 	SoftBodyUpdateContext *	mSoftBodyUpdateContexts = nullptr;						// Contexts for updating soft bodies
-	atomic<uint>			mSoftBodyToCollide { 0 };								// Next soft body to take when running SoftBodyCollide jobs
+	atomic<uint32>			mSoftBodyToCollide { 0 };								// Next soft body to take when running SoftBodyCollide jobs
 };
 
 MOSS_SUPRESS_WARNINGS_END

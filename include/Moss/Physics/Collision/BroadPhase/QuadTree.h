@@ -301,7 +301,7 @@ private:
 	inline bool					TryCreateNewRoot(TrackingVector &ioTracking, atomic<uint32> &ioRootNodeIndex, NodeID inLeafID, const AABox &inLeafBounds, int inLeafNumBodies);
 
 	/// Build a tree for ioBodyIDs, returns the NodeID of the root (which will be the ID of a single body if inNumber = 1). All tree levels up to inMaxDepthMarkChanged will be marked as 'changed'.
-	NodeID						BuildTree(const BodyVector &inBodies, TrackingVector &ioTracking, NodeID *ioNodeIDs, int inNumber, uint inMaxDepthMarkChanged, AABox &outBounds);
+	NodeID						BuildTree(const BodyVector &inBodies, TrackingVector &ioTracking, NodeID *ioNodeIDs, int inNumber, uint32 inMaxDepthMarkChanged, AABox &outBounds);
 
 	/// Sorts ioNodeIDs spatially into 2 groups. Second groups starts at ioNodeIDs + outMidPoint.
 	/// After the function returns ioNodeIDs and ioNodeCenters will be shuffled
@@ -373,7 +373,7 @@ private:
 #endif // MOSS_TRACK_BROADPHASE_STATS
 
 	/// Debug function to get the depth of the tree from node inNodeID
-	uint						GetMaxTreeDepth(const NodeID &inNodeID) const;
+	uint32						GetMaxTreeDepth(const NodeID &inNodeID) const;
 
 	/// Walk the node tree calling the Visitor::VisitNodes for each node encountered and Visitor::VisitBody for each body encountered
 	template <class Visitor>
@@ -457,7 +457,7 @@ private:
 
 	/// One tree per object layer
 	QuadTree *				mLayers;
-	uint					mNumLayers;
+	uint32					mNumLayers;
 
 	/// UpdateState implementation for this tree used during UpdatePrepare/Finalize()
 	struct UpdateStateImpl

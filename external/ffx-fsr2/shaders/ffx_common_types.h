@@ -149,7 +149,7 @@ typedef int32_t4    FfxInt32x4;
 /// A typedef for a unsigned 32bit integer.
 ///
 /// @ingroup GPU
-typedef uint        FfxUInt32;
+typedef uint32        FfxUInt32;
 typedef uint2       FfxUInt32x2;
 typedef uint3       FfxUInt32x3;
 typedef uint4       FfxUInt32x4;
@@ -215,7 +215,7 @@ typedef min16int4   FfxInt16x4;
 #define FfxFloat32x2 vec2
 #define FfxFloat32x3 vec3
 #define FfxFloat32x4 vec4
-#define FfxUInt32    uint
+#define FfxUInt32    uint32
 #define FfxUInt32x2  uvec2
 #define FfxUInt32x3  uvec3
 #define FfxUInt32x4  uvec4
@@ -292,10 +292,10 @@ FFX_MIN16_VECTOR( FFX_MIN16_I2, int, 2 );
 FFX_MIN16_VECTOR( FFX_MIN16_I3, int, 3 );
 FFX_MIN16_VECTOR( FFX_MIN16_I4, int, 4 );
 
-FFX_MIN16_SCALAR( FFX_MIN16_U,  uint );
-FFX_MIN16_VECTOR( FFX_MIN16_U2, uint, 2 );
-FFX_MIN16_VECTOR( FFX_MIN16_U3, uint, 3 );
-FFX_MIN16_VECTOR( FFX_MIN16_U4, uint, 4 );
+FFX_MIN16_SCALAR( FFX_MIN16_U,  uint32 );
+FFX_MIN16_VECTOR( FFX_MIN16_U2, uint32, 2 );
+FFX_MIN16_VECTOR( FFX_MIN16_U3, uint32, 3 );
+FFX_MIN16_VECTOR( FFX_MIN16_U4, uint32, 4 );
 
 FFX_16BIT_SCALAR( FFX_F16_t , float );
 FFX_16BIT_VECTOR( FFX_F16_t2, float, 2 );
@@ -307,10 +307,10 @@ FFX_16BIT_VECTOR( FFX_I16_t2, int, 2 );
 FFX_16BIT_VECTOR( FFX_I16_t3, int, 3 );
 FFX_16BIT_VECTOR( FFX_I16_t4, int, 4 );
 
-FFX_16BIT_SCALAR( FFX_U16_t,  uint );
-FFX_16BIT_VECTOR( FFX_U16_t2, uint, 2 );
-FFX_16BIT_VECTOR( FFX_U16_t3, uint, 3 );
-FFX_16BIT_VECTOR( FFX_U16_t4, uint, 4 );
+FFX_16BIT_SCALAR( FFX_U16_t,  uint32 );
+FFX_16BIT_VECTOR( FFX_U16_t2, uint32, 2 );
+FFX_16BIT_VECTOR( FFX_U16_t3, uint32, 3 );
+FFX_16BIT_VECTOR( FFX_U16_t4, uint32, 4 );
 
 #define TYPEDEF_MIN16_TYPES(Prefix)           \
 typedef FFX_MIN16_F     Prefix##_F;           \
@@ -401,7 +401,7 @@ typedef FfxUInt32x4     Prefix##_U4;
 #define  FFX_MIN16_I3 ivec3
 #define  FFX_MIN16_I4 ivec4
 
-#define  FFX_MIN16_U  uint
+#define  FFX_MIN16_U  uint32
 #define  FFX_MIN16_U2 uvec2
 #define  FFX_MIN16_U3 uvec3
 #define  FFX_MIN16_U4 uvec4
@@ -416,7 +416,7 @@ typedef FfxUInt32x4     Prefix##_U4;
 #define FFX_16BIT_I3 ivec3
 #define FFX_16BIT_I4 ivec4
 
-#define FFX_16BIT_U  uint
+#define FFX_16BIT_U  uint32
 #define FFX_16BIT_U2 uvec2
 #define FFX_16BIT_U3 uvec3
 #define FFX_16BIT_U4 uvec4

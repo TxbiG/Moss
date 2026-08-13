@@ -10,14 +10,14 @@
 #include <Renderer/DX12/PixelShaderDX12.h>
 #include <Renderer/DX12/FatalErrorIfFailedDX12.h>
 
-PipelineStateDX12::PipelineStateDX12(RendererDX12 *inRenderer, const VertexShaderDX12 *inVertexShader, const EInputDescription *inInputDescription, uint inInputDescriptionCount, const PixelShaderDX12 *inPixelShader, EDrawPass inDrawPass, EFillMode inFillMode, ETopology inTopology, EDepthTest inDepthTest, EBlendMode inBlendMode, ECullMode inCullMode) :
+PipelineStateDX12::PipelineStateDX12(RendererDX12 *inRenderer, const VertexShaderDX12 *inVertexShader, const EInputDescription *inInputDescription, uint32 inInputDescriptionCount, const PixelShaderDX12 *inPixelShader, EDrawPass inDrawPass, EFillMode inFillMode, ETopology inTopology, EDepthTest inDepthTest, EBlendMode inBlendMode, ECullMode inCullMode) :
 	mRenderer(inRenderer)
 {
 	D3D12_PRIMITIVE_TOPOLOGY_TYPE topology = inTopology == ETopology::Triangle? D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE : D3D12_PRIMITIVE_TOPOLOGY_TYPE_LINE;
 
 	Array<D3D12_INPUT_ELEMENT_DESC> input_description;
-	uint vertex_offset = 0, instance_offset = 0;
-	for (uint i = 0; i < inInputDescriptionCount; ++i)
+	uint32 vertex_offset = 0, instance_offset = 0;
+	for (uint32 i = 0; i < inInputDescriptionCount; ++i)
 		switch (inInputDescription[i])
 		{
 		case EInputDescription::Position:
@@ -47,7 +47,7 @@ PipelineStateDX12::PipelineStateDX12(RendererDX12 *inRenderer, const VertexShade
 
 		case EInputDescription::InstanceTransform:
 		{
-			for (uint j = 0; j < 4; ++j)
+			for (uint32 j = 0; j < 4; ++j)
 			{
 				input_description.push_back({ "INSTANCE_TRANSFORM", j, DXGI_FORMAT_R32G32B32A32_FLOAT, 1, instance_offset, D3D12_INPUT_CLASSIFICATION_PER_INSTANCE_DATA, 1 });
 				instance_offset += 4 * sizeof(float);
@@ -57,7 +57,7 @@ PipelineStateDX12::PipelineStateDX12(RendererDX12 *inRenderer, const VertexShade
 
 		case EInputDescription::InstanceInvTransform:
 		{
-			for (uint j = 0; j < 4; ++j)
+			for (uint32 j = 0; j < 4; ++j)
 			{
 				input_description.push_back({ "INSTANCE_INV_TRANSFORM", j, DXGI_FORMAT_R32G32B32A32_FLOAT, 1, instance_offset, D3D12_INPUT_CLASSIFICATION_PER_INSTANCE_DATA, 1 });
 				instance_offset += 4 * sizeof(float);

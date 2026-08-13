@@ -47,7 +47,7 @@ void RendererDX12::WaitForGpu()
 	WaitForSingleObjectEx(mFenceEvent, INFINITE, FALSE);
 
 	// Increment the fence value for all frames
-	for (uint n = 0; n < cFrameCount; ++n)
+	for (uint32 n = 0; n < cFrameCount; ++n)
 		mFenceValues[n] = current_fence_value + 1;
 
 	// Release all used resources
@@ -62,7 +62,7 @@ void RendererDX12::WaitForGpu()
 void RendererDX12::CreateRenderTargets()
 {
 	// Create render targets and views
-	for (uint n = 0; n < cFrameCount; ++n)
+	for (uint32 n = 0; n < cFrameCount; ++n)
 	{
 		mRenderTargetViews[n] = mRTVHeap.Allocate();
 
@@ -215,7 +215,7 @@ void RendererDX12::Initialize(ApplicationWindow *inWindow)
 	FatalErrorIfFailed(mDevice->CreateCommandQueue(&queue_desc, IID_PPV_ARGS(&mCommandQueue)));
 
 	// Create a command allocator for each frame
-	for (uint n = 0; n < cFrameCount; n++)
+	for (uint32 n = 0; n < cFrameCount; n++)
 		FatalErrorIfFailed(mDevice->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(&mCommandAllocators[n])));
 
 	// Describe and create the swap chain
@@ -324,7 +324,7 @@ void RendererDX12::Initialize(ApplicationWindow *inWindow)
 	mUploadQueue.Initialize(mDevice.Get());
 
 	// Create constant buffer. One per frame to avoid overwriting the constant buffer while the GPU is still using it.
-	for (uint n = 0; n < cFrameCount; ++n)
+	for (uint32 n = 0; n < cFrameCount; ++n)
 	{
 		mVertexShaderConstantBufferProjection[n] = CreateConstantBuffer(sizeof(VertexShaderConstantBuffer));
 		mVertexShaderConstantBufferOrtho[n] = CreateConstantBuffer(sizeof(VertexShaderConstantBuffer));
@@ -341,7 +341,7 @@ void RendererDX12::OnWindowResize()
 	WaitForGpu();
 
 	// Free the render targets and views to allow resizing the swap chain
-	for (uint n = 0; n < cFrameCount; ++n)
+	for (uint32 n = 0; n < cFrameCount; ++n)
 	{
 		mRTVHeap.Free(mRenderTargetViews[n]);
 		mRenderTargets[n].Reset();
@@ -354,7 +354,7 @@ void RendererDX12::OnWindowResize()
 	mFrameIndex = mSwapChain->GetCurrentBackBufferIndex();
 
 	// Since we may have switched frame index and we know everything is done, we need to update the fence value for our other frame as completed
-	for (uint n = 0; n < cFrameCount; ++n)
+	for (uint32 n = 0; n < cFrameCount; ++n)
 		if (mFrameIndex != n)
 			mFenceValues[n] = mFence->GetCompletedValue();
 
@@ -536,7 +536,7 @@ Ref<VertexShader> RendererDX12::CreateVertexShader(const char *inName)
 	// Compile source
 	ComPtr<ID3DBlob> shader_blob, error_blob;
 	HRESULT hr = D3DCompile(&data[0],
-							(uint)data.size(),
+							(uint32)data.size(),
 							(AssetStream::sGetAssetsBasePath() + file_name).c_str(),
 							defines,
 							D3D_COMPILE_STANDARD_FILE_INCLUDE,
@@ -576,7 +576,7 @@ Ref<PixelShader> RendererDX12::CreatePixelShader(const char *inName)
 	// Compile source
 	ComPtr<ID3DBlob> shader_blob, error_blob;
 	HRESULT hr = D3DCompile(&data[0],
-							(uint)data.size(),
+							(uint32)data.size(),
 							(AssetStream::sGetAssetsBasePath() + file_name).c_str(),
 							defines,
 							D3D_COMPILE_STANDARD_FILE_INCLUDE,
@@ -597,12 +597,12 @@ Ref<PixelShader> RendererDX12::CreatePixelShader(const char *inName)
 	return new PixelShaderDX12(shader_blob);
 }
 
-unique_ptr<ConstantBufferDX12> RendererDX12::CreateConstantBuffer(uint inBufferSize)
+unique_ptr<ConstantBufferDX12> RendererDX12::CreateConstantBuffer(uint32 inBufferSize)
 {
 	return make_unique<ConstantBufferDX12>(this, inBufferSize);
 }
 
-unique_ptr<PipelineState> RendererDX12::CreatePipelineState(const VertexShader *inVertexShader, const PipelineState::EInputDescription *inInputDescription, uint inInputDescriptionCount, const PixelShader *inPixelShader, PipelineState::EDrawPass inDrawPass, PipelineState::EFillMode inFillMode, PipelineState::ETopology inTopology, PipelineState::EDepthTest inDepthTest, PipelineState::EBlendMode inBlendMode, PipelineState::ECullMode inCullMode)
+unique_ptr<PipelineState> RendererDX12::CreatePipelineState(const VertexShader *inVertexShader, const PipelineState::EInputDescription *inInputDescription, uint32 inInputDescriptionCount, const PixelShader *inPixelShader, PipelineState::EDrawPass inDrawPass, PipelineState::EFillMode inFillMode, PipelineState::ETopology inTopology, PipelineState::EDepthTest inDepthTest, PipelineState::EBlendMode inBlendMode, PipelineState::ECullMode inCullMode)
 {
 	return make_unique<PipelineStateDX12>(this, static_cast<const VertexShaderDX12 *>(inVertexShader), inInputDescription, inInputDescriptionCount, static_cast<const PixelShaderDX12 *>(inPixelShader), inDrawPass, inFillMode, inTopology, inDepthTest, inBlendMode, inCullMode);
 }

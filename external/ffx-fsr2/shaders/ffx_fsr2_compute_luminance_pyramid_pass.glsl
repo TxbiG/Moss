@@ -38,18 +38,18 @@
 #if defined(FSR2_BIND_CB_SPD)
 	layout (set = 1, binding = FSR2_BIND_CB_SPD, std140) uniform cbSPD_t
 	{
-		uint mips;
-		uint numWorkGroups;
+		uint32 mips;
+		uint32 numWorkGroups;
 		uvec2 workGroupOffset;
 		uvec2 renderSize;
 	} cbSPD;
 
-	uint MipCount()
+	uint32 MipCount()
 	{
 		return cbSPD.mips;
 	}
 
-	uint NumWorkGroups()
+	uint32 NumWorkGroups()
 	{
 		return cbSPD.numWorkGroups;
 	}
@@ -80,7 +80,7 @@ vec4 SPD_LoadMipmap5(ivec2 iPxPos)
 	return vec4(imageLoad(rw_img_mip_5, iPxPos).x, 0.0f, 0.0f, 0.0f);
 }
 
-void SPD_SetMipmap(ivec2 iPxPos, uint slice, float value)
+void SPD_SetMipmap(ivec2 iPxPos, uint32 slice, float value)
 {
 	switch (slice)
 	{
@@ -102,7 +102,7 @@ void SPD_SetMipmap(ivec2 iPxPos, uint slice, float value)
 	}
 }
 
-void SPD_IncreaseAtomicCounter(inout uint spdCounter)
+void SPD_IncreaseAtomicCounter(inout uint32 spdCounter)
 {
 	spdCounter = imageAtomicAdd(rw_spd_global_atomic, ivec2(0,0), 1);
 }

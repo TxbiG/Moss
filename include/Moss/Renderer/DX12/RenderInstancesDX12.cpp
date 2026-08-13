@@ -20,7 +20,7 @@ void RenderInstancesDX12::Clear()
 
 void RenderInstancesDX12::CreateBuffer(int inNumInstances, int inInstanceSize)
 {
-	uint new_size = uint(inNumInstances) * inInstanceSize;
+	uint32 new_size = uint32(inNumInstances) * inInstanceSize;
 	if (mInstanceBuffer == nullptr || mInstanceBufferSize < new_size)
 	{
 		// Delete the old buffer

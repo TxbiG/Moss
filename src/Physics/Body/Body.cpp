@@ -79,8 +79,8 @@ void MotionProperties::SetMassProperties(EAllowedDOFs inAllowedDOFs, const MassP
 	mAllowedDOFs = inAllowedDOFs;
 
 	// Decompose DOFs
-	uint allowed_translation_axis = uint(inAllowedDOFs) & 0b111;
-	uint allowed_rotation_axis = (uint(inAllowedDOFs) >> 3) & 0b111;
+	uint32 allowed_translation_axis = uint32(inAllowedDOFs) & 0b111;
+	uint32 allowed_rotation_axis = (uint32(inAllowedDOFs) >> 3) & 0b111;
 
 	// Set inverse mass
 	if (allowed_translation_axis == 0)
@@ -793,12 +793,12 @@ BodyManager::~BodyManager()
 		delete [] active_bodies;
 }
 
-void BodyManager::Init(uint inMaxBodies, uint inNumBodyMutexes, const BroadPhaseLayerInterface &inLayerInterface)
+void BodyManager::Init(uint32 inMaxBodies, uint32 inNumBodyMutexes, const BroadPhaseLayerInterface &inLayerInterface)
 {
 	UniqueLock lock(mBodiesMutex MOSS_IF_ENABLE_ASSERTS(, this, EPhysicsLockTypes::BodiesList));
 
 	// Num body mutexes must be a power of two and not bigger than our MutexMask
-	uint num_body_mutexes = Clamp<uint>(GetNextPowerOf2(inNumBodyMutexes == 0? 2 * thread::hardware_concurrency() : inNumBodyMutexes), 1, sizeof(MutexMask) * 8);
+	uint32 num_body_mutexes = Clamp<uint32>(GetNextPowerOf2(inNumBodyMutexes == 0? 2 * thread::hardware_concurrency() : inNumBodyMutexes), 1, sizeof(MutexMask) * 8);
 #ifdef MOSS_TSAN_ENABLED
 	num_body_mutexes = min(num_body_mutexes, 32U); // TSAN errors out when locking too many mutexes on the same thread, see: https://github.com/google/sanitizers/issues/950
 #endif
@@ -823,7 +823,7 @@ void BodyManager::Init(uint inMaxBodies, uint inNumBodyMutexes, const BroadPhase
 	mBroadPhaseLayerInterface = &inLayerInterface;
 }
 
-uint BodyManager::GetNumBodies() const
+uint32 BodyManager::GetNumBodies() const
 {
 	UniqueLock lock(mBodiesMutex MOSS_IF_ENABLE_ASSERTS(, this, EPhysicsLockTypes::BodiesList));
 
@@ -836,7 +836,7 @@ BodyManager::BodyStats BodyManager::GetBodyStats() const
 
 	BodyStats stats;
 	stats.mNumBodies = mNumBodies;
-	stats.mMaxBodies = uint(mBodies.capacity());
+	stats.mMaxBodies = uint32(mBodies.capacity());
 
 	for (const Body *body : mBodies)
 		if (sIsValidBodyPointer(body))
@@ -1134,7 +1134,7 @@ void BodyManager::RemoveBodies(const BodyID *inBodyIDs, int inNumber, Body **out
 	UniqueLock lock(mBodiesMutex MOSS_IF_ENABLE_ASSERTS(, this, EPhysicsLockTypes::BodiesList));
 
 	// Update cached number of bodies
-	MOSS_ASSERT(mNumBodies >= (uint)inNumber);
+	MOSS_ASSERT(mNumBodies >= (uint32)inNumber);
 	mNumBodies -= inNumber;
 
 	for (const BodyID *b = inBodyIDs, *b_end = inBodyIDs + inNumber; b < b_end; b++)
@@ -1167,7 +1167,7 @@ void BodyManager::DestroyBodies(const BodyID *inBodyIDs, int inNumber)
 	UniqueLock lock(mBodiesMutex MOSS_IF_ENABLE_ASSERTS(, this, EPhysicsLockTypes::BodiesList));
 
 	// Update cached number of bodies
-	MOSS_ASSERT(mNumBodies >= (uint)inNumber);
+	MOSS_ASSERT(mNumBodies >= (uint32)inNumber);
 	mNumBodies -= inNumber;
 
 	for (const BodyID *b = inBodyIDs, *b_end = inBodyIDs + inNumber; b < b_end; b++)
@@ -1836,7 +1836,7 @@ void BodyManager::ValidateActiveBodyBounds()
 {
 	UniqueLock lock(mActiveBodiesMutex MOSS_IF_ENABLE_ASSERTS(, this, EPhysicsLockTypes::ActiveBodiesList));
 
-	for (uint type = 0; type < cBodyTypeCount; ++type)
+	for (uint32 type = 0; type < cBodyTypeCount; ++type)
 		for (BodyID *id = mActiveBodies[type], *id_end = mActiveBodies[type] + mNumActiveBodies[type].load(memory_order_relaxed); id < id_end; ++id)
 		{
 			const Body *body = mBodies[id->GetIndex()];

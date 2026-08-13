@@ -16,7 +16,7 @@ JPH_NAMESPACE_BEGIN
 //////////////////////////////////////////////////////////////////////////////////////////
 
 template <class MemberType>
-inline void AddSerializableAttributeEnum(RTTI &inRTTI, uint inOffset, const char *inName) {
+inline void AddSerializableAttributeEnum(RTTI &inRTTI, uint32 inOffset, const char *inName) {
 	inRTTI.AddAttribute(SerializableAttribute(inName, inOffset,
 		[]() -> const RTTI *
 		{

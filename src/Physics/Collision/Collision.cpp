@@ -780,8 +780,8 @@ void CollideSphereVsTriangles::Collide(Vec3Arg inV0, Vec3Arg inV1, Vec3Arg inV2,
 
 void CollisionDispatch::Init()
 {
-	for (uint i = 0; i < NumSubShapeTypes; ++i)
-		for (uint j = 0; j < NumSubShapeTypes; ++j)
+	for (uint32 i = 0; i < NumSubShapeTypes; ++i)
+		for (uint32 j = 0; j < NumSubShapeTypes; ++j)
 		{
 			if (sCollideShape[i][j] == nullptr)
 				sCollideShape[i][j] = [](const Shape *, const Shape *, Vec3Arg, Vec3Arg, Mat44Arg, Mat44Arg, const SubShapeIDCreator &, const SubShapeIDCreator &, const CollideShapeSettings &, CollideShapeCollector &, const ShapeFilter &)
@@ -872,7 +872,7 @@ void CollisionDispatch::ReversedCastShape(const ShapeCast &inShapeCast, const Sh
 
 /*													*/
 
-void EstimateCollisionResponse(const Body &inBody1, const Body &inBody2, const ContactManifold &inManifold, CollisionEstimationResult &outResult, float inCombinedFriction, float inCombinedRestitution, float inMinVelocityForRestitution, uint inNumIterations)
+void EstimateCollisionResponse(const Body &inBody1, const Body &inBody2, const ContactManifold &inManifold, CollisionEstimationResult &outResult, float inCombinedFriction, float inCombinedRestitution, float inMinVelocityForRestitution, uint32 inNumIterations)
 {
 	// Note this code is based on AxisConstraintPart, see that class for more comments on the math
 
@@ -1000,7 +1000,7 @@ void EstimateCollisionResponse(const Body &inBody1, const Body &inBody2, const C
 
 	// Initialize the constraint properties
 	Constraint constraints[ContactPoints::Capacity];
-	for (uint c = 0; c < num_points; ++c)
+	for (uint32 c = 0; c < num_points; ++c)
 	{
 		Constraint &constraint = constraints[c];
 
@@ -1040,7 +1040,7 @@ void EstimateCollisionResponse(const Body &inBody1, const Body &inBody2, const C
 	{
 		// Solve friction constraints first
 		if (inCombinedFriction > 0.0f && iteration > 0) // For first iteration the contact impulse is zero so there's no point in applying friction
-			for (uint c = 0; c < num_points; ++c)
+			for (uint32 c = 0; c < num_points; ++c)
 			{
 				const Constraint &constraint = constraints[c];
 				CollisionEstimationResult::Impulse &impulse = outResult.mImpulses[c];
@@ -1068,7 +1068,7 @@ void EstimateCollisionResponse(const Body &inBody1, const Body &inBody2, const C
 			}
 
 		// Solve contact constraints last
-		for (uint c = 0; c < num_points; ++c)
+		for (uint32 c = 0; c < num_points; ++c)
 			constraints[c].mContact.Solve(inManifold.mWorldSpaceNormal, inv_m1, inv_m2, 0.0f, FLT_MAX, outResult.mImpulses[c].mContactImpulse, outResult);
 	}
 }
@@ -1105,9 +1105,9 @@ void PruneContactPoints(Vec3Arg inPenetrationAxis, ContactPoints &ioContactPoint
 
 	// Find the point that is furthest away from the center of mass (its torque will have the biggest influence)
 	// and the point that has the deepest penetration depth. Use the heuristic (distance to center of mass) * (penetration depth) for this.
-	uint point1 = 0;
+	uint32 point1 = 0;
 	float val = max(cMinDistanceSq, projected[0].LengthSq()) * penetration_depth_sq[0];
-	for (uint i = 0; i < projected.size(); ++i)
+	for (uint32 i = 0; i < projected.size(); ++i)
 	{
 		float v = max(cMinDistanceSq, projected[i].LengthSq()) * penetration_depth_sq[i];
 		if (v > val)
@@ -1120,9 +1120,9 @@ void PruneContactPoints(Vec3Arg inPenetrationAxis, ContactPoints &ioContactPoint
 
 	// Find point furthest from the first point forming a line segment with point1. Again combine this with the heuristic
 	// for deepest point as per above.
-	uint point2 = uint(-1);
+	uint32 point2 = uint32(-1);
 	val = -FLT_MAX;
-	for (uint i = 0; i < projected.size(); ++i)
+	for (uint32 i = 0; i < projected.size(); ++i)
 		if (i != point1)
 		{
 			float v = max(cMinDistanceSq, (projected[i] - point1v).LengthSq()) * penetration_depth_sq[i];
@@ -1132,16 +1132,16 @@ void PruneContactPoints(Vec3Arg inPenetrationAxis, ContactPoints &ioContactPoint
 				point2 = i;
 			}
 		}
-	MOSS_ASSERT(point2 != uint(-1));
+	MOSS_ASSERT(point2 != uint32(-1));
 	Vec3 point2v = projected[point2];
 
 	// Find furthest points on both sides of the line segment in order to maximize the area
-	uint point3 = uint(-1);
-	uint point4 = uint(-1);
+	uint32 point3 = uint32(-1);
+	uint32 point4 = uint32(-1);
 	float min_val = 0.0f;
 	float max_val = 0.0f;
 	Vec3 perp = (point2v - point1v).Cross(inPenetrationAxis);
-	for (uint i = 0; i < projected.size(); ++i)
+	for (uint32 i = 0; i < projected.size(); ++i)
 		if (i != point1 && i != point2)
 		{
 			float v = perp.Dot(projected[i] - point1v);
@@ -1161,14 +1161,14 @@ void PruneContactPoints(Vec3Arg inPenetrationAxis, ContactPoints &ioContactPoint
 	TStaticArray<Vec3, 4> points_to_keep_on_1, points_to_keep_on_2;
 	points_to_keep_on_1.push_back(ioContactPointsOn1[point1]);
 	points_to_keep_on_2.push_back(ioContactPointsOn2[point1]);
-	if (point3 != uint(-1))
+	if (point3 != uint32(-1))
 	{
 		points_to_keep_on_1.push_back(ioContactPointsOn1[point3]);
 		points_to_keep_on_2.push_back(ioContactPointsOn2[point3]);
 	}
 	points_to_keep_on_1.push_back(ioContactPointsOn1[point2]);
 	points_to_keep_on_2.push_back(ioContactPointsOn2[point2]);
-	if (point4 != uint(-1))
+	if (point4 != uint32(-1))
 	{
 		MOSS_ASSERT(point3 != point4);
 		points_to_keep_on_1.push_back(ioContactPointsOn1[point4]);
@@ -1814,7 +1814,7 @@ void BroadPhaseQuadTree::Init(BodyManager *inBodyManager, const BroadPhaseLayerI
 
 	// Init sub trees
 	mLayers = new QuadTree [mNumLayers];
-	for (uint l = 0; l < mNumLayers; ++l)
+	for (uint32 l = 0; l < mNumLayers; ++l)
 	{
 		mLayers[l].Init(mAllocator);
 
@@ -1847,7 +1847,7 @@ void BroadPhaseQuadTree::Optimize()
 
 	LockModifications();
 
-	for (uint l = 0; l < mNumLayers; ++l)
+	for (uint32 l = 0; l < mNumLayers; ++l)
 	{
 		QuadTree &tree = mLayers[l];
 		if (tree.HasBodies())
@@ -1879,7 +1879,7 @@ BroadPhase::UpdateState BroadPhaseQuadTree::UpdatePrepare()
 	UpdateStateImpl *update_state_impl = reinterpret_cast<UpdateStateImpl *>(&update_state);
 
 	// Loop until we've seen all layers
-	for (uint iteration = 0; iteration < mNumLayers; ++iteration)
+	for (uint32 iteration = 0; iteration < mNumLayers; ++iteration)
 	{
 		// Get the layer
 		QuadTree &tree = mLayers[mNextLayerToUpdate];
@@ -3045,7 +3045,7 @@ void QuadTree::UpdatePrepare(const BodyVector &inBodies, TrackingVector &ioTrack
 		// those nodes get recreated every time when we rebuild the tree. This balances the amount of
 		// time we spend on rebuilding the tree ('unchanged' nodes will be put in the new tree as a whole)
 		// vs the quality of the built tree.
-		constexpr uint cMaxDepthMarkChanged = 5;
+		constexpr uint32 cMaxDepthMarkChanged = 5;
 
 		// Build new tree
 		AABox root_bounds;
@@ -3199,7 +3199,7 @@ AABox QuadTree::GetNodeOrBodyBounds(const BodyVector &inBodies, NodeID inNodeID)
 	}
 }
 
-QuadTree::NodeID QuadTree::BuildTree(const BodyVector &inBodies, TrackingVector &ioTracking, NodeID *ioNodeIDs, int inNumber, uint inMaxDepthMarkChanged, AABox &outBounds)
+QuadTree::NodeID QuadTree::BuildTree(const BodyVector &inBodies, TrackingVector &ioTracking, NodeID *ioNodeIDs, int inNumber, uint32 inMaxDepthMarkChanged, AABox &outBounds)
 {
 	// Trivial case: No bodies in tree
 	if (inNumber == 0)
@@ -4378,14 +4378,14 @@ void QuadTree::ReportStats(uint64 inTicks100Pct) const
 
 #endif // MOSS_TRACK_BROADPHASE_STATS
 
-uint QuadTree::GetMaxTreeDepth(const NodeID &inNodeID) const
+uint32 QuadTree::GetMaxTreeDepth(const NodeID &inNodeID) const
 {
 	// Reached a leaf?
 	if (!inNodeID.IsValid() || inNodeID.IsBody())
 		return 0;
 
 	// Recurse to children
-	uint max_depth = 0;
+	uint32 max_depth = 0;
 	const Node &node = mAllocator->Get(inNodeID.GetNodeIndex());
 	for (NodeID child_node_id : node.mChildNodeID)
 		max_depth = max(max_depth, GetMaxTreeDepth(child_node_id));

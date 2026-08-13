@@ -22,8 +22,8 @@ public:
 	ContactManifold			SwapShapes() const					{ return { mBaseOffset, -mWorldSpaceNormal, mPenetrationDepth, mSubShapeID2, mSubShapeID1, mRelativeContactPointsOn2, mRelativeContactPointsOn1 }; }
 
 	/// Access to the world space contact positions
-	inline RVec3			GetWorldSpaceContactPointOn1(uint inIndex) const { return mBaseOffset + mRelativeContactPointsOn1[inIndex]; }
-	inline RVec3			GetWorldSpaceContactPointOn2(uint inIndex) const { return mBaseOffset + mRelativeContactPointsOn2[inIndex]; }
+	inline RVec3			GetWorldSpaceContactPointOn1(uint32 inIndex) const { return mBaseOffset + mRelativeContactPointsOn1[inIndex]; }
+	inline RVec3			GetWorldSpaceContactPointOn2(uint32 inIndex) const { return mBaseOffset + mRelativeContactPointsOn2[inIndex]; }
 
 	RVec3					mBaseOffset;						// Offset to which all the contact points are relative
 	Vec3					mWorldSpaceNormal;					// Normal for this manifold, direction along which to move body 2 out of collision along the shortest path

@@ -239,7 +239,7 @@ private:
 	};
 
 	TStaticArray<Part, 3>	mParts;
-	uint					mCurrentPart = 0;
+	uint32					mCurrentPart = 0;
 	size_t					mCurrentVertex = 0;
 	const PhysicsMaterial *	mMaterial;
 	bool					mIsInsideOut;

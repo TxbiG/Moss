@@ -81,7 +81,7 @@ void Hair::Init(ComputeSystem *inComputeSystem)
 void Hair::InitializeContext(UpdateContext &outCtx, float inDeltaTime, const PhysicsSystem &inSystem)
 {
 	float clamped_delta_time = min(inDeltaTime, mSettings->mMaxDeltaTime);
-	outCtx.mNumIterations = (uint)std::round(clamped_delta_time * mSettings->mNumIterationsPerSecond);
+	outCtx.mNumIterations = (uint32)std::round(clamped_delta_time * mSettings->mNumIterationsPerSecond);
 	outCtx.mDeltaTime = outCtx.mNumIterations > 0? clamped_delta_time / outCtx.mNumIterations : 0.0f;
 	outCtx.mTimeRatio = outCtx.mDeltaTime * float(HairSettings::cDefaultIterationsPerSecond);
 	outCtx.mHalfDeltaTime = 0.5f * outCtx.mDeltaTime;
@@ -200,28 +200,28 @@ void Hair::Update(float inDeltaTime, Mat44Arg inJointToHair, const Mat44 *inJoin
 		JPH_PROFILE("Create Collision Shapes");
 
 		// First determine buffer sizes
-		uint num_shapes = 0;
-		uint num_faces = 0;
-		uint num_vertices = 0;
-		uint num_header = 0;
-		uint num_indices = 0;
-		uint max_vertices_per_face = 0;
-		uint max_points = 0;
+		uint32 num_shapes = 0;
+		uint32 num_faces = 0;
+		uint32 num_vertices = 0;
+		uint32 num_header = 0;
+		uint32 num_indices = 0;
+		uint32 max_vertices_per_face = 0;
+		uint32 max_points = 0;
 		for (const LeafShape &shape : ctx.mShapes)
 			if (shape.mShape->GetSubType() == EShapeSubType::ConvexHull)
 			{
 				const ConvexHullShape *ch = static_cast<const ConvexHullShape *>(shape.mShape.GetPtr());
 				++num_shapes;
 				++num_header; // Write number of vertices
-				uint np = ch->GetNumPoints();
+				uint32 np = ch->GetNumPoints();
 				max_points = max(max_points, np);
 				num_vertices += np;
-				uint nf = ch->GetNumFaces();
+				uint32 nf = ch->GetNumFaces();
 				num_faces += nf;
-				for (uint f = 0; f < nf; ++f)
+				for (uint32 f = 0; f < nf; ++f)
 				{
 					num_header += 2; // Write indices start + end
-					uint num_vertices_in_face = ch->GetNumVerticesInFace(f);
+					uint32 num_vertices_in_face = ch->GetNumVerticesInFace(f);
 					num_indices += num_vertices_in_face;
 					max_vertices_per_face = max(max_vertices_per_face, num_vertices_in_face);
 				}
@@ -255,7 +255,7 @@ void Hair::Update(float inDeltaTime, Mat44Arg inJointToHair, const Mat44 *inJoin
 		Float4 *shape_planes = mShapePlanesCB->Map<Float4>(ComputeBuffer::EMode::Write);
 		Float3 *shape_vertices = mShapeVerticesCB->Map<Float3>(ComputeBuffer::EMode::Write);
 		uint32 *shape_indices = mShapeIndicesCB->Map<uint32>(ComputeBuffer::EMode::Write);
-		uint *face_indices = (uint *)JPH_STACK_ALLOC(max_vertices_per_face * sizeof(uint));
+		uint32 *face_indices = (uint32 *)JPH_STACK_ALLOC(max_vertices_per_face * sizeof(uint32));
 		Vec3 *points = (Vec3 *)JPH_STACK_ALLOC(max_points * sizeof(Vec3));
 
 		// Convert the hulls to compute buffers
@@ -277,8 +277,8 @@ void Hair::Update(float inDeltaTime, Mat44Arg inJointToHair, const Mat44 *inJoin
 
 				// Store points transformed to hair space
 				Mat44 shape_transform = shape.mTransform.PreScaled(shape.mScale);
-				uint first_vertex_index = uint(sv - shape_vertices);
-				for (uint p = 0, np = ch->GetNumPoints(); p < np; ++p)
+				uint32 first_vertex_index = uint32(sv - shape_vertices);
+				for (uint32 p = 0, np = ch->GetNumPoints(); p < np; ++p)
 				{
 					Vec3 v = shape_transform * ch->GetPoint(p);
 					points[p] = v; // Store points in a temporary buffer so we avoid reading from GPU memory
@@ -287,7 +287,7 @@ void Hair::Update(float inDeltaTime, Mat44Arg inJointToHair, const Mat44 *inJoin
 				}
 
 				// Store number of faces
-				uint nf = ch->GetNumFaces();
+				uint32 nf = ch->GetNumFaces();
 				*sh = nf;
 				++sh;
 
@@ -295,10 +295,10 @@ void Hair::Update(float inDeltaTime, Mat44Arg inJointToHair, const Mat44 *inJoin
 				if (ScaleHelpers::IsInsideOut(shape.mScale))
 				{
 					// Reverse winding order
-					for (uint f = 0; f < nf; ++f)
+					for (uint32 f = 0; f < nf; ++f)
 					{
 						// Store indices
-						uint nv = ch->GetFaceVertices(f, max_vertices_per_face, face_indices);
+						uint32 nv = ch->GetFaceVertices(f, max_vertices_per_face, face_indices);
 						uint32 indices_start = uint32(si - shape_indices);
 						*sh = indices_start;
 						++sh;
@@ -315,14 +315,14 @@ void Hair::Update(float inDeltaTime, Mat44Arg inJointToHair, const Mat44 *inJoin
 				else
 				{
 					// Keep winding order
-					for (uint f = 0; f < nf; ++f)
+					for (uint32 f = 0; f < nf; ++f)
 					{
 						// Store indices
-						uint nv = ch->GetFaceVertices(f, max_vertices_per_face, face_indices);
+						uint32 nv = ch->GetFaceVertices(f, max_vertices_per_face, face_indices);
 						uint32 indices_start = uint32(si - shape_indices);
 						*sh++ = indices_start;
 						*sh++ = indices_start + nv;
-						for (uint v = 0; v < nv; ++v)
+						for (uint32 v = 0; v < nv; ++v)
 							*si++ = face_indices[v] + first_vertex_index;
 
 						// Calculate plane (avoids reading from GPU memory)
@@ -333,11 +333,11 @@ void Hair::Update(float inDeltaTime, Mat44Arg inJointToHair, const Mat44 *inJoin
 			}
 		*sh = 0; // Terminator
 		++sh;
-		JPH_ASSERT(uint(cs - collision_shapes) == num_shapes);
-		JPH_ASSERT(uint(sp - shape_planes) == num_faces);
-		JPH_ASSERT(uint(sv - shape_vertices) == num_vertices);
-		JPH_ASSERT(uint(sh - shape_indices) == num_header);
-		JPH_ASSERT(uint(si - shape_indices) == num_indices);
+		JPH_ASSERT(uint32(cs - collision_shapes) == num_shapes);
+		JPH_ASSERT(uint32(sp - shape_planes) == num_faces);
+		JPH_ASSERT(uint32(sv - shape_vertices) == num_vertices);
+		JPH_ASSERT(uint32(sh - shape_indices) == num_header);
+		JPH_ASSERT(uint32(si - shape_indices) == num_indices);
 
 		// Unmap buffers
 		mCollisionShapesCB->Unmap();
@@ -391,7 +391,7 @@ void Hair::Update(float inDeltaTime, Mat44Arg inJointToHair, const Mat44 *inJoin
 		cdata->cNumStrands = uint32(mSettings->mSimStrands.size());
 		cdata->cNumVertices = mSettings->GetNumVerticesPadded();
 		cdata->cNumGridPoints = (uint32)mSettings->mNeutralDensity.size();
-		cdata->cNumRenderVertices = (uint)mSettings->mRenderVertices.size();
+		cdata->cNumRenderVertices = (uint32)mSettings->mRenderVertices.size();
 		HairSettings::GridSampler grid_sampler(mSettings);
 		memcpy(&cdata->cGridSizeMin2, &grid_sampler.mGridSizeMin2, 3 * sizeof(float));
 		cdata->cTwoDivDeltaTime = ctx.mTwoDivDeltaTime;
@@ -402,7 +402,7 @@ void Hair::Update(float inDeltaTime, Mat44Arg inJointToHair, const Mat44 *inJoin
 		grid_sampler.mScale.StoreFloat3(&cdata->cGridScale);
 		cdata->cInvDeltaTimeSq = ctx.mInvDeltaTimeSq;
 		ctx.mSubStepGravity.StoreFloat3(&cdata->cSubStepGravity);
-		cdata->cNumSkinVertices = (uint)mSettings->mScalpVertices.size();
+		cdata->cNumSkinVertices = (uint32)mSettings->mScalpVertices.size();
 		memcpy(&cdata->cGridStride, &grid_sampler.mGridStride, 3 * sizeof(uint32));
 		cdata->cNumSkinWeightsPerVertex = mSettings->mScalpNumSkinWeightsPerVertex;
 		for (int i = 0; i < 4; ++i)
@@ -417,17 +417,17 @@ void Hair::Update(float inDeltaTime, Mat44Arg inJointToHair, const Mat44 *inJoin
 		JPH_PROFILE("Set iteration constants");
 
 		// Ensure that we have the right number of constant buffers allocated
-		uint old_size = uint(mIterationConstantsCB.size());
+		uint32 old_size = uint32(mIterationConstantsCB.size());
 		if (old_size < ctx.mNumIterations)
 		{
 			mIterationConstantsCB.resize(ctx.mNumIterations);
-			for (uint i = old_size; i < ctx.mNumIterations; ++i)
+			for (uint32 i = old_size; i < ctx.mNumIterations; ++i)
 				mIterationConstantsCB[i] = inComputeSystem->CreateComputeBuffer(ComputeBuffer::EType::ConstantBuffer, 1, sizeof(JPH_HairIterationContext)).Get();
 		}
 
 		// Fill in the constant buffers
 		JPH_HairIterationContext iteration_data;
-		for (uint i = 0; i < ctx.mNumIterations; ++i)
+		for (uint32 i = 0; i < ctx.mNumIterations; ++i)
 		{
 			iteration_data.cAccumulatedDeltaTime = ctx.mDeltaTime * (i + 1);
 			iteration_data.cIterationFraction = 1.0f / float(ctx.mNumIterations - i);
@@ -441,11 +441,11 @@ void Hair::Update(float inDeltaTime, Mat44Arg inJointToHair, const Mat44 *inJoin
 	{
 		JPH_PROFILE("Queue Compute");
 
-		uint dispatch_per_vertex = (mSettings->GetNumVerticesPadded() + cHairPerVertexBatch - 1) / cHairPerVertexBatch;
-		uint dispatch_per_vertex_skip_first_vertex = (mSettings->GetNumVerticesPadded() - (uint)mSettings->mSimStrands.size() + cHairPerVertexBatch - 1) / cHairPerVertexBatch; // Skip the first vertex of each strand
-		uint dispatch_per_grid_cell = uint((mSettings->mNeutralDensity.size() + cHairPerGridCellBatch - 1) / cHairPerGridCellBatch);
-		uint dispatch_per_strand = uint((mSettings->mSimStrands.size() + cHairPerStrandBatch - 1) / cHairPerStrandBatch);
-		uint dispatch_per_render_vertex = uint((mSettings->mRenderVertices.size() + cHairPerRenderVertexBatch - 1) / cHairPerRenderVertexBatch);
+		uint32 dispatch_per_vertex = (mSettings->GetNumVerticesPadded() + cHairPerVertexBatch - 1) / cHairPerVertexBatch;
+		uint32 dispatch_per_vertex_skip_first_vertex = (mSettings->GetNumVerticesPadded() - (uint32)mSettings->mSimStrands.size() + cHairPerVertexBatch - 1) / cHairPerVertexBatch; // Skip the first vertex of each strand
+		uint32 dispatch_per_grid_cell = uint32((mSettings->mNeutralDensity.size() + cHairPerGridCellBatch - 1) / cHairPerGridCellBatch);
+		uint32 dispatch_per_strand = uint32((mSettings->mSimStrands.size() + cHairPerStrandBatch - 1) / cHairPerStrandBatch);
+		uint32 dispatch_per_render_vertex = uint32((mSettings->mRenderVertices.size() + cHairPerRenderVertexBatch - 1) / cHairPerRenderVertexBatch);
 
 		bool was_teleported = mTeleported;
 		mTeleported = false;
@@ -483,7 +483,7 @@ void Hair::Update(float inDeltaTime, Mat44Arg inJointToHair, const Mat44 *inJoin
 			inComputeQueue->SetBuffer("gScalpSkinWeights", mSettings->mScalpSkinWeightsCB);
 			inComputeQueue->SetBuffer("gScalpJointMatrices", mScalpJointMatricesCB);
 			inComputeQueue->SetRWBuffer("gScalpVerticesOut", mScalpVerticesCB);
-			inComputeQueue->Dispatch(uint((mSettings->mScalpVertices.size() + cHairPerVertexBatch - 1) / cHairPerVertexBatch));
+			inComputeQueue->Dispatch(uint32((mSettings->mScalpVertices.size() + cHairPerVertexBatch - 1) / cHairPerVertexBatch));
 		}
 
 		if (mScalpVerticesCB != nullptr)
@@ -579,7 +579,7 @@ void Hair::Update(float inDeltaTime, Mat44Arg inJointToHair, const Mat44 *inJoin
 			inComputeQueue->SetRWBuffer("gPreviousPositions", mPreviousPositionsCB);
 			inComputeQueue->Dispatch(dispatch_per_vertex_skip_first_vertex);
 
-			for (uint it = 0; it < ctx.mNumIterations; ++it)
+			for (uint32 it = 0; it < ctx.mNumIterations; ++it)
 			{
 				if (mTargetPositionsCB != nullptr && !was_teleported)
 				{
@@ -732,7 +732,7 @@ void Hair::LockReadBackBuffers()
 	mVelocityAndDensity = mVelocityAndDensityReadBackCB->Map<Float4>(ComputeBuffer::EMode::Read);
 	if (mRenderPositionsOverridden)
 	{
-		uint num_render_vertices = (uint)mSettings->mRenderVertices.size();
+		uint32 num_render_vertices = (uint32)mSettings->mRenderVertices.size();
 		if (mRenderPositions == nullptr)
 			mRenderPositions = new Float3 [num_render_vertices];
 		mRenderPositionsToFloat3(mRenderPositionsReadBackCB, const_cast<Float3 *>(mRenderPositions), num_render_vertices);
@@ -773,12 +773,12 @@ void Hair::Draw(const DrawSettings &inSettings, DebugRenderer *inRenderer)
 		JPH_PROFILE("Draw Render Strands");
 
 		// Calculate a map of sim vertex index to strand index
-		Array<uint> sim_vertex_to_strand;
+		Array<uint32> sim_vertex_to_strand;
 		sim_vertex_to_strand.resize(mSettings->mSimVertices.size(), 0);
-		for (uint i = 0, n = (uint)mSettings->mSimStrands.size(); i < n; ++i)
+		for (uint32 i = 0, n = (uint32)mSettings->mSimStrands.size(); i < n; ++i)
 		{
 			const HairSettings::SStrand &strand = mSettings->mSimStrands[i];
-			for (uint v = strand.mStartVtx; v < strand.mEndVtx; ++v)
+			for (uint32 v = strand.mStartVtx; v < strand.mEndVtx; ++v)
 				sim_vertex_to_strand[v] = i;
 		}
 
@@ -871,7 +871,7 @@ void Hair::Draw(const DrawSettings &inSettings, DebugRenderer *inRenderer)
 
 		Color color = Color::Red;
 		Hash<uint32> hasher;
-		for (uint i = 0, n = (uint)mSettings->mSimStrands.size(); i < n; ++i)
+		for (uint32 i = 0, n = (uint32)mSettings->mSimStrands.size(); i < n; ++i)
 			if (i >= inSettings.mSimulationStrandBegin && i < inSettings.mSimulationStrandEnd)
 			{
 				const HairSettings::SStrand &strand = mSettings->mSimStrands[i];
@@ -893,7 +893,7 @@ void Hair::Draw(const DrawSettings &inSettings, DebugRenderer *inRenderer)
 
 		Color color = Color::Yellow;
 		Hash<uint32> hasher;
-		for (uint i = 0, n = (uint)mSettings->mSimStrands.size(); i < n; ++i)
+		for (uint32 i = 0, n = (uint32)mSettings->mSimStrands.size(); i < n; ++i)
 			if (i >= inSettings.mSimulationStrandBegin && i < inSettings.mSimulationStrandEnd)
 			{
 				const HairSettings::SStrand &strand = mSettings->mSimStrands[i];
@@ -912,7 +912,7 @@ void Hair::Draw(const DrawSettings &inSettings, DebugRenderer *inRenderer)
 
 	// Draw vertex velocities
 	if (inSettings.mDrawVertexVelocity)
-		for (uint i = 0, n = (uint)mSettings->mSimStrands.size(); i < n; ++i)
+		for (uint32 i = 0, n = (uint32)mSettings->mSimStrands.size(); i < n; ++i)
 			if (i >= inSettings.mSimulationStrandBegin && i < inSettings.mSimulationStrandEnd)
 			{
 				const HairSettings::SStrand &strand = mSettings->mSimStrands[i];
@@ -929,7 +929,7 @@ void Hair::Draw(const DrawSettings &inSettings, DebugRenderer *inRenderer)
 
 	// Draw angular velocities
 	if (inSettings.mDrawAngularVelocity)
-		for (uint i = 0, n = (uint)mSettings->mSimStrands.size(); i < n; ++i)
+		for (uint32 i = 0, n = (uint32)mSettings->mSimStrands.size(); i < n; ++i)
 			if (i >= inSettings.mSimulationStrandBegin && i < inSettings.mSimulationStrandEnd)
 			{
 				const HairSettings::SStrand &strand = mSettings->mSimStrands[i];
@@ -946,7 +946,7 @@ void Hair::Draw(const DrawSettings &inSettings, DebugRenderer *inRenderer)
 
 	// Draw rod orientations
 	if (inSettings.mDrawOrientations)
-		for (uint i = 0, n = (uint)mSettings->mSimStrands.size(); i < n; ++i)
+		for (uint32 i = 0, n = (uint32)mSettings->mSimStrands.size(); i < n; ++i)
 			if (i >= inSettings.mSimulationStrandBegin && i < inSettings.mSimulationStrandEnd)
 			{
 				const HairSettings::SStrand &strand = mSettings->mSimStrands[i];
@@ -1003,7 +1003,7 @@ void Hair::Draw(const DrawSettings &inSettings, DebugRenderer *inRenderer)
 	}
 
 	if (inSettings.mDrawSkinPoints)
-		for (uint i = 0, n = (uint)mSettings->mSkinPoints.size(); i < n; ++i)
+		for (uint32 i = 0, n = (uint32)mSettings->mSkinPoints.size(); i < n; ++i)
 			if (i >= inSettings.mSimulationStrandBegin && i < inSettings.mSimulationStrandEnd)
 			{
 				const HairSettings::SkinPoint &sp = mSettings->mSkinPoints[i];

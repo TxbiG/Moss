@@ -32,7 +32,7 @@ public:
 	void				Clear()											{ mPoints.clear(); }
 
 	/// Reserve memory for inNumPoints points
-	void				Reserve(uint inNumPoints)						{ mPoints.reserve(inNumPoints); }
+	void				Reserve(uint32 inNumPoints)						{ mPoints.reserve(inNumPoints); }
 
 	/// Add a point to the curve. Points must be inserted in ascending X or Sort() needs to be called when all points have been added.
 	/// @param inX X value

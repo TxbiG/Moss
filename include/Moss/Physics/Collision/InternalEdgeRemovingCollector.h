@@ -23,8 +23,8 @@ MOSS_NAMESPACE_BEGIN
 /// and CollideSettingsBase::mCollectFacesMode == ECollectFacesMode::CollectFaces.
 class InternalEdgeRemovingCollector : public CollideShapeCollector
 {
-	static constexpr uint cMaxLocalDelayedResults = 32;
-	static constexpr uint cMaxLocalVoidedFeatures = 128;
+	static constexpr uint32 cMaxLocalDelayedResults = 32;
+	static constexpr uint32 cMaxLocalVoidedFeatures = 128;
 
 	/// Check if a vertex is voided
 	inline bool				IsVoided(const SubShapeID &inSubShapeID, Vec3 inV) const
@@ -131,25 +131,25 @@ public:
 	void					Flush()
 	{
 		// Sort on biggest penetration depth first
-		TArray<uint, STLLocalAllocator<uint, cMaxLocalDelayedResults>> sorted_indices;
+		TArray<uint32, STLLocalAllocator<uint32, cMaxLocalDelayedResults>> sorted_indices;
 		sorted_indices.resize(mDelayedResults.size());
-		for (uint i = 0; i < uint(mDelayedResults.size()); ++i)
+		for (uint32 i = 0; i < uint32(mDelayedResults.size()); ++i)
 			sorted_indices[i] = i;
-		QuickSort(sorted_indices.begin(), sorted_indices.end(), [this](uint inLHS, uint inRHS) { return mDelayedResults[inLHS].mPenetrationDepth > mDelayedResults[inRHS].mPenetrationDepth; });
+		QuickSort(sorted_indices.begin(), sorted_indices.end(), [this](uint32 inLHS, uint32 inRHS) { return mDelayedResults[inLHS].mPenetrationDepth > mDelayedResults[inRHS].mPenetrationDepth; });
 
 		// Loop over all results
-		for (uint i = 0; i < uint(mDelayedResults.size()); ++i)
+		for (uint32 i = 0; i < uint32(mDelayedResults.size()); ++i)
 		{
 			const CollideShapeResult &r = mDelayedResults[sorted_indices[i]];
 
 			// Determine which vertex or which edge is the closest to the contact point
 			float best_dist_sq = FLT_MAX;
-			uint best_v1_idx = 0;
-			uint best_v2_idx = 0;
-			uint num_v = uint(r.mShape2Face.size());
-			uint v1_idx = num_v - 1;
+			uint32 best_v1_idx = 0;
+			uint32 best_v2_idx = 0;
+			uint32 num_v = uint32(r.mShape2Face.size());
+			uint32 v1_idx = num_v - 1;
 			Vec3 v1 = r.mShape2Face[v1_idx] - r.mContactPointOn2;
-			for (uint v2_idx = 0; v2_idx < num_v; ++v2_idx)
+			for (uint32 v2_idx = 0; v2_idx < num_v; ++v2_idx)
 			{
 				Vec3 v2 = r.mShape2Face[v2_idx] - r.mContactPointOn2;
 				Vec3 v1_v2 = v2 - v1;

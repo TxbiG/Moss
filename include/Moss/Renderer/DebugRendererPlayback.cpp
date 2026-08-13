@@ -144,7 +144,7 @@ void DebugRendererPlayback::Parse(StreamIn &inStream)
 	}
 }
 
-void DebugRendererPlayback::DrawFrame(uint inFrameNumber) const
+void DebugRendererPlayback::DrawFrame(uint32 inFrameNumber) const
 {
 	const Frame &frame = mFrames[inFrameNumber];
 

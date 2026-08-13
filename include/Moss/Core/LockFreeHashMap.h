@@ -18,7 +18,7 @@ public:
 
 	/// Initialize the allocator
 	/// @param inObjectStoreSizeBytes Number of bytes to reserve for all key value pairs
-	inline void				Init(uint inObjectStoreSizeBytes);
+	inline void				Init(uint32 inObjectStoreSizeBytes);
 
 	/// Clear all allocations
 	inline void				Clear();

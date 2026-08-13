@@ -156,7 +156,7 @@ void WheelTV::CalculateAngularVelocity(const VehicleConstraint &inConstraint)
 	mAngularVelocity = track.mAngularVelocity * wheels[track.mDrivenWheel]->GetSettings()->mRadius / settings->mRadius;
 }
 
-void WheelTV::Update(uint inWheelIndex, float inDeltaTime, const VehicleConstraint &inConstraint)
+void WheelTV::Update(uint32 inWheelIndex, float inDeltaTime, const VehicleConstraint &inConstraint)
 {
 	CalculateAngularVelocity(inConstraint);
 
@@ -223,7 +223,7 @@ TrackedVehicleController::TrackedVehicleController(const TrackedVehicleControlle
 	MOSS_ASSERT(inSettings.mTransmission.mShiftUpRPM > inSettings.mTransmission.mShiftDownRPM);
 
 	// Copy track settings
-	for (uint i = 0; i < std::size(mTracks); ++i)
+	for (uint32 i = 0; i < std::size(mTracks); ++i)
 	{
 		const VehicleTrackSettings &d = inSettings.mTracks[i];
 		static_cast<VehicleTrackSettings &>(mTracks[i]) = d;
@@ -247,8 +247,8 @@ void TrackedVehicleController::PreCollide(float inDeltaTime, PhysicsSystem &inPh
 
 	// Fill in track index
 	for (size_t t = 0; t < std::size(mTracks); ++t)
-		for (uint w : mTracks[t].mWheels)
-			static_cast<WheelTV *>(wheels[w])->mTrackIndex = (uint)t;
+		for (uint32 w : mTracks[t].mWheels)
+			static_cast<WheelTV *>(wheels[w])->mTrackIndex = (uint32)t;
 
 	// Angular damping: dw/dt = -c * w
 	// Solution: w(t) = w(0) * e^(-c * t) or w2 = w1 * e^(-c * dt)
@@ -287,7 +287,7 @@ void TrackedVehicleController::PostCollide(float inDeltaTime, PhysicsSystem &inP
 	Wheels &wheels = mConstraint.GetWheels();
 
 	// Update wheel angle, do this before applying torque to the wheels (as friction will slow them down again)
-	for (uint wheel_index = 0, num_wheels = (uint)wheels.size(); wheel_index < num_wheels; ++wheel_index)
+	for (uint32 wheel_index = 0, num_wheels = (uint32)wheels.size(); wheel_index < num_wheels; ++wheel_index)
 	{
 		WheelTV *w = static_cast<WheelTV *>(wheels[wheel_index]);
 		w->Update(wheel_index, inDeltaTime, mConstraint);
@@ -306,7 +306,7 @@ void TrackedVehicleController::PostCollide(float inDeltaTime, PhysicsSystem &inP
 				fastest_wheel_speed = max(fastest_wheel_speed, t.mAngularVelocity * t.mDifferentialRatio);
 			else
 				fastest_wheel_speed = min(fastest_wheel_speed, t.mAngularVelocity * t.mDifferentialRatio);
-			for (uint w : t.mWheels)
+			for (uint32 w : t.mWheels)
 				if (wheels[w]->HasContact())
 				{
 					can_engine_apply_torque = true;
@@ -340,7 +340,7 @@ void TrackedVehicleController::PostCollide(float inDeltaTime, PhysicsSystem &inP
 	if (transmission_torque != 0.0f)
 	{
 		// Apply the transmission torque to the wheels
-		for (uint i = 0; i < std::size(mTracks); ++i)
+		for (uint32 i = 0; i < std::size(mTracks); ++i)
 		{
 			VehicleTrack &t = mTracks[i];
 
@@ -389,7 +389,7 @@ void TrackedVehicleController::PostCollide(float inDeltaTime, PhysicsSystem &inP
 		{
 			// Sum the radius of all wheels touching the floor
 			float total_radius = 0.0f;
-			for (uint wheel_index : t.mWheels)
+			for (uint32 wheel_index : t.mWheels)
 			{
 				const WheelTV *w = static_cast<WheelTV *>(wheels[wheel_index]);
 
@@ -400,7 +400,7 @@ void TrackedVehicleController::PostCollide(float inDeltaTime, PhysicsSystem &inP
 			if (total_radius > 0.0f)
 			{
 				brake_torque /= total_radius;
-				for (uint wheel_index : t.mWheels)
+				for (uint32 wheel_index : t.mWheels)
 				{
 					WheelTV *w = static_cast<WheelTV *>(wheels[wheel_index]);
 					if (w->HasContact())
@@ -709,7 +709,7 @@ VehicleConstraint::VehicleConstraint(Body &inVehicleBody, const VehicleConstrain
 
 	// Create wheels
 	mWheels.resize(inSettings.mWheels.size());
-	for (uint i = 0; i < mWheels.size(); ++i)
+	for (uint32 i = 0; i < mWheels.size(); ++i)
 		mWheels[i] = mController->ConstructWheel(*inSettings.mWheels[i]);
 
 	// Use the body ID as a seed for the step counter so that not all vehicles will update at the same time
@@ -737,7 +737,7 @@ void VehicleConstraint::GetWheelLocalBasis(const Wheel *inWheel, Vec3 &outForwar
 	outForward = outUp.Cross(outRight).Normalized();
 }
 
-Mat44 VehicleConstraint::GetWheelLocalTransform(uint inWheelIndex, Vec3Arg inWheelRight, Vec3Arg inWheelUp) const
+Mat44 VehicleConstraint::GetWheelLocalTransform(uint32 inWheelIndex, Vec3Arg inWheelRight, Vec3Arg inWheelUp) const
 {
 	MOSS_ASSERT(inWheelIndex < mWheels.size());
 
@@ -757,7 +757,7 @@ Mat44 VehicleConstraint::GetWheelLocalTransform(uint inWheelIndex, Vec3Arg inWhe
 	return rotational_to_local * Mat44::RotationX(wheel->mAngle) * wheel_to_rotational;
 }
 
-RMat44 VehicleConstraint::GetWheelWorldTransform(uint inWheelIndex, Vec3Arg inWheelRight, Vec3Arg inWheelUp) const
+RMat44 VehicleConstraint::GetWheelWorldTransform(uint32 inWheelIndex, Vec3Arg inWheelRight, Vec3Arg inWheelUp) const
 {
 	return mBody->GetWorldTransform() * GetWheelLocalTransform(inWheelIndex, inWheelRight, inWheelUp);
 }
@@ -796,12 +796,12 @@ void VehicleConstraint::OnStep(const PhysicsStepListenerContext &inContext)
 	mIsActive = mBody->IsActive();
 
 	// Test how often we need to update the wheels
-	uint num_steps_between_collisions = mIsActive? mNumStepsBetweenCollisionTestActive : mNumStepsBetweenCollisionTestInactive;
+	uint32 num_steps_between_collisions = mIsActive? mNumStepsBetweenCollisionTestActive : mNumStepsBetweenCollisionTestInactive;
 
 	RMat44 body_transform = mBody->GetWorldTransform();
 
 	// Test collision for wheels
-	for (uint wheel_index = 0; wheel_index < mWheels.size(); ++wheel_index)
+	for (uint32 wheel_index = 0; wheel_index < mWheels.size(); ++wheel_index)
 	{
 		Wheel *w = mWheels[wheel_index];
 		const WheelSettings *settings = w->mSettings;
@@ -988,7 +988,7 @@ void VehicleConstraint::BuildIslands(uint32 inConstraintIndex, IslandBuilder &io
 	ioBuilder.LinkConstraint(inConstraintIndex, mBody->GetIndexInActiveBodiesInternal(), min_active_index);
 }
 
-uint VehicleConstraint::BuildIslandSplits(LargeIslandSplitter &ioSplitter) const
+uint32 VehicleConstraint::BuildIslandSplits(LargeIslandSplitter &ioSplitter) const
 {
 	return ioSplitter.AssignToNonParallelSplit(mBody);
 }
@@ -1428,7 +1428,7 @@ WheelWV::WheelWV(const WheelSettingsWV &inSettings) :
 	MOSS_ASSERT(inSettings.mMaxHandBrakeTorque >= 0.0f);
 }
 
-void WheelWV::Update(uint inWheelIndex, float inDeltaTime, const VehicleConstraint &inConstraint)
+void WheelWV::Update(uint32 inWheelIndex, float inDeltaTime, const VehicleConstraint &inConstraint)
 {
 	const WheelSettingsWV *settings = GetSettings();
 
@@ -1508,7 +1508,7 @@ WheeledVehicleController::WheeledVehicleController(const WheeledVehicleControlle
 
 	// Copy differential settings
 	mDifferentials.resize(inSettings.mDifferentials.size());
-	for (uint i = 0; i < mDifferentials.size(); ++i)
+	for (uint32 i = 0; i < mDifferentials.size(); ++i)
 	{
 		const VehicleDifferentialSettings &d = inSettings.mDifferentials[i];
 		mDifferentials[i] = d;
@@ -1581,7 +1581,7 @@ void WheeledVehicleController::PostCollide(float inDeltaTime, PhysicsSystem &inP
 	Wheels &wheels = mConstraint.GetWheels();
 
 	// Update wheel angle, do this before applying torque to the wheels (as friction will slow them down again)
-	for (uint wheel_index = 0, num_wheels = (uint)wheels.size(); wheel_index < num_wheels; ++wheel_index)
+	for (uint32 wheel_index = 0, num_wheels = (uint32)wheels.size(); wheel_index < num_wheels; ++wheel_index)
 	{
 		WheelWV *w = static_cast<WheelWV *>(wheels[wheel_index]);
 		w->Update(wheel_index, inDeltaTime, mConstraint);
@@ -1969,7 +1969,7 @@ bool WheeledVehicleController::SolveLongitudinalAndLateralConstraints(float inDe
 
 	float *max_lateral_friction_impulse = (float *)MOSS_STACK_ALLOC(mConstraint.GetWheels().size() * sizeof(float));
 
-	uint wheel_index = 0;
+	uint32 wheel_index = 0;
 	for (Wheel *w_base : mConstraint.GetWheels())
 	{
 		if (w_base->HasContact())
@@ -2513,7 +2513,7 @@ void VehicleTransmission::RestoreState(StateRecorder &inStream)
 	inStream.Read(mGearSwitchLatencyTimeLeft);
 }
 
-bool VehicleCollisionTesterRay::Collide(PhysicsSystem &inPhysicsSystem, const VehicleConstraint &inVehicleConstraint, uint inWheelIndex, RVec3Arg inOrigin, Vec3Arg inDirection, const BodyID &inVehicleBodyID, Body *&outBody, SubShapeID &outSubShapeID, RVec3 &outContactPosition, Vec3 &outContactNormal, float &outSuspensionLength) const
+bool VehicleCollisionTesterRay::Collide(PhysicsSystem &inPhysicsSystem, const VehicleConstraint &inVehicleConstraint, uint32 inWheelIndex, RVec3Arg inOrigin, Vec3Arg inDirection, const BodyID &inVehicleBodyID, Body *&outBody, SubShapeID &outSubShapeID, RVec3 &outContactPosition, Vec3 &outContactNormal, float &outSuspensionLength) const
 {
 	const DefaultBroadPhaseLayerFilter default_broadphase_layer_filter = inPhysicsSystem.GetDefaultBroadPhaseLayerFilter(mObjectLayer);
 	const BroadPhaseLayerFilter &broadphase_layer_filter = mBroadPhaseLayerFilter != nullptr? *mBroadPhaseLayerFilter : default_broadphase_layer_filter;
@@ -2599,7 +2599,7 @@ bool VehicleCollisionTesterRay::Collide(PhysicsSystem &inPhysicsSystem, const Ve
 	return true;
 }
 
-void VehicleCollisionTesterRay::PredictContactProperties(PhysicsSystem &inPhysicsSystem, const VehicleConstraint &inVehicleConstraint, uint inWheelIndex, RVec3Arg inOrigin, Vec3Arg inDirection, const BodyID &inVehicleBodyID, Body *&ioBody, SubShapeID &ioSubShapeID, RVec3 &ioContactPosition, Vec3 &ioContactNormal, float &ioSuspensionLength) const
+void VehicleCollisionTesterRay::PredictContactProperties(PhysicsSystem &inPhysicsSystem, const VehicleConstraint &inVehicleConstraint, uint32 inWheelIndex, RVec3Arg inOrigin, Vec3Arg inDirection, const BodyID &inVehicleBodyID, Body *&ioBody, SubShapeID &ioSubShapeID, RVec3 &ioContactPosition, Vec3 &ioContactNormal, float &ioSuspensionLength) const
 {
 	// Recalculate the contact points assuming the contact point is on an infinite plane
 	const WheelSettings *wheel_settings = inVehicleConstraint.GetWheel(inWheelIndex)->GetSettings();
@@ -2619,7 +2619,7 @@ void VehicleCollisionTesterRay::PredictContactProperties(PhysicsSystem &inPhysic
 	}
 }
 
-bool VehicleCollisionTesterCastSphere::Collide(PhysicsSystem &inPhysicsSystem, const VehicleConstraint &inVehicleConstraint, uint inWheelIndex, RVec3Arg inOrigin, Vec3Arg inDirection, const BodyID &inVehicleBodyID, Body *&outBody, SubShapeID &outSubShapeID, RVec3 &outContactPosition, Vec3 &outContactNormal, float &outSuspensionLength) const
+bool VehicleCollisionTesterCastSphere::Collide(PhysicsSystem &inPhysicsSystem, const VehicleConstraint &inVehicleConstraint, uint32 inWheelIndex, RVec3Arg inOrigin, Vec3Arg inDirection, const BodyID &inVehicleBodyID, Body *&outBody, SubShapeID &outSubShapeID, RVec3 &outContactPosition, Vec3 &outContactNormal, float &outSuspensionLength) const
 {
 	const DefaultBroadPhaseLayerFilter default_broadphase_layer_filter = inPhysicsSystem.GetDefaultBroadPhaseLayerFilter(mObjectLayer);
 	const BroadPhaseLayerFilter &broadphase_layer_filter = mBroadPhaseLayerFilter != nullptr? *mBroadPhaseLayerFilter : default_broadphase_layer_filter;
@@ -2712,7 +2712,7 @@ bool VehicleCollisionTesterCastSphere::Collide(PhysicsSystem &inPhysicsSystem, c
 	return true;
 }
 
-void VehicleCollisionTesterCastSphere::PredictContactProperties(PhysicsSystem &inPhysicsSystem, const VehicleConstraint &inVehicleConstraint, uint inWheelIndex, RVec3Arg inOrigin, Vec3Arg inDirection, const BodyID &inVehicleBodyID, Body *&ioBody, SubShapeID &ioSubShapeID, RVec3 &ioContactPosition, Vec3 &ioContactNormal, float &ioSuspensionLength) const
+void VehicleCollisionTesterCastSphere::PredictContactProperties(PhysicsSystem &inPhysicsSystem, const VehicleConstraint &inVehicleConstraint, uint32 inWheelIndex, RVec3Arg inOrigin, Vec3Arg inDirection, const BodyID &inVehicleBodyID, Body *&ioBody, SubShapeID &ioSubShapeID, RVec3 &ioContactPosition, Vec3 &ioContactNormal, float &ioSuspensionLength) const
 {
 	// Recalculate the contact points assuming the contact point is on an infinite plane
 	const WheelSettings *wheel_settings = inVehicleConstraint.GetWheel(inWheelIndex)->GetSettings();
@@ -2735,7 +2735,7 @@ void VehicleCollisionTesterCastSphere::PredictContactProperties(PhysicsSystem &i
 	}
 }
 
-bool VehicleCollisionTesterCastCylinder::Collide(PhysicsSystem &inPhysicsSystem, const VehicleConstraint &inVehicleConstraint, uint inWheelIndex, RVec3Arg inOrigin, Vec3Arg inDirection, const BodyID &inVehicleBodyID, Body *&outBody, SubShapeID &outSubShapeID, RVec3 &outContactPosition, Vec3 &outContactNormal, float &outSuspensionLength) const
+bool VehicleCollisionTesterCastCylinder::Collide(PhysicsSystem &inPhysicsSystem, const VehicleConstraint &inVehicleConstraint, uint32 inWheelIndex, RVec3Arg inOrigin, Vec3Arg inDirection, const BodyID &inVehicleBodyID, Body *&outBody, SubShapeID &outSubShapeID, RVec3 &outContactPosition, Vec3 &outContactNormal, float &outSuspensionLength) const
 {
 	const DefaultBroadPhaseLayerFilter default_broadphase_layer_filter = inPhysicsSystem.GetDefaultBroadPhaseLayerFilter(mObjectLayer);
 	const BroadPhaseLayerFilter &broadphase_layer_filter = mBroadPhaseLayerFilter != nullptr? *mBroadPhaseLayerFilter : default_broadphase_layer_filter;
@@ -2825,7 +2825,7 @@ bool VehicleCollisionTesterCastCylinder::Collide(PhysicsSystem &inPhysicsSystem,
 	return true;
 }
 
-void VehicleCollisionTesterCastCylinder::PredictContactProperties(PhysicsSystem &inPhysicsSystem, const VehicleConstraint &inVehicleConstraint, uint inWheelIndex, RVec3Arg inOrigin, Vec3Arg inDirection, const BodyID &inVehicleBodyID, Body *&ioBody, SubShapeID &ioSubShapeID, RVec3 &ioContactPosition, Vec3 &ioContactNormal, float &ioSuspensionLength) const
+void VehicleCollisionTesterCastCylinder::PredictContactProperties(PhysicsSystem &inPhysicsSystem, const VehicleConstraint &inVehicleConstraint, uint32 inWheelIndex, RVec3Arg inOrigin, Vec3Arg inDirection, const BodyID &inVehicleBodyID, Body *&ioBody, SubShapeID &ioSubShapeID, RVec3 &ioContactPosition, Vec3 &ioContactNormal, float &ioSuspensionLength) const
 {
 	// Recalculate the contact points assuming the contact point is on an infinite plane
 	const WheelSettings *wheel_settings = inVehicleConstraint.GetWheel(inWheelIndex)->GetSettings();

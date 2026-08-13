@@ -33,11 +33,11 @@ public:
 	template <class Type>
 	MOSS_INLINE void				operator () (const Type *inObject)
 	{
-		uint num_velocity_steps = inObject->GetNumVelocityStepsOverride();
+		uint32 num_velocity_steps = inObject->GetNumVelocityStepsOverride();
 		mNumVelocitySteps = max(mNumVelocitySteps, num_velocity_steps);
 		mApplyDefaultVelocity |= num_velocity_steps == 0;
 
-		uint num_position_steps = inObject->GetNumPositionStepsOverride();
+		uint32 num_position_steps = inObject->GetNumPositionStepsOverride();
 		mNumPositionSteps = max(mNumPositionSteps, num_position_steps);
 		mApplyDefaultPosition |= num_position_steps == 0;
 	}
@@ -53,14 +53,14 @@ public:
 	}
 
 	/// Get the results of the calculation
-	MOSS_INLINE uint				GetNumPositionSteps() const					{ return mNumPositionSteps; }
-	MOSS_INLINE uint				GetNumVelocitySteps() const					{ return mNumVelocitySteps; }
+	MOSS_INLINE uint32				GetNumPositionSteps() const					{ return mNumPositionSteps; }
+	MOSS_INLINE uint32				GetNumVelocitySteps() const					{ return mNumVelocitySteps; }
 
 private:
 	const PhysicsSettings &		mSettings;
 
-	uint						mNumVelocitySteps = 0;
-	uint						mNumPositionSteps = 0;
+	uint32						mNumVelocitySteps = 0;
+	uint32						mNumPositionSteps = 0;
 
 	bool						mApplyDefaultVelocity = false;
 	bool						mApplyDefaultPosition = false;
@@ -89,7 +89,7 @@ public:
 	/// Initialize the system.
 	/// @param inMaxBodyPairs Maximum amount of body pairs to process (anything else will fall through the world), this number should generally be much higher than the max amount of contact points as there will be lots of bodies close that are not actually touching
 	/// @param inMaxContactConstraints Maximum amount of contact constraints to process (anything else will fall through the world)
-	void						Init(uint inMaxBodyPairs, uint inMaxContactConstraints);
+	void						Init(uint32 inMaxBodyPairs, uint32 inMaxContactConstraints);
 
 	/// Listener that is notified whenever a contact point between two bodies is added/updated/removed
 	void						SetContactListener(ContactListener *inListener)						{ mContactListener = inListener; }
@@ -134,8 +134,8 @@ public:
 	public:
 		using LFHMAllocatorContext::LFHMAllocatorContext;
 
-		uint					mNumBodyPairs = 0;						// Total number of body pairs added using this allocator
-		uint					mNumManifolds = 0;						// Total number of manifolds added using this allocator
+		uint32					mNumBodyPairs = 0;						// Total number of body pairs added using this allocator
+		uint32					mNumManifolds = 0;						// Total number of manifolds added using this allocator
 		EPhysicsUpdateError		mErrors = EPhysicsUpdateError::None;	// Errors reported on this allocator
 	};
 
@@ -201,7 +201,7 @@ public:
 	/// will be used from now on to read from. After finalizing the contact cache, the contact removed callbacks will be called.
 	/// inExpectedNumBodyPairs / inExpectedNumManifolds are the amount of body pairs / manifolds found in the previous step and is
 	/// used to determine the amount of buckets the contact cache hash map will use in the next update.
-	void						FinalizeContactCacheAndCallContactPointRemovedCallbacks(uint inExpectedNumBodyPairs, uint inExpectedNumManifolds);
+	void						FinalizeContactCacheAndCallContactPointRemovedCallbacks(uint32 inExpectedNumBodyPairs, uint32 inExpectedNumManifolds);
 
 	/// Check if 2 bodies were in contact during the last simulation step. Since contacts are only detected between active bodies, at least one of the bodies must be active.
 	/// Uses the read collision cache to determine if 2 bodies are in contact.
@@ -406,14 +406,14 @@ private:
 	{
 	public:
 		/// Initialize the cache
-		void					Init(uint inMaxBodyPairs, uint inMaxContactConstraints, uint inCachedManifoldsSize);
+		void					Init(uint32 inMaxBodyPairs, uint32 inMaxContactConstraints, uint32 inCachedManifoldsSize);
 
 		/// Reset all entries from the cache
 		void					Clear();
 
 		/// Prepare cache before creating new contacts.
 		/// inExpectedNumBodyPairs / inExpectedNumManifolds are the amount of body pairs / manifolds found in the previous step and is used to determine the amount of buckets the contact cache hash map will use.
-		void					Prepare(uint inExpectedNumBodyPairs, uint inExpectedNumManifolds);
+		void					Prepare(uint32 inExpectedNumBodyPairs, uint32 inExpectedNumManifolds);
 
 		/// Get a new allocator context for storing contacts. Note that you should call this once and then add multiple contacts using the context.
 		ContactAllocator		GetContactAllocator()						{ return ContactAllocator(mAllocator, cAllocatorBlockSize); }
@@ -435,10 +435,10 @@ private:
 
 #ifdef MOSS_DEBUG
 		/// Get the amount of manifolds in the cache
-		uint					GetNumManifolds() const						{ return mCachedManifolds.GetNumKeyValues(); }
+		uint32					GetNumManifolds() const						{ return mCachedManifolds.GetNumKeyValues(); }
 
 		/// Get the amount of body pairs in the cache
-		uint					GetNumBodyPairs() const						{ return mCachedBodyPairs.GetNumKeyValues(); }
+		uint32					GetNumBodyPairs() const						{ return mCachedBodyPairs.GetNumKeyValues(); }
 
 		/// Before a cache is finalized you can only do Create(), after only Find() or Clear()
 		void					Finalize();
@@ -527,10 +527,10 @@ private:
 
 public:
 	/// The maximum value that can be passed to Init for inMaxContactConstraints. Note you should really use a lower value, using this value will cost a lot of memory!
-	static constexpr uint		cMaxContactConstraintsLimit = ~uint(0) / sizeof(ContactConstraint);
+	static constexpr uint32		cMaxContactConstraintsLimit = ~uint32(0) / sizeof(ContactConstraint);
 
 	/// The maximum value that can be passed to Init for inMaxBodyPairs. Note you should really use a lower value, using this value will cost a lot of memory!
-	static constexpr uint		cMaxBodyPairsLimit = ~uint(0) / sizeof(BodyPairMap::KeyValue);
+	static constexpr uint32		cMaxBodyPairsLimit = ~uint32(0) / sizeof(BodyPairMap::KeyValue);
 
 private:
 	/// Internal helper function to calculate the friction and non-penetration constraint properties. Templated to the motion type to reduce the amount of branches and calculations.

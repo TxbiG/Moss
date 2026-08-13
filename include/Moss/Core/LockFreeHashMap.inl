@@ -15,7 +15,7 @@ inline LFHMAllocator::~LFHMAllocator()
 	AlignedFree(mObjectStore);
 }
 
-inline void LFHMAllocator::Init(uint inObjectStoreSizeBytes)
+inline void LFHMAllocator::Init(uint32 inObjectStoreSizeBytes)
 {
 	MOSS_ASSERT(mObjectStore == nullptr);
 
@@ -174,7 +174,7 @@ inline typename LockFreeHashMap<Key, Value>::KeyValue *LockFreeHashMap<Key, Valu
 	MOSS_ASSERT(Find(inKey, inKeyHash) == nullptr);
 
 	// Calculate total size
-	uint size = sizeof(KeyValue) + inExtraBytes;
+	uint32 size = sizeof(KeyValue) + inExtraBytes;
 
 	// Get the write offset for this key value pair
 	uint32 write_offset;

@@ -27,13 +27,13 @@ public:
 
 	/// Constructs barriers
 	/// @see JobSystemWithBarrier::Init
-	explicit				JobSystemWithBarrier(uint inMaxBarriers);
+	explicit				JobSystemWithBarrier(uint32 inMaxBarriers);
 							JobSystemWithBarrier() = default;
 	virtual					~JobSystemWithBarrier() override;
 
 	/// Initialize the barriers
 	/// @param inMaxBarriers Max number of barriers that can be allocated at any time
-	void					Init(uint inMaxBarriers);
+	void					Init(uint32 inMaxBarriers);
 
 	// See JobSystem
 	virtual Barrier *		CreateBarrier() override;
@@ -52,7 +52,7 @@ private:
 
 		// See Barrier
 		virtual void		AddJob(const JobHandle &inJob) override;
-		virtual void		AddJobs(const JobHandle *inHandles, uint inNumHandles) override;
+		virtual void		AddJobs(const JobHandle *inHandles, uint32 inNumHandles) override;
 
 		/// Check if there are any jobs in the job barrier
 		inline bool			IsEmpty() const									{ return mJobReadIndex == mJobWriteIndex; }
@@ -68,17 +68,17 @@ private:
 		virtual void		OnJobFinished(Job *inJob) override;
 
 		/// Jobs queue for the barrier
-		static constexpr uint cMaxJobs = 2048;
+		static constexpr uint32 cMaxJobs = 2048;
 		static_assert(IsPowerOf2(cMaxJobs));								// We do bit operations and require max jobs to be a power of 2
 		atomic<Job *>		mJobs[cMaxJobs];								///< List of jobs that are part of this barrier, nullptrs for empty slots
-		alignas(MOSS_CACHE_LINE_SIZE) atomic<uint> mJobReadIndex { 0 };		///< First job that could be valid (modulo cMaxJobs), can be nullptr if other thread is still working on adding the job
-		alignas(MOSS_CACHE_LINE_SIZE) atomic<uint> mJobWriteIndex { 0 };		///< First job that can be written (modulo cMaxJobs)
+		alignas(MOSS_CACHE_LINE_SIZE) atomic<uint32> mJobReadIndex { 0 };		///< First job that could be valid (modulo cMaxJobs), can be nullptr if other thread is still working on adding the job
+		alignas(MOSS_CACHE_LINE_SIZE) atomic<uint32> mJobWriteIndex { 0 };		///< First job that can be written (modulo cMaxJobs)
 		atomic<int>			mNumToAcquire { 0 };							///< Number of times the semaphore has been released, the barrier should acquire the semaphore this many times (written at the same time as mJobWriteIndex so ok to put in same cache line)
 		Semaphore			mSemaphore;										///< Semaphore used by finishing jobs to signal the barrier that they're done
 	};
 
 	/// Array of barriers (we keep them constructed all the time since constructing a semaphore/mutex is not cheap)
-	uint					mMaxBarriers = 0;								///< Max amount of barriers
+	uint32					mMaxBarriers = 0;								///< Max amount of barriers
 	BarrierImpl *			mBarriers = nullptr;							///< List of the actual barriers
 };
 

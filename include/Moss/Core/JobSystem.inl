@@ -25,7 +25,7 @@ void JobSystem::Job::RemoveDependencyAndQueue(int inCount)
 		mJobSystem->QueueJob(this);
 }
 
-void JobSystem::JobHandle::sRemoveDependencies(const JobHandle *inHandles, uint inNumHandles, int inCount)
+void JobSystem::JobHandle::sRemoveDependencies(const JobHandle *inHandles, uint32 inNumHandles, int inCount)
 {
 	MOSS_PROFILE_FUNCTION();
 
@@ -48,7 +48,7 @@ void JobSystem::JobHandle::sRemoveDependencies(const JobHandle *inHandles, uint 
 	}
 
 	// If any jobs need to be scheduled, schedule them as a batch
-	uint num_jobs_to_queue = uint(next_job - jobs_to_queue);
+	uint32 num_jobs_to_queue = uint32(next_job - jobs_to_queue);
 	if (num_jobs_to_queue != 0)
 		job_system->QueueJobs(jobs_to_queue, num_jobs_to_queue);
 }

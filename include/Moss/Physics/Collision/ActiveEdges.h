@@ -65,7 +65,7 @@ namespace ActiveEdges
 		const float cEpsilon = 1.0e-4f;
 		const float cOneMinusEpsilon = 1.0f - cEpsilon;
 
-		uint colliding_edge;
+		uint32 colliding_edge;
 
 		// Test where the contact point is in the triangle
 		float u, v, w;

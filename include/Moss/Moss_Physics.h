@@ -469,7 +469,7 @@ public:
 	using IndexedTriangleNoMaterial::IndexedTriangleNoMaterial;
 
 	// Constructor
-	constexpr		IndexedTriangle(uint32 inI1, uint32 inI2, uint32 inI3, uint32 inMaterialIndex, uint inUserData = 0) : IndexedTriangleNoMaterial(inI1, inI2, inI3), mMaterialIndex(inMaterialIndex), mUserData(inUserData) { }
+	constexpr		IndexedTriangle(uint32 inI1, uint32 inI2, uint32 inI3, uint32 inMaterialIndex, uint32 inUserData = 0) : IndexedTriangleNoMaterial(inI1, inI2, inI3), mMaterialIndex(inMaterialIndex), mUserData(inUserData) { }
 
 	// Check if two triangles are identical
 	bool operator == (const IndexedTriangle &inRHS) const {

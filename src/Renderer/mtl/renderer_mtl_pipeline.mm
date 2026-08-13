@@ -27,17 +27,17 @@ int Moss_PipelineValidate(Moss_PipelineState* pipeline) { }
 
 
 
-PipelineStateMTL::PipelineStateMTL(RendererMTL *inRenderer, const VertexShaderMTL *inVertexShader, const EInputDescription *inInputDescription, uint inInputDescriptionCount, const PixelShaderMTL *inPixelShader, EDrawPass inDrawPass, EFillMode inFillMode, ETopology inTopology, EDepthTest inDepthTest, EBlendMode inBlendMode, ECullMode inCullMode) :
+PipelineStateMTL::PipelineStateMTL(RendererMTL *inRenderer, const VertexShaderMTL *inVertexShader, const EInputDescription *inInputDescription, uint32 inInputDescriptionCount, const PixelShaderMTL *inPixelShader, EDrawPass inDrawPass, EFillMode inFillMode, ETopology inTopology, EDepthTest inDepthTest, EBlendMode inBlendMode, ECullMode inCullMode) :
 	mRenderer(inRenderer),
 	mVertexShader(inVertexShader),
 	mPixelShader(inPixelShader)
 {
 	// Create a vertex descriptor
 	MTLVertexDescriptor *vertex_descriptor = [[MTLVertexDescriptor alloc] init];
-	uint vertex_offset = 0;
-	uint instance_offset = 0, instance_alignment = 4;
-	uint index = 0;
-	for (uint i = 0; i < inInputDescriptionCount; ++i)
+	uint32 vertex_offset = 0;
+	uint32 instance_offset = 0, instance_alignment = 4;
+	uint32 index = 0;
+	for (uint32 i = 0; i < inInputDescriptionCount; ++i)
 		switch (inInputDescription[i])
 		{
 		case EInputDescription::Position:

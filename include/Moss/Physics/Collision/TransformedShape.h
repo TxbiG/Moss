@@ -127,7 +127,7 @@ public:
 	{
 		// Take off the sub shape ID part that comes from mSubShapeIDCreator and validate that it is the same
 		SubShapeID sub_shape_id;
-		uint num_bits_written = mSubShapeIDCreator.GetNumBitsWritten();
+		uint32 num_bits_written = mSubShapeIDCreator.GetNumBitsWritten();
 		MOSS_IF_ENABLE_ASSERTS(uint32 root_id =) inSubShapeID.PopID(num_bits_written, sub_shape_id);
 		MOSS_ASSERT(root_id == (mSubShapeIDCreator.GetID().GetValue() & ((1 << num_bits_written) - 1)));
 		return sub_shape_id;

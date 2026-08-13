@@ -3,7 +3,7 @@
 #include <Renderer/VK/FatalErrorIfFailedVK.h>
 #include <Renderer/VK/RendererVK.h>
 
-PipelineStateVK::PipelineStateVK(RendererVK *inRenderer, const VertexShaderVK *inVertexShader, const EInputDescription *inInputDescription, uint inInputDescriptionCount, const PixelShaderVK *inPixelShader, EDrawPass inDrawPass, EFillMode inFillMode, ETopology inTopology, EDepthTest inDepthTest, EBlendMode inBlendMode, ECullMode inCullMode) :
+PipelineStateVK::PipelineStateVK(RendererVK *inRenderer, const VertexShaderVK *inVertexShader, const EInputDescription *inInputDescription, uint32 inInputDescriptionCount, const PixelShaderVK *inPixelShader, EDrawPass inDrawPass, EFillMode inFillMode, ETopology inTopology, EDepthTest inDepthTest, EBlendMode inBlendMode, ECullMode inCullMode) :
 	mRenderer(inRenderer), mVertexShader(inVertexShader), mPixelShader(inPixelShader) {
 	VkPipelineShaderStageCreateInfo shader_stages[] = { inVertexShader->mStageInfo, inPixelShader->mStageInfo };
 
@@ -11,8 +11,8 @@ PipelineStateVK::PipelineStateVK(RendererVK *inRenderer, const VertexShaderVK *i
 	TArray<VkVertexInputAttributeDescription> attribute_descriptions;
 	VkVertexInputAttributeDescription temp_vtx = { }, temp_instance = { };
 	temp_instance.binding = 1;
-	uint instance_alignment = 1;
-	for (uint i = 0; i < inInputDescriptionCount; ++i)
+	uint32 instance_alignment = 1;
+	for (uint32 i = 0; i < inInputDescriptionCount; ++i)
 		switch (inInputDescription[i])
 		{
 		case EInputDescription::Position:

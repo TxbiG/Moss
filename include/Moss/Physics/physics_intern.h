@@ -77,7 +77,7 @@ public:
 	static constexpr uint32	cBroadPhaseBit = 0x80000000;	// This bit is used by the broadphase
 	static constexpr uint32	cMaxBodyIndex = 0x7fffff;		// Maximum value for body index (also the maximum amount of bodies supported - 1)
 	static constexpr uint8	cMaxSequenceNumber = 0xff;		// Maximum value for the sequence number
-	static constexpr uint	cSequenceNumberShift = 23;		// Number of bits to shift to get the sequence number
+	static constexpr uint32	cSequenceNumberShift = 23;		// Number of bits to shift to get the sequence number
 
 	/// Construct invalid body ID
 	BodyID() : mID(cInvalidBodyID) {}
@@ -160,8 +160,8 @@ public:
 	TArray<Vertex> &						GetVertices()								{ return mVertices; }
 
 	/// Access an individual vertex
-	const Vertex &						GetVertex(uint inIndex) const				{ return mVertices[inIndex]; }
-	Vertex &							GetVertex(uint inIndex)						{ return mVertices[inIndex]; }
+	const Vertex &						GetVertex(uint32 inIndex) const				{ return mVertices[inIndex]; }
+	Vertex &							GetVertex(uint32 inIndex)						{ return mVertices[inIndex]; }
 
 	/// Get the materials of the soft body
 	const PhysicsMaterialList &			GetMaterials() const						{ return mSettings->mMaterials; }
@@ -170,7 +170,7 @@ public:
 	const TArray<Face> &					GetFaces() const							{ return mSettings->mFaces; }
 
 	/// Access to an individual face
-	const Face &						GetFace(uint inIndex) const					{ return mSettings->mFaces[inIndex]; }
+	const Face &						GetFace(uint32 inIndex) const					{ return mSettings->mFaces[inIndex]; }
 
 	/// Get the number of solver iterations
 	uint32								GetNumIterations() const					{ return mNumIterations; }
@@ -225,7 +225,7 @@ public:
 	/// @param inNumJoints Indicates how large the inJointMatrices array is (used only for validating out of bounds).
 	/// @param inHardSkinAll Can be used to position all vertices on the skinned vertices and can be used to hard reset the soft body.
 	/// @param ioTempAllocator Allocator.
-	void								SkinVertices(RMat44Arg inCenterOfMassTransform, const Mat44 *inJointMatrices, uint inNumJoints, bool inHardSkinAll, TempAllocator &ioTempAllocator);
+	void								SkinVertices(RMat44Arg inCenterOfMassTransform, const Mat44 *inJointMatrices, uint32 inNumJoints, bool inHardSkinAll, TempAllocator &ioTempAllocator);
 
 	/// This function allows you to update the soft body immediately without going through the PhysicsSystem.
 	/// This is useful if the soft body is teleported and needs to 'settle' or it can be used if a the soft body
@@ -322,7 +322,7 @@ private:
 	};
 
 	/// Do a narrow phase check and determine the closest feature that we can collide with
-	void								DetermineCollisionPlanes(uint inVertexStart, uint inNumVertices);
+	void								DetermineCollisionPlanes(uint32 inVertexStart, uint32 inNumVertices);
 
 	/// Do a narrow phase check between a single sensor and the soft body
 	void								DetermineSensorCollisions(CollidingSensor &ioSensor);
@@ -334,19 +334,19 @@ private:
 	void								IntegratePositions(const SoftBodyUpdateContext &inContext);
 
 	/// Enforce all bend constraints
-	void								ApplyDihedralBendConstraints(const SoftBodyUpdateContext &inContext, uint inStartIndex, uint inEndIndex);
+	void								ApplyDihedralBendConstraints(const SoftBodyUpdateContext &inContext, uint32 inStartIndex, uint32 inEndIndex);
 
 	/// Enforce all volume constraints
-	void								ApplyVolumeConstraints(const SoftBodyUpdateContext &inContext, uint inStartIndex, uint inEndIndex);
+	void								ApplyVolumeConstraints(const SoftBodyUpdateContext &inContext, uint32 inStartIndex, uint32 inEndIndex);
 
 	/// Enforce all skin constraints
-	void								ApplySkinConstraints(const SoftBodyUpdateContext &inContext, uint inStartIndex, uint inEndIndex);
+	void								ApplySkinConstraints(const SoftBodyUpdateContext &inContext, uint32 inStartIndex, uint32 inEndIndex);
 
 	/// Enforce all edge constraints
-	void								ApplyEdgeConstraints(const SoftBodyUpdateContext &inContext, uint inStartIndex, uint inEndIndex);
+	void								ApplyEdgeConstraints(const SoftBodyUpdateContext &inContext, uint32 inStartIndex, uint32 inEndIndex);
 
 	/// Enforce all LRA constraints
-	void								ApplyLRAConstraints(uint inStartIndex, uint inEndIndex);
+	void								ApplyLRAConstraints(uint32 inStartIndex, uint32 inEndIndex);
 
 	/// Enforce all collision constraints & update all velocities according the XPBD algorithm
 	void								ApplyCollisionConstraintsAndUpdateVelocities(const SoftBodyUpdateContext &inContext);
@@ -370,7 +370,7 @@ private:
 	EStatus								ParallelApplyConstraints(SoftBodyUpdateContext &ioContext, const PhysicsSettings &inPhysicsSettings);
 
 	/// Helper function to update a single group of constraints
-	void								ProcessGroup(const SoftBodyUpdateContext &ioContext, uint inGroupIndex);
+	void								ProcessGroup(const SoftBodyUpdateContext &ioContext, uint32 inGroupIndex);
 
 	/// Returns 6 times the volume of the soft body
 	float								GetVolumeTimesSix() const;
@@ -391,7 +391,7 @@ private:
 	AABox								mLocalBounds;								// Bounding box of all vertices
 	AABox								mLocalPredictedBounds;						// Predicted bounding box for all vertices using extrapolation of velocity by last step delta time
 	uint32								mNumIterations;								// Number of solver iterations
-	uint								mNumSensors;								// Workaround for TSAN false positive: store mCollidingSensors.size() in a separate variable.
+	uint32								mNumSensors;								// Workaround for TSAN false positive: store mCollidingSensors.size() in a separate variable.
 	float								mPressure;									// n * R * T, amount of substance * ideal gas constant * absolute temperature, see https://en.wikipedia.org/wiki/Pressure
 	float								mSkinnedMaxDistanceMultiplier = 1.0f;		// Multiplier applied to Skinned::mMaxDistance to allow tightening or loosening of the skin constraints
 	bool								mUpdatePosition;							// Update the position of the body while simulating (set to false for something that is attached to the static world)
@@ -408,7 +408,7 @@ public:
 									SoftBodyShape()											: Shape(EShapeType::SoftBody, EShapeSubType::SoftBody) { }
 
 	/// Determine amount of bits needed to encode sub shape id
-	uint							GetSubShapeIDBits() const;
+	uint32							GetSubShapeIDBits() const;
 
 	/// Convert a sub shape ID back to a face index
 	uint32							GetFaceIndex(const SubShapeID &inSubShapeID) const;
@@ -417,7 +417,7 @@ public:
 	virtual bool					MustBeStatic() const override							{ return false; }
 	virtual Vec3					GetCenterOfMass() const override						{ return Vec3::sZero(); }
 	virtual AABox					GetLocalBounds() const override;
-	virtual uint					GetSubShapeIDBitsRecursive() const override				{ return GetSubShapeIDBits(); }
+	virtual uint32					GetSubShapeIDBitsRecursive() const override				{ return GetSubShapeIDBits(); }
 	virtual float					GetInnerRadius() const override							{ return 0.0f; }
 	virtual MassProperties			GetMassProperties() const override						{ return MassProperties(); }
 	virtual const PhysicsMaterial *	GetMaterial(const SubShapeID &inSubShapeID) const override;
@@ -434,7 +434,7 @@ public:
 	virtual bool					CastRay(const RayCast &inRay, const SubShapeIDCreator &inSubShapeIDCreator, RayCastResult &ioHit) const override;
 	virtual void					CastRay(const RayCast &inRay, const RayCastSettings &inRayCastSettings, const SubShapeIDCreator &inSubShapeIDCreator, CastRayCollector &ioCollector, const ShapeFilter &inShapeFilter = { }) const override;
 	virtual void					CollidePoint(Vec3Arg inPoint, const SubShapeIDCreator &inSubShapeIDCreator, CollidePointCollector &ioCollector, const ShapeFilter &inShapeFilter = { }) const override;
-	virtual void					CollideSoftBodyVertices(Mat44Arg inCenterOfMassTransform, Vec3Arg inScale, const CollideSoftBodyVertexIterator &inVertices, uint inNumVertices, int inCollidingShapeIndex) const override;
+	virtual void					CollideSoftBodyVertices(Mat44Arg inCenterOfMassTransform, Vec3Arg inScale, const CollideSoftBodyVertexIterator &inVertices, uint32 inNumVertices, int inCollidingShapeIndex) const override;
 	virtual void					GetTrianglesStart(GetTrianglesContext &ioContext, const AABox &inBox, Vec3Arg inPositionCOM, QuatArg inRotation, Vec3Arg inScale) const override;
 	virtual int						GetTrianglesNext(GetTrianglesContext &ioContext, int inMaxTrianglesRequested, Float3 *outTriangleVertices, const PhysicsMaterial **outMaterials = nullptr) const override;
 	virtual Stats					GetStats() const override;

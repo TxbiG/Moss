@@ -44,8 +44,8 @@ public:
 	int						GetJointCount() const														{ return (int)mJoints.size(); }
 	const Joint &			GetJoint(int inJoint) const													{ return mJoints[inJoint]; }
 	Joint &					GetJoint(int inJoint)														{ return mJoints[inJoint]; }
-	uint					AddJoint(const string_view &inName, const string_view &inParentName = string_view()) { mJoints.emplace_back(inName, inParentName, -1); return (uint)mJoints.size() - 1; }
-	uint					AddJoint(const string_view &inName, int inParentIndex)						{ mJoints.emplace_back(inName, inParentIndex >= 0? mJoints[inParentIndex].mName : String(), inParentIndex); return (uint)mJoints.size() - 1; }
+	uint32					AddJoint(const string_view &inName, const string_view &inParentName = string_view()) { mJoints.emplace_back(inName, inParentName, -1); return (uint32)mJoints.size() - 1; }
+	uint32					AddJoint(const string_view &inName, int inParentIndex)						{ mJoints.emplace_back(inName, inParentIndex >= 0? mJoints[inParentIndex].mName : String(), inParentIndex); return (uint32)mJoints.size() - 1; }
 	///@}
 
 	/// Find joint by name
@@ -225,7 +225,7 @@ public:
 
 	///@name Properties of the joints
 	///@{
-	uint						GetJointCount() const													{ return (uint)mJoints.size(); }
+	uint32						GetJointCount() const													{ return (uint32)mJoints.size(); }
 	const JointStateVector &	GetJoints() const														{ return mJoints; }
 	JointStateVector &			GetJoints()																{ return mJoints; }
 	const JointState &			GetJoint(int inJoint) const												{ return mJoints[inJoint]; }

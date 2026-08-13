@@ -16,7 +16,7 @@ MOSS_SUPRESS_WARNINGS_BEGIN
 
 /// Helper class that needs to be put on the stack to update the state of the floating point control word.
 /// This state is kept per thread.
-template <uint Value, uint Mask>
+template <uint32 Value, uint32 Mask>
 class FPControlWord : public NonCopyable
 {
 public:
@@ -32,7 +32,7 @@ public:
 	}
 
 private:
-	uint		mPrevState;
+	uint32		mPrevState;
 };
 
 #elif defined(MOSS_CPU_ARM) && defined(MOSS_COMPILER_MSVC)

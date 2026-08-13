@@ -91,8 +91,8 @@ public:
 	static MOSS_INLINE Mat44	Perspective(float inFovY, float aspect, float near, float far);
 
 	/// Get float component by element index
-	MOSS_INLINE float			operator () (uint inRow, uint inColumn) const			{ MOSS_ASSERT(inRow < 4); MOSS_ASSERT(inColumn < 4); return mCol[inColumn].mF32[inRow]; }
-	MOSS_INLINE float &			operator () (uint inRow, uint inColumn)					{ MOSS_ASSERT(inRow < 4); MOSS_ASSERT(inColumn < 4); return mCol[inColumn].mF32[inRow]; }
+	MOSS_INLINE float			operator () (uint32 inRow, uint32 inColumn) const			{ MOSS_ASSERT(inRow < 4); MOSS_ASSERT(inColumn < 4); return mCol[inColumn].mF32[inRow]; }
+	MOSS_INLINE float &			operator () (uint32 inRow, uint32 inColumn)					{ MOSS_ASSERT(inRow < 4); MOSS_ASSERT(inColumn < 4); return mCol[inColumn].mF32[inRow]; }
 
 	/// Comparison
 	MOSS_INLINE bool			operator == (const Mat44  inM2) const;
@@ -155,10 +155,10 @@ public:
 	MOSS_INLINE void			SetDiagonal3(const Vec3 inV)							{ mCol[0][0] = inV.GetX(); mCol[1][1] = inV.GetY(); mCol[2][2] = inV.GetZ(); }
 	MOSS_INLINE Vec4			GetDiagonal4() const									{ return Vec4(mCol[0][0], mCol[1][1], mCol[2][2], mCol[3][3]); }
 	MOSS_INLINE void			SetDiagonal4(const Vec4 inV)							{ mCol[0][0] = inV.GetX(); mCol[1][1] = inV.GetY(); mCol[2][2] = inV.GetZ(); mCol[3][3] = inV.GetW(); }
-	MOSS_INLINE Vec3			GetColumn3(uint inCol) const							{ MOSS_ASSERT(inCol < 4); return Vec3(mCol[inCol]); }
-	MOSS_INLINE void			SetColumn3(uint inCol, const Vec3 inV)					{ MOSS_ASSERT(inCol < 4); mCol[inCol] = Vec4(inV, inCol == 3? 1.0f : 0.0f); }
-	MOSS_INLINE Vec4			GetColumn4(uint inCol) const							{ MOSS_ASSERT(inCol < 4); return Vec4(mCol[inCol]); }
-	MOSS_INLINE void			SetColumn4(uint inCol, const Vec4 inV)					{ MOSS_ASSERT(inCol < 4); mCol[inCol] = inV; }
+	MOSS_INLINE Vec3			GetColumn3(uint32 inCol) const							{ MOSS_ASSERT(inCol < 4); return Vec3(mCol[inCol]); }
+	MOSS_INLINE void			SetColumn3(uint32 inCol, const Vec3 inV)					{ MOSS_ASSERT(inCol < 4); mCol[inCol] = Vec4(inV, inCol == 3? 1.0f : 0.0f); }
+	MOSS_INLINE Vec4			GetColumn4(uint32 inCol) const							{ MOSS_ASSERT(inCol < 4); return Vec4(mCol[inCol]); }
+	MOSS_INLINE void			SetColumn4(uint32 inCol, const Vec4 inV)					{ MOSS_ASSERT(inCol < 4); mCol[inCol] = inV; }
 
 	/// Store matrix to memory
 	MOSS_INLINE void			StoreFloat4x4(Float4 *outV) const;

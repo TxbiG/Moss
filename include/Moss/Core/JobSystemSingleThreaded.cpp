@@ -6,7 +6,7 @@
 
 MOSS_SUPRESS_WARNINGS_BEGIN
 
-void JobSystemSingleThreaded::Init(uint inMaxJobs)
+void JobSystemSingleThreaded::Init(uint32 inMaxJobs)
 {
 	mJobs.Init(inMaxJobs, inMaxJobs);
 }
@@ -39,9 +39,9 @@ void JobSystemSingleThreaded::QueueJob(Job *inJob)
 	inJob->Execute();
 }
 
-void JobSystemSingleThreaded::QueueJobs(Job **inJobs, uint inNumJobs)
+void JobSystemSingleThreaded::QueueJobs(Job **inJobs, uint32 inNumJobs)
 {
-	for (uint i = 0; i < inNumJobs; ++i)
+	for (uint32 i = 0; i < inNumJobs; ++i)
 		QueueJob(inJobs[i]);
 }
 

@@ -112,7 +112,7 @@ public:
 	virtual							~BroadPhaseLayerInterface() = default;
 
 	/// Return the number of broadphase layers there are
-	virtual uint					GetNumBroadPhaseLayers() const = 0;
+	virtual uint32					GetNumBroadPhaseLayers() const = 0;
 
 	/// Convert an object layer to the corresponding broadphase layer
 	virtual BroadPhaseLayer			GetBroadPhaseLayer(ObjectLayer inLayer) const = 0;

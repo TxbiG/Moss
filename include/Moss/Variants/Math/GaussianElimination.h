@@ -19,8 +19,8 @@ template <class MatrixA, class MatrixB>
 bool GaussianElimination(MatrixA &ioA, MatrixB &ioB, float inTolerance = 1.0e-16f)
 {
 	// Get problem dimensions
-	const uint n = ioA.GetCols();
-	const uint m = ioB.GetCols();
+	const uint32 n = ioA.GetCols();
+	const uint32 m = ioB.GetCols();
 
 	// Check matrix requirement
 	MOSS_ASSERT(ioA.GetRows() == n);
@@ -30,16 +30,16 @@ bool GaussianElimination(MatrixA &ioA, MatrixB &ioB, float inTolerance = 1.0e-16
 	int *ipiv = (int *)MOSS_STACK_ALLOC(n * sizeof(int));
 	memset(ipiv, 0, n * sizeof(int));
 
-	for (uint i = 0; i < n; ++i)
+	for (uint32 i = 0; i < n; ++i)
 	{
 		// Initialize pivot element as the diagonal
-		uint pivot_row = i, pivot_col = i;
+		uint32 pivot_row = i, pivot_col = i;
 
 		// Determine pivot element
 		float largest_element = 0.0f;
-		for (uint j = 0; j < n; ++j)
+		for (uint32 j = 0; j < n; ++j)
 			if (ipiv[j] != 1)
-				for (uint k = 0; k < n; ++k)
+				for (uint32 k = 0; k < n; ++k)
 				{
 					if (ipiv[k] == 0)
 					{
@@ -63,9 +63,9 @@ bool GaussianElimination(MatrixA &ioA, MatrixB &ioB, float inTolerance = 1.0e-16
 		// Exchange rows when needed so that the pivot element is at ioA(pivot_col, pivot_col) instead of at ioA(pivot_row, pivot_col)
 		if (pivot_row != pivot_col)
 		{
-			for (uint j = 0; j < n; ++j)
+			for (uint32 j = 0; j < n; ++j)
 				std::swap(ioA(pivot_row, j), ioA(pivot_col, j));
-			for (uint j = 0; j < m; ++j)
+			for (uint32 j = 0; j < m; ++j)
 				std::swap(ioB(pivot_row, j), ioB(pivot_col, j));
 		}
 
@@ -75,21 +75,21 @@ bool GaussianElimination(MatrixA &ioA, MatrixB &ioB, float inTolerance = 1.0e-16
 			return false;
 
 		// Divide the whole row by the pivot element, making ioA(pivot_col, pivot_col) = 1
-		for (uint j = 0; j < n; ++j)
+		for (uint32 j = 0; j < n; ++j)
 			ioA(pivot_col, j) /= diagonal_element;
-		for (uint j = 0; j < m; ++j)
+		for (uint32 j = 0; j < m; ++j)
 			ioB(pivot_col, j) /= diagonal_element;
 		ioA(pivot_col, pivot_col) = 1.0f;
 
 		// Next reduce the rows, except for the pivot one,
 		// after this step the pivot_col column is zero except for the pivot element which is 1
-		for (uint j = 0; j < n; ++j)
+		for (uint32 j = 0; j < n; ++j)
 			if (j != pivot_col)
 			{
 				float element = ioA(j, pivot_col);
-				for (uint k = 0; k < n; ++k)
+				for (uint32 k = 0; k < n; ++k)
 					ioA(j, k) -= ioA(pivot_col, k) * element;
-				for (uint k = 0; k < m; ++k)
+				for (uint32 k = 0; k < m; ++k)
 					ioB(j, k) -= ioB(pivot_col, k) * element;
 				ioA(j, pivot_col) = 0.0f;
 			}

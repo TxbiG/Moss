@@ -595,7 +595,7 @@
  #define AF3 vec3
  #define AF4 vec4
 //------------------------------------------------------------------------------------------------------------------------------
- #define AU1 uint
+ #define AU1 uint32
  #define AU2 uvec2
  #define AU3 uvec3
  #define AU4 uvec4
@@ -1065,7 +1065,7 @@
   #define AF3 float3
   #define AF4 float4
 //------------------------------------------------------------------------------------------------------------------------------
-  #define AU1 uint
+  #define AU1 uint32
   #define AU2 uint2
   #define AU3 uint3
   #define AU4 uint4

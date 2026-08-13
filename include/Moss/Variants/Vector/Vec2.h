@@ -139,10 +139,10 @@ public:
 	MOSS_INLINE void			Set(float inX, float inY)			{ *this = Vec2(inX, inY); }
 
 	/// Get float component by index
-	MOSS_INLINE float			operator [] (uint inCoordinate) const			{ MOSS_ASSERT(inCoordinate < 3); return mF32[inCoordinate]; }
+	MOSS_INLINE float			operator [] (uint32 inCoordinate) const			{ MOSS_ASSERT(inCoordinate < 3); return mF32[inCoordinate]; }
 
 	/// Set float component by index
-	MOSS_INLINE void			SetComponent(uint inCoordinate, float inValue)	{ MOSS_ASSERT(inCoordinate < 3); mF32[inCoordinate] = inValue; mValue = sFixW(mValue); } // Assure Z and W are the same
+	MOSS_INLINE void			SetComponent(uint32 inCoordinate, float inValue)	{ MOSS_ASSERT(inCoordinate < 3); mF32[inCoordinate] = inValue; mValue = sFixW(mValue); } // Assure Z and W are the same
 
 	/// Comparison
 	MOSS_INLINE bool			operator == (Vec2 inV2) const;

@@ -51,8 +51,8 @@ public:
 	bool					GetContactsInIsland(uint32 inIslandIndex, uint32 *&outContactsBegin, uint32 *&outContactsEnd) const;
 
 	/// The number of position iterations for each island
-	void					SetNumPositionSteps(uint32 inIslandIndex, uint inNumPositionSteps)	{ MOSS_ASSERT(inIslandIndex < mNumIslands); MOSS_ASSERT(inNumPositionSteps < 256); mNumPositionSteps[inIslandIndex] = uint8(inNumPositionSteps); }
-	uint					GetNumPositionSteps(uint32 inIslandIndex) const						{ MOSS_ASSERT(inIslandIndex < mNumIslands); return mNumPositionSteps[inIslandIndex]; }
+	void					SetNumPositionSteps(uint32 inIslandIndex, uint32 inNumPositionSteps)	{ MOSS_ASSERT(inIslandIndex < mNumIslands); MOSS_ASSERT(inNumPositionSteps < 256); mNumPositionSteps[inIslandIndex] = uint8(inNumPositionSteps); }
+	uint32					GetNumPositionSteps(uint32 inIslandIndex) const						{ MOSS_ASSERT(inIslandIndex < mNumIslands); return mNumPositionSteps[inIslandIndex]; }
 
 	/// After you're done calling the three functions above, call this function to free associated data
 	void					ResetIslands(TempAllocator *inTempAllocator);

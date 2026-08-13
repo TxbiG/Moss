@@ -58,7 +58,7 @@ struct CompoundShape::CastRayVisitor
 	const RayCast &		mRay;
 	RayCastResult &		mHit;
 	SubShapeIDCreator	mSubShapeIDCreator;
-	uint				mSubShapeBits;
+	uint32				mSubShapeBits;
 	bool				mReturnValue = false;
 };
 
@@ -104,7 +104,7 @@ struct CompoundShape::CastRayVisitorCollector
 	const RayCast &		mRay;
 	CastRayCollector &	mCollector;
 	SubShapeIDCreator	mSubShapeIDCreator;
-	uint				mSubShapeBits;
+	uint32				mSubShapeBits;
 	RayCastSettings		mRayCastSettings;
 	const ShapeFilter &	mShapeFilter;
 };
@@ -146,7 +146,7 @@ struct CompoundShape::CollidePointVisitor
 	Vec3						mPoint;
 	SubShapeIDCreator			mSubShapeIDCreator;
 	CollidePointCollector &		mCollector;
-	uint						mSubShapeBits;
+	uint32						mSubShapeBits;
 	const ShapeFilter &			mShapeFilter;
 };
 
@@ -220,7 +220,7 @@ struct CompoundShape::CastShapeVisitor
 	Mat44						mCenterOfMassTransform2;
 	SubShapeIDCreator			mSubShapeIDCreator1;
 	SubShapeIDCreator			mSubShapeIDCreator2;
-	uint						mSubShapeBits;
+	uint32						mSubShapeBits;
 };
 
 struct CompoundShape::CollectTransformedShapesVisitor {
@@ -275,7 +275,7 @@ struct CompoundShape::CollectTransformedShapesVisitor {
 	Vec3							mScale;
 	SubShapeIDCreator				mSubShapeIDCreator;
 	TransformedShapeCollector &		mCollector;
-	uint							mSubShapeBits;
+	uint32							mSubShapeBits;
 	const ShapeFilter &				mShapeFilter;
 };
 
@@ -340,7 +340,7 @@ struct CompoundShape::CollideCompoundVsShapeVisitor
 	AABox							mBoundsOf2InSpaceOf1;
 	SubShapeIDCreator				mSubShapeIDCreator1;
 	SubShapeIDCreator				mSubShapeIDCreator2;
-	uint							mSubShapeBits;
+	uint32							mSubShapeBits;
 	const ShapeFilter &				mShapeFilter;
 };
 
@@ -406,14 +406,14 @@ struct CompoundShape::CollideShapeVsCompoundVisitor
 	AABox							mBoundsOf1InSpaceOf2;
 	SubShapeIDCreator				mSubShapeIDCreator1;
 	SubShapeIDCreator				mSubShapeIDCreator2;
-	uint							mSubShapeBits;
+	uint32							mSubShapeBits;
 	const ShapeFilter &				mShapeFilter;
 };
 
 template <class BoxType>
 struct CompoundShape::GetIntersectingSubShapesVisitor
 {
-	MOSS_INLINE			GetIntersectingSubShapesVisitor(const BoxType &inBox, uint *outSubShapeIndices, int inMaxSubShapeIndices) :
+	MOSS_INLINE			GetIntersectingSubShapesVisitor(const BoxType &inBox, uint32 *outSubShapeIndices, int inMaxSubShapeIndices) :
 		mBox(inBox),
 		mSubShapeIndices(outSubShapeIndices),
 		mMaxSubShapeIndices(inMaxSubShapeIndices)
@@ -449,7 +449,7 @@ struct CompoundShape::GetIntersectingSubShapesVisitor
 
 private:
 	BoxType				mBox;
-	uint *				mSubShapeIndices;
+	uint32 *				mSubShapeIndices;
 	int					mMaxSubShapeIndices;
 	int					mNumResults = 0;
 };

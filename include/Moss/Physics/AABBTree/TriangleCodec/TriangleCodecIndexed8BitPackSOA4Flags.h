@@ -144,23 +144,23 @@ public:
 		}
 
 		/// Mimics the size a call to Pack() would add to the buffer
-		void						PreparePack(const IndexedTriangle *inTriangles, uint inNumTriangles, bool inStoreUserData, uint64 &ioBufferSize)
+		void						PreparePack(const IndexedTriangle *inTriangles, uint32 inNumTriangles, bool inStoreUserData, uint64 &ioBufferSize)
 		{
 			// Add triangle block header
 			ioBufferSize += sizeof(TriangleBlockHeader);
 
 			// Compute first vertex that this batch will use (ensuring there's enough room if none of the vertices are shared)
-			uint start_vertex = Clamp((int)mVertexCount - 256 + (int)inNumTriangles * 3, 0, (int)mVertexCount);
+			uint32 start_vertex = Clamp((int)mVertexCount - 256 + (int)inNumTriangles * 3, 0, (int)mVertexCount);
 
 			// Pack vertices
-			uint padded_triangle_count = AlignUp(inNumTriangles, 4);
-			for (uint t = 0; t < padded_triangle_count; t += 4)
+			uint32 padded_triangle_count = AlignUp(inNumTriangles, 4);
+			for (uint32 t = 0; t < padded_triangle_count; t += 4)
 			{
 				// Add triangle block header
 				ioBufferSize += sizeof(TriangleBlock);
 
-				for (uint vertex_nr = 0; vertex_nr < 3; ++vertex_nr)
-					for (uint block_tri_idx = 0; block_tri_idx < 4; ++block_tri_idx)
+				for (uint32 vertex_nr = 0; vertex_nr < 3; ++vertex_nr)
+					for (uint32 block_tri_idx = 0; block_tri_idx < 4; ++block_tri_idx)
 					{
 						// Fetch vertex index. Create degenerate triangles for padding triangles.
 						bool triangle_available = t + block_tri_idx < inNumTriangles;
@@ -202,7 +202,7 @@ public:
 
 		/// Pack the triangles in inContainer to ioBuffer. This stores the mMaterialIndex of a triangle in the 8 bit flags.
 		/// Returns size_t(-1) on error.
-		size_t						Pack(const IndexedTriangle *inTriangles, uint inNumTriangles, bool inStoreUserData, ByteBuffer &ioBuffer, const char *&outError)
+		size_t						Pack(const IndexedTriangle *inTriangles, uint32 inNumTriangles, bool inStoreUserData, ByteBuffer &ioBuffer, const char *&outError)
 		{
 			MOSS_ASSERT(inNumTriangles > 0);
 
@@ -213,7 +213,7 @@ public:
 			TriangleBlockHeader *header = ioBuffer.Allocate<TriangleBlockHeader>();
 
 			// Compute first vertex that this batch will use (ensuring there's enough room if none of the vertices are shared)
-			uint start_vertex = Clamp((int)mVertices.size() - 256 + (int)inNumTriangles * 3, 0, (int)mVertices.size());
+			uint32 start_vertex = Clamp((int)mVertices.size() - 256 + (int)inNumTriangles * 3, 0, (int)mVertices.size());
 
 			// Store the start vertex offset relative to TriangleBlockHeader
 			size_t offset_to_vertices = mVerticesStartIdx - triangle_block_start + size_t(start_vertex) * sizeof(VertexData);
@@ -231,7 +231,7 @@ public:
 			header->mFlags = uint32(offset_to_vertices);
 
 			// When we store user data we need to store the offset to the user data in TriangleBlocks
-			uint padded_triangle_count = AlignUp(inNumTriangles, 4);
+			uint32 padded_triangle_count = AlignUp(inNumTriangles, 4);
 			if (inStoreUserData)
 			{
 				uint32 num_blocks = padded_triangle_count >> 2;
@@ -240,11 +240,11 @@ public:
 			}
 
 			// Pack vertices
-			for (uint t = 0; t < padded_triangle_count; t += 4)
+			for (uint32 t = 0; t < padded_triangle_count; t += 4)
 			{
 				TriangleBlock *block = ioBuffer.Allocate<TriangleBlock>();
-				for (uint vertex_nr = 0; vertex_nr < 3; ++vertex_nr)
-					for (uint block_tri_idx = 0; block_tri_idx < 4; ++block_tri_idx)
+				for (uint32 vertex_nr = 0; vertex_nr < 3; ++vertex_nr)
+					for (uint32 block_tri_idx = 0; block_tri_idx < 4; ++block_tri_idx)
 					{
 						// Fetch vertex index. Create degenerate triangles for padding triangles.
 						bool triangle_available = t + block_tri_idx < inNumTriangles;
@@ -283,7 +283,7 @@ public:
 			if (inStoreUserData)
 			{
 				uint32 *user_data = ioBuffer.Allocate<uint32>(inNumTriangles);
-				for (uint t = 0; t < inNumTriangles; ++t)
+				for (uint32 t = 0; t < inNumTriangles; ++t)
 					user_data[t] = inTriangles[t].mUserData;
 			}
 

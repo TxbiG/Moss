@@ -27,9 +27,9 @@ private:
 	using					SplitMask = uint32;
 
 public:
-	static constexpr uint	cNumSplits = sizeof(SplitMask) * 8;
-	static constexpr uint	cNonParallelSplitIdx = cNumSplits - 1;
-	static constexpr uint	cLargeIslandTreshold = 128;							// If the number of constraints + contacts in an island is larger than this, we will try to split the island
+	static constexpr uint32	cNumSplits = sizeof(SplitMask) * 8;
+	static constexpr uint32	cNonParallelSplitIdx = cNumSplits - 1;
+	static constexpr uint32	cLargeIslandTreshold = 128;							// If the number of constraints + contacts in an island is larger than this, we will try to split the island
 
 	/// Status code for retrieving a batch
 	enum class EStatus
@@ -42,9 +42,9 @@ public:
 	/// Describes a split of constraints and contacts
 	struct Split
 	{
-		inline uint			GetNumContacts() const								{ return mContactBufferEnd - mContactBufferBegin; }
-		inline uint			GetNumConstraints() const							{ return mConstraintBufferEnd - mConstraintBufferBegin; }
-		inline uint			GetNumItems() const									{ return GetNumContacts() + GetNumConstraints(); }
+		inline uint32			GetNumContacts() const								{ return mContactBufferEnd - mContactBufferBegin; }
+		inline uint32			GetNumConstraints() const							{ return mConstraintBufferEnd - mConstraintBufferBegin; }
+		inline uint32			GetNumItems() const									{ return GetNumContacts() + GetNumConstraints(); }
 
 		uint32				mContactBufferBegin;								// Begin of the contact buffer (offset relative to mContactAndConstraintIndices)
 		uint32				mContactBufferEnd;									// End of the contact buffer
@@ -57,19 +57,19 @@ public:
 	class Splits
 	{
 	public:
-		inline uint			GetNumSplits() const
+		inline uint32			GetNumSplits() const
 		{
 			return mNumSplits;
 		}
 
-		inline void			GetConstraintsInSplit(uint inSplitIndex, uint32 &outConstraintsBegin, uint32 &outConstraintsEnd) const
+		inline void			GetConstraintsInSplit(uint32 inSplitIndex, uint32 &outConstraintsBegin, uint32 &outConstraintsEnd) const
 		{
 			const Split &split = mSplits[inSplitIndex];
 			outConstraintsBegin = split.mConstraintBufferBegin;
 			outConstraintsEnd = split.mConstraintBufferEnd;
 		}
 
-		inline void			GetContactsInSplit(uint inSplitIndex, uint32 &outContactsBegin, uint32 &outContactsEnd) const
+		inline void			GetContactsInSplit(uint32 inSplitIndex, uint32 &outContactsBegin, uint32 &outContactsEnd) const
 		{
 			const Split &split = mSplits[inSplitIndex];
 			outContactsBegin = split.mContactBufferBegin;
@@ -85,7 +85,7 @@ public:
 		/// Make the first batch available to other threads
 		inline void			StartFirstBatch()
 		{
-			uint split_index = mNumSplits > 0? 0 : cNonParallelSplitIdx;
+			uint32 split_index = mNumSplits > 0? 0 : cNonParallelSplitIdx;
 			mStatus.store(uint64(split_index) << StatusSplitShift, memory_order_release);
 		}
 
@@ -93,7 +93,7 @@ public:
 		EStatus				FetchNextBatch(uint32 &outConstraintsBegin, uint32 &outConstraintsEnd, uint32 &outContactsBegin, uint32 &outContactsEnd, bool &outFirstIteration);
 
 		/// Mark a batch as processed
-		void				MarkBatchProcessed(uint inNumProcessed, bool &outLastIteration, bool &outFinalBatch);
+		void				MarkBatchProcessed(uint32 inNumProcessed, bool &outLastIteration, bool &outFinalBatch);
 
 		enum EIterationStatus : uint64
 		{
@@ -109,24 +109,24 @@ public:
 			return int((inStatus & StatusIterationMask) >> StatusIterationShift);
 		}
 
-		static inline uint	sGetSplit(uint64 inStatus)
+		static inline uint32	sGetSplit(uint64 inStatus)
 		{
-			return uint((inStatus & StatusSplitMask) >> StatusSplitShift);
+			return uint32((inStatus & StatusSplitMask) >> StatusSplitShift);
 		}
 
-		static inline uint	sGetItem(uint64 inStatus)
+		static inline uint32	sGetItem(uint64 inStatus)
 		{
-			return uint(inStatus & StatusItemMask);
+			return uint32(inStatus & StatusItemMask);
 		}
 
 		Split				mSplits[cNumSplits];								// Data per split
 		uint32				mIslandIndex;										// Index of the island that was split
-		uint				mNumSplits;											// Number of splits that were created (excluding the non-parallel split)
+		uint32				mNumSplits;											// Number of splits that were created (excluding the non-parallel split)
 		int					mNumIterations;										// Number of iterations to do
 		int					mNumVelocitySteps;									// Number of velocity steps to do (cached for 2nd sub step)
 		int					mNumPositionSteps;									// Number of position steps to do
 		atomic<uint64>		mStatus;											// Status of the split, see EIterationStatus
-		atomic<uint>		mItemsProcessed;									// Number of items that have been marked as processed
+		atomic<uint32>		mItemsProcessed;									// Number of items that have been marked as processed
 	};
 
 public:
@@ -137,22 +137,22 @@ public:
 	void					Prepare(const IslandBuilder &inIslandBuilder, uint32 inNumActiveBodies, TempAllocator *inTempAllocator);
 
 	/// Assign two bodies to a split. Returns the split index.
-	uint					AssignSplit(const Body *inBody1, const Body *inBody2);
+	uint32					AssignSplit(const Body *inBody1, const Body *inBody2);
 
 	/// Force a body to be in a non parallel split. Returns the split index.
-	uint					AssignToNonParallelSplit(const Body *inBody);
+	uint32					AssignToNonParallelSplit(const Body *inBody);
 
 	/// Splits up an island, the created splits will be added to the list of batches and can be fetched with FetchNextBatch. Returns false if the island did not need splitting.
 	bool					SplitIsland(uint32 inIslandIndex, const IslandBuilder &inIslandBuilder, const BodyManager &inBodyManager, const ContactConstraintManager &inContactManager, Constraint **inActiveConstraints, CalculateSolverSteps &ioStepsCalculator);
 
 	/// Fetch the next batch to process, returns a handle in outSplitIslandIndex that must be provided to MarkBatchProcessed when complete
-	EStatus					FetchNextBatch(uint &outSplitIslandIndex, uint32 *&outConstraintsBegin, uint32 *&outConstraintsEnd, uint32 *&outContactsBegin, uint32 *&outContactsEnd, bool &outFirstIteration);
+	EStatus					FetchNextBatch(uint32 &outSplitIslandIndex, uint32 *&outConstraintsBegin, uint32 *&outConstraintsEnd, uint32 *&outContactsBegin, uint32 *&outContactsEnd, bool &outFirstIteration);
 
 	/// Mark a batch as processed
-	void					MarkBatchProcessed(uint inSplitIslandIndex, const uint32 *inConstraintsBegin, const uint32 *inConstraintsEnd, const uint32 *inContactsBegin, const uint32 *inContactsEnd, bool &outLastIteration, bool &outFinalBatch);
+	void					MarkBatchProcessed(uint32 inSplitIslandIndex, const uint32 *inConstraintsBegin, const uint32 *inConstraintsEnd, const uint32 *inContactsBegin, const uint32 *inContactsEnd, bool &outLastIteration, bool &outFinalBatch);
 
 	/// Get the island index of the island that was split for a particular split island index
-	inline uint32			GetIslandIndex(uint inSplitIslandIndex) const
+	inline uint32			GetIslandIndex(uint32 inSplitIslandIndex) const
 	{
 		MOSS_ASSERT(inSplitIslandIndex < mNumSplitIslands);
 		return mSplitIslands[inSplitIslandIndex].mIslandIndex;
@@ -165,8 +165,8 @@ public:
 	void					Reset(TempAllocator *inTempAllocator);
 
 private:
-	static constexpr uint	cSplitCombineTreshold = 32;							// If the number of constraints + contacts in a split is lower than this, we will merge this split into the 'non-parallel split'
-	static constexpr uint	cBatchSize = 16;									// Number of items to process in a constraint batch
+	static constexpr uint32	cSplitCombineTreshold = 32;							// If the number of constraints + contacts in a split is lower than this, we will merge this split into the 'non-parallel split'
+	static constexpr uint32	cBatchSize = 16;									// Number of items to process in a constraint batch
 
 	uint32					mNumActiveBodies = 0;								// Cached number of active bodies
 
@@ -174,12 +174,12 @@ private:
 
 	uint32 *				mContactAndConstraintsSplitIdx = nullptr;			// Buffer to store the split index per constraint or contact
 	uint32 *				mContactAndConstraintIndices = nullptr;				// Buffer to store the ordered constraint indices per split
-	uint					mContactAndConstraintsSize = 0;						// Total size of mContactAndConstraintsSplitIdx and mContactAndConstraintIndices
-	atomic<uint>			mContactAndConstraintsNextFree { 0 };				// Next element that is free in both buffers
+	uint32					mContactAndConstraintsSize = 0;						// Total size of mContactAndConstraintsSplitIdx and mContactAndConstraintIndices
+	atomic<uint32>			mContactAndConstraintsNextFree { 0 };				// Next element that is free in both buffers
 
-	uint					mNumSplitIslands = 0;								// Total number of islands that required splitting
+	uint32					mNumSplitIslands = 0;								// Total number of islands that required splitting
 	Splits *				mSplitIslands = nullptr;							// List of islands that required splitting
-	atomic<uint>			mNextSplitIsland = 0;								// Next split island to pick from mSplitIslands
+	atomic<uint32>			mNextSplitIsland = 0;								// Next split island to pick from mSplitIslands
 };
 
 MOSS_SUPRESS_WARNINGS_END

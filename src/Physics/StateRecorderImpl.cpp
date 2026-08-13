@@ -32,7 +32,7 @@ void StateRecorderImpl::ReadBytes(void *outData, size_t inNumBytes)
 		if (memcmp(data, outData, inNumBytes) != 0)
 		{
 			// Mismatch, print error
-			MOSS_TRACE("Mismatch reading %u bytes", (uint)inNumBytes);
+			MOSS_TRACE("Mismatch reading %u bytes", (uint32)inNumBytes);
 			for (size_t i = 0; i < inNumBytes; ++i)
 			{
 				int b1 = reinterpret_cast<uint8 *>(outData)[i];

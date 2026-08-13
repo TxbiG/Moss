@@ -172,7 +172,7 @@ private:
 		memcpy(mControl, inRHS.mControl, mMaxSize + 15);
 
 		// Copy elements
-		uint index = 0;
+		uint32 index = 0;
 		for (const uint8 *control = mControl, *control_end = mControl + mMaxSize; control != control_end; ++control, ++index)
 			if (*control & cBucketUsed)
 				new (mData + index) KeyValue(inRHS.mData[index]);
@@ -292,7 +292,7 @@ protected:
 				while (control_equal != 0)
 				{
 					// Get the first equal bucket
-					uint first_equal = CountTrailingZeros(control_equal);
+					uint32 first_equal = CountTrailingZeros(control_equal);
 
 					// Skip to the bucket
 					local_index += first_equal;
@@ -659,7 +659,7 @@ public:
 			while (control_equal != 0)
 			{
 				// Get the first equal bucket
-				uint first_equal = CountTrailingZeros(control_equal);
+				uint32 first_equal = CountTrailingZeros(control_equal);
 
 				// Skip to the bucket
 				local_index += first_equal;

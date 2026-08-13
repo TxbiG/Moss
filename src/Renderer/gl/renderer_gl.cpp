@@ -82,7 +82,7 @@ Ref<PixelShader> RendererGL::CreatePixelShader(const char* inName) override
 unique_ptr<PipelineState> RendererGL::CreatePipelineState(
 	const VertexShader* inVertexShader,
 	const PipelineState::EInputDescription* inInputDescription,
-	uint inInputDescriptionCount,
+	uint32 inInputDescriptionCount,
 	const PixelShader* inPixelShader,
 	PipelineState::EDrawPass inDrawPass,
 	PipelineState::EFillMode inFillMode,

@@ -82,7 +82,7 @@ public:
 	inline					~FixedSizeFreeList();
 
 	/// Initialize the free list, up to inMaxObjects can be allocated
-	inline void				Init(uint inMaxObjects, uint inPageSize);
+	inline void				Init(uint32 inMaxObjects, uint32 inPageSize);
 
 	/// Lockless construct a new object, inParameters are passed on to the constructor
 	template <typename... Parameters>

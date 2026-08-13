@@ -118,12 +118,12 @@ public:
 		}
 
 		/// Once all nodes have been added, this call finalizes all nodes by patching in the offsets of the child nodes (that were added after the node itself was added)
-		bool NodeFinalize(const AABBTreeBuilder::Node *inNode, size_t inNodeStart, uint inNumChildren, const size_t *inChildrenNodeStart, const size_t *inChildrenTrianglesStart, ByteBuffer &ioBuffer) {
+		bool NodeFinalize(const AABBTreeBuilder::Node *inNode, size_t inNodeStart, uint32 inNumChildren, const size_t *inChildrenNodeStart, const size_t *inChildrenTrianglesStart, ByteBuffer &ioBuffer) {
 			if (!inNode->HasChildren())
 				return true;
 
 			Node *node = ioBuffer.Get<Node>(inNodeStart);
-			for (uint i = 0; i < inNumChildren; ++i) {
+			for (uint32 i = 0; i < inNumChildren; ++i) {
 				size_t offset;
 				if (node->mNodeProperties[i] != 0) {
 					offset = inChildrenTrianglesStart[i];								// This is a triangle block
@@ -173,10 +173,10 @@ public:
 	{
 	public:
 		/// Get the amount of bits needed to store an ID to a triangle block
-		inline static uint sTriangleBlockIDBits(const Header *inHeader) { return inHeader->mBlockIDBits; }
+		inline static uint32 sTriangleBlockIDBits(const Header *inHeader) { return inHeader->mBlockIDBits; }
 
 		/// Convert a triangle block ID to the start of the triangle buffer
-		inline static const void* sGetTriangleBlockStart(const uint8 *inBufferStart, uint inTriangleBlockID) { return inBufferStart + (inTriangleBlockID << OFFSET_NON_SIGNIFICANT_BITS); }
+		inline static const void* sGetTriangleBlockStart(const uint8 *inBufferStart, uint32 inTriangleBlockID) { return inBufferStart + (inTriangleBlockID << OFFSET_NON_SIGNIFICANT_BITS); }
 
 		/// Constructor
 		MOSS_INLINE explicit DecodingContext(const Header *inHeader) { mNodeStack[0] = inHeader->mRootProperties; } // Start with the root node on the stack

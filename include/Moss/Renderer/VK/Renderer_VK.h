@@ -27,7 +27,7 @@
 #include <Moss/Renderer/VK/ConstantBufferVK.h>
 //#include <Renderer/VK/TextureVK.h>
 //#include <vector>
-inline static const uint		cFrameCount = 2;
+inline static const uint32		cFrameCount = 2;
 
 struct PhysicalDevice {
     VkPhysicalDevice physicalDevice;                // Physical device representation

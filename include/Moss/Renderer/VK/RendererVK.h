@@ -22,7 +22,7 @@ public:
 	//Ref<Texture>			CreateTexture(const Surface *inSurface) override;
 	Ref<VertexShader>		CreateVertexShader(const char *inName) override;
 	Ref<PixelShader>		CreatePixelShader(const char *inName) override;
-	unique_ptr<PipelineState> CreatePipelineState(const VertexShader *inVertexShader, const PipelineState::EInputDescription *inInputDescription, uint inInputDescriptionCount, const PixelShader *inPixelShader, PipelineState::EDrawPass inDrawPass, PipelineState::EFillMode inFillMode, PipelineState::ETopology inTopology, PipelineState::EDepthTest inDepthTest, PipelineState::EBlendMode inBlendMode, PipelineState::ECullMode inCullMode) override;
+	unique_ptr<PipelineState> CreatePipelineState(const VertexShader *inVertexShader, const PipelineState::EInputDescription *inInputDescription, uint32 inInputDescriptionCount, const PixelShader *inPixelShader, PipelineState::EDrawPass inDrawPass, PipelineState::EFillMode inFillMode, PipelineState::ETopology inTopology, PipelineState::EDepthTest inDepthTest, PipelineState::EBlendMode inBlendMode, PipelineState::ECullMode inCullMode) override;
 	RenderPrimitive *		CreateRenderPrimitive(PipelineState::ETopology inType) override;
 	RenderInstances *		CreateRenderInstances() override;
 	Texture *				GetShadowMap() const override									{ return mShadowMap.GetPtr(); }

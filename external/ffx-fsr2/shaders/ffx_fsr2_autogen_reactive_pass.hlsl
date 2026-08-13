@@ -48,7 +48,7 @@ cbuffer cbGenerateReactive : FFX_FSR2_DECLARE_CB(FSR2_BIND_CB_REACTIVE)
     float   scale;
     float   threshold;
     float   binaryValue;
-    uint    flags;
+    uint32    flags;
 };
 #endif
 

@@ -60,7 +60,7 @@ bool Factory::Register(const RTTI *inRTTI)
 	return true;
 }
 
-bool Factory::Register(const RTTI **inRTTIs, uint inNumber)
+bool Factory::Register(const RTTI **inRTTIs, uint32 inNumber)
 {
 	m_ClassHashMap.reserve(m_ClassHashMap.size() + inNumber);
 	m_ClassNameMap.reserve(m_ClassNameMap.size() + inNumber);

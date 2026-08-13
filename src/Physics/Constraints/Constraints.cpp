@@ -1072,13 +1072,13 @@ void ContactConstraintManager::CachedBodyPair::RestoreState(StateRecorder &inStr
 // ContactConstraintManager::ManifoldCache
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void ContactConstraintManager::ManifoldCache::Init(uint inMaxBodyPairs, uint inMaxContactConstraints, uint inCachedManifoldsSize)
+void ContactConstraintManager::ManifoldCache::Init(uint32 inMaxBodyPairs, uint32 inMaxContactConstraints, uint32 inCachedManifoldsSize)
 {
-	uint max_body_pairs = min(inMaxBodyPairs, cMaxBodyPairsLimit);
+	uint32 max_body_pairs = min(inMaxBodyPairs, cMaxBodyPairsLimit);
 	MOSS_ASSERT(max_body_pairs == inMaxBodyPairs, "Cannot support this many body pairs!");
 	MOSS_ASSERT(inMaxContactConstraints <= cMaxContactConstraintsLimit); // Should have been enforced by caller
 
-	mAllocator.Init(uint(min(uint64(max_body_pairs) * sizeof(BodyPairMap::KeyValue) + inCachedManifoldsSize, uint64(~uint(0)))));
+	mAllocator.Init(uint32(min(uint64(max_body_pairs) * sizeof(BodyPairMap::KeyValue) + inCachedManifoldsSize, uint64(~uint32(0)))));
 
 	mCachedManifolds.Init(GetNextPowerOf2(inMaxContactConstraints));
 	mCachedBodyPairs.Init(GetNextPowerOf2(max_body_pairs));
@@ -1098,7 +1098,7 @@ void ContactConstraintManager::ManifoldCache::Clear()
 #endif
 }
 
-void ContactConstraintManager::ManifoldCache::Prepare(uint inExpectedNumBodyPairs, uint inExpectedNumManifolds)
+void ContactConstraintManager::ManifoldCache::Prepare(uint32 inExpectedNumBodyPairs, uint32 inExpectedNumManifolds)
 {
 	// Minimum amount of buckets to use in the hash map
 	constexpr uint32 cMinBuckets = 1024;
@@ -1504,16 +1504,16 @@ ContactConstraintManager::~ContactConstraintManager()
 	MOSS_ASSERT(mConstraints == nullptr);
 }
 
-void ContactConstraintManager::Init(uint inMaxBodyPairs, uint inMaxContactConstraints)
+void ContactConstraintManager::Init(uint32 inMaxBodyPairs, uint32 inMaxContactConstraints)
 {
 	// Limit the number of constraints so that the allocation size fits in an unsigned integer
 	mMaxConstraints = min(inMaxContactConstraints, cMaxContactConstraintsLimit);
 	MOSS_ASSERT(mMaxConstraints == inMaxContactConstraints, "Cannot support this many contact constraints!");
 
 	// Calculate worst case cache usage
-	constexpr uint cMaxManifoldSizePerConstraint = sizeof(CachedManifold) + (MaxContactPoints - 1) * sizeof(CachedContactPoint);
+	constexpr uint32 cMaxManifoldSizePerConstraint = sizeof(CachedManifold) + (MaxContactPoints - 1) * sizeof(CachedContactPoint);
 	static_assert(cMaxManifoldSizePerConstraint < sizeof(ContactConstraint)); // If not true, then the next line can overflow
-	uint cached_manifolds_size = mMaxConstraints * cMaxManifoldSizePerConstraint;
+	uint32 cached_manifolds_size = mMaxConstraints * cMaxManifoldSizePerConstraint;
 
 	// Init the caches
 	mCache[0].Init(inMaxBodyPairs, mMaxConstraints, cached_manifolds_size);
@@ -2285,7 +2285,7 @@ void ContactConstraintManager::SortContacts(uint32 *inConstraintIdxBegin, uint32
 	});
 }
 
-void ContactConstraintManager::FinalizeContactCacheAndCallContactPointRemovedCallbacks(uint inExpectedNumBodyPairs, uint inExpectedNumManifolds)
+void ContactConstraintManager::FinalizeContactCacheAndCallContactPointRemovedCallbacks(uint32 inExpectedNumBodyPairs, uint32 inExpectedNumManifolds)
 {
 	MOSS_PROFILE_FUNCTION();
 
@@ -4546,7 +4546,7 @@ void TwoBodyConstraint::BuildIslands(uint32 inConstraintIndex, IslandBuilder &io
 	ioBuilder.LinkConstraint(inConstraintIndex, mBody1->GetIndexInActiveBodiesInternal(), mBody2->GetIndexInActiveBodiesInternal());
 }
 
-uint TwoBodyConstraint::BuildIslandSplits(LargeIslandSplitter &ioSplitter) const
+uint32 TwoBodyConstraint::BuildIslandSplits(LargeIslandSplitter &ioSplitter) const
 {
 	return ioSplitter.AssignSplit(mBody1, mBody2);
 }
@@ -5134,7 +5134,7 @@ void SwingTwistConstraint::SetTargetOrientationCS(QuatArg inOrientation)
 	Quat q_swing, q_twist;
 	inOrientation.GetSwingTwist(q_swing, q_twist);
 
-	uint clamped_axis;
+	uint32 clamped_axis;
 	mSwingTwistConstraintPart.ClampSwingTwist(q_swing, q_twist, clamped_axis);
 
 	if (clamped_axis != 0)
@@ -5730,7 +5730,7 @@ void SixDOFConstraint::SetTargetOrientationCS(QuatArg inOrientation)
 	Quat q_swing, q_twist;
 	inOrientation.GetSwingTwist(q_swing, q_twist);
 
-	uint clamped_axis;
+	uint32 clamped_axis;
 	mSwingTwistConstraintPart.ClampSwingTwist(q_swing, q_twist, clamped_axis);
 
 	if (clamped_axis != 0)

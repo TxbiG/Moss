@@ -29,7 +29,7 @@ public:
 
 	/// Creates a thread pool.
 	/// @see JobSystemThreadPool::Init
-							JobSystemThreadPool(uint inMaxJobs, uint inMaxBarriers, int inNumThreads = -1);
+							JobSystemThreadPool(uint32 inMaxJobs, uint32 inMaxBarriers, int inNumThreads = -1);
 							JobSystemThreadPool() = default;
 	virtual					~JobSystemThreadPool() override;
 
@@ -42,7 +42,7 @@ public:
 	/// @param inMaxJobs Max number of jobs that can be allocated at any time
 	/// @param inMaxBarriers Max number of barriers that can be allocated at any time
 	/// @param inNumThreads Number of threads to start (the number of concurrent jobs is 1 more because the main thread will also run jobs while waiting for a barrier to complete). Use -1 to auto detect the amount of CPU's.
-	void					Init(uint inMaxJobs, uint inMaxBarriers, int inNumThreads = -1);
+	void					Init(uint32 inMaxJobs, uint32 inMaxBarriers, int inNumThreads = -1);
 
 	// See JobSystem
 	virtual int				GetMaxConcurrency() const override				{ return int(mThreads.size()) + 1; }
@@ -54,7 +54,7 @@ public:
 protected:
 	// See JobSystem
 	virtual void			QueueJob(Job *inJob) override;
-	virtual void			QueueJobs(Job **inJobs, uint inNumJobs) override;
+	virtual void			QueueJobs(Job **inJobs, uint32 inNumJobs) override;
 	virtual void			FreeJob(Job *inJob) override;
 
 private:
@@ -66,7 +66,7 @@ private:
 	void					ThreadMain(int inThreadIndex);
 
 	/// Get the head of the thread that has processed the least amount of jobs
-	inline uint				GetHead() const;
+	inline uint32				GetHead() const;
 
 	/// Internal helper function to queue a job
 	inline void				QueueJobInternal(Job *inJob);
@@ -88,8 +88,8 @@ private:
 	atomic<Job *>			mQueue[cQueueLength];
 
 	// Head and tail of the queue, do this value modulo cQueueLength - 1 to get the element in the mQueue array
-	atomic<uint> *			mHeads = nullptr;								///< Per executing thread the head of the current queue
-	alignas(MOSS_CACHE_LINE_SIZE) atomic<uint> mTail = 0;					///< Tail (write end) of the queue
+	atomic<uint32> *			mHeads = nullptr;								///< Per executing thread the head of the current queue
+	alignas(MOSS_CACHE_LINE_SIZE) atomic<uint32> mTail = 0;					///< Tail (write end) of the queue
 
 	// Semaphore used to signal worker threads that there is new work
 	Semaphore				mSemaphore;

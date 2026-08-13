@@ -20,14 +20,14 @@ public:
 							MutexArray() = default;
 
 	/// Constructor, constructs an array with inNumMutexes entries
-	explicit				MutexArray(uint inNumMutexes) { Init(inNumMutexes); }
+	explicit				MutexArray(uint32 inNumMutexes) { Init(inNumMutexes); }
 
 	/// Destructor
 							~MutexArray() { delete [] mMutexStorage; }
 
 	/// Initialization
 	/// @param inNumMutexes The amount of mutexes to allocate
-	void					Init(uint inNumMutexes)
+	void					Init(uint32 inNumMutexes)
 	{
 		MOSS_ASSERT(mMutexStorage == nullptr);
 		MOSS_ASSERT(inNumMutexes > 0 && IsPowerOf2(inNumMutexes));
@@ -37,7 +37,7 @@ public:
 	}
 
 	/// Get the number of mutexes that were allocated
-	inline uint				GetNumMutexes() const
+	inline uint32				GetNumMutexes() const
 	{
 		return mNumMutexes;
 	}
@@ -91,7 +91,7 @@ private:
 	};
 
 	MutexStorage *			mMutexStorage = nullptr;
-	uint					mNumMutexes = 0;
+	uint32					mNumMutexes = 0;
 };
 
 MOSS_SUPRESS_WARNINGS_END

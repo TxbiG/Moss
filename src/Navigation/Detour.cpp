@@ -1236,7 +1236,7 @@ Moss_RecastStatus Moss_RecastNavMesh::init(const Moss_RecastNavMeshParams* param
     // Ensure that the bits of poly ref do not overflow.
     dtAssert(m_tileBits + m_polyBits <= 31);
 
-	// Only allow 31 salt bits, since the salt mask is calculated using 32bit uint and it will overflow.
+	// Only allow 31 salt bits, since the salt mask is calculated using 32bit uint32 and it will overflow.
 	m_saltBits = min((unsigned int)31, 32 - m_tileBits - m_polyBits);
 
 	if (m_saltBits < 10)

@@ -171,7 +171,7 @@ Float2 Font::MeasureText(const string_view &inText) const
 	float x = 0;
 
 	// Loop through string
-	for (uint i = 0; i < inText.size(); ++i)
+	for (uint32 i = 0; i < inText.size(); ++i)
 	{
 		// Get character
 		int ch = inText[i];
@@ -215,7 +215,7 @@ bool Font::CreateString(Mat44Arg inTransform, const string_view &inText, ColorAr
 
 	// Count the number of printable chars
 	int printable = 0;
-	for (uint i = 0; i < inText.size(); ++i)
+	for (uint32 i = 0; i < inText.size(); ++i)
 	{
 		int ch = inText[i];
 		static_assert(cBeginChar == ' ', "We skip space in the for loop below");
@@ -246,7 +246,7 @@ bool Font::CreateString(Mat44Arg inTransform, const string_view &inText, ColorAr
 	float x = 0, y = -1.0f;
 
 	// Loop through string
-	for (uint i = 0; i < inText.size(); ++i)
+	for (uint32 i = 0; i < inText.size(); ++i)
 	{
 		// Get character
 		int ch = inText[i];

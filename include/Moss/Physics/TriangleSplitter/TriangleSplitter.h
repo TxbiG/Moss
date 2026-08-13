@@ -33,23 +33,23 @@ public:
 	{
 		/// Constructor
 								Range() = default;
-								Range(uint inBegin, uint inEnd) : mBegin(inBegin), mEnd(inEnd) { }
+								Range(uint32 inBegin, uint32 inEnd) : mBegin(inBegin), mEnd(inEnd) { }
 
 		/// Get number of triangles in range
-		uint					Count() const
+		uint32					Count() const
 		{
 			return mEnd - mBegin;
 		}
 
 		/// Start and end index (end = 1 beyond end)
-		uint					mBegin;
-		uint					mEnd;
+		uint32					mBegin;
+		uint32					mEnd;
 	};
 
 	/// Range of triangles to start with
 	Range						GetInitialRange() const
 	{
-		return Range(0, (uint)mSortedTriangleIdx.size());
+		return Range(0, (uint32)mSortedTriangleIdx.size());
 	}
 
 	/// Split triangles into two groups left and right, returns false if no split could be made
@@ -66,19 +66,19 @@ public:
 	}
 
 	/// Get triangle by index
-	const IndexedTriangle &		GetTriangle(uint inIdx) const
+	const IndexedTriangle &		GetTriangle(uint32 inIdx) const
 	{
 		return mTriangles[mSortedTriangleIdx[inIdx]];
 	}
 
 protected:
 	/// Helper function to split triangles based on dimension and split value
-	bool						SplitInternal(const Range &inTriangles, uint inDimension, float inSplit, Range &outLeft, Range &outRight);
+	bool						SplitInternal(const Range &inTriangles, uint32 inDimension, float inSplit, Range &outLeft, Range &outRight);
 
 	const VertexList &			mVertices;				// Vertices of the indexed triangles
 	const IndexedTriangleList &	mTriangles;				// Unsorted triangles
 	TArray<Float3>				mCentroids;				// Unsorted centroids of triangles
-	TArray<uint>					mSortedTriangleIdx;	// Indices to sort triangles
+	TArray<uint32>					mSortedTriangleIdx;	// Indices to sort triangles
 };
 
 
@@ -89,7 +89,7 @@ class MOSS_EXPORT TriangleSplitterBinning : public TriangleSplitter
 {
 public:
 	/// Constructor
-							TriangleSplitterBinning(const VertexList &inVertices, const IndexedTriangleList &inTriangles, uint inMinNumBins = 8, uint inMaxNumBins = 128, uint inNumTrianglesPerBin = 6);
+							TriangleSplitterBinning(const VertexList &inVertices, const IndexedTriangleList &inTriangles, uint32 inMinNumBins = 8, uint32 inMaxNumBins = 128, uint32 inNumTrianglesPerBin = 6);
 
 	// See TriangleSplitter::GetStats
 	virtual void			GetStats(Stats &outStats) const override
@@ -102,22 +102,22 @@ public:
 
 private:
 	// Configuration
-	const uint				mMinNumBins;
-	const uint				mMaxNumBins;
-	const uint				mNumTrianglesPerBin;
+	const uint32				mMinNumBins;
+	const uint32				mMaxNumBins;
+	const uint32				mNumTrianglesPerBin;
 
 	struct Bin
 	{
 		// Properties of this bin
 		AABox				mBounds;
 		float				mMinCentroid;
-		uint				mNumTriangles;
+		uint32				mNumTriangles;
 
 		// Accumulated data from left most / right most bin to current (including this bin)
 		AABox				mBoundsAccumulatedLeft;
 		AABox				mBoundsAccumulatedRight;
-		uint				mNumTrianglesAccumulatedLeft;
-		uint				mNumTrianglesAccumulatedRight;
+		uint32				mNumTrianglesAccumulatedLeft;
+		uint32				mNumTrianglesAccumulatedRight;
 	};
 
 	// Scratch area to store the bins

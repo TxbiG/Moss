@@ -327,7 +327,7 @@ void RendererVK::Initialize(Moss_Window* window) {
 		//FatalErrorIfFailed(vkCreateFence(mDevice, &fence_info, nullptr, &mInFlightFences[i]));
 
 	// Create constant buffer. One per frame to avoid overwriting the constant buffer while the GPU is still using it.
-	for (uint n = 0; n < cFrameCount; ++n)
+	for (uint32 n = 0; n < cFrameCount; ++n)
 	{
 		mVertexShaderConstantBufferProjection[n] = CreateConstantBuffer(sizeof(VertexShaderConstantBuffer));
 		mVertexShaderConstantBufferOrtho[n] = CreateConstantBuffer(sizeof(VertexShaderConstantBuffer));
@@ -391,7 +391,7 @@ void RendererVK::Initialize(Moss_Window* window) {
 	descriptor_set_alloc_info.descriptorSetCount = cFrameCount;
 	descriptor_set_alloc_info.pSetLayouts = layouts.data();
 	//FatalErrorIfFailed(vkAllocateDescriptorSets(mDevice, &descriptor_set_alloc_info, mDescriptorSets));
-	for (uint i = 0; i < cFrameCount; i++)
+	for (uint32 i = 0; i < cFrameCount; i++)
 	{
 		VkDescriptorBufferInfo vs_buffer_info = {};
 		vs_buffer_info.buffer = mVertexShaderConstantBufferProjection[i]->GetBuffer();
@@ -419,7 +419,7 @@ void RendererVK::Initialize(Moss_Window* window) {
 
 	// Allocate descriptor sets for 2d rendering
 	//FatalErrorIfFailed(vkAllocateDescriptorSets(mDevice, &descriptor_set_alloc_info, mDescriptorSetsOrtho));
-	for (uint i = 0; i < cFrameCount; i++)
+	for (uint32 i = 0; i < cFrameCount; i++)
 	{
 		VkDescriptorBufferInfo vs_buffer_info = {};
 		vs_buffer_info.buffer = mVertexShaderConstantBufferOrtho[i]->GetBuffer();
@@ -990,7 +990,7 @@ Ref<PixelShader> RendererVK::CreatePixelShader(const char *inName)
 	return new PixelShaderVK(mDevice, shader_module);
 }
 
-unique_ptr<PipelineState> RendererVK::CreatePipelineState(const VertexShader *inVertexShader, const PipelineState::EInputDescription *inInputDescription, uint inInputDescriptionCount, const PixelShader *inPixelShader, PipelineState::EDrawPass inDrawPass, PipelineState::EFillMode inFillMode, PipelineState::ETopology inTopology, PipelineState::EDepthTest inDepthTest, PipelineState::EBlendMode inBlendMode, PipelineState::ECullMode inCullMode)
+unique_ptr<PipelineState> RendererVK::CreatePipelineState(const VertexShader *inVertexShader, const PipelineState::EInputDescription *inInputDescription, uint32 inInputDescriptionCount, const PixelShader *inPixelShader, PipelineState::EDrawPass inDrawPass, PipelineState::EFillMode inFillMode, PipelineState::ETopology inTopology, PipelineState::EDepthTest inDepthTest, PipelineState::EBlendMode inBlendMode, PipelineState::ECullMode inCullMode)
 {
 	return make_unique<PipelineStateVK>(this, static_cast<const VertexShaderVK *>(inVertexShader), inInputDescription, inInputDescriptionCount, static_cast<const PixelShaderVK *>(inPixelShader), inDrawPass, inFillMode, inTopology, inDepthTest, inBlendMode, inCullMode);
 }

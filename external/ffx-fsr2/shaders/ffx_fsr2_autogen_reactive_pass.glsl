@@ -57,7 +57,7 @@ layout (set = 1, binding = FSR2_BIND_CB_REACTIVE, std140) uniform cbGenerateReac
 	float   scale;
 	float   threshold;
 	float   binaryValue;
-	uint    flags;
+	uint32    flags;
 } cbGenerateReactive;
 #endif
 

@@ -549,29 +549,29 @@ public:
 	~BodyManager();
 
 	/// Initialize the manager
-	void	Init(uint inMaxBodies, uint inNumBodyMutexes, const BroadPhaseLayerInterface &inLayerInterface);
+	void	Init(uint32 inMaxBodies, uint32 inNumBodyMutexes, const BroadPhaseLayerInterface &inLayerInterface);
 
 	/// Gets the current amount of bodies that are in the body manager
-	uint	GetNumBodies() const;
+	uint32	GetNumBodies() const;
 
 	/// Gets the max bodies that we can support
-	uint	GetMaxBodies() const						{ return uint(mBodies.capacity()); }
+	uint32	GetMaxBodies() const						{ return uint32(mBodies.capacity()); }
 
 	/// Helper struct that counts the number of bodies of each type
 	struct BodyStats {
-		uint	mNumBodies					= 0;	// Total number of bodies in the body manager
-		uint	mMaxBodies					= 0;	// Max allowed number of bodies in the body manager (as configured in Init(...))
+		uint32	mNumBodies					= 0;	// Total number of bodies in the body manager
+		uint32	mMaxBodies					= 0;	// Max allowed number of bodies in the body manager (as configured in Init(...))
 
-		uint	mNumBodiesStatic			= 0;	// Number of static bodies
+		uint32	mNumBodiesStatic			= 0;	// Number of static bodies
 
-		uint	mNumBodiesDynamic			= 0;	// Number of dynamic bodies
-		uint	mNumActiveBodiesDynamic		= 0;	// Number of dynamic bodies that are currently active
+		uint32	mNumBodiesDynamic			= 0;	// Number of dynamic bodies
+		uint32	mNumActiveBodiesDynamic		= 0;	// Number of dynamic bodies that are currently active
 
-		uint	mNumBodiesKinematic			= 0;	// Number of kinematic bodies
-		uint	mNumActiveBodiesKinematic	= 0;	// Number of kinematic bodies that are currently active
+		uint32	mNumBodiesKinematic			= 0;	// Number of kinematic bodies
+		uint32	mNumActiveBodiesKinematic	= 0;	// Number of kinematic bodies that are currently active
 
-		uint	mNumSoftBodies				= 0;	// Number of soft bodies
-		uint	mNumActiveSoftBodies		= 0;	// Number of soft bodies that are currently active
+		uint32	mNumSoftBodies				= 0;	// Number of soft bodies
+		uint32	mNumActiveSoftBodies		= 0;	// Number of soft bodies that are currently active
 	};
 
 	/// Get stats about the bodies in the body manager (slow, iterates through all bodies)
@@ -813,7 +813,7 @@ private:
 	BodyVector						mBodies;
 
 	/// Current number of allocated bodies
-	uint							mNumBodies = 0;
+	uint32							mNumBodies = 0;
 
 	/// Indicates that there are no more freed body IDs
 	static constexpr uintptr_t		cBodyIDFreeListEnd = ~uintptr_t(0);
@@ -822,7 +822,7 @@ private:
 	static constexpr uintptr_t		cIsFreedBody = uintptr_t(1);
 
 	/// Amount of bits to shift to get an index to the next freed body
-	static constexpr uint			cFreedBodyIndexShift = 1;
+	static constexpr uint32			cFreedBodyIndexShift = 1;
 
 	/// Index of first entry in mBodies that is unused
 	uintptr_t						mBodyIDFreeListStart = cBodyIDFreeListEnd;
@@ -1030,7 +1030,7 @@ public:
 	}
 
 	/// Reserve space for inSize body ID's
-	void Reserve(uint inSize) {
+	void Reserve(uint32 inSize) {
 		mBodyIDs.reserve(inSize);
 	}
 
@@ -1323,12 +1323,12 @@ public:
 	}
 
 	// Used only when this body is dynamic and colliding. Override for the number of solver velocity iterations to run, 0 means use the default in PhysicsSettings::mNumVelocitySteps. The number of iterations to use is the max of all contacts and constraints in the island.
-	void SetNumVelocityStepsOverride(uint inN) { MOSS_ASSERT(inN < 256); mNumVelocityStepsOverride = uint8(inN); }
-	uint GetNumVelocityStepsOverride() const { return mNumVelocityStepsOverride; }
+	void SetNumVelocityStepsOverride(uint32 inN) { MOSS_ASSERT(inN < 256); mNumVelocityStepsOverride = uint8(inN); }
+	uint32 GetNumVelocityStepsOverride() const { return mNumVelocityStepsOverride; }
 
 	// Used only when this body is dynamic and colliding. Override for the number of solver position iterations to run, 0 means use the default in PhysicsSettings::mNumPositionSteps. The number of iterations to use is the max of all contacts and constraints in the island.
-	void SetNumPositionStepsOverride(uint inN) { MOSS_ASSERT(inN < 256); mNumPositionStepsOverride = uint8(inN); }
-	uint GetNumPositionStepsOverride() const { return mNumPositionStepsOverride; }
+	void SetNumPositionStepsOverride(uint32 inN) { MOSS_ASSERT(inN < 256); mNumPositionStepsOverride = uint8(inN); }
+	uint32 GetNumPositionStepsOverride() const { return mNumPositionStepsOverride; }
 
 	////////////////////////////////////////
 	// FUNCTIONS BELOW THIS LINE ARE FOR INTERNAL USE ONLY

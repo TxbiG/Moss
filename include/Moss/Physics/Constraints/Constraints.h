@@ -2088,12 +2088,12 @@ public:
 	}
 
 	/// Flags to indicate which axis got clamped by ClampSwingTwist
-	static constexpr uint		cClampedTwistMin = 1 << 0;
-	static constexpr uint		cClampedTwistMax = 1 << 1;
-	static constexpr uint		cClampedSwingYMin = 1 << 2;
-	static constexpr uint		cClampedSwingYMax = 1 << 3;
-	static constexpr uint		cClampedSwingZMin = 1 << 4;
-	static constexpr uint		cClampedSwingZMax = 1 << 5;
+	static constexpr uint32		cClampedTwistMin = 1 << 0;
+	static constexpr uint32		cClampedTwistMax = 1 << 1;
+	static constexpr uint32		cClampedSwingYMin = 1 << 2;
+	static constexpr uint32		cClampedSwingYMax = 1 << 3;
+	static constexpr uint32		cClampedSwingZMin = 1 << 4;
+	static constexpr uint32		cClampedSwingZMax = 1 << 5;
 
 	/// Helper function to determine if we're clamped against the min or max limit
 	static MOSS_INLINE bool		sDistanceToMinShorter(float inDeltaMin, float inDeltaMax) {
@@ -2110,7 +2110,7 @@ public:
 	}
 
 	/// Clamp twist and swing against the constraint limits, returns which parts were clamped (everything assumed in constraint space)
-	inline void					ClampSwingTwist(Quat& ioSwing, Quat& ioTwist, uint& outClampedAxis) const {
+	inline void					ClampSwingTwist(Quat& ioSwing, Quat& ioTwist, uint32& outClampedAxis) const {
 		// Start with not clamped
 		outClampedAxis = 0;
 
@@ -2256,7 +2256,7 @@ public:
 
 		// Clamp against joint limits
 		Quat q_clamped_swing = q_swing, q_clamped_twist = q_twist;
-		uint clamped_axis;
+		uint32 clamped_axis;
 		ClampSwingTwist(q_clamped_swing, q_clamped_twist, clamped_axis);
 
 		if (mRotationFlags&  SwingYLocked) {
@@ -2392,7 +2392,7 @@ public:
 		Quat q_swing, q_twist;
 		inConstraintRotation.GetSwingTwist(q_swing, q_twist);
 
-		uint clamped_axis;
+		uint32 clamped_axis;
 		ClampSwingTwist(q_swing, q_twist, clamped_axis);
 
 		// Solve rotation violations
@@ -2953,12 +2953,12 @@ public:
 	void						SetConstraintPriority(uint32 inPriority)	{ mConstraintPriority = inPriority; }
 
 	/// Used only when the constraint is active. Override for the number of solver velocity iterations to run, 0 means use the default in PhysicsSettings::mNumVelocitySteps. The number of iterations to use is the max of all contacts and constraints in the island.
-	void						SetNumVelocityStepsOverride(uint inN)		{ MOSS_ASSERT(inN < 256); mNumVelocityStepsOverride = uint8(inN); }
-	uint						GetNumVelocityStepsOverride() const			{ return mNumVelocityStepsOverride; }
+	void						SetNumVelocityStepsOverride(uint32 inN)		{ MOSS_ASSERT(inN < 256); mNumVelocityStepsOverride = uint8(inN); }
+	uint32						GetNumVelocityStepsOverride() const			{ return mNumVelocityStepsOverride; }
 
 	/// Used only when the constraint is active. Override for the number of solver position iterations to run, 0 means use the default in PhysicsSettings::mNumPositionSteps. The number of iterations to use is the max of all contacts and constraints in the island.
-	void						SetNumPositionStepsOverride(uint inN)		{ MOSS_ASSERT(inN < 256); mNumPositionStepsOverride = uint8(inN); }
-	uint						GetNumPositionStepsOverride() const			{ return mNumPositionStepsOverride; }
+	void						SetNumPositionStepsOverride(uint32 inN)		{ MOSS_ASSERT(inN < 256); mNumPositionStepsOverride = uint8(inN); }
+	uint32						GetNumPositionStepsOverride() const			{ return mNumPositionStepsOverride; }
 
 	/// Enable / disable this constraint. This can e.g. be used to implement a breakable constraint by detecting that the constraint impulse
 	/// (see e.g. PointConstraint::GetTotalLambdaPosition) went over a certain limit and then disabling the constraint.
@@ -2998,7 +2998,7 @@ public:
 	virtual void				BuildIslands(uint32 inConstraintIndex, IslandBuilder& ioBuilder, BodyManager& inBodyManager) = 0;
 
 	/// Link bodies that are connected by this constraint in the same split. Returns the split index.
-	virtual uint				BuildIslandSplits(LargeIslandSplitter& ioSplitter) const = 0;
+	virtual uint32				BuildIslandSplits(LargeIslandSplitter& ioSplitter) const = 0;
 
 #ifndef MOSS_DEBUG_RENDERER
 	// Drawing interface
@@ -4443,7 +4443,7 @@ public:
 	virtual void				BuildIslands(uint32 inConstraintIndex, IslandBuilder &ioBuilder, BodyManager &inBodyManager) override;
 
 	// Link bodies that are connected by this constraint in the same split. Returns the split index.
-	virtual uint				BuildIslandSplits(LargeIslandSplitter &ioSplitter) const override;
+	virtual uint32				BuildIslandSplits(LargeIslandSplitter &ioSplitter) const override;
 
 protected:
 	// The two bodies involved

@@ -161,7 +161,7 @@ Moss_RecastStatus Moss_RecastTileCache::init(const Moss_RecastTileCacheParams* p
 	
 	// Init ID generator values.
 	m_tileBits = dtIlog2(dtNextPow2((unsigned int)m_params.maxTiles));
-	// Only allow 31 salt bits, since the salt mask is calculated using 32bit uint and it will overflow.
+	// Only allow 31 salt bits, since the salt mask is calculated using 32bit uint32 and it will overflow.
 	m_saltBits = dtMin((unsigned int)31, 32 - m_tileBits);
 	if (m_saltBits < 10)
 		return DT_FAILURE | DT_INVALID_PARAM;

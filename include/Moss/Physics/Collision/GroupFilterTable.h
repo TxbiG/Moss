@@ -58,7 +58,7 @@ private:
 
 public:
 	/// Constructs the table with inNumSubGroups subgroups, initially all collision pairs are enabled except when the sub group ID is the same
-	explicit				GroupFilterTable(uint inNumSubGroups = 0) :
+	explicit				GroupFilterTable(uint32 inNumSubGroups = 0) :
 		mNumSubGroups(inNumSubGroups)
 	{
 		// By default everything collides
@@ -122,7 +122,7 @@ protected:
 	virtual void			RestoreBinaryState(StreamIn &inStream) override;
 
 private:
-	uint			mNumSubGroups;		// The number of subgroups that this group filter supports
+	uint32			mNumSubGroups;		// The number of subgroups that this group filter supports
 	TArray<uint8>	mTable;				// The table of bits that indicates which pairs collide
 };
 

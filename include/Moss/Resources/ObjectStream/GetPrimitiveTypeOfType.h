@@ -39,13 +39,13 @@ const RTTI *GetPrimitiveTypeOfType(Array<T, A> *)
 	return GetPrimitiveTypeOfType((T *)nullptr);
 }
 
-template <class T, uint N>
+template <class T, uint32 N>
 const RTTI *GetPrimitiveTypeOfType(StaticArray<T, N> *)
 {
 	return GetPrimitiveTypeOfType((T *)nullptr);
 }
 
-template <class T, uint N>
+template <class T, uint32 N>
 const RTTI *GetPrimitiveTypeOfType(T (*)[N])
 {
 	return GetPrimitiveTypeOfType((T *)nullptr);

@@ -105,12 +105,12 @@ inline HalfFloat FromFloatFallback(float inV)
 	HalfFloat hf = hf_sign | hf_exponent | hf_mantissa;
 
 	// Calculate the remaining bits that we're discarding
-	uint remainder = mantissa & ((1 << shift) - 1);
+	uint32 remainder = mantissa & ((1 << shift) - 1);
 
 	if constexpr (RoundingMode == ROUND_TO_NEAREST)
 	{
 		// Round to nearest
-		uint round_threshold = 1 << (shift - 1);
+		uint32 round_threshold = 1 << (shift - 1);
 		if (remainder > round_threshold // Above threshold, we must always round
 			|| (remainder == round_threshold && (hf_mantissa & 1))) // When equal, round to nearest even
 			hf++; // May overflow to infinity

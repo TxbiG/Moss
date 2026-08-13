@@ -66,8 +66,8 @@ public:
 	static MOSS_INLINE BVec16	Not(BVec16Arg inV1);
 
 	/// Get component by index
-	MOSS_INLINE uint8			operator [] (uint inCoordinate) const				{ MOSS_ASSERT(inCoordinate < 16); return mU8[inCoordinate]; }
-	MOSS_INLINE uint8 &			operator [] (uint inCoordinate)						{ MOSS_ASSERT(inCoordinate < 16); return mU8[inCoordinate]; }
+	MOSS_INLINE uint8			operator [] (uint32 inCoordinate) const				{ MOSS_ASSERT(inCoordinate < 16); return mU8[inCoordinate]; }
+	MOSS_INLINE uint8 &			operator [] (uint32 inCoordinate)						{ MOSS_ASSERT(inCoordinate < 16); return mU8[inCoordinate]; }
 
 	/// Test if any of the components are true (true is when highest bit of component is set)
 	MOSS_INLINE bool				TestAnyTrue() const;

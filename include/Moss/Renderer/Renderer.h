@@ -52,7 +52,7 @@ public:
 	virtual Ref<PixelShader>		CreatePixelShader(const char *inName) = 0;
 
 	/// Create pipeline state object that defines the complete state of how primitives should be rendered
-	virtual unique_ptr<PipelineState> CreatePipelineState(const VertexShader *inVertexShader, const PipelineState::EInputDescription *inInputDescription, uint inInputDescriptionCount, const PixelShader *inPixelShader, PipelineState::EDrawPass inDrawPass, PipelineState::EFillMode inFillMode, PipelineState::ETopology inTopology, PipelineState::EDepthTest inDepthTest, PipelineState::EBlendMode inBlendMode, PipelineState::ECullMode inCullMode) = 0;
+	virtual unique_ptr<PipelineState> CreatePipelineState(const VertexShader *inVertexShader, const PipelineState::EInputDescription *inInputDescription, uint32 inInputDescriptionCount, const PixelShader *inPixelShader, PipelineState::EDrawPass inDrawPass, PipelineState::EFillMode inFillMode, PipelineState::ETopology inTopology, PipelineState::EDepthTest inDepthTest, PipelineState::EBlendMode inBlendMode, PipelineState::ECullMode inCullMode) = 0;
 
 	/// Create a render primitive
 	virtual RenderPrimitive *		CreateRenderPrimitive(PipelineState::ETopology inType) = 0;
@@ -75,13 +75,13 @@ public:
 	const Frustum &					GetLightFrustum() const				{ JPH_ASSERT(mInFrame); return mLightFrustum; }
 
 	/// How many frames our pipeline is
-	inline static const uint		cFrameCount = 2;
+	inline static const uint32		cFrameCount = 2;
 
 	/// Size of the shadow map will be cShadowMapSize x cShadowMapSize pixels
-	inline static const uint		cShadowMapSize = 4096;
+	inline static const uint32		cShadowMapSize = 4096;
 
 	/// Which frame is currently rendering (to keep track of which buffers are free to overwrite)
-	uint							GetCurrentFrameIndex() const		{ JPH_ASSERT(mInFrame); return mFrameIndex; }
+	uint32							GetCurrentFrameIndex() const		{ JPH_ASSERT(mInFrame); return mFrameIndex; }
 
 	/// Get the window we're rendering to
 	ApplicationWindow *				GetWindow() const					{ return mWindow; }
@@ -114,7 +114,7 @@ protected:
 	RVec3							mBaseOffset { RVec3::sZero() };		///< Offset to subtract from the camera position to deal with large worlds
 	Frustum							mCameraFrustum;
 	Frustum							mLightFrustum;
-	uint							mFrameIndex = 0;					///< Current frame index (0 or 1)
+	uint32							mFrameIndex = 0;					///< Current frame index (0 or 1)
 	VertexShaderConstantBuffer		mVSBuffer;
 	VertexShaderConstantBuffer		mVSBufferOrtho;
 	PixelShaderConstantBuffer		mPSBuffer;

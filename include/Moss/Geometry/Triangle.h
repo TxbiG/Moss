@@ -103,9 +103,9 @@ public:
 	static uint32 sGetMortonCode(Vec3Arg inVector, const AABox &inVectorBounds) {
 		// Convert to 10 bit fixed point
 		Vec3 scaled = (inVector - inVectorBounds.mMin) / inVectorBounds.GetSize();
-		uint x = sExpandBits(scaled.GetX());
-		uint y = sExpandBits(scaled.GetY());
-		uint z = sExpandBits(scaled.GetZ());
+		uint32 x = sExpandBits(scaled.GetX());
+		uint32 y = sExpandBits(scaled.GetY());
+		uint32 z = sExpandBits(scaled.GetZ());
 		return (x << 2) + (y << 1) + z;
 	}
 };

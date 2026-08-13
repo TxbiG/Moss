@@ -9,7 +9,7 @@
 #include <Jolt/Core/StringTools.h>
 
 /// Possible lock modes of a Surface
-enum class ESurfaceLockMode : uint
+enum class ESurfaceLockMode : uint32
 {
 	None						= 0 << 0,															///< Not locked, cannot be used as a parameter
 	Read						= 1 << 0,
@@ -18,7 +18,7 @@ enum class ESurfaceLockMode : uint
 };
 
 /// Possible surface formats, most significant bit (MSB) first
-enum class ESurfaceFormat : uint
+enum class ESurfaceFormat : uint32
 {
 	A4L4,																							///< 4 bit alpha, 4 bit luminance (grayscale)
 	L8,																								///< 8 bit luminance (grayscale)
@@ -132,8 +132,8 @@ public:
 	/// Current lock state
 	inline ESurfaceLockMode		GetLockMode() const													{ return mLockMode; }
 	inline bool					IsLocked() const													{ return mLockMode != ESurfaceLockMode::None; }
-	inline bool					IsLockedForRead() const												{ return (uint(mLockMode) & uint(ESurfaceLockMode::Read)) != 0; }
-	inline bool					IsLockedForWrite() const											{ return (uint(mLockMode) & uint(ESurfaceLockMode::Write)) != 0; }
+	inline bool					IsLockedForRead() const												{ return (uint32(mLockMode) & uint32(ESurfaceLockMode::Read)) != 0; }
+	inline bool					IsLockedForWrite() const											{ return (uint32(mLockMode) & uint32(ESurfaceLockMode::Write)) != 0; }
 	inline bool					IsLockedForReadWrite() const										{ return IsLockedForRead() && IsLockedForWrite(); }
 
 	/// Access to the image data

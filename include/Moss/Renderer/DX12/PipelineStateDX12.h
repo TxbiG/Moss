@@ -15,7 +15,7 @@ class PipelineStateDX12 : public PipelineState
 {
 public:
 	/// Constructor
-	PipelineStateDX12(RendererDX12 *inRenderer, const VertexShaderDX12 *inVertexShader, const EInputDescription *inInputDescription, uint inInputDescriptionCount, 
+	PipelineStateDX12(RendererDX12 *inRenderer, const VertexShaderDX12 *inVertexShader, const EInputDescription *inInputDescription, uint32 inInputDescriptionCount, 
 		const PixelShaderDX12 *inPixelShader, EDrawPass inDrawPass, EFillMode inFillMode, ETopology inTopology, EDepthTest inDepthTest, EBlendMode inBlendMode, ECullMode inCullMode);
 	virtual	~PipelineStateDX12() override;
 

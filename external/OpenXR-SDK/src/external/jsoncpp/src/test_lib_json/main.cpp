@@ -625,7 +625,7 @@ JSONTEST_FIXTURE_LOCAL(ValueTest, integers) {
   JSONTEST_ASSERT_EQUAL(false, val.asBool());
   JSONTEST_ASSERT_STRING_EQUAL("0", val.asString());
 
-  // Default uint
+  // Default uint32
   val = Json::Value(Json::uintValue);
 
   JSONTEST_ASSERT_EQUAL(Json::uintValue, val.type());

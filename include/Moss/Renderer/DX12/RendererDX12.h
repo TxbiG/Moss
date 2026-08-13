@@ -35,14 +35,14 @@ public:
 	virtual Ref<Texture>			CreateTexture(const Surface *inSurface) override;
 	virtual Ref<VertexShader>		CreateVertexShader(const char *inName) override;
 	virtual Ref<PixelShader>		CreatePixelShader(const char *inName) override;
-	virtual unique_ptr<PipelineState> CreatePipelineState(const VertexShader *inVertexShader, const PipelineState::EInputDescription *inInputDescription, uint inInputDescriptionCount, const PixelShader *inPixelShader, PipelineState::EDrawPass inDrawPass, PipelineState::EFillMode inFillMode, PipelineState::ETopology inTopology, PipelineState::EDepthTest inDepthTest, PipelineState::EBlendMode inBlendMode, PipelineState::ECullMode inCullMode) override;
+	virtual unique_ptr<PipelineState> CreatePipelineState(const VertexShader *inVertexShader, const PipelineState::EInputDescription *inInputDescription, uint32 inInputDescriptionCount, const PixelShader *inPixelShader, PipelineState::EDrawPass inDrawPass, PipelineState::EFillMode inFillMode, PipelineState::ETopology inTopology, PipelineState::EDepthTest inDepthTest, PipelineState::EBlendMode inBlendMode, PipelineState::ECullMode inCullMode) override;
 	virtual RenderPrimitive *		CreateRenderPrimitive(PipelineState::ETopology inType) override;
 	virtual RenderInstances *		CreateRenderInstances() override;
 	virtual Texture *				GetShadowMap() const override		{ return mShadowMap.GetPtr(); }
 	virtual void					OnWindowResize() override;
 
 	/// Create a constant buffer
-	unique_ptr<ConstantBufferDX12>	CreateConstantBuffer(uint inBufferSize);
+	unique_ptr<ConstantBufferDX12>	CreateConstantBuffer(uint32 inBufferSize);
 
 	/// Create a buffer on the default heap (usable for permanent buffers)
 	ComPtr<ID3D12Resource>			CreateD3DResourceOnDefaultHeap(const void *inData, uint64 inSize);

@@ -111,10 +111,10 @@ public:
 	MOSS_INLINE void			SetAxisZ(Vec3Arg inV)									{ mCol[2] = Vec4(inV, 0.0f); }
 	MOSS_INLINE DVec3			GetTranslation() const									{ return mCol3; }
 	MOSS_INLINE void			SetTranslation(DVec3Arg inV)							{ mCol3 = inV; }
-	MOSS_INLINE Vec3			GetColumn3(uint inCol) const							{ MOSS_ASSERT(inCol < 3); return Vec3(mCol[inCol]); }
-	MOSS_INLINE void			SetColumn3(uint inCol, Vec3Arg inV)						{ MOSS_ASSERT(inCol < 3); mCol[inCol] = Vec4(inV, 0.0f); }
-	MOSS_INLINE Vec4			GetColumn4(uint inCol) const							{ MOSS_ASSERT(inCol < 3); return mCol[inCol]; }
-	MOSS_INLINE void			SetColumn4(uint inCol, Vec4Arg inV)						{ MOSS_ASSERT(inCol < 3); mCol[inCol] = inV; }
+	MOSS_INLINE Vec3			GetColumn3(uint32 inCol) const							{ MOSS_ASSERT(inCol < 3); return Vec3(mCol[inCol]); }
+	MOSS_INLINE void			SetColumn3(uint32 inCol, Vec3Arg inV)						{ MOSS_ASSERT(inCol < 3); mCol[inCol] = Vec4(inV, 0.0f); }
+	MOSS_INLINE Vec4			GetColumn4(uint32 inCol) const							{ MOSS_ASSERT(inCol < 3); return mCol[inCol]; }
+	MOSS_INLINE void			SetColumn4(uint32 inCol, Vec4Arg inV)						{ MOSS_ASSERT(inCol < 3); mCol[inCol] = inV; }
 
 	/// Transpose 3x3 subpart of matrix
 	MOSS_INLINE Mat44			Transposed3x3() const									{ return GetRotation().Transposed3x3(); }

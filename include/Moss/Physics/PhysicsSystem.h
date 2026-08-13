@@ -90,10 +90,10 @@ struct PhysicsSettings {
 
 	// Number of solver velocity iterations to run
 	// Note that this needs to be >= 2 in order for friction to work (friction is applied using the non-penetration impulse from the previous iteration)
-	uint		mNumVelocitySteps = 10;
+	uint32		mNumVelocitySteps = 10;
 
 	// Number of solver position iterations to run
-	uint		mNumPositionSteps = 2;
+	uint32		mNumPositionSteps = 2;
 
 	// Minimal velocity needed before a collision can be elastic. If the relative velocity between colliding objects
 	// in the direction of the contact normal is lower than this, the restitution will be zero regardless of the configured
@@ -148,17 +148,17 @@ public:
 	~PhysicsSystem();
 
 	/// The maximum value that can be passed to Init for inMaxBodies.
-	static constexpr uint		cMaxBodiesLimit = BodyID::cMaxBodyIndex + 1;
+	static constexpr uint32		cMaxBodiesLimit = BodyID::cMaxBodyIndex + 1;
 
 	/// The maximum value that can be passed to Init for inMaxBodyPairs.
 	/// Note you should really use a lower value, using this value will cost a lot of memory!
 	/// On a 32 bit platform, you'll run out of memory way before you reach this limit.
-	static constexpr uint		cMaxBodyPairsLimit = ContactConstraintManager::cMaxBodyPairsLimit;
+	static constexpr uint32		cMaxBodyPairsLimit = ContactConstraintManager::cMaxBodyPairsLimit;
 
 	/// The maximum value that can be passed to Init for inMaxContactConstraints.
 	/// Note you should really use a lower value, using this value will cost a lot of memory!
 	/// On a 32 bit platform, you'll run out of memory way before you reach this limit.
-	static constexpr uint		cMaxContactConstraintsLimit = ContactConstraintManager::cMaxContactConstraintsLimit;
+	static constexpr uint32		cMaxContactConstraintsLimit = ContactConstraintManager::cMaxContactConstraintsLimit;
 
 	/// Initialize the system.
 	/// @param inMaxBodies Maximum number of bodies to support.
@@ -168,7 +168,7 @@ public:
 	/// @param inBroadPhaseLayerInterface Information on the mapping of object layers to broad phase layers. Since this is a virtual interface, the instance needs to stay alive during the lifetime of the PhysicsSystem.
 	/// @param inObjectVsBroadPhaseLayerFilter Filter callback function that is used to determine if an object layer collides with a broad phase layer. Since this is a virtual interface, the instance needs to stay alive during the lifetime of the PhysicsSystem.
 	/// @param inObjectLayerPairFilter Filter callback function that is used to determine if two object layers collide. Since this is a virtual interface, the instance needs to stay alive during the lifetime of the PhysicsSystem.
-	void						Init(uint inMaxBodies, uint inNumBodyMutexes, uint inMaxBodyPairs, uint inMaxContactConstraints, const BroadPhaseLayerInterface &inBroadPhaseLayerInterface, const ObjectVsBroadPhaseLayerFilter &inObjectVsBroadPhaseLayerFilter, const ObjectLayerPairFilter &inObjectLayerPairFilter);
+	void						Init(uint32 inMaxBodies, uint32 inNumBodyMutexes, uint32 inMaxBodyPairs, uint32 inMaxContactConstraints, const BroadPhaseLayerInterface &inBroadPhaseLayerInterface, const ObjectVsBroadPhaseLayerFilter &inObjectVsBroadPhaseLayerFilter, const ObjectLayerPairFilter &inObjectLayerPairFilter);
 
 	/// Listener that is notified whenever a body is activated/deactivated
 	void						SetBodyActivationListener(BodyActivationListener *inListener) { mBodyManager.SetBodyActivationListener(inListener); }
@@ -319,13 +319,13 @@ public:
 	DefaultObjectLayerFilter	GetDefaultLayerFilter(ObjectLayer inLayer) const			{ return DefaultObjectLayerFilter(*mObjectLayerPairFilter, inLayer); }
 
 	/// Gets the current amount of bodies that are in the body manager
-	uint						GetNumBodies() const										{ return mBodyManager.GetNumBodies(); }
+	uint32						GetNumBodies() const										{ return mBodyManager.GetNumBodies(); }
 
 	/// Gets the current amount of active bodies that are in the body manager
 	uint32						GetNumActiveBodies(EBodyType inType) const					{ return mBodyManager.GetNumActiveBodies(inType); }
 
 	/// Get the maximum amount of bodies that this physics system supports
-	uint						GetMaxBodies() const										{ return mBodyManager.GetMaxBodies(); }
+	uint32						GetMaxBodies() const										{ return mBodyManager.GetMaxBodies(); }
 
 	/// Helper struct that counts the number of bodies of each type
 	using BodyStats = BodyManager::BodyStats;
@@ -383,7 +383,7 @@ private:
 	void						JobSolvePositionConstraints(PhysicsUpdateContext *ioContext, PhysicsUpdateContext::Step *ioStep);
 	void						JobSoftBodyPrepare(PhysicsUpdateContext *ioContext, PhysicsUpdateContext::Step *ioStep);
 	void						JobSoftBodyCollide(PhysicsUpdateContext *ioContext) const;
-	void						JobSoftBodySimulate(PhysicsUpdateContext *ioContext, uint inThreadIndex) const;
+	void						JobSoftBodySimulate(PhysicsUpdateContext *ioContext, uint32 inThreadIndex) const;
 	void						JobSoftBodyFinalize(PhysicsUpdateContext *ioContext);
 
 	/// Tries to spawn a new FindCollisions job if max concurrency hasn't been reached yet

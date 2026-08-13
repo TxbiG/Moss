@@ -125,7 +125,7 @@ void SPD_ResetAtomicCounter()
 
 FFX_FSR2_NUM_THREADS
 FFX_FSR2_EMBED_CB2_ROOTSIG_CONTENT
-void CS(uint3 WorkGroupId : SV_GroupID, uint LocalThreadIndex : SV_GroupIndex)
+void CS(uint3 WorkGroupId : SV_GroupID, uint32 LocalThreadIndex : SV_GroupIndex)
 {
     ComputeAutoExposure(WorkGroupId, LocalThreadIndex);
 }

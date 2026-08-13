@@ -212,7 +212,7 @@ public:
 		hull.DrawLabel("Build initial hull");
 #endif
 #ifdef MOSS_EPA_PENETRATION_DEPTH_DEBUG
-		MOSS_TRACE("Init: num_points = %u", (uint)support_points.mY.size());
+		MOSS_TRACE("Init: num_points = %u", (uint32)support_points.mY.size());
 #endif
 		hull.Initialize(0, 1, 2);
 		for (typename Points::size_type i = 3; i < support_points.mY.size(); ++i)

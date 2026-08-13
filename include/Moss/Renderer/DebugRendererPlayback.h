@@ -23,10 +23,10 @@ public:
 	void								Parse(StreamIn &inStream);
 
 	/// Get the number of parsed frames
-	uint								GetNumFrames() const				{ return (uint)mFrames.size(); }
+	uint32								GetNumFrames() const				{ return (uint32)mFrames.size(); }
 
 	/// Draw a frame
-	void								DrawFrame(uint inFrameNumber) const;
+	void								DrawFrame(uint32 inFrameNumber) const;
 
 private:
 	/// The debug renderer we're using to do the actual rendering

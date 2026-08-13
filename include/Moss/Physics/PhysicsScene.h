@@ -45,7 +45,7 @@ public:
 
 	public:
 		ConnectedConstraint() = default;
-		ConnectedConstraint(const TwoBodyConstraintSettings *inSettings, uint inBody1, uint inBody2) : mSettings(inSettings), mBody1(inBody1), mBody2(inBody2) { }
+		ConnectedConstraint(const TwoBodyConstraintSettings *inSettings, uint32 inBody1, uint32 inBody2) : mSettings(inSettings), mBody1(inBody1), mBody2(inBody2) { }
 
 		RefConst<TwoBodyConstraintSettings>	mSettings;										// Constraint settings
 		uint32								mBody1;											// Index of first body (in mBodies)

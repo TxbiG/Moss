@@ -119,7 +119,7 @@ public:
 			size_t							mChildTrianglesStart[NumChildrenPerNode];	// Start of the triangle data in mTree
 			size_t*						mParentChildNodeStart = nullptr;			// Where to store mNodeStart (to patch mChildNodeStart of my parent)
 			size_t*						mParentTrianglesStart = nullptr;			// Where to store mTriangleStart (to patch mChildTrianglesStart of my parent)
-			uint							mNumChildren = 0;							// Number of children
+			uint32							mNumChildren = 0;							// Number of children
 		};
 
 		TArray<NodeData *> to_process;
@@ -148,7 +148,7 @@ public:
 				// Collect the first NumChildrenPerNode sub-nodes in the tree
 				child_nodes.clear(); // Won't free the memory
 				node_data->mNode->GetNChildren(inNodes, NumChildrenPerNode, child_nodes);
-				node_data->mNumChildren = (uint)child_nodes.size();
+				node_data->mNumChildren = (uint32)child_nodes.size();
 
 				// Fill in default child bounds
 				Vec3 child_bounds_min[NumChildrenPerNode], child_bounds_max[NumChildrenPerNode];

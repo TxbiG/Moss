@@ -92,9 +92,9 @@ const Color FormatDescription::Decode(uint32 inColor) const
 const FormatDescription &GetFormatDescription(ESurfaceFormat inFormat)
 {
 	if (inFormat <= ESurfaceFormat::Invalid)
-		return sFormats[uint(inFormat)];
+		return sFormats[uint32(inFormat)];
 
-	return sFormats[uint(ESurfaceFormat::Invalid)];
+	return sFormats[uint32(ESurfaceFormat::Invalid)];
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
@@ -126,7 +126,7 @@ void Surface::Lock(ESurfaceLockMode inMode) const
 {
 	// Check if this resource can be locked
 	JPH_ASSERT(!IsLocked());
-	JPH_ASSERT((uint(inMode) & uint(ESurfaceLockMode::ReadWrite)) != 0);
+	JPH_ASSERT((uint32(inMode) & uint32(ESurfaceLockMode::ReadWrite)) != 0);
 
 	// Store mode
 	mLockMode = inMode;

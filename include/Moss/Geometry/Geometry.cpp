@@ -79,8 +79,8 @@ static void sIndexifyVerticesBruteForce(const TriangleList &inTriangles, const u
 	}
 }
 
-static void sIndexifyVerticesRecursively(const TriangleList &inTriangles, uint32 *ioVertexIndices, uint inNumVertices, uint32 *ioScratch, TArray<uint32> &ioWeldedVertices, 
-	float inVertexWeldDistance, uint inMaxRecursion) {
+static void sIndexifyVerticesRecursively(const TriangleList &inTriangles, uint32 *ioVertexIndices, uint32 inNumVertices, uint32 *ioScratch, TArray<uint32> &ioWeldedVertices, 
+	float inVertexWeldDistance, uint32 inMaxRecursion) {
 	// Check if we have few enough vertices to do a brute force search
 	// Or if we've recursed too deep (this means we chipped off a few vertices each iteration because all points are very close)
 	if (inNumVertices <= 8 || inMaxRecursion == 0)
@@ -126,7 +126,7 @@ static void sIndexifyVerticesRecursively(const TriangleList &inTriangles, uint32
 	}
 
 	// Check if we made any progress
-	uint num_vertices_on_both_sides = (uint)(scratch - ioScratch);
+	uint32 num_vertices_on_both_sides = (uint32)(scratch - ioScratch);
 	if (num_vertices_on_both_sides == inNumVertices)
 	{
 		sIndexifyVerticesBruteForce(inTriangles, ioVertexIndices, ioVertexIndices + inNumVertices, ioWeldedVertices, inVertexWeldDistance);
@@ -134,31 +134,31 @@ static void sIndexifyVerticesRecursively(const TriangleList &inTriangles, uint32
 	}
 
 	// Calculate how we classified the vertices
-	uint num_vertices_left = (uint)(v_write - ioVertexIndices);
-	uint num_vertices_right = (uint)(ioVertexIndices + inNumVertices - v_end);
+	uint32 num_vertices_left = (uint32)(v_write - ioVertexIndices);
+	uint32 num_vertices_right = (uint32)(ioVertexIndices + inNumVertices - v_end);
 	MOSS_ASSERT(num_vertices_left + num_vertices_right + num_vertices_on_both_sides == inNumVertices);
 	memcpy(v_write, ioScratch, num_vertices_on_both_sides * sizeof(uint32));
 
 	// Recurse
-	uint max_recursion = inMaxRecursion - 1;
+	uint32 max_recursion = inMaxRecursion - 1;
 	sIndexifyVerticesRecursively(inTriangles, ioVertexIndices, num_vertices_left + num_vertices_on_both_sides, ioScratch, ioWeldedVertices, inVertexWeldDistance, max_recursion);
 	sIndexifyVerticesRecursively(inTriangles, ioVertexIndices + num_vertices_left, num_vertices_right + num_vertices_on_both_sides, ioScratch, ioWeldedVertices, inVertexWeldDistance, max_recursion);
 }
 
 void Indexify(const TriangleList &inTriangles, VertexList &outVertices, IndexedTriangleList &outTriangles, float inVertexWeldDistance) {
-	uint num_triangles = (uint)inTriangles.size();
-	uint num_vertices = num_triangles * 3;
+	uint32 num_triangles = (uint32)inTriangles.size();
+	uint32 num_vertices = num_triangles * 3;
 
 	// Create a list of all vertex indices
 	TArray<uint32> vertex_indices;
 	vertex_indices.resize(num_vertices);
-	for (uint i = 0; i < num_vertices; ++i)
+	for (uint32 i = 0; i < num_vertices; ++i)
 		vertex_indices[i] = i;
 
 	// Link each vertex to itself
 	TArray<uint32> welded_vertices;
 	welded_vertices.resize(num_vertices);
-	for (uint i = 0; i < num_vertices; ++i)
+	for (uint32 i = 0; i < num_vertices; ++i)
 		welded_vertices[i] = i;
 
 	// A scope to free memory used by the scratch array
@@ -173,8 +173,8 @@ void Indexify(const TriangleList &inTriangles, VertexList &outVertices, IndexedT
 
 	// Do a pass to complete the welding, linking each vertex to the vertex it is welded to
 	// (and since we're going from 0 to N we can be sure that the vertex we're linking to is already linked to the lowest vertex)
-	uint num_resulting_vertices = 0;
-	for (uint i = 0; i < num_vertices; ++i)
+	uint32 num_resulting_vertices = 0;
+	for (uint32 i = 0; i < num_vertices; ++i)
 	{
 		MOSS_ASSERT(welded_vertices[welded_vertices[i]] <= welded_vertices[i]);
 		welded_vertices[i] = welded_vertices[welded_vertices[i]];
@@ -185,7 +185,7 @@ void Indexify(const TriangleList &inTriangles, VertexList &outVertices, IndexedT
 	// Collect the vertices
 	outVertices.clear();
 	outVertices.reserve(num_resulting_vertices);
-	for (uint i = 0; i < num_vertices; ++i)
+	for (uint32 i = 0; i < num_vertices; ++i)
 		if (welded_vertices[i] == i)
 		{
 			// New vertex
@@ -201,7 +201,7 @@ void Indexify(const TriangleList &inTriangles, VertexList &outVertices, IndexedT
 	// Create indexed triangles
 	outTriangles.clear();
 	outTriangles.reserve(num_triangles);
-	for (uint t = 0; t < num_triangles; ++t)
+	for (uint32 t = 0; t < num_triangles; ++t)
 	{
 		IndexedTriangle it;
 		it.mMaterialIndex = inTriangles[t].mMaterialIndex;

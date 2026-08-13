@@ -28,7 +28,7 @@ layout(local_size_x=1, local_size_y=1, local_size_z=1) in;
 layout(binding=0) uniform sampler2D img;
 layout(binding=1) buffer buf
 {
-	uint bufValues[];
+	uint32 bufValues[];
 };
 
 void main()
@@ -37,8 +37,8 @@ void main()
 		bufValues[gl_GlobalInvocationID.x * 3 + 1]);
 	vec4 color = texture(img, xy);
 	bufValues[gl_GlobalInvocationID.x * 3 + 2] =
-		uint(color.r * 255.0) << 24 |
-		uint(color.g * 255.0) << 16 |
-		uint(color.b * 255.0) <<  8 |
-		uint(color.a * 255.0);
+		uint32(color.r * 255.0) << 24 |
+		uint32(color.g * 255.0) << 16 |
+		uint32(color.b * 255.0) <<  8 |
+		uint32(color.a * 255.0);
 }

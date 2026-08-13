@@ -1317,9 +1317,9 @@ size_t meshopt_buildMeshletsSpatial(struct meshopt_Meshlet* meshlets, unsigned i
 
 	meshopt_Allocator allocator;
 
-	// 3 floats plus 1 uint for sorting, or
+	// 3 floats plus 1 uint32 for sorting, or
 	// 2 floats for SAH costs, or
-	// 1 uint plus 1 byte for partitioning
+	// 1 uint32 plus 1 byte for partitioning
 	float* scratch = allocator.allocate<float>(face_count * 4);
 
 	// compute bounding boxes and centroids for sorting

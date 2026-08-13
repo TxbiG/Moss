@@ -69,7 +69,7 @@ FFX_FSR2_NUM_THREADS
 FFX_FSR2_EMBED_ROOTSIG_CONTENT
 void CS(uint2 uGroupId : SV_GroupID, uint2 uGroupThreadId : SV_GroupThreadID)
 {
-    const uint GroupRows = (uint(DisplaySize().y) + FFX_FSR2_THREAD_GROUP_HEIGHT - 1) / FFX_FSR2_THREAD_GROUP_HEIGHT;
+    const uint32 GroupRows = (uint32(DisplaySize().y) + FFX_FSR2_THREAD_GROUP_HEIGHT - 1) / FFX_FSR2_THREAD_GROUP_HEIGHT;
     uGroupId.y = GroupRows - uGroupId.y - 1;
 
     uint2 uDispatchThreadId = uGroupId * uint2(FFX_FSR2_THREAD_GROUP_WIDTH, FFX_FSR2_THREAD_GROUP_HEIGHT) + uGroupThreadId;

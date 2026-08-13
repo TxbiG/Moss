@@ -229,7 +229,7 @@ public:
 		const Point &p3 = mPoints[inIdx3];
 
 		// Determine which vertices are submerged
-		uint code = (p1.mAboveSurface? 0 : 0b001) | (p2.mAboveSurface? 0 : 0b010) | (p3.mAboveSurface? 0 : 0b100);
+		uint32 code = (p1.mAboveSurface? 0 : 0b001) | (p2.mAboveSurface? 0 : 0b010) | (p3.mAboveSurface? 0 : 0b100);
 
 		float volume;
 		Vec3 center;

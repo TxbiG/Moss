@@ -40,13 +40,13 @@ public:
 	/// Allocate memory
 	inline pointer			allocate(size_type inN)
 	{
-		return pointer(mAllocator.Allocate(uint(inN * sizeof(value_type))));
+		return pointer(mAllocator.Allocate(uint32(inN * sizeof(value_type))));
 	}
 
 	/// Free memory
 	inline void				deallocate(pointer inPointer, size_type inN)
 	{
-		mAllocator.Free(inPointer, uint(inN * sizeof(value_type)));
+		mAllocator.Free(inPointer, uint32(inN * sizeof(value_type)));
 	}
 
 	/// Allocators are not-stateless, assume if allocator address matches that the allocators are the same

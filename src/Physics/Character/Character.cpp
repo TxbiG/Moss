@@ -1113,7 +1113,7 @@ void CharacterVirtual::SolveConstraints(Vec3Arg inVelocity, float inDeltaTime, f
 	int num_previous_contacts = 0;
 
 	// Loop for a max amount of iterations
-	for (uint iteration = 0; iteration < mMaxConstraintIterations; iteration++)
+	for (uint32 iteration = 0; iteration < mMaxConstraintIterations; iteration++)
 	{
 		// Calculate time of impact for all constraints
 		for (Constraint &c : ioConstraints)
@@ -1534,7 +1534,7 @@ void CharacterVirtual::MoveShape(RVec3 &ioPosition, Vec3Arg inVelocity, float in
 	Vec3 movement_direction = inVelocity.NormalizedOr(Vec3::Zero());
 
 	float time_remaining = inDeltaTime;
-	for (uint iteration = 0; iteration < mMaxCollisionIterations && time_remaining >= mMinTimeRemaining; iteration++)
+	for (uint32 iteration = 0; iteration < mMaxCollisionIterations && time_remaining >= mMinTimeRemaining; iteration++)
 	{
 		MOSS_DET_LOG("iter: " << iteration << " time: " << time_remaining);
 

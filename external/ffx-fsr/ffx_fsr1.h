@@ -1074,7 +1074,7 @@ AF1 sharpness){
 //------------------------------------------------------------------------------------------------------------------------------
 // DX SPEC RULES FOR FLOAT->UNORM 8-BIT CONVERSION
 // ===============================================
-// - Output is 'uint(floor(saturate(n)*255.0+0.5))'.
+// - Output is 'uint32(floor(saturate(n)*255.0+0.5))'.
 // - Thus rounding is to nearest.
 // - NaN gets converted to zero.
 // - INF is clamped to {0.0 to 1.0}.

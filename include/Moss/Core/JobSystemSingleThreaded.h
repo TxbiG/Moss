@@ -17,11 +17,11 @@ public:
 
 	/// Constructor
 							JobSystemSingleThreaded() = default;
-	explicit				JobSystemSingleThreaded(uint inMaxJobs)			{ Init(inMaxJobs); }
+	explicit				JobSystemSingleThreaded(uint32 inMaxJobs)			{ Init(inMaxJobs); }
 
 	/// Initialize the job system
 	/// @param inMaxJobs Max number of jobs that can be allocated at any time
-	void					Init(uint inMaxJobs);
+	void					Init(uint32 inMaxJobs);
 
 	// See JobSystem
 	virtual int				GetMaxConcurrency() const override				{ return 1; }
@@ -39,7 +39,7 @@ protected:
 
 		// See Barrier
 		virtual void		AddJob(const JobHandle &inJob) override			{ /* We don't need to track jobs */ }
-		virtual void		AddJobs(const JobHandle *inHandles, uint inNumHandles) override { /* We don't need to track jobs */ }
+		virtual void		AddJobs(const JobHandle *inHandles, uint32 inNumHandles) override { /* We don't need to track jobs */ }
 
 	protected:
 		/// Called by a Job to mark that it is finished
@@ -48,7 +48,7 @@ protected:
 
 	// See JobSystem
 	virtual void			QueueJob(Job *inJob) override;
-	virtual void			QueueJobs(Job **inJobs, uint inNumJobs) override;
+	virtual void			QueueJobs(Job **inJobs, uint32 inNumJobs) override;
 	virtual void			FreeJob(Job *inJob) override;
 
 	/// Shared barrier since the barrier implementation does nothing

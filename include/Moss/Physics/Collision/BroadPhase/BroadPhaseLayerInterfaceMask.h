@@ -42,7 +42,7 @@ class BroadPhaseLayerInterfaceMask : public BroadPhaseLayerInterface {
 public:
 	MOSS_OVERRIDE_NEW_DELETE
 
-	explicit				BroadPhaseLayerInterfaceMask(uint inNumBroadPhaseLayers)
+	explicit				BroadPhaseLayerInterfaceMask(uint32 inNumBroadPhaseLayers)
 	{
 		MOSS_ASSERT(inNumBroadPhaseLayers > 0);
 		mMapping.resize(inNumBroadPhaseLayers);
@@ -55,15 +55,15 @@ public:
 	// Configures a broadphase layer.
 	void					ConfigureLayer(BroadPhaseLayer inBroadPhaseLayer, uint32 inGroupsToInclude, uint32 inGroupsToExclude)
 	{
-		MOSS_ASSERT((BroadPhaseLayer::Type)inBroadPhaseLayer < (uint)mMapping.size());
+		MOSS_ASSERT((BroadPhaseLayer::Type)inBroadPhaseLayer < (uint32)mMapping.size());
 		Mapping &m = mMapping[(BroadPhaseLayer::Type)inBroadPhaseLayer];
 		m.mGroupsToInclude = inGroupsToInclude;
 		m.mGroupsToExclude = inGroupsToExclude;
 	}
 
-	virtual uint			GetNumBroadPhaseLayers() const override
+	virtual uint32			GetNumBroadPhaseLayers() const override
 	{
-		return (uint)mMapping.size();
+		return (uint32)mMapping.size();
 	}
 
 	virtual BroadPhaseLayer	GetBroadPhaseLayer(ObjectLayer inLayer) const override
@@ -117,7 +117,7 @@ class BroadPhaseLayerInterfaceTable : public BroadPhaseLayerInterface {
 public:
 	MOSS_OVERRIDE_NEW_DELETE
 
-							BroadPhaseLayerInterfaceTable(uint inNumObjectLayers, uint inNumBroadPhaseLayers) :
+							BroadPhaseLayerInterfaceTable(uint32 inNumObjectLayers, uint32 inNumBroadPhaseLayers) :
 		mNumBroadPhaseLayers(inNumBroadPhaseLayers)
 	{
 		mObjectToBroadPhase.resize(inNumObjectLayers, BroadPhaseLayer(0));
@@ -132,7 +132,7 @@ public:
 		mObjectToBroadPhase[inObjectLayer] = inBroadPhaseLayer;
 	}
 
-	virtual uint			GetNumBroadPhaseLayers() const override
+	virtual uint32			GetNumBroadPhaseLayers() const override
 	{
 		return mNumBroadPhaseLayers;
 	}
@@ -155,7 +155,7 @@ public:
 #endif // MOSS_EXTERNAL_PROFILE || MOSS_PROFILE_ENABLED
 
 private:
-	uint					mNumBroadPhaseLayers;
+	uint32					mNumBroadPhaseLayers;
 	TArray<BroadPhaseLayer>	mObjectToBroadPhase;
 #if defined(MOSS_EXTERNAL_PROFILE) || defined(MOSS_PROFILE_ENABLED)
 	TArray<const char *>		mBroadPhaseLayerNames;
@@ -169,7 +169,7 @@ class ObjectVsBroadPhaseLayerFilterTable : public ObjectVsBroadPhaseLayerFilter
 {
 private:
 	/// Get which bit corresponds to the pair (inLayer1, inLayer2)
-	uint					GetBit(ObjectLayer inLayer1, BroadPhaseLayer inLayer2) const
+	uint32					GetBit(ObjectLayer inLayer1, BroadPhaseLayer inLayer2) const
 	{
 		// Calculate at which bit the entry for this pair resides
 		return inLayer1 * mNumBroadPhaseLayers + (BroadPhaseLayer::Type)inLayer2;
@@ -183,7 +183,7 @@ public:
 	/// @param inNumBroadPhaseLayers Number of broad phase layers
 	/// @param inObjectLayerPairFilter The object layer pair filter that determines which object layers can collide
 	/// @param inNumObjectLayers Number of object layers
-							ObjectVsBroadPhaseLayerFilterTable(const BroadPhaseLayerInterface &inBroadPhaseLayerInterface, uint inNumBroadPhaseLayers, const ObjectLayerPairFilter &inObjectLayerPairFilter, uint inNumObjectLayers) :
+							ObjectVsBroadPhaseLayerFilterTable(const BroadPhaseLayerInterface &inBroadPhaseLayerInterface, uint32 inNumBroadPhaseLayers, const ObjectLayerPairFilter &inObjectLayerPairFilter, uint32 inNumObjectLayers) :
 		mNumBroadPhaseLayers(inNumBroadPhaseLayers)
 	{
 		// Resize table and set all entries to false
@@ -200,7 +200,7 @@ public:
 				// If the object layers collide then so should the object and broadphase layer
 				if (inObjectLayerPairFilter.ShouldCollide(o1, o2))
 				{
-					uint bit = GetBit(o1, b2);
+					uint32 bit = GetBit(o1, b2);
 					mTable[bit >> 3] |= 1 << (bit & 0b111);
 				}
 			}
@@ -209,12 +209,12 @@ public:
 	/// Returns true if an object layer should collide with a broadphase layer
 	virtual bool			ShouldCollide(ObjectLayer inLayer1, BroadPhaseLayer inLayer2) const override
 	{
-		uint bit = GetBit(inLayer1, inLayer2);
+		uint32 bit = GetBit(inLayer1, inLayer2);
 		return (mTable[bit >> 3] & (1 << (bit & 0b111))) != 0;
 	}
 
 private:
-	uint			mNumBroadPhaseLayers;		// The total number of broadphase layers
+	uint32			mNumBroadPhaseLayers;		// The total number of broadphase layers
 	TArray<uint8>	mTable;						// The table of bits that indicates which layers collide
 };
 

@@ -88,7 +88,7 @@ public:
 	virtual void			CollidePoint(Vec3Arg inPoint, const SubShapeIDCreator &inSubShapeIDCreator, CollidePointCollector &ioCollector, const ShapeFilter &inShapeFilter = { }) const override;
 
 	// See: Shape::CollideSoftBodyVertices
-	virtual void			CollideSoftBodyVertices(Mat44Arg inCenterOfMassTransform, Vec3Arg inScale, const CollideSoftBodyVertexIterator &inVertices, uint inNumVertices, int inCollidingShapeIndex) const override;
+	virtual void			CollideSoftBodyVertices(Mat44Arg inCenterOfMassTransform, Vec3Arg inScale, const CollideSoftBodyVertexIterator &inVertices, uint32 inNumVertices, int inCollidingShapeIndex) const override;
 
 	// See Shape::GetTrianglesStart
 	virtual void			GetTrianglesStart(GetTrianglesContext &ioContext, const AABox &inBox, Vec3Arg inPositionCOM, QuatArg inRotation, Vec3Arg inScale) const override;
@@ -112,28 +112,28 @@ public:
 	const TArray<Plane> &	GetPlanes() const													{ return mPlanes; }
 
 	/// Get the number of vertices in this convex hull
-	inline uint				GetNumPoints() const												{ return uint(mPoints.size()); }
+	inline uint32				GetNumPoints() const												{ return uint32(mPoints.size()); }
 
 	/// Get a vertex of this convex hull relative to the center of mass
-	inline Vec3				GetPoint(uint inIndex) const										{ return mPoints[inIndex].mPosition; }
+	inline Vec3				GetPoint(uint32 inIndex) const										{ return mPoints[inIndex].mPosition; }
 
 	/// Get the number of faces in this convex hull
-	inline uint				GetNumFaces() const													{ return uint(mFaces.size()); }
+	inline uint32				GetNumFaces() const													{ return uint32(mFaces.size()); }
 
 	/// Get the number of vertices in a face
-	inline uint				GetNumVerticesInFace(uint inFaceIndex) const						{ return mFaces[inFaceIndex].mNumVertices; }
+	inline uint32				GetNumVerticesInFace(uint32 inFaceIndex) const						{ return mFaces[inFaceIndex].mNumVertices; }
 
 	/// Get the vertices indices of a face
 	/// @param inFaceIndex Index of the face.
 	/// @param inMaxVertices Maximum number of vertices to return.
 	/// @param outVertices TArray of vertices indices, must be at least inMaxVertices in size, the vertices are returned in counter clockwise order and the positions can be obtained using GetPoint(index).
 	/// @return Number of vertices in face, if this is bigger than inMaxVertices, not all vertices were retrieved.
-	inline uint				GetFaceVertices(uint inFaceIndex, uint inMaxVertices, uint *outVertices) const
+	inline uint32				GetFaceVertices(uint32 inFaceIndex, uint32 inMaxVertices, uint32 *outVertices) const
 	{
 		const Face &face = mFaces[inFaceIndex];
 		const uint8 *first_vertex = mVertexIdx.data() + face.mFirstVertex;
-		uint num_vertices = min<uint>(face.mNumVertices, inMaxVertices);
-		for (uint i = 0; i < num_vertices; ++i)
+		uint32 num_vertices = min<uint32>(face.mNumVertices, inMaxVertices);
+		for (uint32 i = 0; i < num_vertices; ++i)
 			outVertices[i] = first_vertex[i];
 		return face.mNumVertices;
 	}

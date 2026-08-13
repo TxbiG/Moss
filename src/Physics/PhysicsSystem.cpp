@@ -72,10 +72,10 @@ PhysicsSystem::~PhysicsSystem() {
 	delete mBroadPhase;
 }
 
-void PhysicsSystem::Init(uint inMaxBodies, uint inNumBodyMutexes, uint inMaxBodyPairs, uint inMaxContactConstraints, const BroadPhaseLayerInterface &inBroadPhaseLayerInterface, const ObjectVsBroadPhaseLayerFilter &inObjectVsBroadPhaseLayerFilter, const ObjectLayerPairFilter &inObjectLayerPairFilter)
+void PhysicsSystem::Init(uint32 inMaxBodies, uint32 inNumBodyMutexes, uint32 inMaxBodyPairs, uint32 inMaxContactConstraints, const BroadPhaseLayerInterface &inBroadPhaseLayerInterface, const ObjectVsBroadPhaseLayerFilter &inObjectVsBroadPhaseLayerFilter, const ObjectLayerPairFilter &inObjectLayerPairFilter)
 {
 	// Clamp max bodies
-	uint max_bodies = min(inMaxBodies, cMaxBodiesLimit);
+	uint32 max_bodies = min(inMaxBodies, cMaxBodiesLimit);
 	MOSS_ASSERT(max_bodies == inMaxBodies, "Cannot support this many bodies!");
 
 	mObjectVsBroadPhaseLayerFilter = &inObjectVsBroadPhaseLayerFilter;
@@ -767,7 +767,7 @@ void PhysicsSystem::JobBuildIslandsFromConstraints(PhysicsUpdateContext *ioConte
 void PhysicsSystem::TrySpawnJobFindCollisions(PhysicsUpdateContext::Step *ioStep) const
 {
 	// Get how many jobs we can spawn and check if we can spawn more
-	uint max_jobs = ioStep->mBodyPairQueues.size();
+	uint32 max_jobs = ioStep->mBodyPairQueues.size();
 	if (CountBits(ioStep->mActiveFindCollisionJobs.load(memory_order_relaxed)) >= max_jobs)
 		return;
 
@@ -780,13 +780,13 @@ void PhysicsSystem::TrySpawnJobFindCollisions(PhysicsUpdateContext::Step *ioStep
 	uint32 num_active_bodies = mBodyManager.GetNumActiveBodies(EBodyType::RigidBody) - ioStep->mActiveBodyReadIdx;
 
 	// Calculate how many jobs we would like
-	uint desired_num_jobs = min((num_body_pairs + cNarrowPhaseBatchSize - 1) / cNarrowPhaseBatchSize + (num_active_bodies + cActiveBodiesBatchSize - 1) / cActiveBodiesBatchSize, max_jobs);
+	uint32 desired_num_jobs = min((num_body_pairs + cNarrowPhaseBatchSize - 1) / cNarrowPhaseBatchSize + (num_active_bodies + cActiveBodiesBatchSize - 1) / cActiveBodiesBatchSize, max_jobs);
 
 	for (;;)
 	{
 		// Get the bit mask of active jobs and see if we can spawn more
 		PhysicsUpdateContext::JobMask current_active_jobs = ioStep->mActiveFindCollisionJobs.load(memory_order_relaxed);
-		uint job_index = CountTrailingZeros(~current_active_jobs);
+		uint32 job_index = CountTrailingZeros(~current_active_jobs);
 		if (job_index >= desired_num_jobs)
 			break;
 
@@ -1331,7 +1331,7 @@ void PhysicsSystem::JobSolveVelocityConstraints(PhysicsUpdateContext *ioContext,
 		if (check_split_islands)
 		{
 			bool first_iteration;
-			uint split_island_index;
+			uint32 split_island_index;
 			uint32 *constraints_begin, *constraints_end, *contacts_begin, *contacts_end;
 			switch (mLargeIslandSplitter.FetchNextBatch(split_island_index, constraints_begin, constraints_end, contacts_begin, contacts_end, first_iteration))
 			{
@@ -1433,7 +1433,7 @@ void PhysicsSystem::JobSolveVelocityConstraints(PhysicsUpdateContext *ioContext,
 			mIslandBuilder.SetNumPositionSteps(island_idx, steps_calculator.GetNumPositionSteps());
 
 			// Solve velocity constraints
-			for (uint velocity_step = 0; velocity_step < steps_calculator.GetNumVelocitySteps(); ++velocity_step)
+			for (uint32 velocity_step = 0; velocity_step < steps_calculator.GetNumVelocitySteps(); ++velocity_step)
 			{
 				bool applied_impulse = ConstraintManager::SolveVelocityConstraints(active_constraints, constraints_begin, constraints_end, delta_time);
 				applied_impulse |= mContactManager.SolveVelocityConstraints(contacts_begin, contacts_end);
@@ -1991,7 +1991,7 @@ void PhysicsSystem::JobResolveCCDContacts(PhysicsUpdateContext *ioContext, Physi
 	TempAllocator *temp_allocator = ioContext->mTempAllocator;
 
 	// Check if there's anything to do
-	uint num_ccd_bodies = ioStep->mNumCCDBodies;
+	uint32 num_ccd_bodies = ioStep->mNumCCDBodies;
 	if (num_ccd_bodies > 0)
 	{
 		// Sort on fraction so that we process earliest collisions first
@@ -2030,7 +2030,7 @@ void PhysicsSystem::JobResolveCCDContacts(PhysicsUpdateContext *ioContext, Physi
 		BodyID *bodies_to_update_bounds = (BodyID *)MOSS_STACK_ALLOC(cBodiesBatch * sizeof(BodyID));
 		int num_bodies_to_update_bounds = 0;
 
-		for (uint i = 0; i < num_ccd_bodies; ++i)
+		for (uint32 i = 0; i < num_ccd_bodies; ++i)
 		{
 			const CCDBody *ccd_body = sorted_ccd_bodies[i];
 			Body &body1 = mBodyManager.GetBody(ccd_body->mBodyID1);
@@ -2392,7 +2392,7 @@ void PhysicsSystem::JobSolvePositionConstraints(PhysicsUpdateContext *ioContext,
 		if (check_split_islands)
 		{
 			bool first_iteration;
-			uint split_island_index;
+			uint32 split_island_index;
 			uint32 *constraints_begin, *constraints_end, *contacts_begin, *contacts_end;
 			switch (mLargeIslandSplitter.FetchNextBatch(split_island_index, constraints_begin, constraints_end, contacts_begin, contacts_end, first_iteration))
 			{
@@ -2441,7 +2441,7 @@ void PhysicsSystem::JobSolvePositionConstraints(PhysicsUpdateContext *ioContext,
 			mIslandBuilder.GetContactsInIsland(island_idx, contacts_begin, contacts_end);
 
 			// If this island is a large island, it will be picked up as a batch and we don't need to do anything here
-			uint num_items = uint(constraints_end - constraints_begin) + uint(contacts_end - contacts_begin);
+			uint32 num_items = uint32(constraints_end - constraints_begin) + uint32(contacts_end - contacts_begin);
 			if (mPhysicsSettings.mUseLargeIslandSplitter
 				&& num_items >= LargeIslandSplitter::cLargeIslandTreshold)
 				continue;
@@ -2450,8 +2450,8 @@ void PhysicsSystem::JobSolvePositionConstraints(PhysicsUpdateContext *ioContext,
 			if (num_items > 0)
 			{
 				// Iterate
-				uint num_position_steps = mIslandBuilder.GetNumPositionSteps(island_idx);
-				for (uint position_step = 0; position_step < num_position_steps; ++position_step)
+				uint32 num_position_steps = mIslandBuilder.GetNumPositionSteps(island_idx);
+				for (uint32 position_step = 0; position_step < num_position_steps; ++position_step)
 				{
 					bool applied_impulse = ConstraintManager::SolvePositionConstraints(active_constraints, constraints_begin, constraints_end, delta_time, baumgarte);
 					applied_impulse |= mContactManager.SolvePositionConstraints(contacts_begin, contacts_end);
@@ -2512,7 +2512,7 @@ void PhysicsSystem::JobSoftBodyPrepare(PhysicsUpdateContext *ioContext, PhysicsU
 		QuickSort(active_bodies.begin(), active_bodies.end());
 
 		// Allocate soft body contexts
-		ioContext->mNumSoftBodies = (uint)active_bodies.size();
+		ioContext->mNumSoftBodies = (uint32)active_bodies.size();
 		ioContext->mSoftBodyUpdateContexts = (SoftBodyUpdateContext *)ioContext->mTempAllocator->Allocate(ioContext->mNumSoftBodies * sizeof(SoftBodyUpdateContext));
 
 		// Initialize soft body contexts
@@ -2576,7 +2576,7 @@ void PhysicsSystem::JobSoftBodyCollide(PhysicsUpdateContext *ioContext) const
 	for (;;)
 	{
 		// Fetch the next soft body
-		uint sb_idx = ioContext->mSoftBodyToCollide.fetch_add(1, std::memory_order_acquire);
+		uint32 sb_idx = ioContext->mSoftBodyToCollide.fetch_add(1, std::memory_order_acquire);
 		if (sb_idx >= ioContext->mNumSoftBodies)
 			break;
 
@@ -2586,7 +2586,7 @@ void PhysicsSystem::JobSoftBodyCollide(PhysicsUpdateContext *ioContext) const
 	}
 }
 
-void PhysicsSystem::JobSoftBodySimulate(PhysicsUpdateContext *ioContext, uint inThreadIndex) const
+void PhysicsSystem::JobSoftBodySimulate(PhysicsUpdateContext *ioContext, uint32 inThreadIndex) const
 {
 #ifdef MOSS_DEBUG
 	// Updating velocities of soft bodies, allow the contact listener to read the soft body state
@@ -2594,36 +2594,36 @@ void PhysicsSystem::JobSoftBodySimulate(PhysicsUpdateContext *ioContext, uint in
 #endif
 
 	// Calculate at which body we start to distribute the workload across the threads
-	uint num_soft_bodies = ioContext->mNumSoftBodies;
-	uint start_idx = inThreadIndex * num_soft_bodies / ioContext->GetMaxConcurrency();
+	uint32 num_soft_bodies = ioContext->mNumSoftBodies;
+	uint32 start_idx = inThreadIndex * num_soft_bodies / ioContext->GetMaxConcurrency();
 
 	// Keep running partial updates until everything has been updated
-	uint status;
+	uint32 status;
 	do
 	{
 		// Reset status
 		status = 0;
 
 		// Update all soft bodies
-		for (uint i = 0; i < num_soft_bodies; ++i)
+		for (uint32 i = 0; i < num_soft_bodies; ++i)
 		{
 			// Fetch the soft body context
 			SoftBodyUpdateContext &sb_ctx = ioContext->mSoftBodyUpdateContexts[(start_idx + i) % num_soft_bodies];
 
 			// To avoid trashing the cache too much, we prefer to stick to one soft body until we cannot progress it any further
-			uint sb_status;
+			uint32 sb_status;
 			do
 			{
-				sb_status = (uint)sb_ctx.mMotionProperties->ParallelUpdate(sb_ctx, mPhysicsSettings);
+				sb_status = (uint32)sb_ctx.mMotionProperties->ParallelUpdate(sb_ctx, mPhysicsSettings);
 				status |= sb_status;
-			} while (sb_status == (uint)SoftBodyMotionProperties::EStatus::DidWork);
+			} while (sb_status == (uint32)SoftBodyMotionProperties::EStatus::DidWork);
 		}
 
 		// If we didn't perform any work, yield the thread so that something else can run
-		if (!(status & (uint)SoftBodyMotionProperties::EStatus::DidWork))
+		if (!(status & (uint32)SoftBodyMotionProperties::EStatus::DidWork))
 			std::this_thread::yield();
 	}
-	while (status != (uint)SoftBodyMotionProperties::EStatus::Done);
+	while (status != (uint32)SoftBodyMotionProperties::EStatus::Done);
 }
 
 void PhysicsSystem::JobSoftBodyFinalize(PhysicsUpdateContext *ioContext)
