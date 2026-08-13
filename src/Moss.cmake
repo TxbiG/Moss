@@ -9,6 +9,9 @@ set(MOSS_ROOT ${REPO_ROOT}/src) # Switch Moss to src
 set(MOSS_ROOT_INCLUDE ${REPO_ROOT}/Moss/include) # Switch Moss to src
 
 set(MOSS_HEADER_FILES
+	${MOSS_ROOT_INCLUDE}/*.h
+    ${MOSS_ROOT_INCLUDE}/*.inl
+
 	${MOSS_ROOT_INCLUDE}/Moss_stdinc.h
 	${MOSS_ROOT_INCLUDE}/Moss_Platform.h
 	${MOSS_ROOT_INCLUDE}/Moss_Audio.h
@@ -135,7 +138,6 @@ set(MOSS_HEADER_FILES
 
 set(MOSS_SRC_FILES
 	${MOSS_ROOT}/Physics/AABBTree/AABBTreeBuilder.cpp
-	${MOSS_ROOT}/Core/Variants/Color.cpp
 	${MOSS_ROOT}/Core/Factory.cpp
 	${MOSS_ROOT}/Core/JobSystemSingleThreaded.cpp
 	${MOSS_ROOT}/Core/JobSystemThreadPool.cpp
@@ -168,11 +170,12 @@ set(MOSS_SRC_FILES
 	#${MOSS_ROOT}/Platform/platform_intern.h
 
 	# Renderer
-	${MOSS_ROOT}/Renderer/Camera2.h
-	${MOSS_ROOT}/Renderer/Camera2.cpp
-	${MOSS_ROOT}/Renderer/Camera3.h
-	${MOSS_ROOT}/Renderer/Camera3.cpp
-	${MOSS_ROOT}/Renderer/PipelineState.h
+	#${MOSS_ROOT}/Renderer/Camera2.h
+	#${MOSS_ROOT}/Renderer/Camera2.cpp
+	#${MOSS_ROOT}/Renderer/Camera3.h
+	#${MOSS_ROOT}/Renderer/Camera3.cpp
+	#${MOSS_ROOT}/Renderer/PipelineState.h
+	#${MOSS_ROOT}/Core/Variants/Color.cpp
 	#${MOSS_ROOT}/Renderer/Pipeline.h
 	#${MOSS_ROOT}/Renderer/Frustum.h
 
@@ -192,8 +195,12 @@ set(MOSS_SRC_FILES
 	${MOSS_ROOT}/Audio/audio_intern.h
 
 	# XR
-	#${MOSS_ROOT}/XR/Moss_XR.cpp
-	#${MOSS_ROOT}/XR/Moss_XR_intern.h
+	#${MOSS_ROOT}/XR/xr_intern.h
+	#${MOSS_ROOT}/XR/xr_actions.cpp
+	#${MOSS_ROOT}/XR/xr_instance.cpp
+	#${MOSS_ROOT}/XR/xr_layers.cpp
+	#${MOSS_ROOT}/XR/xr_session.cpp
+	#${MOSS_ROOT}/XR/xr_tracking.cpp
 )
 
 # Platform-specific sources
