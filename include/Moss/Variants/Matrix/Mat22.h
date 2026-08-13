@@ -23,7 +23,7 @@ public:
 
     static MOSS_INLINE Mat22 sZero() { return Mat22(0.0f, 0.0f, 0.0f, 0.0f); }
 
-    static MOSS_INLINE Mat22 sIdentity() { return Mat22(1.0f, 0.0f, 0.0f, 1.0f); }
+    static MOSS_INLINE Mat22 Identity() { return Mat22(1.0f, 0.0f, 0.0f, 1.0f); }
 
     static MOSS_INLINE Mat22 sNaN() { return Mat22(JPH_NAN, JPH_NAN, JPH_NAN, JPH_NAN); }
 

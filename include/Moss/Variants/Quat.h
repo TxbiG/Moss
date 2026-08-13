@@ -80,26 +80,26 @@ public:
 	MOSS_INLINE static Quat		sZero()															{ return Quat(Vec4::Zero()); }
 
 	/// @return [1, 0, 0, 0] (or in storage format Quat(0, 0, 0, 1))
-	MOSS_INLINE static Quat		sIdentity()														{ return Quat(0, 0, 0, 1); }
+	MOSS_INLINE static Quat		Identity()														{ return Quat(0, 0, 0, 1); }
 
 	///@}
 
 	/// Rotation from axis and angle
-	MOSS_INLINE static Quat		sRotation(const Vec3 inAxis, float inAngle);
+	MOSS_INLINE static Quat		Rotation(const Vec3 inAxis, float inAngle);
 
 	/// Get axis and angle that represents this quaternion, outAngle will always be in the range \f$[0, \pi]\f$
 	MOSS_INLINE void			GetAxisAngle(Vec3 &outAxis, float &outAngle) const;
 
 	/// Create quaternion that rotates a vector from the direction of inFrom to the direction of inTo along the shortest path
 	/// @see https://www.euclideanspace.com/maths/algebra/vectors/angleBetween/index.htm
-	MOSS_INLINE static Quat		sFromTo(const Vec3 inFrom, const Vec3 inTo);
+	MOSS_INLINE static Quat		FromTo(const Vec3 inFrom, const Vec3 inTo);
 
 	/// Random unit quaternion
 	template <class Random>
-	inline static Quat			sRandom(Random &inRandom);
+	inline static Quat			Random(Random &inRandom);
 
 	/// Conversion from Euler angles. Rotation order is X then Y then Z (RotZ * RotY * RotX). Angles in radians.
-	inline static Quat			sEulerAngles(const Vec3 inAngles);
+	inline static Quat			EulerAngles(const Vec3 inAngles);
 
 	/// Conversion to Euler angles. Rotation order is X then Y then Z (RotZ * RotY * RotX). Angles in radians.
 	inline Vec3					GetEulerAngles() const;

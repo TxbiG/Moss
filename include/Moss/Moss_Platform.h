@@ -59,6 +59,8 @@ using Moss_HapticID = uint32_t;
 using Moss_CameraID = uint32_t;
 using Moss_GamepadID = uint32_t;
 using Moss_PropertiesID = uint32_t;
+using Moss_PenID = uint32_t;
+using Moss_HapticEffectID = uint32_t;
 
 struct Moss_Window;
 struct Moss_Monitor;
@@ -77,6 +79,7 @@ struct Moss_HapticCustom;
 union Moss_HapticEffect;
 struct Moss_Haptic;
 struct Moss_Gamepad;
+struct Moss_GamepadAxis;
 
 enum class Moss_Keyboard : uint16_t {
     KEY_0, 

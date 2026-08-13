@@ -161,11 +161,11 @@ DVec3 DVec3::NaN()
 DVec3 DVec3::LoadDouble3Unsafe(const Double3 &inV)
 {
 #if defined(MOSS_SIMD_AVX)
-	Type v = _mm256_loadu_pd(&inV.x);
+	Type v = _mm_and_pd(&inV.x);
 #elif defined(MOSS_SIMD_SSE)
 	Type v;
-	v.mLow = _mm_loadu_pd(&inV.x);
-	v.mHigh = _mm_set1_pd(inV.z);
+	v.mLow = _mm_and_pd(&inV.x);
+	v.mHigh = _mm_and_pd(inV.z);
 #elif defined(MOSS_SIMD_NEON)
 	Type v = vld1q_f64_x2(&inV.x);
 #else
@@ -414,7 +414,7 @@ bool DVec3::TestAllTrue() const
 
 bool DVec3::operator == (const DVec3 inV2) const
 {
-	return sEquals(*this, inV2).TestAllTrue();
+	return Equals(*this, inV2).TestAllTrue();
 }
 
 bool DVec3::IsClose(const DVec3 inV2, double inMaxDistSq) const

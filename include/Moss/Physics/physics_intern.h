@@ -380,7 +380,7 @@ private:
 	template <typename GetEndIndex, typename DrawConstraint>
 		inline void						DrawConstraints(ESoftBodyConstraintColor inConstraintColor, const GetEndIndex &inGetEndIndex, const DrawConstraint &inDrawConstraint, ColorArg inBaseColor) const;
 
-	RMat44								mSkinStateTransform = RMat44::sIdentity();	// The matrix that transforms mSkinState to world space
+	RMat44								mSkinStateTransform = RMat44::Identity();	// The matrix that transforms mSkinState to world space
 #endif // MOSS_DEBUG_RENDERER
 
 	RefConst<SoftBodySharedSettings>	mSettings;									// Configuration of the particles and constraints

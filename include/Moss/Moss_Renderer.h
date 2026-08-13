@@ -146,8 +146,8 @@ struct Material2D {
 
 struct Material3D {
     Color albedo;
-    float metallic, roughness, ao, specular;
     Texture* albedoMap, normalMap, roughnessMap, metallicMap, aoMap = nullptr;
+    float metallic, roughness, ao, specular;
 };
 
 
@@ -157,20 +157,20 @@ struct TextureLight2D {
     float intensity, rotation; 
     Texture* texture; 
     Float2 position; 
-    Color* color; 
+    Color color; 
     LightMask filter; 
 };
 // DirectionalLight2D
 struct DirectionalLight2D { 
     float intensity, rotation; 
-    Color* color; 
+    Color color; 
     LightMask filter; 
 };
 // PointLight2D
 struct PointLight2D { 
     float intensity, rotation, radius; 
     Float2 position; 
-    Color* color; 
+    Color color; 
     LightMask filter; 
 };
 
@@ -178,37 +178,37 @@ struct TextureLight3D {
     float intensity; 
     Texture* texture;
     Float3 position, rotation; 
-    Color* color; 
+    Color color; 
     LightMask filter;
 };
 struct DirectionalLight3D { 
     float intensity;
     Float3 rotation;
-    Color* color;
+    Color color;
     LightMask filter;
 };
 struct SpotLight3D { 
     float intensity, radius, angle, penumbra; 
     Float3 position, rotation; 
-    Color* color; 
+    Color color; 
     LightMask filter; 
 };
 struct OmniLight3D { 
     float intensity, radius; 
     Float3 position; 
-    Color* color; 
+    Color color; 
     LightMask filter; 
 };
 
 struct SurfaceColor {
-    Color* color;
-    Rect* resource_set;
+    Color color;
+    Rect resource_set;
     Moss_PipelineState* pipeline;
 };
 struct SurfaceRect {
-    Color* color;
+    Color color;
     Texture* texture;
-    Rect* resource_set;
+    Rect resource_set;
     Moss_PipelineState* pipeline;
 };
 

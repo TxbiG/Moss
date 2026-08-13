@@ -332,8 +332,8 @@ Vec3 Vec3::UnitSpherical(float inTheta, float inPhi)
 	return Vec3(s.GetX() * c.GetY(), s.GetX() * s.GetY(), c.GetX());
 }
 
-template <class Random>
-Vec3 Vec3::Random(Random &inRandom)
+template <class Rand>
+Vec3 Vec3::Random(Rand &inRandom)
 {
 	std::uniform_real_distribution<float> zero_to_one(0.0f, 1.0f);
 	float theta = MOSS_PI * zero_to_one(inRandom);

@@ -410,7 +410,7 @@ bool iVec4::TestAllTrue() const
 
 bool iVec4::operator == (const iVec4 inV2) const
 {
-	return sEquals(*this, inV2).TestAllTrue();
+	return Equals(*this, inV2).TestAllTrue();
 }
 
 bool iVec4::IsClose(const iVec4 inV2, double inMaxDistSq) const

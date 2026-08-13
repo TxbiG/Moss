@@ -54,7 +54,7 @@ public:
 
 private:
     std::shared_ptr<Mesh> mesh;
-    Mat44 transform = Mat44::sIdentity();
+    Mat44 transform = Mat44::Identity();
 };
 
 class [[nodiscard]] MOSS_API MultiMeshInstance3 {

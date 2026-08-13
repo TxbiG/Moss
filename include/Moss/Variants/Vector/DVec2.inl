@@ -408,7 +408,7 @@ bool DVec2::TestAllTrue() const
 
 bool DVec2::operator == (const DVec2 inV2) const
 {
-	return sEquals(*this, inV2).TestAllTrue();
+	return Equals(*this, inV2).TestAllTrue();
 }
 
 bool DVec2::IsClose(const DVec2 inV2, double inMaxDistSq) const

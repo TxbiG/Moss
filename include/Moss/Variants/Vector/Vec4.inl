@@ -344,7 +344,7 @@ void Vec4::Sort4Reverse(Vec4 &ioValue, UVec4 &ioIndex)
 
 bool Vec4::operator == (const Vec4 inV2) const
 {
-	return sEquals(*this, inV2).TestAllTrue();
+	return Equals(*this, inV2).TestAllTrue();
 }
 
 bool Vec4::IsClose(const Vec4 inV2, float inMaxDistSq) const

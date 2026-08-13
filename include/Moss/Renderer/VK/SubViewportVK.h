@@ -118,7 +118,7 @@ struct [[nodiscard]] MOSS_API SubViewportVK : public SubViewport {
         switch (currentCamera) {
             case CameraType::ViewPortCamera2D: return camera2D.getViewProjMatrix();
             case CameraType::ViewPortCamera3D: return camera3D.getViewProjMatrix();
-            default: return Mat44::sIdentity();
+            default: return Mat44::Identity();
         }
     }
 

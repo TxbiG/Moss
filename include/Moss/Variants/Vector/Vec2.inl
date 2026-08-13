@@ -340,7 +340,7 @@ Vec2 Vec2::Random(Random &inRandom)
 
 bool Vec2::operator == (const Vec2 inV2) const
 {
-	return sEquals(*this, inV2).TestAllXYZTrue();
+	return Equals(*this, inV2).TestAllXYZTrue();
 }
 
 bool Vec2::IsClose(const Vec2 inV2, float inMaxDistSq) const

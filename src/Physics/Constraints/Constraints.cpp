@@ -5832,19 +5832,19 @@ void SixDOFConstraint::SetupVelocityConstraint(float inDeltaTime)
 	}
 
 	// Setup rotation constraints
-	if (IsRotationFullyConstrained())
+	if (IRotationFullyConstrained())
 	{
 		// All rotation locked: Setup rotation constraint
 		mRotationConstraintPart.CalculateConstraintProperties(*mBody1, Mat44::Rotation(mBody1->GetRotation()), *mBody2, Mat44::Rotation(mBody2->GetRotation()));
 	}
-	else if (IsRotationConstrained() || mRotationMotorActive)
+	else if (IRotationConstrained() || mRotationMotorActive)
 	{
 		// GetRotationInConstraintSpace without redoing the calculation of constraint_body1_to_world
 		Quat constraint_body2_to_world = mBody2->GetRotation() * mConstraintToBody2;
 		Quat q = constraint_body1_to_world.Conjugated() * constraint_body2_to_world;
 
 		// Use swing twist constraint part
-		if (IsRotationConstrained())
+		if (IRotationConstrained())
 			mSwingTwistConstraintPart.CalculateConstraintProperties(*mBody1, *mBody2, q, constraint_body1_to_world);
 		else
 			mSwingTwistConstraintPart.Deactivate();
@@ -5992,9 +5992,9 @@ void SixDOFConstraint::WarmStartVelocityConstraint(float inWarmStartImpulseRatio
 				c.WarmStart(*mBody1, *mBody2, inWarmStartImpulseRatio);
 
 	// Warm start rotation constraints
-	if (IsRotationFullyConstrained())
+	if (IRotationFullyConstrained())
 		mRotationConstraintPart.WarmStart(*mBody1, *mBody2, inWarmStartImpulseRatio);
-	else if (IsRotationConstrained())
+	else if (IRotationConstrained())
 		mSwingTwistConstraintPart.WarmStart(*mBody1, *mBody2, inWarmStartImpulseRatio);
 
 	// Warm start translation constraints
@@ -6056,9 +6056,9 @@ bool SixDOFConstraint::SolveVelocityConstraint(float inDeltaTime)
 		}
 
 	// Solve rotation constraint
-	if (IsRotationFullyConstrained())
+	if (IRotationFullyConstrained())
 		impulse |= mRotationConstraintPart.SolveVelocityConstraint(*mBody1, *mBody2);
-	else if (IsRotationConstrained())
+	else if (IRotationConstrained())
 		impulse |= mSwingTwistConstraintPart.SolveVelocityConstraint(*mBody1, *mBody2);
 
 	// Solve position constraint
@@ -6090,7 +6090,7 @@ bool SixDOFConstraint::SolvePositionConstraint(float inDeltaTime, float inBaumga
 {
 	bool impulse = false;
 
-	if (IsRotationFullyConstrained())
+	if (IRotationFullyConstrained())
 	{
 		// Rotation locked: Solve rotation constraint
 
@@ -6105,7 +6105,7 @@ bool SixDOFConstraint::SolvePositionConstraint(float inDeltaTime, float inBaumga
 		mRotationConstraintPart.CalculateConstraintProperties(*mBody1, Mat44::Rotation(mBody1->GetRotation()), *mBody2, Mat44::Rotation(mBody2->GetRotation()));
 		impulse |= mRotationConstraintPart.SolvePositionConstraint(*mBody1, *mBody2, inv_initial_orientation, inBaumgarte);
 	}
-	else if (IsRotationConstrained())
+	else if (IRotationConstrained())
 	{
 		// Rotation partially constraint
 
@@ -6181,7 +6181,7 @@ void SixDOFConstraint::DrawConstraint(DebugRenderer *inRenderer) const
 	// Draw constraint orientation
 	inRenderer->DrawCoordinateSystem(RMat44::RotationTranslation(rotation1, position1), mDrawConstraintSize);
 
-	if ((IsRotationConstrained() || mRotationPositionMotorActive != 0) && !IsRotationFullyConstrained())
+	if ((IRotationConstrained() || mRotationPositionMotorActive != 0) && !IRotationFullyConstrained())
 	{
 		// Draw current swing and twist
 		Quat q = GetRotationInConstraintSpace();

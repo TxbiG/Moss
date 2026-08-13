@@ -128,7 +128,7 @@ Mat44 Mat44::Rotation(const Quat inQuat)
 
 Mat44 Mat44::Rotation(const Vec3 inAxis, float inAngle)
 {
-	return sRotation(Quat::Rotation(inAxis, inAngle));
+	return Rotation(Quat::Rotation(inAxis, inAngle));
 }
 
 Mat44 Mat44::Translation(const Vec3 inV)
@@ -147,14 +147,14 @@ Mat44 Mat44::Translation(const Vec3 inV)
 
 Mat44 Mat44::RotationTranslation(const Quat inR, const Vec3 inT)
 {
-	Mat44 m = sRotation(inR);
+	Mat44 m = Rotation(inR);
 	m.SetTranslation(inT);
 	return m;
 }
 
 Mat44 Mat44::InverseRotationTranslation(const Quat inR, const Vec3 inT)
 {
-	Mat44 m = sRotation(inR.Conjugated());
+	Mat44 m = Rotation(inR.Conjugated());
 	m.SetTranslation(-m.Multiply3x3(inT));
 	return m;
 }

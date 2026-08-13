@@ -31,7 +31,7 @@ public:
 	static MOSS_INLINE Mat33	sZero()  { return Mat44(Vec3::Zero(), Vec3::Zero(), Vec3::Zero()); }
 
 	/// Identity matrix
-	static MOSS_INLINE Mat33	sIdentity() { return Mat44(Vec3(1, 0, 0),  Vec3(0, 1, 0),  Vec3(0, 0, 1)); }
+	static MOSS_INLINE Mat33	Identity() { return Mat44(Vec3(1, 0, 0),  Vec3(0, 1, 0),  Vec3(0, 0, 1)); }
 
 	/// Matrix filled with NaN's
 	static MOSS_INLINE Mat33	sNaN()  { return Mat44(Vec3::NaN(), Vec3::NaN(), Vec3::NaN()); }

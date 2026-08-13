@@ -16,7 +16,7 @@ class GetTrianglesContextVertexList
 public:
 	/// Constructor, to be called in GetTrianglesStart
 					GetTrianglesContextVertexList(Vec3Arg inPositionCOM, QuatArg inRotation, Vec3Arg inScale, Mat44Arg inLocalTransform, const Vec3 *inTriangleVertices, size_t inNumTriangleVertices, const PhysicsMaterial *inMaterial) :
-		mLocalToWorld(Mat44::sRotationTranslation(inRotation, inPositionCOM) * Mat44::sScale(inScale) * inLocalTransform),
+		mLocalToWorld(Mat44::RotationTranslation(inRotation, inPositionCOM) * Mat44::sScale(inScale) * inLocalTransform),
 		mTriangleVertices(inTriangleVertices),
 		mNumTriangleVertices(inNumTriangleVertices),
 		mMaterial(inMaterial),

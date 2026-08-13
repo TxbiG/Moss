@@ -283,7 +283,7 @@ protected:
 				// Note that when deleting we can create empty buckets instead of deleted buckets.
 				// This means we must unconditionally check all buckets in this batch for equality
 				// (also beyond the first empty bucket).
-				uint32 control_equal = uint32(BVec16::sEquals(control_bytes, control16).GetTrues());
+				uint32 control_equal = uint32(BVec16::Equals(control_bytes, control16).GetTrues());
 
 				// Index within the 16 buckets
 				size_type local_index = index;
@@ -317,14 +317,14 @@ protected:
 				if (first_deleted_index == cNoDeleted)
 				{
 					// Check if any buckets have been deleted, if so store the first one
-					uint32 control_deleted = uint32(BVec16::sEquals(control_bytes, bucket_deleted).GetTrues());
+					uint32 control_deleted = uint32(BVec16::Equals(control_bytes, bucket_deleted).GetTrues());
 					if (control_deleted != 0)
 						first_deleted_index = index + CountTrailingZeros(control_deleted);
 				}
 			}
 
 			// Check for empty buckets
-			uint32 control_empty = uint32(BVec16::sEquals(control_bytes, bucket_empty).GetTrues());
+			uint32 control_empty = uint32(BVec16::Equals(control_bytes, bucket_empty).GetTrues());
 			if (control_empty != 0)
 			{
 				// If we found a deleted bucket, use it.
@@ -650,7 +650,7 @@ public:
 			// Note that when deleting we can create empty buckets instead of deleted buckets.
 			// This means we must unconditionally check all buckets in this batch for equality
 			// (also beyond the first empty bucket).
-			uint32 control_equal = uint32(BVec16::sEquals(control_bytes, control16).GetTrues());
+			uint32 control_equal = uint32(BVec16::Equals(control_bytes, control16).GetTrues());
 
 			// Index within the 16 buckets
 			size_type local_index = index;
@@ -680,7 +680,7 @@ public:
 			}
 
 			// Check for empty buckets
-			uint32 control_empty = uint32(BVec16::sEquals(control_bytes, bucket_empty).GetTrues());
+			uint32 control_empty = uint32(BVec16::Equals(control_bytes, bucket_empty).GetTrues());
 			if (control_empty != 0)
 			{
 				// An empty bucket was found, we didn't find the element
@@ -702,8 +702,8 @@ public:
 		BVec16 control_bytes_before = BVec16::sLoadByte16(mControl + ((inIterator.mIndex - 16) & (mMaxSize - 1)));
 		BVec16 control_bytes_after = BVec16::sLoadByte16(mControl + inIterator.mIndex);
 		BVec16 bucket_empty = BVec16::sZero();
-		uint32 control_empty_before = uint32(BVec16::sEquals(control_bytes_before, bucket_empty).GetTrues());
-		uint32 control_empty_after = uint32(BVec16::sEquals(control_bytes_after, bucket_empty).GetTrues());
+		uint32 control_empty_before = uint32(BVec16::Equals(control_bytes_before, bucket_empty).GetTrues());
+		uint32 control_empty_after = uint32(BVec16::Equals(control_bytes_after, bucket_empty).GetTrues());
 
 		// If (this index including) there exist 16 consecutive non-empty slots (represented by a bit being 0) then
 		// a probe looking for some element needs to continue probing so we cannot mark the bucket as empty

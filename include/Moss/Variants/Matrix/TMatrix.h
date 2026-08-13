@@ -52,10 +52,10 @@ public:
 			mCol[rc].mF32[rc] = 1.0f;
 	}
 
-	inline static Matrix					sIdentity()												{ Matrix m; m.SetIdentity(); return m; }
+	inline static Matrix					Identity()												{ Matrix m; m.SetIdentity(); return m; }
 
 	/// Check if this matrix is identity
-	bool									IsIdentity() const										{ return *this == sIdentity(); }
+	bool									IIdentity() const										{ return *this == Identity(); }
 
 	/// Diagonal matrix
 	inline void								SetDiagonal(const TVec<Rows < Cols? Rows : Cols> &inV)

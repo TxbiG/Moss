@@ -45,7 +45,7 @@ public:
 	/// Get matrix that rotates and translates
 	static MOSS_INLINE DMat44	RotationTranslation(QuatArg inR, DVec3Arg inT)			{ return DMat44(Mat44::Rotation(inR), inT); }
 
-	/// Get inverse matrix of sRotationTranslation
+	/// Get inverse matrix of RotationTranslation
 	static MOSS_INLINE DMat44	InverseRotationTranslation(QuatArg inR, DVec3Arg inT);
 
 	/// Get matrix that scales (produces a matrix with (inV, 1) on its diagonal)

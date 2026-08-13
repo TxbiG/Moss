@@ -6,11 +6,11 @@
 
 // Camera2D
 
-Camera2::Camera2(Float2 position) : position(position), zoom(1.0f), rotation(0.0f), viewProj(Mat44::sIdentity()) { }
+Camera2::Camera2(Float2 position) : position(position), zoom(1.0f), rotation(0.0f), viewProj(Mat44::Identity()) { }
 
 void Camera2::update(float width, float height) { 
     Mat44 translation = Mat44::sTranslation(Vec3(-position.x, -position.y, 0.0f));
-    Mat44 rotationMat = Mat44::sRotationZ(-rotation);
+    Mat44 rotationMat = Mat44::RotationZ(-rotation);
     Mat44 scaleMat = Mat44::sScale(Vec3(zoom, zoom, 1));
     Mat44 view = scaleMat * rotationMat * translation;
 

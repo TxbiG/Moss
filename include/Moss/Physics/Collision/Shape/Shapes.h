@@ -2355,8 +2355,8 @@ public:
 		{
 			SetPositionCOM(inPosition - inCenterOfMass + inRotation * mShape->GetCenterOfMass());
 
-			mIsRotationIdentity = inRotation.IsClose(Quat::Identity()) || inRotation.IsClose(-Quat::Identity());
-			SetRotation(mIsRotationIdentity? Quat::Identity() : inRotation);
+			mIRotationIdentity = inRotation.IsClose(Quat::Identity()) || inRotation.IsClose(-Quat::Identity());
+			SetRotation(mIRotationIdentity? Quat::Identity() : inRotation);
 		}
 
 		/// Get the local transform for this shape given the scale of the child shape
@@ -2372,7 +2372,7 @@ public:
 		inline bool					IsValidScale(Vec3Arg inScale) const
 		{
 			// We can always handle uniform scale or identity rotations
-			if (mIsRotationIdentity || ScaleHelpers::IsUniformScale(inScale))
+			if (mIRotationIdentity || ScaleHelpers::IsUniformScale(inScale))
 				return true;
 
 			return ScaleHelpers::CanScaleBeRotated(GetRotation(), inScale);
@@ -2382,7 +2382,7 @@ public:
 		inline Vec3					TransformScale(Vec3Arg inScale) const
 		{
 			// We don't need to transform uniform scale or if the rotation is identity
-			if (mIsRotationIdentity || ScaleHelpers::IsUniformScale(inScale))
+			if (mIRotationIdentity || ScaleHelpers::IsUniformScale(inScale))
 				return inScale;
 
 			return ScaleHelpers::RotateScale(GetRotation(), inScale);
@@ -2409,14 +2409,14 @@ public:
 		/// Uncompress the rotation
 		MOSS_INLINE Quat				GetRotation() const
 		{
-			return mIsRotationIdentity? Quat::Identity() : Quat::LoadFloat3Unsafe(mRotation);
+			return mIRotationIdentity? Quat::Identity() : Quat::LoadFloat3Unsafe(mRotation);
 		}
 
 		RefConst<Shape>				mShape;
 		Float3						mPositionCOM;											// Note: Position of center of mass of sub shape!
 		Float3						mRotation;												// Note: X, Y, Z of rotation quaternion - note we read 4 bytes beyond this so make sure there's something there
 		uint32						mUserData;												// User data value (put here because it falls in padding bytes)
-		bool						mIsRotationIdentity;									// If mRotation is close to identity (put here because it falls in padding bytes)
+		bool						mIRotationIdentity;									// If mRotation is close to identity (put here because it falls in padding bytes)
 		// 3 padding bytes left
 	};
 
@@ -2648,7 +2648,7 @@ public:
 	inline Vec3						TransformScale(Vec3Arg inScale) const
 	{
 		// We don't need to transform uniform scale or if the rotation is identity
-		if (mIsRotationIdentity || ScaleHelpers::IsUniformScale(inScale))
+		if (mIRotationIdentity || ScaleHelpers::IsUniformScale(inScale))
 			return inScale;
 
 		return ScaleHelpers::RotateScale(mRotation, inScale);
@@ -2670,7 +2670,7 @@ private:
 	static void						sCastShapeVsRotatedTranslated(const ShapeCast &inShapeCast, const ShapeCastSettings &inShapeCastSettings, const Shape *inShape, Vec3Arg inScale, const ShapeFilter &inShapeFilter, Mat44Arg inCenterOfMassTransform2, const SubShapeIDCreator &inSubShapeIDCreator1, const SubShapeIDCreator &inSubShapeIDCreator2, CastShapeCollector &ioCollector);
 	static void						sCastRotatedTranslatedVsRotatedTranslated(const ShapeCast &inShapeCast, const ShapeCastSettings &inShapeCastSettings, const Shape *inShape, Vec3Arg inScale, const ShapeFilter &inShapeFilter, Mat44Arg inCenterOfMassTransform2, const SubShapeIDCreator &inSubShapeIDCreator1, const SubShapeIDCreator &inSubShapeIDCreator2, CastShapeCollector &ioCollector);
 
-	bool							mIsRotationIdentity;									// If mRotation is close to identity (put here because it falls in padding bytes)
+	bool							mIRotationIdentity;									// If mRotation is close to identity (put here because it falls in padding bytes)
 	Vec3							mCenterOfMass;											// Position of the center of mass
 	Quat							mRotation;												// Rotation of the child shape
 };

@@ -968,7 +968,7 @@ void DebugRenderer::DrawSwingPyramidLimits(RMat44Arg inMatrix, float inMinSwingY
 		const int num_segments = 64;
 		int quarter_num_segments = num_segments / 4;
 
-		// Note that this is q = Quat::sRotation(Vec3::sAxisZ(), z) * Quat::sRotation(Vec3::sAxisY(), y) with q.x set to zero so we don't introduce twist
+		// Note that this is q = Quat::Rotation(Vec3::sAxisZ(), z) * Quat::Rotation(Vec3::sAxisY(), y) with q.x set to zero so we don't introduce twist
 		// This matches the calculation in SwingTwistConstraintPart::ClampSwingTwist
 		auto get_axis = [](float inY, float inZ) {
 			float hy = 0.5f * inY;
@@ -1057,7 +1057,7 @@ void DebugRenderer::DrawPie(RVec3Arg inCenter, float inRadius, Vec3Arg inNormal,
 	}
 
 	// Construct matrix that transforms pie into world space
-	RMat44 matrix = RMat44(Vec4(inRadius * inAxis, 0), Vec4(inRadius * inNormal, 0), Vec4(inRadius * inNormal.Cross(inAxis), 0), inCenter) * Mat44::sRotationY(-inMinAngle);
+	RMat44 matrix = RMat44(Vec4(inRadius * inAxis, 0), Vec4(inRadius * inNormal, 0), Vec4(inRadius * inNormal.Cross(inAxis), 0), inCenter) * Mat44::RotationY(-inMinAngle);
 
 	DrawGeometry(matrix, inColor, geometry, ECullMode::Off, inCastShadow, inDrawMode);
 }

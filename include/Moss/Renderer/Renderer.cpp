@@ -59,11 +59,11 @@ bool Renderer::BeginFrame(const CameraState &inCamera, float inWorldScale)
 
 	// Camera ortho projection and view
 	mVSBufferOrtho.mProjection = Mat44(Vec4(2.0f / mWindow->GetWindowWidth(), 0.0f, 0.0f, 0.0f), Vec4(0.0f, -mPerspectiveYSign * 2.0f / mWindow->GetWindowHeight(), 0.0f, 0.0f), Vec4(0.0f, 0.0f, -1.0f, 0.0f), Vec4(-1.0f, mPerspectiveYSign * 1.0f, 0.0f, 1.0f));
-	mVSBufferOrtho.mView = Mat44::sIdentity();
+	mVSBufferOrtho.mView = Mat44::Identity();
 
 	// Light projection and view are unused in ortho mode
-	mVSBufferOrtho.mLightView = Mat44::sIdentity();
-	mVSBufferOrtho.mLightProjection = Mat44::sIdentity();
+	mVSBufferOrtho.mLightView = Mat44::Identity();
+	mVSBufferOrtho.mLightProjection = Mat44::Identity();
 
 	// Set constants for pixel shader
 	mPSBuffer.mCameraPos = Vec4(cam_pos, 0);

@@ -357,10 +357,10 @@ void SkeletonMapper::Map(const Mat44 *inPose1ModelSpace, const Mat44 *inPose2Loc
 		// Calculate the direction in world space for skeleton 1 and skeleton 2 and the rotation between them
 		Vec3 actual = chain_end.GetTranslation() - chain_start.GetTranslation();
 		Vec3 desired = inPose1ModelSpace[c.mJointIndices1.back()].GetTranslation() - inPose1ModelSpace[c.mJointIndices1.front()].GetTranslation();
-		Quat rotation = Quat::sFromTo(actual, desired);
+		Quat rotation = Quat::FromTo(actual, desired);
 
 		// Rotate the start of the chain
-		chain_start.SetRotation(Mat44::sRotation(rotation) * chain_start.GetRotation());
+		chain_start.SetRotation(Mat44::Rotation(rotation) * chain_start.GetRotation());
 
 		// Update all joints but the first and the last joint using their local space transforms
 		for (int j = 1; j < (int)c.mJointIndices2.size() - 1; ++j)

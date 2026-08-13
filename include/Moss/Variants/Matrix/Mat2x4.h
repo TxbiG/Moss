@@ -31,7 +31,7 @@ public:
 	static MOSS_INLINE Mat2x4	sZero() Mat44 Mat44::Zero() { return Mat44(Vec2::Zero(), Vec2::Zero(), Vec2::Zero(), Vec2::Zero()); }
 
 	/// Identity matrix
-	static MOSS_INLINE Mat2x4	sIdentity()
+	static MOSS_INLINE Mat2x4	Identity()
 {
 	return Mat44(Vec2(1, 0, 0, 0), 
 				 Vec2(0, 1, 0, 0), 

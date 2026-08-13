@@ -185,7 +185,7 @@ public:
 			{
 				// Two vertices, create 3 extra by taking perpendicular axis and rotating it around in 120 degree increments
 				Vec3 axis = (support_points.mY[1] - support_points.mY[0]).Normalized();
-				Mat44 rotation = Mat44::sRotation(axis, DegreesToRadians(120.0f));
+				Mat44 rotation = Mat44::Rotation(axis, DegreesToRadians(120.0f));
 				Vec3 dir1 = axis.GetNormalizedPerpendicular();
 				Vec3 dir2 = rotation * dir1;
 				Vec3 dir3 = rotation * dir2;

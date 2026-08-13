@@ -40,7 +40,7 @@ BVec16::BVec16(uint64 inV0, uint64 inV1)
 
 bool BVec16::operator == (BVec16Arg inV2) const
 {
-	return sEquals(*this, inV2).TestAllTrue();
+	return Equals(*this, inV2).TestAllTrue();
 }
 
 BVec16 BVec16::Zero()

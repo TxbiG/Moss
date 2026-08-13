@@ -71,7 +71,7 @@ struct [[nodiscard]] MOSS_API SubViewport {
         switch (currentCamera) {
             case CameraType::ViewPortCamera2D: return camera2D.getViewProjectionMatrix();
             case CameraType::ViewPortCamera3D: return camera3D.getViewProjectionMatrix();
-            default: MOSS_ERROR("Must be a 2D or 3D camera."); return Mat44::sIdentity();
+            default: MOSS_ERROR("Must be a 2D or 3D camera."); return Mat44::Identity();
         }
     }
 

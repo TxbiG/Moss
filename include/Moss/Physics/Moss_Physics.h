@@ -4367,7 +4367,7 @@ private:
 	template <typename GetEndIndex, typename DrawConstraint>
 		inline void						DrawConstraints(ESoftBodyConstraintColor inConstraintColor, const GetEndIndex& inGetEndIndex, const DrawConstraint& inDrawConstraint, ColorArg inBaseColor) const;
 
-	RMat44								mSkinStateTransform = RMat44::sIdentity();	// The matrix that transforms mSkinState to world space
+	RMat44								mSkinStateTransform = RMat44::Identity();	// The matrix that transforms mSkinState to world space
 #endif // MOSS_DEBUG_RENDERER
 
 	RefConst<SoftBodySharedSettings>	mSettings;									// Configuration of the particles and constraints
@@ -4599,7 +4599,7 @@ public:
 						InvBind(uint32 inJointIndex, Mat44Arg inInvBind) : mJointIndex(inJointIndex), mInvBind(inInvBind) { }
 
 		uint32			mJointIndex = 0;							// Joint index to which this is attached
-		Mat44			mInvBind = Mat44::sIdentity();				// The inverse bind matrix, this takes a vertex in its bind pose (Vertex::mPosition) to joint local space
+		Mat44			mInvBind = Mat44::Identity();				// The inverse bind matrix, this takes a vertex in its bind pose (Vertex::mPosition) to joint local space
 	};
 
 	// A joint and its skin weight
@@ -4737,7 +4737,7 @@ public:
 	RefConst<SoftBodySharedSettings> mSettings;				// Defines the configuration of this soft body
 
 	RVec3				mPosition { RVec3::sZero() };		// Initial position of the soft body
-	Quat				mRotation { Quat::sIdentity() };	// Initial rotation of the soft body
+	Quat				mRotation { Quat::Identity() };	// Initial rotation of the soft body
 
 	// User data value (can be used by application)
 	uint64				mUserData = 0;

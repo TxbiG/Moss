@@ -259,7 +259,7 @@ public:
 	};
 
 	/// Draw current pose
-	void						Draw(const DrawSettings &inDrawSettings, DebugRenderer *inRenderer, RMat44Arg inOffset = RMat44::sIdentity()) const;
+	void						Draw(const DrawSettings &inDrawSettings, DebugRenderer *inRenderer, RMat44Arg inOffset = RMat44::Identity()) const;
 #endif // MOSS_DEBUG_RENDERER
 
 private:
@@ -285,9 +285,9 @@ public:
 		void							FromMatrix(Mat44Arg inMatrix);
 
 		/// Convert to matrix representation
-		inline Mat44					ToMatrix() const									{ return Mat44::sRotationTranslation(mRotation, mTranslation); }
+		inline Mat44					ToMatrix() const									{ return Mat44::RotationTranslation(mRotation, mTranslation); }
 
-		Quat							mRotation = Quat::sIdentity();						///< Local space rotation of the joint
+		Quat							mRotation = Quat::Identity();						///< Local space rotation of the joint
 		Vec3							mTranslation = Vec3::sZero();						///< Local space translation of the joint
 	};
 

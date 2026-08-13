@@ -44,9 +44,9 @@ public:
 	static MOSS_INLINE Mat44	LoadFloat4x4Aligned(const Float4 *inV);
 
 	/// Rotate around X, Y or Z axis (angle in radians)
-	static MOSS_INLINE Mat44	sRotationX(float inX);
-	static MOSS_INLINE Mat44	sRotationY(float inY);
-	static MOSS_INLINE Mat44	sRotationZ(float inZ);
+	static MOSS_INLINE Mat44	RotationX(float inX);
+	static MOSS_INLINE Mat44	RotationY(float inY);
+	static MOSS_INLINE Mat44	RotationZ(float inZ);
 
 	/// Rotate around arbitrary axis
 	static MOSS_INLINE Mat44	Rotation(const Vec3 inAxis, float inAngle);
@@ -60,7 +60,7 @@ public:
 	/// Get matrix that rotates and translates
 	static MOSS_INLINE Mat44	RotationTranslation(const Quat inR, const Vec3 inT);
 
-	/// Get inverse matrix of sRotationTranslation
+	/// Get inverse matrix of RotationTranslation
 	static MOSS_INLINE Mat44	InverseRotationTranslation(const Quat inR, const Vec3 inT);
 
 	/// Get matrix that scales uniformly

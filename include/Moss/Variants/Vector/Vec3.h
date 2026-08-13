@@ -113,8 +113,8 @@ public:
 	MOSS_EXPORT static const TStaticArray<Vec3, 1026> sUnitSphere;
 
 	/// Get random unit vector
-	template <class Random>
-	static inline Vec3			Random(Random &inRandom);
+	template <class Rand>
+	static inline Vec3			Random(Rand &inRandom);
 
 	/// Get individual components
 #if defined(MOSS_SIMD_SSE)

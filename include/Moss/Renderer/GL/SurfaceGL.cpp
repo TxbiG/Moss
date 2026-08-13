@@ -66,14 +66,14 @@ void main() {
 SurfaceRect::SurfaceRect(float x, float y, float width, float height, const Texture& tex, Float2 uvOffset, Float2 uvScale)
     : position(x,y), width(width), height(height), color(), texture(&tex),
       uvOffset(uvOffset), uvScale(uvScale), mode(SurfaceMode::Texture),
-      m_shader(vertexShaderSourceTexture, fragmentShaderSourceTexture, true), model(Mat44::sIdentity())
+      m_shader(vertexShaderSourceTexture, fragmentShaderSourceTexture, true), model(Mat44::Identity())
 { initBuffers(); }
 
 // Color-based constructor
 SurfaceRect::SurfaceRect(float x, float y, float width, float height, const Color& col)
     : position(x,y), width(width), height(height), color(col), texture(nullptr),
       uvOffset(0.0f, 0.0f), uvScale(1.0f, 1.0f), mode(SurfaceMode::Color),
-      m_shader(vertexShaderSourceColor, fragmentShaderSourceColor, true), model(Mat44::sIdentity())
+      m_shader(vertexShaderSourceColor, fragmentShaderSourceColor, true), model(Mat44::Identity())
 { initBuffers(); }
 SurfaceRect::~SurfaceRect() {
     glDeleteVertexArrays(1, &VAO);
@@ -140,7 +140,7 @@ void SurfaceRect::initBuffers() {
 
 
 void SurfaceRect::update() {
-    model = Mat44::sTranslation(Vec3(position.x, position.y, 0.0f)) * Mat44::sRotationZ(rotation) * Mat44::sScale(Vec3(width, height, 1.0f));
+    model = Mat44::sTranslation(Vec3(position.x, position.y, 0.0f)) * Mat44::RotationZ(rotation) * Mat44::sScale(Vec3(width, height, 1.0f));
 }
 
 void SurfaceRect::draw(const Mat44& viewProjectionMatrix) {

@@ -2130,7 +2130,7 @@ public:
 		if (mRotationFlags&  TwistXLocked) {
 			// Twist axis is locked, clamp whenever twist is not identity
 			outClampedAxis |= ioTwist.GetX() != 0.0f? (cClampedTwistMin | cClampedTwistMax) : 0;
-			ioTwist = Quat::sIdentity();
+			ioTwist = Quat::Identity();
 		}
 		else if ((mRotationFlags&  TwistXFree) == 0) {
 			// Twist axis has limit, clamp whenever out of range
@@ -2155,7 +2155,7 @@ public:
 				// Both swing Y and Z are disabled, no degrees of freedom in swing
 				outClampedAxis |= ioSwing.GetY() != 0.0f? (cClampedSwingYMin | cClampedSwingYMax) : 0;
 				outClampedAxis |= ioSwing.GetZ() != 0.0f? (cClampedSwingZMin | cClampedSwingZMax) : 0;
-				ioSwing = Quat::sIdentity();
+				ioSwing = Quat::Identity();
 			}
 			else {
 				// Swing Y angle disabled, only 1 degree of freedom in swing
@@ -2215,14 +2215,14 @@ public:
 			else {
 				// Use pyramid to solve limits
 				// The quaternion rotating by angle y around the Y axis then rotating by angle z around the Z axis is:
-				// q = Quat::sRotation(Vec3::sAxisZ(), z)* Quat::sRotation(Vec3::sAxisY(), y)
+				// q = Quat::Rotation(Vec3::sAxisZ(), z)* Quat::Rotation(Vec3::sAxisY(), y)
 				// [q.x, q.y, q.z, q.w] = [-sin(y / 2)* sin(z / 2), sin(y / 2)* cos(z / 2), cos(y / 2)* sin(z / 2), cos(y / 2)* cos(z / 2)]
 				// So we can calculate y / 2 = atan2(q.y, q.w) and z / 2 = atan2(q.z, q.w)
 				Vec4 half_angle = Vec4::sATan2(ioSwing.GetXYZW().Swizzle<SWIZZLE_Y, SWIZZLE_Y, SWIZZLE_Z, SWIZZLE_Z>(), ioSwing.GetXYZW().SplatW());
 				Vec4 min_half_angle(mSwingYHalfMinAngle, mSwingYHalfMinAngle, mSwingZHalfMinAngle, mSwingZHalfMinAngle);
 				Vec4 max_half_angle(mSwingYHalfMaxAngle, mSwingYHalfMaxAngle, mSwingZHalfMaxAngle, mSwingZHalfMaxAngle);
 				Vec4 clamped_half_angle = Vec4::Min(Vec4::Max(half_angle, min_half_angle), max_half_angle);
-				UVec4 unclamped = Vec4::sEquals(half_angle, clamped_half_angle);
+				UVec4 unclamped = Vec4::Equals(half_angle, clamped_half_angle);
 				if (!unclamped.TestAllTrue()) {
 					// We now calculate the quaternion again using the formula for q above,
 					// but we leave out the x component in order to not introduce twist
@@ -2399,7 +2399,7 @@ public:
 		if (clamped_axis != 0) {
 			RotationEulerConstraintPart part;
 			Quat inv_initial_orientation = inConstraintToBody2* (inConstraintToBody1* q_swing* q_twist).Conjugated();
-			part.CalculateConstraintProperties(ioBody1, Mat44::sRotation(ioBody1.GetRotation()), ioBody2, Mat44::sRotation(ioBody2.GetRotation()));
+			part.CalculateConstraintProperties(ioBody1, Mat44::Rotation(ioBody1.GetRotation()), ioBody2, Mat44::Rotation(ioBody2.GetRotation()));
 			return part.SolvePositionConstraint(ioBody1, ioBody2, inv_initial_orientation, inBaumgarte);
 		}
 
@@ -2694,7 +2694,7 @@ public:
 		// c1, c2 = matrix that takes us from body 1 and 2 COM to constraint space 1 and 2
 		if (inAxisX1 == inAxisX2& & inAxisY1 == inAxisY2) {
 			// Axis are the same -> identity transform
-			return Quat::sIdentity();
+			return Quat::Identity();
 		}
 		else {
 			Mat44 constraint1(Vec4(inAxisX1, 0), Vec4(inAxisY1, 0), Vec4(inAxisX1.Cross(inAxisY1), 0), Vec4(0, 0, 0, 1));
@@ -2711,7 +2711,7 @@ public:
 	static Quat sGetInvInitialOrientationXZ(Vec3Arg inAxisX1, Vec3Arg inAxisZ1, Vec3Arg inAxisX2, Vec3Arg inAxisZ2) {
 		// See comment at sGetInvInitialOrientationXY
 		if (inAxisX1 == inAxisX2& & inAxisZ1 == inAxisZ2) {
-			return Quat::sIdentity();
+			return Quat::Identity();
 		}
 		else {
 			Mat44 constraint1(Vec4(inAxisX1, 0), Vec4(inAxisZ1.Cross(inAxisX1), 0), Vec4(inAxisZ1, 0), Vec4(0, 0, 0, 1));
@@ -3122,7 +3122,7 @@ public:
 
 	// See: TwoBodyConstraint
 	virtual Mat44				GetConstraintToBody1Matrix() const override					{ return Mat44::sTranslation(mLocalSpacePosition1); }
-	virtual Mat44				GetConstraintToBody2Matrix() const override					{ return Mat44::sRotationTranslation(mInvInitialOrientation, mLocalSpacePosition2); }
+	virtual Mat44				GetConstraintToBody2Matrix() const override					{ return Mat44::RotationTranslation(mInvInitialOrientation, mLocalSpacePosition2); }
 
 	///@name Get Lagrange multiplier from last physics update (the linear/angular impulse applied to satisfy the constraint)
 	inline Vec3					GetTotalLambdaPosition() const								{ return mPointConstraintPart.GetTotalLambda(); }
@@ -3934,8 +3934,8 @@ public:
 	virtual Ref<ConstraintSettings> GetConstraintSettings() const override;
 
 	// See: TwoBodyConstraint
-	virtual Mat44				GetConstraintToBody1Matrix() const override					{ return Mat44::sRotationTranslation(mConstraintToBody1, mLocalSpacePosition1); }
-	virtual Mat44				GetConstraintToBody2Matrix() const override					{ return Mat44::sRotationTranslation(mConstraintToBody2, mLocalSpacePosition2); }
+	virtual Mat44				GetConstraintToBody1Matrix() const override					{ return Mat44::RotationTranslation(mConstraintToBody1, mLocalSpacePosition1); }
+	virtual Mat44				GetConstraintToBody2Matrix() const override					{ return Mat44::RotationTranslation(mConstraintToBody2, mLocalSpacePosition2); }
 
 	///@name Constraint reference frame
 	inline Vec3					GetLocalSpacePosition1() const								{ return mLocalSpacePosition1; }
@@ -4023,7 +4023,7 @@ private:
 	EMotorState					mSwingMotorState = EMotorState::Off;
 	EMotorState					mTwistMotorState = EMotorState::Off;
 	Vec3						mTargetAngularVelocity = Vec3::sZero();
-	Quat						mTargetOrientation = Quat::sIdentity();
+	Quat						mTargetOrientation = Quat::Identity();
 
 	// RUN TIME PROPERTIES FOLLOW
 
@@ -4151,8 +4151,8 @@ public:
 	virtual Ref<ConstraintSettings> GetConstraintSettings() const override;
 
 	// See: TwoBodyConstraint
-	virtual Mat44				GetConstraintToBody1Matrix() const override					{ return Mat44::sRotationTranslation(mConstraintToBody1, mLocalSpacePosition1); }
-	virtual Mat44				GetConstraintToBody2Matrix() const override					{ return Mat44::sRotationTranslation(mConstraintToBody2, mLocalSpacePosition2); }
+	virtual Mat44				GetConstraintToBody1Matrix() const override					{ return Mat44::RotationTranslation(mConstraintToBody1, mLocalSpacePosition1); }
+	virtual Mat44				GetConstraintToBody2Matrix() const override					{ return Mat44::RotationTranslation(mConstraintToBody2, mLocalSpacePosition2); }
 
 	/// Update the translation limits for this constraint
 	void						SetTranslationLimits(Vec3Arg inLimitMin, Vec3Arg inLimitMax);
@@ -4215,7 +4215,7 @@ public:
 
 	///@name Get Lagrange multiplier from last physics update (the linear/angular impulse applied to satisfy the constraint)
 	inline Vec3					GetTotalLambdaPosition() const								{ return IsTranslationFullyConstrained()? mPointConstraintPart.GetTotalLambda() : Vec3(mTranslationConstraintPart[0].GetTotalLambda(), mTranslationConstraintPart[1].GetTotalLambda(), mTranslationConstraintPart[2].GetTotalLambda()); }
-	inline Vec3					GetTotalLambdaRotation() const								{ return IsRotationFullyConstrained()? mRotationConstraintPart.GetTotalLambda() : Vec3(mSwingTwistConstraintPart.GetTotalTwistLambda(), mSwingTwistConstraintPart.GetTotalSwingYLambda(), mSwingTwistConstraintPart.GetTotalSwingZLambda()); }
+	inline Vec3					GetTotalLambdaRotation() const								{ return IRotationFullyConstrained()? mRotationConstraintPart.GetTotalLambda() : Vec3(mSwingTwistConstraintPart.GetTotalTwistLambda(), mSwingTwistConstraintPart.GetTotalSwingYLambda(), mSwingTwistConstraintPart.GetTotalSwingZLambda()); }
 	inline Vec3					GetTotalLambdaMotorTranslation() const						{ return Vec3(mMotorTranslationConstraintPart[0].GetTotalLambda(), mMotorTranslationConstraintPart[1].GetTotalLambda(), mMotorTranslationConstraintPart[2].GetTotalLambda()); }
 	inline Vec3					GetTotalLambdaMotorRotation() const							{ return Vec3(mMotorRotationConstraintPart[0].GetTotalLambda(), mMotorRotationConstraintPart[1].GetTotalLambda(), mMotorRotationConstraintPart[2].GetTotalLambda()); }
 
@@ -4247,8 +4247,8 @@ private:
 	// Constraint settings helper functions
 	inline bool					IsTranslationConstrained() const							{ return (mFreeAxis&  0b111) != 0b111; }
 	inline bool					IsTranslationFullyConstrained() const						{ return (mFixedAxis&  0b111) == 0b111& & !mHasSpringLimits; }
-	inline bool					IsRotationConstrained() const								{ return (mFreeAxis&  0b111000) != 0b111000; }
-	inline bool					IsRotationFullyConstrained() const							{ return (mFixedAxis&  0b111000) == 0b111000; }
+	inline bool					IRotationConstrained() const								{ return (mFreeAxis&  0b111000) != 0b111000; }
+	inline bool					IRotationFullyConstrained() const							{ return (mFixedAxis&  0b111000) == 0b111000; }
 	inline bool					HasFriction(EAxis inAxis) const								{ return !IsFixedAxis(inAxis)& & mMaxFriction[inAxis] > 0.0f; }
 
 	// CONFIGURATION PROPERTIES FOLLOW
@@ -4283,7 +4283,7 @@ private:
 	Vec3						mTargetVelocity = Vec3::sZero();
 	Vec3						mTargetAngularVelocity = Vec3::sZero();
 	Vec3						mTargetPosition = Vec3::sZero();
-	Quat						mTargetOrientation = Quat::sIdentity();
+	Quat						mTargetOrientation = Quat::Identity();
 
 	// RUN TIME PROPERTIES FOLLOW
 
@@ -4479,7 +4479,7 @@ public:
 	Vec3							mPathPosition = Vec3::sZero();
 
 	/// The rotation of the path start relative to world transform of body 1
-	Quat							mPathRotation = Quat::sIdentity();
+	Quat							mPathRotation = Quat::Identity();
 
 	/// The fraction along the path that corresponds to the initial position of body 2. Usually this is 0, the beginning of the path. But if you want to start an object halfway the path you can calculate this with mPath->GetClosestPoint(point on path to attach body to).
 	float							mPathFraction = 0.0f;
@@ -4732,7 +4732,7 @@ public:
 
 	// See: TwoBodyConstraint
 	virtual Mat44				GetConstraintToBody1Matrix() const override					{ return Mat44::sTranslation(mLocalSpacePosition1); }
-	virtual Mat44				GetConstraintToBody2Matrix() const override					{ return Mat44::sRotationTranslation(mInvInitialOrientation, mLocalSpacePosition2); }
+	virtual Mat44				GetConstraintToBody2Matrix() const override					{ return Mat44::RotationTranslation(mInvInitialOrientation, mLocalSpacePosition2); }
 
 	///@name Get Lagrange multiplier from last physics update (the linear/angular impulse applied to satisfy the constraint)
 	inline Vec3					GetTotalLambdaPosition() const								{ return mPointConstraintPart.GetTotalLambda(); }

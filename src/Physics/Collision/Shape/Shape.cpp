@@ -3604,7 +3604,7 @@ void CompoundShape::RestoreBinaryState(StreamIn &inStream)
 		inS.Read(outElement.mUserData);
 		inS.Read(outElement.mPositionCOM);
 		inS.Read(outElement.mRotation);
-		outElement.mIsRotationIdentity = outElement.mRotation == Float3(0, 0, 0);
+		outElement.mIRotationIdentity = outElement.mRotation == Float3(0, 0, 0);
 	});
 }
 
@@ -10428,7 +10428,7 @@ RotatedTranslatedShape::RotatedTranslatedShape(const RotatedTranslatedShapeSetti
 
 	// Store rotation (position is always zero because we center around the center of mass)
 	mRotation = inSettings.mRotation;
-	mIsRotationIdentity = mRotation.IsClose(Quat::Identity());
+	mIRotationIdentity = mRotation.IsClose(Quat::Identity());
 
 	outResult.Set(this);
 }
@@ -10441,7 +10441,7 @@ RotatedTranslatedShape::RotatedTranslatedShape(Vec3Arg inPosition, QuatArg inRot
 
 	// Store rotation (position is always zero because we center around the center of mass)
 	mRotation = inRotation;
-	mIsRotationIdentity = mRotation.IsClose(Quat::Identity());
+	mIRotationIdentity = mRotation.IsClose(Quat::Identity());
 }
 
 MassProperties RotatedTranslatedShape::GetMassProperties() const
@@ -10664,7 +10664,7 @@ void RotatedTranslatedShape::RestoreBinaryState(StreamIn &inStream)
 
 	inStream.Read(mCenterOfMass);
 	inStream.Read(mRotation);
-	mIsRotationIdentity = mRotation.IsClose(Quat::Identity());
+	mIRotationIdentity = mRotation.IsClose(Quat::Identity());
 }
 
 bool RotatedTranslatedShape::IsValidScale(Vec3Arg inScale) const
@@ -10672,7 +10672,7 @@ bool RotatedTranslatedShape::IsValidScale(Vec3Arg inScale) const
 	if (!Shape::IsValidScale(inScale))
 		return false;
 
-	if (mIsRotationIdentity || ScaleHelpers::IsUniformScale(inScale))
+	if (mIRotationIdentity || ScaleHelpers::IsUniformScale(inScale))
 		return mInnerShape->IsValidScale(inScale);
 
 	if (!ScaleHelpers::CanScaleBeRotated(mRotation, inScale))
@@ -10685,7 +10685,7 @@ Vec3 RotatedTranslatedShape::MakeScaleValid(Vec3Arg inScale) const
 {
 	Vec3 scale = ScaleHelpers::MakeNonZeroScale(inScale);
 
-	if (mIsRotationIdentity || ScaleHelpers::IsUniformScale(scale))
+	if (mIRotationIdentity || ScaleHelpers::IsUniformScale(scale))
 		return mInnerShape->MakeScaleValid(scale);
 
 	if (ScaleHelpers::CanScaleBeRotated(mRotation, scale))

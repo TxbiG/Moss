@@ -44,7 +44,7 @@ bool EigenValueSymmetric(const Matrix &inMatrix, Matrix &outEigVec, Vector &outE
 	MOSS_ASSERT(outEigVec.GetRows() == n);
 	MOSS_ASSERT(outEigVec.GetCols() == n);
 	MOSS_ASSERT(outEigVal.GetRows() == n);
-	MOSS_ASSERT(outEigVec.IsIdentity());
+	MOSS_ASSERT(outEigVec.IIdentity());
 
 	// Get the matrix in a so we can mess with it
 	Matrix a = inMatrix;

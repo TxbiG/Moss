@@ -99,12 +99,12 @@ inline Frustum3D::Frustum3D(Vec3 inPosition, Vec3 inForward, Vec3 inUp, float in
 	m_Planes[0] = Plane::sFromPointAndNormal(inPosition + inNear * inForward, inForward);
 
 	// Top and bottom planes
-	m_Planes[1] = Plane::sFromPointAndNormal(inPosition, Mat44::sRotation(right, 0.5f * inFOVY) * -up);
-	m_Planes[2] = Plane::sFromPointAndNormal(inPosition, Mat44::sRotation(right, -0.5f * inFOVY) * up);
+	m_Planes[1] = Plane::sFromPointAndNormal(inPosition, Mat44::Rotation(right, 0.5f * inFOVY) * -up);
+	m_Planes[2] = Plane::sFromPointAndNormal(inPosition, Mat44::Rotation(right, -0.5f * inFOVY) * up);
 
 	// Left and right planes
-	m_Planes[3] = Plane::sFromPointAndNormal(inPosition, Mat44::sRotation(up, 0.5f * inFOVX) * right);
-	m_Planes[4] = Plane::sFromPointAndNormal(inPosition, Mat44::sRotation(up, -0.5f * inFOVX) * -right);
+	m_Planes[3] = Plane::sFromPointAndNormal(inPosition, Mat44::Rotation(up, 0.5f * inFOVX) * right);
+	m_Planes[4] = Plane::sFromPointAndNormal(inPosition, Mat44::Rotation(up, -0.5f * inFOVX) * -right);
 }
 
 inline bool	Frustum3D::Overlaps(const AABox &inBox) const {
