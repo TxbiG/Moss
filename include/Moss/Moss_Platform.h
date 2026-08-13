@@ -320,7 +320,7 @@ enum class Moss_GamepadButton {
 //          Haptic          
 ////////////////////////////////////////////////////////////////
 enum class Moss_HapticFeedbackType {
-    AUTOCENTER,
+    AUTOCENTER = 0,
     CARTESIAN,
     CONSTANT,
     CUSTOM,
@@ -536,10 +536,10 @@ enum class Moss_PenInputFlags {
 };
 
 struct Moss_PenAxisEvent {
-    Moss_EventType type;     // Moss_EVENT_PEN_AXIS */
+    //Moss_EventType type;     // Moss_EVENT_PEN_AXIS */
     uint32_t reserved;
-    uint64 timestamp;       // In nanoseconds, populated using Moss_GetTicksNS() */
-    Moss_PenID which;        // The pen instance id */
+    uint64_t timestamp;       // In nanoseconds, populated using Moss_GetTicksNS() */
+    uint32_t id;        // The pen instance id */
     Moss_PenInputFlags pen_state;   // Complete pen input state at time of event */
     float x;                // X coordinate, relative to window */
     float y;                // Y coordinate, relative to window */
@@ -548,9 +548,9 @@ struct Moss_PenAxisEvent {
 };
 
 struct Moss_PenButtonEvent {
-    Moss_EventType type; // Moss_EVENT_PEN_BUTTON_DOWN or Moss_EVENT_PEN_BUTTON_UP */
+    //Moss_EventType type; // Moss_EVENT_PEN_BUTTON_DOWN or Moss_EVENT_PEN_BUTTON_UP */
     uint32_t reserved;
-    uint64 timestamp;   // In nanoseconds, populated using Moss_GetTicksNS() */
+    uint64_t timestamp;   // In nanoseconds, populated using Moss_GetTicksNS() */
     Moss_PenID which;        // The pen instance id */
     Moss_PenInputFlags pen_state;   // Complete pen input state at time of event */
     float x;                // X coordinate, relative to window */
@@ -560,9 +560,9 @@ struct Moss_PenButtonEvent {
 };
 
 struct Moss_PenMotionEvent {
-    Moss_EventType type; // Moss_EVENT_PEN_MOTION */
+    //Moss_EventType type; // Moss_EVENT_PEN_MOTION */
     uint32_t reserved;
-    uint64 timestamp;   // In nanoseconds, populated using Moss_GetTicksNS() */
+    uint64_t timestamp;   // In nanoseconds, populated using Moss_GetTicksNS() */
     Moss_PenID which;        // The pen instance id */
     Moss_PenInputFlags pen_state;   // Complete pen input state at time of event */
     float x;                // X coordinate, relative to window */
@@ -570,14 +570,14 @@ struct Moss_PenMotionEvent {
 };
 
 struct Moss_PenProximityEvent {
-    Moss_EventType type; // Moss_EVENT_PEN_PROXIMITY_IN or Moss_EVENT_PEN_PROXIMITY_OUT */
+    //Moss_EventType type; // Moss_EVENT_PEN_PROXIMITY_IN or Moss_EVENT_PEN_PROXIMITY_OUT */
     uint32_t reserved;
     uint64 timestamp;   // In nanoseconds, populated using Moss_GetTicksNS() */
     Moss_PenID which;        // The pen instance id */
 };
 
 struct Moss_PenTouchEvent {
-    Moss_EventType type;     // Moss_EVENT_PEN_DOWN or Moss_EVENT_PEN_UP */
+    //Moss_EventType type;     // Moss_EVENT_PEN_DOWN or Moss_EVENT_PEN_UP */
     uint32_t reserved;
     uint64 timestamp;       // In nanoseconds, populated using Moss_GetTicksNS() */
     Moss_PenID which;        // The pen instance id */
@@ -755,14 +755,12 @@ struct Moss_Haptic {
 
 struct Moss_PathInfo {
     Moss_PathType type;      // the path type */
-    uint64 size;            // the file size in bytes */
+    uint64_t size;           // the file size in bytes */
     Moss_Time create_time;   // the time when the path was created */
     Moss_Time modify_time;   // the last time the path was modified */
     Moss_Time access_time;   // the last time the path was read */
 
-    bool readable;
-    bool writable;
-    bool executable;
+    bool readable, writable, executable;
 };
 
 
@@ -851,11 +849,11 @@ MOSS_API bool Moss_IsKeyJustPressed(Moss_Keyboard key);
 MOSS_API bool Moss_IsKeyJustReleased(Moss_Keyboard key);
 MOSS_API Moss_Keyboard Moss_InputGetKey();
 
-MOSS_API bool Moss_IsMousePressed(Moss_MouseButton button);
-MOSS_API bool Moss_IsMouseReleased(Mouse b);
-MOSS_API bool Moss_IsMouseJustPressed(Moss_MouseButton button);
-MOSS_API bool Moss_IsMouseJustReleased(Moss_MouseButton button);
-MOSS_API Moss_Keyboard Moss_InputGetMouseButton();
+MOSS_API bool Moss_IsMousePressed(Moss_Mouse button);
+MOSS_API bool Moss_IsMouseReleased(Moss_Mouse button);
+MOSS_API bool Moss_IsMouseJustPressed(Moss_Mouse button);
+MOSS_API bool Moss_IsMouseJustReleased(Moss_Mouse button);
+MOSS_API Moss_Mouse Moss_InputGetMouseButton();
 MOSS_API void Moss_GetMousePosition(int* x, int* y);
 MOSS_API void Moss_SetMousePosition(int x, int y);
 MOSS_API void Moss_SetMouseVisible(bool visible);
