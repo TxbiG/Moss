@@ -1183,12 +1183,14 @@ MOSS_INLINE constexpr float DegreesToRadians(float value) { return value * (MOSS
 // Convert a value from radians to degrees
 MOSS_INLINE constexpr float RadiansToDegrees(float value) { return value * (180.0f / MOSS_PI); }
 //
+
+/*
 MOSS_INLINE constexpr void seed_random() { std::srand(static_cast<unsigned int>(std::time(nullptr))); }
 // Returns a float between min and max
 MOSS_INLINE constexpr float randf_range(float min, float max) { return min + static_cast<float>(std::rand()) / static_cast<float>(RAND_MAX) * (max - min); }
 //
 MOSS_INLINE constexpr int randi_range(int min, int max) { return min + std::rand() % (max - min + 1); }
-
+*/
 /*
 // Memory management
 // Random functions

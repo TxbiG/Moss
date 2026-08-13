@@ -5,6 +5,7 @@
 #pragma once
 
 #include <Moss/Core/STLAllocator.h>
+#include <Moss/Moss_stdinc.h>
 
 MOSS_SUPRESS_WARNINGS_BEGIN
 
@@ -14,7 +15,7 @@ MOSS_SUPRESS_WARNINGS_BEGIN
 /// @param inSize Number of bytes
 /// @param inSeed Seed of the hash (can be used to pass in the hash of a previous operation, otherwise leave default)
 /// @return Hash
-inline uint64 HashBytes(const void *inData, uint inSize, uint64 inSeed = 0xcbf29ce484222325UL)
+inline uint64 HashBytes(const void *inData, uint64 inSize, uint64 inSeed = 0xcbf29ce484222325UL)
 {
 	uint64 hash = inSeed;
 	for (const uint8 *data = reinterpret_cast<const uint8 *>(inData); data < reinterpret_cast<const uint8 *>(inData) + inSize; ++data)
