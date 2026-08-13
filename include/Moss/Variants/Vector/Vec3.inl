@@ -680,7 +680,7 @@ float Vec3::LengthSq() const
 
 float Vec3::Length() const
 {
-#if defined(MOSS_SIMD_SSE4_11)
+#if defined(MOSS_SIMD_SSE4_1)
 	return _mm_cvtss_f32(_mm_sqrt_ss(_mm_dp_ps(mValue, mValue, 0x7f)));
 #elif defined(MOSS_SIMD_NEON)
 	float32x4_t mul = vmulq_f32(mValue, mValue);

@@ -267,7 +267,7 @@ Vec2 Vec2::FusedMultiplyAdd(const Vec2 inMul1, const Vec2 inMul2, const Vec2 inA
 
 Vec2 Vec2::Select(const Vec2 inNotSet, const Vec2 inSet, const UVec4 inControl)
 {
-#if defined(MOSS_SIMD_SSE4_11) && !defined(MOSS_PLATFORM_WASM) // _mm_blendv_ps has problems on FireFox
+#if defined(MOSS_SIMD_SSE4_1) && !defined(MOSS_PLATFORM_WASM) // _mm_blendv_ps has problems on FireFox
 	Type v = _mm_blendv_ps(inNotSet.mValue, inSet.mValue, _mm_castsi128_ps(inControl.mValue));
 	return sFixW(v);
 #elif defined(MOSS_SIMD_SSE)

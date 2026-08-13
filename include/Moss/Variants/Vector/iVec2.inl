@@ -321,7 +321,7 @@ iVec2 iVec2::Select(const iVec2 inNotSet, const iVec2 inSet, const iVec2 inContr
 {
 #if defined(MOSS_SIMD_AVX)
 	return _mm256_blendv_pd(inNotSet.mValue, inSet.mValue, inControl.mValue);
-#elif defined(MOSS_SIMD_SSE4_11)
+#elif defined(MOSS_SIMD_SSE4_1)
 	Type v = { _mm_blendv_pd(inNotSet.mValue.mLow, inSet.mValue.mLow, inControl.mValue.mLow), _mm_blendv_pd(inNotSet.mValue.mHigh, inSet.mValue.mHigh, inControl.mValue.mHigh) };
 	return sFixW(v);
 #elif defined(MOSS_SIMD_NEON)

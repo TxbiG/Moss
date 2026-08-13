@@ -321,7 +321,7 @@ iVec4 iVec4::Select(const iVec4 inNotSet, const iVec4 inSet, const iVec4 inContr
 {
 #if defined(MOSS_SIMD_AVX)
 	return _mm256_blendv_pd(inNotSet.mValue, inSet.mValue, inControl.mValue);
-#elif defined(MOSS_SIMD_SSE4_11)
+#elif defined(MOSS_SIMD_SSE4_1)
 	Type v = { _mm_blendv_pd(inNotSet.mValue.mLow, inSet.mValue.mLow, inControl.mValue.mLow), _mm_blendv_pd(inNotSet.mValue.mHigh, inSet.mValue.mHigh, inControl.mValue.mHigh) };
 	return sFixW(v);
 #elif defined(MOSS_SIMD_NEON)
@@ -886,7 +886,7 @@ iVec4 iVec4::PrepareRoundToInf() const
 	__m256d is_zero = _mm256_cmp_pd(value_and_mantissa_loss, _mm256_setzero_pd(), _CMP_EQ_OQ);
 	__m256d value_or_mantissa_loss = _mm256_or_pd(mValue, _mm256_castsi256_pd(mantissa_loss));
 	return _mm256_blendv_pd(value_or_mantissa_loss, mValue, is_zero);
-#elif defined(MOSS_SIMD_SSE4_11)
+#elif defined(MOSS_SIMD_SSE4_1)
 	__m128i mantissa_loss = _mm_set1_epi64x(cDoubleToFloatMantissaLoss);
 	__m128d zero = _mm_setzero_pd();
 	__m128d value_and_mantissa_loss_low = _mm_and_pd(mValue.mLow, _mm_castsi128_pd(mantissa_loss));

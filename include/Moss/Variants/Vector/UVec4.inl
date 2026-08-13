@@ -241,7 +241,7 @@ UVec4 UVec4::Sort4True(const UVec4 inValue, const UVec4 inIndex)
 
 UVec4 UVec4::operator * (const UVec4 inV2) const
 {
-#if defined(MOSS_SIMD_SSE4_11)
+#if defined(MOSS_SIMD_SSE4_1)
 	return _mm_mullo_epi32(mValue, inV2.mValue);
 #elif defined(MOSS_SIMD_NEON)
 	return vmulq_u32(mValue, inV2.mValue);
@@ -552,7 +552,7 @@ UVec4 UVec4::Expand4Byte12() const
 
 UVec4 UVec4::ShiftComponents4Minus(int inCount) const
 {
-#if defined(MOSS_SIMD_SSE4_11) || defined(MOSS_SIMD_NEON)
+#if defined(MOSS_SIMD_SSE4_1) || defined(MOSS_SIMD_NEON)
 	alignas(UVec4) static constexpr uint32 FourMinusXShuffle[5][4] =
 	{
 		{ 0xffffffff, 0xffffffff, 0xffffffff, 0xffffffff },

@@ -77,7 +77,7 @@ Mat44 Mat44::Rotation(const Quat inQuat)
 	MOSS_ASSERT(inQuat.IsNormalized());
 
 	// See: https://en.wikipedia.org/wiki/Quaternions_and_spatial_rotation section 'Quaternion-derived rotation matrix'
-#ifdef MOSS_SIMD_SSE4_11
+#ifdef MOSS_SIMD_SSE4_1
 	__m128 xyzw = inQuat.mValue.mValue;
 	__m128 two_xyzw = _mm_add_ps(xyzw, xyzw);
 	__m128 yzxw = _mm_shuffle_ps(xyzw, xyzw, _MM_SHUFFLE(3, 0, 2, 1));
