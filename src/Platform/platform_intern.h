@@ -3,6 +3,24 @@
 
 #include <Moss/Moss_Platform.h>
 
+#ifndef _guarded
+#define _guarded
+#endif
+
+struct SurfaceList {
+    Moss_Surface* surface = nullptr;
+    SurfaceList* next = nullptr;
+};
+
+struct GamepadMapping_t;
+
+enum class Moss_GamepadBindingType {
+    NONE = 0,
+    BUTTON,
+    AXIS,
+    HAT
+};
+
 
 #if defined(MOSS_PLATFORM_WINDOWS)
 #define NOMINMAX
@@ -10,6 +28,17 @@
 #include <Windows.h>
 #endif // MOSS_PLATFORM_WINDOWS
 
+enum class Moss_GamepadBackend {
+    UNKNOWN = 0,
+    XINPUT,
+    HID,
+    APPLE_GAME_CONTROLLER,
+    ANDROID_INPUT
+};
+
+#define MOSS_GAMEPAD_BACKEND_UNKNOWN Moss_GamepadBackend::UNKNOWN
+#define MOSS_GAMEPAD_BACKEND_XINPUT Moss_GamepadBackend::XINPUT
+#define MOSS_GAMEPAD_BACKEND_HID Moss_GamepadBackend::HID
 
 enum class Moss_GamepadType {
     UNKNOWN = 0,
@@ -39,16 +68,15 @@ struct KeyState {
     bool justReleased;
 };
 
-
 typedef struct INPUT_STATE {
     // keyboard
-    uint8_t keys[Keyboard::COUNT];
-    uint8_t keys_prev[Keyboard::COUNT];
-    KeyState keyboardState[Keyboard::COUNT];
+    uint8_t keys[static_cast<size_t>(Keyboard::COUNT)];
+    uint8_t keys_prev[static_cast<size_t>(Keyboard::COUNT)];
+    KeyState keyboardState[static_cast<size_t>(Keyboard::COUNT)];
 
     // mouse
-    uint8_t mouse_buttons[Mouse::COUNT] = {};
-    uint8_t mouse_buttons_prev[Mouse::COUNT] = {};
+    uint8_t mouse_buttons[static_cast<size_t>(Mouse::COUNT)] = {};
+    uint8_t mouse_buttons_prev[static_cast<size_t>(Mouse::COUNT)] = {};
     int32_t mouse_x, mouse_y;
     int32_t mouse_dx, mouse_dy;
     float   mouse_wheel; // +1 per notch
@@ -187,11 +215,19 @@ typedef struct Moss_Storage
 
 
     void *userdata;
+    char root[4096];
 };
-
 
 struct Moss_Gamepad
 {
+    /*
+    uint32_t index;
+    Moss_GamepadBackend backend;
+    bool connected;
+    void* backend_handle;
+    Moss_Joystick *joystick _guarded; // underlying joystick device
+    int ref_count _guarded;
+    */
     Moss_Joystick *joystick _guarded; // underlying joystick device
     int ref_count _guarded;
 

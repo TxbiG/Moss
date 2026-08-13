@@ -12,7 +12,7 @@ MOSS_NAMESPACE_BEGIN
 
 /// Collide 2 shapes and returns at most 1 hit per leaf shape pairs that overlapping. This can be used when not all contacts between the shapes are needed.
 /// E.g. when testing a compound with 2 MeshShapes A and B against a compound with 2 SphereShapes C and D, then at most you'll get 4 collisions: AC, AD, BC, BD.
-/// The default CollisionDispatch::sCollideShapeVsShape function would return all intersecting triangles in A against C, all in B against C etc.
+/// The default CollisionDispatch::CollideShapeVsShape function would return all intersecting triangles in A against C, all in B against C etc.
 /// @param inShape1 The first shape
 /// @param inShape2 The second shape
 /// @param inScale1 Local space scale of shape 1 (scales relative to its center of mass)
@@ -84,7 +84,7 @@ void CollideShapeVsShapePerLeaf(const Shape *inShape1, const Shape *inShape2, Ve
 			{
 				// Use the leaf collector to collect max 1 hit for this pair and pass it on to ioCollector
 				LeafCollector collector;
-				CollisionDispatch::sCollideShapeVsShape(leaf1.mShape, leaf2.mShape, leaf1.mScale, leaf2.mScale, leaf1.mCenterOfMassTransform, leaf2.mCenterOfMassTransform, leaf1.mSubShapeIDCreator, leaf2.mSubShapeIDCreator, inCollideShapeSettings, collector, inShapeFilter);
+				CollisionDispatch::CollideShapeVsShape(leaf1.mShape, leaf2.mShape, leaf1.mScale, leaf2.mScale, leaf1.mCenterOfMassTransform, leaf2.mCenterOfMassTransform, leaf1.mSubShapeIDCreator, leaf2.mSubShapeIDCreator, inCollideShapeSettings, collector, inShapeFilter);
 				if (collector.HadHit())
 					ioCollector.AddHit(collector.mHit);
 			}

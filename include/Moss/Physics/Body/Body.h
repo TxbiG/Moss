@@ -82,18 +82,18 @@ public:
 	};
 
 	/// Check if we have permission
-	static inline bool					sCheckRights(EAccess inRights, EAccess inDesiredRights) {
+	static inline bool CheckRights(EAccess inRights, EAccess inDesiredRights) {
 		return (uint8(inRights) & uint8(inDesiredRights)) == uint8(inDesiredRights);
 	}
 
 	/// Access to read/write velocities
-	static inline EAccess &				sVelocityAccess() {
+	static inline EAccess & VelocityAccess() {
 		static thread_local EAccess sAccess = BodyAccess::EAccess::ReadWrite;
 		return sAccess;
 	}
 
 	/// Access to read/write positions
-	static inline EAccess &				sPositionAccess() {
+	static inline EAccess & PositionAccess() {
 		static thread_local EAccess sAccess = BodyAccess::EAccess::ReadWrite;
 		return sAccess;
 	}
@@ -546,72 +546,71 @@ public:
 	MOSS_OVERRIDE_NEW_DELETE
 
 	/// Destructor
-									~BodyManager();
+	~BodyManager();
 
 	/// Initialize the manager
-	void							Init(uint inMaxBodies, uint inNumBodyMutexes, const BroadPhaseLayerInterface &inLayerInterface);
+	void	Init(uint inMaxBodies, uint inNumBodyMutexes, const BroadPhaseLayerInterface &inLayerInterface);
 
 	/// Gets the current amount of bodies that are in the body manager
-	uint							GetNumBodies() const;
+	uint	GetNumBodies() const;
 
 	/// Gets the max bodies that we can support
-	uint							GetMaxBodies() const						{ return uint(mBodies.capacity()); }
+	uint	GetMaxBodies() const						{ return uint(mBodies.capacity()); }
 
 	/// Helper struct that counts the number of bodies of each type
-	struct BodyStats
-	{
-		uint						mNumBodies					= 0;			///< Total number of bodies in the body manager
-		uint						mMaxBodies					= 0;			///< Max allowed number of bodies in the body manager (as configured in Init(...))
+	struct BodyStats {
+		uint	mNumBodies					= 0;	// Total number of bodies in the body manager
+		uint	mMaxBodies					= 0;	// Max allowed number of bodies in the body manager (as configured in Init(...))
 
-		uint						mNumBodiesStatic			= 0;			///< Number of static bodies
+		uint	mNumBodiesStatic			= 0;	// Number of static bodies
 
-		uint						mNumBodiesDynamic			= 0;			///< Number of dynamic bodies
-		uint						mNumActiveBodiesDynamic		= 0;			///< Number of dynamic bodies that are currently active
+		uint	mNumBodiesDynamic			= 0;	// Number of dynamic bodies
+		uint	mNumActiveBodiesDynamic		= 0;	// Number of dynamic bodies that are currently active
 
-		uint						mNumBodiesKinematic			= 0;			///< Number of kinematic bodies
-		uint						mNumActiveBodiesKinematic	= 0;			///< Number of kinematic bodies that are currently active
+		uint	mNumBodiesKinematic			= 0;	// Number of kinematic bodies
+		uint	mNumActiveBodiesKinematic	= 0;	// Number of kinematic bodies that are currently active
 
-		uint						mNumSoftBodies				= 0;			///< Number of soft bodies
-		uint						mNumActiveSoftBodies		= 0;			///< Number of soft bodies that are currently active
+		uint	mNumSoftBodies				= 0;	// Number of soft bodies
+		uint	mNumActiveSoftBodies		= 0;	// Number of soft bodies that are currently active
 	};
 
 	/// Get stats about the bodies in the body manager (slow, iterates through all bodies)
-	BodyStats						GetBodyStats() const;
+	BodyStats	GetBodyStats() const;
 
 	/// Create a body using creation settings. The returned body will not be part of the body manager yet.
-	Body *							AllocateBody(const BodyCreationSettings &inBodyCreationSettings) const;
+	Body*	AllocateBody(const BodyCreationSettings &inBodyCreationSettings) const;
 
 	/// Create a soft body using creation settings. The returned body will not be part of the body manager yet.
-	Body *							AllocateSoftBody(const SoftBodyCreationSettings &inSoftBodyCreationSettings) const;
+	Body*	AllocateSoftBody(const SoftBodyCreationSettings &inSoftBodyCreationSettings) const;
 
 	/// Free a body that has not been added to the body manager yet (if it has, use DestroyBodies).
-	void							FreeBody(Body *inBody) const;
+	void	FreeBody(Body *inBody) const;
 
 	/// Add a body to the body manager, assigning it the next available ID. Returns false if no more IDs are available.
-	bool							AddBody(Body *ioBody);
+	bool	AddBody(Body *ioBody);
 
 	/// Add a body to the body manager, assigning it a custom ID. Returns false if the ID is not valid.
-	bool							AddBodyWithCustomID(Body *ioBody, const BodyID &inBodyID);
+	bool	AddBodyWithCustomID(Body *ioBody, const BodyID &inBodyID);
 
 	/// Remove a list of bodies from the body manager
-	void							RemoveBodies(const BodyID *inBodyIDs, int inNumber, Body **outBodies);
+	void	RemoveBodies(const BodyID *inBodyIDs, int inNumber, Body **outBodies);
 
 	/// Remove a set of bodies from the body manager and frees them.
-	void							DestroyBodies(const BodyID *inBodyIDs, int inNumber);
+	void	DestroyBodies(const BodyID *inBodyIDs, int inNumber);
 
 	/// Activate a list of bodies.
 	/// This function should only be called when an exclusive lock for the bodies are held.
-	void							ActivateBodies(const BodyID *inBodyIDs, int inNumber);
+	void	ActivateBodies(const BodyID *inBodyIDs, int inNumber);
 
 	/// Deactivate a list of bodies.
 	/// This function should only be called when an exclusive lock for the bodies are held.
-	void							DeactivateBodies(const BodyID *inBodyIDs, int inNumber);
+	void	DeactivateBodies(const BodyID *inBodyIDs, int inNumber);
 
 	/// Update the motion quality for a body
-	void							SetMotionQuality(Body &ioBody, EMotionQuality inMotionQuality);
+	void	SetMotionQuality(Body &ioBody, EMotionQuality inMotionQuality);
 
 	/// Get copy of the list of active bodies under protection of a lock.
-	void							GetActiveBodies(EBodyType inType, BodyIDVector &outBodyIDs) const;
+	void	GetActiveBodies(EBodyType inType, BodyIDVector &outBodyIDs) const;
 
 	/// Get the list of active bodies. Note: Not thread safe. The active bodies list can change at any moment.
 	const BodyID *					GetActiveBodiesUnsafe(EBodyType inType) const { return mActiveBodies[int(inType)]; }
@@ -627,7 +626,7 @@ public:
 	BodyActivationListener *		GetBodyActivationListener() const			{ return mActivationListener; }
 
 	/// Check if this is a valid body pointer. When a body is freed the memory that the pointer occupies is reused to store a freelist.
-	static inline bool				sIsValidBodyPointer(const Body *inBody)		{ return (uintptr_t(inBody) & cIsFreedBody) == 0; }
+	static inline bool IsValidBodyPointer(const Body *inBody)		{ return (uintptr_t(inBody) & cIsFreedBody) == 0; }
 
 	/// Get all bodies. Note that this can contain invalid body pointers, call sIsValidBodyPointer to check.
 	const BodyVector &				GetBodies() const							{ return mBodies; }
@@ -718,38 +717,38 @@ public:
 #ifndef MOSS_DEBUG_RENDERER
 	enum class EShapeColor
 	{
-		InstanceColor,				///< Random color per instance
-		ShapeTypeColor,				///< Convex = green, scaled = yellow, compound = orange, mesh = red
-		MotionTypeColor,			///< Static = grey, keyframed = green, dynamic = random color per instance
-		SleepColor,					///< Static = grey, keyframed = green, dynamic = yellow, sleeping = red
-		IslandColor,				///< Static = grey, active = random color per island, sleeping = light grey
-		MaterialColor,				///< Color as defined by the PhysicsMaterial of the shape
+		InstanceColor,				// Random color per instance
+		ShapeTypeColor,				// Convex = green, scaled = yellow, compound = orange, mesh = red
+		MotionTypeColor,			// Static = grey, keyframed = green, dynamic = random color per instance
+		SleepColor,					// Static = grey, keyframed = green, dynamic = yellow, sleeping = red
+		IslandColor,				// Static = grey, active = random color per island, sleeping = light grey
+		MaterialColor,				// Color as defined by the PhysicsMaterial of the shape
 	};
 
 	/// Draw settings
 	struct DrawSettings
 	{
-		bool						mDrawGetSupportFunction = false;				///< Draw the GetSupport() function, used for convex collision detection
-		bool						mDrawSupportDirection = false;					///< When drawing the support function, also draw which direction mapped to a specific support point
-		bool						mDrawGetSupportingFace = false;					///< Draw the faces that were found colliding during collision detection
-		bool						mDrawShape = true;								///< Draw the shapes of all bodies
-		bool						mDrawShapeWireframe = false;					///< When mDrawShape is true and this is true, the shapes will be drawn in wireframe instead of solid.
-		EShapeColor					mDrawShapeColor = EShapeColor::MotionTypeColor; ///< Coloring scheme to use for shapes
-		bool						mDrawBoundingBox = false;						///< Draw a bounding box per body
-		bool						mDrawCenterOfMassTransform = false;				///< Draw the center of mass for each body
-		bool						mDrawWorldTransform = false;					///< Draw the world transform (which can be different than the center of mass) for each body
-		bool						mDrawVelocity = false;							///< Draw the velocity vector for each body
-		bool						mDrawMassAndInertia = false;					///< Draw the mass and inertia (as the box equivalent) for each body
-		bool						mDrawSleepStats = false;						///< Draw stats regarding the sleeping algorithm of each body
-		bool						mDrawSoftBodyVertices = false;					///< Draw the vertices of soft bodies
-		bool						mDrawSoftBodyVertexVelocities = false;			///< Draw the velocities of the vertices of soft bodies
-		bool						mDrawSoftBodyEdgeConstraints = false;			///< Draw the edge constraints of soft bodies
-		bool						mDrawSoftBodyBendConstraints = false;			///< Draw the bend constraints of soft bodies
-		bool						mDrawSoftBodyVolumeConstraints = false;			///< Draw the volume constraints of soft bodies
-		bool						mDrawSoftBodySkinConstraints = false;			///< Draw the skin constraints of soft bodies
-		bool						mDrawSoftBodyLRAConstraints = false;			///< Draw the LRA constraints of soft bodies
-		bool						mDrawSoftBodyPredictedBounds = false;			///< Draw the predicted bounds of soft bodies
-		ESoftBodyConstraintColor	mDrawSoftBodyConstraintColor = ESoftBodyConstraintColor::ConstraintType; ///< Coloring scheme to use for soft body constraints
+		bool						mDrawGetSupportFunction = false;				// Draw the GetSupport() function, used for convex collision detection
+		bool						mDrawSupportDirection = false;					// When drawing the support function, also draw which direction mapped to a specific support point
+		bool						mDrawGetSupportingFace = false;					// Draw the faces that were found colliding during collision detection
+		bool						mDrawShape = true;								// Draw the shapes of all bodies
+		bool						mDrawShapeWireframe = false;					// When mDrawShape is true and this is true, the shapes will be drawn in wireframe instead of solid.
+		EShapeColor					mDrawShapeColor = EShapeColor::MotionTypeColor; // Coloring scheme to use for shapes
+		bool						mDrawBoundingBox = false;						// Draw a bounding box per body
+		bool						mDrawCenterOfMassTransform = false;				// Draw the center of mass for each body
+		bool						mDrawWorldTransform = false;					// Draw the world transform (which can be different than the center of mass) for each body
+		bool						mDrawVelocity = false;							// Draw the velocity vector for each body
+		bool						mDrawMassAndInertia = false;					// Draw the mass and inertia (as the box equivalent) for each body
+		bool						mDrawSleepStats = false;						// Draw stats regarding the sleeping algorithm of each body
+		bool						mDrawSoftBodyVertices = false;					// Draw the vertices of soft bodies
+		bool						mDrawSoftBodyVertexVelocities = false;			// Draw the velocities of the vertices of soft bodies
+		bool						mDrawSoftBodyEdgeConstraints = false;			// Draw the edge constraints of soft bodies
+		bool						mDrawSoftBodyBendConstraints = false;			// Draw the bend constraints of soft bodies
+		bool						mDrawSoftBodyVolumeConstraints = false;			// Draw the volume constraints of soft bodies
+		bool						mDrawSoftBodySkinConstraints = false;			// Draw the skin constraints of soft bodies
+		bool						mDrawSoftBodyLRAConstraints = false;			// Draw the LRA constraints of soft bodies
+		bool						mDrawSoftBodyPredictedBounds = false;			// Draw the predicted bounds of soft bodies
+		ESoftBodyConstraintColor	mDrawSoftBodyConstraintColor = ESoftBodyConstraintColor::ConstraintType; // Coloring scheme to use for soft body constraints
 	};
 
 	/// Draw the state of the bodies (debugging purposes)
@@ -803,7 +802,7 @@ private:
 	MOSS_INLINE Body *				RemoveBodyInternal(const BodyID &inBodyID);
 
 	/// Helper function to delete a body (which could actually be a BodyWithMotionProperties)
-	inline static void				sDeleteBody(Body *inBody);
+	inline static void DeleteBody(Body *inBody);
 
 #if defined(MOSS_DEBUG)
 	/// Function to check that the free list is not corrupted
@@ -863,11 +862,11 @@ private:
 	const BroadPhaseLayerInterface *mBroadPhaseLayerInterface = nullptr;
 
 #ifdef MOSS_DEBUG
-	static bool						sGetOverrideAllowActivation();
-	static void						sSetOverrideAllowActivation(bool inValue);
+	static bool		 GetOverrideAllowActivation();
+	static void		 SetOverrideAllowActivation(bool inValue);
 
-	static bool						sGetOverrideAllowDeactivation();
-	static void						sSetOverrideAllowDeactivation(bool inValue);
+	static bool		 GetOverrideAllowDeactivation();
+	static void		 SetOverrideAllowDeactivation(bool inValue);
 
 	/// Debug system that tries to limit changes to active bodies during the PhysicsSystem::Update()
 	bool							mActiveBodiesLocked = false;
@@ -943,53 +942,44 @@ public:
 	using BodyLockInterface::BodyLockInterface;
 
 	///@name Locking functions
-	virtual SharedMutex *		LockRead(const BodyID &inBodyID) const override
-	{
+	virtual SharedMutex*		LockRead(const BodyID &inBodyID) const override {
 		SharedMutex &mutex = mBodyManager.GetMutexForBody(inBodyID);
-		PhysicsLock::sLockShared(mutex MOSS_IF_ENABLE_ASSERTS(, &mBodyManager, EPhysicsLockTypes::PerBody));
+		PhysicsLock::LockShared(mutex MOSS_IF_ENABLE_ASSERTS(, &mBodyManager, EPhysicsLockTypes::PerBody));
 		return &mutex;
 	}
 
-	virtual void				UnlockRead(SharedMutex *inMutex) const override
-	{
-		PhysicsLock::sUnlockShared(*inMutex MOSS_IF_ENABLE_ASSERTS(, &mBodyManager, EPhysicsLockTypes::PerBody));
+	virtual void				UnlockRead(SharedMutex *inMutex) const override {
+		PhysicsLock::UnlockShared(*inMutex MOSS_IF_ENABLE_ASSERTS(, &mBodyManager, EPhysicsLockTypes::PerBody));
 	}
 
-	virtual SharedMutex *		LockWrite(const BodyID &inBodyID) const override
-	{
+	virtual SharedMutex*		LockWrite(const BodyID &inBodyID) const override {
 		SharedMutex &mutex = mBodyManager.GetMutexForBody(inBodyID);
-		PhysicsLock::sLock(mutex MOSS_IF_ENABLE_ASSERTS(, &mBodyManager, EPhysicsLockTypes::PerBody));
+		PhysicsLock::Lock(mutex MOSS_IF_ENABLE_ASSERTS(, &mBodyManager, EPhysicsLockTypes::PerBody));
 		return &mutex;
 	}
 
-	virtual void				UnlockWrite(SharedMutex *inMutex) const override
-	{
-		PhysicsLock::sUnlock(*inMutex MOSS_IF_ENABLE_ASSERTS(, &mBodyManager, EPhysicsLockTypes::PerBody));
+	virtual void				UnlockWrite(SharedMutex *inMutex) const override {
+		PhysicsLock::Unlock(*inMutex MOSS_IF_ENABLE_ASSERTS(, &mBodyManager, EPhysicsLockTypes::PerBody));
 	}
 
 	///@name Batch locking functions
-	virtual MutexMask			GetMutexMask(const BodyID *inBodies, int inNumber) const override
-	{
+	virtual MutexMask			GetMutexMask(const BodyID *inBodies, int inNumber) const override {
 		return mBodyManager.GetMutexMask(inBodies, inNumber);
 	}
 
-	virtual void				LockRead(MutexMask inMutexMask) const override
-	{
+	virtual void				LockRead(MutexMask inMutexMask) const override {
 		mBodyManager.LockRead(inMutexMask);
 	}
 
-	virtual void				UnlockRead(MutexMask inMutexMask) const override
-	{
+	virtual void				UnlockRead(MutexMask inMutexMask) const override {
 		mBodyManager.UnlockRead(inMutexMask);
 	}
 
-	virtual void				LockWrite(MutexMask inMutexMask) const override
-	{
+	virtual void				LockWrite(MutexMask inMutexMask) const override {
 		mBodyManager.LockWrite(inMutexMask);
 	}
 
-	virtual void				UnlockWrite(MutexMask inMutexMask) const override
-	{
+	virtual void				UnlockWrite(MutexMask inMutexMask) const override {
 		mBodyManager.UnlockWrite(inMutexMask);
 	}
 };
@@ -997,21 +987,18 @@ public:
 
 
 // Class function to filter out bodies, returns true if test should collide with body
-class MOSS_EXPORT BodyFilter : public NonCopyable
-{
+class MOSS_EXPORT BodyFilter : public NonCopyable {
 public:
 	/// Destructor
 	virtual					~BodyFilter() = default;
 
 	/// Filter function. Returns true if we should collide with inBodyID
-	virtual bool			ShouldCollide([[maybe_unused]] const BodyID &inBodyID) const
-	{
+	virtual bool			ShouldCollide([[maybe_unused]] const BodyID &inBodyID) const {
 		return true;
 	}
 
 	/// Filter function. Returns true if we should collide with inBody (this is called after the body is locked and makes it possible to filter based on body members)
-	virtual bool			ShouldCollideLocked([[maybe_unused]] const Body &inBody) const
-	{
+	virtual bool			ShouldCollideLocked([[maybe_unused]] const Body &inBody) const {
 		return true;
 	}
 };
@@ -1021,14 +1008,11 @@ class MOSS_EXPORT IgnoreSingleBodyFilter : public BodyFilter
 {
 public:
 	/// Constructor, pass the body you want to ignore
-	explicit				IgnoreSingleBodyFilter(const BodyID &inBodyID) :
-		mBodyID(inBodyID)
-	{
+	explicit IgnoreSingleBodyFilter(const BodyID &inBodyID) : mBodyID(inBodyID) {
 	}
 
 	/// Filter function. Returns true if we should collide with inBodyID
-	virtual bool			ShouldCollide(const BodyID &inBodyID) const override
-	{
+	virtual bool ShouldCollide(const BodyID &inBodyID) const override {
 		return mBodyID != inBodyID;
 	}
 
@@ -1041,26 +1025,22 @@ class MOSS_EXPORT IgnoreMultipleBodiesFilter : public BodyFilter
 {
 public:
 	/// Remove all bodies from the filter
-	void					Clear()
-	{
+	void Clear() {
 		mBodyIDs.clear();
 	}
 
 	/// Reserve space for inSize body ID's
-	void					Reserve(uint inSize)
-	{
+	void Reserve(uint inSize) {
 		mBodyIDs.reserve(inSize);
 	}
 
 	/// Add a body to be ignored
-	void					IgnoreBody(const BodyID &inBodyID)
-	{
+	void IgnoreBody(const BodyID &inBodyID) {
 		mBodyIDs.push_back(inBodyID);
 	}
 
 	/// Filter function. Returns true if we should collide with inBodyID
-	virtual bool			ShouldCollide(const BodyID &inBodyID) const override
-	{
+	virtual bool ShouldCollide(const BodyID &inBodyID) const override {
 		return std::find(mBodyIDs.begin(), mBodyIDs.end(), inBodyID) == mBodyIDs.end();
 	}
 
@@ -1069,25 +1049,18 @@ private:
 };
 
 /// Ignores a single body and chains the filter to another filter
-class MOSS_EXPORT IgnoreSingleBodyFilterChained : public BodyFilter
-{
+class MOSS_EXPORT IgnoreSingleBodyFilterChained : public BodyFilter {
 public:
 	/// Constructor
-	explicit				IgnoreSingleBodyFilterChained(const BodyID inBodyID, const BodyFilter &inFilter) :
-		mBodyID(inBodyID),
-		mFilter(inFilter)
-	{
-	}
+	explicit IgnoreSingleBodyFilterChained(const BodyID inBodyID, const BodyFilter &inFilter) : mBodyID(inBodyID), mFilter(inFilter) { }
 
 	/// Filter function. Returns true if we should collide with inBodyID
-	virtual bool			ShouldCollide(const BodyID &inBodyID) const override
-	{
+	virtual bool ShouldCollide(const BodyID &inBodyID) const override {
 		return inBodyID != mBodyID && mFilter.ShouldCollide(inBodyID);
 	}
 
 	/// Filter function. Returns true if we should collide with inBody (this is called after the body is locked and makes it possible to filter based on body members)
-	virtual bool			ShouldCollideLocked(const Body &inBody) const override
-	{
+	virtual bool ShouldCollideLocked(const Body &inBody) const override {
 		return mFilter.ShouldCollideLocked(inBody);
 	}
 
@@ -1098,38 +1071,32 @@ private:
 
 #ifndef MOSS_DEBUG_RENDERER
 /// Class function to filter out bodies for debug rendering, returns true if body should be rendered
-class MOSS_EXPORT BodyDrawFilter : public NonCopyable
-{
+class MOSS_EXPORT BodyDrawFilter : public NonCopyable {
 public:
 	/// Destructor
 	virtual					~BodyDrawFilter() = default;
 
 	/// Filter function. Returns true if inBody should be rendered
-	virtual bool			ShouldDraw([[maybe_unused]] const Body& inBody) const
-	{
-		return true;
-	}
+	virtual bool			ShouldDraw([[maybe_unused]] const Body& inBody) const { return true; }
 };
 #endif // MOSS_DEBUG_RENDERER
 
 
 // Base class for locking multiple bodies for the duration of the scope of this class (do not use directly)
 template <bool Write, class BodyType>
-class BodyLockMultiBase : public NonCopyable
-{
+class BodyLockMultiBase : public NonCopyable {
 public:
 	/// Redefine MutexMask
 	using MutexMask = BodyLockInterface::MutexMask;
 
 	/// Constructor will lock the bodies
-								BodyLockMultiBase(const BodyLockInterface &inBodyLockInterface, const BodyID *inBodyIDs, int inNumber) :
+	BodyLockMultiBase(const BodyLockInterface &inBodyLockInterface, const BodyID *inBodyIDs, int inNumber) :
 		mBodyLockInterface(inBodyLockInterface),
 		mMutexMask(inBodyLockInterface.GetMutexMask(inBodyIDs, inNumber)),
 		mBodyIDs(inBodyIDs),
 		mNumBodyIDs(inNumber)
 	{
-		if (mMutexMask != 0)
-		{
+		if (mMutexMask != 0) {
 			// Get mutex
 			if (Write)
 				inBodyLockInterface.LockWrite(mMutexMask);
@@ -1139,10 +1106,8 @@ public:
 	}
 
 	/// Destructor will unlock the bodies
-								~BodyLockMultiBase()
-	{
-		if (mMutexMask != 0)
-		{
+	~BodyLockMultiBase() {
+		if (mMutexMask != 0) {
 			if (Write)
 				mBodyLockInterface.UnlockWrite(mMutexMask);
 			else
@@ -1151,8 +1116,7 @@ public:
 	}
 
 	/// Access the body (returns null if body was not properly locked)
-	inline BodyType *			GetBody(int inBodyIndex) const
-	{
+	inline BodyType *			GetBody(int inBodyIndex) const {
 		// Range check
 		MOSS_ASSERT(inBodyIndex >= 0 && inBodyIndex < mNumBodyIDs);
 
@@ -1216,160 +1180,155 @@ public:
 	MOSS_OVERRIDE_NEW_DELETE
 
 	// Motion quality, or how well it detects collisions when it has a high velocity
-	EMotionQuality			GetMotionQuality() const										{ return mMotionQuality; }
+	EMotionQuality GetMotionQuality() const										{ return mMotionQuality; }
 
 	// Get the allowed degrees of freedom that this body has (this can be changed by calling SetMassProperties)
-	inline EAllowedDOFs		GetAllowedDOFs() const											{ return mAllowedDOFs; }
+	inline EAllowedDOFs GetAllowedDOFs() const											{ return mAllowedDOFs; }
 
 	// If this body can go to sleep.
-	inline bool				GetAllowSleeping() const										{ return mAllowSleeping; }
+	inline bool GetAllowSleeping() const										{ return mAllowSleeping; }
 
 	// Get world space linear velocity of the center of mass
-	inline Vec3				GetLinearVelocity() const										{ MOSS_ASSERT(BodyAccess::sCheckRights(BodyAccess::sVelocityAccess(), BodyAccess::EAccess::Read)); return mLinearVelocity; }
+	inline Vec3 GetLinearVelocity() const										{ MOSS_ASSERT(BodyAccess::CheckRights(BodyAccess::VelocityAccess(), BodyAccess::EAccess::Read)); return mLinearVelocity; }
 
 	// Set world space linear velocity of the center of mass
-	void					SetLinearVelocity(Vec3Arg inLinearVelocity)						{ MOSS_ASSERT(BodyAccess::sCheckRights(BodyAccess::sVelocityAccess(), BodyAccess::EAccess::ReadWrite)); MOSS_ASSERT(inLinearVelocity.Length() <= mMaxLinearVelocity); mLinearVelocity = LockTranslation(inLinearVelocity); }
+	void SetLinearVelocity(Vec3Arg inLinearVelocity)						{ MOSS_ASSERT(BodyAccess::CheckRights(BodyAccess::VelocityAccess(), BodyAccess::EAccess::ReadWrite)); MOSS_ASSERT(inLinearVelocity.Length() <= mMaxLinearVelocity); mLinearVelocity = LockTranslation(inLinearVelocity); }
 
 	// Set world space linear velocity of the center of mass, will make sure the value is clamped against the maximum linear velocity
-	void					SetLinearVelocityClamped(Vec3Arg inLinearVelocity)				{ mLinearVelocity = LockTranslation(inLinearVelocity); ClampLinearVelocity(); }
+	void SetLinearVelocityClamped(Vec3Arg inLinearVelocity)				{ mLinearVelocity = LockTranslation(inLinearVelocity); ClampLinearVelocity(); }
 
 	// Get world space angular velocity of the center of mass
-	inline Vec3				GetAngularVelocity() const										{ MOSS_ASSERT(BodyAccess::sCheckRights(BodyAccess::sVelocityAccess(), BodyAccess::EAccess::Read)); return mAngularVelocity; }
+	inline Vec3 GetAngularVelocity() const										{ MOSS_ASSERT(BodyAccess::CheckRights(BodyAccess::VelocityAccess(), BodyAccess::EAccess::Read)); return mAngularVelocity; }
 
 	// Set world space angular velocity of the center of mass
-	void					SetAngularVelocity(Vec3Arg inAngularVelocity)					{ MOSS_ASSERT(BodyAccess::sCheckRights(BodyAccess::sVelocityAccess(), BodyAccess::EAccess::ReadWrite)); MOSS_ASSERT(inAngularVelocity.Length() <= mMaxAngularVelocity); mAngularVelocity = LockAngular(inAngularVelocity); }
+	void SetAngularVelocity(Vec3Arg inAngularVelocity)					{ MOSS_ASSERT(BodyAccess::CheckRights(BodyAccess::VelocityAccess(), BodyAccess::EAccess::ReadWrite)); MOSS_ASSERT(inAngularVelocity.Length() <= mMaxAngularVelocity); mAngularVelocity = LockAngular(inAngularVelocity); }
 
 	// Set world space angular velocity of the center of mass, will make sure the value is clamped against the maximum angular velocity
-	void					SetAngularVelocityClamped(Vec3Arg inAngularVelocity)			{ mAngularVelocity = LockAngular(inAngularVelocity); ClampAngularVelocity(); }
+	void SetAngularVelocityClamped(Vec3Arg inAngularVelocity)			{ mAngularVelocity = LockAngular(inAngularVelocity); ClampAngularVelocity(); }
 
 	// Set velocity of body such that it will be rotate/translate by inDeltaPosition/Rotation in inDeltaTime seconds.
-	inline void				MoveKinematic(Vec3Arg inDeltaPosition, QuatArg inDeltaRotation, float inDeltaTime);
+	inline void MoveKinematic(Vec3Arg inDeltaPosition, QuatArg inDeltaRotation, float inDeltaTime);
 
 	//@name Velocity limits
 	//@{
 
 	// Maximum linear velocity that a body can achieve. Used to prevent the system from exploding.
-	inline float			GetMaxLinearVelocity() const									{ return mMaxLinearVelocity; }
-	inline void				SetMaxLinearVelocity(float inLinearVelocity)					{ MOSS_ASSERT(inLinearVelocity >= 0.0f); mMaxLinearVelocity = inLinearVelocity; }
+	inline float GetMaxLinearVelocity() const									{ return mMaxLinearVelocity; }
+	inline void SetMaxLinearVelocity(float inLinearVelocity)					{ MOSS_ASSERT(inLinearVelocity >= 0.0f); mMaxLinearVelocity = inLinearVelocity; }
 
 	// Maximum angular velocity that a body can achieve. Used to prevent the system from exploding.
-	inline float			GetMaxAngularVelocity() const									{ return mMaxAngularVelocity; }
-	inline void				SetMaxAngularVelocity(float inAngularVelocity)					{ MOSS_ASSERT(inAngularVelocity >= 0.0f); mMaxAngularVelocity = inAngularVelocity; }
+	inline float GetMaxAngularVelocity() const									{ return mMaxAngularVelocity; }
+	inline void SetMaxAngularVelocity(float inAngularVelocity)					{ MOSS_ASSERT(inAngularVelocity >= 0.0f); mMaxAngularVelocity = inAngularVelocity; }
 	//@}
 
 	// Clamp velocity according to limit
-	inline void				ClampLinearVelocity();
-	inline void				ClampAngularVelocity();
+	inline void ClampLinearVelocity();
+	inline void ClampAngularVelocity();
 
 	// Get linear damping: dv/dt = -c * v. c must be between 0 and 1 but is usually close to 0.
-	inline float			GetLinearDamping() const										{ return mLinearDamping; }
-	void					SetLinearDamping(float inLinearDamping)							{ MOSS_ASSERT(inLinearDamping >= 0.0f); mLinearDamping = inLinearDamping; }
+	inline float GetLinearDamping() const										{ return mLinearDamping; }
+	void SetLinearDamping(float inLinearDamping)							{ MOSS_ASSERT(inLinearDamping >= 0.0f); mLinearDamping = inLinearDamping; }
 
 	// Get angular damping: dw/dt = -c * w. c must be between 0 and 1 but is usually close to 0.
-	inline float			GetAngularDamping() const										{ return mAngularDamping; }
-	void					SetAngularDamping(float inAngularDamping)						{ MOSS_ASSERT(inAngularDamping >= 0.0f); mAngularDamping = inAngularDamping; }
+	inline float GetAngularDamping() const										{ return mAngularDamping; }
+	void SetAngularDamping(float inAngularDamping)						{ MOSS_ASSERT(inAngularDamping >= 0.0f); mAngularDamping = inAngularDamping; }
 
 	// Get gravity factor (1 = normal gravity, 0 = no gravity)
-	inline float			GetGravityFactor() const										{ return mGravityFactor; }
-	void					SetGravityFactor(float inGravityFactor)							{ mGravityFactor = inGravityFactor; }
+	inline float GetGravityFactor() const										{ return mGravityFactor; }
+	void SetGravityFactor(float inGravityFactor)							{ mGravityFactor = inGravityFactor; }
 
 	// Set the mass and inertia tensor
-	void					SetMassProperties(EAllowedDOFs inAllowedDOFs, const MassProperties &inMassProperties);
+	void SetMassProperties(EAllowedDOFs inAllowedDOFs, const MassProperties &inMassProperties);
 
 	// Get inverse mass (1 / mass). Should only be called on a dynamic object (static or kinematic bodies have infinite mass so should be treated as 1 / mass = 0)
-	inline float			GetInverseMass() const											{ MOSS_ASSERT(mCachedMotionType == EMotionType::Dynamic); return mInvMass; }
-	inline float			GetInverseMassUnchecked() const									{ return mInvMass; }
+	inline float GetInverseMass() const											{ MOSS_ASSERT(mCachedMotionType == EMotionType::Dynamic); return mInvMass; }
+	inline float GetInverseMassUnchecked() const									{ return mInvMass; }
 
 	// Set the inverse mass (1 / mass).
 	// Note that mass and inertia are linearly related (e.g. inertia of a sphere with mass m and radius r is \f$2/5 \: m \: r^2\f$).
 	// If you change mass, inertia should probably change as well. You can use ScaleToMass to update mass and inertia at the same time.
 	// If all your translation degrees of freedom are restricted, make sure this is zero (see EAllowedDOFs).
-	void					SetInverseMass(float inInverseMass)								{ mInvMass = inInverseMass; }
+	void SetInverseMass(float inInverseMass)								{ mInvMass = inInverseMass; }
 
 	// Diagonal of inverse inertia matrix: D. Should only be called on a dynamic object (static or kinematic bodies have infinite mass so should be treated as D = 0)
-	inline Vec3				GetInverseInertiaDiagonal() const								{ MOSS_ASSERT(mCachedMotionType == EMotionType::Dynamic); return mInvInertiaDiagonal; }
+	inline Vec3 GetInverseInertiaDiagonal() const								{ MOSS_ASSERT(mCachedMotionType == EMotionType::Dynamic); return mInvInertiaDiagonal; }
 
 	// Rotation (R) that takes inverse inertia diagonal to local space: \f$I_{body}^{-1} = R \: D \: R^{-1}\f$
-	inline Quat				GetInertiaRotation() const										{ return mInertiaRotation; }
+	inline Quat GetInertiaRotation() const										{ return mInertiaRotation; }
 
 	// Set the inverse inertia tensor in local space by setting the diagonal and the rotation: \f$I_{body}^{-1} = R \: D \: R^{-1}\f$.
 	// Note that mass and inertia are linearly related (e.g. inertia of a sphere with mass m and radius r is \f$2/5 \: m \: r^2\f$).
 	// If you change inertia, mass should probably change as well. You can use ScaleToMass to update mass and inertia at the same time.
 	// If all your rotation degrees of freedom are restricted, make sure this is zero (see EAllowedDOFs).
-	void					SetInverseInertia(Vec3Arg inDiagonal, QuatArg inRot)			{ mInvInertiaDiagonal = inDiagonal; mInertiaRotation = inRot; }
+	void SetInverseInertia(Vec3Arg inDiagonal, QuatArg inRot)			{ mInvInertiaDiagonal = inDiagonal; mInertiaRotation = inRot; }
 
 	// Sets the mass to inMass and scale the inertia tensor based on the ratio between the old and new mass.
 	// Note that this only works when the current mass is finite (i.e. the body is dynamic and translational degrees of freedom are not restricted).
-	void					ScaleToMass(float inMass);
+	void ScaleToMass(float inMass);
 
 	// Get inverse inertia matrix (\f$I_{body}^{-1}\f$). Will be a matrix of zeros for a static or kinematic object.
-	inline Mat44			GetLocalSpaceInverseInertia() const;
+	inline Mat44 GetLocalSpaceInverseInertia() const;
 
 	// Same as GetLocalSpaceInverseInertia() but doesn't check if the body is dynamic
-	inline Mat44			GetLocalSpaceInverseInertiaUnchecked() const;
+	inline Mat44 GetLocalSpaceInverseInertiaUnchecked() const;
 
 	// Get inverse inertia matrix (\f$I^{-1}\f$) for a given object rotation (translation will be ignored). Zero if object is static or kinematic.
-	inline Mat44			GetInverseInertiaForRotation(Mat44Arg inRotation) const;
+	inline Mat44 GetInverseInertiaForRotation(Mat44Arg inRotation) const;
 
 	// Multiply a vector with the inverse world space inertia tensor (\f$I_{world}^{-1}\f$). Zero if object is static or kinematic.
-	MOSS_INLINE Vec3			MultiplyWorldSpaceInverseInertiaByVector(QuatArg inBodyRotation, Vec3Arg inV) const;
+	MOSS_INLINE Vec3 MultiplyWorldSpaceInverseInertiaByVector(QuatArg inBodyRotation, Vec3Arg inV) const;
 
 	// Velocity of point inPoint (in center of mass space, e.g. on the surface of the body) of the body (unit: m/s)
-	MOSS_INLINE Vec3			GetPointVelocityCOM(Vec3Arg inPointRelativeToCOM) const			{ return mLinearVelocity + mAngularVelocity.Cross(inPointRelativeToCOM); }
+	MOSS_INLINE Vec3 GetPointVelocityCOM(Vec3Arg inPointRelativeToCOM) const			{ return mLinearVelocity + mAngularVelocity.Cross(inPointRelativeToCOM); }
 
 	// Get the total amount of force applied to the center of mass this time step (through Body::AddForce calls). Note that it will reset to zero after PhysicsSystem::Update.
-	MOSS_INLINE Vec3			GetAccumulatedForce() const										{ return Vec3::sLoadFloat3Unsafe(mForce); }
+	MOSS_INLINE Vec3 GetAccumulatedForce() const										{ return Vec3::LoadFloat3Unsafe(mForce); }
 
 	// Get the total amount of torque applied to the center of mass this time step (through Body::AddForce/Body::AddTorque calls). Note that it will reset to zero after PhysicsSystem::Update.
-	MOSS_INLINE Vec3			GetAccumulatedTorque() const									{ return Vec3::sLoadFloat3Unsafe(mTorque); }
+	MOSS_INLINE Vec3 GetAccumulatedTorque() const									{ return Vec3::LoadFloat3Unsafe(mTorque); }
 
 	// Reset the total accumulated force, note that this will be done automatically after every time step.
-	MOSS_INLINE void			ResetForce()													{ mForce = Float3(0, 0, 0); }
+	MOSS_INLINE void ResetForce()													{ mForce = Float3(0, 0, 0); }
 
 	// Reset the total accumulated torque, note that this will be done automatically after every time step.
-	MOSS_INLINE void			ResetTorque()													{ mTorque = Float3(0, 0, 0); }
+	MOSS_INLINE void ResetTorque()													{ mTorque = Float3(0, 0, 0); }
 
 	// Reset the current velocity and accumulated force and torque.
-	MOSS_INLINE void			ResetMotion()
-	{
-		MOSS_ASSERT(BodyAccess::sCheckRights(BodyAccess::sVelocityAccess(), BodyAccess::EAccess::ReadWrite));
-		mLinearVelocity = mAngularVelocity = Vec3::sZero();
+	MOSS_INLINE void ResetMotion() {
+		MOSS_ASSERT(BodyAccess::CheckRights(BodyAccess::VelocityAccess(), BodyAccess::EAccess::ReadWrite));
+		mLinearVelocity = mAngularVelocity = Vec3::Zero();
 		mForce = mTorque = Float3(0, 0, 0);
 	}
 
 	// Returns a vector where the linear components that are not allowed by mAllowedDOFs are set to 0 and the rest to 0xffffffff
-	MOSS_INLINE UVec4		GetLinearDOFsMask() const
-	{
+	MOSS_INLINE UVec4 GetLinearDOFsMask() const {
 		UVec4 mask(uint32(EAllowedDOFs::TranslationX), uint32(EAllowedDOFs::TranslationY), uint32(EAllowedDOFs::TranslationZ), 0);
-		return UVec4::sEquals(UVec4::sAnd(UVec4::sReplicate(uint32(mAllowedDOFs)), mask), mask);
+		return UVec4::Equals(UVec4::And(UVec4::Replicate(uint32(mAllowedDOFs)), mask), mask);
 	}
 
 	// Takes a translation vector inV and returns a vector where the components that are not allowed by mAllowedDOFs are set to 0
-	MOSS_INLINE Vec3			LockTranslation(Vec3Arg inV) const
-	{
-		return Vec3::sAnd(inV, Vec3(GetLinearDOFsMask().ReinterpretAsFloat()));
+	MOSS_INLINE Vec3 LockTranslation(Vec3Arg inV) const {
+		return Vec3::And(inV, Vec3(GetLinearDOFsMask().ReinterpretAsFloat()));
 	}
 
 	// Returns a vector where the angular components that are not allowed by mAllowedDOFs are set to 0 and the rest to 0xffffffff
-	MOSS_INLINE UVec4		GetAngularDOFsMask() const
-	{
+	MOSS_INLINE UVec4 GetAngularDOFsMask() const {
 		UVec4 mask(uint32(EAllowedDOFs::RotationX), uint32(EAllowedDOFs::RotationY), uint32(EAllowedDOFs::RotationZ), 0);
-		return UVec4::sEquals(UVec4::sAnd(UVec4::sReplicate(uint32(mAllowedDOFs)), mask), mask);
+		return UVec4::Equals(UVec4::And(UVec4::Replicate(uint32(mAllowedDOFs)), mask), mask);
 	}
 
 	// Takes an angular velocity / torque vector inV and returns a vector where the components that are not allowed by mAllowedDOFs are set to 0
-	MOSS_INLINE Vec3			LockAngular(Vec3Arg inV) const
-	{
-		return Vec3::sAnd(inV, Vec3(GetAngularDOFsMask().ReinterpretAsFloat()));
+	MOSS_INLINE Vec3 LockAngular(Vec3Arg inV) const {
+		return Vec3::And(inV, Vec3(GetAngularDOFsMask().ReinterpretAsFloat()));
 	}
 
 	// Used only when this body is dynamic and colliding. Override for the number of solver velocity iterations to run, 0 means use the default in PhysicsSettings::mNumVelocitySteps. The number of iterations to use is the max of all contacts and constraints in the island.
-	void					SetNumVelocityStepsOverride(uint inN)							{ MOSS_ASSERT(inN < 256); mNumVelocityStepsOverride = uint8(inN); }
-	uint					GetNumVelocityStepsOverride() const								{ return mNumVelocityStepsOverride; }
+	void SetNumVelocityStepsOverride(uint inN) { MOSS_ASSERT(inN < 256); mNumVelocityStepsOverride = uint8(inN); }
+	uint GetNumVelocityStepsOverride() const { return mNumVelocityStepsOverride; }
 
 	// Used only when this body is dynamic and colliding. Override for the number of solver position iterations to run, 0 means use the default in PhysicsSettings::mNumPositionSteps. The number of iterations to use is the max of all contacts and constraints in the island.
-	void					SetNumPositionStepsOverride(uint inN)							{ MOSS_ASSERT(inN < 256); mNumPositionStepsOverride = uint8(inN); }
-	uint					GetNumPositionStepsOverride() const								{ return mNumPositionStepsOverride; }
+	void SetNumPositionStepsOverride(uint inN) { MOSS_ASSERT(inN < 256); mNumPositionStepsOverride = uint8(inN); }
+	uint GetNumPositionStepsOverride() const { return mNumPositionStepsOverride; }
 
 	////////////////////////////////////////
 	// FUNCTIONS BELOW THIS LINE ARE FOR INTERNAL USE ONLY
@@ -1377,43 +1336,43 @@ public:
 
 	//@name Update linear and angular velocity (used during constraint solving)
 	//@{
-	inline void				AddLinearVelocityStep(Vec3Arg inLinearVelocityChange)			{ MOSS_DET_LOG("AddLinearVelocityStep: " << inLinearVelocityChange); MOSS_ASSERT(BodyAccess::sCheckRights(BodyAccess::sVelocityAccess(), BodyAccess::EAccess::ReadWrite)); mLinearVelocity = LockTranslation(mLinearVelocity + inLinearVelocityChange); MOSS_ASSERT(!mLinearVelocity.IsNaN()); }
-	inline void				SubLinearVelocityStep(Vec3Arg inLinearVelocityChange)			{ MOSS_DET_LOG("SubLinearVelocityStep: " << inLinearVelocityChange); MOSS_ASSERT(BodyAccess::sCheckRights(BodyAccess::sVelocityAccess(), BodyAccess::EAccess::ReadWrite)); mLinearVelocity = LockTranslation(mLinearVelocity - inLinearVelocityChange); MOSS_ASSERT(!mLinearVelocity.IsNaN()); }
-	inline void				AddAngularVelocityStep(Vec3Arg inAngularVelocityChange)			{ MOSS_DET_LOG("AddAngularVelocityStep: " << inAngularVelocityChange); MOSS_ASSERT(BodyAccess::sCheckRights(BodyAccess::sVelocityAccess(), BodyAccess::EAccess::ReadWrite)); mAngularVelocity += inAngularVelocityChange; MOSS_ASSERT(!mAngularVelocity.IsNaN()); }
-	inline void				SubAngularVelocityStep(Vec3Arg inAngularVelocityChange)			{ MOSS_DET_LOG("SubAngularVelocityStep: " << inAngularVelocityChange); MOSS_ASSERT(BodyAccess::sCheckRights(BodyAccess::sVelocityAccess(), BodyAccess::EAccess::ReadWrite)); mAngularVelocity -= inAngularVelocityChange; MOSS_ASSERT(!mAngularVelocity.IsNaN()); }
+	inline void AddLinearVelocityStep(Vec3Arg inLinearVelocityChange) { MOSS_DET_LOG("AddLinearVelocityStep: " << inLinearVelocityChange); MOSS_ASSERT(BodyAccess::CheckRights(BodyAccess::VelocityAccess(), BodyAccess::EAccess::ReadWrite)); mLinearVelocity = LockTranslation(mLinearVelocity + inLinearVelocityChange); MOSS_ASSERT(!mLinearVelocity.IsNaN()); }
+	inline void SubLinearVelocityStep(Vec3Arg inLinearVelocityChange) { MOSS_DET_LOG("SubLinearVelocityStep: " << inLinearVelocityChange); MOSS_ASSERT(BodyAccess::CheckRights(BodyAccess::VelocityAccess(), BodyAccess::EAccess::ReadWrite)); mLinearVelocity = LockTranslation(mLinearVelocity - inLinearVelocityChange); MOSS_ASSERT(!mLinearVelocity.IsNaN()); }
+	inline void AddAngularVelocityStep(Vec3Arg inAngularVelocityChange) { MOSS_DET_LOG("AddAngularVelocityStep: " << inAngularVelocityChange); MOSS_ASSERT(BodyAccess::CheckRights(BodyAccess::VelocityAccess(), BodyAccess::EAccess::ReadWrite)); mAngularVelocity += inAngularVelocityChange; MOSS_ASSERT(!mAngularVelocity.IsNaN()); }
+	inline void SubAngularVelocityStep(Vec3Arg inAngularVelocityChange) { MOSS_DET_LOG("SubAngularVelocityStep: " << inAngularVelocityChange); MOSS_ASSERT(BodyAccess::CheckRights(BodyAccess::VelocityAccess(), BodyAccess::EAccess::ReadWrite)); mAngularVelocity -= inAngularVelocityChange; MOSS_ASSERT(!mAngularVelocity.IsNaN()); }
 	//@}
 
 	// Apply the gyroscopic force (aka Dzhanibekov effect, see https://en.wikipedia.org/wiki/Tennis_racket_theorem)
-	inline void				ApplyGyroscopicForceInternal(QuatArg inBodyRotation, float inDeltaTime);
+	inline void ApplyGyroscopicForceInternal(QuatArg inBodyRotation, float inDeltaTime);
 
 	// Apply all accumulated forces, torques and drag (should only be called by the PhysicsSystem)
-	inline void				ApplyForceTorqueAndDragInternal(QuatArg inBodyRotation, Vec3Arg inGravity, float inDeltaTime);
+	inline void ApplyForceTorqueAndDragInternal(QuatArg inBodyRotation, Vec3Arg inGravity, float inDeltaTime);
 
 	// Access to the island index
-	uint32					GetIslandIndexInternal() const									{ return mIslandIndex; }
-	void					SetIslandIndexInternal(uint32 inIndex)							{ mIslandIndex = inIndex; }
+	uint32 GetIslandIndexInternal() const { return mIslandIndex; }
+	void SetIslandIndexInternal(uint32 inIndex) { mIslandIndex = inIndex; }
 
 	// Access to the index in the active bodies array
-	uint32					GetIndexInActiveBodiesInternal() const							{ return mIndexInActiveBodies; }
+	uint32 GetIndexInActiveBodiesInternal() const { return mIndexInActiveBodies; }
 
 #ifdef MOSS_DOUBLE_PRECISION
-	inline DVec3			GetSleepTestOffset() const										{ return DVec3::sLoadDouble3Unsafe(mSleepTestOffset); }
+	inline DVec3 GetSleepTestOffset() const { return DVec3::LoadDouble3Unsafe(mSleepTestOffset); }
 #endif // MOSS_DOUBLE_PRECISION
 
 	// Reset spheres to center around inPoints with radius 0
-	inline void				ResetSleepTestSpheres(const RVec3 *inPoints);
+	inline void ResetSleepTestSpheres(const RVec3 *inPoints);
 
 	// Reset the sleep test timer without resetting the sleep test spheres
-	inline void				ResetSleepTestTimer()											{ mSleepTestTimer = 0.0f; }
+	inline void ResetSleepTestTimer() { mSleepTestTimer = 0.0f; }
 
 	// Accumulate sleep time and return if a body can go to sleep
-	inline ECanSleep		AccumulateSleepTime(float inDeltaTime, float inTimeBeforeSleep);
+	inline ECanSleep AccumulateSleepTime(float inDeltaTime, float inTimeBeforeSleep);
 
 	// Saving state for replay
-	void					SaveState(StateRecorder &inStream) const;
+	void SaveState(StateRecorder &inStream) const;
 
 	// Restoring state for replay
-	void					RestoreState(StateRecorder &inStream);
+	void RestoreState(StateRecorder &inStream);
 
 	static constexpr uint32	cInactiveIndex = uint32(-1);									// Constant indicating that body is not active
 
@@ -1423,42 +1382,42 @@ private:
 
 	// 1st cache line
 	// 16 byte aligned
-	Vec3					mLinearVelocity { Vec3::sZero() };								// World space linear velocity of the center of mass (m/s)
-	Vec3					mAngularVelocity { Vec3::sZero() };								// World space angular velocity (rad/s)
-	Vec3					mInvInertiaDiagonal;											// Diagonal of inverse inertia matrix: D
-	Quat					mInertiaRotation;												// Rotation (R) that takes inverse inertia diagonal to local space: Ibody^-1 = R * D * R^-1
+	Vec3					mLinearVelocity { Vec3::Zero() };	// World space linear velocity of the center of mass (m/s)
+	Vec3					mAngularVelocity { Vec3::Zero() };	// World space angular velocity (rad/s)
+	Vec3					mInvInertiaDiagonal;				// Diagonal of inverse inertia matrix: D
+	Quat					mInertiaRotation;					// Rotation (R) that takes inverse inertia diagonal to local space: Ibody^-1 = R * D * R^-1
 
 	// 2nd cache line
 	// 4 byte aligned
-	Float3					mForce { 0, 0, 0 };												// Accumulated world space force (N). Note loaded through intrinsics so ensure that the 4 bytes after this are readable!
-	Float3					mTorque { 0, 0, 0 };											// Accumulated world space torque (N m). Note loaded through intrinsics so ensure that the 4 bytes after this are readable!
-	float					mInvMass;														// Inverse mass of the object (1/kg)
-	float					mLinearDamping;													// Linear damping: dv/dt = -c * v. c must be between 0 and 1 but is usually close to 0.
-	float					mAngularDamping;												// Angular damping: dw/dt = -c * w. c must be between 0 and 1 but is usually close to 0.
-	float					mMaxLinearVelocity;												// Maximum linear velocity that this body can reach (m/s)
-	float					mMaxAngularVelocity;											// Maximum angular velocity that this body can reach (rad/s)
-	float					mGravityFactor;													// Factor to multiply gravity with
-	uint32					mIndexInActiveBodies = cInactiveIndex;							// If the body is active, this is the index in the active body list or cInactiveIndex if it is not active (note that there are 2 lists, one for rigid and one for soft bodies)
-	uint32					mIslandIndex = cInactiveIndex;									// Index of the island that this body is part of, when the body has not yet been updated or is not active this is cInactiveIndex
+	Float3					mForce { 0, 0, 0 }; 					// Accumulated world space force (N). Note loaded through intrinsics so ensure that the 4 bytes after this are readable!
+	Float3					mTorque { 0, 0, 0 };					// Accumulated world space torque (N m). Note loaded through intrinsics so ensure that the 4 bytes after this are readable!
+	float					mInvMass;								// Inverse mass of the object (1/kg)
+	float					mLinearDamping;							// Linear damping: dv/dt = -c * v. c must be between 0 and 1 but is usually close to 0.
+	float					mAngularDamping;						// Angular damping: dw/dt = -c * w. c must be between 0 and 1 but is usually close to 0.
+	float					mMaxLinearVelocity;						// Maximum linear velocity that this body can reach (m/s)
+	float					mMaxAngularVelocity;					// Maximum angular velocity that this body can reach (rad/s)
+	float					mGravityFactor;							// Factor to multiply gravity with
+	uint32					mIndexInActiveBodies = cInactiveIndex;	// If the body is active, this is the index in the active body list or cInactiveIndex if it is not active (note that there are 2 lists, one for rigid and one for soft bodies)
+	uint32					mIslandIndex = cInactiveIndex;			// Index of the island that this body is part of, when the body has not yet been updated or is not active this is cInactiveIndex
 
 	// 1 byte aligned
-	EMotionQuality			mMotionQuality;													// Motion quality, or how well it detects collisions when it has a high velocity
-	bool					mAllowSleeping;													// If this body can go to sleep
-	EAllowedDOFs			mAllowedDOFs = EAllowedDOFs::All;								// Allowed degrees of freedom for this body
-	uint8					mNumVelocityStepsOverride = 0;									// Used only when this body is dynamic and colliding. Override for the number of solver velocity iterations to run, 0 means use the default in PhysicsSettings::mNumVelocitySteps. The number of iterations to use is the max of all contacts and constraints in the island.
-	uint8					mNumPositionStepsOverride = 0;									// Used only when this body is dynamic and colliding. Override for the number of solver position iterations to run, 0 means use the default in PhysicsSettings::mNumPositionSteps. The number of iterations to use is the max of all contacts and constraints in the island.
+	EMotionQuality			mMotionQuality;							// Motion quality, or how well it detects collisions when it has a high velocity
+	bool					mAllowSleeping;							// If this body can go to sleep
+	EAllowedDOFs			mAllowedDOFs = EAllowedDOFs::All;		// Allowed degrees of freedom for this body
+	uint8					mNumVelocityStepsOverride = 0;			// Used only when this body is dynamic and colliding. Override for the number of solver velocity iterations to run, 0 means use the default in PhysicsSettings::mNumVelocitySteps. The number of iterations to use is the max of all contacts and constraints in the island.
+	uint8					mNumPositionStepsOverride = 0;			// Used only when this body is dynamic and colliding. Override for the number of solver position iterations to run, 0 means use the default in PhysicsSettings::mNumPositionSteps. The number of iterations to use is the max of all contacts and constraints in the island.
 
 	// 3rd cache line (least frequently used)
 	// 4 byte aligned (or 8 byte if running in double precision)
 #ifdef MOSS_DOUBLE_PRECISION
-	Double3					mSleepTestOffset;												// mSleepTestSpheres are relative to this offset to prevent floating point inaccuracies. Warning: Loaded using sLoadDouble3Unsafe which will read 8 extra bytes.
+	Double3					mSleepTestOffset;			// mSleepTestSpheres are relative to this offset to prevent floating point inaccuracies. Warning: Loaded using sLoadDouble3Unsafe which will read 8 extra bytes.
 #endif // MOSS_DOUBLE_PRECISION
-	Sphere					mSleepTestSpheres[3];											// Measure motion for 3 points on the body to see if it is resting: COM, COM + largest bounding box axis, COM + second largest bounding box axis
-	float					mSleepTestTimer;												// How long this body has been within the movement tolerance
+	Sphere					mSleepTestSpheres[3];		// Measure motion for 3 points on the body to see if it is resting: COM, COM + largest bounding box axis, COM + second largest bounding box axis
+	float					mSleepTestTimer;			// How long this body has been within the movement tolerance
 
 #ifdef MOSS_DEBUG
-	EBodyType				mCachedBodyType;												// Copied from Body::mBodyType and cached for asserting purposes
-	EMotionType				mCachedMotionType;												// Copied from Body::mMotionType and cached for asserting purposes
+	EBodyType				mCachedBodyType;			// Copied from Body::mBodyType and cached for asserting purposes
+	EMotionType				mCachedMotionType;			// Copied from Body::mMotionType and cached for asserting purposes
 #endif
 };
 
@@ -1576,7 +1535,7 @@ public:
 	void					SetRestitution(float inRestitution)								{ mRestitution = inRestitution; }
 
 	// Get world space linear velocity of the center of mass (unit: m/s)
-	inline Vec3				GetLinearVelocity() const										{ return !IsStatic()? mMotionProperties->GetLinearVelocity() : Vec3::sZero(); }
+	inline Vec3				GetLinearVelocity() const										{ return !IsStatic()? mMotionProperties->GetLinearVelocity() : Vec3::Zero(); }
 
 	// Set world space linear velocity of the center of mass (unit: m/s).
 	// If you want the body to wake up when it is sleeping, use BodyInterface::SetLinearVelocity instead.
@@ -1587,7 +1546,7 @@ public:
 	void					SetLinearVelocityClamped(Vec3Arg inLinearVelocity)				{ MOSS_ASSERT(!IsStatic()); mMotionProperties->SetLinearVelocityClamped(inLinearVelocity); }
 
 	// Get world space angular velocity of the center of mass (unit: rad/s)
-	inline Vec3				GetAngularVelocity() const										{ return !IsStatic()? mMotionProperties->GetAngularVelocity() : Vec3::sZero(); }
+	inline Vec3				GetAngularVelocity() const										{ return !IsStatic()? mMotionProperties->GetAngularVelocity() : Vec3::Zero(); }
 
 	// Set world space angular velocity of the center of mass (unit: rad/s).
 	// If you want the body to wake up when it is sleeping, use BodyInterface::SetAngularVelocity instead.
@@ -1598,14 +1557,14 @@ public:
 	void					SetAngularVelocityClamped(Vec3Arg inAngularVelocity)			{ MOSS_ASSERT(!IsStatic()); mMotionProperties->SetAngularVelocityClamped(inAngularVelocity); }
 
 	// Velocity of point inPoint (in center of mass space, e.g. on the surface of the body) of the body (unit: m/s)
-	inline Vec3				GetPointVelocityCOM(Vec3Arg inPointRelativeToCOM) const			{ return !IsStatic()? mMotionProperties->GetPointVelocityCOM(inPointRelativeToCOM) : Vec3::sZero(); }
+	inline Vec3				GetPointVelocityCOM(Vec3Arg inPointRelativeToCOM) const			{ return !IsStatic()? mMotionProperties->GetPointVelocityCOM(inPointRelativeToCOM) : Vec3::Zero(); }
 
 	// Velocity of point inPoint (in world space, e.g. on the surface of the body) of the body (unit: m/s)
-	inline Vec3				GetPointVelocity(RVec3Arg inPoint) const						{ MOSS_ASSERT(BodyAccess::sCheckRights(BodyAccess::sPositionAccess(), BodyAccess::EAccess::Read)); return GetPointVelocityCOM(Vec3(inPoint - mPosition)); }
+	inline Vec3				GetPointVelocity(RVec3Arg inPoint) const						{ MOSS_ASSERT(BodyAccess::CheckRights(BodyAccess::PositionAccess(), BodyAccess::EAccess::Read)); return GetPointVelocityCOM(Vec3(inPoint - mPosition)); }
 
 	// Add force (unit: N) at center of mass for the next time step, will be reset after the next call to PhysicsSystem::Update.
 	// If you want the body to wake up when it is sleeping, use BodyInterface::AddForce instead.
-	inline void				AddForce(Vec3Arg inForce)										{ MOSS_ASSERT(IsDynamic()); (Vec3::sLoadFloat3Unsafe(mMotionProperties->mForce) + inForce).StoreFloat3(&mMotionProperties->mForce); }
+	inline void				AddForce(Vec3Arg inForce)										{ MOSS_ASSERT(IsDynamic()); (Vec3::LoadFloat3Unsafe(mMotionProperties->mForce) + inForce).StoreFloat3(&mMotionProperties->mForce); }
 
 	// Add force (unit: N) at inPosition for the next time step, will be reset after the next call to PhysicsSystem::Update.
 	// If you want the body to wake up when it is sleeping, use BodyInterface::AddForce instead.
@@ -1613,7 +1572,7 @@ public:
 
 	// Add torque (unit: N m) for the next time step, will be reset after the next call to PhysicsSystem::Update.
 	// If you want the body to wake up when it is sleeping, use BodyInterface::AddTorque instead.
-	inline void				AddTorque(Vec3Arg inTorque)										{ MOSS_ASSERT(IsDynamic()); (Vec3::sLoadFloat3Unsafe(mMotionProperties->mTorque) + inTorque).StoreFloat3(&mMotionProperties->mTorque); }
+	inline void				AddTorque(Vec3Arg inTorque)										{ MOSS_ASSERT(IsDynamic()); (Vec3::LoadFloat3Unsafe(mMotionProperties->mTorque) + inTorque).StoreFloat3(&mMotionProperties->mTorque); }
 
 	// Get the total amount of force applied to the center of mass this time step (through AddForce calls). Note that it will reset to zero after PhysicsSystem::Update.
 	inline Vec3				GetAccumulatedForce() const										{ MOSS_ASSERT(IsDynamic()); return mMotionProperties->GetAccumulatedForce(); }
@@ -1694,16 +1653,16 @@ public:
 	inline const Shape *	GetShape() const												{ return mShape; }
 
 	// World space position of the body
-	inline RVec3			GetPosition() const												{ MOSS_ASSERT(BodyAccess::sCheckRights(BodyAccess::sPositionAccess(), BodyAccess::EAccess::Read)); return mPosition - mRotation * mShape->GetCenterOfMass(); }
+	inline RVec3			GetPosition() const												{ MOSS_ASSERT(BodyAccess::CheckRights(BodyAccess::PositionAccess(), BodyAccess::EAccess::Read)); return mPosition - mRotation * mShape->GetCenterOfMass(); }
 
 	// World space rotation of the body
-	inline Quat				GetRotation() const												{ MOSS_ASSERT(BodyAccess::sCheckRights(BodyAccess::sPositionAccess(), BodyAccess::EAccess::Read)); return mRotation; }
+	inline Quat				GetRotation() const												{ MOSS_ASSERT(BodyAccess::CheckRights(BodyAccess::PositionAccess(), BodyAccess::EAccess::Read)); return mRotation; }
 
 	// Calculates the transform of this body
 	inline RMat44			GetWorldTransform() const;
 
 	// Gets the world space position of this body's center of mass
-	inline RVec3			GetCenterOfMassPosition() const									{ MOSS_ASSERT(BodyAccess::sCheckRights(BodyAccess::sPositionAccess(), BodyAccess::EAccess::Read)); return mPosition; }
+	inline RVec3			GetCenterOfMassPosition() const									{ MOSS_ASSERT(BodyAccess::CheckRights(BodyAccess::PositionAccess(), BodyAccess::EAccess::Read)); return mPosition; }
 
 	// Calculates the transform for this body's center of mass
 	inline RMat44			GetCenterOfMassTransform() const;
@@ -1728,7 +1687,7 @@ public:
 	// to initialize the floating point unit state.
 	inline void	ValidateCachedBounds() const
 	{
-		AABox actual_body_bounds = mShape->GetWorldSpaceBounds(GetCenterOfMassTransform(), Vec3::sOne());
+		AABox actual_body_bounds = mShape->GetWorldSpaceBounds(GetCenterOfMassTransform(), Vec3::One());
 		MOSS_ASSERT(actual_body_bounds == mBounds, "Mismatch between cached bounding box and actual bounding box");
 	}
 #endif // MOSS_DEBUG
@@ -1749,7 +1708,7 @@ public:
 	inline Vec3				GetWorldSpaceSurfaceNormal(const SubShapeID &inSubShapeID, RVec3Arg inPosition) const;
 
 	// Get the transformed shape of this body, which can be used to do collision detection outside of a body lock
-	inline TransformedShape	GetTransformedShape() const										{ MOSS_ASSERT(BodyAccess::sCheckRights(BodyAccess::sPositionAccess(), BodyAccess::EAccess::Read)); return TransformedShape(mPosition, mRotation, mShape, mID); }
+	inline TransformedShape	GetTransformedShape() const										{ MOSS_ASSERT(BodyAccess::CheckRights(BodyAccess::PositionAccess(), BodyAccess::EAccess::Read)); return TransformedShape(mPosition, mRotation, mShape, mID); }
 
 	// Debug function to convert a body back to a body creation settings object to be able to save/recreate the body later
 	BodyCreationSettings	GetBodyCreationSettings() const;
@@ -1758,7 +1717,7 @@ public:
 	SoftBodyCreationSettings GetSoftBodyCreationSettings() const;
 
 	// A dummy body that can be used by constraints to attach a constraint to the world instead of another body
-	static Body				sFixedToWorld;
+	static BodyFixedToWorld;
 
 	//@name THESE FUNCTIONS ARE FOR INTERNAL USE ONLY AND SHOULD NOT BE CALLED BY THE APPLICATION
 	//@{
@@ -1768,8 +1727,8 @@ public:
 	static inline bool		sFindCollidingPairsCanCollide(const Body &inBody1, const Body &inBody2);
 
 	// Update position using an Euler step (used during position integrate & constraint solving)
-	inline void				AddPositionStep(Vec3Arg inLinearVelocityTimesDeltaTime)			{ MOSS_ASSERT(IsRigidBody()); MOSS_ASSERT(BodyAccess::sCheckRights(BodyAccess::sPositionAccess(), BodyAccess::EAccess::ReadWrite)); mPosition += mMotionProperties->LockTranslation(inLinearVelocityTimesDeltaTime); MOSS_ASSERT(!mPosition.IsNaN()); }
-	inline void				SubPositionStep(Vec3Arg inLinearVelocityTimesDeltaTime)			{ MOSS_ASSERT(IsRigidBody()); MOSS_ASSERT(BodyAccess::sCheckRights(BodyAccess::sPositionAccess(), BodyAccess::EAccess::ReadWrite)); mPosition -= mMotionProperties->LockTranslation(inLinearVelocityTimesDeltaTime); MOSS_ASSERT(!mPosition.IsNaN()); }
+	inline void				AddPositionStep(Vec3Arg inLinearVelocityTimesDeltaTime)			{ MOSS_ASSERT(IsRigidBody()); MOSS_ASSERT(BodyAccess::CheckRights(BodyAccess::PositionAccess(), BodyAccess::EAccess::ReadWrite)); mPosition += mMotionProperties->LockTranslation(inLinearVelocityTimesDeltaTime); MOSS_ASSERT(!mPosition.IsNaN()); }
+	inline void				SubPositionStep(Vec3Arg inLinearVelocityTimesDeltaTime)			{ MOSS_ASSERT(IsRigidBody()); MOSS_ASSERT(BodyAccess::CheckRights(BodyAccess::PositionAccess(), BodyAccess::EAccess::ReadWrite)); mPosition -= mMotionProperties->LockTranslation(inLinearVelocityTimesDeltaTime); MOSS_ASSERT(!mPosition.IsNaN()); }
 
 	// Update rotation using an Euler step (used during position integrate & constraint solving)
 	inline void				AddRotationStep(Vec3Arg inAngularVelocityTimesDeltaTime);

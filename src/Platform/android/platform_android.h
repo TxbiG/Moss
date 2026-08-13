@@ -1,13 +1,17 @@
 #ifndef MOSS_PLATFORM_ANDROID_H
 #define MOSS_PLATFORM_ANDROID_H
 
-#include <Moss/Platform/platform_intern.h>
+#include "../platform_intern.h"
 
 #include <stdbool.h>
 #include <stdint.h>
+#include <jni.h>
+#include <android/native_activity.h>
+#include <android/native_window.h>
+#include <android/input.h>
 
 
-#ifdef MOSS_GRAPHICS_OPENGLES_2 || MOSS_GRAPHICS_OPENGLES_3
+#if defined(MOSS_GRAPHICS_OPENGLES_2) || defined(MOSS_GRAPHICS_OPENGLES_3)
 #include <EGL/egl.h>
 #endif
 

@@ -39,11 +39,11 @@ struct ShapeCastT {
 	/// Get point with fraction inFraction on ray from mCenterOfMassStart to mCenterOfMassStart + mDirection (0 = start of ray, 1 = end of ray)
 	inline Vec GetPointOnRay(float inFraction) const { return mCenterOfMassStart.GetTranslation() + inFraction * mDirection; }
 
-	const Shape*				mShape;								///< Shape that's being cast (cannot be mesh shape). Note that this structure does not assume ownership over the shape for performance reasons.
-	const Vec3					mScale;								///< Scale in local space of the shape being cast (scales relative to its center of mass)
-	const Mat					mCenterOfMassStart;					///< Start position and orientation of the center of mass of the shape (construct using sFromWorldTransform if you have a world transform for your shape)
-	const Vec3					mDirection;							///< Direction and length of the cast (anything beyond this length will not be reported as a hit)
-	const AABox					mShapeWorldBounds;					///< Cached shape's world bounds, calculated in constructor
+	const Shape*	mShape;					// Shape that's being cast (cannot be mesh shape). Note that this structure does not assume ownership over the shape for performance reasons.
+	const Vec3		mScale;					// Scale in local space of the shape being cast (scales relative to its center of mass)
+	const Mat		mCenterOfMassStart;		// Start position and orientation of the center of mass of the shape (construct using sFromWorldTransform if you have a world transform for your shape)
+	const Vec3		mDirection;				// Direction and length of the cast (anything beyond this length will not be reported as a hit)
+	const AABox		mShapeWorldBounds;		// Cached shape's world bounds, calculated in constructor
 };
 
 struct ShapeCast : public ShapeCastT<Vec3, Mat44, ShapeCast> {
@@ -133,8 +133,8 @@ public:
 		return result;
 	}
 
-	float						mFraction;							///< This is the fraction where the shape hit the other shape: CenterOfMassOnHit = Start + value * (End - Start)
-	bool						mIsBackFaceHit;						///< True if the shape was hit from the back side
+	float mFraction;		// This is the fraction where the shape hit the other shape: CenterOfMassOnHit = Start + value * (End - Start)
+	bool  mIsBackFaceHit;	// True if the shape was hit from the back side
 };
 
 MOSS_NAMESPACE_END

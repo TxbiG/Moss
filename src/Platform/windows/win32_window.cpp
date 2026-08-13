@@ -1,7 +1,8 @@
-#include <Moss/Platform/Windows/win32_platform.h>
+#include "win32_platform.h"
 #include <wingdi.h>
 
 // TODO: convert YUYV (Linux) or RGB32 (Windows) into consistent format (like RGB24)
+// Video capture frames report their native pixel layout through Moss_VideoCaptureFrame::format.
 
 HINSTANCE hInstance;
 HWND handle;
@@ -105,6 +106,26 @@ static Moss_WindowResizeCallback g_windowResizeCallback = nullptr;
 
 int g_width;
 int g_height;
+static float g_mouseWheelX = 0.0f;
+static float g_mouseWheelY = 0.0f;
+
+
+static void QueueTextCharacter(wchar_t value)
+{
+    if (value >= 0xD800 && value <= 0xDBFF) {
+        g_highSurrogate = value;
+        return;
+    }
+
+    uint32_t codepoint = static_cast<uint32_t>(value);
+    if (value >= 0xDC00 && value <= 0xDFFF && g_highSurrogate) {
+        codepoint = 0x10000u + ((static_cast<uint32_t>(g_highSurrogate) - 0xD800u) << 10u)
+            + (static_cast<uint32_t>(value) - 0xDC00u);
+    }
+    g_highSurrogate = 0;
+    if (codepoint != 0u) g_textInput.push_back(codepoint);
+}
+
 static LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
 	PAINTSTRUCT ps;
@@ -118,21 +139,34 @@ static LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM l
     case WM_DESTROY:
 		PostQuitMessage(0);
 		break;
-	//case WM_PAINT:
-		//BeginPaint(hWnd, &ps);
-		//EndPaint(hWnd, &ps);
-		//break;
-
-	case WM_SIZE: {
-        int width = LOWORD(lParam);
-        int height = HIWORD(lParam);
-        if (g_framebufferResizeCallback) {
-            g_framebufferResizeCallback(width, height);
-        }
+    case WM_SIZE: {
+        const int width = LOWORD(lParam);
+        const int height = HIWORD(lParam);
+        if (g_framebufferResizeCallback) g_framebufferResizeCallback(width, height);
+        if (g_windowSizeCallback) g_windowSizeCallback(width, height);
         g_width = width;
         g_height = height;
         return 0;
     }
+    case WM_SETFOCUS:
+        if (g_windowFocusCallback) g_windowFocusCallback(true);
+        return 0;
+    case WM_KILLFOCUS:
+        if (g_windowFocusCallback) g_windowFocusCallback(false);
+        return 0;
+    case WM_CHAR:
+        QueueTextCharacter(static_cast<wchar_t>(wParam));
+        return 0;
+    case WM_UNICHAR:
+        if (wParam == UNICODE_NOCHAR) return TRUE;
+        g_textInput.push_back(static_cast<uint32_t>(wParam));
+        return 0;
+    case WM_MOUSEWHEEL:
+        g_mouseWheelY += static_cast<short>(HIWORD(wParam)) / static_cast<float>(WHEEL_DELTA);
+        return 0;
+    case WM_MOUSEHWHEEL:
+        g_mouseWheelX += static_cast<short>(HIWORD(wParam)) / static_cast<float>(WHEEL_DELTA);
+        return 0;
     case WM_INPUT: {
         UINT dwSize = 0;
         GetRawInputData((HRAWINPUT)lParam, RID_INPUT, nullptr, &dwSize, sizeof(RAWINPUTHEADER));
@@ -148,19 +182,16 @@ static LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM l
         g_frame.wheel += (short)HIWORD(wParam) / (float)WHEEL_DELTA;
         return 0;
     case WM_INPUT: {
-        // Mouse Input
-        UINT sz = 0;
-        GetRawInputData(reinterpret_cast<HRAWINPUT>(lParam), RID_INPUT, nullptr, &sz, sizeof(RAWINPUTHEADER));
-
-        uint8_t buf[sizeof(RAWINPUT) + 64]{};
-
-        if (GetRawInputData(reinterpret_cast<HRAWINPUT>(lParam), RID_INPUT, buf, &sz, sizeof(RAWINPUTHEADER)) == sz)
-        {
-            RAWINPUT* ri = reinterpret_cast<RAWINPUT*>(buf);
-            if (ri->header.dwType == RIM_TYPEMOUSE)
-            {
-                g_frame.mx += ri->data.mouse.lLastX;
-                g_frame.my += ri->data.mouse.lLastY;
+        UINT size = 0;
+        GetRawInputData(reinterpret_cast<HRAWINPUT>(lParam), RID_INPUT, nullptr, &size, sizeof(RAWINPUTHEADER));
+        std::vector<uint8_t> data(size);
+        if (size != 0 && GetRawInputData(reinterpret_cast<HRAWINPUT>(lParam), RID_INPUT, data.data(), &size, sizeof(RAWINPUTHEADER)) == size) {
+            RAWINPUT* raw = reinterpret_cast<RAWINPUT*>(data.data());
+            if (raw->header.dwType == RIM_TYPEHID) {
+                HandleHIDInput(raw);
+            } else if (raw->header.dwType == RIM_TYPEMOUSE) {
+                g_frame.mx += raw->data.mouse.lLastX;
+                g_frame.my += raw->data.mouse.lLastY;
             }
         }
         return 0;
@@ -168,37 +199,30 @@ static LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM l
     case WM_POINTERDOWN:
     case WM_POINTERUPDATE:
     case WM_POINTERUP: {
-        UINT32 pointerId = GET_POINTERID_WPARAM(wParam);
-
+        const UINT32 pointerId = GET_POINTERID_WPARAM(wParam);
         POINTER_INPUT_TYPE type;
-        GetPointerType(pointerId, &type);
-
-        POINTER_INFO pi;
-        GetPointerInfo(pointerId, &pi);
-
-        Moss_Pointer* p = FindOrCreatePointer(pointerId, type);
-
-        p->down = (msg != WM_POINTERUP);
-
-        POINT pt = pi.ptPixelLocation;
-        ScreenToClient(hwnd, &pt);
-
-        p->x = (float)pt.x;
-        p->y = (float)pt.y;
+        if (!GetPointerType(pointerId, &type)) return 0;
+        POINTER_INFO pointerInfo = {};
+        if (!GetPointerInfo(pointerId, &pointerInfo)) return 0;
+        Moss_Pointer* pointer = FindOrCreatePointer(pointerId, type);
+        pointer->down = message != WM_POINTERUP;
+        POINT point = pointerInfo.ptPixelLocation;
+        ScreenToClient(hWnd, &point);
+        pointer->x = static_cast<float>(point.x);
+        pointer->y = static_cast<float>(point.y);
 
         if (type == PT_PEN) {
-            POINTER_PEN_INFO pen;
+            POINTER_PEN_INFO pen = {};
             if (GetPointerPenInfo(pointerId, &pen)) {
-                p->pressure = pen.pressure / 1024.0f;
-                p->tilt_x   = pen.tiltX / 90.0f;
-                p->tilt_y   = pen.tiltY / 90.0f;
-                p->rotation = (float)pen.rotation;
-                p->eraser   = (pen.penFlags & PEN_FLAG_ERASER) != 0;
+                pointer->pressure = pen.pressure / 1024.0f;
+                pointer->tilt_x = pen.tiltX / 90.0f;
+                pointer->tilt_y = pen.tiltY / 90.0f;
+                pointer->rotation = static_cast<float>(pen.rotation);
+                pointer->eraser = (pen.penFlags & PEN_FLAG_ERASER) != 0;
             }
         }
 
-        if (msg == WM_POINTERUP)
-            RemovePointer(pointerId);
+        if (message == WM_POINTERUP) RemovePointer(pointerId);
 
         return 0;
     }
@@ -206,9 +230,8 @@ static LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM l
 	default:
 		return DefWindowProc(hWnd, message, wParam, lParam);
 	}
-
-	return 0;
 }
+
 
 Moss_Window* Moss_CreateWindow(const char* title, int width, int height, Moss_Monitor* monitor, Moss_Window* share) {
     hInstance = GetModuleHandleA(nullptr);
@@ -364,7 +387,6 @@ Moss_Window* Moss_CreateWindow(const char* title, int width, int height, Moss_Mo
     return window;
 }
 
-
 /*! @brief Sets window as current.
 *  @ingroup window
 */
@@ -399,8 +421,7 @@ const wchar_t* convertCharToWchar(const char* str) {
     return wstr.c_str();
 }
 
-void Moss_SetWindowTitle(Moss_Window* window, const char* title)
-{
+void Moss_SetWindowTitle(Moss_Window* window, const char* title) {
     const wchar_t* tmp_title = convertCharToWchar(title);
     SetWindowTextW(window->handle, tmp_title);
 }
@@ -451,6 +472,9 @@ void Moss_SetWindowSizeLimits(Moss_Window* window, int minWidth, int minHeight, 
 }
 
 */
+
+
+void Moss_WindowMode(Moss_WindowFlag );
 
 void Moss_SwapBuffers() { SwapBuffers(dc); }
 
@@ -595,30 +619,165 @@ int Moss_GetPhysicalDevicePresentationSupport(Moss_Window* window, VkPhysicalDev
 //===============================
 
 void Moss_SetFramebufferReSizeCallback(FramebufferResizeCallback callback) { g_framebufferResizeCallback = callback; }
+void Moss_SetWindowResizeCallback(void (*callback)(int width, int height)) { windowResizeCallback = callback; }
+void Moss_SetWindowContentScaleCallback(Moss_Window* window, int width, int height) { if (windowContentScaleCallback) { windowContentScaleCallback(width, height); } }
+void Moss_SetWindowPositionCallback(Moss_Window* window, int x, int y) { if (windowPositionCallback) { windowPositionCallback(x, y); } }
+void Moss_SetWindowFocusCallback(Moss_Window* window) { if (windowFocusCallback) { windowFocusCallback(true); } }
+void Moss_SetWindowSizeCallback(void (*callback)(int width, int height)) { windowSizeCallback = callback; }
+
+
+
+void Moss_SetWindowMode(Moss_Window* window, Moss_WindowFlags flags) {
+    if (!window || !window->handle) return;
+ 
+    const HWND hwnd = window->handle;
+
+    switch (flags)
+    {
+    case Moss_WindowFlags::NOTITLEBAR :
+        LONG_PTR style = GetWindowLongPtrW(hwnd, GWL_STYLE);
+        style &= ~(WS_CAPTION | WS_SYSMENU);
+        SetWindowLongPtrW(hwnd, GWL_STYLE, style);
+        SetWindowPos(hwnd, nullptr, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_NOACTIVATE | SWP_FRAMECHANGED);
+        break;
+    case Moss_WindowFlags::RESIZE_DISABLED :
+        LONG_PTR style = GetWindowLongPtrW(hwnd, GWL_STYLE);
+        style &= ~(WS_THICKFRAME | WS_MAXIMIZEBOX);
+        SetWindowLongPtrW(hwnd, GWL_STYLE, style);
+        SetWindowPos(hwnd, nullptr, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_NOACTIVATE | SWP_FRAMECHANGED);
+        break;
+    case Moss_WindowFlags::TRANSPARENT :
+        LONG_PTR exStyle = GetWindowLongPtrW(hwnd, GWL_EXSTYLE);
+        SetWindowLongPtrW(hwnd, GWL_EXSTYLE, exStyle | WS_EX_LAYERED);
+        SetLayeredWindowAttributes(hwnd, 0, 230, LWA_ALPHA);
+        break;
+    case Moss_WindowFlags::NO_FOCUS :
+        /* code */
+        break;
+    case Moss_WindowFlags::POPUP :
+        LONG_PTR style = GetWindowLongPtrW(hwnd, GWL_STYLE);
+        style &= ~WS_OVERLAPPEDWINDOW;
+        style |= WS_POPUP;
+        SetWindowLongPtrW(hwnd, GWL_STYLE, style);
+        SetWindowPos(hwnd, nullptr, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_NOACTIVATE | SWP_FRAMECHANGED);
+        break;
+    case Moss_WindowFlags::NO_FOCUS :
+        LONG_PTR exStyle = GetWindowLongPtrW(hwnd, GWL_EXSTYLE);
+        SetWindowLongPtrW(hwnd, GWL_EXSTYLE, exStyle | WS_EX_NOACTIVATE);
+        break;
+    case Moss_WindowFlags::POPUP :
+        LONG_PTR style = GetWindowLongPtrW(hwnd, GWL_STYLE);
+        style &= ~WS_OVERLAPPEDWINDOW;
+        style |= WS_POPUP;
+        SetWindowLongPtrW(hwnd, GWL_STYLE, style);
+        SetWindowPos(hwnd, nullptr, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_NOACTIVATE | SWP_FRAMECHANGED);
+        break;
+    case Moss_WindowFlags::EXTEND_TO_TITLE :
+        MARGINS margins{ -1, -1, -1, -1 };
+        DwmExtendFrameIntoClientArea(hwnd, &margins);
+        break;
+    case Moss_WindowFlags::MOUSE_PASSTHROUGH :
+        LONG_PTR exStyle = GetWindowLongPtrW(hwnd, GWL_EXSTYLE);
+        SetWindowLongPtrW(hwnd, GWL_EXSTYLE, exStyle | WS_EX_LAYERED | WS_EX_TRANSPARENT);
+        SetLayeredWindowAttributes(hwnd, 0, 255, LWA_ALPHA);
+        break;
+    case Moss_WindowFlags::SHARP_CORNERS :
+        DWORD preference = DWMWCP_DONOTROUND;
+        DwmSetWindowAttribute(hwnd, DWMWA_WINDOW_CORNER_PREFERENCE, &preference, sizeof(preference));
+        break;
+    case Moss_WindowFlags::EXCLUDE_FROM_CAPTURE :
+        SetWindowDisplayAffinity(hwnd, WDA_EXCLUDEFROMCAPTURE);
+        break;
+    case Moss_WindowFlags::HIDDEN :
+        ShowWindow(hwnd, SW_HIDE);
+        break;
+    case Moss_WindowFlags::SHOWN :
+        ShowWindow(hwnd, SW_SHOW);
+        break;
+    case Moss_WindowFlags::BORDERLESS :
+        LONG_PTR style = GetWindowLongPtrW(hwnd, GWL_STYLE);
+        style &= ~(WS_CAPTION | WS_THICKFRAME | WS_MINIMIZEBOX | WS_MAXIMIZEBOX | WS_SYSMENU);
+        SetWindowLongPtrW(hwnd, GWL_STYLE, style);
+        SetWindowPos(hwnd, nullptr, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_NOACTIVATE | SWP_FRAMECHANGED);
+        break;
+    case Moss_WindowFlags::RESIZABLE :
+        LONG_PTR style = GetWindowLongPtrW(hwnd, GWL_STYLE);
+        style |= (WS_THICKFRAME | WS_MAXIMIZEBOX);
+        SetWindowLongPtrW(hwnd, GWL_STYLE, style);
+        SetWindowPos(hwnd, nullptr, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_NOACTIVATE | SWP_FRAMECHANGED);
+        break;
+    case Moss_WindowFlags::MAXIMIZED :
+        ShowWindow(hwnd, SW_MAXIMIZE);
+        break;
+    case Moss_WindowFlags::MINIMIZED :
+        ShowWindow(hwnd, SW_RESTORE);
+        break;
+    case Moss_WindowFlags::MOUSE_GRABBED :
+        RECT rect;
+        GetClientRect(hwnd, &rect);
+        POINT topLeft{ rect.left, rect.top };
+        POINT bottomRight{ rect.right, rect.bottom };
+        ClientToScreen(hwnd, &topLeft);
+        ClientToScreen(hwnd, &bottomRight);
+        RECT screenRect{ topLeft.x, topLeft.y, bottomRight.x, bottomRight.y };
+        ClipCursor(&screenRect);
+        break;
+    case Moss_WindowFlags::INPUT_FOCUS :
+        SetFocus(hwnd);
+        break;
+    case Moss_WindowFlags::MOUSE_FOCUS :
+        SetCapture(hwnd);
+        break;
+    case Moss_WindowFlags::ALWAYS_ON_TOP :
+        SetWindowPos(hwnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE);
+        break;
+    case Moss_WindowFlags::KEYBOARD_GRABBED :
+        if (g_keyboardHook) {
+            UnhookWindowsHookEx(g_keyboardHook);
+        }
+        g_keyboardGrabWindow = hwnd;
+        g_keyboardHook = SetWindowsHookExW(WH_KEYBOARD_LL, KeyboardGrabProc, GetModuleHandleW(nullptr), 0);
+        break;
+    default:
+        break;
+    }
+}
+
 /*
-void Moss_SetWindowResizeCallback(void (*callback)(int width, int height)) {
-    windowResizeCallback = callback;
+static std::vector<uint32_t> g_textInput;
+static wchar_t g_highSurrogate = 0;
+
+void Moss_GetMouseWheelDelta(float* x, float* y) {
+    if (x) *x = g_mouseWheelX;
+    if (y) *y = g_mouseWheelY;
+    g_mouseWheelX = 0.0f;
+    g_mouseWheelY = 0.0f;
 }
 
-void Moss_SetWindowContentScaleCallback(Moss_Window* window, int width, int height) {
-    if (windowContentScaleCallback) {
-        windowContentScaleCallback(width, height);
-    }
+uint32_t Moss_GetTextInput(uint32_t* codepoints, uint32_t capacity) {
+    if (!codepoints || capacity == 0) return 0;
+    const uint32_t count = static_cast<uint32_t>(std::min<size_t>(g_textInput.size(), capacity));
+    std::copy_n(g_textInput.begin(), count, codepoints);
+    g_textInput.erase(g_textInput.begin(), g_textInput.begin() + count);
+    return count;
 }
 
-void Moss_SetWindowPositionCallback(Moss_Window* window, int x, int y) {
-    if (windowPositionCallback) {
-        windowPositionCallback(x, y);
-    }
+bool Moss_IsWindowFocused(Moss_Window* window) {
+    const HWND target = window ? window->handle : handle;
+    return target != nullptr && GetFocus() == target;
 }
 
-void Moss_SetWindowFocusCallback(Moss_Window* window) {
-    if (windowFocusCallback) {
-        windowFocusCallback(true);
-    }
+bool Moss_SetWindowAlwaysOnTop(Moss_Window* window, bool enabled) {
+    if (!window || !window->handle) return false;
+    return SetWindowPos(window->handle, enabled ? HWND_TOPMOST : HWND_NOTOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE) != FALSE;
 }
 
-void Moss_SetWindowSizeCallback(void (*callback)(int width, int height)) {
-    windowSizeCallback = callback;
+bool Moss_SetWindowBorderless(Moss_Window* window, bool enabled) {
+    if (!window || !window->handle) return false;
+    LONG_PTR style = GetWindowLongPtrW(window->handle, GWL_STYLE);
+    if (enabled) style &= ~(WS_CAPTION | WS_THICKFRAME | WS_MINIMIZEBOX | WS_MAXIMIZEBOX | WS_SYSMENU);
+    else style |= WS_OVERLAPPEDWINDOW;
+    SetWindowLongPtrW(window->handle, GWL_STYLE, style);
+    return SetWindowPos(window->handle, nullptr, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_NOACTIVATE | SWP_FRAMECHANGED) != FALSE;
 }
 */

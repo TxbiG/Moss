@@ -20,14 +20,14 @@ public:
 		Float3							mRootBoundsMin;
 		Float3							mRootBoundsMax;
 		uint32							mRootProperties;
-		uint8							mBlockIDBits;			///< Number of bits to address a triangle block
+		uint8							mBlockIDBits;			// Number of bits to address a triangle block
 		uint8							mPadding[3] = { 0 };
 	};
 
 	/// Size of the header (an empty struct is always > 0 bytes so this needs a separate variable)
 	static constexpr int				HeaderSize = sizeof(Header);
 
-	/// Stack size to use during DecodingContext::sWalkTree
+	/// Stack size to use during DecodingContext::WalkTree
 	static constexpr int				StackSize = 128;
 
 	/// Node properties
@@ -43,13 +43,13 @@ public:
 
 	/// Node structure
 	struct Node {
-		HalfFloat						mBoundsMinX[4];			///< 4 child bounding boxes
+		HalfFloat						mBoundsMinX[4];			// 4 child bounding boxes
 		HalfFloat						mBoundsMinY[4];
 		HalfFloat						mBoundsMinZ[4];
 		HalfFloat						mBoundsMaxX[4];
 		HalfFloat						mBoundsMaxY[4];
 		HalfFloat						mBoundsMaxZ[4];
-		uint32							mNodeProperties[4];		///< 4 child node properties
+		uint32							mNodeProperties[4];		// 4 child node properties
 	};
 
 	static_assert(sizeof(Node) == 64, "Node should be 64 bytes");
@@ -235,21 +235,21 @@ public:
 					Vec4 bounds_maxy = HalfFloatConversion::ToFloat(UVec4(node->mBoundsMaxY[0] + (node->mBoundsMaxY[1] << 16), node->mBoundsMaxY[2] + (node->mBoundsMaxY[3] << 16), 0, 0));
 					Vec4 bounds_maxz = HalfFloatConversion::ToFloat(UVec4(node->mBoundsMaxZ[0] + (node->mBoundsMaxZ[1] << 16), node->mBoundsMaxZ[2] + (node->mBoundsMaxZ[3] << 16), 0, 0));
 				#else
-					UVec4 bounds_minxy = UVec4::sLoadInt4(reinterpret_cast<const uint32 *>(&node->mBoundsMinX[0]));
+					UVec4 bounds_minxy = UVec4::LoadInt4(reinterpret_cast<const uint32 *>(&node->mBoundsMinX[0]));
 					Vec4 bounds_minx = HalfFloatConversion::ToFloat(bounds_minxy);
 					Vec4 bounds_miny = HalfFloatConversion::ToFloat(bounds_minxy.Swizzle<SWIZZLE_Z, SWIZZLE_W, SWIZZLE_UNUSED, SWIZZLE_UNUSED>());
 
-					UVec4 bounds_minzmaxx = UVec4::sLoadInt4(reinterpret_cast<const uint32 *>(&node->mBoundsMinZ[0]));
+					UVec4 bounds_minzmaxx = UVec4::LoadInt4(reinterpret_cast<const uint32 *>(&node->mBoundsMinZ[0]));
 					Vec4 bounds_minz = HalfFloatConversion::ToFloat(bounds_minzmaxx);
 					Vec4 bounds_maxx = HalfFloatConversion::ToFloat(bounds_minzmaxx.Swizzle<SWIZZLE_Z, SWIZZLE_W, SWIZZLE_UNUSED, SWIZZLE_UNUSED>());
 
-					UVec4 bounds_maxyz = UVec4::sLoadInt4(reinterpret_cast<const uint32 *>(&node->mBoundsMaxY[0]));
+					UVec4 bounds_maxyz = UVec4::LoadInt4(reinterpret_cast<const uint32 *>(&node->mBoundsMaxY[0]));
 					Vec4 bounds_maxy = HalfFloatConversion::ToFloat(bounds_maxyz);
 					Vec4 bounds_maxz = HalfFloatConversion::ToFloat(bounds_maxyz.Swizzle<SWIZZLE_Z, SWIZZLE_W, SWIZZLE_UNUSED, SWIZZLE_UNUSED>());
 				#endif
 
 					// Load properties for 4 children
-					UVec4 properties = UVec4::sLoadInt4(&node->mNodeProperties[0]);
+					UVec4 properties = UVec4::LoadInt4(&node->mNodeProperties[0]);
 
 					// Check which sub nodes to visit
 					int num_results = ioVisitor.VisitNodes(bounds_minx, bounds_miny, bounds_minz, bounds_maxx, bounds_maxy, bounds_maxz, properties, mTop);

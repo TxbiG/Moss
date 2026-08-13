@@ -14,8 +14,7 @@
 MOSS_NAMESPACE_BEGIN
 
 /// Class that constructs a ConvexHullShape
-class MOSS_EXPORT ConvexHullShapeSettings final : public ConvexShapeSettings
-{
+class MOSS_EXPORT ConvexHullShapeSettings final : public ConvexShapeSettings {
 	MOSS_DECLARE_SERIALIZABLE_VIRTUAL(MOSS_EXPORT, ConvexHullShapeSettings)
 
 public:
@@ -30,15 +29,14 @@ public:
 	// See: ShapeSettings
 	virtual ShapeResult		Create() const override;
 
-	TArray<Vec3>				mPoints;															///< Points to create the hull from. Note that these points don't need to be the vertices of the convex hull, they can contain interior points or points on faces/edges.
-	float					mMaxConvexRadius = 0.0f;											///< Convex radius as supplied by the constructor. Note that during hull creation the convex radius can be made smaller if the value is too big for the hull.
-	float					mMaxErrorConvexRadius = 0.05f;										///< Maximum distance between the shrunk hull + convex radius and the actual hull.
-	float					mHullTolerance = 1.0e-3f;											///< Points are allowed this far outside of the hull (increasing this yields a hull with less vertices). Note that the actual used value can be larger if the points of the hull are far apart.
+	TArray<Vec3>	mPoints;						// Points to create the hull from. Note that these points don't need to be the vertices of the convex hull, they can contain interior points or points on faces/edges.
+	float			mMaxConvexRadius = 0.0f;		// Convex radius as supplied by the constructor. Note that during hull creation the convex radius can be made smaller if the value is too big for the hull.
+	float			mMaxErrorConvexRadius = 0.05f;	// Maximum distance between the shrunk hull + convex radius and the actual hull.
+	float			mHullTolerance = 1.0e-3f;		// Points are allowed this far outside of the hull (increasing this yields a hull with less vertices). Note that the actual used value can be larger if the points of the hull are far apart.
 };
 
 /// A convex hull
-class MOSS_EXPORT ConvexHullShape final : public ConvexShape
-{
+class MOSS_EXPORT ConvexHullShape final : public ConvexShape {
 public:
 	MOSS_OVERRIDE_NEW_DELETE
 
@@ -166,8 +164,8 @@ private:
 
 	struct Face
 	{
-		uint16				mFirstVertex;				///< First index in mVertexIdx to use
-		uint16				mNumVertices = 0;			///< Number of vertices in the mVertexIdx to use
+		uint16				mFirstVertex;				// First index in mVertexIdx to use
+		uint16				mNumVertices = 0;			// Number of vertices in the mVertexIdx to use
 	};
 
 	static_assert(sizeof(Face) == 4, "Unexpected size");
@@ -175,24 +173,24 @@ private:
 
 	struct Point
 	{
-		Vec3				mPosition;					///< Position of vertex
-		int					mNumFaces = 0;				///< Number of faces in the face TArray below
-		int					mFaces[3] = { -1, -1, -1 };	///< Indices of 3 neighboring faces with the biggest difference in normal (used to shift vertices for convex radius)
+		Vec3				mPosition;					// Position of vertex
+		int					mNumFaces = 0;				// Number of faces in the face TArray below
+		int					mFaces[3] = { -1, -1, -1 };	// Indices of 3 neighboring faces with the biggest difference in normal (used to shift vertices for convex radius)
 	};
 
 	static_assert(sizeof(Point) == 32, "Unexpected size");
 	static_assert(alignof(Point) == MOSS_VECTOR_ALIGNMENT, "Unexpected alignment");
 
-	Vec3					mCenterOfMass;				///< Center of mass of this convex hull
-	Mat44					mInertia;					///< Inertia matrix assuming density is 1 (needs to be multiplied by density)
-	AABox					mLocalBounds;				///< Local bounding box for the convex hull
-	TArray<Point>			mPoints;					///< Points on the convex hull surface
-	TArray<Face>				mFaces;						///< Faces of the convex hull surface
-	TArray<Plane>			mPlanes;					///< Planes for the faces (1-on-1 with mFaces TArray, separate because they need to be 16 byte aligned)
-	TArray<uint8>			mVertexIdx;					///< A list of vertex indices (indexing in mPoints) for each of the faces
-	float					mConvexRadius = 0.0f;		///< Convex radius
-	float					mVolume;					///< Total volume of the convex hull
-	float					mInnerRadius = FLT_MAX;		///< Radius of the biggest sphere that fits entirely in the convex hull
+	Vec3					mCenterOfMass;				// Center of mass of this convex hull
+	Mat44					mInertia;					// Inertia matrix assuming density is 1 (needs to be multiplied by density)
+	AABox					mLocalBounds;				// Local bounding box for the convex hull
+	TArray<Point>			mPoints;					// Points on the convex hull surface
+	TArray<Face>				mFaces;						// Faces of the convex hull surface
+	TArray<Plane>			mPlanes;					// Planes for the faces (1-on-1 with mFaces TArray, separate because they need to be 16 byte aligned)
+	TArray<uint8>			mVertexIdx;					// A list of vertex indices (indexing in mPoints) for each of the faces
+	float					mConvexRadius = 0.0f;		// Convex radius
+	float					mVolume;					// Total volume of the convex hull
+	float					mInnerRadius = FLT_MAX;		// Radius of the biggest sphere that fits entirely in the convex hull
 
 #ifndef MOSS_DEBUG_RENDERER
 	mutable DebugRenderer::GeometryRef mGeometry;

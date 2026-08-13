@@ -16,10 +16,10 @@ MOSS_INLINE int SortReverseAndStore(Vec4Arg inValues, float inMaxValue, UVec4 &i
 {
 	// Sort so that highest values are first (we want to first process closer hits and we process stack top to bottom)
 	Vec4 values = inValues;
-	Vec4::sSort4Reverse(values, ioIdentifiers);
+	Vec4::Sort4Reverse(values, ioIdentifiers);
 
 	// Count how many results are less than the max value
-	UVec4 closer = Vec4::sLess(values, Vec4::sReplicate(inMaxValue));
+	UVec4 closer = Vec4::Less(values, Vec4::Replicate(inMaxValue));
 	int num_results = closer.CountTrues();
 
 	// Shift the values so that only the ones that are less than max are kept
@@ -39,7 +39,7 @@ MOSS_INLINE int SortReverseAndStore(Vec4Arg inValues, float inMaxValue, UVec4 &i
 MOSS_INLINE int CountAndSortTrues(UVec4Arg inValue, UVec4 &ioIdentifiers)
 {
 	// Sort the hits
-	ioIdentifiers = UVec4::sSort4True(inValue, ioIdentifiers);
+	ioIdentifiers = UVec4::Sort4True(inValue, ioIdentifiers);
 
 	// Return the amount of hits
 	return inValue.CountTrues();

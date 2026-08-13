@@ -86,14 +86,14 @@ public:
 	int							GetTrianglesNext(GetTrianglesContext &ioContext, int inMaxTrianglesRequested, Float3 *outTriangleVertices, const PhysicsMaterial **outMaterials = nullptr) const;
 
 	/// Get/set the scale of the shape as a Vec3
-	inline Vec3					GetShapeScale() const						{ return Vec3::sLoadFloat3Unsafe(mShapeScale); }
+	inline Vec3					GetShapeScale() const						{ return Vec3::LoadFloat3Unsafe(mShapeScale); }
 	inline void					SetShapeScale(Vec3Arg inScale)				{ inScale.StoreFloat3(&mShapeScale); }
 
 	/// Calculates the transform for this shape's center of mass (excluding scale)
-	inline RMat44				GetCenterOfMassTransform() const			{ return RMat44::sRotationTranslation(mShapeRotation, mShapePositionCOM); }
+	inline RMat44				GetCenterOfMassTransform() const			{ return RMat44::RotationTranslation(mShapeRotation, mShapePositionCOM); }
 
 	/// Calculates the inverse of the transform for this shape's center of mass (excluding scale)
-	inline RMat44				GetInverseCenterOfMassTransform() const		{ return RMat44::sInverseRotationTranslation(mShapeRotation, mShapePositionCOM); }
+	inline RMat44				GetInverseCenterOfMassTransform() const		{ return RMat44::InverseRotationTranslation(mShapeRotation, mShapePositionCOM); }
 
 	/// Sets the world transform (including scale) of this transformed shape (not from the center of mass but in the space the shape was created)
 	inline void					SetWorldTransform(RVec3Arg inPosition, QuatArg inRotation, Vec3Arg inScale)
@@ -114,7 +114,7 @@ public:
 	/// Calculates the world transform including scale of this shape (not from the center of mass but in the space the shape was created)
 	inline RMat44				GetWorldTransform() const
 	{
-		RMat44 transform = RMat44::sRotation(mShapeRotation).PreScaled(GetShapeScale());
+		RMat44 transform = RMat44::Rotation(mShapeRotation).PreScaled(GetShapeScale());
 		transform.SetTranslation(mShapePositionCOM - transform.Multiply3x3(mShape->GetCenterOfMass()));
 		return transform;
 	}
@@ -172,7 +172,7 @@ public:
 	/// @return Direct child sub shape and its transform, note that the body ID and sub shape ID will be invalid
 	TransformedShape			GetSubShapeTransformedShape(const SubShapeID &inSubShapeID, SubShapeID &outRemainder) const
 	{
-		TransformedShape ts = mShape->GetSubShapeTransformedShape(inSubShapeID, Vec3::sZero(), mShapeRotation, GetShapeScale(), outRemainder);
+		TransformedShape ts = mShape->GetSubShapeTransformedShape(inSubShapeID, Vec3::Zero(), mShapeRotation, GetShapeScale(), outRemainder);
 		ts.mShapePositionCOM += mShapePositionCOM;
 		return ts;
 	}
@@ -180,12 +180,12 @@ public:
 	/// Helper function to return the body id from a transformed shape. If the transformed shape is null an invalid body ID will be returned.
 	inline static BodyID		sGetBodyID(const TransformedShape *inTS)	{ return inTS != nullptr? inTS->mBodyID : BodyID(); }
 
-	RVec3						mShapePositionCOM;							///< Center of mass world position of the shape
-	Quat						mShapeRotation;								///< Rotation of the shape
-	RefConst<Shape>				mShape;										///< The shape itself
-	Float3						mShapeScale { 1, 1, 1 };					///< Not stored as Vec3 to get a nicely packed structure
-	BodyID						mBodyID;									///< Optional body ID from which this shape comes
-	SubShapeIDCreator			mSubShapeIDCreator;							///< Optional sub shape ID creator for the shape (can be used when expanding compound shapes into multiple transformed shapes)
+	RVec3						mShapePositionCOM;							// Center of mass world position of the shape
+	Quat						mShapeRotation;								// Rotation of the shape
+	RefConst<Shape>				mShape;										// The shape itself
+	Float3						mShapeScale { 1, 1, 1 };					// Not stored as Vec3 to get a nicely packed structure
+	BodyID						mBodyID;									// Optional body ID from which this shape comes
+	SubShapeIDCreator			mSubShapeIDCreator;							// Optional sub shape ID creator for the shape (can be used when expanding compound shapes into multiple transformed shapes)
 };
 
 static_assert(MOSS_CPU_ADDRESS_BITS != 64 || sizeof(TransformedShape) == MOSS_IF_SINGLE_PRECISION_ELSE(64, 96), "Not properly packed");

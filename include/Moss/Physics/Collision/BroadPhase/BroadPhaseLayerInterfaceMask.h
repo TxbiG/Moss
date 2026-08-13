@@ -69,7 +69,7 @@ public:
 	virtual BroadPhaseLayer	GetBroadPhaseLayer(ObjectLayer inLayer) const override
 	{
 		// Try to find the first broadphase layer that matches
-		uint32 group = ObjectLayerPairFilterMask::sGetGroup(inLayer);
+		uint32 group = ObjectLayerPairFilterMask::GetGroup(inLayer);
 		for (const Mapping &m : mMapping)
 			if ((group & m.mGroupsToInclude) != 0 && (group & m.mGroupsToExclude) == 0)
 				return BroadPhaseLayer(BroadPhaseLayer::Type(&m - mMapping.data()));
@@ -81,7 +81,7 @@ public:
 	/// Returns true if an object layer should collide with a broadphase layer, this function is being called from ObjectVsBroadPhaseLayerFilterMask
 	inline bool				ShouldCollide(ObjectLayer inLayer1, BroadPhaseLayer inLayer2) const
 	{
-		uint32 mask = ObjectLayerPairFilterMask::sGetMask(inLayer1);
+		uint32 mask = ObjectLayerPairFilterMask::GetMask(inLayer1);
 		const Mapping &m = mMapping[(BroadPhaseLayer::Type)inLayer2];
 		return &m == &mMapping.back() // Last layer may collide with anything
 			|| (m.mGroupsToInclude & mask) != 0; // Mask allows it to collide with objects that could reside in this layer
@@ -214,8 +214,8 @@ public:
 	}
 
 private:
-	uint					mNumBroadPhaseLayers;						///< The total number of broadphase layers
-	TArray<uint8>			mTable;										///< The table of bits that indicates which layers collide
+	uint			mNumBroadPhaseLayers;		// The total number of broadphase layers
+	TArray<uint8>	mTable;						// The table of bits that indicates which layers collide
 };
 
 MOSS_NAMESPACE_END

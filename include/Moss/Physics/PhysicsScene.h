@@ -47,9 +47,9 @@ public:
 		ConnectedConstraint() = default;
 		ConnectedConstraint(const TwoBodyConstraintSettings *inSettings, uint inBody1, uint inBody2) : mSettings(inSettings), mBody1(inBody1), mBody2(inBody2) { }
 
-		RefConst<TwoBodyConstraintSettings>	mSettings;										///< Constraint settings
-		uint32								mBody1;											///< Index of first body (in mBodies)
-		uint32								mBody2;											///< Index of second body (in mBodies)
+		RefConst<TwoBodyConstraintSettings>	mSettings;										// Constraint settings
+		uint32								mBody1;											// Index of first body (in mBodies)
+		uint32								mBody2;											// Index of second body (in mBodies)
 	};
 
 	/// Get number of constraints in this scene

@@ -38,9 +38,9 @@ protected:
 	CastShapeCollector &			mCollector;
 
 private:
-	ConvexShape::SupportBuffer		mSupportBuffer;						///< Buffer that holds the support function of the cast shape
-	const ConvexShape::Support *	mSupport = nullptr;					///< Support function of the cast shape
-	float							mScaleSign;							///< Sign of the scale, -1 if object is inside out, 1 if not
+	ConvexShape::SupportBuffer		mSupportBuffer;						// Buffer that holds the support function of the cast shape
+	const ConvexShape::Support *	mSupport = nullptr;					// Support function of the cast shape
+	float							mScaleSign;							// Sign of the scale, -1 if object is inside out, 1 if not
 };
 
 MOSS_NAMESPACE_END

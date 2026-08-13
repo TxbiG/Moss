@@ -158,8 +158,8 @@ public:
 						child_bounds_max[i] = child_nodes[i]->mBounds.mMax;
 					}
 					else {
-						child_bounds_min[i] = Vec3::sZero();
-						child_bounds_max[i] = Vec3::sZero();
+						child_bounds_min[i] = Vec3::Zero();
+						child_bounds_max[i] = Vec3::Zero();
 					}
 
 				// Start a new node
@@ -254,7 +254,7 @@ public:
 	inline const void* GetRoot() const { return mTree.Get<void>(HeaderSize + TriangleHeaderSize); }
 
 private:
-	ByteBuffer						mTree;									///< Resulting tree structure
+	ByteBuffer mTree;					// Resulting tree structure
 };
 
 MOSS_SUPRESS_WARNINGS_END

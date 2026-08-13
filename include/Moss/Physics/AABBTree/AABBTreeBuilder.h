@@ -12,22 +12,22 @@ MOSS_SUPRESS_WARNINGS_BEGIN
 
 struct AABBTreeBuilderStats {
 	///@name Splitter stats
-	TriangleSplitter::Stats	mSplitterStats;							///< Stats returned by the triangle splitter algorithm
+	TriangleSplitter::Stats	mSplitterStats;							// Stats returned by the triangle splitter algorithm
 
 	///@name Tree structure
-	float					mSAHCost = 0.0f;						///< Surface Area Heuristic cost of this tree
-	int						mMinDepth = 0;							///< Minimal depth of tree (number of nodes)
-	int						mMaxDepth = 0;							///< Maximum depth of tree (number of nodes)
-	int						mNodeCount = 0;							///< Number of nodes in the tree
-	int						mLeafNodeCount = 0;						///< Number of leaf nodes (that contain triangles)
+	float					mSAHCost = 0.0f;						// Surface Area Heuristic cost of this tree
+	int						mMinDepth = 0;							// Minimal depth of tree (number of nodes)
+	int						mMaxDepth = 0;							// Maximum depth of tree (number of nodes)
+	int						mNodeCount = 0;							// Number of nodes in the tree
+	int						mLeafNodeCount = 0;						// Number of leaf nodes (that contain triangles)
 
 	///@name Configured stats
-	int						mMaxTrianglesPerLeaf = 0;				///< Configured max triangles per leaf
+	int						mMaxTrianglesPerLeaf = 0;				// Configured max triangles per leaf
 
 	///@name Actual stats
-	int						mTreeMinTrianglesPerLeaf = 0;			///< Minimal amount of triangles in a leaf
-	int						mTreeMaxTrianglesPerLeaf = 0;			///< Maximal amount of triangles in a leaf
-	float					mTreeAvgTrianglesPerLeaf = 0.0f;		///< Average amount of triangles in leaf nodes
+	int						mTreeMinTrianglesPerLeaf = 0;			// Minimal amount of triangles in a leaf
+	int						mTreeMaxTrianglesPerLeaf = 0;			// Maximal amount of triangles in a leaf
+	float					mTreeAvgTrianglesPerLeaf = 0.0f;		// Average amount of triangles in leaf nodes
 };
 
 /// Helper class to build an AABB tree

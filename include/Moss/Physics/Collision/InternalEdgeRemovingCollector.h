@@ -31,7 +31,7 @@ class InternalEdgeRemovingCollector : public CollideShapeCollector
 	{
 		for (const Voided &vf : mVoidedFeatures)
 			if (vf.mSubShapeID == inSubShapeID
-				&& inV.IsClose(Vec3::sLoadFloat3Unsafe(vf.mFeature), 1.0e-8f))
+				&& inV.IsClose(Vec3::LoadFloat3Unsafe(vf.mFeature), 1.0e-8f))
 				return true;
 		return false;
 	}
@@ -69,8 +69,8 @@ class InternalEdgeRemovingCollector : public CollideShapeCollector
 		VoidFeatures(inResult);
 
 	#ifdef MOSS_INTERNAL_EDGE_REMOVING_COLLECTOR_DEBUG
-		DebugRenderer::sInstance->DrawWirePolygon(RMat44::sIdentity(), inResult.mShape2Face, Color::sGreen);
-		DebugRenderer::sInstance->DrawArrow(RVec3(inResult.mContactPointOn2), RVec3(inResult.mContactPointOn2) + inResult.mPenetrationAxis.NormalizedOr(Vec3::sZero()), Color::sGreen, 0.1f);
+		DebugRenderer::Instance->DrawWirePolygon(RMat44::Identity(), inResult.mShape2Face, Color::Green);
+		DebugRenderer::Instance->DrawArrow(RVec3(inResult.mContactPointOn2), RVec3(inResult.mContactPointOn2) + inResult.mPenetrationAxis.NormalizedOr(Vec3::Zero()), Color::Green, 0.1f);
 	#endif // MOSS_INTERNAL_EDGE_REMOVING_COLLECTOR_DEBUG
 	}
 
@@ -204,12 +204,12 @@ public:
 				&& (best_v1_idx == best_v2_idx || IsVoided(r.mSubShapeID1, r.mShape2Face[best_v2_idx]));
 
 		#ifdef MOSS_INTERNAL_EDGE_REMOVING_COLLECTOR_DEBUG
-			Color color = voided? Color::sRed : Color::sYellow;
-			DebugRenderer::sInstance->DrawText3D(RVec3(r.mContactPointOn2), StringFormat("%d: %g", i, r.mPenetrationDepth), color, 0.1f);
-			DebugRenderer::sInstance->DrawWirePolygon(RMat44::sIdentity(), r.mShape2Face, color);
-			DebugRenderer::sInstance->DrawArrow(RVec3(r.mContactPointOn2), RVec3(r.mContactPointOn2) + r.mPenetrationAxis.NormalizedOr(Vec3::sZero()), color, 0.1f);
-			DebugRenderer::sInstance->DrawMarker(RVec3(r.mShape2Face[best_v1_idx]), IsVoided(r.mSubShapeID1, r.mShape2Face[best_v1_idx])? Color::sRed : Color::sYellow, 0.1f);
-			DebugRenderer::sInstance->DrawMarker(RVec3(r.mShape2Face[best_v2_idx]), IsVoided(r.mSubShapeID1, r.mShape2Face[best_v2_idx])? Color::sRed : Color::sYellow, 0.1f);
+			Color color = voided? Color::Red : Color::Yellow;
+			DebugRenderer::Instance->DrawText3D(RVec3(r.mContactPointOn2), StringFormat("%d: %g", i, r.mPenetrationDepth), color, 0.1f);
+			DebugRenderer::Instance->DrawWirePolygon(RMat44::Identity(), r.mShape2Face, color);
+			DebugRenderer::Instance->DrawArrow(RVec3(r.mContactPointOn2), RVec3(r.mContactPointOn2) + r.mPenetrationAxis.NormalizedOr(Vec3::Zero()), color, 0.1f);
+			DebugRenderer::Instance->DrawMarker(RVec3(r.mShape2Face[best_v1_idx]), IsVoided(r.mSubShapeID1, r.mShape2Face[best_v1_idx])? Color::Red : Color::Yellow, 0.1f);
+			DebugRenderer::Instance->DrawMarker(RVec3(r.mShape2Face[best_v2_idx]), IsVoided(r.mSubShapeID1, r.mShape2Face[best_v2_idx])? Color::Red : Color::Yellow, 0.1f);
 		#endif // MOSS_INTERNAL_EDGE_REMOVING_COLLECTOR_DEBUG
 
 			// No voided features, accept the contact
@@ -232,14 +232,14 @@ public:
 		mChainedCollector.OnBodyEnd();
 	}
 
-	/// Version of CollisionDispatch::sCollideShapeVsShape that removes internal edges
+	/// Version of CollisionDispatch::CollideShapeVsShape that removes internal edges
 	static void				sCollideShapeVsShape(const Shape *inShape1, const Shape *inShape2, Vec3Arg inScale1, Vec3Arg inScale2, Mat44Arg inCenterOfMassTransform1, Mat44Arg inCenterOfMassTransform2, const SubShapeIDCreator &inSubShapeIDCreator1, const SubShapeIDCreator &inSubShapeIDCreator2, const CollideShapeSettings &inCollideShapeSettings, CollideShapeCollector &ioCollector, const ShapeFilter &inShapeFilter = { })
 	{
 		MOSS_ASSERT(inCollideShapeSettings.mActiveEdgeMode == EActiveEdgeMode::CollideWithAll); // Won't work without colliding with all edges
 		MOSS_ASSERT(inCollideShapeSettings.mCollectFacesMode == ECollectFacesMode::CollectFaces); // Won't work without collecting faces
 
 		InternalEdgeRemovingCollector wrapper(ioCollector);
-		CollisionDispatch::sCollideShapeVsShape(inShape1, inShape2, inScale1, inScale2, inCenterOfMassTransform1, inCenterOfMassTransform2, inSubShapeIDCreator1, inSubShapeIDCreator2, inCollideShapeSettings, wrapper, inShapeFilter);
+		CollisionDispatch::CollideShapeVsShape(inShape1, inShape2, inScale1, inScale2, inCenterOfMassTransform1, inCenterOfMassTransform2, inSubShapeIDCreator1, inSubShapeIDCreator2, inCollideShapeSettings, wrapper, inShapeFilter);
 		wrapper.Flush();
 	}
 
@@ -247,9 +247,8 @@ private:
 	// This algorithm tests a convex shape (shape 1) against a set of polygons (shape 2).
 	// This assumption doesn't hold if the shape we're testing is a compound shape, so we must also
 	// store the sub shape ID and ignore voided features that belong to another sub shape ID.
-	struct Voided
-	{
-		Float3				mFeature;				// Feature that is voided (of shape 2). Read with Vec3::sLoadFloat3Unsafe so must not be the last member.
+	struct Voided {
+		Float3				mFeature;				// Feature that is voided (of shape 2). Read with Vec3::LoadFloat3Unsafe so must not be the last member.
 		SubShapeID			mSubShapeID;			// Sub shape ID of the shape that is colliding against the feature (of shape 1).
 	};
 

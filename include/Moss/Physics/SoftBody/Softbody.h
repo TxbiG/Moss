@@ -26,7 +26,7 @@ public:
 	// Mass of the shape (kg)
 	float					mMass = 0.0f;
 	// Inertia tensor of the shape (kg m^2)
-	Mat44					mInertia = Mat44::sZero();
+	Mat44					mInertia = Mat44::Zero();
 };
 
 // A listener class that receives collision contact events for soft bodies against rigid bodies.
@@ -365,9 +365,9 @@ private:
 	// Information about the state of all skinned vertices
 	struct SkinState
 	{
-		Vec3							mPreviousPosition = Vec3::sZero();			// Previous position of the skinned vertex, used to interpolate between the previous and current position
-		Vec3							mPosition = Vec3::sNaN();					// Current position of the skinned vertex
-		Vec3							mNormal = Vec3::sNaN();						// Normal of the skinned vertex
+		Vec3							mPreviousPosition = Vec3::Zero();			// Previous position of the skinned vertex, used to interpolate between the previous and current position
+		Vec3							mPosition = Vec3::NaN();					// Current position of the skinned vertex
+		Vec3							mNormal = Vec3::NaN();						// Normal of the skinned vertex
 	};
 
 	// Do a narrow phase check and determine the closest feature that we can collide with
@@ -429,7 +429,7 @@ private:
 	template <typename GetEndIndex, typename DrawConstraint>
 		inline void						DrawConstraints(ESoftBodyConstraintColor inConstraintColor, const GetEndIndex &inGetEndIndex, const DrawConstraint &inDrawConstraint, ColorArg inBaseColor) const;
 
-	RMat44								mSkinStateTransform = RMat44::sIdentity();	// The matrix that transforms mSkinState to world space
+	RMat44								mSkinStateTransform = RMat44::Identity();	// The matrix that transforms mSkinState to world space
 #endif // MOSS_DEBUG_RENDERER
 
 	RefConst<SoftBodySharedSettings>	mSettings;									// Configuration of the particles and constraints
@@ -663,7 +663,7 @@ public:
 						InvBind(uint32 inJointIndex, Mat44Arg inInvBind) : mJointIndex(inJointIndex), mInvBind(inInvBind) { }
 
 		uint32			mJointIndex = 0;							// Joint index to which this is attached
-		Mat44			mInvBind = Mat44::sIdentity();				// The inverse bind matrix, this takes a vertex in its bind pose (Vertex::mPosition) to joint local space
+		Mat44			mInvBind = Mat44Identity();				// The inverse bind matrix, this takes a vertex in its bind pose (Vertex::mPosition) to joint local space
 	};
 
 	// A joint and its skin weight
@@ -744,7 +744,7 @@ public:
 	TArray<Skinned>			mSkinnedConstraints;						// The list of vertices that are constrained to a skinned vertex
 	TArray<InvBind>			mInvBindMatrices;							// The list of inverse bind matrices for skinning vertices
 	TArray<LRA>				mLRAConstraints;							// The list of long range attachment constraints
-	PhysicsMaterialList 	mMaterials { PhysicsMaterial::sDefault };	// The materials of the faces of the body, referenced by Face::mMaterialIndex
+	PhysicsMaterialList 	mMaterials { PhysicsMaterial::Default };	// The materials of the faces of the body, referenced by Face::mMaterialIndex
 	float					mVertexRadius = 0.0f;						// How big the particles are, can be used to push the vertices a little bit away from the surface of other bodies to prevent z-fighting
 
 private:
@@ -806,8 +806,8 @@ public:
 
 	RefConst<SoftBodySharedSettings> mSettings;				// Defines the configuration of this soft body
 
-	RVec3				mPosition { RVec3::sZero() };		// Initial position of the soft body
-	Quat				mRotation { Quat::sIdentity() };	// Initial rotation of the soft body
+	RVec3				mPosition { RVec3::Zero() };		// Initial position of the soft body
+	Quat				mRotation { Quat::Identity() };	// Initial rotation of the soft body
 
 	// User data value (can be used by application)
 	uint64				mUserData = 0;
@@ -882,10 +882,10 @@ public:
 	// Restore body creation settings, its shape, materials and group filter. Pass in an empty map in ioShapeMap / ioMaterialMap / ioGroupFilterMap or reuse the same map while reading multiple shapes from the same stream in order to restore duplicates.
 	static BCSResult		sRestoreWithChildren(StreamIn &inStream, IDToShapeMap &ioShapeMap, IDToMaterialMap &ioMaterialMap, IDToGroupFilterMap &ioGroupFilterMap);
 
-	RVec3					mPosition = RVec3::sZero();										// Position of the body (not of the center of mass)
-	Quat					mRotation = Quat::sIdentity();									// Rotation of the body
-	Vec3					mLinearVelocity = Vec3::sZero();								// World space linear velocity of the center of mass (m/s)
-	Vec3					mAngularVelocity = Vec3::sZero();								// World space angular velocity (rad/s)
+	RVec3					mPosition = RVec3::Zero();										// Position of the body (not of the center of mass)
+	Quat					mRotation = Quat::Identity();									// Rotation of the body
+	Vec3					mLinearVelocity = Vec3::Zero();								// World space linear velocity of the center of mass (m/s)
+	Vec3					mAngularVelocity = Vec3::Zero();								// World space angular velocity (rad/s)
 
 	// User data value (can be used by application)
 	uint64					mUserData = 0;

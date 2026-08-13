@@ -32,7 +32,7 @@ public:
 	/// @param inShapeFilter allows selectively disabling collisions between pairs of (sub) shapes.
 	static inline void		sCollideShapeVsShape(const Shape *inShape1, const Shape *inShape2, Vec3Arg inScale1, Vec3Arg inScale2, Mat44Arg inCenterOfMassTransform1, Mat44Arg inCenterOfMassTransform2, const SubShapeIDCreator &inSubShapeIDCreator1, const SubShapeIDCreator &inSubShapeIDCreator2, const CollideShapeSettings &inCollideShapeSettings, CollideShapeCollector &ioCollector, const ShapeFilter &inShapeFilter = { })
 	{
-		MOSS_IF_TRACK_NARROWPHASE_STATS(TrackNarrowPhaseStat track(NarrowPhaseStat::sCollideShape[(int)inShape1->GetSubType()][(int)inShape2->GetSubType()]);)
+		MOSS_IF_TRACK_NARROWPHASE_STATS(TrackNarrowPhaseStat track(NarrowPhaseStat::CollideShape[(int)inShape1->GetSubType()][(int)inShape2->GetSubType()]);)
 
 		// Only test shape if it passes the shape filter
 		if (inShapeFilter.ShouldCollide(inShape1, inSubShapeIDCreator1.GetID(), inShape2, inSubShapeIDCreator2.GetID()))
@@ -52,7 +52,7 @@ public:
 	/// @param ioCollector The collector that receives the results.
 	static inline void		sCastShapeVsShapeLocalSpace(const ShapeCast &inShapeCastLocal, const ShapeCastSettings &inShapeCastSettings, const Shape *inShape, Vec3Arg inScale, const ShapeFilter &inShapeFilter, Mat44Arg inCenterOfMassTransform2, const SubShapeIDCreator &inSubShapeIDCreator1, const SubShapeIDCreator &inSubShapeIDCreator2, CastShapeCollector &ioCollector)
 	{
-		MOSS_IF_TRACK_NARROWPHASE_STATS(TrackNarrowPhaseStat track(NarrowPhaseStat::sCastShape[(int)inShapeCastLocal.mShape->GetSubType()][(int)inShape->GetSubType()]);)
+		MOSS_IF_TRACK_NARROWPHASE_STATS(TrackNarrowPhaseStat track(NarrowPhaseStat::CastShape[(int)inShapeCastLocal.mShape->GetSubType()][(int)inShape->GetSubType()]);)
 
 		// Only test shape if it passes the shape filter
 		if (inShapeFilter.ShouldCollide(inShapeCastLocal.mShape, inSubShapeIDCreator1.GetID(), inShape, inSubShapeIDCreator2.GetID()))
@@ -61,7 +61,7 @@ public:
 
 	/// See: sCastShapeVsShapeLocalSpace.
 	/// The only difference is that the shape cast (inShapeCastWorld) is provided in world space.
-	/// Note: A shape cast contains the center of mass start of the shape, if you have the world transform of the shape you probably want to construct it using ShapeCast::sFromWorldTransform.
+	/// Note: A shape cast contains the center of mass start of the shape, if you have the world transform of the shape you probably want to construct it using ShapeCast::FromWorldTransform.
 	static inline void		sCastShapeVsShapeWorldSpace(const ShapeCast &inShapeCastWorld, const ShapeCastSettings &inShapeCastSettings, const Shape *inShape, Vec3Arg inScale, const ShapeFilter &inShapeFilter, Mat44Arg inCenterOfMassTransform2, const SubShapeIDCreator &inSubShapeIDCreator1, const SubShapeIDCreator &inSubShapeIDCreator2, CastShapeCollector &ioCollector)
 	{
 		ShapeCast local_shape_cast = inShapeCastWorld.PostTransformed(inCenterOfMassTransform2.InversedRotationTranslation());

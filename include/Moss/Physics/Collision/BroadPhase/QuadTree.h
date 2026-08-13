@@ -58,7 +58,7 @@ private:
 
 		inline explicit			NodeID(uint32 inID)					: mID(inID) { }
 
-		static const uint32		cIsNode = BodyID::cBroadPhaseBit;	///< If this bit is set it means that the ID refers to a node, otherwise it refers to a body
+		static const uint32		cIsNode = BodyID::cBroadPhaseBit;	// If this bit is set it means that the ID refers to a node, otherwise it refers to a body
 
 		uint32					mID;
 	};
@@ -189,9 +189,8 @@ public:
 	/// Initialization
 	void						Init(Allocator &inAllocator);
 
-	struct UpdateState
-	{
-		NodeID					mRootNodeID;						///< This will be the new root node id
+	struct UpdateState {
+		NodeID mRootNodeID;			// This will be the new root node id
 	};
 
 	/// Will throw away the previous frame's nodes so that we can start building a new tree in the background
@@ -208,7 +207,7 @@ public:
 	/// Temporary data structure to pass information between AddBodiesPrepare and AddBodiesFinalize/Abort
 	struct AddState
 	{
-		NodeID					mLeafID = NodeID::sInvalid();
+		NodeID					mLeafID = NodeID::Invalid();
 		AABox					mLeafBounds;
 	};
 
@@ -261,17 +260,17 @@ public:
 
 private:
 	/// Constants
-	static constexpr uint32		cInvalidNodeIndex = 0xffffffff;		///< Value used to indicate node index is invalid
-	static const AABox			cInvalidBounds;						///< Invalid bounding box using cLargeFloat
+	static constexpr uint32		cInvalidNodeIndex = 0xffffffff;		// Value used to indicate node index is invalid
+	static const AABox			cInvalidBounds;						// Invalid bounding box using cLargeFloat
 
 	/// We alternate between two trees in order to let collision queries complete in parallel to adding/removing objects to the tree
 	struct RootNode
 	{
 		/// Get the ID of the root node
-		inline NodeID			GetNodeID() const					{ return NodeID::sFromNodeIndex(mIndex); }
+		inline NodeID GetNodeID() const	{ return NodeID::FromNodeIndex(mIndex); }
 
 		/// Index of the root node of the tree (this is always a node, never a body id)
-		atomic<uint32>			mIndex { cInvalidNodeIndex };
+		atomic<uint32> mIndex { cInvalidNodeIndex };
 	};
 
 	/// Caches location of body inBodyID in the tracker, body can be found in mNodes[inNodeIdx].mChildNodeID[inChildIdx]

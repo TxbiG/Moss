@@ -428,7 +428,7 @@ public:
 	void			SetConstant(float inConstant)											{ mNormalAndConstant.SetW(inConstant); }
 
 	// Offset the plane (positive value means move it in the direction of the plane normal)
-	Plane			Offset(float inDistance) const											{ return Plane(mNormalAndConstant - Vec4(Vec3::sZero(), inDistance)); }
+	Plane			Offset(float inDistance) const											{ return Plane(mNormalAndConstant - Vec4(Vec3::Zero(), inDistance)); }
 
 	// Transform the plane by a matrix
 	inline Plane	GetTransformed(Mat44Arg inTransform) const
@@ -493,8 +493,7 @@ private:
 	Vec4			mNormalAndConstant;													// XYZ = normal, W = constant, plane: x . normal + constant = 0
 };
 
-class Triangle
-{
+class Triangle {
 public:
 	MOSS_OVERRIDE_NEW_DELETE
 
@@ -505,7 +504,7 @@ public:
 
 	// Get center of triangle
 	Vec3 GetCentroid() const {
-		return (Vec3::sLoadFloat3Unsafe(mV[0]) + Vec3::sLoadFloat3Unsafe(mV[1]) + Vec3::sLoadFloat3Unsafe(mV[2]))* (1.0f / 3.0f);
+		return (Vec3::LoadFloat3Unsafe(mV[0]) + Vec3::LoadFloat3Unsafe(mV[1]) + Vec3::LoadFloat3Unsafe(mV[2]))* (1.0f / 3.0f);
 	}
 
 	// Vertices
@@ -656,7 +655,7 @@ typedef struct CollideSettingsBase {
 	float						penetrationTolerance/* = DEFAULT_PENETRATION_TOLERANCE*/;
 
 	// When mActiveEdgeMode is CollideOnlyWithActive a movement direction can be provided. When hitting an inactive edge, the system will select the triangle normal as penetration depth only if it impedes the movement less than with the calculated penetration depth.
-	Vec3					activeEdgeMovementDirection/* = Vec3::sZero()*/;
+	Vec3					activeEdgeMovementDirection/* = Vec3::Zero()*/;
 } CollideSettingsBase;
 
 /* CollideShapeSettings*/
@@ -971,12 +970,12 @@ public:
 	// Virtual destructor
 	virtual								~CharacterBaseSettings() = default;
 	// Vector indicating the up direction of the character
-	Vec3								mUp = Vec3::sAxisY();
+	Vec3								mUp = Vec3::AxisY();
 
 	// Plane, defined in local space relative to the character. Every contact behind this plane can support the
 	// character, every contact in front of this plane is treated as only colliding with the player.
 	// Default: Accept any contact.
-	Plane								mSupportingVolume { Vec3::sAxisY(), -1.0e10f };
+	Plane								mSupportingVolume { Vec3::AxisY(), -1.0e10f };
 	// Maximum angle of slope that character can still walk on (radians).
 	float								mMaxSlopeAngle = DegreesToRadians(50.0f);
 	// Set to indicate that extra effort should be made to try to remove ghost contacts (collisions with internal edges of a mesh). This is more expensive but makes bodies move smoother over a mesh with convex edges.
@@ -1003,7 +1002,7 @@ public:
 	MOSS_OVERRIDE_NEW_DELETE
 
 	// ID to give to this character. This is used for deterministically sorting and as an identifier to represent the character in the contact removal callback.
-	CharacterID							mID = CharacterID::sNextCharacterID();
+	CharacterID							mID = CharacterID::NextCharacterID();
 
 	// Character mass (kg). Used to push down objects with gravity when the character is standing on top.
 	float								mMass = 70.0f;
@@ -1012,7 +1011,7 @@ public:
 	float								mMaxStrength = 100.0f;
 
 	// An extra offset applied to the shape in local space. This allows applying an extra offset to the shape in local space.
-	Vec3								mShapeOffset = Vec3::sZero();
+	Vec3								mShapeOffset = Vec3::Zero();
 
 	//@name Movement settings
 	EBackFaceMode						mBackFaceMode = EBackFaceMode::CollideWithBackFaces;	// When colliding with back faces, the character will not be able to move through back facing triangles. Use this if you have triangles that need to collide on both sides.
@@ -1274,7 +1273,7 @@ public:
 	void						SetSimShapeFilter(const SimShapeFilter*inShapeFilter)		{ mSimShapeFilter = inShapeFilter; }
 	const SimShapeFilter*		GetSimShapeFilter() const									{ return mSimShapeFilter; }
 
-	// Advanced use only: This function is similar to CollisionDispatch::sCollideShapeVsShape but only used to collide bodies during simulation.
+	// Advanced use only: This function is similar to CollisionDispatch::CollideShapeVsShape but only used to collide bodies during simulation.
 	// inBody1 The first body to collide.
 	// inBody2 The second body to collide.
 	// inCenterOfMassTransform1 The center of mass transform of the first body (note this will not be the actual world space position of the body, it will be made relative to some position so we can drop down to single precision).
@@ -2180,19 +2179,19 @@ public:
 	inline bool				GetAllowSleeping() const										{ return mAllowSleeping; }
 
 	// Get world space linear velocity of the center of mass
-	inline Vec3				GetLinearVelocity() const										{ MOSS_ASSERT(BodyAccess::sCheckRights(BodyAccess::sVelocityAccess(), BodyAccess::EAccess::Read)); return mLinearVelocity; }
+	inline Vec3				GetLinearVelocity() const										{ MOSS_ASSERT(BodyAccess::CheckRights(BodyAccess::VelocityAccess(), BodyAccess::EAccess::Read)); return mLinearVelocity; }
 
 	// Set world space linear velocity of the center of mass
-	void					SetLinearVelocity(Vec3Arg inLinearVelocity)						{ MOSS_ASSERT(BodyAccess::sCheckRights(BodyAccess::sVelocityAccess(), BodyAccess::EAccess::ReadWrite)); MOSS_ASSERT(inLinearVelocity.Length() <= mMaxLinearVelocity); mLinearVelocity = LockTranslation(inLinearVelocity); }
+	void					SetLinearVelocity(Vec3Arg inLinearVelocity)						{ MOSS_ASSERT(BodyAccess::CheckRights(BodyAccess::VelocityAccess(), BodyAccess::EAccess::ReadWrite)); MOSS_ASSERT(inLinearVelocity.Length() <= mMaxLinearVelocity); mLinearVelocity = LockTranslation(inLinearVelocity); }
 
 	// Set world space linear velocity of the center of mass, will make sure the value is clamped against the maximum linear velocity
 	void					SetLinearVelocityClamped(Vec3Arg inLinearVelocity)				{ mLinearVelocity = LockTranslation(inLinearVelocity); ClampLinearVelocity(); }
 
 	// Get world space angular velocity of the center of mass
-	inline Vec3				GetAngularVelocity() const										{ MOSS_ASSERT(BodyAccess::sCheckRights(BodyAccess::sVelocityAccess(), BodyAccess::EAccess::Read)); return mAngularVelocity; }
+	inline Vec3				GetAngularVelocity() const										{ MOSS_ASSERT(BodyAccess::CheckRights(BodyAccess::VelocityAccess(), BodyAccess::EAccess::Read)); return mAngularVelocity; }
 
 	// Set world space angular velocity of the center of mass
-	void					SetAngularVelocity(Vec3Arg inAngularVelocity)					{ MOSS_ASSERT(BodyAccess::sCheckRights(BodyAccess::sVelocityAccess(), BodyAccess::EAccess::ReadWrite)); MOSS_ASSERT(inAngularVelocity.Length() <= mMaxAngularVelocity); mAngularVelocity = LockAngular(inAngularVelocity); }
+	void					SetAngularVelocity(Vec3Arg inAngularVelocity)					{ MOSS_ASSERT(BodyAccess::CheckRights(BodyAccess::VelocityAccess(), BodyAccess::EAccess::ReadWrite)); MOSS_ASSERT(inAngularVelocity.Length() <= mMaxAngularVelocity); mAngularVelocity = LockAngular(inAngularVelocity); }
 
 	// Set world space angular velocity of the center of mass, will make sure the value is clamped against the maximum angular velocity
 	void					SetAngularVelocityClamped(Vec3Arg inAngularVelocity)			{ mAngularVelocity = LockAngular(inAngularVelocity); ClampAngularVelocity(); }
@@ -2273,10 +2272,10 @@ public:
 	MOSS_INLINE Vec3			GetPointVelocityCOM(Vec3Arg inPointRelativeToCOM) const			{ return mLinearVelocity + mAngularVelocity.Cross(inPointRelativeToCOM); }
 
 	// Get the total amount of force applied to the center of mass this time step (through Body::AddForce calls). Note that it will reset to zero after PhysicsSystem::Update.
-	MOSS_INLINE Vec3			GetAccumulatedForce() const										{ return Vec3::sLoadFloat3Unsafe(mForce); }
+	MOSS_INLINE Vec3			GetAccumulatedForce() const										{ return Vec3::LoadFloat3Unsafe(mForce); }
 
 	// Get the total amount of torque applied to the center of mass this time step (through Body::AddForce/Body::AddTorque calls). Note that it will reset to zero after PhysicsSystem::Update.
-	MOSS_INLINE Vec3			GetAccumulatedTorque() const									{ return Vec3::sLoadFloat3Unsafe(mTorque); }
+	MOSS_INLINE Vec3			GetAccumulatedTorque() const									{ return Vec3::LoadFloat3Unsafe(mTorque); }
 
 	// Reset the total accumulated force, note that this will be done automatically after every time step.
 	MOSS_INLINE void			ResetForce()													{ mForce = Float3(0, 0, 0); }
@@ -2287,35 +2286,32 @@ public:
 	// Reset the current velocity and accumulated force and torque.
 	MOSS_INLINE void			ResetMotion()
 	{
-		MOSS_ASSERT(BodyAccess::sCheckRights(BodyAccess::sVelocityAccess(), BodyAccess::EAccess::ReadWrite));
-		mLinearVelocity = mAngularVelocity = Vec3::sZero();
+		MOSS_ASSERT(BodyAccess::CheckRights(BodyAccess::VelocityAccess(), BodyAccess::EAccess::ReadWrite));
+		mLinearVelocity = mAngularVelocity = Vec3::Zero();
 		mForce = mTorque = Float3(0, 0, 0);
 	}
 
 	// Returns a vector where the linear components that are not allowed by mAllowedDOFs are set to 0 and the rest to 0xffffffff
-	MOSS_INLINE UVec4		GetLinearDOFsMask() const
-	{
+	MOSS_INLINE UVec4		GetLinearDOFsMask() const {
 		UVec4 mask(uint32(EAllowedDOFs::TranslationX), uint32(EAllowedDOFs::TranslationY), uint32(EAllowedDOFs::TranslationZ), 0);
-		return UVec4::sEquals(UVec4::sAnd(UVec4::sReplicate(uint32(mAllowedDOFs)), mask), mask);
+		return UVec4::Equals(UVec4::And(UVec4::Replicate(uint32(mAllowedDOFs)), mask), mask);
 	}
 
 	// Takes a translation vector inV and returns a vector where the components that are not allowed by mAllowedDOFs are set to 0
-	MOSS_INLINE Vec3			LockTranslation(Vec3Arg inV) const
-	{
-		return Vec3::sAnd(inV, Vec3(GetLinearDOFsMask().ReinterpretAsFloat()));
+	MOSS_INLINE Vec3			LockTranslation(Vec3Arg inV) const {
+		return Vec3::And(inV, Vec3(GetLinearDOFsMask().ReinterpretAsFloat()));
 	}
 
 	// Returns a vector where the angular components that are not allowed by mAllowedDOFs are set to 0 and the rest to 0xffffffff
 	MOSS_INLINE UVec4		GetAngularDOFsMask() const
 	{
 		UVec4 mask(uint32(EAllowedDOFs::RotationX), uint32(EAllowedDOFs::RotationY), uint32(EAllowedDOFs::RotationZ), 0);
-		return UVec4::sEquals(UVec4::sAnd(UVec4::sReplicate(uint32(mAllowedDOFs)), mask), mask);
+		return UVec4::Equals(UVec4::And(UVec4::Replicate(uint32(mAllowedDOFs)), mask), mask);
 	}
 
 	// Takes an angular velocity / torque vector inV and returns a vector where the components that are not allowed by mAllowedDOFs are set to 0
-	MOSS_INLINE Vec3			LockAngular(Vec3Arg inV) const
-	{
-		return Vec3::sAnd(inV, Vec3(GetAngularDOFsMask().ReinterpretAsFloat()));
+	MOSS_INLINE Vec3			LockAngular(Vec3Arg inV) const {
+		return Vec3::And(inV, Vec3(GetAngularDOFsMask().ReinterpretAsFloat()));
 	}
 
 	// Used only when this body is dynamic and colliding. Override for the number of solver velocity iterations to run, 0 means use the default in PhysicsSettings::mNumVelocitySteps. The number of iterations to use is the max of all contacts and constraints in the island.
@@ -2332,10 +2328,10 @@ public:
 
 	//@name Update linear and angular velocity (used during constraint solving)
 	//@{
-	inline void				AddLinearVelocityStep(Vec3Arg inLinearVelocityChange)			{ MOSS_DET_LOG("AddLinearVelocityStep: " << inLinearVelocityChange); MOSS_ASSERT(BodyAccess::sCheckRights(BodyAccess::sVelocityAccess(), BodyAccess::EAccess::ReadWrite)); mLinearVelocity = LockTranslation(mLinearVelocity + inLinearVelocityChange); MOSS_ASSERT(!mLinearVelocity.IsNaN()); }
-	inline void				SubLinearVelocityStep(Vec3Arg inLinearVelocityChange)			{ MOSS_DET_LOG("SubLinearVelocityStep: " << inLinearVelocityChange); MOSS_ASSERT(BodyAccess::sCheckRights(BodyAccess::sVelocityAccess(), BodyAccess::EAccess::ReadWrite)); mLinearVelocity = LockTranslation(mLinearVelocity - inLinearVelocityChange); MOSS_ASSERT(!mLinearVelocity.IsNaN()); }
-	inline void				AddAngularVelocityStep(Vec3Arg inAngularVelocityChange)			{ MOSS_DET_LOG("AddAngularVelocityStep: " << inAngularVelocityChange); MOSS_ASSERT(BodyAccess::sCheckRights(BodyAccess::sVelocityAccess(), BodyAccess::EAccess::ReadWrite)); mAngularVelocity += inAngularVelocityChange; MOSS_ASSERT(!mAngularVelocity.IsNaN()); }
-	inline void				SubAngularVelocityStep(Vec3Arg inAngularVelocityChange)			{ MOSS_DET_LOG("SubAngularVelocityStep: " << inAngularVelocityChange); MOSS_ASSERT(BodyAccess::sCheckRights(BodyAccess::sVelocityAccess(), BodyAccess::EAccess::ReadWrite)); mAngularVelocity -= inAngularVelocityChange; MOSS_ASSERT(!mAngularVelocity.IsNaN()); }
+	inline void				AddLinearVelocityStep(Vec3Arg inLinearVelocityChange)			{ MOSS_DET_LOG("AddLinearVelocityStep: " << inLinearVelocityChange); MOSS_ASSERT(BodyAccess::CheckRights(BodyAccess::VelocityAccess(), BodyAccess::EAccess::ReadWrite)); mLinearVelocity = LockTranslation(mLinearVelocity + inLinearVelocityChange); MOSS_ASSERT(!mLinearVelocity.IsNaN()); }
+	inline void				SubLinearVelocityStep(Vec3Arg inLinearVelocityChange)			{ MOSS_DET_LOG("SubLinearVelocityStep: " << inLinearVelocityChange); MOSS_ASSERT(BodyAccess::CheckRights(BodyAccess::VelocityAccess(), BodyAccess::EAccess::ReadWrite)); mLinearVelocity = LockTranslation(mLinearVelocity - inLinearVelocityChange); MOSS_ASSERT(!mLinearVelocity.IsNaN()); }
+	inline void				AddAngularVelocityStep(Vec3Arg inAngularVelocityChange)			{ MOSS_DET_LOG("AddAngularVelocityStep: " << inAngularVelocityChange); MOSS_ASSERT(BodyAccess::CheckRights(BodyAccess::VelocityAccess(), BodyAccess::EAccess::ReadWrite)); mAngularVelocity += inAngularVelocityChange; MOSS_ASSERT(!mAngularVelocity.IsNaN()); }
+	inline void				SubAngularVelocityStep(Vec3Arg inAngularVelocityChange)			{ MOSS_DET_LOG("SubAngularVelocityStep: " << inAngularVelocityChange); MOSS_ASSERT(BodyAccess::CheckRights(BodyAccess::VelocityAccess(), BodyAccess::EAccess::ReadWrite)); mAngularVelocity -= inAngularVelocityChange; MOSS_ASSERT(!mAngularVelocity.IsNaN()); }
 	//@}
 
 	// Apply the gyroscopic force (aka Dzhanibekov effect, see https://en.wikipedia.org/wiki/Tennis_racket_theorem)
@@ -2352,7 +2348,7 @@ public:
 	uint32					GetIndexInActiveBodiesInternal() const							{ return mIndexInActiveBodies; }
 
 #ifdef MOSS_DOUBLE_PRECISION
-	inline DVec3			GetSleepTestOffset() const										{ return DVec3::sLoadDouble3Unsafe(mSleepTestOffset); }
+	inline DVec3			GetSleepTestOffset() const										{ return DVec3::LoadDouble3Unsafe(mSleepTestOffset); }
 #endif // MOSS_DOUBLE_PRECISION
 
 	// Reset spheres to center around inPoints with radius 0
@@ -2378,8 +2374,8 @@ private:
 
 	// 1st cache line
 	// 16 byte aligned
-	Vec3					mLinearVelocity { Vec3::sZero() };								// World space linear velocity of the center of mass (m/s)
-	Vec3					mAngularVelocity { Vec3::sZero() };								// World space angular velocity (rad/s)
+	Vec3					mLinearVelocity { Vec3::Zero() };								// World space linear velocity of the center of mass (m/s)
+	Vec3					mAngularVelocity { Vec3::Zero() };								// World space angular velocity (rad/s)
 	Vec3					mInvInertiaDiagonal;											// Diagonal of inverse inertia matrix: D
 	Quat					mInertiaRotation;												// Rotation (R) that takes inverse inertia diagonal to local space: Ibody^-1 = R* D* R^-1
 
@@ -2674,7 +2670,7 @@ public:
 	void					SetRestitution(float inRestitution)								{ mRestitution = inRestitution; }
 
 	// Get world space linear velocity of the center of mass (unit: m/s)
-	inline Vec3				GetLinearVelocity() const										{ return !IsStatic()? mMotionProperties->GetLinearVelocity() : Vec3::sZero(); }
+	inline Vec3				GetLinearVelocity() const										{ return !IsStatic()? mMotionProperties->GetLinearVelocity() : Vec3::Zero(); }
 
 	// Set world space linear velocity of the center of mass (unit: m/s).
 	// If you want the body to wake up when it is sleeping, use BodyInterface::SetLinearVelocity instead.
@@ -2685,7 +2681,7 @@ public:
 	void					SetLinearVelocityClamped(Vec3Arg inLinearVelocity)				{ MOSS_ASSERT(!IsStatic()); mMotionProperties->SetLinearVelocityClamped(inLinearVelocity); }
 
 	// Get world space angular velocity of the center of mass (unit: rad/s)
-	inline Vec3				GetAngularVelocity() const										{ return !IsStatic()? mMotionProperties->GetAngularVelocity() : Vec3::sZero(); }
+	inline Vec3				GetAngularVelocity() const										{ return !IsStatic()? mMotionProperties->GetAngularVelocity() : Vec3::Zero(); }
 
 	// Set world space angular velocity of the center of mass (unit: rad/s).
 	// If you want the body to wake up when it is sleeping, use BodyInterface::SetAngularVelocity instead.
@@ -2696,14 +2692,14 @@ public:
 	void					SetAngularVelocityClamped(Vec3Arg inAngularVelocity)			{ MOSS_ASSERT(!IsStatic()); mMotionProperties->SetAngularVelocityClamped(inAngularVelocity); }
 
 	// Velocity of point inPoint (in center of mass space, e.g. on the surface of the body) of the body (unit: m/s)
-	inline Vec3				GetPointVelocityCOM(Vec3Arg inPointRelativeToCOM) const			{ return !IsStatic()? mMotionProperties->GetPointVelocityCOM(inPointRelativeToCOM) : Vec3::sZero(); }
+	inline Vec3				GetPointVelocityCOM(Vec3Arg inPointRelativeToCOM) const			{ return !IsStatic()? mMotionProperties->GetPointVelocityCOM(inPointRelativeToCOM) : Vec3::Zero(); }
 
 	// Velocity of point inPoint (in world space, e.g. on the surface of the body) of the body (unit: m/s)
-	inline Vec3				GetPointVelocity(RVec3Arg inPoint) const						{ MOSS_ASSERT(BodyAccess::sCheckRights(BodyAccess::sPositionAccess(), BodyAccess::EAccess::Read)); return GetPointVelocityCOM(Vec3(inPoint - mPosition)); }
+	inline Vec3				GetPointVelocity(RVec3Arg inPoint) const						{ MOSS_ASSERT(BodyAccess::CheckRights(BodyAccess::PositionAccess(), BodyAccess::EAccess::Read)); return GetPointVelocityCOM(Vec3(inPoint - mPosition)); }
 
 	// Add force (unit: N) at center of mass for the next time step, will be reset after the next call to PhysicsSystem::Update.
 	// If you want the body to wake up when it is sleeping, use BodyInterface::AddForce instead.
-	inline void				AddForce(Vec3Arg inForce)										{ MOSS_ASSERT(IsDynamic()); (Vec3::sLoadFloat3Unsafe(mMotionProperties->mForce) + inForce).StoreFloat3(&mMotionProperties->mForce); }
+	inline void				AddForce(Vec3Arg inForce)										{ MOSS_ASSERT(IsDynamic()); (Vec3::LoadFloat3Unsafe(mMotionProperties->mForce) + inForce).StoreFloat3(&mMotionProperties->mForce); }
 
 	// Add force (unit: N) at inPosition for the next time step, will be reset after the next call to PhysicsSystem::Update.
 	// If you want the body to wake up when it is sleeping, use BodyInterface::AddForce instead.
@@ -2711,7 +2707,7 @@ public:
 
 	// Add torque (unit: N m) for the next time step, will be reset after the next call to PhysicsSystem::Update.
 	// If you want the body to wake up when it is sleeping, use BodyInterface::AddTorque instead.
-	inline void				AddTorque(Vec3Arg inTorque)										{ MOSS_ASSERT(IsDynamic()); (Vec3::sLoadFloat3Unsafe(mMotionProperties->mTorque) + inTorque).StoreFloat3(&mMotionProperties->mTorque); }
+	inline void				AddTorque(Vec3Arg inTorque)										{ MOSS_ASSERT(IsDynamic()); (Vec3::LoadFloat3Unsafe(mMotionProperties->mTorque) + inTorque).StoreFloat3(&mMotionProperties->mTorque); }
 
 	// Get the total amount of force applied to the center of mass this time step (through AddForce calls). Note that it will reset to zero after PhysicsSystem::Update.
 	inline Vec3				GetAccumulatedForce() const										{ MOSS_ASSERT(IsDynamic()); return mMotionProperties->GetAccumulatedForce(); }
@@ -2792,16 +2788,16 @@ public:
 	inline const Shape*	GetShape() const												{ return mShape; }
 
 	// World space position of the body
-	inline RVec3			GetPosition() const												{ MOSS_ASSERT(BodyAccess::sCheckRights(BodyAccess::sPositionAccess(), BodyAccess::EAccess::Read)); return mPosition - mRotation* mShape->GetCenterOfMass(); }
+	inline RVec3			GetPosition() const												{ MOSS_ASSERT(BodyAccess::CheckRights(BodyAccess::PositionAccess(), BodyAccess::EAccess::Read)); return mPosition - mRotation* mShape->GetCenterOfMass(); }
 
 	// World space rotation of the body
-	inline Quat				GetRotation() const												{ MOSS_ASSERT(BodyAccess::sCheckRights(BodyAccess::sPositionAccess(), BodyAccess::EAccess::Read)); return mRotation; }
+	inline Quat				GetRotation() const												{ MOSS_ASSERT(BodyAccess::CheckRights(BodyAccess::PositionAccess(), BodyAccess::EAccess::Read)); return mRotation; }
 
 	// Calculates the transform of this body
 	inline RMat44			GetWorldTransform() const;
 
 	// Gets the world space position of this body's center of mass
-	inline RVec3			GetCenterOfMassPosition() const									{ MOSS_ASSERT(BodyAccess::sCheckRights(BodyAccess::sPositionAccess(), BodyAccess::EAccess::Read)); return mPosition; }
+	inline RVec3			GetCenterOfMassPosition() const									{ MOSS_ASSERT(BodyAccess::CheckRights(BodyAccess::PositionAccess(), BodyAccess::EAccess::Read)); return mPosition; }
 
 	// Calculates the transform for this body's center of mass
 	inline RMat44			GetCenterOfMassTransform() const;
@@ -2826,7 +2822,7 @@ public:
 	// to initialize the floating point unit state.
 	inline void	ValidateCachedBounds() const
 	{
-		AABox actual_body_bounds = mShape->GetWorldSpaceBounds(GetCenterOfMassTransform(), Vec3::sOne());
+		AABox actual_body_bounds = mShape->GetWorldSpaceBounds(GetCenterOfMassTransform(), Vec3::One());
 		MOSS_ASSERT(actual_body_bounds == mBounds, "Mismatch between cached bounding box and actual bounding box");
 	}
 #endif // MOSS_DEBUG
@@ -2847,7 +2843,7 @@ public:
 	inline Vec3				GetWorldSpaceSurfaceNormal(const SubShapeID& inSubShapeID, RVec3Arg inPosition) const;
 
 	// Get the transformed shape of this body, which can be used to do collision detection outside of a body lock
-	inline TransformedShape	GetTransformedShape() const										{ MOSS_ASSERT(BodyAccess::sCheckRights(BodyAccess::sPositionAccess(), BodyAccess::EAccess::Read)); return TransformedShape(mPosition, mRotation, mShape, mID); }
+	inline TransformedShape	GetTransformedShape() const										{ MOSS_ASSERT(BodyAccess::CheckRights(BodyAccess::PositionAccess(), BodyAccess::EAccess::Read)); return TransformedShape(mPosition, mRotation, mShape, mID); }
 
 	// Debug function to convert a body back to a body creation settings object to be able to save/recreate the body later
 	BodyCreationSettings	GetBodyCreationSettings() const;
@@ -2866,8 +2862,8 @@ public:
 	static inline bool		sFindCollidingPairsCanCollide(const Body& inBody1, const Body& inBody2);
 
 	// Update position using an Euler step (used during position integrate&  constraint solving)
-	inline void				AddPositionStep(Vec3Arg inLinearVelocityTimesDeltaTime)			{ MOSS_ASSERT(IsRigidBody()); MOSS_ASSERT(BodyAccess::sCheckRights(BodyAccess::sPositionAccess(), BodyAccess::EAccess::ReadWrite)); mPosition += mMotionProperties->LockTranslation(inLinearVelocityTimesDeltaTime); MOSS_ASSERT(!mPosition.IsNaN()); }
-	inline void				SubPositionStep(Vec3Arg inLinearVelocityTimesDeltaTime)			{ MOSS_ASSERT(IsRigidBody()); MOSS_ASSERT(BodyAccess::sCheckRights(BodyAccess::sPositionAccess(), BodyAccess::EAccess::ReadWrite)); mPosition -= mMotionProperties->LockTranslation(inLinearVelocityTimesDeltaTime); MOSS_ASSERT(!mPosition.IsNaN()); }
+	inline void				AddPositionStep(Vec3Arg inLinearVelocityTimesDeltaTime)			{ MOSS_ASSERT(IsRigidBody()); MOSS_ASSERT(BodyAccess::CheckRights(BodyAccess::PositionAccess(), BodyAccess::EAccess::ReadWrite)); mPosition += mMotionProperties->LockTranslation(inLinearVelocityTimesDeltaTime); MOSS_ASSERT(!mPosition.IsNaN()); }
+	inline void				SubPositionStep(Vec3Arg inLinearVelocityTimesDeltaTime)			{ MOSS_ASSERT(IsRigidBody()); MOSS_ASSERT(BodyAccess::CheckRights(BodyAccess::PositionAccess(), BodyAccess::EAccess::ReadWrite)); mPosition -= mMotionProperties->LockTranslation(inLinearVelocityTimesDeltaTime); MOSS_ASSERT(!mPosition.IsNaN()); }
 
 	// Update rotation using an Euler step (used during position integrate&  constraint solving)
 	inline void				AddRotationStep(Vec3Arg inAngularVelocityTimesDeltaTime);
@@ -3186,10 +3182,10 @@ protected:
 	EGroundState						mGroundState = EGroundState::InAir;
 	BodyID								mGroundBodyID;
 	SubShapeID							mGroundBodySubShapeID;
-	RVec3								mGroundPosition = RVec3::sZero();
-	Vec3								mGroundNormal = Vec3::sZero();
-	Vec3								mGroundVelocity = Vec3::sZero();
-	RefConst<PhysicsMaterial>			mGroundMaterial = PhysicsMaterial::sDefault;
+	RVec3								mGroundPosition = RVec3::Zero();
+	Vec3								mGroundNormal = Vec3::Zero();
+	Vec3								mGroundVelocity = Vec3::Zero();
+	RefConst<PhysicsMaterial>			mGroundMaterial = PhysicsMaterial::Default;
 	uint64								mGroundUserData = 0;
 };
 
@@ -3356,7 +3352,7 @@ public:
 	inline RVec3 GetCenterOfMassPosition() const							{ return mPosition + (mRotation* (mShapeOffset + mShape->GetCenterOfMass()) + mCharacterPadding* mUp); }
 
 	// Calculate the world transform of the character
-	RMat44 GetWorldTransform() const								{ return RMat44::sRotationTranslation(mRotation, mPosition); }
+	RMat44 GetWorldTransform() const								{ return RMat44::RotationTranslation(mRotation, mPosition); }
 
 	// Calculates the transform for this character's center of mass
 	RMat44 GetCenterOfMassTransform() const						{ return GetCenterOfMassTransform(mPosition, mRotation, mShape); }
@@ -3471,7 +3467,7 @@ public:
 		float	mWalkStairsMinStepForward { 0.02f };									// See WalkStairs inStepForward parameter. Note that the parameter only indicates a magnitude, direction is taken from current velocity.
 		float	mWalkStairsStepForwardTest { 0.15f };									// See WalkStairs inStepForwardTest parameter. Note that the parameter only indicates a magnitude, direction is taken from current velocity.
 		float	mWalkStairsCosAngleForwardContact { Cos(DegreesToRadians(75.0f)) };		// Cos(angle) where angle is the maximum angle between the ground normal in the horizontal plane and the character forward vector where we're willing to adjust the step forward test towards the contact normal.
-		Vec3	mWalkStairsStepDownExtra { Vec3::sZero() };								// See WalkStairs inStepDownExtra
+		Vec3	mWalkStairsStepDownExtra { Vec3::Zero() };								// See WalkStairs inStepDownExtra
 	};
 
 	// This function combines Update, StickToFloor and WalkStairs. This function serves as an example of how these functions could be combined.
@@ -3748,7 +3744,7 @@ private:
 
 	// This function returns the actual center of mass of the shape, not corrected for the character padding
 	inline RMat44 GetCenterOfMassTransform(RVec3Arg inPosition, QuatArg inRotation, const Shape*inShape) const {
-		return RMat44::sRotationTranslation(inRotation, inPosition).PreTranslated(mShapeOffset + inShape->GetCenterOfMass()).PostTranslated(mCharacterPadding* mUp);
+		return RMat44::RotationTranslation(inRotation, inPosition).PreTranslated(mShapeOffset + inShape->GetCenterOfMass()).PostTranslated(mCharacterPadding* mUp);
 	}
 
 	// This function returns the position of the inner rigid body
@@ -3786,16 +3782,16 @@ private:
 	float								mMaxStrength;
 
 	// An extra offset applied to the shape in local space. This allows applying an extra offset to the shape in local space.
-	Vec3								mShapeOffset = Vec3::sZero();
+	Vec3								mShapeOffset = Vec3::Zero();
 
 	// Current position (of the base, not the center of mass)
-	RVec3								mPosition = RVec3::sZero();
+	RVec3								mPosition = RVec3::Zero();
 
 	// Current rotation (of the base, not of the center of mass)
-	Quat								mRotation = Quat::sIdentity();
+	Quat								mRotation = Quat::Identity();
 
 	// Current linear velocity
-	Vec3								mLinearVelocity = Vec3::sZero();
+	Vec3								mLinearVelocity = Vec3::Zero();
 
 	// List of contacts that were active in the last frame
 	ContactList							mActiveContacts;
@@ -4816,10 +4812,10 @@ public:
 	// Restore body creation settings, its shape, materials and group filter. Pass in an empty map in ioShapeMap / ioMaterialMap / ioGroupFilterMap or reuse the same map while reading multiple shapes from the same stream in order to restore duplicates.
 	static BCSResult		sRestoreWithChildren(StreamIn& inStream, IDToShapeMap& ioShapeMap, IDToMaterialMap& ioMaterialMap, IDToGroupFilterMap& ioGroupFilterMap);
 
-	RVec3					mPosition = RVec3::sZero();										// Position of the body (not of the center of mass)
-	Quat					mRotation = Quat::sIdentity();									// Rotation of the body
-	Vec3					mLinearVelocity = Vec3::sZero();								// World space linear velocity of the center of mass (m/s)
-	Vec3					mAngularVelocity = Vec3::sZero();								// World space angular velocity (rad/s)
+	RVec3					mPosition = RVec3::Zero();										// Position of the body (not of the center of mass)
+	Quat					mRotation = Quat::Identity();									// Rotation of the body
+	Vec3					mLinearVelocity = Vec3::Zero();								// World space linear velocity of the center of mass (m/s)
+	Vec3					mAngularVelocity = Vec3::Zero();								// World space angular velocity (rad/s)
 
 	// User data value (can be used by application)
 	uint64					mUserData = 0;

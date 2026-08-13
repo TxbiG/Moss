@@ -24,7 +24,7 @@ public:
 	/// Equality operator
 	inline bool				operator == (const SubShapeIDPair &inRHS) const
 	{
-		return UVec4::sLoadInt4(reinterpret_cast<const uint32 *>(this)) == UVec4::sLoadInt4(reinterpret_cast<const uint32 *>(&inRHS));
+		return UVec4::LoadInt4(reinterpret_cast<const uint32 *>(this)) == UVec4::LoadInt4(reinterpret_cast<const uint32 *>(&inRHS));
 	}
 
 	/// Less than operator, used to consistently order contact points for a deterministic simulation

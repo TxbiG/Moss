@@ -304,8 +304,4 @@ void HandleHIDInput(RAWINPUT* raw) {
     }
 }
 
-
-
-
-
 #endif // MOSS_PLATFORM_WIN32_H

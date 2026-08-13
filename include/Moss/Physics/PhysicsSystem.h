@@ -139,8 +139,7 @@ struct PhysicsSettings {
 /// The main class for the physics system. It contains all rigid bodies and simulates them.
 ///
 /// The main simulation is performed by the Update() call on multiple threads (if the JobSystem is configured to use them). Please refer to the general architecture overview in the Docs folder for more information.
-class MOSS_EXPORT PhysicsSystem : public NonCopyable
-{
+class MOSS_EXPORT PhysicsSystem : public NonCopyable {
 public:
 	MOSS_OVERRIDE_NEW_DELETE
 
@@ -202,7 +201,7 @@ public:
 	void						SetSimShapeFilter(const SimShapeFilter *inShapeFilter)		{ mSimShapeFilter = inShapeFilter; }
 	const SimShapeFilter*		GetSimShapeFilter() const									{ return mSimShapeFilter; }
 
-	/// Advanced use only: This function is similar to CollisionDispatch::sCollideShapeVsShape but only used to collide bodies during simulation.
+	/// Advanced use only: This function is similar to CollisionDispatch::CollideShapeVsShape but only used to collide bodies during simulation.
 	/// inBody1 The first body to collide.
 	/// inBody2 The second body to collide.
 	/// inCenterOfMassTransform1 The center of mass transform of the first body (note this will not be the actual world space position of the body, it will be made relative to some position so we can drop down to single precision).
@@ -227,15 +226,15 @@ public:
 	/// Access to the body interface. This interface allows to to create / remove bodies and to change their properties.
 	const BodyInterface &		GetBodyInterface() const									{ return mBodyInterfaceLocking; }
 	BodyInterface &				GetBodyInterface()											{ return mBodyInterfaceLocking; }
-	const BodyInterface &		GetBodyInterfaceNoLock() const								{ return mBodyInterfaceNoLock; } ///< Version that does not lock the bodies, use with great care!
-	BodyInterface &				GetBodyInterfaceNoLock()									{ return mBodyInterfaceNoLock; } ///< Version that does not lock the bodies, use with great care!
+	const BodyInterface &		GetBodyInterfaceNoLock() const								{ return mBodyInterfaceNoLock; } // Version that does not lock the bodies, use with great care!
+	BodyInterface &				GetBodyInterfaceNoLock()									{ return mBodyInterfaceNoLock; } // Version that does not lock the bodies, use with great care!
 
 	/// Access to the broadphase interface that allows coarse collision queries
 	const BroadPhaseQuery &		GetBroadPhaseQuery() const									{ return *mBroadPhase; }
 
 	/// Interface that allows fine collision queries against first the broad phase and then the narrow phase.
 	const NarrowPhaseQuery &	GetNarrowPhaseQuery() const									{ return mNarrowPhaseQueryLocking; }
-	const NarrowPhaseQuery &	GetNarrowPhaseQueryNoLock() const							{ return mNarrowPhaseQueryNoLock; } ///< Version that does not lock the bodies, use with great care!
+	const NarrowPhaseQuery &	GetNarrowPhaseQueryNoLock() const							{ return mNarrowPhaseQueryNoLock; } // Version that does not lock the bodies, use with great care!
 
 	/// Add constraint to the world
 	void						AddConstraint(Constraint *inConstraint)						{ mConstraintManager.Add(&inConstraint, 1); }
@@ -288,7 +287,7 @@ public:
 
 #ifndef MOSS_DEBUG_RENDERER
 	// Drawing properties
-	static bool					sDrawMotionQualityLinearCast;								///< Draw debug info for objects that perform continuous collision detection through the linear cast motion quality
+	static bool					sDrawMotionQualityLinearCast;								// Draw debug info for objects that perform continuous collision detection through the linear cast motion quality
 
 	/// Draw the state of the bodies (debugging purposes)
 	void						DrawBodies(const BodyManager::DrawSettings &inSettings, DebugRenderer *inRenderer, const BodyDrawFilter *inBodyFilter = nullptr) { mBodyManager.Draw(inSettings, mPhysicsSettings, inRenderer, inBodyFilter); }

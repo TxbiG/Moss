@@ -21,7 +21,7 @@ class MOSS_EXPORT CharacterID {
 public:
 	MOSS_OVERRIDE_NEW_DELETE
 
-	static constexpr uint32	cInvalidCharacterID = 0xffffffff;	///< The value for an invalid character ID
+	static constexpr uint32	cInvalidCharacterID = 0xffffffff;	// The value for an invalid character ID
 
 	/// Construct invalid character ID
 	CharacterID() : mID(cInvalidCharacterID) { }
@@ -73,11 +73,11 @@ class MOSS_EXPORT BodyID {
 public:
 	MOSS_OVERRIDE_NEW_DELETE
 
-	static constexpr uint32	cInvalidBodyID = 0xffffffff;	///< The value for an invalid body ID
-	static constexpr uint32	cBroadPhaseBit = 0x80000000;	///< This bit is used by the broadphase
-	static constexpr uint32	cMaxBodyIndex = 0x7fffff;		///< Maximum value for body index (also the maximum amount of bodies supported - 1)
-	static constexpr uint8	cMaxSequenceNumber = 0xff;		///< Maximum value for the sequence number
-	static constexpr uint	cSequenceNumberShift = 23;		///< Number of bits to shift to get the sequence number
+	static constexpr uint32	cInvalidBodyID = 0xffffffff;	// The value for an invalid body ID
+	static constexpr uint32	cBroadPhaseBit = 0x80000000;	// This bit is used by the broadphase
+	static constexpr uint32	cMaxBodyIndex = 0x7fffff;		// Maximum value for body index (also the maximum amount of bodies supported - 1)
+	static constexpr uint8	cMaxSequenceNumber = 0xff;		// Maximum value for the sequence number
+	static constexpr uint	cSequenceNumberShift = 23;		// Number of bits to shift to get the sequence number
 
 	/// Construct invalid body ID
 	BodyID() : mID(cInvalidBodyID) {}
@@ -253,9 +253,9 @@ public:
 	/// Return code for ParallelUpdate
 	enum class EStatus
 	{
-		NoWork	= 1 << 0,				///< No work was done because other threads were still working on a batch that cannot run concurrently
-		DidWork	= 1 << 1,				///< Work was done to progress the update
-		Done	= 1 << 2,				///< All work is done
+		NoWork	= 1 << 0,				// No work was done because other threads were still working on a batch that cannot run concurrently
+		DidWork	= 1 << 1,				// Work was done to progress the update
+		Done	= 1 << 2,				// All work is done
 	};
 
 	/// Update the soft body, will process a batch of work. Not part of the public API.
@@ -274,9 +274,9 @@ private:
 										LeafShape() = default;
 										LeafShape(Mat44Arg inTransform, Vec3Arg inScale, const Shape *inShape) : mTransform(inTransform), mScale(inScale), mShape(inShape) { }
 
-		Mat44							mTransform;									///< Transform of the shape relative to the soft body
-		Vec3							mScale;										///< Scale of the shape
-		RefConst<Shape>					mShape;										///< Shape
+		Mat44							mTransform;									// Transform of the shape relative to the soft body
+		Vec3							mScale;										// Scale of the shape
+		RefConst<Shape>					mShape;										// Shape
 	};
 
 	// Collect information about the colliding bodies
@@ -288,37 +288,37 @@ private:
 			return mLinearVelocity + mAngularVelocity.Cross(inPointRelativeToCOM);
 		}
 
-		Mat44							mCenterOfMassTransform;						///< Transform of the body relative to the soft body
-		TArray<LeafShape>				mShapes;									///< Leaf shapes of the body we hit
-		BodyID							mBodyID;									///< Body ID of the body we hit
-		EMotionType						mMotionType;								///< Motion type of the body we hit
-		float							mInvMass;									///< Inverse mass of the body we hit
-		float							mFriction;									///< Combined friction of the two bodies
-		float							mRestitution;								///< Combined restitution of the two bodies
-		float							mSoftBodyInvMassScale;						///< Scale factor for the inverse mass of the soft body vertices
-		bool							mUpdateVelocities;							///< If the linear/angular velocity changed and the body needs to be updated
-		Mat44							mInvInertia;								///< Inverse inertia in local space to the soft body
-		Vec3							mLinearVelocity;							///< Linear velocity of the body in local space to the soft body
-		Vec3							mAngularVelocity;							///< Angular velocity of the body in local space to the soft body
-		Vec3							mOriginalLinearVelocity;					///< Linear velocity of the body in local space to the soft body at start
-		Vec3							mOriginalAngularVelocity;					///< Angular velocity of the body in local space to the soft body at start
+		Mat44							mCenterOfMassTransform;						// Transform of the body relative to the soft body
+		TArray<LeafShape>				mShapes;									// Leaf shapes of the body we hit
+		BodyID							mBodyID;									// Body ID of the body we hit
+		EMotionType						mMotionType;								// Motion type of the body we hit
+		float							mInvMass;									// Inverse mass of the body we hit
+		float							mFriction;									// Combined friction of the two bodies
+		float							mRestitution;								// Combined restitution of the two bodies
+		float							mSoftBodyInvMassScale;						// Scale factor for the inverse mass of the soft body vertices
+		bool							mUpdateVelocities;							// If the linear/angular velocity changed and the body needs to be updated
+		Mat44							mInvInertia;								// Inverse inertia in local space to the soft body
+		Vec3							mLinearVelocity;							// Linear velocity of the body in local space to the soft body
+		Vec3							mAngularVelocity;							// Angular velocity of the body in local space to the soft body
+		Vec3							mOriginalLinearVelocity;					// Linear velocity of the body in local space to the soft body at start
+		Vec3							mOriginalAngularVelocity;					// Angular velocity of the body in local space to the soft body at start
 	};
 
 	// Collect information about the colliding sensors
 	struct CollidingSensor
 	{
-		Mat44							mCenterOfMassTransform;						///< Transform of the body relative to the soft body
-		TArray<LeafShape>				mShapes;									///< Leaf shapes of the body we hit
-		BodyID							mBodyID;									///< Body ID of the body we hit
-		bool							mHasContact;								///< If the sensor collided with the soft body
+		Mat44							mCenterOfMassTransform;						// Transform of the body relative to the soft body
+		TArray<LeafShape>				mShapes;									// Leaf shapes of the body we hit
+		BodyID							mBodyID;									// Body ID of the body we hit
+		bool							mHasContact;								// If the sensor collided with the soft body
 	};
 
 	// Information about the state of all skinned vertices
 	struct SkinState
 	{
-		Vec3							mPreviousPosition = Vec3::sZero();			///< Previous position of the skinned vertex, used to interpolate between the previous and current position
-		Vec3							mPosition = Vec3::sNaN();					///< Current position of the skinned vertex
-		Vec3							mNormal = Vec3::sNaN();						///< Normal of the skinned vertex
+		Vec3							mPreviousPosition = Vec3::sZero();			// Previous position of the skinned vertex, used to interpolate between the previous and current position
+		Vec3							mPosition = Vec3::sNaN();					// Current position of the skinned vertex
+		Vec3							mNormal = Vec3::sNaN();						// Normal of the skinned vertex
 	};
 
 	/// Do a narrow phase check and determine the closest feature that we can collide with
@@ -380,24 +380,24 @@ private:
 	template <typename GetEndIndex, typename DrawConstraint>
 		inline void						DrawConstraints(ESoftBodyConstraintColor inConstraintColor, const GetEndIndex &inGetEndIndex, const DrawConstraint &inDrawConstraint, ColorArg inBaseColor) const;
 
-	RMat44								mSkinStateTransform = RMat44::sIdentity();	///< The matrix that transforms mSkinState to world space
+	RMat44								mSkinStateTransform = RMat44::sIdentity();	// The matrix that transforms mSkinState to world space
 #endif // MOSS_DEBUG_RENDERER
 
-	RefConst<SoftBodySharedSettings>	mSettings;									///< Configuration of the particles and constraints
-	TArray<Vertex>						mVertices;									///< Current state of all vertices in the simulation
-	TArray<CollidingShape>				mCollidingShapes;							///< List of colliding shapes retrieved during the last update
-	TArray<CollidingSensor>				mCollidingSensors;							///< List of colliding sensors retrieved during the last update
-	TArray<SkinState>					mSkinState;									///< List of skinned positions (1-on-1 with mVertices but only those that are used by the skinning constraints are filled in)
-	AABox								mLocalBounds;								///< Bounding box of all vertices
-	AABox								mLocalPredictedBounds;						///< Predicted bounding box for all vertices using extrapolation of velocity by last step delta time
-	uint32								mNumIterations;								///< Number of solver iterations
-	uint								mNumSensors;								///< Workaround for TSAN false positive: store mCollidingSensors.size() in a separate variable.
-	float								mPressure;									///< n * R * T, amount of substance * ideal gas constant * absolute temperature, see https://en.wikipedia.org/wiki/Pressure
-	float								mSkinnedMaxDistanceMultiplier = 1.0f;		///< Multiplier applied to Skinned::mMaxDistance to allow tightening or loosening of the skin constraints
-	bool								mUpdatePosition;							///< Update the position of the body while simulating (set to false for something that is attached to the static world)
-	atomic<bool>						mNeedContactCallback = false;				///< True if the soft body has collided with anything in the last update
-	bool								mEnableSkinConstraints = true;				///< If skin constraints are enabled
-	bool								mSkinStatePreviousPositionValid = false;	///< True if the skinning was updated in the last update so that the previous position of the skin state is valid
+	RefConst<SoftBodySharedSettings>	mSettings;									// Configuration of the particles and constraints
+	TArray<Vertex>						mVertices;									// Current state of all vertices in the simulation
+	TArray<CollidingShape>				mCollidingShapes;							// List of colliding shapes retrieved during the last update
+	TArray<CollidingSensor>				mCollidingSensors;							// List of colliding sensors retrieved during the last update
+	TArray<SkinState>					mSkinState;									// List of skinned positions (1-on-1 with mVertices but only those that are used by the skinning constraints are filled in)
+	AABox								mLocalBounds;								// Bounding box of all vertices
+	AABox								mLocalPredictedBounds;						// Predicted bounding box for all vertices using extrapolation of velocity by last step delta time
+	uint32								mNumIterations;								// Number of solver iterations
+	uint								mNumSensors;								// Workaround for TSAN false positive: store mCollidingSensors.size() in a separate variable.
+	float								mPressure;									// n * R * T, amount of substance * ideal gas constant * absolute temperature, see https://en.wikipedia.org/wiki/Pressure
+	float								mSkinnedMaxDistanceMultiplier = 1.0f;		// Multiplier applied to Skinned::mMaxDistance to allow tightening or loosening of the skin constraints
+	bool								mUpdatePosition;							// Update the position of the body while simulating (set to false for something that is attached to the static world)
+	atomic<bool>						mNeedContactCallback = false;				// True if the soft body has collided with anything in the last update
+	bool								mEnableSkinConstraints = true;				// If skin constraints are enabled
+	bool								mSkinStatePreviousPositionValid = false;	// True if the skinning was updated in the last update so that the previous position of the skin state is valid
 };
 
 class MOSS_EXPORT SoftBodyShape final : public Shape {

@@ -1,5 +1,5 @@
 
-#include <Moss/Platform/android/platform_android.h>
+#include "platform_android.h"
 
 static JNIEnv* moss_env = NULL;
 static jobject moss_activity = NULL;

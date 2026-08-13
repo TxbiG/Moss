@@ -75,10 +75,10 @@ protected:
 	/// Helper function to split triangles based on dimension and split value
 	bool						SplitInternal(const Range &inTriangles, uint inDimension, float inSplit, Range &outLeft, Range &outRight);
 
-	const VertexList &			mVertices;				///< Vertices of the indexed triangles
-	const IndexedTriangleList &	mTriangles;				///< Unsorted triangles
-	TArray<Float3>				mCentroids;				///< Unsorted centroids of triangles
-	TArray<uint>					mSortedTriangleIdx;		///< Indices to sort triangles
+	const VertexList &			mVertices;				// Vertices of the indexed triangles
+	const IndexedTriangleList &	mTriangles;				// Unsorted triangles
+	TArray<Float3>				mCentroids;				// Unsorted centroids of triangles
+	TArray<uint>					mSortedTriangleIdx;	// Indices to sort triangles
 };
 
 

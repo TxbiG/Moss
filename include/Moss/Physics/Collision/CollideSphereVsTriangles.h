@@ -13,8 +13,7 @@ MOSS_NAMESPACE_BEGIN
 class CollideShapeSettings;
 
 /// Collision detection helper that collides a sphere vs one or more triangles
-class MOSS_EXPORT CollideSphereVsTriangles
-{
+class MOSS_EXPORT CollideSphereVsTriangles {
 public:
 	/// Constructor
 	/// @param inShape1 The sphere to collide against triangles
@@ -35,16 +34,16 @@ public:
 	void							Collide(Vec3Arg inV0, Vec3Arg inV1, Vec3Arg inV2, uint8 inActiveEdges, const SubShapeID &inSubShapeID2);
 
 protected:
-	const CollideShapeSettings &	mCollideShapeSettings;					///< Settings for this collision operation
-	CollideShapeCollector &			mCollector;								///< The collector that will receive the results
-	const SphereShape *				mShape1;								///< The shape that we're colliding with
-	Vec3							mScale2;								///< The scale of the shape (in shape local space) of the shape we're colliding against
-	Mat44							mTransform2;							///< Transform of the shape we're colliding against
-	Vec3							mSphereCenterIn2;						///< The center of the sphere in the space of 2
-	SubShapeID						mSubShapeID1;							///< Sub shape ID of colliding shape
-	float							mScaleSign2;							///< Sign of the scale of object 2, -1 if object is inside out, 1 if not
-	float							mRadius;								///< Radius of the sphere
-	float							mRadiusPlusMaxSeparationSq;				///< (Radius + Max SeparationDistance)^2
+	const CollideShapeSettings&		mCollideShapeSettings;		// Settings for this collision operation
+	CollideShapeCollector&			mCollector;					// The collector that will receive the results
+	const SphereShape*				mShape1;					// The shape that we're colliding with
+	Vec3							mScale2;					// The scale of the shape (in shape local space) of the shape we're colliding against
+	Mat44							mTransform2;				// Transform of the shape we're colliding against
+	Vec3							mSphereCenterIn2;			// The center of the sphere in the space of 2
+	SubShapeID						mSubShapeID1;				// Sub shape ID of colliding shape
+	float							mScaleSign2;				// Sign of the scale of object 2, -1 if object is inside out, 1 if not
+	float							mRadius;					// Radius of the sphere
+	float							mRadiusPlusMaxSeparationSq;	// (Radius + Max SeparationDistance)^2
 };
 
 MOSS_NAMESPACE_END

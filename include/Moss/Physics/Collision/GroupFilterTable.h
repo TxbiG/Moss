@@ -32,8 +32,7 @@ MOSS_NAMESPACE_BEGIN
 /// * '.' is a bit we don't need to store because the table is symmetric, we take care that group 2 > group 1 by swapping sub group 1 and sub group 2 if needed.
 ///
 /// The total number of bits we need to store is (N * (N - 1)) / 2
-class MOSS_EXPORT GroupFilterTable final : public GroupFilter
-{
+class MOSS_EXPORT GroupFilterTable final : public GroupFilter {
 	MOSS_DECLARE_SERIALIZABLE_VIRTUAL(MOSS_EXPORT, GroupFilterTable)
 
 private:
@@ -123,8 +122,8 @@ protected:
 	virtual void			RestoreBinaryState(StreamIn &inStream) override;
 
 private:
-	uint					mNumSubGroups;									///< The number of subgroups that this group filter supports
-	TArray<uint8>			mTable;											///< The table of bits that indicates which pairs collide
+	uint			mNumSubGroups;		// The number of subgroups that this group filter supports
+	TArray<uint8>	mTable;				// The table of bits that indicates which pairs collide
 };
 
 MOSS_NAMESPACE_END

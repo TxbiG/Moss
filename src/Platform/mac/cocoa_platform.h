@@ -16,7 +16,6 @@
 
 #include <unistd.h>
 #include <dlfcn.h>
-#include <sys/sysinfo.h>
 #include <sys/types.h>
 #include <sys/param.h>
 #include <sys/sysctl.h>
@@ -30,7 +29,7 @@ typedef void* id;
 typedef void NSWindow;
 #endif
 
-// TODO: Add modifier key detection
+// Modifier key scancode mapping is handled in input.mm.
 
 struct Moss_Window {
     id              object;

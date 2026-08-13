@@ -13,33 +13,34 @@
 #pragma comment(lib, "Dxva2.lib")
 #pragma comment(lib, "Shcore.lib")
 
-//TODO: void Moss_GetMonitorPos(Monitor, xpos, ypos), Moss_GetMonitorWorkarea(monitor, xpos, ypos);
 
 struct Moss_Monitor {
     DISPLAY_DEVICEA displayDevice;  // DISPLAY_DEVICE info
-    HMONITOR handle;              // Monitor handle
+    HMONITOR handle;                // Monitor handle
     MONITORINFOEXA monitorInfo;     // Monitor rectangle, flags, device name
-};
-
-/*
-typedef struct _monitorWin32
-{
-    HMONITOR            handle;
-    // This size matches the static size of DISPLAY_DEVICE.DeviceName
+    /*
     WCHAR               adapterName[32];
     WCHAR               displayName[32];
     char                publicAdapterName[32];
     char                publicDisplayName[32];
     bool            modesPruned;
     bool            modeChanged;
-} _monitorWin32;
-*/
+    */
+};
 
 static Moss_Monitor primaryMonitor = { 0 };
 static Moss_Monitor secondaryMonitor = { 0 };
 
 static Moss_MonitorCallback g_monitorCallback = nullptr;
 
+static bool Moss_MonitorCopyRect(const RECT& src, Moss_MonitorRect* out_rect) {
+    if (!out_rect) return false;
+    out_rect->x = src.left;
+    out_rect->y = src.top;
+    out_rect->width = src.right - src.left;
+    out_rect->height = src.bottom - src.top;
+    return true;
+}
 BOOL CALLBACK MonitorEnumProc(HMONITOR handle, HDC hdc, LPRECT rect, LPARAM data) {
     Moss_Monitor* monitors = (Moss_Monitor*)data;
 
@@ -155,7 +156,7 @@ const char* Moss_GetMonitorName(Moss_Monitor monitor) { return monitor.monitorIn
 
 Moss_GammaRamp* Moss_GetGammaRamp(Moss_Monitor monitor)
 {
-    Moss_GammaRamp* outRamp = malloc(sizeof(Moss_GammaRamp));
+    Moss_GammaRamp* outRamp = (Moss_GammaRamp*)malloc(sizeof(Moss_GammaRamp));
     if (!outRamp) return NULL;  // allocation failed
 
     HDC hdc = CreateDC(NULL, monitor.monitorInfo.szDevice, NULL, NULL);
@@ -183,8 +184,7 @@ Moss_GammaRamp* Moss_GetGammaRamp(Moss_Monitor monitor)
 }
 
 void Moss_SetGammaRamp(Moss_Monitor monitor, const Moss_GammaRamp* gammaRamp) {
-    if (!gammaRamp || gammaRamp->size != 256 ||
-        !gammaRamp->red || !gammaRamp->green || !gammaRamp->blue) {
+    if (!gammaRamp || gammaRamp->size != 256) {
         return; // Invalid input
     }
 
@@ -233,6 +233,56 @@ void Moss_SetGamma(Moss_Monitor monitor, float gamma)
     SetDeviceGammaRamp(hdc, gammaRamp);
 
     DeleteDC(hdc);
+}
+
+Moss_Monitor* Moss_MonitorGetPrimary() { return Moss_GetPrimaryMonitor(); }
+
+Moss_Monitor* Moss_MonitorGetSecondary() {
+    Moss_Monitor* monitor = Moss_GetSecondaryMonitor();
+    return monitor && monitor->handle ? monitor : nullptr;
+}
+
+void Moss_MonitorGetPhysicalSize(Moss_Monitor* monitor, int* width_mm, int* height_mm) {
+    if (!monitor) return;
+    Moss_GetMonitorPhysicalSize(*monitor, width_mm, height_mm);
+}
+
+void Moss_MonitorGetContentScale(Moss_Monitor* monitor, float* xscale, float* yscale) {
+    if (!monitor) return;
+    Moss_GetMonitorContentScale(*monitor, xscale, yscale);
+}
+
+void Moss_MonitorGetPosition(Moss_Monitor* monitor, int* x, int* y) {
+    if (!monitor) return;
+    Moss_GetMonitorPosition(*monitor, x, y);
+}
+
+bool Moss_MonitorGetRect(Moss_Monitor* monitor, Moss_MonitorRect* out_rect) {
+    if (!monitor) return false;
+    return Moss_MonitorCopyRect(monitor->monitorInfo.rcMonitor, out_rect);
+}
+
+bool Moss_MonitorGetWorkArea(Moss_Monitor* monitor, Moss_MonitorRect* out_rect) {
+    if (!monitor) return false;
+    return Moss_MonitorCopyRect(monitor->monitorInfo.rcWork, out_rect);
+}
+
+const char* Moss_MonitorGetName(Moss_Monitor* monitor) {
+    return monitor ? Moss_GetMonitorName(*monitor) : nullptr;
+}
+
+void Moss_MonitorSetGammaRamp(Moss_Monitor* monitor, const Moss_GammaRamp* gammaRamp) {
+    if (!monitor) return;
+    Moss_SetGammaRamp(*monitor, gammaRamp);
+}
+
+Moss_GammaRamp* Moss_MonitorGetGammaRamp(Moss_Monitor* monitor) {
+    return monitor ? Moss_GetGammaRamp(*monitor) : nullptr;
+}
+
+void Moss_MonitorSetGamma(Moss_Monitor* monitor, float gamma) {
+    if (!monitor) return;
+    Moss_SetGamma(*monitor, gamma);
 }
 
 static int CountVideoModes(const char* deviceName) {

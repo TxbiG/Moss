@@ -251,7 +251,7 @@ private:
 
 	// Gravity override
 	bool						mIsGravityOverridden = false;				// If the gravity is currently overridden
-	Vec3						mGravityOverride = Vec3::sZero();			// Gravity override value, replaces PhysicsSystem::GetGravity() when mIsGravityOverridden is true
+	Vec3						mGravityOverride = Vec3::Zero();			// Gravity override value, replaces PhysicsSystem::GetGravity() when mIsGravityOverridden is true
 
 	// Simulation information
 	Body*						mBody;										// Body of the vehicle
@@ -562,7 +562,7 @@ public:
 	// @param inObjectLayer Object layer to test collision with
 	// @param inUp World space up vector, used to avoid colliding with vertical walls.
 	// @param inMaxSlopeAngle Max angle (rad) that is considered for colliding wheels. This is to avoid colliding with vertical walls.
-	VehicleCollisionTesterRay(ObjectLayer inObjectLayer, Vec3Arg inUp = Vec3::sAxisY(), float inMaxSlopeAngle = DegreesToRadians(80.0f)) : VehicleCollisionTester(inObjectLayer), mUp(inUp), mCosMaxSlopeAngle(Cos(inMaxSlopeAngle)) { }
+	VehicleCollisionTesterRay(ObjectLayer inObjectLayer, Vec3Arg inUp = Vec3::AxisY(), float inMaxSlopeAngle = DegreesToRadians(80.0f)) : VehicleCollisionTester(inObjectLayer), mUp(inUp), mCosMaxSlopeAngle(Cos(inMaxSlopeAngle)) { }
 
 	// See: VehicleCollisionTester
 	virtual bool					Collide(PhysicsSystem& inPhysicsSystem, const VehicleConstraint& inVehicleConstraint, uint8 inWheelIndex, RVec3Arg inOrigin, Vec3Arg inDirection, const BodyID& inVehicleBodyID, Body*&outBody, SubShapeID& outSubShapeID, RVec3& outContactPosition, Vec3& outContactNormal, float& outSuspensionLength) const override;
@@ -583,7 +583,7 @@ public:
 	// @param inUp World space up vector, used to avoid colliding with vertical walls.
 	// @param inRadius Radius of sphere
 	// @param inMaxSlopeAngle Max angle (rad) that is considered for colliding wheels. This is to avoid colliding with vertical walls.
-									VehicleCollisionTesterCastSphere(ObjectLayer inObjectLayer, float inRadius, Vec3Arg inUp = Vec3::sAxisY(), float inMaxSlopeAngle = DegreesToRadians(80.0f)) : VehicleCollisionTester(inObjectLayer), mRadius(inRadius), mUp(inUp), mCosMaxSlopeAngle(Cos(inMaxSlopeAngle)) { }
+									VehicleCollisionTesterCastSphere(ObjectLayer inObjectLayer, float inRadius, Vec3Arg inUp = Vec3::AxisY(), float inMaxSlopeAngle = DegreesToRadians(80.0f)) : VehicleCollisionTester(inObjectLayer), mRadius(inRadius), mUp(inUp), mCosMaxSlopeAngle(Cos(inMaxSlopeAngle)) { }
 
 	// See: VehicleCollisionTester
 	virtual bool					Collide(PhysicsSystem& inPhysicsSystem, const VehicleConstraint& inVehicleConstraint, uint8 inWheelIndex, RVec3Arg inOrigin, Vec3Arg inDirection, const BodyID& inVehicleBodyID, Body*&outBody, SubShapeID& outSubShapeID, RVec3& outContactPosition, Vec3& outContactNormal, float& outSuspensionLength) const override;
@@ -1024,7 +1024,7 @@ protected:
 	float mLeanSpringIntegrationCoefficientDecay;
 	float mLeanSmoothingFactor;
 
-	Vec3 mTargetLean = Vec3::sZero();			// Run-time calculated target lean vector
+	Vec3 mTargetLean = Vec3::Zero();			// Run-time calculated target lean vector
 	float mLeanSpringIntegratedDeltaAngle = 0.0f;	// Integrated error for the lean spring
 	float mAppliedImpulse = 0.0f;					// Run-time total angular impulse applied to turn the cycle towards the target lean angle
 };

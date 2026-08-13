@@ -10,30 +10,27 @@ class Body;
 class TransformedShape;
 
 /// Traits to use for CastRay
-class CollisionCollectorTraitsCastRay
-{
+class CollisionCollectorTraitsCastRay {
 public:
 	/// For rays the early out fraction is the fraction along the line to order hits.
-	static constexpr float InitialEarlyOutFraction = 1.0f + FLT_EPSILON;	///< Furthest hit: Fraction is 1 + epsilon
-	static constexpr float ShouldEarlyOutFraction = 0.0f;					///< Closest hit: Fraction is 0
+	static constexpr float InitialEarlyOutFraction = 1.0f + FLT_EPSILON;	// Furthest hit: Fraction is 1 + epsilon
+	static constexpr float ShouldEarlyOutFraction = 0.0f;					// Closest hit: Fraction is 0
 };
 
 /// Traits to use for CastShape
-class CollisionCollectorTraitsCastShape
-{
+class CollisionCollectorTraitsCastShape {
 public:
 	/// For rays the early out fraction is the fraction along the line to order hits.
-	static constexpr float InitialEarlyOutFraction = 1.0f + FLT_EPSILON;	///< Furthest hit: Fraction is 1 + epsilon
-	static constexpr float ShouldEarlyOutFraction = -FLT_MAX;				///< Deepest hit: Penetration is infinite
+	static constexpr float InitialEarlyOutFraction = 1.0f + FLT_EPSILON;	// Furthest hit: Fraction is 1 + epsilon
+	static constexpr float ShouldEarlyOutFraction = -FLT_MAX;				// Deepest hit: Penetration is infinite
 };
 
 /// Traits to use for CollideShape
-class CollisionCollectorTraitsCollideShape
-{
+class CollisionCollectorTraitsCollideShape {
 public:
 	/// For shape collisions we use -penetration depth to order hits.
-	static constexpr float InitialEarlyOutFraction = FLT_MAX;				///< Most shallow hit: Separation is infinite
-	static constexpr float ShouldEarlyOutFraction = -FLT_MAX;				///< Deepest hit: Penetration is infinite
+	static constexpr float InitialEarlyOutFraction = FLT_MAX;				// Most shallow hit: Separation is infinite
+	static constexpr float ShouldEarlyOutFraction = -FLT_MAX;				// Deepest hit: Penetration is infinite
 };
 
 /// Traits to use for CollidePoint
@@ -41,8 +38,7 @@ using CollisionCollectorTraitsCollidePoint = CollisionCollectorTraitsCollideShap
 
 /// Virtual interface that allows collecting multiple collision results
 template <class ResultTypeArg, class TraitsType>
-class CollisionCollector
-{
+class CollisionCollector {
 public:
 	/// Declare ResultType so that derived classes can use it
 	using ResultType = ResultTypeArg;

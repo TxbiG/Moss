@@ -1,4 +1,4 @@
-#include <Moss/Platform/Linux/wl_platform.h>
+#include "wl_platform.h"
 
 #include "wayland-client-protocol.h"
 #include "xdg-shell-client-protocol.h"
@@ -72,30 +72,12 @@ Moss_Window* Moss_CreateWindow(const char* title, int width, int height, Moss_Mo
 void Moss_PollEvents(void) {  if (wl.display) { wl_display_dispatch(wl.display); } }
 
 
-
-void Moss_SetFramebufferResizeCallback(Moss_FramebufferResizeCallback callback) {
-
-}
-
-void Moss_SetWindowSizeCallback(Moss_WindowSizeCallback callback) {
-
-}
-
-void Moss_SetWindowResizeCallback(Moss_WindowResizeCallback callback) {
-
-}
-
-void Moss_SetWindowPositionCallback(Moss_WindowPositionCallback callback) {
-
-}
-
-void Moss_SetWindowFocusCallback(Moss_WindowFocusCallback callback) {
-
-}
-
-void Moss_SetWindowContentScaleCallback(Moss_WindowContentScaleCallback callback) {
-
-}
+void Moss_SetFramebufferResizeCallback(Moss_FramebufferResizeCallback callback) { g_framebufferResizeCallback = callback; }
+void Moss_SetWindowSizeCallback(Moss_WindowSizeCallback callback) { g_windowSizeCallback = callback; }
+void Moss_SetWindowResizeCallback(Moss_WindowResizeCallback callback) { g_windowResizeCallback = callback; }   
+void Moss_SetWindowPositionCallback(Moss_WindowPositionCallback callback) { g_windowPositionCallback = callback; }
+void Moss_SetWindowFocusCallback(Moss_WindowFocusCallback callback) { g_windowFocusCallback = callback; }
+void Moss_SetWindowContentScaleCallback(Moss_WindowContentScaleCallback callback) { g_windowContentScaleCallback = callback; }
 
 #ifdef MOSS_USE_OPENGL
 void Moss_MakeContextCurrent(Moss_Window* window) {

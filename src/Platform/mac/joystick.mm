@@ -44,7 +44,7 @@ Gamepad MapUsageToGamepad(CFIndex usage, CFIndex page) {
         switch (usage) {
             case 1: return Gamepad::GAMEPAD_BUTTON_A;
             case 2: return Gamepad::GAMEPAD_BUTTON_B;
-            // ... up to your COUNT
+
             default: break;
         }
     } else if (page == kHIDPage_GenericDesktop) {

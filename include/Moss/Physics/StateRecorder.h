@@ -17,14 +17,13 @@ MOSS_SUPPRESS_WARNING_PUSH
 MOSS_GCC_SUPPRESS_WARNING("-Wshadow") // GCC complains about the 'Constraints' value conflicting with the 'Constraints' typedef
 
 /// A bit field that determines which aspects of the simulation to save
-enum class EStateRecorderState : uint8
-{
-	None				= 0,														///< Save nothing
-	Global				= 1,														///< Save global physics system state (delta time, gravity, etc.)
-	Bodies				= 2,														///< Save the state of bodies
-	Contacts			= 4,														///< Save the state of contacts
-	Constraints			= 8,														///< Save the state of constraints
-	All					= Global | Bodies | Contacts | Constraints					///< Save all state
+enum class EStateRecorderState : uint8 {
+	None				= 0,											// Save nothing
+	Global				= 1,											// save global physics system state (delta time, gravity, etc.)
+	Bodies				= 2,											// Save the state of bodies
+	Contacts			= 4,											// Save the state of contacts
+	Constraints			= 8,											// Save the state of constraints
+	All					= Global | Bodies | Contacts | Constraints		// Save all state
 };
 
 MOSS_SUPPRESS_WARNING_POP

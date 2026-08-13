@@ -17,8 +17,8 @@ public:
 	/// Function required by the CollisionCollector. A smaller fraction is considered to be a 'better hit'. For point queries there is no sensible return value.
 	inline float	GetEarlyOutFraction() const			{ return 0.0f; }
 
-	BodyID			mBodyID;							///< Body that was hit
-	SubShapeID		mSubShapeID2;						///< Sub shape ID of shape that we collided against
+	BodyID			mBodyID;		// Body that was hit
+	SubShapeID		mSubShapeID2;	// Sub shape ID of shape that we collided against
 };
 
 MOSS_NAMESPACE_END

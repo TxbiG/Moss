@@ -15,9 +15,7 @@ static Moss_MonitorCallback g_monitorCallback = NULL;
 
 // Helper: Load display if not opened yet
 static void ensure_display() {
-    if (!g_display)
-        g_display = XOpenDisplay(NULL);
-
+    if (!g_display) { g_display = XOpenDisplay(NULL); }
     g_root = DefaultRootWindow(g_display);
 }
 
@@ -34,7 +32,7 @@ static Moss_Monitor* create_monitor(RROutput output, XRROutputInfo* oinfo, XRRCr
     m->height_mm = oinfo->mm_height;
 
     // crude scaling approximation:
-    // Assume DPI ≈ 96 means scale = 1.0
+    // DPI = 96 means scale = 1.0
     float dpi_x = (oinfo->mm_width > 0)  ? (cinfo->width / (oinfo->mm_width / 25.4f)) : 96.0f;
     float dpi_y = (oinfo->mm_height > 0) ? (cinfo->height / (oinfo->mm_height / 25.4f)) : 96.0f;
 
@@ -144,3 +142,16 @@ void Moss_SetMonitorCallback(Moss_MonitorCallback callback) {
     // listen to RRScreenChangeNotify events
     XRRSelectInput(g_display, g_root, RRScreenChangeNotifyMask);
 }
+
+Moss_Monitor* Moss_MonitorGetPrimary() { return Moss_GetPrimaryMonitor(); }
+Moss_Monitor* Moss_MonitorGetSecondary() { return Moss_GetSecondaryMonitor(); }
+void Moss_MonitorGetPhysicalSize(Moss_Monitor* monitor, int* width_mm, int* height_mm) { Moss_GetMonitorPhysicalSize(monitor, width_mm, height_mm); }
+void Moss_MonitorGetContentScale(Moss_Monitor* monitor, float* xscale, float* yscale) { Moss_GetMonitorContentScale(monitor, xscale, yscale); }
+void Moss_MonitorGetPosition(Moss_Monitor* monitor, int* x, int* y) { Moss_GetMonitorPosition(monitor, x, y); }
+
+
+bool Moss_MonitorGetWorkArea(Moss_Monitor* monitor, Moss_MonitorRect* out_rect) { return Moss_MonitorGetRect(monitor, out_rect); }
+const char* Moss_MonitorGetName(Moss_Monitor* monitor) { return Moss_GetMonitorName(monitor); }
+void Moss_MonitorSetGammaRamp(Moss_Monitor* monitor, const Moss_GammaRamp* gammaRamp) { Moss_SetGammaRamp(monitor, gammaRamp); }
+Moss_GammaRamp* Moss_MonitorGetGammaRamp(Moss_Monitor* monitor) { return Moss_GetGammaRamp(monitor); }
+void Moss_MonitorSetGamma(Moss_Monitor* monitor, float gamma) { Moss_SetGamma(monitor, gamma); }

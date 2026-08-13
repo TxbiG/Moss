@@ -3,14 +3,18 @@
 
 // TODO: Add Support for Xbox and Playstation (4 & 5) Controllers
 
-#include <Moss/Platform/platform_intern.h>
+#include "../platform_intern.h"
 
 
 // Inputs
 #include <linux/input.h>
 #include <fcntl.h>
+#include <stdint.h>
+#include <stdlib.h>
 #include <unistd.h>
 #include <stdio.h>
+#include <string.h>
+
 
 #include <dlfcn.h>
 #include <sys/sysinfo.h>

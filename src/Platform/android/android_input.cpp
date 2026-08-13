@@ -1,5 +1,4 @@
-
-#include <Moss/Platform/android/platform_android.h>
+#include "platform_android.h"
 #include <android/looper.h>
 #include <android/input.h>
 #include <android/sensor.h>

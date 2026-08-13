@@ -16,8 +16,7 @@ class CollideShapeResult;
 using ContactPoints = TStaticArray<Vec3, 64>;
 
 /// Manifold class, describes the contact surface between two bodies
-class ContactManifold
-{
+class ContactManifold {
 public:
 	/// Swaps shape 1 and 2
 	ContactManifold			SwapShapes() const					{ return { mBaseOffset, -mWorldSpaceNormal, mPenetrationDepth, mSubShapeID2, mSubShapeID1, mRelativeContactPointsOn2, mRelativeContactPointsOn1 }; }
@@ -26,47 +25,43 @@ public:
 	inline RVec3			GetWorldSpaceContactPointOn1(uint inIndex) const { return mBaseOffset + mRelativeContactPointsOn1[inIndex]; }
 	inline RVec3			GetWorldSpaceContactPointOn2(uint inIndex) const { return mBaseOffset + mRelativeContactPointsOn2[inIndex]; }
 
-	RVec3					mBaseOffset;						///< Offset to which all the contact points are relative
-	Vec3					mWorldSpaceNormal;					///< Normal for this manifold, direction along which to move body 2 out of collision along the shortest path
-	float					mPenetrationDepth;					///< Penetration depth (move shape 2 by this distance to resolve the collision). If this value is negative, this is a speculative contact point and may not actually result in a velocity change as during solving the bodies may not actually collide.
-	SubShapeID				mSubShapeID1;						///< Sub shapes that formed this manifold (note that when multiple manifolds are combined because they're coplanar, we lose some information here because we only keep track of one sub shape pair that we encounter, see description at Body::SetUseManifoldReduction)
+	RVec3					mBaseOffset;						// Offset to which all the contact points are relative
+	Vec3					mWorldSpaceNormal;					// Normal for this manifold, direction along which to move body 2 out of collision along the shortest path
+	float					mPenetrationDepth;					// Penetration depth (move shape 2 by this distance to resolve the collision). If this value is negative, this is a speculative contact point and may not actually result in a velocity change as during solving the bodies may not actually collide.
+	SubShapeID				mSubShapeID1;						// Sub shapes that formed this manifold (note that when multiple manifolds are combined because they're coplanar, we lose some information here because we only keep track of one sub shape pair that we encounter, see description at Body::SetUseManifoldReduction)
 	SubShapeID				mSubShapeID2;
-	ContactPoints			mRelativeContactPointsOn1;			///< Contact points on the surface of shape 1 relative to mBaseOffset.
-	ContactPoints			mRelativeContactPointsOn2;			///< Contact points on the surface of shape 2 relative to mBaseOffset. If there's no penetration, this will be the same as mRelativeContactPointsOn1. If there is penetration they will be different.
+	ContactPoints			mRelativeContactPointsOn1;			// Contact points on the surface of shape 1 relative to mBaseOffset.
+	ContactPoints			mRelativeContactPointsOn2;			// Contact points on the surface of shape 2 relative to mBaseOffset. If there's no penetration, this will be the same as mRelativeContactPointsOn1. If there is penetration they will be different.
 };
 
 /// When a contact point is added or persisted, the callback gets a chance to override certain properties of the contact constraint.
 /// The values are filled in with their defaults by the system so the callback doesn't need to modify anything, but it can if it wants to.
-class ContactSettings
-{
-public:
-	float					mCombinedFriction;					///< Combined friction for the body pair (see: PhysicsSystem::SetCombineFriction)
-	float					mCombinedRestitution;				///< Combined restitution for the body pair (see: PhysicsSystem::SetCombineRestitution)
-	float					mInvMassScale1 = 1.0f;				///< Scale factor for the inverse mass of body 1 (0 = infinite mass, 1 = use original mass, 2 = body has half the mass). For the same contact pair, you should strive to keep the value the same over time.
-	float					mInvInertiaScale1 = 1.0f;			///< Scale factor for the inverse inertia of body 1 (usually same as mInvMassScale1)
-	float					mInvMassScale2 = 1.0f;				///< Scale factor for the inverse mass of body 2 (0 = infinite mass, 1 = use original mass, 2 = body has half the mass). For the same contact pair, you should strive to keep the value the same over time.
-	float					mInvInertiaScale2 = 1.0f;			///< Scale factor for the inverse inertia of body 2 (usually same as mInvMassScale2)
-	bool					mIsSensor;							///< If the contact should be treated as a sensor vs body contact (no collision response)
-	Vec3					mRelativeLinearSurfaceVelocity = Vec3::sZero(); ///< Relative linear surface velocity between the bodies (world space surface velocity of body 2 - world space surface velocity of body 1), can be used to create a conveyor belt effect
-	Vec3					mRelativeAngularSurfaceVelocity = Vec3::sZero(); ///< Relative angular surface velocity between the bodies (world space angular surface velocity of body 2 - world space angular surface velocity of body 1). Note that this angular velocity is relative to the center of mass of body 1, so if you want it relative to body 2's center of mass you need to add body 2 angular velocity x (body 1 world space center of mass - body 2 world space center of mass) to mRelativeLinearSurfaceVelocity.
+struct ContactSettings {
+	float	mCombinedFriction;								// Combined friction for the body pair (see: PhysicsSystem::SetCombineFriction)
+	float	mCombinedRestitution;							// Combined restitution for the body pair (see: PhysicsSystem::SetCombineRestitution)
+	float	mInvMassScale1 = 1.0f;							// Scale factor for the inverse mass of body 1 (0 = infinite mass, 1 = use original mass, 2 = body has half the mass). For the same contact pair, you should strive to keep the value the same over time.
+	float	mInvInertiaScale1 = 1.0f;						// Scale factor for the inverse inertia of body 1 (usually same as mInvMassScale1)
+	float	mInvMassScale2 = 1.0f;							// Scale factor for the inverse mass of body 2 (0 = infinite mass, 1 = use original mass, 2 = body has half the mass). For the same contact pair, you should strive to keep the value the same over time.
+	float	mInvInertiaScale2 = 1.0f;						// Scale factor for the inverse inertia of body 2 (usually same as mInvMassScale2)
+	bool	mIsSensor;										// If the contact should be treated as a sensor vs body contact (no collision response)
+	Vec3	mRelativeLinearSurfaceVelocity = Vec3::Zero(); 	// Relative linear surface velocity between the bodies (world space surface velocity of body 2 - world space surface velocity of body 1), can be used to create a conveyor belt effect
+	Vec3	mRelativeAngularSurfaceVelocity = Vec3::Zero(); // Relative angular surface velocity between the bodies (world space angular surface velocity of body 2 - world space angular surface velocity of body 1). Note that this angular velocity is relative to the center of mass of body 1, so if you want it relative to body 2's center of mass you need to add body 2 angular velocity x (body 1 world space center of mass - body 2 world space center of mass) to mRelativeLinearSurfaceVelocity.
 };
 
 /// Return value for the OnContactValidate callback. Determines if the contact is being processed or not.
 /// Results are ordered so that the strongest accept has the lowest number and the strongest reject the highest number (which allows for easy combining of results)
-enum class ValidateResult
-{
-	AcceptAllContactsForThisBodyPair,							///< Accept this and any further contact points for this body pair
-	AcceptContact,												///< Accept this contact only (and continue calling this callback for every contact manifold for the same body pair)
-	RejectContact,												///< Reject this contact only (but process any other contact manifolds for the same body pair)
-	RejectAllContactsForThisBodyPair							///< Rejects this and any further contact points for this body pair
+enum class ValidateResult {
+	AcceptAllContactsForThisBodyPair,							// Accept this and any further contact points for this body pair
+	AcceptContact,												// Accept this contact only (and continue calling this callback for every contact manifold for the same body pair)
+	RejectContact,												// Reject this contact only (but process any other contact manifolds for the same body pair)
+	RejectAllContactsForThisBodyPair							// Rejects this and any further contact points for this body pair
 };
 
 /// A listener class that receives collision contact events.
 /// It can be registered with the ContactConstraintManager (or PhysicsSystem).
 /// Note that contact listener callbacks are called from multiple threads at the same time when all bodies are locked, you're only allowed to read from the bodies and you can't change physics state.
 /// During OnContactRemoved you cannot access the bodies at all, see the comments at that function.
-class ContactListener
-{
+class ContactListener {
 public:
 	/// Ensure virtual destructor
 	virtual					~ContactListener() = default;

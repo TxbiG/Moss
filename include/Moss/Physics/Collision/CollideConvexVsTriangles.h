@@ -36,21 +36,21 @@ public:
 	void							Collide(Vec3Arg inV0, Vec3Arg inV1, Vec3Arg inV2, uint8 inActiveEdges, const SubShapeID &inSubShapeID2);
 
 protected:
-	const CollideShapeSettings &	mCollideShapeSettings;					///< Settings for this collision operation
-	CollideShapeCollector &			mCollector;								///< The collector that will receive the results
-	const ConvexShape *				mShape1;								///< The shape that we're colliding with
-	Vec3							mScale1;								///< The scale of the shape (in shape local space) of the shape we're colliding with
-	Vec3							mScale2;								///< The scale of the shape (in shape local space) of the shape we're colliding against
-	Mat44							mTransform1;							///< Transform of the shape we're colliding with
-	Mat44							mTransform2To1;							///< Transform that takes a point in space of the colliding shape to the shape we're colliding with
-	AABox							mBoundsOf1;								///< Bounds of the colliding shape in local space
-	AABox							mBoundsOf1InSpaceOf2;					///< Bounds of the colliding shape in space of shape we're colliding with
-	SubShapeID						mSubShapeID1;							///< Sub shape ID of colliding shape
-	float							mScaleSign2;							///< Sign of the scale of object 2, -1 if object is inside out, 1 if not
-	ConvexShape::SupportBuffer		mBufferExCvxRadius;						///< Buffer that holds the support function data excluding convex radius
-	ConvexShape::SupportBuffer		mBufferIncCvxRadius;					///< Buffer that holds the support function data including convex radius
-	const ConvexShape::Support *	mShape1ExCvxRadius = nullptr;			///< Actual support function object excluding convex radius
-	const ConvexShape::Support *	mShape1IncCvxRadius = nullptr;			///< Actual support function object including convex radius
+	const CollideShapeSettings &	mCollideShapeSettings;					// Settings for this collision operation
+	CollideShapeCollector &			mCollector;								// The collector that will receive the results
+	const ConvexShape *				mShape1;								// The shape that we're colliding with
+	Vec3							mScale1;								// The scale of the shape (in shape local space) of the shape we're colliding with
+	Vec3							mScale2;								// The scale of the shape (in shape local space) of the shape we're colliding against
+	Mat44							mTransform1;							// Transform of the shape we're colliding with
+	Mat44							mTransform2To1;							// Transform that takes a point in space of the colliding shape to the shape we're colliding with
+	AABox							mBoundsOf1;								// Bounds of the colliding shape in local space
+	AABox							mBoundsOf1InSpaceOf2;					// Bounds of the colliding shape in space of shape we're colliding with
+	SubShapeID						mSubShapeID1;							// Sub shape ID of colliding shape
+	float							mScaleSign2;							// Sign of the scale of object 2, -1 if object is inside out, 1 if not
+	ConvexShape::SupportBuffer		mBufferExCvxRadius;						// Buffer that holds the support function data excluding convex radius
+	ConvexShape::SupportBuffer		mBufferIncCvxRadius;					// Buffer that holds the support function data including convex radius
+	const ConvexShape::Support *	mShape1ExCvxRadius = nullptr;			// Actual support function object excluding convex radius
+	const ConvexShape::Support *	mShape1IncCvxRadius = nullptr;			// Actual support function object including convex radius
 };
 
 MOSS_NAMESPACE_END

@@ -41,14 +41,13 @@ using PhysicsMaterialRefC = RefConst<PhysicsMaterial>;
 using PhysicsMaterialList = TArray<PhysicsMaterialRefC>;
 
 /// Shapes are categorized in groups, each shape can return which group it belongs to through its Shape::GetType function.
-enum class EShapeType : uint8
-{
-	Convex,							///< Used by ConvexShape, all shapes that use the generic convex vs convex collision detection system (box, sphere, capsule, tapered capsule, cylinder, triangle)
-	Compound,						///< Used by CompoundShape
-	Decorated,						///< Used by DecoratedShape
-	Mesh,							///< Used by MeshShape
-	HeightField,					///< Used by HeightFieldShape
-	SoftBody,						///< Used by SoftBodyShape
+enum class EShapeType : uint8 {
+	Convex,							// Used by ConvexShape, all shapes that use the generic convex vs convex collision detection system (box, sphere, capsule, tapered capsule, cylinder, triangle)
+	Compound,						// Used by CompoundShape
+	Decorated,						// Used by DecoratedShape
+	Mesh,							// Used by MeshShape
+	HeightField,					// Used by HeightFieldShape
+	SoftBody,						// Used by SoftBodyShape
 
 	// User defined shapes
 	User1,
@@ -56,13 +55,12 @@ enum class EShapeType : uint8
 	User3,
 	User4,
 
-	Plane,							///< Used by PlaneShape
-	Empty,							///< Used by EmptyShape
+	Plane,							// Used by PlaneShape
+	Empty,							// Used by EmptyShape
 };
 
 /// This enumerates all shape types, each shape can return its type through Shape::GetSubType
-enum class EShapeSubType : uint8
-{
+enum class EShapeSubType : uint8 {
 	// Convex shapes
 	Sphere,
 	Box,
@@ -160,7 +158,7 @@ public:
 	Shape *							(*mConstruct)() = nullptr;
 
 	/// Color of the shape when drawing
-	Color							mColor = Color::sBlack;
+	Color							mColor = Color::Black;
 
 	/// Get an entry in the registry for a particular sub type
 	static inline ShapeFunctions &	sGet(EShapeSubType inSubType)										{ return sRegistry[int(inSubType)]; }
@@ -196,7 +194,7 @@ public:
 	virtual bool					MustBeStatic() const												{ return false; }
 
 	/// All shapes are centered around their center of mass. This function returns the center of mass position that needs to be applied to transform the shape to where it was created.
-	virtual Vec3					GetCenterOfMass() const												{ return Vec3::sZero(); }
+	virtual Vec3					GetCenterOfMass() const												{ return Vec3::Zero(); }
 
 	/// Get local bounding box including convex radius, this box is centered around the center of mass rather than the world transform
 	virtual AABox					GetLocalBounds() const = 0;
@@ -396,8 +394,8 @@ public:
 	{
 									Stats(size_t inSizeBytes, uint inNumTriangles) : mSizeBytes(inSizeBytes), mNumTriangles(inNumTriangles) { }
 
-		size_t						mSizeBytes;				///< Amount of memory used by this shape (size in bytes)
-		uint						mNumTriangles;			///< Number of triangles in this shape (when applicable)
+		size_t						mSizeBytes;				// Amount of memory used by this shape (size in bytes)
+		uint						mNumTriangles;			// Number of triangles in this shape (when applicable)
 	};
 
 	/// Get stats of this shape. Use for logging / data collection purposes only. Does not add values from child shapes, use GetStatsRecursive for this.
@@ -409,7 +407,7 @@ public:
 	/// @param ioVisitedShapes is used to track which shapes have already been visited, to avoid calculating the wrong memory size.
 	virtual Stats					GetStatsRecursive(VisitedShapes &ioVisitedShapes) const;
 
-	///< Volume of this shape (m^3). Note that for compound shapes the volume may be incorrect since child shapes can overlap which is not accounted for.
+	// Volume of this shape (m^3). Note that for compound shapes the volume may be incorrect since child shapes can overlap which is not accounted for.
 	virtual float					GetVolume() const = 0;
 
 	/// Test if inScale is a valid scale for this shape. Some shapes can only be scaled uniformly, compound shapes cannot handle shapes
@@ -720,13 +718,13 @@ public:
 	// See: ShapeSettings
 	virtual ShapeResult				Create() const override;
 
-	Plane							mPlane;														///< Plane that describes the shape. The negative half space is considered solid.
+	Plane							mPlane;														// Plane that describes the shape. The negative half space is considered solid.
 
-	RefConst<PhysicsMaterial>		mMaterial;													///< Surface material of the plane
+	RefConst<PhysicsMaterial>		mMaterial;													// Surface material of the plane
 
-	static constexpr float			cDefaultHalfExtent = 1000.0f;								///< Default half-extent of the plane (total size along 1 axis will be 2 * half-extent)
+	static constexpr float			cDefaultHalfExtent = 1000.0f;								// Default half-extent of the plane (total size along 1 axis will be 2 * half-extent)
 
-	float							mHalfExtent = cDefaultHalfExtent;							///< The bounding box of this plane will run from [-half_extent, half_extent]. Keep this as low as possible for better broad phase performance.
+	float							mHalfExtent = cDefaultHalfExtent;							// The bounding box of this plane will run from [-half_extent, half_extent]. Keep this as low as possible for better broad phase performance.
 };
 
 /// A plane shape. The negative half space is considered solid. Planes cannot be dynamic objects, only static or kinematic.
@@ -809,7 +807,7 @@ public:
 
 	/// Material of the shape
 	void							SetMaterial(const PhysicsMaterial *inMaterial)				{ mMaterial = inMaterial; }
-	const PhysicsMaterial *			GetMaterial() const											{ return mMaterial != nullptr? mMaterial : PhysicsMaterial::sDefault; }
+	const PhysicsMaterial *			GetMaterial() const											{ return mMaterial != nullptr? mMaterial : PhysicsMaterial::Default; }
 
 	// Register shape functions with the registry
 	static void						sRegister();
@@ -819,7 +817,7 @@ protected:
 	virtual void					RestoreBinaryState(StreamIn &inStream) override;
 
 private:
-	struct							PSGetTrianglesContext;										///< Context class for GetTrianglesStart/Next
+	struct							PSGetTrianglesContext;										// Context class for GetTrianglesStart/Next
 
 	// Get 4 vertices that form the plane
 	void							GetVertices(Vec3 *outVertices) const;
@@ -853,7 +851,7 @@ public:
 	// See: ShapeSettings
 	virtual ShapeResult				Create() const override;
 
-	Vec3							mOffset;												///< Offset to be applied to the center of mass of the child shape
+	Vec3							mOffset;												// Offset to be applied to the center of mass of the child shape
 };
 
 // Class that constructs a DecoratedShape
@@ -869,8 +867,8 @@ public:
 	explicit						DecoratedShapeSettings(const ShapeSettings *inShape)	: mInnerShape(inShape) { }
 	explicit						DecoratedShapeSettings(const Shape *inShape)			: mInnerShapePtr(inShape) { }
 
-	RefConst<ShapeSettings>			mInnerShape;											///< Sub shape (either this or mShapePtr needs to be filled up)
-	RefConst<Shape>					mInnerShapePtr;											///< Sub shape (either this or mShape needs to be filled up)
+	RefConst<ShapeSettings>			mInnerShape;											// Sub shape (either this or mShapePtr needs to be filled up)
+	RefConst<Shape>					mInnerShapePtr;											// Sub shape (either this or mShape needs to be filled up)
 };
 
 /// Base class for shapes that decorate another shape with extra functionality (e.g. scale, translation etc.)
@@ -1028,7 +1026,7 @@ private:
 	static void						sCastOffsetCenterOfMassVsShape(const ShapeCast &inShapeCast, const ShapeCastSettings &inShapeCastSettings, const Shape *inShape, Vec3Arg inScale, const ShapeFilter &inShapeFilter, Mat44Arg inCenterOfMassTransform2, const SubShapeIDCreator &inSubShapeIDCreator1, const SubShapeIDCreator &inSubShapeIDCreator2, CastShapeCollector &ioCollector);
 	static void						sCastShapeVsOffsetCenterOfMass(const ShapeCast &inShapeCast, const ShapeCastSettings &inShapeCastSettings, const Shape *inShape, Vec3Arg inScale, const ShapeFilter &inShapeFilter, Mat44Arg inCenterOfMassTransform2, const SubShapeIDCreator &inSubShapeIDCreator1, const SubShapeIDCreator &inSubShapeIDCreator2, CastShapeCollector &ioCollector);
 
-	Vec3							mOffset;												///< Offset of the center of mass
+	Vec3							mOffset;												// Offset of the center of mass
 };
 
 // Constants for HeightFieldShape, this was moved out of the HeightFieldShape because of a linker bug
@@ -1046,8 +1044,8 @@ namespace HeightFieldShapeConstants
 	constexpr uint					cLevelShift = 2 * cNumBitsXY;
 
 	/// When height samples are converted to 16 bit:
-	constexpr uint16				cNoCollisionValue16 = 0xffff;				///< This is the magic value for 'no collision'
-	constexpr uint16				cMaxHeightValue16 = 0xfffe;					///< This is the maximum allowed height value
+	constexpr uint16				cNoCollisionValue16 = 0xffff;				// This is the magic value for 'no collision'
+	constexpr uint16				cMaxHeightValue16 = 0xfffe;					// This is the maximum allowed height value
 };
 
 
@@ -1084,8 +1082,8 @@ public:
 
 	/// The height field is a surface defined by: mOffset + mScale * (x, mHeightSamples[y * mSampleCount + x], y).
 	/// where x and y are integers in the range x and y e [0, mSampleCount - 1].
-	Vec3							mOffset = Vec3::sZero();
-	Vec3							mScale = Vec3::sOne();
+	Vec3							mOffset = Vec3::Zero();
+	Vec3							mScale = Vec3::One();
 	uint32							mSampleCount = 0;
 
 	/// Artificial minimal value of mHeightSamples, used for compression and can be used to update the terrain after creating with lower height values. If there are any lower values in mHeightSamples, this value will be ignored.
@@ -1292,8 +1290,8 @@ protected:
 	virtual void					RestoreBinaryState(StreamIn &inStream) override;
 
 private:
-	class							DecodingContext;							///< Context class for walking through all nodes of a heightfield
-	struct							HSGetTrianglesContext;						///< Context class for GetTrianglesStart/Next
+	class							DecodingContext;							// Context class for walking through all nodes of a heightfield
+	struct							HSGetTrianglesContext;						// Context class for GetTrianglesStart/Next
 
 	/// Calculate commonly used values and store them in the shape
 	void							CacheValues();
@@ -1364,32 +1362,32 @@ private:
 
 	/// The height field is a surface defined by: mOffset + mScale * (x, mHeightSamples[y * mSampleCount + x], y).
 	/// where x and y are integers in the range x and y e [0, mSampleCount - 1].
-	Vec3							mOffset = Vec3::sZero();
-	Vec3							mScale = Vec3::sOne();
+	Vec3							mOffset = Vec3::Zero();
+	Vec3							mScale = Vec3::One();
 
 	/// Height data
-	uint32							mSampleCount = 0;							///< See HeightFieldShapeSettings::mSampleCount
-	uint32							mBlockSize = 2;								///< See HeightFieldShapeSettings::mBlockSize
-	uint32							mHeightSamplesSize = 0;						///< Size of mHeightSamples in bytes
-	uint32							mRangeBlocksSize = 0;						///< Size of mRangeBlocks in elements
-	uint32							mActiveEdgesSize = 0;						///< Size of mActiveEdges in bytes
-	uint8							mBitsPerSample = 8;							///< See HeightFieldShapeSettings::mBitsPerSample
-	uint8							mSampleMask = 0xff;							///< All bits set for a sample: (1 << mBitsPerSample) - 1, used to indicate that there's no collision
-	uint16							mMinSample = HeightFieldShapeConstants::cNoCollisionValue16; ///< Min and max value in mHeightSamples quantized to 16 bit, for calculating bounding box
+	uint32							mSampleCount = 0;							// See HeightFieldShapeSettings::mSampleCount
+	uint32							mBlockSize = 2;								// See HeightFieldShapeSettings::mBlockSize
+	uint32							mHeightSamplesSize = 0;						// Size of mHeightSamples in bytes
+	uint32							mRangeBlocksSize = 0;						// Size of mRangeBlocks in elements
+	uint32							mActiveEdgesSize = 0;						// Size of mActiveEdges in bytes
+	uint8							mBitsPerSample = 8;							// See HeightFieldShapeSettings::mBitsPerSample
+	uint8							mSampleMask = 0xff;							// All bits set for a sample: (1 << mBitsPerSample) - 1, used to indicate that there's no collision
+	uint16							mMinSample = HeightFieldShapeConstants::cNoCollisionValue16; // Min and max value in mHeightSamples quantized to 16 bit, for calculating bounding box
 	uint16							mMaxSample = HeightFieldShapeConstants::cNoCollisionValue16;
-	RangeBlock *					mRangeBlocks = nullptr;						///< Hierarchical grid of range data describing the height variations within 1 block. The grid for level <level> starts at offset sGridOffsets[<level>]
-	uint8 *							mHeightSamples = nullptr;					///< mBitsPerSample-bit height samples. Value [0, mMaxHeightValue] maps to highest detail grid in mRangeBlocks [mMin, mMax]. mNoCollisionValue is reserved to indicate no collision.
-	uint8 *							mActiveEdges = nullptr;						///< (mSampleCount - 1)^2 * 3-bit active edge flags.
+	RangeBlock *					mRangeBlocks = nullptr;						// Hierarchical grid of range data describing the height variations within 1 block. The grid for level <level> starts at offset sGridOffsets[<level>]
+	uint8 *							mHeightSamples = nullptr;					// mBitsPerSample-bit height samples. Value [0, mMaxHeightValue] maps to highest detail grid in mRangeBlocks [mMin, mMax]. mNoCollisionValue is reserved to indicate no collision.
+	uint8 *							mActiveEdges = nullptr;						// (mSampleCount - 1)^2 * 3-bit active edge flags.
 
 	/// Materials
-	PhysicsMaterialList				mMaterials;									///< The materials of square at (x, y) is: mMaterials[mMaterialIndices[x + y * (mSampleCount - 1)]]
-	TArray<uint8>					mMaterialIndices;							///< Compressed to the minimum amount of bits per material index (mSampleCount - 1) * (mSampleCount - 1) * mNumBitsPerMaterialIndex bits of data
-	uint32							mNumBitsPerMaterialIndex = 0;				///< Number of bits per material index
+	PhysicsMaterialList				mMaterials;									// The materials of square at (x, y) is: mMaterials[mMaterialIndices[x + y * (mSampleCount - 1)]]
+	TArray<uint8>					mMaterialIndices;							// Compressed to the minimum amount of bits per material index (mSampleCount - 1) * (mSampleCount - 1) * mNumBitsPerMaterialIndex bits of data
+	uint32							mNumBitsPerMaterialIndex = 0;				// Number of bits per material index
 
 #ifndef MOSS_DEBUG_RENDERER
 	/// Temporary rendering data
 	mutable TArray<DebugRenderer::GeometryRef> mGeometry;
-	mutable bool					mCachedUseMaterialColors = false;			///< This is used to regenerate the triangle batch if the drawing settings change
+	mutable bool					mCachedUseMaterialColors = false;			// This is used to regenerate the triangle batch if the drawing settings change
 #endif // MOSS_DEBUG_RENDERER
 };
 
@@ -1537,7 +1535,7 @@ private:
 	void							CalculateLocalBounds();
 
 	template <class Visitor>
-	MOSS_INLINE void					WalkSubShapes(Visitor &ioVisitor) const;					///< Walk the sub shapes and call Visitor::VisitShape for each sub shape encountered
+	MOSS_INLINE void					WalkSubShapes(Visitor &ioVisitor) const;					// Walk the sub shapes and call Visitor::VisitShape for each sub shape encountered
 
 	// Helper functions called by CollisionDispatch
 	static void						sCollideCompoundVsShape(const Shape *inShape1, const Shape *inShape2, Vec3Arg inScale1, Vec3Arg inScale2, Mat44Arg inCenterOfMassTransform1, Mat44Arg inCenterOfMassTransform2, const SubShapeIDCreator &inSubShapeIDCreator1, const SubShapeIDCreator &inSubShapeIDCreator2, const CollideShapeSettings &inCollideShapeSettings, CollideShapeCollector &ioCollector, const ShapeFilter &inShapeFilter);
@@ -1554,7 +1552,7 @@ private:
 		Vec4						mMaxZ;
 	};
 
-	TArray<Bounds>					mSubShapeBounds;											///< Bounding boxes of all sub shapes in SOA format (in blocks of 4 boxes), MinX 0..3, MinY 0..3, MinZ 0..3, MaxX 0..3, MaxY 0..3, MaxZ 0..3, MinX 4..7, MinY 4..7, ...
+	TArray<Bounds>					mSubShapeBounds;											// Bounding boxes of all sub shapes in SOA format (in blocks of 4 boxes), MinX 0..3, MinY 0..3, MinZ 0..3, MaxX 0..3, MaxY 0..3, MaxZ 0..3, MinX 4..7, MinY 4..7, ...
 };
 
 
@@ -1611,8 +1609,8 @@ public:
 
 	enum class EBuildQuality
 	{
-		FavorRuntimePerformance,																///< Favor runtime performance, takes more time to build the MeshShape but performs better
-		FavorBuildSpeed,																		///< Favor build speed, build the tree faster but the MeshShape will be slower
+		FavorRuntimePerformance,																// Favor runtime performance, takes more time to build the MeshShape but performs better
+		FavorBuildSpeed,																		// Favor build speed, build the tree faster but the MeshShape will be slower
 	};
 
 	/// Determines the quality of the tree building process.
@@ -1716,10 +1714,10 @@ protected:
 	virtual void					RestoreBinaryState(StreamIn &inStream) override;
 
 private:
-	struct							MSGetTrianglesContext;										///< Context class for GetTrianglesStart/Next
+	struct							MSGetTrianglesContext;										// Context class for GetTrianglesStart/Next
 
-	static constexpr int			NumTriangleBits = 3;										///< How many bits to reserve to encode the triangle index
-	static constexpr int			MaxTrianglesPerLeaf = 1 << NumTriangleBits;					///< Number of triangles that are stored max per leaf aabb node
+	static constexpr int			NumTriangleBits = 3;										// How many bits to reserve to encode the triangle index
+	static constexpr int			MaxTrianglesPerLeaf = 1 << NumTriangleBits;					// Number of triangles that are stored max per leaf aabb node
 
 	/// Find and flag active edges
 	static void						sFindActiveEdges(const MeshShapeSettings &inSettings, IndexedTriangleList &ioIndices);
@@ -1744,7 +1742,7 @@ private:
 	/// Materials assigned to the triangles. Each triangle specifies which material it uses through its mMaterialIndex
 	PhysicsMaterialList				mMaterials;
 
-	ByteBuffer						mTree;														///< Resulting packed data structure
+	ByteBuffer						mTree;														// Resulting packed data structure
 
 	/// 8 bit flags stored per triangle
 	enum ETriangleFlags
@@ -1760,9 +1758,9 @@ private:
 	};
 
 #ifndef MOSS_DEBUG_RENDERER
-	mutable DebugRenderer::GeometryRef	mGeometry;												///< Debug rendering data
-	mutable bool					mCachedTrianglesColoredPerGroup = false;					///< This is used to regenerate the triangle batch if the drawing settings change
-	mutable bool					mCachedUseMaterialColors = false;							///< This is used to regenerate the triangle batch if the drawing settings change
+	mutable DebugRenderer::GeometryRef	mGeometry;												// Debug rendering data
+	mutable bool					mCachedTrianglesColoredPerGroup = false;					// This is used to regenerate the triangle batch if the drawing settings change
+	mutable bool					mCachedUseMaterialColors = false;							// This is used to regenerate the triangle batch if the drawing settings change
 #endif // MOSS_DEBUG_RENDERER
 };
 
@@ -1781,8 +1779,8 @@ public:
 	void							SetDensity(float inDensity)									{ mDensity = inDensity; }
 
 	// Properties
-	RefConst<PhysicsMaterial>		mMaterial;													///< Material assigned to this shape
-	float							mDensity = 1000.0f;											///< Uniform density of the interior of the convex object (kg / m^3)
+	RefConst<PhysicsMaterial>		mMaterial;													// Material assigned to this shape
+	float							mDensity = 1000.0f;											// Uniform density of the interior of the convex object (kg / m^3)
 };
 
 /// Base class for all convex shapes. Defines a virtual interface.
@@ -1844,20 +1842,20 @@ public:
 	/// How the GetSupport function should behave
 	enum class ESupportMode
 	{
-		ExcludeConvexRadius,		///< Return the shape excluding the convex radius, Support::GetConvexRadius will return the convex radius if there is one, but adding this radius may not result in the most accurate/efficient representation of shapes with sharp edges
-		IncludeConvexRadius,		///< Return the shape including the convex radius, Support::GetSupport includes the convex radius if there is one, Support::GetConvexRadius will return 0
-		Default,					///< Use both Support::GetSupport add Support::GetConvexRadius to get a support point that matches the original shape as accurately/efficiently as possible
+		ExcludeConvexRadius,		// Return the shape excluding the convex radius, Support::GetConvexRadius will return the convex radius if there is one, but adding this radius may not result in the most accurate/efficient representation of shapes with sharp edges
+		IncludeConvexRadius,		// Return the shape including the convex radius, Support::GetSupport includes the convex radius if there is one, Support::GetConvexRadius will return 0
+		Default,					// Use both Support::GetSupport add Support::GetConvexRadius to get a support point that matches the original shape as accurately/efficiently as possible
 	};
 
 	/// Returns an object that provides the GetSupport function for this shape.
 	/// inMode determines if this support function includes or excludes the convex radius.
 	/// of the values returned by the GetSupport function. This improves numerical accuracy of the results.
 	/// inScale scales this shape in local space.
-	virtual const Support *			GetSupportFunction(ESupportMode inMode, SupportBuffer &inBuffer, Vec3Arg inScale) const = 0;
+	virtual const Support*			GetSupportFunction(ESupportMode inMode, SupportBuffer &inBuffer, Vec3Arg inScale) const = 0;
 
 	/// Material of the shape
 	void							SetMaterial(const PhysicsMaterial *inMaterial)				{ mMaterial = inMaterial; }
-	const PhysicsMaterial *			GetMaterial() const											{ return mMaterial != nullptr? mMaterial : PhysicsMaterial::sDefault; }
+	const PhysicsMaterial*			GetMaterial() const											{ return mMaterial != nullptr? mMaterial : PhysicsMaterial::Default; }
 
 	/// Set density of the shape (kg / m^3)
 	void							SetDensity(float inDensity)									{ mDensity = inDensity; }
@@ -1897,8 +1895,8 @@ private:
 	static void						sCastConvexVsConvex(const ShapeCast &inShapeCast, const ShapeCastSettings &inShapeCastSettings, const Shape *inShape, Vec3Arg inScale, const ShapeFilter &inShapeFilter, Mat44Arg inCenterOfMassTransform2, const SubShapeIDCreator &inSubShapeIDCreator1, const SubShapeIDCreator &inSubShapeIDCreator2, CastShapeCollector &ioCollector);
 
 	// Properties
-	RefConst<PhysicsMaterial>		mMaterial;													///< Material assigned to this shape
-	float							mDensity = 1000.0f;											///< Uniform density of the interior of the convex object (kg / m^3)
+	RefConst<PhysicsMaterial>		mMaterial;													// Material assigned to this shape
+	float							mDensity = 1000.0f;											// Uniform density of the interior of the convex object (kg / m^3)
 };
 
 
@@ -1994,35 +1992,35 @@ private:
 	static constexpr int			cStackSize = 128;
 
 	template <class Visitor>
-	MOSS_INLINE void					WalkTree(Visitor &ioVisitor) const;						///< Walk the node tree calling the Visitor::VisitNodes for each node encountered and Visitor::VisitShape for each sub shape encountered
+	MOSS_INLINE void					WalkTree(Visitor &ioVisitor) const;						// Walk the node tree calling the Visitor::VisitNodes for each node encountered and Visitor::VisitShape for each sub shape encountered
 
 	/// Bits used in Node::mNodeProperties
 	enum : uint32
 	{
-		IS_SUBSHAPE					= 0x80000000,											///< If this bit is set, the other bits index in mSubShape, otherwise in mNodes
-		INVALID_NODE				= 0x7fffffff,											///< Signifies an invalid node
+		IS_SUBSHAPE					= 0x80000000,											// If this bit is set, the other bits index in mSubShape, otherwise in mNodes
+		INVALID_NODE				= 0x7fffffff,											// Signifies an invalid node
 	};
 
 	/// Node structure
 	struct Node
 	{
-		void						SetChildBounds(uint inIndex, const AABox &inBounds);	///< Set bounding box for child inIndex to inBounds
-		void						SetChildInvalid(uint inIndex);							///< Mark the child inIndex as invalid and set its bounding box to invalid
+		void						SetChildBounds(uint inIndex, const AABox &inBounds);	// Set bounding box for child inIndex to inBounds
+		void						SetChildInvalid(uint inIndex);							// Mark the child inIndex as invalid and set its bounding box to invalid
 
-		HalfFloat					mBoundsMinX[4];											///< 4 child bounding boxes
+		HalfFloat					mBoundsMinX[4];											// 4 child bounding boxes
 		HalfFloat					mBoundsMinY[4];
 		HalfFloat					mBoundsMinZ[4];
 		HalfFloat					mBoundsMaxX[4];
 		HalfFloat					mBoundsMaxY[4];
 		HalfFloat					mBoundsMaxZ[4];
-		uint32						mNodeProperties[4];										///< 4 child node properties
+		uint32						mNodeProperties[4];										// 4 child node properties
 	};
 
 	static_assert(sizeof(Node) == 64, "Node should be 64 bytes");
 
 	using Nodes = TArray<Node>;
 
-	Nodes							mNodes;													///< Quad tree node structure
+	Nodes							mNodes;													// Quad tree node structure
 };
 
 // Class that constructs an EmptyShape
@@ -2036,7 +2034,7 @@ public:
 
 	ShapeResult				Create() const override;
 
-	Vec3					mCenterOfMass = Vec3::sZero();									///< Determines the center of mass for this shape
+	Vec3					mCenterOfMass = Vec3::Zero();									// Determines the center of mass for this shape
 };
 
 /// An empty shape that has no volume and collides with nothing.
@@ -2057,17 +2055,17 @@ public:
 
 	// See: Shape
 	Vec3					GetCenterOfMass() const override								{ return mCenterOfMass; }
-	AABox					GetLocalBounds() const override									{ return { Vec3::sZero(), Vec3::sZero() }; }
+	AABox					GetLocalBounds() const override									{ return { Vec3::Zero(), Vec3::Zero() }; }
 	uint					GetSubShapeIDBitsRecursive() const override						{ return 0; }
 	float					GetInnerRadius() const override									{ return 0.0f; }
 	MassProperties			GetMassProperties() const override;
-	const PhysicsMaterial *	GetMaterial([[maybe_unused]] const SubShapeID &inSubShapeID) const override { return PhysicsMaterial::sDefault; }
-	virtual Vec3			GetSurfaceNormal(const SubShapeID &inSubShapeID, Vec3Arg inLocalSurfacePosition) const override { return Vec3::sZero(); }
+	const PhysicsMaterial *	GetMaterial([[maybe_unused]] const SubShapeID &inSubShapeID) const override { return PhysicsMaterial::Default; }
+	virtual Vec3			GetSurfaceNormal(const SubShapeID &inSubShapeID, Vec3Arg inLocalSurfacePosition) const override { return Vec3::Zero(); }
 	virtual void			GetSubmergedVolume(Mat44Arg inCenterOfMassTransform, Vec3Arg inScale, const Plane &inSurface, float &outTotalVolume, float &outSubmergedVolume, Vec3 &outCenterOfBuoyancy
 #ifndef MOSS_DEBUG_RENDERER // Not using MOSS_IF_DEBUG_RENDERER for Doxygen
 		, RVec3Arg inBaseOffset
 #endif
-		) const override																	{ outTotalVolume = 0.0f; outSubmergedVolume = 0.0f; outCenterOfBuoyancy = Vec3::sZero(); }
+		) const override																	{ outTotalVolume = 0.0f; outSubmergedVolume = 0.0f; outCenterOfBuoyancy = Vec3::Zero(); }
 #ifndef MOSS_DEBUG_RENDERER
 	virtual void			Draw([[maybe_unused]] DebugRenderer *inRenderer, [[maybe_unused]] RMat44Arg inCenterOfMassTransform, [[maybe_unused]] Vec3Arg inScale, [[maybe_unused]] ColorArg inColor, [[maybe_unused]] bool inUseMaterialColors, [[maybe_unused]] bool inDrawWireframe) const override;
 #endif // MOSS_DEBUG_RENDERER
@@ -2085,7 +2083,7 @@ public:
 	static void				sRegister();
 
 private:
-	Vec3					mCenterOfMass = Vec3::sZero();
+	Vec3					mCenterOfMass = Vec3::Zero();
 };
 
 // Class that constructs a BoxShape
@@ -2104,7 +2102,7 @@ public:
 	// See: ShapeSettings
 	virtual ShapeResult		Create() const override;
 
-	Vec3					mHalfExtent = Vec3::sZero();								///< Half the size of the box (including convex radius)
+	Vec3					mHalfExtent = Vec3::Zero();								// Half the size of the box (including convex radius)
 	float					mConvexRadius = 0.0f;
 };
 
@@ -2187,7 +2185,7 @@ private:
 	// Class for GetSupportFunction
 	class					Box;
 
-	Vec3					mHalfExtent = Vec3::sZero();								///< Half the size of the box (including convex radius)
+	Vec3					mHalfExtent = Vec3::Zero();								// Half the size of the box (including convex radius)
 	float					mConvexRadius = 0.0f;
 };
 
@@ -2211,10 +2209,10 @@ public:
 	{
 		MOSS_DECLARE_SERIALIZABLE_NON_VIRTUAL(MOSS_EXPORT, SubShapeSettings)
 
-		RefConst<ShapeSettings>		mShape;													///< Sub shape (either this or mShapePtr needs to be filled up)
-		RefConst<Shape>				mShapePtr;												///< Sub shape (either this or mShape needs to be filled up)
-		Vec3						mPosition;												///< Position of the sub shape
-		Quat						mRotation;												///< Rotation of the sub shape
+		RefConst<ShapeSettings>		mShape;													// Sub shape (either this or mShapePtr needs to be filled up)
+		RefConst<Shape>				mShapePtr;												// Sub shape (either this or mShape needs to be filled up)
+		Vec3						mPosition;												// Position of the sub shape
+		Quat						mRotation;												// Rotation of the sub shape
 
 		/// User data value (can be used by the application for any purpose).
 		/// Note this value can be retrieved through GetSubShape(...).mUserData, not through GetSubShapeUserData(...) as that returns Shape::GetUserData() of the leaf shape.
@@ -2345,7 +2343,7 @@ public:
 			// Copy user data
 			mUserData = inSettings.mUserData;
 
-			SetTransform(inSettings.mPosition, inSettings.mRotation, Vec3::sZero() /* Center of mass not yet calculated */);
+			SetTransform(inSettings.mPosition, inSettings.mRotation, Vec3::Zero() /* Center of mass not yet calculated */);
 			return true;
 		}
 
@@ -2357,17 +2355,17 @@ public:
 		{
 			SetPositionCOM(inPosition - inCenterOfMass + inRotation * mShape->GetCenterOfMass());
 
-			mIsRotationIdentity = inRotation.IsClose(Quat::sIdentity()) || inRotation.IsClose(-Quat::sIdentity());
-			SetRotation(mIsRotationIdentity? Quat::sIdentity() : inRotation);
+			mIsRotationIdentity = inRotation.IsClose(Quat::Identity()) || inRotation.IsClose(-Quat::Identity());
+			SetRotation(mIsRotationIdentity? Quat::Identity() : inRotation);
 		}
 
 		/// Get the local transform for this shape given the scale of the child shape
-		/// The total transform of the child shape will be GetLocalTransformNoScale(inScale) * Mat44::sScaling(TransformScale(inScale))
+		/// The total transform of the child shape will be GetLocalTransformNoScale(inScale) * Mat44::Scaling(TransformScale(inScale))
 		/// @param inScale The scale of the child shape (in local space of this shape)
 		MOSS_INLINE Mat44			GetLocalTransformNoScale(Vec3Arg inScale) const
 		{
 			MOSS_ASSERT(IsValidScale(inScale));
-			return Mat44::sRotationTranslation(GetRotation(), inScale * GetPositionCOM());
+			return Mat44::RotationTranslation(GetRotation(), inScale * GetPositionCOM());
 		}
 
 		/// Test if inScale is valid for this sub shape
@@ -2399,7 +2397,7 @@ public:
 		/// Uncompress the center of mass position
 		MOSS_INLINE Vec3				GetPositionCOM() const
 		{
-			return Vec3::sLoadFloat3Unsafe(mPositionCOM);
+			return Vec3::LoadFloat3Unsafe(mPositionCOM);
 		}
 
 		/// Compress the rotation
@@ -2411,14 +2409,14 @@ public:
 		/// Uncompress the rotation
 		MOSS_INLINE Quat				GetRotation() const
 		{
-			return mIsRotationIdentity? Quat::sIdentity() : Quat::sLoadFloat3Unsafe(mRotation);
+			return mIsRotationIdentity? Quat::Identity() : Quat::LoadFloat3Unsafe(mRotation);
 		}
 
 		RefConst<Shape>				mShape;
-		Float3						mPositionCOM;											///< Note: Position of center of mass of sub shape!
-		Float3						mRotation;												///< Note: X, Y, Z of rotation quaternion - note we read 4 bytes beyond this so make sure there's something there
-		uint32						mUserData;												///< User data value (put here because it falls in padding bytes)
-		bool						mIsRotationIdentity;									///< If mRotation is close to identity (put here because it falls in padding bytes)
+		Float3						mPositionCOM;											// Note: Position of center of mass of sub shape!
+		Float3						mRotation;												// Note: X, Y, Z of rotation quaternion - note we read 4 bytes beyond this so make sure there's something there
+		uint32						mUserData;												// User data value (put here because it falls in padding bytes)
+		bool						mIsRotationIdentity;									// If mRotation is close to identity (put here because it falls in padding bytes)
 		// 3 padding bytes left
 	};
 
@@ -2520,10 +2518,10 @@ protected:
 			mInnerRadius = min(mInnerRadius, s.mShape->GetInnerRadius());
 	}
 
-	Vec3							mCenterOfMass { Vec3::sZero() };						///< Center of mass of the compound
-	AABox							mLocalBounds { Vec3::sZero(), Vec3::sZero() };
+	Vec3							mCenterOfMass { Vec3::Zero() };						// Center of mass of the compound
+	AABox							mLocalBounds { Vec3::Zero(), Vec3::Zero() };
 	SubShapes						mSubShapes;
-	float							mInnerRadius = FLT_MAX;									///< Smallest radius of GetInnerRadius() of child shapes
+	float							mInnerRadius = FLT_MAX;									// Smallest radius of GetInnerRadius() of child shapes
 
 private:
 	// Helper functions called by CollisionDispatch
@@ -2548,8 +2546,8 @@ public:
 	// See: ShapeSettings
 	virtual ShapeResult				Create() const override;
 
-	Vec3							mPosition;												///< Position of the sub shape
-	Quat							mRotation;												///< Rotation of the sub shape
+	Vec3							mPosition;												// Position of the sub shape
+	Quat							mRotation;												// Rotation of the sub shape
 };
 
 /// A rotated translated shape will rotate and translate a child shape.
@@ -2672,9 +2670,9 @@ private:
 	static void						sCastShapeVsRotatedTranslated(const ShapeCast &inShapeCast, const ShapeCastSettings &inShapeCastSettings, const Shape *inShape, Vec3Arg inScale, const ShapeFilter &inShapeFilter, Mat44Arg inCenterOfMassTransform2, const SubShapeIDCreator &inSubShapeIDCreator1, const SubShapeIDCreator &inSubShapeIDCreator2, CastShapeCollector &ioCollector);
 	static void						sCastRotatedTranslatedVsRotatedTranslated(const ShapeCast &inShapeCast, const ShapeCastSettings &inShapeCastSettings, const Shape *inShape, Vec3Arg inScale, const ShapeFilter &inShapeFilter, Mat44Arg inCenterOfMassTransform2, const SubShapeIDCreator &inSubShapeIDCreator1, const SubShapeIDCreator &inSubShapeIDCreator2, CastShapeCollector &ioCollector);
 
-	bool							mIsRotationIdentity;									///< If mRotation is close to identity (put here because it falls in padding bytes)
-	Vec3							mCenterOfMass;											///< Position of the center of mass
-	Quat							mRotation;												///< Rotation of the child shape
+	bool							mIsRotationIdentity;									// If mRotation is close to identity (put here because it falls in padding bytes)
+	Vec3							mCenterOfMass;											// Position of the center of mass
+	Quat							mRotation;												// Rotation of the child shape
 };
 
 // Helper functions to get properties of a scaling vector
@@ -2687,7 +2685,7 @@ namespace ScaleHelpers
 	static constexpr float	cScaleToleranceSq = 1.0e-8f;
 
 	/// Test if a scale is identity
-	inline bool				IsNotScaled(Vec3Arg inScale)									{ return inScale.IsClose(Vec3::sOne(), cScaleToleranceSq); }
+	inline bool				IsNotScaled(Vec3Arg inScale)									{ return inScale.IsClose(Vec3::One(), cScaleToleranceSq); }
 
 	/// Test if a scale is uniform
 	inline bool				IsUniformScale(Vec3Arg inScale)									{ return inScale.Swizzle<SWIZZLE_Y, SWIZZLE_Z, SWIZZLE_X>().IsClose(inScale, cScaleToleranceSq); }
@@ -2699,16 +2697,16 @@ namespace ScaleHelpers
 	inline float			ScaleConvexRadius(float inConvexRadius, Vec3Arg inScale)		{ return min(inConvexRadius * inScale.Abs().ReduceMin(), cDefaultConvexRadius); }
 
 	/// Test if a scale flips an object inside out (which requires flipping all normals and polygon windings)
-	inline bool				IsInsideOut(Vec3Arg inScale)									{ return (CountBits(Vec3::sLess(inScale, Vec3::sZero()).GetTrues() & 0x7) & 1) != 0; }
+	inline bool				IsInsideOut(Vec3Arg inScale)									{ return (CountBits(Vec3::Less(inScale, Vec3::Zero()).GetTrues() & 0x7) & 1) != 0; }
 
 	/// Test if any of the components of the scale have a value below cMinScale
-	inline bool				IsZeroScale(Vec3Arg inScale)									{ return Vec3::sLess(inScale.Abs(), Vec3::sReplicate(cMinScale)).TestAnyXYZTrue(); }
+	inline bool				IsZeroScale(Vec3Arg inScale)									{ return Vec3::Less(inScale.Abs(), Vec3::Replicate(cMinScale)).TestAnyXYZTrue(); }
 
 	/// Ensure that the scale for each component is at least cMinScale
-	inline Vec3				MakeNonZeroScale(Vec3Arg inScale)								{ return inScale.GetSign() * Vec3::sMax(inScale.Abs(), Vec3::sReplicate(cMinScale)); }
+	inline Vec3				MakeNonZeroScale(Vec3Arg inScale)								{ return inScale.GetSign() * Vec3::Max(inScale.Abs(), Vec3::Replicate(cMinScale)); }
 
 	/// Get the average scale if inScale, used to make the scale uniform when a shape doesn't support non-uniform scale
-	inline Vec3				MakeUniformScale(Vec3Arg inScale)								{ return Vec3::sReplicate((inScale.GetX() + inScale.GetY() + inScale.GetZ()) / 3.0f); }
+	inline Vec3				MakeUniformScale(Vec3Arg inScale)								{ return Vec3::Replicate((inScale.GetX() + inScale.GetY() + inScale.GetZ()) / 3.0f); }
 
 	/// Average the scale in XZ, used to make the scale uniform when a shape doesn't support non-uniform scale in the XZ plane
 	inline Vec3				MakeUniformScaleXZ(Vec3Arg inScale)								{ return 0.5f * (inScale + inScale.Swizzle<SWIZZLE_Z, SWIZZLE_Y, SWIZZLE_X>()); }
@@ -2719,22 +2717,22 @@ namespace ScaleHelpers
 	/// @return True if the scale is valid (no shearing introduced)
 	inline bool				CanScaleBeRotated(QuatArg inRotation, Vec3Arg inScale)
 	{
-		// inScale is a scale in local space of the shape, so the transform for the shape (ignoring translation) is: T = Mat44::sScale(inScale) * mRotation.
-		// when we pass the scale to the child it needs to be local to the child, so we want T = mRotation * Mat44::sScale(ChildScale).
-		// Solving for ChildScale: ChildScale = mRotation^-1 * Mat44::sScale(inScale) * mRotation = mRotation^T * Mat44::sScale(inScale) * mRotation
+		// inScale is a scale in local space of the shape, so the transform for the shape (ignoring translation) is: T = Mat44::Scale(inScale) * mRotation.
+		// when we pass the scale to the child it needs to be local to the child, so we want T = mRotation * Mat44::Scale(ChildScale).
+		// Solving for ChildScale: ChildScale = mRotation^-1 * Mat44::Scale(inScale) * mRotation = mRotation^T * Mat44::Scale(inScale) * mRotation
 		// If any of the off diagonal elements are non-zero, it means the scale / rotation is not compatible.
-		Mat44 r = Mat44::sRotation(inRotation);
+		Mat44 r = Mat44::Rotation(inRotation);
 		Mat44 child_scale = r.Multiply3x3LeftTransposed(r.PostScaled(inScale));
 
 		// Get the columns, but zero the diagonal
-		Vec4 zero = Vec4::sZero();
-		Vec4 c0 = Vec4::sSelect(child_scale.GetColumn4(0), zero, UVec4(0xffffffff, 0, 0, 0)).Abs();
-		Vec4 c1 = Vec4::sSelect(child_scale.GetColumn4(1), zero, UVec4(0, 0xffffffff, 0, 0)).Abs();
-		Vec4 c2 = Vec4::sSelect(child_scale.GetColumn4(2), zero, UVec4(0, 0, 0xffffffff, 0)).Abs();
+		Vec4 zero = Vec4::Zero();
+		Vec4 c0 = Vec4::Select(child_scale.GetColumn4(0), zero, UVec4(0xffffffff, 0, 0, 0)).Abs();
+		Vec4 c1 = Vec4::Select(child_scale.GetColumn4(1), zero, UVec4(0, 0xffffffff, 0, 0)).Abs();
+		Vec4 c2 = Vec4::Select(child_scale.GetColumn4(2), zero, UVec4(0, 0, 0xffffffff, 0)).Abs();
 
 		// Check if all elements are less than epsilon
-		Vec4 epsilon = Vec4::sReplicate(1.0e-6f);
-		return UVec4::sAnd(UVec4::sAnd(Vec4::sLess(c0, epsilon), Vec4::sLess(c1, epsilon)), Vec4::sLess(c2, epsilon)).TestAllTrue();
+		Vec4 epsilon = Vec4::Replicate(1.0e-6f);
+		return UVec4::And(UVec4::And(Vec4::Less(c0, epsilon), Vec4::Less(c1, epsilon)), Vec4::Less(c2, epsilon)).TestAllTrue();
 	}
 
 	/// Adjust scale for rotated child shape
@@ -2743,8 +2741,8 @@ namespace ScaleHelpers
 	/// @return Rotated scale
 	inline Vec3				RotateScale(QuatArg inRotation, Vec3Arg inScale)
 	{
-		// Get the diagonal of mRotation^T * Mat44::sScale(inScale) * mRotation (see comment at CanScaleBeRotated)
-		Mat44 r = Mat44::sRotation(inRotation);
+		// Get the diagonal of mRotation^T * Mat44::Scale(inScale) * mRotation (see comment at CanScaleBeRotated)
+		Mat44 r = Mat44::Rotation(inRotation);
 		return r.Multiply3x3LeftTransposed(r.PostScaled(inScale)).GetDiagonal3();
 	}
 }
@@ -3234,7 +3232,7 @@ private:
 	/// Returns box that approximates the inertia
 	AABox					GetInertiaApproximation() const;
 
-	Vec3					mCenterOfMass = Vec3::sZero();
+	Vec3					mCenterOfMass = Vec3::Zero();
 	float					mTopRadius = 0.0f;
 	float					mBottomRadius = 0.0f;
 	float					mTopCenter = 0.0f;

@@ -51,14 +51,14 @@ private:
 
 	#ifndef MOSS_DEBUG_RENDERER
 		// Draw intersection between tetrahedron and surface
-		if (Shape::sDrawSubmergedVolumes)
+		if (Shape::DrawSubmergedVolumes)
 		{
 			RVec3 v2w = mBaseOffset + v2;
 			RVec3 v3w = mBaseOffset + v3;
 			RVec3 v4w = mBaseOffset + v4;
 
-			DebugRenderer::sInstance->DrawTriangle(v4w, v3w, v2w, Color::sGreen);
-			DebugRenderer::sInstance->DrawWireTriangle(v4w, v3w, v2w, Color::sWhite);
+			DebugRenderer::Instance->DrawTriangle(v4w, v3w, v2w, Color::Green);
+			DebugRenderer::Instance->DrawWireTriangle(v4w, v3w, v2w, Color::White);
 		}
 	#endif // MOSS_DEBUG_RENDERER
 
@@ -78,17 +78,17 @@ private:
 
 	#ifndef MOSS_DEBUG_RENDERER
 		// Draw intersection between tetrahedron and surface
-		if (Shape::sDrawSubmergedVolumes)
+		if (Shape::DrawSubmergedVolumes)
 		{
 			RVec3 cw = mBaseOffset + c;
 			RVec3 dw = mBaseOffset + d;
 			RVec3 ew = mBaseOffset + e;
 			RVec3 fw = mBaseOffset + f;
 
-			DebugRenderer::sInstance->DrawTriangle(cw, ew, dw, Color::sGreen);
-			DebugRenderer::sInstance->DrawTriangle(cw, fw, ew, Color::sGreen);
-			DebugRenderer::sInstance->DrawWireTriangle(cw, ew, dw, Color::sWhite);
-			DebugRenderer::sInstance->DrawWireTriangle(cw, fw, ew, Color::sWhite);
+			DebugRenderer::Instance->DrawTriangle(cw, ew, dw, Color::Green);
+			DebugRenderer::Instance->DrawTriangle(cw, fw, ew, Color::Green);
+			DebugRenderer::Instance->DrawWireTriangle(cw, ew, dw, Color::White);
+			DebugRenderer::Instance->DrawWireTriangle(cw, fw, ew, Color::White);
 		}
 	#endif // MOSS_DEBUG_RENDERER
 
@@ -102,7 +102,7 @@ private:
 
 		// Tally up the totals
 		outVolumeTimes6 = volume1 + volume2 + volume3;
-		outCenterTimes4 = outVolumeTimes6 > 0.0f? (volume1 * center1 + volume2 * center2 + volume3 * center3) / outVolumeTimes6 : Vec3::sZero();
+		outCenterTimes4 = outVolumeTimes6 > 0.0f? (volume1 * center1 + volume2 * center2 + volume3 * center3) / outVolumeTimes6 : Vec3::Zero();
 	}
 
 	// Calculate submerged volume * 6 and center of mass * 4 for a tetrahedron with 3 vertices submerged
@@ -117,14 +117,14 @@ private:
 
 	#ifndef MOSS_DEBUG_RENDERER
 		// Draw intersection between tetrahedron and surface
-		if (Shape::sDrawSubmergedVolumes)
+		if (Shape::DrawSubmergedVolumes)
 		{
 			RVec3 v1w = mBaseOffset + v1;
 			RVec3 v2w = mBaseOffset + v2;
 			RVec3 v3w = mBaseOffset + v3;
 
-			DebugRenderer::sInstance->DrawTriangle(v3w, v2w, v1w, Color::sGreen);
-			DebugRenderer::sInstance->DrawWireTriangle(v3w, v2w, v1w, Color::sWhite);
+			DebugRenderer::Instance->DrawTriangle(v3w, v2w, v1w, Color::Green);
+			DebugRenderer::Instance->DrawWireTriangle(v3w, v2w, v1w, Color::White);
 		}
 	#endif // MOSS_DEBUG_RENDERER
 
@@ -139,17 +139,16 @@ private:
 
 		// From this we can calculate the center and volume of the submerged part
 		outVolumeTimes6 = max(total_volume - dry_volume, 0.0f);
-		outCenterTimes4 = outVolumeTimes6 > 0.0f? (total_center * total_volume - dry_center * dry_volume) / outVolumeTimes6 : Vec3::sZero();
+		outCenterTimes4 = outVolumeTimes6 > 0.0f? (total_center * total_volume - dry_center * dry_volume) / outVolumeTimes6 : Vec3::Zero();
 	}
 
 public:
 	/// A helper class that contains cached information about a polyhedron vertex
-	class Point
-	{
+	class Point {
 	public:
-		Vec3			mPosition;						///< World space position of vertex
-		float			mDistanceToSurface;				///< Signed distance to the surface (> 0 is above, < 0 is below)
-		bool			mAboveSurface;					///< If the point is above the surface (mDistanceToSurface > 0)
+		Vec3	mPosition;				// World space position of vertex
+		float	mDistanceToSurface;		// Signed distance to the surface (> 0 is above, < 0 is below)
+		bool	mAboveSurface;			// If the point is above the surface (mDistanceToSurface > 0)
 	};
 
 	/// Constructor
@@ -280,7 +279,7 @@ public:
 			// Should not be possible
 			MOSS_ASSERT(false);
 			volume = 0.0f;
-			center = Vec3::sZero();
+			center = Vec3::Zero();
 			break;
 		}
 
@@ -291,7 +290,7 @@ public:
 	/// Call after all faces have been added. Returns the submerged volume and the center of buoyancy for the submerged volume.
 	void				GetResult(float &outSubmergedVolume, Vec3 &outCenterOfBuoyancy) const
 	{
-		outCenterOfBuoyancy = mSubmergedVolume > 0.0f? mCenterOfBuoyancy / (4.0f * mSubmergedVolume) : Vec3::sZero(); // Do this before dividing submerged volume by 6 to get correct weight factor
+		outCenterOfBuoyancy = mSubmergedVolume > 0.0f? mCenterOfBuoyancy / (4.0f * mSubmergedVolume) : Vec3::Zero(); // Do this before dividing submerged volume by 6 to get correct weight factor
 		outSubmergedVolume = mSubmergedVolume / 6.0f;
 	}
 
@@ -308,7 +307,7 @@ private:
 
 	// Aggregator for submerged volume and center of buoyancy
 	float				mSubmergedVolume = 0.0f;
-	Vec3				mCenterOfBuoyancy = Vec3::sZero();
+	Vec3				mCenterOfBuoyancy = Vec3::Zero();
 
 #ifndef MOSS_DEBUG_RENDERER
 	// Base offset used for drawing

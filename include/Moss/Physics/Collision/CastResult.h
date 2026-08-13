@@ -21,8 +21,8 @@ public:
 	/// Reset this result so it can be reused for a new cast.
 	inline void		Reset()								{ mBodyID = BodyID(); mFraction = 1.0f + FLT_EPSILON; }
 
-	BodyID			mBodyID;							///< Body that was hit
-	float			mFraction = 1.0f + FLT_EPSILON;		///< Hit fraction of the ray/object [0, 1], HitPoint = Start + mFraction * (End - Start)
+	BodyID			mBodyID;							// Body that was hit
+	float			mFraction = 1.0f + FLT_EPSILON;		// Hit fraction of the ray/object [0, 1], HitPoint = Start + mFraction * (End - Start)
 };
 
 /// Specialization of cast result against a shape
@@ -31,7 +31,7 @@ class RayCastResult : public BroadPhaseCastResult
 public:
 	MOSS_OVERRIDE_NEW_DELETE
 
-	SubShapeID		mSubShapeID2;						///< Sub shape ID of shape that we collided against
+	SubShapeID		mSubShapeID2;						// Sub shape ID of shape that we collided against
 };
 
 MOSS_NAMESPACE_END

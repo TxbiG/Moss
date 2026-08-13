@@ -21,12 +21,12 @@ public:
 	// Virtual destructor
 	virtual								~CharacterBaseSettings() = default;
 	// Vector indicating the up direction of the character
-	Vec3								mUp = Vec3::sAxisY();
+	Vec3								mUp = Vec3::AxisY();
 
 	// Plane, defined in local space relative to the character. Every contact behind this plane can support the
 	// character, every contact in front of this plane is treated as only colliding with the player.
 	// Default: Accept any contact.
-	Plane								mSupportingVolume { Vec3::sAxisY(), -1.0e10f };
+	Plane								mSupportingVolume { Vec3::AxisY(), -1.0e10f };
 	// Maximum angle of slope that character can still walk on (radians).
 	float								mMaxSlopeAngle = DegreesToRadians(50.0f);
 	// Set to indicate that extra effort should be made to try to remove ghost contacts (collisions with internal edges of a mesh). This is more expensive but makes bodies move smoother over a mesh with convex edges.
@@ -53,7 +53,7 @@ public:
 	MOSS_OVERRIDE_NEW_DELETE
 
 	// ID to give to this character. This is used for deterministically sorting and as an identifier to represent the character in the contact removal callback.
-	CharacterID							mID = CharacterID::sNextCharacterID();
+	CharacterID							mID = CharacterID::NextCharacterID();
 
 	// Character mass (kg). Used to push down objects with gravity when the character is standing on top.
 	float								mMass = 70.0f;
@@ -62,7 +62,7 @@ public:
 	float								mMaxStrength = 100.0f;
 
 	// An extra offset applied to the shape in local space. This allows applying an extra offset to the shape in local space.
-	Vec3								mShapeOffset = Vec3::sZero();
+	Vec3								mShapeOffset = Vec3::Zero();
 
 	//@name Movement settings
 	EBackFaceMode						mBackFaceMode = EBackFaceMode::CollideWithBackFaces;	// When colliding with back faces, the character will not be able to move through back facing triangles. Use this if you have triangles that need to collide on both sides.
@@ -210,10 +210,10 @@ protected:
 	EGroundState						mGroundState = EGroundState::InAir;
 	BodyID								mGroundBodyID;
 	SubShapeID							mGroundBodySubShapeID;
-	RVec3								mGroundPosition = RVec3::sZero();
-	Vec3								mGroundNormal = Vec3::sZero();
-	Vec3								mGroundVelocity = Vec3::sZero();
-	RefConst<PhysicsMaterial>			mGroundMaterial = PhysicsMaterial::sDefault;
+	RVec3								mGroundPosition = RVec3::Zero();
+	Vec3								mGroundNormal = Vec3::Zero();
+	Vec3								mGroundVelocity = Vec3::Zero();
+	RefConst<PhysicsMaterial>			mGroundMaterial = PhysicsMaterial::Default;
 	uint64								mGroundUserData = 0;
 };
 
@@ -380,7 +380,7 @@ public:
 	inline RVec3 GetCenterOfMassPosition() const							{ return mPosition + (mRotation * (mShapeOffset + mShape->GetCenterOfMass()) + mCharacterPadding * mUp); }
 
 	// Calculate the world transform of the character
-	RMat44 GetWorldTransform() const								{ return RMat44::sRotationTranslation(mRotation, mPosition); }
+	RMat44 GetWorldTransform() const								{ return RMat44::RotationTranslation(mRotation, mPosition); }
 
 	// Calculates the transform for this character's center of mass
 	RMat44 GetCenterOfMassTransform() const						{ return GetCenterOfMassTransform(mPosition, mRotation, mShape); }
@@ -495,7 +495,7 @@ public:
 		float	mWalkStairsMinStepForward { 0.02f };									// See WalkStairs inStepForward parameter. Note that the parameter only indicates a magnitude, direction is taken from current velocity.
 		float	mWalkStairsStepForwardTest { 0.15f };									// See WalkStairs inStepForwardTest parameter. Note that the parameter only indicates a magnitude, direction is taken from current velocity.
 		float	mWalkStairsCosAngleForwardContact { Cos(DegreesToRadians(75.0f)) };		// Cos(angle) where angle is the maximum angle between the ground normal in the horizontal plane and the character forward vector where we're willing to adjust the step forward test towards the contact normal.
-		Vec3	mWalkStairsStepDownExtra { Vec3::sZero() };								// See WalkStairs inStepDownExtra
+		Vec3	mWalkStairsStepDownExtra { Vec3::Zero() };								// See WalkStairs inStepDownExtra
 	};
 
 	// This function combines Update, StickToFloor and WalkStairs. This function serves as an example of how these functions could be combined.
@@ -772,7 +772,7 @@ private:
 
 	// This function returns the actual center of mass of the shape, not corrected for the character padding
 	inline RMat44 GetCenterOfMassTransform(RVec3Arg inPosition, QuatArg inRotation, const Shape *inShape) const {
-		return RMat44::sRotationTranslation(inRotation, inPosition).PreTranslated(mShapeOffset + inShape->GetCenterOfMass()).PostTranslated(mCharacterPadding * mUp);
+		return RMat44::RotationTranslation(inRotation, inPosition).PreTranslated(mShapeOffset + inShape->GetCenterOfMass()).PostTranslated(mCharacterPadding * mUp);
 	}
 
 	// This function returns the position of the inner rigid body
@@ -804,32 +804,31 @@ private:
 	bool								mEnhancedInternalEdgeRemoval;							// Set to indicate that extra effort should be made to try to remove ghost contacts (collisions with internal edges of a mesh). This is more expensive but makes bodies move smoother over a mesh with convex edges.
 
 	// Character mass (kg)
-	float								mMass;
+	float		mMass;
 
 	// Maximum force with which the character can push other bodies (N)
-	float								mMaxStrength;
+	float		mMaxStrength;
 
 	// An extra offset applied to the shape in local space. This allows applying an extra offset to the shape in local space.
-	Vec3								mShapeOffset = Vec3::sZero();
+	Vec3		mShapeOffset = Vec3::Zero();
 
 	// Current position (of the base, not the center of mass)
-	RVec3								mPosition = RVec3::sZero();
+	RVec3		mPosition = RVec3::Zero();
 
 	// Current rotation (of the base, not of the center of mass)
-	Quat								mRotation = Quat::sIdentity();
+	Quat		mRotation = Quat::Identity();
 
 	// Current linear velocity
-	Vec3								mLinearVelocity = Vec3::sZero();
+	Vec3		mLinearVelocity = Vec3::Zero();
 
 	// List of contacts that were active in the last frame
-	ContactList							mActiveContacts;
+	ContactList	mActiveContacts;
 
 	// Remembers how often we called StartTrackingContactChanges
-	int									mTrackingContactChanges = 0;
+	int			mTrackingContactChanges = 0;
 
 	// View from a contact listener perspective on which contacts have been added/removed
-	struct ListenerContactValue
-	{
+	struct ListenerContactValue {
 										ListenerContactValue() = default;
 		explicit						ListenerContactValue(const CharacterContactSettings &inSettings) : mSettings(inSettings) { }
 

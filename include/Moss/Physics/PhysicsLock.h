@@ -23,7 +23,7 @@ enum class EPhysicsLockTypes
 
 /// A token that indicates the context of a lock (we use 1 per physics system and we use the body manager pointer because it's convenient)
 class BodyManager;
-using PhysicsLockContext = const BodyManager *;
+using PhysicsLockContext = const BodyManager*;
 
 #endif // MOSS_DEBUG
 
@@ -111,11 +111,11 @@ public:
 		, mContext(inContext), mType(inType)
 #endif // MOSS_DEBUG
 	{
-		PhysicsLock::sLock(mLock MOSS_IF_ENABLE_ASSERTS(, mContext, mType));
+		PhysicsLock::Lock(mLock MOSS_IF_ENABLE_ASSERTS(, mContext, mType));
 	}
 
 	~UniqueLock() {
-		PhysicsLock::sUnlock(mLock MOSS_IF_ENABLE_ASSERTS(, mContext, mType));
+		PhysicsLock::Unlock(mLock MOSS_IF_ENABLE_ASSERTS(, mContext, mType));
 	}
 
 private:
@@ -137,11 +137,11 @@ public:
 		, mType(inType)
 #endif // MOSS_DEBUG
 	{
-		PhysicsLock::sLockShared(mLock MOSS_IF_ENABLE_ASSERTS(, mContext, mType));
+		PhysicsLock::LockShared(mLock MOSS_IF_ENABLE_ASSERTS(, mContext, mType));
 	}
 
 	~SharedLock() {
-		PhysicsLock::sUnlockShared(mLock MOSS_IF_ENABLE_ASSERTS(, mContext, mType));
+		PhysicsLock::UnlockShared(mLock MOSS_IF_ENABLE_ASSERTS(, mContext, mType));
 	}
 
 private:

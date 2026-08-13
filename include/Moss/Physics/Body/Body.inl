@@ -8,26 +8,26 @@ MOSS_NAMESPACE_BEGIN
 
 RMat44 Body::GetWorldTransform() const
 {
-	MOSS_ASSERT(BodyAccess::sCheckRights(BodyAccess::sPositionAccess(), BodyAccess::EAccess::Read));
+	MOSS_ASSERT(BodyAccess::CheckRights(BodyAccess::PositionAccess(), BodyAccess::EAccess::Read));
 
-	return RMat44::sRotationTranslation(mRotation, mPosition).PreTranslated(-mShape->GetCenterOfMass());
+	return RMat44::RotationTranslation(mRotation, mPosition).PreTranslated(-mShape->GetCenterOfMass());
 }
 
 RMat44 Body::GetCenterOfMassTransform() const
 {
-	MOSS_ASSERT(BodyAccess::sCheckRights(BodyAccess::sPositionAccess(), BodyAccess::EAccess::Read));
+	MOSS_ASSERT(BodyAccess::CheckRights(BodyAccess::PositionAccess(), BodyAccess::EAccess::Read));
 
-	return RMat44::sRotationTranslation(mRotation, mPosition);
+	return RMat44::RotationTranslation(mRotation, mPosition);
 }
 
 RMat44 Body::GetInverseCenterOfMassTransform() const
 {
-	MOSS_ASSERT(BodyAccess::sCheckRights(BodyAccess::sPositionAccess(), BodyAccess::EAccess::Read));
+	MOSS_ASSERT(BodyAccess::CheckRights(BodyAccess::PositionAccess(), BodyAccess::EAccess::Read));
 
-	return RMat44::sInverseRotationTranslation(mRotation, mPosition);
+	return RMat44::InverseRotationTranslation(mRotation, mPosition);
 }
 
-inline bool Body::sFindCollidingPairsCanCollide(const Body &inBody1, const Body &inBody2)
+inline bool Body::FindCollidingPairsCanCollide(const Body &inBody1, const Body &inBody2)
 {
 	// First body should never be a soft body
 	MOSS_ASSERT(!inBody1.IsSoftBody());
@@ -81,7 +81,7 @@ inline bool Body::sFindCollidingPairsCanCollide(const Body &inBody1, const Body 
 void Body::AddRotationStep(Vec3Arg inAngularVelocityTimesDeltaTime)
 {
 	MOSS_ASSERT(IsRigidBody());
-	MOSS_ASSERT(BodyAccess::sCheckRights(BodyAccess::sPositionAccess(), BodyAccess::EAccess::ReadWrite));
+	MOSS_ASSERT(BodyAccess::CheckRights(BodyAccess::PositionAccess(), BodyAccess::EAccess::ReadWrite));
 
 	// This used to use the equation: d/dt R(t) = 1/2 * w(t) * R(t) so that R(t + dt) = R(t) + 1/2 * w(t) * R(t) * dt
 	// See: Appendix B of An Introduction to Physically Based Modeling: Rigid Body Simulation II-Nonpenetration Constraints
@@ -92,7 +92,7 @@ void Body::AddRotationStep(Vec3Arg inAngularVelocityTimesDeltaTime)
 	float len = inAngularVelocityTimesDeltaTime.Length();
 	if (len > 1.0e-6f)
 	{
-		mRotation = (Quat::sRotation(inAngularVelocityTimesDeltaTime / len, len) * mRotation).Normalized();
+		mRotation = (Quat::Rotation(inAngularVelocityTimesDeltaTime / len, len) * mRotation).Normalized();
 		MOSS_ASSERT(!mRotation.IsNaN());
 	}
 }
@@ -100,13 +100,13 @@ void Body::AddRotationStep(Vec3Arg inAngularVelocityTimesDeltaTime)
 void Body::SubRotationStep(Vec3Arg inAngularVelocityTimesDeltaTime)
 {
 	MOSS_ASSERT(IsRigidBody());
-	MOSS_ASSERT(BodyAccess::sCheckRights(BodyAccess::sPositionAccess(), BodyAccess::EAccess::ReadWrite));
+	MOSS_ASSERT(BodyAccess::CheckRights(BodyAccess::PositionAccess(), BodyAccess::EAccess::ReadWrite));
 
 	// See comment at Body::AddRotationStep
 	float len = inAngularVelocityTimesDeltaTime.Length();
 	if (len > 1.0e-6f)
 	{
-		mRotation = (Quat::sRotation(inAngularVelocityTimesDeltaTime / len, -len) * mRotation).Normalized();
+		mRotation = (Quat::Rotation(inAngularVelocityTimesDeltaTime / len, -len) * mRotation).Normalized();
 		MOSS_ASSERT(!mRotation.IsNaN());
 	}
 }
@@ -121,7 +121,7 @@ Mat44 Body::GetInverseInertia() const
 {
 	MOSS_ASSERT(IsDynamic());
 
-	return GetMotionProperties()->GetInverseInertiaForRotation(Mat44::sRotation(mRotation));
+	return GetMotionProperties()->GetInverseInertiaForRotation(Mat44::Rotation(mRotation));
 }
 
 void Body::AddForce(Vec3Arg inForce, RVec3Arg inPosition)
@@ -155,7 +155,7 @@ void Body::AddAngularImpulse(Vec3Arg inAngularImpulse)
 
 void Body::GetSleepTestPoints(RVec3 *outPoints) const
 {
-	MOSS_ASSERT(BodyAccess::sCheckRights(BodyAccess::sPositionAccess(), BodyAccess::EAccess::Read));
+	MOSS_ASSERT(BodyAccess::CheckRights(BodyAccess::PositionAccess(), BodyAccess::EAccess::Read));
 
 	// Center of mass is the first position
 	outPoints[0] = mPosition;
@@ -163,7 +163,7 @@ void Body::GetSleepTestPoints(RVec3 *outPoints) const
 	// The second and third position are on the largest axis of the bounding box
 	Vec3 extent = mShape->GetLocalBounds().GetExtent();
 	int lowest_component = extent.GetLowestComponentIndex();
-	Mat44 rotation = Mat44::sRotation(mRotation);
+	Mat44 rotation = Mat44::Rotation(mRotation);
 	switch (lowest_component)
 	{
 	case 0:
@@ -196,8 +196,8 @@ void Body::ResetSleepTimer()
 
 void MotionProperties::MoveKinematic(Vec3Arg inDeltaPosition, QuatArg inDeltaRotation, float inDeltaTime)
 {
-	MOSS_ASSERT(BodyAccess::sCheckRights(BodyAccess::sVelocityAccess(), BodyAccess::EAccess::ReadWrite));
-	MOSS_ASSERT(BodyAccess::sCheckRights(BodyAccess::sPositionAccess(), BodyAccess::EAccess::Read));
+	MOSS_ASSERT(BodyAccess::CheckRights(BodyAccess::VelocityAccess(), BodyAccess::EAccess::ReadWrite));
+	MOSS_ASSERT(BodyAccess::CheckRights(BodyAccess::PositionAccess(), BodyAccess::EAccess::Read));
 	MOSS_ASSERT(mCachedBodyType == EBodyType::RigidBody);
 	MOSS_ASSERT(mCachedMotionType != EMotionType::Static);
 
@@ -213,7 +213,7 @@ void MotionProperties::MoveKinematic(Vec3Arg inDeltaPosition, QuatArg inDeltaRot
 
 void MotionProperties::ClampLinearVelocity()
 {
-	MOSS_ASSERT(BodyAccess::sCheckRights(BodyAccess::sVelocityAccess(), BodyAccess::EAccess::ReadWrite));
+	MOSS_ASSERT(BodyAccess::CheckRights(BodyAccess::VelocityAccess(), BodyAccess::EAccess::ReadWrite));
 
 	float len_sq = mLinearVelocity.LengthSq();
 	MOSS_ASSERT(isfinite(len_sq));
@@ -223,7 +223,7 @@ void MotionProperties::ClampLinearVelocity()
 
 void MotionProperties::ClampAngularVelocity()
 {
-	MOSS_ASSERT(BodyAccess::sCheckRights(BodyAccess::sVelocityAccess(), BodyAccess::EAccess::ReadWrite));
+	MOSS_ASSERT(BodyAccess::CheckRights(BodyAccess::VelocityAccess(), BodyAccess::EAccess::ReadWrite));
 
 	float len_sq = mAngularVelocity.LengthSq();
 	MOSS_ASSERT(isfinite(len_sq));
@@ -233,7 +233,7 @@ void MotionProperties::ClampAngularVelocity()
 
 inline Mat44 MotionProperties::GetLocalSpaceInverseInertiaUnchecked() const
 {
-	Mat44 rotation = Mat44::sRotation(mInertiaRotation);
+	Mat44 rotation = Mat44::Rotation(mInertiaRotation);
 	Mat44 rotation_mul_scale_transposed(mInvInertiaDiagonal.SplatX() * rotation.GetColumn4(0), mInvInertiaDiagonal.SplatY() * rotation.GetColumn4(1), mInvInertiaDiagonal.SplatZ() * rotation.GetColumn4(2), Vec4(0, 0, 0, 1));
 	return rotation.Multiply3x3RightTransposed(rotation_mul_scale_transposed);
 }
@@ -258,15 +258,15 @@ Mat44 MotionProperties::GetInverseInertiaForRotation(Mat44Arg inRotation) const
 {
 	MOSS_ASSERT(mCachedMotionType == EMotionType::Dynamic);
 
-	Mat44 rotation = inRotation.Multiply3x3(Mat44::sRotation(mInertiaRotation));
+	Mat44 rotation = inRotation.Multiply3x3(Mat44::Rotation(mInertiaRotation));
 	Mat44 rotation_mul_scale_transposed(mInvInertiaDiagonal.SplatX() * rotation.GetColumn4(0), mInvInertiaDiagonal.SplatY() * rotation.GetColumn4(1), mInvInertiaDiagonal.SplatZ() * rotation.GetColumn4(2), Vec4(0, 0, 0, 1));
 	Mat44 inverse_inertia = rotation.Multiply3x3RightTransposed(rotation_mul_scale_transposed);
 
 	// We need to mask out both the rows and columns of DOFs that are not allowed
 	Vec4 angular_dofs_mask = GetAngularDOFsMask().ReinterpretAsFloat();
-	inverse_inertia.SetColumn4(0, Vec4::sAnd(inverse_inertia.GetColumn4(0), Vec4::sAnd(angular_dofs_mask, angular_dofs_mask.SplatX())));
-	inverse_inertia.SetColumn4(1, Vec4::sAnd(inverse_inertia.GetColumn4(1), Vec4::sAnd(angular_dofs_mask, angular_dofs_mask.SplatY())));
-	inverse_inertia.SetColumn4(2, Vec4::sAnd(inverse_inertia.GetColumn4(2), Vec4::sAnd(angular_dofs_mask, angular_dofs_mask.SplatZ())));
+	inverse_inertia.SetColumn4(0, Vec4::And(inverse_inertia.GetColumn4(0), Vec4::And(angular_dofs_mask, angular_dofs_mask.SplatX())));
+	inverse_inertia.SetColumn4(1, Vec4::And(inverse_inertia.GetColumn4(1), Vec4::And(angular_dofs_mask, angular_dofs_mask.SplatY())));
+	inverse_inertia.SetColumn4(2, Vec4::And(inverse_inertia.GetColumn4(2), Vec4::And(angular_dofs_mask, angular_dofs_mask.SplatZ())));
 
 	return inverse_inertia;
 }
@@ -277,26 +277,26 @@ Vec3 MotionProperties::MultiplyWorldSpaceInverseInertiaByVector(QuatArg inBodyRo
 
 	// Mask out columns of DOFs that are not allowed
 	Vec3 angular_dofs_mask = Vec3(GetAngularDOFsMask().ReinterpretAsFloat());
-	Vec3 v = Vec3::sAnd(inV, angular_dofs_mask);
+	Vec3 v = Vec3::And(inV, angular_dofs_mask);
 
 	// Multiply vector by inverse inertia
-	Mat44 rotation = Mat44::sRotation(inBodyRotation * mInertiaRotation);
+	Mat44 rotation = Mat44::Rotation(inBodyRotation * mInertiaRotation);
 	Vec3 result = rotation.Multiply3x3(mInvInertiaDiagonal * rotation.Multiply3x3Transposed(v));
 
 	// Mask out rows of DOFs that are not allowed
-	return Vec3::sAnd(result, angular_dofs_mask);
+	return Vec3::And(result, angular_dofs_mask);
 }
 
 void MotionProperties::ApplyGyroscopicForceInternal(QuatArg inBodyRotation, float inDeltaTime)
 {
-	MOSS_ASSERT(BodyAccess::sCheckRights(BodyAccess::sVelocityAccess(), BodyAccess::EAccess::ReadWrite));
+	MOSS_ASSERT(BodyAccess::CheckRights(BodyAccess::VelocityAccess(), BodyAccess::EAccess::ReadWrite));
 	MOSS_ASSERT(mCachedBodyType == EBodyType::RigidBody);
 	MOSS_ASSERT(mCachedMotionType == EMotionType::Dynamic);
 
 	// Calculate local space inertia tensor (a diagonal in local space)
-	UVec4 is_zero = Vec3::sEquals(mInvInertiaDiagonal, Vec3::sZero());
-	Vec3 denominator = Vec3::sSelect(mInvInertiaDiagonal, Vec3::sOne(), is_zero);
-	Vec3 nominator = Vec3::sSelect(Vec3::sOne(), Vec3::sZero(), is_zero);
+	UVec4 is_zero = Vec3::Equals(mInvInertiaDiagonal, Vec3::Zero());
+	Vec3 denominator = Vec3::Select(mInvInertiaDiagonal, Vec3::One(), is_zero);
+	Vec3 nominator = Vec3::Select(Vec3::One(), Vec3::Zero(), is_zero);
 	Vec3 local_inertia = nominator / denominator; // Avoid dividing by zero, inertia in this axis will be zero
 
 	// Calculate local space angular momentum
@@ -309,15 +309,14 @@ void MotionProperties::ApplyGyroscopicForceInternal(QuatArg inBodyRotation, floa
 	// to avoid introducing energy into the system due to the Euler step
 	Vec3 new_local_momentum = local_momentum - inDeltaTime * local_angular_velocity.Cross(local_momentum);
 	float new_local_momentum_len_sq = new_local_momentum.LengthSq();
-	new_local_momentum = new_local_momentum_len_sq > 0.0f? new_local_momentum * sqrt(local_momentum.LengthSq() / new_local_momentum_len_sq) : Vec3::sZero();
+	new_local_momentum = new_local_momentum_len_sq > 0.0f? new_local_momentum * sqrt(local_momentum.LengthSq() / new_local_momentum_len_sq) : Vec3::Zero();
 
 	// Convert back to world space angular velocity
 	mAngularVelocity = inertia_space_to_world_space * (mInvInertiaDiagonal * new_local_momentum);
 }
 
-void MotionProperties::ApplyForceTorqueAndDragInternal(QuatArg inBodyRotation, Vec3Arg inGravity, float inDeltaTime)
-{
-	MOSS_ASSERT(BodyAccess::sCheckRights(BodyAccess::sVelocityAccess(), BodyAccess::EAccess::ReadWrite));
+void MotionProperties::ApplyForceTorqueAndDragInternal(QuatArg inBodyRotation, Vec3Arg inGravity, float inDeltaTime) {
+	MOSS_ASSERT(BodyAccess::CheckRights(BodyAccess::VelocityAccess(), BodyAccess::EAccess::ReadWrite));
 	MOSS_ASSERT(mCachedBodyType == EBodyType::RigidBody);
 	MOSS_ASSERT(mCachedMotionType == EMotionType::Dynamic);
 
@@ -345,7 +344,7 @@ void MotionProperties::ResetSleepTestSpheres(const RVec3 *inPoints)
 	// Make spheres relative to the first point and initialize them to zero radius
 	DVec3 offset = inPoints[0];
 	offset.StoreDouble3(&mSleepTestOffset);
-	mSleepTestSpheres[0] = Sphere(Vec3::sZero(), 0.0f);
+	mSleepTestSpheres[0] = Sphere(Vec3::Zero(), 0.0f);
 	for (int i = 1; i < 3; ++i)
 		mSleepTestSpheres[i] = Sphere(Vec3(inPoints[i] - offset), 0.0f);
 #else

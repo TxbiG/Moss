@@ -29,14 +29,14 @@ private:
 public:
 	static constexpr uint	cNumSplits = sizeof(SplitMask) * 8;
 	static constexpr uint	cNonParallelSplitIdx = cNumSplits - 1;
-	static constexpr uint	cLargeIslandTreshold = 128;							///< If the number of constraints + contacts in an island is larger than this, we will try to split the island
+	static constexpr uint	cLargeIslandTreshold = 128;							// If the number of constraints + contacts in an island is larger than this, we will try to split the island
 
 	/// Status code for retrieving a batch
 	enum class EStatus
 	{
-		WaitingForBatch,														///< Work is expected to be available later
-		BatchRetrieved,															///< Work is being returned
-		AllBatchesDone,															///< No further work is expected from this
+		WaitingForBatch,														// Work is expected to be available later
+		BatchRetrieved,															// Work is being returned
+		AllBatchesDone,															// No further work is expected from this
 	};
 
 	/// Describes a split of constraints and contacts
@@ -46,11 +46,11 @@ public:
 		inline uint			GetNumConstraints() const							{ return mConstraintBufferEnd - mConstraintBufferBegin; }
 		inline uint			GetNumItems() const									{ return GetNumContacts() + GetNumConstraints(); }
 
-		uint32				mContactBufferBegin;								///< Begin of the contact buffer (offset relative to mContactAndConstraintIndices)
-		uint32				mContactBufferEnd;									///< End of the contact buffer
+		uint32				mContactBufferBegin;								// Begin of the contact buffer (offset relative to mContactAndConstraintIndices)
+		uint32				mContactBufferEnd;									// End of the contact buffer
 
-		uint32				mConstraintBufferBegin;								///< Begin of the constraint buffer (offset relative to mContactAndConstraintIndices)
-		uint32				mConstraintBufferEnd;								///< End of the constraint buffer
+		uint32				mConstraintBufferBegin;								// Begin of the constraint buffer (offset relative to mContactAndConstraintIndices)
+		uint32				mConstraintBufferEnd;								// End of the constraint buffer
 	};
 
 	/// Structure that describes the resulting splits from the large island splitter
@@ -119,14 +119,14 @@ public:
 			return uint(inStatus & StatusItemMask);
 		}
 
-		Split				mSplits[cNumSplits];								///< Data per split
-		uint32				mIslandIndex;										///< Index of the island that was split
-		uint				mNumSplits;											///< Number of splits that were created (excluding the non-parallel split)
-		int					mNumIterations;										///< Number of iterations to do
-		int					mNumVelocitySteps;									///< Number of velocity steps to do (cached for 2nd sub step)
-		int					mNumPositionSteps;									///< Number of position steps to do
-		atomic<uint64>		mStatus;											///< Status of the split, see EIterationStatus
-		atomic<uint>		mItemsProcessed;									///< Number of items that have been marked as processed
+		Split				mSplits[cNumSplits];								// Data per split
+		uint32				mIslandIndex;										// Index of the island that was split
+		uint				mNumSplits;											// Number of splits that were created (excluding the non-parallel split)
+		int					mNumIterations;										// Number of iterations to do
+		int					mNumVelocitySteps;									// Number of velocity steps to do (cached for 2nd sub step)
+		int					mNumPositionSteps;									// Number of position steps to do
+		atomic<uint64>		mStatus;											// Status of the split, see EIterationStatus
+		atomic<uint>		mItemsProcessed;									// Number of items that have been marked as processed
 	};
 
 public:
@@ -165,21 +165,21 @@ public:
 	void					Reset(TempAllocator *inTempAllocator);
 
 private:
-	static constexpr uint	cSplitCombineTreshold = 32;							///< If the number of constraints + contacts in a split is lower than this, we will merge this split into the 'non-parallel split'
-	static constexpr uint	cBatchSize = 16;									///< Number of items to process in a constraint batch
+	static constexpr uint	cSplitCombineTreshold = 32;							// If the number of constraints + contacts in a split is lower than this, we will merge this split into the 'non-parallel split'
+	static constexpr uint	cBatchSize = 16;									// Number of items to process in a constraint batch
 
-	uint32					mNumActiveBodies = 0;								///< Cached number of active bodies
+	uint32					mNumActiveBodies = 0;								// Cached number of active bodies
 
-	SplitMask *				mSplitMasks = nullptr;								///< Bits that indicate for each body in the BodyManager::mActiveBodies list which split they already belong to
+	SplitMask *				mSplitMasks = nullptr;								// Bits that indicate for each body in the BodyManager::mActiveBodies list which split they already belong to
 
-	uint32 *				mContactAndConstraintsSplitIdx = nullptr;			///< Buffer to store the split index per constraint or contact
-	uint32 *				mContactAndConstraintIndices = nullptr;				///< Buffer to store the ordered constraint indices per split
-	uint					mContactAndConstraintsSize = 0;						///< Total size of mContactAndConstraintsSplitIdx and mContactAndConstraintIndices
-	atomic<uint>			mContactAndConstraintsNextFree { 0 };				///< Next element that is free in both buffers
+	uint32 *				mContactAndConstraintsSplitIdx = nullptr;			// Buffer to store the split index per constraint or contact
+	uint32 *				mContactAndConstraintIndices = nullptr;				// Buffer to store the ordered constraint indices per split
+	uint					mContactAndConstraintsSize = 0;						// Total size of mContactAndConstraintsSplitIdx and mContactAndConstraintIndices
+	atomic<uint>			mContactAndConstraintsNextFree { 0 };				// Next element that is free in both buffers
 
-	uint					mNumSplitIslands = 0;								///< Total number of islands that required splitting
-	Splits *				mSplitIslands = nullptr;							///< List of islands that required splitting
-	atomic<uint>			mNextSplitIsland = 0;								///< Next split island to pick from mSplitIslands
+	uint					mNumSplitIslands = 0;								// Total number of islands that required splitting
+	Splits *				mSplitIslands = nullptr;							// List of islands that required splitting
+	atomic<uint>			mNextSplitIsland = 0;								// Next split island to pick from mSplitIslands
 };
 
 MOSS_SUPRESS_WARNINGS_END

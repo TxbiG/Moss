@@ -78,36 +78,36 @@ private:
 	{
 		MOSS_OVERRIDE_NEW_DELETE
 
-		atomic<uint32>		mLinkedTo;										///< An index in mBodyLinks pointing to another body in this island with a lower index than this body
-		uint32				mIslandIndex;									///< The island index of this body (filled in during Finalize)
+		atomic<uint32>		mLinkedTo;										// An index in mBodyLinks pointing to another body in this island with a lower index than this body
+		uint32				mIslandIndex;									// The island index of this body (filled in during Finalize)
 	};
 
 	// Intermediate data
-	BodyLink *				mBodyLinks = nullptr;							///< Maps bodies to the first body in the island
-	uint32 *				mConstraintLinks = nullptr;						///< Maps constraint index to body index (which maps to island index)
-	uint32 *				mContactLinks = nullptr;						///< Maps contact constraint index to body index (which maps to island index)
+	BodyLink *				mBodyLinks = nullptr;							// Maps bodies to the first body in the island
+	uint32 *				mConstraintLinks = nullptr;						// Maps constraint index to body index (which maps to island index)
+	uint32 *				mContactLinks = nullptr;						// Maps contact constraint index to body index (which maps to island index)
 
 	// Final data
-	BodyID *				mBodyIslands = nullptr;							///< Bodies ordered by island
-	uint32 *				mBodyIslandEnds = nullptr;						///< End index of each body island
+	BodyID *				mBodyIslands = nullptr;							// Bodies ordered by island
+	uint32 *				mBodyIslandEnds = nullptr;						// End index of each body island
 
-	uint32 *				mConstraintIslands = nullptr;					///< Constraints ordered by island
-	uint32 *				mConstraintIslandEnds = nullptr;				///< End index of each constraint island
+	uint32 *				mConstraintIslands = nullptr;					// Constraints ordered by island
+	uint32 *				mConstraintIslandEnds = nullptr;				// End index of each constraint island
 
-	uint32 *				mContactIslands = nullptr;						///< Contacts ordered by island
-	uint32 *				mContactIslandEnds = nullptr;					///< End index of each contact island
+	uint32 *				mContactIslands = nullptr;						// Contacts ordered by island
+	uint32 *				mContactIslandEnds = nullptr;					// End index of each contact island
 
-	uint32 *				mIslandsSorted = nullptr;						///< A list of island indices in order of most constraints first
+	uint32 *				mIslandsSorted = nullptr;						// A list of island indices in order of most constraints first
 
-	uint8 *					mNumPositionSteps = nullptr;					///< Number of position steps for each island
+	uint8 *					mNumPositionSteps = nullptr;					// Number of position steps for each island
 
 	// Counters
-	uint32					mMaxActiveBodies;								///< Maximum size of the active bodies list (see BodyManager::mActiveBodies)
-	uint32					mNumActiveBodies = 0;							///< Number of active bodies passed to
-	uint32					mNumConstraints = 0;							///< Size of the constraint list (see ConstraintManager::mConstraints)
-	uint32					mMaxContacts = 0;								///< Maximum amount of contacts supported
-	uint32					mNumContacts = 0;								///< Size of the contacts list (see ContactConstraintManager::mNumConstraints)
-	uint32					mNumIslands = 0;								///< Final number of islands
+	uint32					mMaxActiveBodies;								// Maximum size of the active bodies list (see BodyManager::mActiveBodies)
+	uint32					mNumActiveBodies = 0;							// Number of active bodies passed to
+	uint32					mNumConstraints = 0;							// Size of the constraint list (see ConstraintManager::mConstraints)
+	uint32					mMaxContacts = 0;								// Maximum amount of contacts supported
+	uint32					mNumContacts = 0;								// Size of the contacts list (see ContactConstraintManager::mNumConstraints)
+	uint32					mNumIslands = 0;								// Final number of islands
 
 #ifdef MOSS_VALIDATE_ISLAND_BUILDER
 	/// Structure to keep track of all added links to validate that islands were generated correctly

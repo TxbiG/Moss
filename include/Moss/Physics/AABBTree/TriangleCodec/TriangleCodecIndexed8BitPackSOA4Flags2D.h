@@ -25,8 +25,8 @@ class TriangleCodecIndexed8BitPackSOA4Flags {
 public:
 	class TriangleHeader {
 	public:
-		Float2						mOffset;			///< Offset of all vertices
-		Float2						mScale;				///< Scale of all vertices, vertex_position = mOffset + mScale * compressed_vertex_position
+		Float2						mOffset;			// Offset of all vertices
+		Float2						mScale;				// Scale of all vertices, vertex_position = mOffset + mScale * compressed_vertex_position
 	};
 
 	/// Size of the header (an empty struct is always > 0 bytes so this needs a separate variable)
@@ -65,18 +65,18 @@ public:
 
 	/// A block of 4 triangles
 	struct TriangleBlock {
-		uint8						mIndices[3][4];				///< 8 bit indices to triangle vertices for 4 triangles in the form mIndices[vertex][triangle] where vertex in [0, 2] and triangle in [0, 3]
-		uint8						mFlags[4];					///< Triangle flags (could contain material and active edges)
+		uint8						mIndices[3][4];				// 8 bit indices to triangle vertices for 4 triangles in the form mIndices[vertex][triangle] where vertex in [0, 2] and triangle in [0, 3]
+		uint8						mFlags[4];					// Triangle flags (could contain material and active edges)
 	};
 
 	static_assert(sizeof(TriangleBlock) == 16, "Compiler added padding");
 
 	enum ETriangleBlockHeaderFlags : uint32 {
-		OFFSET_TO_VERTICES_BITS = 29,							///< Offset from current block to start of vertices in bytes
+		OFFSET_TO_VERTICES_BITS = 29,							// Offset from current block to start of vertices in bytes
 		OFFSET_TO_VERTICES_MASK = (1 << OFFSET_TO_VERTICES_BITS) - 1,
-		OFFSET_NON_SIGNIFICANT_BITS = 2,						///< The offset from the current block to the start of the vertices must be a multiple of 4 bytes
+		OFFSET_NON_SIGNIFICANT_BITS = 2,						// The offset from the current block to the start of the vertices must be a multiple of 4 bytes
 		OFFSET_NON_SIGNIFICANT_MASK = (1 << OFFSET_NON_SIGNIFICANT_BITS) - 1,
-		OFFSET_TO_USERDATA_BITS = 3,							///< When user data is stored, this is the number of blocks to skip to get to the user data (0 = no user data)
+		OFFSET_TO_USERDATA_BITS = 3,							// When user data is stored, this is the number of blocks to skip to get to the user data (0 = no user data)
 		OFFSET_TO_USERDATA_MASK = (1 << OFFSET_TO_USERDATA_BITS) - 1,
 	};
 
@@ -106,9 +106,9 @@ public:
 		bool IsDegenerate(const IndexedTriangle &inTriangle) const {
 			// Quantize the triangle in the same way as EncodingContext::Finalize does
 			UVec4 quantized_vertex[3];
-			Vec2 compress_scale = Vec2::sReplicate(COMPONENT_MASK) / Vec2::sMax(mBounds.GetSize(), Vec2::sReplicate(1.0e-20f));
+			Vec2 compress_scale = Vec2::Replicate(COMPONENT_MASK) / Vec2::Max(mBounds.GetSize(), Vec2::Replicate(1.0e-20f));
 			for (int i = 0; i < 3; ++i)
-				quantized_vertex[i] = ((Vec2(mVertices[inTriangle.mIdx[i]]) - mBounds.mMin) * compress_scale + Vec2::sReplicate(0.5f)).ToInt();
+				quantized_vertex[i] = ((Vec2(mVertices[inTriangle.mIdx[i]]) - mBounds.mMin) * compress_scale + Vec2::Replicate(0.5f)).ToInt();
 			return quantized_vertex[0] == quantized_vertex[1] || quantized_vertex[1] == quantized_vertex[2] || quantized_vertex[0] == quantized_vertex[2];
 		}
 
@@ -276,9 +276,9 @@ public:
 
 			// Compress vertices
 			VertexData *vertices = ioBuffer.Allocate<VertexData>(mVertices.size());
-			Vec2 compress_scale = Vec2::sReplicate(COMPONENT_MASK) / Vec2::sMax(bounds.GetSize(), Vec2::sReplicate(1.0e-20f));
+			Vec2 compress_scale = Vec2::Replicate(COMPONENT_MASK) / Vec2::Max(bounds.GetSize(), Vec2::Replicate(1.0e-20f));
 			for (uint32 v : mVertices) {
-				UVec4 c = ((Vec2(inVertices[v]) - bounds.mMin) * compress_scale + Vec2::sReplicate(0.5f)).ToInt();
+				UVec4 c = ((Vec2(inVertices[v]) - bounds.mMin) * compress_scale + Vec2::Replicate(0.5f)).ToInt();
 				MOSS_ASSERT(c.GetX() <= COMPONENT_MASK);
 				MOSS_ASSERT(c.GetY() <= COMPONENT_MASK);
 				MOSS_ASSERT(c.GetZ() <= COMPONENT_MASK);
@@ -289,16 +289,16 @@ public:
 
 			// Store decompression information
 			bounds.mMin.StoreFloat2(&ioHeader->mOffset);
-			(bounds.GetSize() / Vec2::sReplicate(COMPONENT_MASK)).StoreFloat2(&ioHeader->mScale);
+			(bounds.GetSize() / Vec2::Replicate(COMPONENT_MASK)).StoreFloat2(&ioHeader->mScale);
 		}
 
 	private:
 		using VertexMap = TArray<uint32>;
 
-		uint32						mVertexCount = 0;			///< Number of vertices calculated during PreparePack
-		size_t						mVerticesStartIdx = 0;		///< Start of the vertices in the output buffer, calculated during PreparePack
-		TArray<uint32>				mVertices;					///< Output vertices as an index into the original vertex list (inVertices), sorted according to occurrence
-		VertexMap					mVertexMap;					///< Maps from the original mesh vertex index (inVertices) to the index in our output vertices (mVertices)
+		uint32						mVertexCount = 0;			// Number of vertices calculated during PreparePack
+		size_t						mVerticesStartIdx = 0;		// Start of the vertices in the output buffer, calculated during PreparePack
+		TArray<uint32>				mVertices;					// Output vertices as an index into the original vertex list (inVertices), sorted according to occurrence
+		VertexMap					mVertexMap;					// Maps from the original mesh vertex index (inVertices) to the index in our output vertices (mVertices)
 	};
 
 	/// This class is used to decode and decompress triangle data packed by the EncodingContext
@@ -307,22 +307,22 @@ public:
 		/// Private helper function to unpack the 1 vertex of 4 triangles (outX contains the x coordinate of triangle 0 .. 3 etc.)
 		MOSS_INLINE void Unpack(const VertexData *inVertices, UVec4Arg inIndex, Vec4 &out) const {
 			// Get compressed data
-			UVec4 c1 = UVec4::sGatherInt4<8>(&inVertices->mVertexXY, inIndex);
-			UVec4 c2 = UVec4::sGatherInt4<8>(&inVertices->mVertexZY, inIndex);
+			UVec4 c1 = UVec4::GatherInt4<8>(&inVertices->mVertexXY, inIndex);
+			UVec4 c2 = UVec4::GatherInt4<8>(&inVertices->mVertexZY, inIndex);
 
 			// Unpack the x y and z component
-			UVec4 xc = UVec4::sAnd(c1, UVec4::sReplicate(COMPONENT_MASK));
-			UVec4 yc = UVec4::sOr(c1.LogicalShiftRight<COMPONENT_Y1>(), c2.LogicalShiftRight<COMPONENT_Y2>().LogicalShiftLeft<COMPONENT_Y1_BITS>());
-			UVec4 zc = UVec4::sAnd(c2, UVec4::sReplicate(COMPONENT_MASK));
+			UVec4 xc = UVec4::And(c1, UVec4::Replicate(COMPONENT_MASK));
+			UVec4 yc = UVec4::Or(c1.LogicalShiftRight<COMPONENT_Y1>(), c2.LogicalShiftRight<COMPONENT_Y2>().LogicalShiftLeft<COMPONENT_Y1_BITS>());
+			UVec4 zc = UVec4::And(c2, UVec4::Replicate(COMPONENT_MASK));
 
 			// Convert to float
-			out = Vec4::sFusedMultiplyAdd(xc.ToFloat(), mScale, mOffset);
+			out = Vec4::FusedMultiplyAdd(xc.ToFloat(), mScale, mOffset);
 		}
 
 		/// Private helper function to unpack 4 triangles from a triangle block
 		MOSS_INLINE void Unpack(const TriangleBlock *inBlock, const VertexData *inVertices, Vec4 &outX1, Vec4 &outY1, Vec4 &outZ1, Vec4 &outX2, Vec4 &outY2, Vec4 &outZ2, Vec4 &outX3, Vec4 &outY3, Vec4 &outZ3) const {
 			// Get the indices for the three vertices (reads 4 bytes extra, but these are the flags so that's ok)
-			UVec4 indices = UVec4::sLoadInt4(reinterpret_cast<const uint32 *>(&inBlock->mIndices[0]));
+			UVec4 indices = UVec4::LoadInt4(reinterpret_cast<const uint32 *>(&inBlock->mIndices[0]));
 			UVec4 iv1 = indices.Expand4Byte0();
 			UVec4 iv2 = indices.Expand4Byte4();
 			UVec4 iv3 = indices.Expand4Byte8();
@@ -342,12 +342,12 @@ public:
 
 	public:
 		MOSS_INLINE explicit DecodingContext(const TriangleHeader *inHeader) :
-			mOffsetX(Vec4::sReplicate(inHeader->mOffset.x)),
-			mOffsetY(Vec4::sReplicate(inHeader->mOffset.y)),
-			mOffsetZ(Vec4::sReplicate(inHeader->mOffset.z)),
-			mScaleX(Vec4::sReplicate(inHeader->mScale.x)),
-			mScaleY(Vec4::sReplicate(inHeader->mScale.y)),
-			mScaleZ(Vec4::sReplicate(inHeader->mScale.z))
+			mOffsetX(Vec4::Replicate(inHeader->mOffset.x)),
+			mOffsetY(Vec4::Replicate(inHeader->mOffset.y)),
+			mOffsetZ(Vec4::Replicate(inHeader->mOffset.z)),
+			mScaleX(Vec4::Replicate(inHeader->mScale.x)),
+			mScaleY(Vec4::Replicate(inHeader->mScale.y)),
+			mScaleZ(Vec4::Replicate(inHeader->mScale.z))
 		{
 		}
 
@@ -367,9 +367,9 @@ public:
 				Unpack(t, vertices, v1x, v1y, v1z, v2x, v2y, v2z, v3x, v3y, v3z);
 
 				// Transpose it so we get normal vectors
-				Mat44 v1 = Mat44(v1x, v1y, v1z, Vec4::sZero()).Transposed();
-				Mat44 v2 = Mat44(v2x, v2y, v2z, Vec4::sZero()).Transposed();
-				Mat44 v3 = Mat44(v3x, v3y, v3z, Vec4::sZero()).Transposed();
+				Mat44 v1 = Mat44(v1x, v1y, v1z, Vec4::Zero()).Transposed();
+				Mat44 v2 = Mat44(v2x, v2y, v2z, Vec4::Zero()).Transposed();
+				Mat44 v3 = Mat44(v3x, v3y, v3z, Vec4::Zero()).Transposed();
 
 				// Store triangle data
 				for (int i = 0; i < 4 && triangles_left > 0; ++i, --triangles_left)
@@ -392,10 +392,10 @@ public:
 			const TriangleBlock *t = header->GetTriangleBlock();
 			const TriangleBlock *end = t + ((inNumTriangles + 3) >> 2);
 
-			Vec4 closest = Vec4::sReplicate(inClosest);
-			UVec4 closest_triangle_idx = UVec4::sZero();
+			Vec4 closest = Vec4::Replicate(inClosest);
+			UVec4 closest_triangle_idx = UVec4::Zero();
 
-			UVec4 start_triangle_idx = UVec4::sZero();
+			UVec4 start_triangle_idx = UVec4::Zero();
 			do {
 				// Unpack the vertices for 4 triangles
 				Vec4 v1x, v1y, v1z, v2x, v2y, v2z, v3x, v3y, v3z;
@@ -405,21 +405,21 @@ public:
 				Vec4 distance = RayTriangle4(inRayOrigin, inRayDirection, v1x, v1y, v1z, v2x, v2y, v2z, v3x, v3y, v3z);
 
 				// Update closest with the smaller values
-				UVec4 smaller = Vec4::sLess(distance, closest);
-				closest = Vec4::sSelect(closest, distance, smaller);
+				UVec4 smaller = Vec4::Less(distance, closest);
+				closest = Vec4::Select(closest, distance, smaller);
 
 				// Update triangle index with the smallest values
 				UVec4 triangle_idx = start_triangle_idx + UVec4(0, 1, 2, 3);
-				closest_triangle_idx = UVec4::sSelect(closest_triangle_idx, triangle_idx, smaller);
+				closest_triangle_idx = UVec4::Select(closest_triangle_idx, triangle_idx, smaller);
 
 				// Next block
 				++t;
-				start_triangle_idx += UVec4::sReplicate(4);
+				start_triangle_idx += UVec4::Replicate(4);
 			}
 			while (t < end);
 
 			// Get the smallest component
-			Vec4::sSort4(closest, closest_triangle_idx);
+			Vec4::Sort4(closest, closest_triangle_idx);
 			outClosestTriangleIndex = closest_triangle_idx.GetX();
 			return closest.GetX();
 		}
@@ -441,17 +441,17 @@ public:
 			UVec4 c2(v1.mVertexZY, v2.mVertexZY, v3.mVertexZY, 0);
 
 			// Unpack the x y and z component
-			UVec4 xc = UVec4::sAnd(c1, UVec4::sReplicate(COMPONENT_MASK));
-			UVec4 yc = UVec4::sOr(c1.LogicalShiftRight<COMPONENT_Y1>(), c2.LogicalShiftRight<COMPONENT_Y2>().LogicalShiftLeft<COMPONENT_Y1_BITS>());
-			UVec4 zc = UVec4::sAnd(c2, UVec4::sReplicate(COMPONENT_MASK));
+			UVec4 xc = UVec4::And(c1, UVec4::Replicate(COMPONENT_MASK));
+			UVec4 yc = UVec4::Or(c1.LogicalShiftRight<COMPONENT_Y1>(), c2.LogicalShiftRight<COMPONENT_Y2>().LogicalShiftLeft<COMPONENT_Y1_BITS>());
+			UVec4 zc = UVec4::And(c2, UVec4::Replicate(COMPONENT_MASK));
 
 			// Convert to float
-			Vec4 vx = Vec4::sFusedMultiplyAdd(xc.ToFloat(), mScaleX, mOffsetX);
-			Vec4 vy = Vec4::sFusedMultiplyAdd(yc.ToFloat(), mScaleY, mOffsetY);
-			Vec4 vz = Vec4::sFusedMultiplyAdd(zc.ToFloat(), mScaleZ, mOffsetZ);
+			Vec4 vx = Vec4::FusedMultiplyAdd(xc.ToFloat(), mScaleX, mOffsetX);
+			Vec4 vy = Vec4::FusedMultiplyAdd(yc.ToFloat(), mScaleY, mOffsetY);
+			Vec4 vz = Vec4::FusedMultiplyAdd(zc.ToFloat(), mScaleZ, mOffsetZ);
 
 			// Transpose it so we get normal vectors
-			Mat44 trans = Mat44(vx, vy, vz, Vec4::sZero()).Transposed();
+			Mat44 trans = Mat44(vx, vy, vz, Vec4::Zero()).Transposed();
 			outV1 = trans.GetAxisX();
 			outV2 = trans.GetAxisY();
 			outV3 = trans.GetAxisZ();

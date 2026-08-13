@@ -134,9 +134,9 @@ public:
 	public:
 		using LFHMAllocatorContext::LFHMAllocatorContext;
 
-		uint					mNumBodyPairs = 0;													///< Total number of body pairs added using this allocator
-		uint					mNumManifolds = 0;													///< Total number of manifolds added using this allocator
-		EPhysicsUpdateError		mErrors = EPhysicsUpdateError::None;								///< Errors reported on this allocator
+		uint					mNumBodyPairs = 0;						// Total number of body pairs added using this allocator
+		uint					mNumManifolds = 0;						// Total number of manifolds added using this allocator
+		EPhysicsUpdateError		mErrors = EPhysicsUpdateError::None;	// Errors reported on this allocator
 	};
 
 	/// Get a new allocator context for storing contacts. Note that you should call this once and then add multiple contacts using the context.
@@ -352,8 +352,8 @@ private:
 		/// Flags for this cached manifold
 		enum class EFlags : uint16
 		{
-			ContactPersisted	= 1,																///< If this cache entry was reused in the next simulation update
-			CCDContact			= 2																	///< This is a cached manifold reported by continuous collision detection and was only used to create a contact callback
+			ContactPersisted	= 1,																// If this cache entry was reused in the next simulation update
+			CCDContact			= 2																	// This is a cached manifold reported by continuous collision detection and was only used to create a contact callback
 		};
 
 		/// @see EFlags
@@ -462,12 +462,12 @@ private:
 		BodyPairMap				mCachedBodyPairs { mAllocator };
 
 #ifdef MOSS_DEBUG
-		bool					mIsFinalized = false;						///< Marks if this buffer is complete
+		bool					mIsFinalized = false;						// Marks if this buffer is complete
 #endif
 	};
 
-	ManifoldCache				mCache[2];									///< We have one cache to read from and one to write to
-	int							mCacheWriteIdx = 0;							///< Which cache we're currently writing to
+	ManifoldCache				mCache[2];									// We have one cache to read from and one to write to
+	int							mCacheWriteIdx = 0;							// Which cache we're currently writing to
 
 	/// World space contact point, used for solving penetrations
 	class WorldContactPoint
@@ -502,7 +502,7 @@ private:
 		/// Convert the world space normal to a Vec3
 		MOSS_INLINE Vec3			GetWorldSpaceNormal() const
 		{
-			return Vec3::sLoadFloat3Unsafe(mWorldSpaceNormal);
+			return Vec3::LoadFloat3Unsafe(mWorldSpaceNormal);
 		}
 
 		/// Get the tangents for this contact constraint

@@ -15,8 +15,8 @@ class MOSS_EXPORT PhysicsMaterialSimple : public PhysicsMaterial
 
 public:
 	/// Constructor
-											PhysicsMaterialSimple() = default;
-											PhysicsMaterialSimple(const string_view &inName, ColorArg inColor) : mDebugName(inName), mDebugColor(inColor) { }
+	PhysicsMaterialSimple() = default;
+	PhysicsMaterialSimple(const string_view &inName, ColorArg inColor) : mDebugName(inName), mDebugColor(inColor) { }
 
 	// Properties
 	virtual const char *					GetDebugName() const override		{ return mDebugName.c_str(); }
@@ -30,8 +30,8 @@ protected:
 	virtual void							RestoreBinaryState(StreamIn &inStream) override;
 
 private:
-	String									mDebugName;							///< Name of the material, used for debugging purposes
-	Color									mDebugColor = Color::sGrey;			///< Color of the material, used to render the shapes
+	String									mDebugName;							// Name of the material, used for debugging purposes
+	Color									mDebugColor = Color::Grey;			// Color of the material, used to render the shapes
 };
 
 MOSS_NAMESPACE_END

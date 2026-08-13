@@ -5,12 +5,12 @@ class Body;
 
 
 enum class EPathRotationConstraintType {
-	Free,							///< Do not constrain the rotation of the body at all
-	ConstrainAroundTangent,			///< Only allow rotation around the tangent vector (following the path)
-	ConstrainAroundNormal,			///< Only allow rotation around the normal vector (perpendicular to the path)
-	ConstrainAroundBinormal,		///< Only allow rotation around the binormal vector (perpendicular to the path)
-	ConstrainToPath,				///< Fully constrain the rotation of body 2 to the path (following the tangent and normal of the path)
-	FullyConstrained,				///< Fully constrain the rotation of the body 2 to the rotation of body 1
+	Free,							// Do not constrain the rotation of the body at all
+	ConstrainAroundTangent,			// Only allow rotation around the tangent vector (following the path)
+	ConstrainAroundNormal,			// Only allow rotation around the normal vector (perpendicular to the path)
+	ConstrainAroundBinormal,		// Only allow rotation around the binormal vector (perpendicular to the path)
+	ConstrainToPath,				// Fully constrain the rotation of body 2 to the path (following the tangent and normal of the path)
+	FullyConstrained,				// Fully constrain the rotation of the body 2 to the rotation of body 1
 };
 
 class AngleConstraintPart {
@@ -905,8 +905,8 @@ public:
 	}
 
 private:
-	Vec3						mA1;						///< World space hinge axis for body 1
-	Vec3						mB2;						///< World space perpendiculars of hinge axis for body 2
+	Vec3						mA1;						// World space hinge axis for body 1
+	Vec3						mB2;						// World space perpendiculars of hinge axis for body 2
 	Vec3						mC2;
 	Mat44						mInvI1;
 	Mat44						mInvI2;
@@ -3473,9 +3473,9 @@ public:
 	// Motor controls
 	void						SetMotorState(EMotorState inState)						{ MOSS_ASSERT(inState == EMotorState::Off || mMotorSettings.IsValid()); mMotorState = inState; }
 	EMotorState					GetMotorState() const									{ return mMotorState; }
-	void						SetTargetAngularVelocity(float inAngularVelocity)		{ mTargetAngularVelocity = inAngularVelocity; } ///< rad/s
+	void						SetTargetAngularVelocity(float inAngularVelocity)		{ mTargetAngularVelocity = inAngularVelocity; } // rad/s
 	float						GetTargetAngularVelocity() const						{ return mTargetAngularVelocity; }
-	void						SetTargetAngle(float inAngle)							{ mTargetAngle = mHasLimits? Clamp(inAngle, mLimitsMin, mLimitsMax) : inAngle; } ///< rad
+	void						SetTargetAngle(float inAngle)							{ mTargetAngle = mHasLimits? Clamp(inAngle, mLimitsMin, mLimitsMax) : inAngle; } // rad
 	float						GetTargetAngle() const									{ return mTargetAngle; }
 
 	/// Update the rotation limits of the hinge, value in radians (see HingeConstraintSettings)
@@ -3887,15 +3887,15 @@ public:
 	ESwingType					mSwingType = ESwingType::Cone;
 
 	///@name Swing rotation limits
-	float						mNormalHalfConeAngle = 0.0f;								///< See image at Detailed Description. Angle in radians.
-	float						mPlaneHalfConeAngle = 0.0f;									///< See image at Detailed Description. Angle in radians.
+	float						mNormalHalfConeAngle = 0.0f;								// See image at Detailed Description. Angle in radians.
+	float						mPlaneHalfConeAngle = 0.0f;									// See image at Detailed Description. Angle in radians.
 
 	///@name Twist rotation limits
-	float						mTwistMinAngle = 0.0f;										///< See image at Detailed Description. Angle in radians. Should be \f$\in [-\pi, \pi]\f$.
-	float						mTwistMaxAngle = 0.0f;										///< See image at Detailed Description. Angle in radians. Should be \f$\in [-\pi, \pi]\f$.
+	float						mTwistMinAngle = 0.0f;										// See image at Detailed Description. Angle in radians. Should be \f$\in [-\pi, \pi]\f$.
+	float						mTwistMaxAngle = 0.0f;										// See image at Detailed Description. Angle in radians. Should be \f$\in [-\pi, \pi]\f$.
 
 	///@name Friction
-	float						mMaxFrictionTorque = 0.0f;									///< Maximum amount of torque (N m) to apply as friction when the constraint is not powered by a motor
+	float						mMaxFrictionTorque = 0.0f;									// Maximum amount of torque (N m) to apply as friction when the constraint is not powered by a motor
 
 	///@name In case the constraint is powered, this determines the motor settings around the swing and twist axis
 	MotorSettings				mSwingMotorSettings;
@@ -4565,10 +4565,10 @@ private:
 
 	// CONFIGURATION PROPERTIES FOLLOW
 
-	RefConst<PathConstraintPath>	mPath;													///< The path that attaches the two bodies
-	Mat44							mPathToBody1;											///< Transform that takes a quantity from path space to body 1 center of mass space
-	Mat44							mPathToBody2;											///< Transform that takes a quantity from path space to body 2 center of mass space
-	EPathRotationConstraintType		mRotationConstraintType;								///< How to constrain the rotation of the path
+	RefConst<PathConstraintPath>	mPath;													// The path that attaches the two bodies
+	Mat44							mPathToBody1;											// Transform that takes a quantity from path space to body 1 center of mass space
+	Mat44							mPathToBody2;											// Transform that takes a quantity from path space to body 2 center of mass space
+	EPathRotationConstraintType		mRotationConstraintType;								// How to constrain the rotation of the path
 
 	// Friction
 	float							mMaxFrictionForce;
@@ -4602,13 +4602,13 @@ private:
 	float							mPathFraction = 0.0f;
 
 	// Translation constraint parts
-	DualAxisConstraintPart			mPositionConstraintPart;								///< Constraint part that keeps the movement along the tangent of the path
-	AxisConstraintPart				mPositionLimitsConstraintPart;							///< Constraint part that prevents movement beyond the beginning and end of the path
-	AxisConstraintPart				mPositionMotorConstraintPart;							///< Constraint to drive the object along the path or to apply friction
+	DualAxisConstraintPart			mPositionConstraintPart;								// Constraint part that keeps the movement along the tangent of the path
+	AxisConstraintPart				mPositionLimitsConstraintPart;							// Constraint part that prevents movement beyond the beginning and end of the path
+	AxisConstraintPart				mPositionMotorConstraintPart;							// Constraint to drive the object along the path or to apply friction
 
 	// Rotation constraint parts
-	HingeRotationConstraintPart		mHingeConstraintPart;									///< Constraint part that removes 2 degrees of rotation freedom
-	RotationEulerConstraintPart		mRotationConstraintPart;								///< Constraint part that removes all rotational freedom
+	HingeRotationConstraintPart		mHingeConstraintPart;									// Constraint part that removes 2 degrees of rotation freedom
+	RotationEulerConstraintPart		mRotationConstraintPart;								// Constraint part that removes all rotational freedom
 };
 
 
@@ -4782,9 +4782,9 @@ public:
 	{
 		MOSS_DECLARE_SERIALIZABLE_NON_VIRTUAL(MOSS_EXPORT, Point)
 
-		Vec3			mPosition;															///< Position on the path
-		Vec3			mTangent;															///< Tangent of the path, does not need to be normalized (in the direction of the path)
-		Vec3			mNormal;															///< Normal of the path (together with the tangent along the curve this forms a basis for the constraint)
+		Vec3			mPosition;															// Position on the path
+		Vec3			mTangent;															// Tangent of the path, does not need to be normalized (in the direction of the path)
+		Vec3			mNormal;															// Normal of the path (together with the tangent along the curve this forms a basis for the constraint)
 	};
 
 protected:
@@ -4797,7 +4797,7 @@ private:
 
 	using Points = TArray<Point>;
 
-	Points				mPoints;															///< Points on the Hermite spline
+	Points				mPoints;															// Points on the Hermite spline
 };
 
 
