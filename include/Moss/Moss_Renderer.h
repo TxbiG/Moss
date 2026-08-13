@@ -140,22 +140,14 @@ struct Camera3D {
 };
 
 struct Material2D {
-    Color* albedo;
-    Texture* albedoMap;
-    Texture* normalMap;
+    Color albedo;
+    Texture* albedoMap, normalMap = nullptr;
 };
 
 struct Material3D {
-    Color* albedo;
-    float* metallic;
-    float* roughness;
-    float* ao;
-    float* specular;
-    Texture* albedoMap;
-    Texture* normalMap;
-    Texture* roughnessMap;
-    Texture* metallicMap;
-    Texture* aoMap;
+    Color albedo;
+    float metallic, roughness, ao, specular;
+    Texture* albedoMap, normalMap, roughnessMap, metallicMap, aoMap = nullptr;
 };
 
 

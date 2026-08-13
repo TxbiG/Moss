@@ -553,7 +553,7 @@ struct Moss_PenButtonEvent {
     //Moss_EventType type; // Moss_EVENT_PEN_BUTTON_DOWN or Moss_EVENT_PEN_BUTTON_UP */
     uint32_t reserved;
     uint64_t timestamp;   // In nanoseconds, populated using Moss_GetTicksNS() */
-    Moss_PenID which;        // The pen instance id */
+    Moss_PenID id;        // The pen instance id */
     Moss_PenInputFlags pen_state;   // Complete pen input state at time of event */
     float x;                // X coordinate, relative to window */
     float y;                // Y coordinate, relative to window */
@@ -565,7 +565,7 @@ struct Moss_PenMotionEvent {
     //Moss_EventType type; // Moss_EVENT_PEN_MOTION */
     uint32_t reserved;
     uint64_t timestamp;   // In nanoseconds, populated using Moss_GetTicksNS() */
-    Moss_PenID which;        // The pen instance id */
+    Moss_PenID id;        // The pen instance id */
     Moss_PenInputFlags pen_state;   // Complete pen input state at time of event */
     float x;                // X coordinate, relative to window */
     float y;                // Y coordinate, relative to window */
@@ -575,14 +575,14 @@ struct Moss_PenProximityEvent {
     //Moss_EventType type; // Moss_EVENT_PEN_PROXIMITY_IN or Moss_EVENT_PEN_PROXIMITY_OUT */
     uint32_t reserved;
     uint64 timestamp;   // In nanoseconds, populated using Moss_GetTicksNS() */
-    Moss_PenID which;        // The pen instance id */
+    Moss_PenID id;        // The pen instance id */
 };
 
 struct Moss_PenTouchEvent {
     //Moss_EventType type;     // Moss_EVENT_PEN_DOWN or Moss_EVENT_PEN_UP */
     uint32_t reserved;
     uint64 timestamp;       // In nanoseconds, populated using Moss_GetTicksNS() */
-    Moss_PenID which;        // The pen instance id */
+    Moss_PenID id;        // The pen instance id */
     Moss_PenInputFlags pen_state;   // Complete pen input state at time of event */
     float x;                // X coordinate, relative to window */
     float y;                // Y coordinate, relative to window */
@@ -1033,12 +1033,6 @@ MOSS_API void Moss_CloseCamera(Moss_Camera* camera);
 MOSS_API Moss_CameraID Moss_GetCameraID(Moss_Camera* camera);
 MOSS_API Moss_PropertiesID Moss_GetCameraProperties(Moss_Camera* camera);
 MOSS_API Moss_Camera * Moss_OpenCamera(Moss_CameraID instance_id, const Moss_CameraSpec* spec);
-/*! @brief X. @param X X @ingroup Video Capture. */
-MOSS_API Moss_VideoCapture* Moss_OpenVideoCapture(Moss_VideoCaptureID captureID);
-/*! @brief X. @param X X @ingroup Video Capture. */
-MOSS_API void Moss_CloseVideoCapture(Moss_VideoCapture* cap);
-/*! @brief X. @param X X @ingroup Video Capture. */
-MOSS_API uint8_t* Moss_VideoCaptureReadFrame(Moss_VideoCapture* cap);
 
 
 MOSS_API bool Moss_CopyFile(const char* src_path, const char* dst_path, bool overwrite);
@@ -1130,4 +1124,5 @@ MOSS_API void Moss_Metal_DestroyView(Moss_MetalView view);
 MOSS_API void* Moss_Metal_GetLayer(Moss_MetalView view);
 MOSS_API void Moss_Metal_Resize(Moss_MetalView handle, uint32_t width, uint32_t height);
 #endif // MOSS_GRAPHICS_METAL
+
 #endif // MOSS_PLATFORM_H
