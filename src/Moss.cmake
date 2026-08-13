@@ -8,6 +8,13 @@ set(MOSS_ROOT ${REPO_ROOT}/src) # Switch Moss to src
 
 set(MOSS_ROOT_INCLUDE ${REPO_ROOT}/include/Moss) # matches the repo's include/Moss layout
 
+# The compiler's include *search path* needs to be the parent of include/Moss,
+# since the codebase includes its own headers as "Moss/Foo.h" (e.g. Moss.h
+# itself does #include "Moss/Moss_stdinc.h"). MOSS_ROOT_INCLUDE above stays
+# pointed at include/Moss because that's where the actual files live (used
+# for globbing and the precompiled header path).
+set(MOSS_PUBLIC_INCLUDE_DIR ${REPO_ROOT}/include)
+
 # -----------------------------------------------------------------------------
 # File discovery
 #
@@ -202,7 +209,7 @@ if (BUILD_SHARED_LIBS)
 endif()
 
 
-target_include_directories(Moss PUBLIC $<BUILD_INTERFACE:${MOSS_ROOT}> $<BUILD_INTERFACE:${MOSS_ROOT_INCLUDE}> $<INSTALL_INTERFACE:include>)
+target_include_directories(Moss PUBLIC $<BUILD_INTERFACE:${MOSS_ROOT}> $<BUILD_INTERFACE:${MOSS_PUBLIC_INCLUDE_DIR}> $<INSTALL_INTERFACE:include>)
 
 if(WIN32)
     target_link_libraries(Moss PRIVATE user32 gdi32)
