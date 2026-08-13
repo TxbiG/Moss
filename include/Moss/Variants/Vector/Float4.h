@@ -5,6 +5,7 @@
 #pragma once
 
 #include <Moss/Core/HashCombine.h>
+#include <Moss/Variants/TArray.h>
 
 MOSS_SUPRESS_WARNINGS_BEGIN
 

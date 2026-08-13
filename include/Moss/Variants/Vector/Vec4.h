@@ -5,7 +5,7 @@
 #pragma once
 
 #include <Moss/Variants/Vector/Float4.h>
-#include <Moss/Variants/Math/Swizzle.h>
+#include <Moss/Moss_stdinc.h>
 #include <Moss/Variants/Math/MathTypes.h>
 
 MOSS_SUPRESS_WARNINGS_BEGIN

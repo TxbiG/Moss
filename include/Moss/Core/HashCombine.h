@@ -104,7 +104,7 @@ struct Hash<std::string_view>
 {
 	uint64		operator () (const std::string_view &inValue) const
 	{
-		return HashBytes(inValue.data(), uint(inValue.size()));
+		return HashBytes(inValue.data(), uint64(inValue.size()));
 	}
 };
 
@@ -114,7 +114,7 @@ struct Hash<String>
 {
 	uint64		operator () (const String &inValue) const
 	{
-		return HashBytes(inValue.data(), uint(inValue.size()));
+		return HashBytes(inValue.data(), uint64(inValue.size()));
 	}
 };
 

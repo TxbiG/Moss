@@ -28,9 +28,7 @@ public:
 	MOSS_INLINE Float3 operator-(const Float3 &rhs) const noexcept { return { x - rhs.x, y - rhs.y, z - rhs.z }; }
     MOSS_INLINE Float3 operator+(const Float3 &rhs) const noexcept { return { x + rhs.x, y + rhs.y, z + rhs.z }; }
 
-	float		x;
-	float		y;
-	float		z;
+	float x, y z;
 };
 
 using VertexList = TArray<Float3>;
