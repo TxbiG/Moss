@@ -91,7 +91,7 @@ void iVec4::CheckW() const
 }
 
 /// Internal helper function that ensures that the Z component is replicated to the W component to prevent divisions by zero
-iVec4::Type iVec4::sFixW(TypeArg inValue)
+iVec4::Type iVec4::FixW(TypeArg inValue)
 {
 #ifdef MOSS_FLOATING_POINT_EXCEPTIONS_ENABLED
 	#if defined(MOSS_SIMD_AVX)
@@ -119,7 +119,7 @@ iVec4::Type iVec4::sFixW(TypeArg inValue)
 #endif // MOSS_FLOATING_POINT_EXCEPTIONS_ENABLED
 }
 
-iVec4 iVec4::sZero()
+iVec4 iVec4::Zero()
 {
 #if defined(MOSS_SIMD_AVX)
 	return _mm256_setzero_pd();
@@ -134,7 +134,7 @@ iVec4 iVec4::sZero()
 #endif
 }
 
-iVec4 iVec4::sReplicate(double inV)
+iVec4 iVec4::Replicate(double inV)
 {
 #if defined(MOSS_SIMD_AVX)
 	return _mm256_set1_pd(inV);
@@ -149,12 +149,12 @@ iVec4 iVec4::sReplicate(double inV)
 #endif
 }
 
-iVec4 iVec4::sNaN()
+iVec4 iVec4::NaN()
 {
 	return sReplicate(numeric_limits<double>::quiet_NaN());
 }
 
-iVec4 iVec4::sLoadDouble3Unsafe(const Double3 &inV)
+iVec4 iVec4::LoadDouble3Unsafe(const Double3 &inV)
 {
 #if defined(MOSS_SIMD_AVX)
 	Type v = _mm256_loadu_pd(&inV.x);
@@ -192,7 +192,7 @@ iVec4::operator Vec4() const
 #endif
 }
 
-iVec4 iVec4::sMin(const iVec4 inV1, const iVec4 inV2)
+iVec4 iVec4::Min(const iVec4 inV1, const iVec4 inV2)
 {
 #if defined(MOSS_SIMD_AVX)
 	return _mm256_min_pd(inV1.mValue, inV2.mValue);
@@ -207,7 +207,7 @@ iVec4 iVec4::sMin(const iVec4 inV1, const iVec4 inV2)
 #endif
 }
 
-iVec4 iVec4::sMax(const iVec4 inV1, const iVec4 inV2)
+iVec4 iVec4::Max(const iVec4 inV1, const iVec4 inV2)
 {
 #if defined(MOSS_SIMD_AVX)
 	return _mm256_max_pd(inV1.mValue, inV2.mValue);
@@ -222,12 +222,12 @@ iVec4 iVec4::sMax(const iVec4 inV1, const iVec4 inV2)
 #endif
 }
 
-iVec4 iVec4::sClamp(const iVec4 inV, const iVec4 inMin, const iVec4 inMax)
+iVec4 iVec4::Clamp(const iVec4 inV, const iVec4 inMin, const iVec4 inMax)
 {
 	return sMax(sMin(inV, inMax), inMin);
 }
 
-iVec4 iVec4::sEquals(const iVec4 inV1, const iVec4 inV2)
+iVec4 iVec4::Equals(const iVec4 inV1, const iVec4 inV2)
 {
 #if defined(MOSS_SIMD_AVX)
 	return _mm256_cmp_pd(inV1.mValue, inV2.mValue, _CMP_EQ_OQ);
@@ -242,7 +242,7 @@ iVec4 iVec4::sEquals(const iVec4 inV1, const iVec4 inV2)
 #endif
 }
 
-iVec4 iVec4::sLess(const iVec4 inV1, const iVec4 inV2)
+iVec4 iVec4::Less(const iVec4 inV1, const iVec4 inV2)
 {
 #if defined(MOSS_SIMD_AVX)
 	return _mm256_cmp_pd(inV1.mValue, inV2.mValue, _CMP_LT_OQ);
@@ -257,7 +257,7 @@ iVec4 iVec4::sLess(const iVec4 inV1, const iVec4 inV2)
 #endif
 }
 
-iVec4 iVec4::sLessOrEqual(const iVec4 inV1, const iVec4 inV2)
+iVec4 iVec4::LessOrEqual(const iVec4 inV1, const iVec4 inV2)
 {
 #if defined(MOSS_SIMD_AVX)
 	return _mm256_cmp_pd(inV1.mValue, inV2.mValue, _CMP_LE_OQ);
@@ -272,7 +272,7 @@ iVec4 iVec4::sLessOrEqual(const iVec4 inV1, const iVec4 inV2)
 #endif
 }
 
-iVec4 iVec4::sGreater(const iVec4 inV1, const iVec4 inV2)
+iVec4 iVec4::Greater(const iVec4 inV1, const iVec4 inV2)
 {
 #if defined(MOSS_SIMD_AVX)
 	return _mm256_cmp_pd(inV1.mValue, inV2.mValue, _CMP_GT_OQ);
@@ -287,7 +287,7 @@ iVec4 iVec4::sGreater(const iVec4 inV1, const iVec4 inV2)
 #endif
 }
 
-iVec4 iVec4::sGreaterOrEqual(const iVec4 inV1, const iVec4 inV2)
+iVec4 iVec4::GreaterOrEqual(const iVec4 inV1, const iVec4 inV2)
 {
 #if defined(MOSS_SIMD_AVX)
 	return _mm256_cmp_pd(inV1.mValue, inV2.mValue, _CMP_GE_OQ);
@@ -302,7 +302,7 @@ iVec4 iVec4::sGreaterOrEqual(const iVec4 inV1, const iVec4 inV2)
 #endif
 }
 
-iVec4 iVec4::sFusedMultiplyAdd(const iVec4 inMul1, const iVec4 inMul2, const iVec4 inAdd)
+iVec4 iVec4::FusedMultiplyAdd(const iVec4 inMul1, const iVec4 inMul2, const iVec4 inAdd)
 {
 #if defined(MOSS_SIMD_AVX)
 	#ifdef MOSS_USE_FMADD
@@ -317,7 +317,7 @@ iVec4 iVec4::sFusedMultiplyAdd(const iVec4 inMul1, const iVec4 inMul2, const iVe
 #endif
 }
 
-iVec4 iVec4::sSelect(const iVec4 inNotSet, const iVec4 inSet, const iVec4 inControl)
+iVec4 iVec4::Select(const iVec4 inNotSet, const iVec4 inSet, const iVec4 inControl)
 {
 #if defined(MOSS_SIMD_AVX)
 	return _mm256_blendv_pd(inNotSet.mValue, inSet.mValue, inControl.mValue);
@@ -339,7 +339,7 @@ iVec4 iVec4::sSelect(const iVec4 inNotSet, const iVec4 inSet, const iVec4 inCont
 #endif
 }
 
-iVec4 iVec4::sOr(const iVec4 inV1, const iVec4 inV2)
+iVec4 iVec4::Or(const iVec4 inV1, const iVec4 inV2)
 {
 #if defined(MOSS_SIMD_AVX)
 	return _mm256_or_pd(inV1.mValue, inV2.mValue);
@@ -355,7 +355,7 @@ iVec4 iVec4::sOr(const iVec4 inV1, const iVec4 inV2)
 #endif
 }
 
-iVec4 iVec4::sXor(const iVec4 inV1, const iVec4 inV2)
+iVec4 iVec4::Xor(const iVec4 inV1, const iVec4 inV2)
 {
 #if defined(MOSS_SIMD_AVX)
 	return _mm256_xor_pd(inV1.mValue, inV2.mValue);
@@ -371,7 +371,7 @@ iVec4 iVec4::sXor(const iVec4 inV1, const iVec4 inV2)
 #endif
 }
 
-iVec4 iVec4::sAnd(const iVec4 inV1, const iVec4 inV2)
+iVec4 iVec4::And(const iVec4 inV1, const iVec4 inV2)
 {
 #if defined(MOSS_SIMD_AVX)
 	return _mm256_and_pd(inV1.mValue, inV2.mValue);
@@ -925,14 +925,14 @@ Vec4 iVec4::ToVec4RoundDown() const
 {
 	iVec4 to_zero = PrepareRoundToZero();
 	iVec4 to_inf = PrepareRoundToInf();
-	return Vec4(iVec4::sSelect(to_zero, to_inf, iVec4::sLess(*this, iVec4::sZero())));
+	return Vec4(iVec4::Select(to_zero, to_inf, iVec4::Less(*this, iVec4::Zero())));
 }
 
 Vec4 iVec4::ToVec4RoundUp() const
 {
 	iVec4 to_zero = PrepareRoundToZero();
 	iVec4 to_inf = PrepareRoundToInf();
-	return Vec4(iVec4::sSelect(to_inf, to_zero, iVec4::sLess(*this, iVec4::sZero())));
+	return Vec4(iVec4::Select(to_inf, to_zero, iVec4::Less(*this, iVec4::Zero())));
 }
 
 MOSS_SUPRESS_WARNINGS_END

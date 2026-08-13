@@ -5,7 +5,7 @@
 #pragma once
 
 #include <Moss/Core/HashCombine.h>
-#include <Moss/Core/Variants/TArray.h>
+#include <Moss/Variants/TArray.h>
 MOSS_SUPRESS_WARNINGS_BEGIN
 
 /// Class that holds 3 floats. Used as a storage class. Convert to Vec3 for calculations.

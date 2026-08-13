@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Moss/Core/Variants/Vector/Vec4.h>
+#include <Moss/Variants/Vector/Vec4.h>
 
 MOSS_WARNINGS_BEGIN
 
@@ -11,13 +11,13 @@ public:
     AABB2() : mBox(Vec4(FLT_MAX, FLT_MAX, -FLT_MAX, -FLT_MAX)) {}
     AABB2(Vec2Arg inMin, Vec2Arg inMax) : mBox(inMin.GetX(), inMin.GetY(), inMax.GetX(), inMax.GetY()) {}
     AABB2(Vec2Arg inCenter, float inRadius) {
-        Vec2 r   = Vec2::sReplicate(inRadius);
+        Vec2 r   = Vec2::Replicate(inRadius);
         Vec2 min = inCenter - r;
         Vec2 max = inCenter + r;
         mBox     = Vec4(min.GetX(), min.GetY(), max.GetX(), max.GetY());
     }
 
-    static AABB2 sFromTwoPoints(Vec2Arg a, Vec2Arg b) { return AABB2(Vec2::sMin(a, b), Vec2::sMax(a, b)); }
+    static AABB2 sFromTwoPoints(Vec2Arg a, Vec2Arg b) { return AABB2(Vec2::Min(a, b), Vec2::Max(a, b)); }
 
     // Reset
     void SetEmpty() { mBox = Vec4(FLT_MAX, FLT_MAX, -FLT_MAX, -FLT_MAX); }

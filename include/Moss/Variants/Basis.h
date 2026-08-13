@@ -1,19 +1,20 @@
 #ifndef BASIS_H
 #define BASIS_H
 
-#include <Moss/Core/Variants/Vector/Vec3.h>
+#include <Moss/Variants/Vector/Vec3.h>
 
-struct Basis {
+class [[nodiscard]] Basis {
     Vec3 rows[3] = {
 		Vec3(1, 0, 0),
 		Vec3(0, 1, 0),
 		Vec3(0, 0, 1)
 	};
+	// Mat3 rows;
 
-	_FORCE_INLINE_ const Vec3 &operator[](int p_axis) const {
+	MOSS_INLINE const Vec3 &operator[](int p_axis) const {
 		return rows[p_axis];
 	}
-	_FORCE_INLINE_ Vec3 &operator[](int p_axis) {
+	MOSS_INLINE Vec3 &operator[](int p_axis) {
 		return rows[p_axis];
 	}
 
@@ -23,7 +24,7 @@ struct Basis {
 	Basis inverse() const;
 	Basis transposed() const;
 
-	_FORCE_INLINE_ real_t determinant() const;
+	MOSS_INLINE real_t determinant() const;
 
 	void rotate(const Vec3 &p_axis, real_t p_angle);
 	Basis rotated(const Vec3 &p_axis, real_t p_angle) const;
@@ -79,13 +80,13 @@ struct Basis {
 	void set_quat_scale(const Quat &p_quat, const Vec3 &p_scale);
 
 	// transposed dot products
-	_FORCE_INLINE_ real_t tdotx(const Vec3 &p_v) const {
+	MOSS_INLINE real_t tdotx(const Vec3 &p_v) const {
 		return rows[0][0] * p_v[0] + rows[1][0] * p_v[1] + rows[2][0] * p_v[2];
 	}
-	_FORCE_INLINE_ real_t tdoty(const Vec3 &p_v) const {
+	MOSS_INLINE real_t tdoty(const Vec3 &p_v) const {
 		return rows[0][1] * p_v[0] + rows[1][1] * p_v[1] + rows[2][1] * p_v[2];
 	}
-	_FORCE_INLINE_ real_t tdotz(const Vec3 &p_v) const {
+	MOSS_INLINE real_t tdotz(const Vec3 &p_v) const {
 		return rows[0][2] * p_v[0] + rows[1][2] * p_v[1] + rows[2][2] * p_v[2];
 	}
 
@@ -95,18 +96,18 @@ struct Basis {
 	bool operator==(const Basis &p_matrix) const;
 	bool operator!=(const Basis &p_matrix) const;
 
-	_FORCE_INLINE_ Vec3 xform(const Vec3 &p_vector) const;
-	_FORCE_INLINE_ Vec3 xform_inv(const Vec3 &p_vector) const;
-	_FORCE_INLINE_ void operator*=(const Basis &p_matrix);
-	_FORCE_INLINE_ Basis operator*(const Basis &p_matrix) const;
-	_FORCE_INLINE_ void operator+=(const Basis &p_matrix);
-	_FORCE_INLINE_ Basis operator+(const Basis &p_matrix) const;
-	_FORCE_INLINE_ void operator-=(const Basis &p_matrix);
-	_FORCE_INLINE_ Basis operator-(const Basis &p_matrix) const;
-	_FORCE_INLINE_ void operator*=(real_t p_val);
-	_FORCE_INLINE_ Basis operator*(real_t p_val) const;
-	_FORCE_INLINE_ void operator/=(real_t p_val);
-	_FORCE_INLINE_ Basis operator/(real_t p_val) const;
+	MOSS_INLINE Vec3 xform(const Vec3 &p_vector) const;
+	MOSS_INLINE Vec3 xform_inv(const Vec3 &p_vector) const;
+	MOSS_INLINE void operator*=(const Basis &p_matrix);
+	MOSS_INLINE Basis operator*(const Basis &p_matrix) const;
+	MOSS_INLINE void operator+=(const Basis &p_matrix);
+	MOSS_INLINE Basis operator+(const Basis &p_matrix) const;
+	MOSS_INLINE void operator-=(const Basis &p_matrix);
+	MOSS_INLINE Basis operator-(const Basis &p_matrix) const;
+	MOSS_INLINE void operator*=(real_t p_val);
+	MOSS_INLINE Basis operator*(real_t p_val) const;
+	MOSS_INLINE void operator/=(real_t p_val);
+	MOSS_INLINE Basis operator/(real_t p_val) const;
 
 	bool is_orthogonal() const;
 	bool is_orthonormal() const;
@@ -122,7 +123,7 @@ struct Basis {
 
 	/* create / set */
 
-	_FORCE_INLINE_ void set(real_t p_xx, real_t p_xy, real_t p_xz, real_t p_yx, real_t p_yy, real_t p_yz, real_t p_zx, real_t p_zy, real_t p_zz) {
+	MOSS_INLINE void set(real_t p_xx, real_t p_xy, real_t p_xz, real_t p_yx, real_t p_yy, real_t p_yz, real_t p_zx, real_t p_zy, real_t p_zz) {
 		rows[0][0] = p_xx;
 		rows[0][1] = p_xy;
 		rows[0][2] = p_xz;
@@ -133,35 +134,35 @@ struct Basis {
 		rows[2][1] = p_zy;
 		rows[2][2] = p_zz;
 	}
-	_FORCE_INLINE_ void set_columns(const Vec3 &p_x, const Vec3 &p_y, const Vec3 &p_z) {
+	MOSS_INLINE void set_columns(const Vec3 &p_x, const Vec3 &p_y, const Vec3 &p_z) {
 		set_column(0, p_x);
 		set_column(1, p_y);
 		set_column(2, p_z);
 	}
 
-	_FORCE_INLINE_ Vec3 get_column(int p_index) const {
+	MOSS_INLINE Vec3 get_column(int p_index) const {
 		// Get actual basis axis column (we store transposed as rows for performance).
 		return Vec3(rows[0][p_index], rows[1][p_index], rows[2][p_index]);
 	}
 
-	_FORCE_INLINE_ void set_column(int p_index, const Vec3 &p_value) {
+	MOSS_INLINE void set_column(int p_index, const Vec3 &p_value) {
 		// Set actual basis axis column (we store transposed as rows for performance).
 		rows[0][p_index] = p_value.x;
 		rows[1][p_index] = p_value.y;
 		rows[2][p_index] = p_value.z;
 	}
 
-	_FORCE_INLINE_ Vec3 get_main_diagonal() const {
+	MOSS_INLINE Vec3 get_main_diagonal() const {
 		return Vec3(rows[0][0], rows[1][1], rows[2][2]);
 	}
 
-	_FORCE_INLINE_ void set_zero() {
+	MOSS_INLINE void set_zero() {
 		rows[0].zero();
 		rows[1].zero();
 		rows[2].zero();
 	}
 
-	_FORCE_INLINE_ Basis transpose_xform(const Basis &p_m) const {
+	MOSS_INLINE Basis transpose_xform(const Basis &p_m) const {
 		return Basis(
 				rows[0].x * p_m[0].x + rows[1].x * p_m[1].x + rows[2].x * p_m[2].x,
 				rows[0].x * p_m[0].y + rows[1].x * p_m[1].y + rows[2].x * p_m[2].y,
@@ -185,63 +186,63 @@ struct Basis {
 
 };
 
-_FORCE_INLINE_ void Basis::operator*=(const Basis &p_matrix) {
+MOSS_INLINE void Basis::operator*=(const Basis &p_matrix) {
 	set(
 			p_matrix.tdotx(rows[0]), p_matrix.tdoty(rows[0]), p_matrix.tdotz(rows[0]),
 			p_matrix.tdotx(rows[1]), p_matrix.tdoty(rows[1]), p_matrix.tdotz(rows[1]),
 			p_matrix.tdotx(rows[2]), p_matrix.tdoty(rows[2]), p_matrix.tdotz(rows[2]));
 }
 
-_FORCE_INLINE_ Basis Basis::operator*(const Basis &p_matrix) const {
+MOSS_INLINE Basis Basis::operator*(const Basis &p_matrix) const {
 	return Basis(
 			p_matrix.tdotx(rows[0]), p_matrix.tdoty(rows[0]), p_matrix.tdotz(rows[0]),
 			p_matrix.tdotx(rows[1]), p_matrix.tdoty(rows[1]), p_matrix.tdotz(rows[1]),
 			p_matrix.tdotx(rows[2]), p_matrix.tdoty(rows[2]), p_matrix.tdotz(rows[2]));
 }
 
-_FORCE_INLINE_ void Basis::operator+=(const Basis &p_matrix) {
+MOSS_INLINE void Basis::operator+=(const Basis &p_matrix) {
 	rows[0] += p_matrix.rows[0];
 	rows[1] += p_matrix.rows[1];
 	rows[2] += p_matrix.rows[2];
 }
 
-_FORCE_INLINE_ Basis Basis::operator+(const Basis &p_matrix) const {
+MOSS_INLINE Basis Basis::operator+(const Basis &p_matrix) const {
 	Basis ret(*this);
 	ret += p_matrix;
 	return ret;
 }
 
-_FORCE_INLINE_ void Basis::operator-=(const Basis &p_matrix) {
+MOSS_INLINE void Basis::operator-=(const Basis &p_matrix) {
 	rows[0] -= p_matrix.rows[0];
 	rows[1] -= p_matrix.rows[1];
 	rows[2] -= p_matrix.rows[2];
 }
 
-_FORCE_INLINE_ Basis Basis::operator-(const Basis &p_matrix) const {
+MOSS_INLINE Basis Basis::operator-(const Basis &p_matrix) const {
 	Basis ret(*this);
 	ret -= p_matrix;
 	return ret;
 }
 
-_FORCE_INLINE_ void Basis::operator*=(real_t p_val) {
+MOSS_INLINE void Basis::operator*=(real_t p_val) {
 	rows[0] *= p_val;
 	rows[1] *= p_val;
 	rows[2] *= p_val;
 }
 
-_FORCE_INLINE_ Basis Basis::operator*(real_t p_val) const {
+MOSS_INLINE Basis Basis::operator*(real_t p_val) const {
 	Basis ret(*this);
 	ret *= p_val;
 	return ret;
 }
 
-_FORCE_INLINE_ void Basis::operator/=(real_t p_val) {
+MOSS_INLINE void Basis::operator/=(real_t p_val) {
 	rows[0] /= p_val;
 	rows[1] /= p_val;
 	rows[2] /= p_val;
 }
 
-_FORCE_INLINE_ Basis Basis::operator/(real_t p_val) const {
+MOSS_INLINE Basis Basis::operator/(real_t p_val) const {
 	Basis ret(*this);
 	ret /= p_val;
 	return ret;

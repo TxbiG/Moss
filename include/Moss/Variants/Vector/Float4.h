@@ -15,7 +15,7 @@ public:
 	MOSS_OVERRIDE_NEW_DELETE
 
 	/* 			Constructors		*/
-	Float4() = default; ///< Intentionally not initialized for performance reasons
+	Float4() = default; // Intentionally not initialized for performance reasons
 	Float4(const Float4 &inRHS) = default;
 	constexpr Float4(float x, float y, float z, float w) : x(x), y(y), z(z), w(w) { }
 

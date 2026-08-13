@@ -14,7 +14,7 @@ MOSS_SUPRESS_WARNINGS_BEGIN
 MOSS_INLINE float Sin(float inX)
 {
 	Vec4 s, c;
-	Vec4::sReplicate(inX).SinCos(s, c);
+	Vec4::Replicate(inX).SinCos(s, c);
 	return s.GetX();
 }
 
@@ -22,28 +22,28 @@ MOSS_INLINE float Sin(float inX)
 MOSS_INLINE float Cos(float inX)
 {
 	Vec4 s, c;
-	Vec4::sReplicate(inX).SinCos(s, c);
+	Vec4::Replicate(inX).SinCos(s, c);
 	return c.GetX();
 }
 
 /// Tangent of x (input in radians)
 MOSS_INLINE float Tan(float inX)
 {
-	return Vec4::sReplicate(inX).Tan().GetX();
+	return Vec4::Replicate(inX).Tan().GetX();
 }
 
 /// Arc sine of x (returns value in the range [-PI / 2, PI / 2])
 /// Note that all input values will be clamped to the range [-1, 1] and this function will not return NaNs like std::asin
 MOSS_INLINE float ASin(float inX)
 {
-	return Vec4::sReplicate(inX).ASin().GetX();
+	return Vec4::Replicate(inX).ASin().GetX();
 }
 
 /// Arc cosine of x (returns value in the range [0, PI])
 /// Note that all input values will be clamped to the range [-1, 1] and this function will not return NaNs like std::acos
 MOSS_INLINE float ACos(float inX)
 {
-	return Vec4::sReplicate(inX).ACos().GetX();
+	return Vec4::Replicate(inX).ACos().GetX();
 }
 
 /// An approximation of ACos, max error is 4.2e-3 over the entire range [-1, 1], is approximately 2.5x faster than ACos
@@ -69,13 +69,13 @@ MOSS_INLINE float ACosApproximate(float inX)
 /// Arc tangent of x (returns value in the range [-PI / 2, PI / 2])
 MOSS_INLINE float ATan(float inX)
 {
-	return Vec4::sReplicate(inX).ATan().GetX();
+	return Vec4::Replicate(inX).ATan().GetX();
 }
 
 /// Arc tangent of y / x using the signs of the arguments to determine the correct quadrant (returns value in the range [-PI, PI])
 MOSS_INLINE float ATan2(float inY, float inX)
 {
-	return Vec4::sATan2(Vec4::sReplicate(inY), Vec4::sReplicate(inX)).GetX();
+	return Vec4::ATan2(Vec4::Replicate(inY), Vec4::Replicate(inX)).GetX();
 }
 
 MOSS_SUPRESS_WARNINGS_END

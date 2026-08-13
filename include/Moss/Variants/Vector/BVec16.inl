@@ -43,7 +43,7 @@ bool BVec16::operator == (BVec16Arg inV2) const
 	return sEquals(*this, inV2).TestAllTrue();
 }
 
-BVec16 BVec16::sZero()
+BVec16 BVec16::Zero()
 {
 #if defined(MOSS_SIMD_SSE)
 	return _mm_setzero_si128();
@@ -54,7 +54,7 @@ BVec16 BVec16::sZero()
 #endif
 }
 
-BVec16 BVec16::sReplicate(uint8 inV)
+BVec16 BVec16::Replicate(uint8 inV)
 {
 #if defined(MOSS_SIMD_SSE)
 	return _mm_set1_epi8(char(inV));
@@ -69,7 +69,7 @@ BVec16 BVec16::sReplicate(uint8 inV)
 #endif
 }
 
-BVec16 BVec16::sLoadByte16(const uint8 *inV)
+BVec16 BVec16::LoadByte16(const uint8 *inV)
 {
 #if defined(MOSS_SIMD_SSE)
 	return _mm_loadu_si128(reinterpret_cast<const __m128i *>(inV));
@@ -80,7 +80,7 @@ BVec16 BVec16::sLoadByte16(const uint8 *inV)
 #endif
 }
 
-BVec16 BVec16::sEquals(BVec16Arg inV1, BVec16Arg inV2)
+BVec16 BVec16::Equals(BVec16Arg inV1, BVec16Arg inV2)
 {
 #if defined(MOSS_SIMD_SSE)
 	return _mm_cmpeq_epi8(inV1.mValue, inV2.mValue);
@@ -99,7 +99,7 @@ BVec16 BVec16::sEquals(BVec16Arg inV1, BVec16Arg inV2)
 #endif
 }
 
-BVec16 BVec16::sOr(BVec16Arg inV1, BVec16Arg inV2)
+BVec16 BVec16::Or(BVec16Arg inV1, BVec16Arg inV2)
 {
 #if defined(MOSS_SIMD_SSE)
 	return _mm_or_si128(inV1.mValue, inV2.mValue);
@@ -110,7 +110,7 @@ BVec16 BVec16::sOr(BVec16Arg inV1, BVec16Arg inV2)
 #endif
 }
 
-BVec16 BVec16::sXor(BVec16Arg inV1, BVec16Arg inV2)
+BVec16 BVec16::Xor(BVec16Arg inV1, BVec16Arg inV2)
 {
 #if defined(MOSS_SIMD_SSE)
 	return _mm_xor_si128(inV1.mValue, inV2.mValue);
@@ -121,7 +121,7 @@ BVec16 BVec16::sXor(BVec16Arg inV1, BVec16Arg inV2)
 #endif
 }
 
-BVec16 BVec16::sAnd(BVec16Arg inV1, BVec16Arg inV2)
+BVec16 BVec16::And(BVec16Arg inV1, BVec16Arg inV2)
 {
 #if defined(MOSS_SIMD_SSE)
 	return _mm_and_si128(inV1.mValue, inV2.mValue);
@@ -133,7 +133,7 @@ BVec16 BVec16::sAnd(BVec16Arg inV1, BVec16Arg inV2)
 }
 
 
-BVec16 BVec16::sNot(BVec16Arg inV1)
+BVec16 BVec16::Not(BVec16Arg inV1)
 {
 #if defined(MOSS_SIMD_SSE)
 	return sXor(inV1, sReplicate(0xff));

@@ -18,42 +18,42 @@ Mat44::Mat44(const Vec4  inC1, const Vec4  inC2, const Vec4 inC3, const Vec3 inC
 
 Mat44::Mat44(Type inC1, Type inC2, Type inC3, Type inC4) : mCol { inC1, inC2, inC3, inC4 } {}
 
-Mat44 Mat44::sZero() { return Mat44(Vec4::sZero(), Vec4::sZero(), Vec4::sZero(), Vec4::sZero()); }
+Mat44 Mat44::Zero() { return Mat44(Vec4::Zero(), Vec4::Zero(), Vec4::Zero(), Vec4::Zero()); }
 
-Mat44 Mat44::sIdentity() {
+Mat44 Mat44::Identity() {
 	return Mat44(Vec4(1, 0, 0, 0), 
 				 Vec4(0, 1, 0, 0), 
 				 Vec4(0, 0, 1, 0), 
 				 Vec4(0, 0, 0, 1));
 }
 
-Mat44 Mat44::sNaN() { return Mat44(Vec4::sNaN(), Vec4::sNaN(), Vec4::sNaN(), Vec4::sNaN()); }
+Mat44 Mat44::NaN() { return Mat44(Vec4::NaN(), Vec4::NaN(), Vec4::NaN(), Vec4::NaN()); }
 
-Mat44 Mat44::sLoadFloat4x4(const Float4 *inV) {
+Mat44 Mat44::LoadFloat4x4(const Float4 *inV) {
 	Mat44 result;
 	for (int c = 0; c < 4; ++c)
-		result.mCol[c] = Vec4::sLoadFloat4(inV + c);
+		result.mCol[c] = Vec4::LoadFloat4(inV + c);
 	return result;
 }
 
-Mat44 Mat44::sLoadFloat4x4Aligned(const Float4 *inV) {
+Mat44 Mat44::LoadFloat4x4Aligned(const Float4 *inV) {
 	Mat44 result;
 	for (int c = 0; c < 4; ++c)
-		result.mCol[c] = Vec4::sLoadFloat4Aligned(inV + c);
+		result.mCol[c] = Vec4::LoadFloat4Aligned(inV + c);
 	return result;
 }
 
-Mat44 Mat44::sRotationX(float inX) {
+Mat44 Mat44::RotationX(float inX) {
 	Vec4 sv, cv;
-	Vec4::sReplicate(inX).SinCos(sv, cv);
+	Vec4::Replicate(inX).SinCos(sv, cv);
 	float s = sv.GetX(), c = cv.GetX();
 	return Mat44(Vec4(1, 0, 0, 0), Vec4(0, c, s, 0), Vec4(0, -s, c, 0), Vec4(0, 0, 0, 1));
 }
 
-Mat44 Mat44::sRotationY(float inY)
+Mat44 Mat44::RotationY(float inY)
 {
 	Vec4 sv, cv;
-	Vec4::sReplicate(inY).SinCos(sv, cv);
+	Vec4::Replicate(inY).SinCos(sv, cv);
 	float s = sv.GetX(), c = cv.GetX();
 	return Mat44(Vec4(c, 0, -s, 0), 
 				 Vec4(0, 1, 0, 0), 
@@ -61,10 +61,10 @@ Mat44 Mat44::sRotationY(float inY)
 				 Vec4(0, 0, 0, 1));
 }
 
-Mat44 Mat44::sRotationZ(float inZ)
+Mat44 Mat44::RotationZ(float inZ)
 {
 	Vec4 sv, cv;
-	Vec4::sReplicate(inZ).SinCos(sv, cv);
+	Vec4::Replicate(inZ).SinCos(sv, cv);
 	float s = sv.GetX(), c = cv.GetX();
 	return Mat44(Vec4(c, s, 0, 0), 
 				 Vec4(-s, c, 0, 0), 
@@ -72,7 +72,7 @@ Mat44 Mat44::sRotationZ(float inZ)
 				 Vec4(0, 0, 0, 1));
 }
 
-Mat44 Mat44::sRotation(const Quat inQuat)
+Mat44 Mat44::Rotation(const Quat inQuat)
 {
 	MOSS_ASSERT(inQuat.IsNormalized());
 
@@ -126,12 +126,12 @@ Mat44 Mat44::sRotation(const Quat inQuat)
 #endif
 }
 
-Mat44 Mat44::sRotation(const Vec3 inAxis, float inAngle)
+Mat44 Mat44::Rotation(const Vec3 inAxis, float inAngle)
 {
-	return sRotation(Quat::sRotation(inAxis, inAngle));
+	return sRotation(Quat::Rotation(inAxis, inAngle));
 }
 
-Mat44 Mat44::sTranslation(const Vec3 inV)
+Mat44 Mat44::Translation(const Vec3 inV)
 {
 #ifdef MOSS_USE_OPENGL // Right-Handed (OpenGL)
     return Mat44(
@@ -145,21 +145,21 @@ Mat44 Mat44::sTranslation(const Vec3 inV)
 #endif
 }
 
-Mat44 Mat44::sRotationTranslation(const Quat inR, const Vec3 inT)
+Mat44 Mat44::RotationTranslation(const Quat inR, const Vec3 inT)
 {
 	Mat44 m = sRotation(inR);
 	m.SetTranslation(inT);
 	return m;
 }
 
-Mat44 Mat44::sInverseRotationTranslation(const Quat inR, const Vec3 inT)
+Mat44 Mat44::InverseRotationTranslation(const Quat inR, const Vec3 inT)
 {
 	Mat44 m = sRotation(inR.Conjugated());
 	m.SetTranslation(-m.Multiply3x3(inT));
 	return m;
 }
 
-Mat44 Mat44::sScale(float inScale)
+Mat44 Mat44::Scale(float inScale)
 {
 	return Mat44(Vec4(inScale, 0, 0, 0), 
 				 Vec4(0, inScale, 0, 0), 
@@ -167,7 +167,7 @@ Mat44 Mat44::sScale(float inScale)
 				 Vec4(0, 0, 0, 1));
 }
 
-Mat44 Mat44::sScale(const Vec3 inV)
+Mat44 Mat44::Scale(const Vec3 inV)
 {
 	return Mat44(Vec4(inV.GetX(), 0, 0, 0), 
 				 Vec4(0, inV.GetY(), 0, 0), 
@@ -175,13 +175,13 @@ Mat44 Mat44::sScale(const Vec3 inV)
 				 Vec4(0, 0, 0, 1));
 }
 
-Mat44 Mat44::sOuterProduct(const Vec3 inV1, const Vec3 inV2)
+Mat44 Mat44::OuterProduct(const Vec3 inV1, const Vec3 inV2)
 {
 	Vec4 v1(inV1, 0);
 	return Mat44(v1 * inV2.SplatX(), v1 * inV2.SplatY(), v1 * inV2.SplatZ(), Vec4(0, 0, 0, 1));
 }
 
-Mat44 Mat44::sCrossProduct(const Vec3 inV)
+Mat44 Mat44::CrossProduct(const Vec3 inV)
 {
 #ifdef MOSS_SIMD_SSE4_1
 	// Zero out the W component
@@ -209,13 +209,13 @@ Mat44 Mat44::sCrossProduct(const Vec3 inV)
 #endif
 }
 
-Mat44 Mat44::sLookAt(const Vec3 position, const Vec3 target, const Vec3 up) {
+Mat44 Mat44::LookAt(const Vec3 position, const Vec3 target, const Vec3 up) {
 #ifdef MOSS_USE_OPENGL
-    Vec3 f = (position - target).NormalizedOr(Vec3::sAxisZ()); // camera looks toward -Z
+    Vec3 f = (position - target).NormalizedOr(Vec3::AxisZ()); // camera looks toward -Z
 #else
-    Vec3 f = (target - position).NormalizedOr(Vec3::sAxisZ()); // camera looks toward +Z
+    Vec3 f = (target - position).NormalizedOr(Vec3::AxisZ()); // camera looks toward +Z
 #endif
-    Vec3 r = up.Cross(f).NormalizedOr(Vec3::sAxisX());
+    Vec3 r = up.Cross(f).NormalizedOr(Vec3::AxisX());
     Vec3 u = f.Cross(r); // Ensure orthonormal basis
 
     return Mat44(
@@ -226,7 +226,7 @@ Mat44 Mat44::sLookAt(const Vec3 position, const Vec3 target, const Vec3 up) {
     );
 }
 
-Mat44 Mat44::sPerspective(float fovYRadians, float aspect, float near, float far) {
+Mat44 Mat44::Perspective(float fovYRadians, float aspect, float near, float far) {
     float yScale = 1.0f / Tan(0.5f * fovYRadians); // cotangent(fovY / 2)
     float xScale = yScale / aspect;
 
@@ -261,9 +261,9 @@ Mat44 Mat44::sPerspective(float fovYRadians, float aspect, float near, float far
 
 bool Mat44::operator == (const Mat44 inM2) const
 {
-	return UVec4::sAnd(
-		UVec4::sAnd(Vec4::sEquals(mCol[0], inM2.mCol[0]), Vec4::sEquals(mCol[1], inM2.mCol[1])),
-		UVec4::sAnd(Vec4::sEquals(mCol[2], inM2.mCol[2]), Vec4::sEquals(mCol[3], inM2.mCol[3]))
+	return UVec4::And(
+		UVec4::And(Vec4::Equals(mCol[0], inM2.mCol[0]), Vec4::Equals(mCol[1], inM2.mCol[1])),
+		UVec4::And(Vec4::Equals(mCol[2], inM2.mCol[2]), Vec4::Equals(mCol[3], inM2.mCol[3]))
 	).TestAllTrue();
 }
 
@@ -275,7 +275,7 @@ bool Mat44::IsClose(const Mat44 inM2, float inMaxDistSq) const
 	return true;
 }
 
-Mat44 Mat44::operator * (const Mat44 inM) const
+Mat44 Mat44::operator* (const Mat44 inM) const
 {
 	Mat44 result;
 #if defined(MOSS_SIMD_SSEE)
@@ -312,13 +312,13 @@ Vec3 Mat44::operator * (const Vec3 inV) const
 	t = _mm_add_ps(t, _mm_mul_ps(mCol[1].mValue, _mm_shuffle_ps(inV.mValue, inV.mValue, _MM_SHUFFLE(1, 1, 1, 1))));
 	t = _mm_add_ps(t, _mm_mul_ps(mCol[2].mValue, _mm_shuffle_ps(inV.mValue, inV.mValue, _MM_SHUFFLE(2, 2, 2, 2))));
 	t = _mm_add_ps(t, mCol[3].mValue);
-	return Vec3::sFixW(t);
+	return Vec3::FixW(t);
 #elif defined(MOSS_SIMD_NEON)
 	Type t = vmulq_f32(mCol[0].mValue, vdupq_laneq_f32(inV.mValue, 0));
 	t = vmlaq_f32(t, mCol[1].mValue, vdupq_laneq_f32(inV.mValue, 1));
 	t = vmlaq_f32(t, mCol[2].mValue, vdupq_laneq_f32(inV.mValue, 2));
 	t = vaddq_f32(t, mCol[3].mValue); // Don't combine this with the first mul into a fused multiply add, causes precision issues
-	return Vec3::sFixW(t);
+	return Vec3::FixW(t);
 #else
 	return Vec3(
 		mCol[0].mF32[0] * inV.mF32[0] + mCol[1].mF32[0] * inV.mF32[1] + mCol[2].mF32[0] * inV.mF32[2] + mCol[3].mF32[0],
@@ -356,12 +356,12 @@ Vec3 Mat44::Multiply3x3(const Vec3 inV) const
 	__m128 t = _mm_mul_ps(mCol[0].mValue, _mm_shuffle_ps(inV.mValue, inV.mValue, _MM_SHUFFLE(0, 0, 0, 0)));
 	t = _mm_add_ps(t, _mm_mul_ps(mCol[1].mValue, _mm_shuffle_ps(inV.mValue, inV.mValue, _MM_SHUFFLE(1, 1, 1, 1))));
 	t = _mm_add_ps(t, _mm_mul_ps(mCol[2].mValue, _mm_shuffle_ps(inV.mValue, inV.mValue, _MM_SHUFFLE(2, 2, 2, 2))));
-	return Vec3::sFixW(t);
+	return Vec3::FixW(t);
 #elif defined(MOSS_SIMD_NEON)
 	Type t = vmulq_f32(mCol[0].mValue, vdupq_laneq_f32(inV.mValue, 0));
 	t = vmlaq_f32(t, mCol[1].mValue, vdupq_laneq_f32(inV.mValue, 1));
 	t = vmlaq_f32(t, mCol[2].mValue, vdupq_laneq_f32(inV.mValue, 2));
-	return Vec3::sFixW(t);
+	return Vec3::FixW(t);
 #else
 	return Vec3(
 		mCol[0].mF32[0] * inV.mF32[0] + mCol[1].mF32[0] * inV.mF32[1] + mCol[2].mF32[0] * inV.mF32[2],
@@ -447,7 +447,7 @@ Mat44 Mat44::Multiply3x3RightTransposed(const Mat44 inM) const
 
 Mat44 Mat44::operator * (float inV) const
 {
-	Vec4 multiplier = Vec4::sReplicate(inV);
+	Vec4 multiplier = Vec4::Replicate(inV);
 
 	Mat44 result;
 	for (int c = 0; c < 4; ++c)
@@ -872,7 +872,7 @@ Quat Mat44::GetQuaternion() const
 	}
 }
 
-Mat44 Mat44::sQuatLeftMultiply(const Quat inQ)
+Mat44 Mat44::QuatLeftMultiply(const Quat inQ)
 {
 	return Mat44(
 		Vec4(1, 1, -1, -1) * inQ.mValue.Swizzle<SWIZZLE_W, SWIZZLE_Z, SWIZZLE_Y, SWIZZLE_X>(),
@@ -881,7 +881,7 @@ Mat44 Mat44::sQuatLeftMultiply(const Quat inQ)
 		inQ.mValue);
 }
 
-Mat44 Mat44::sQuatRightMultiply(const Quat inQ)
+Mat44 Mat44::QuatRightMultiply(const Quat inQ)
 {
 	return Mat44(
 		Vec4(1, -1, 1, -1) * inQ.mValue.Swizzle<SWIZZLE_W, SWIZZLE_Z, SWIZZLE_Y, SWIZZLE_X>(),

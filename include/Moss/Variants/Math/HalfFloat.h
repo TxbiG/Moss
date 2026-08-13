@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include <Moss/Core/Variants/Vector/Vec4.h>
+#include <Moss/Variants/Vector/Vec4.h>
 
 MOSS_SUPRESS_WARNINGS_BEGIN
 
@@ -41,11 +41,10 @@ static constexpr int HALF_FLT_MANTISSA_MASK = (1 << HALF_FLT_MANTISSA_BITS) - 1;
 static constexpr int HALF_FLT_EXPONENT_AND_MANTISSA_MASK = HALF_FLT_MANTISSA_MASK + (HALF_FLT_EXPONENT_MASK << HALF_FLT_EXPONENT_POS);
 
 /// Define half-float rounding modes
-enum ERoundingMode
-{
-	ROUND_TO_NEG_INF,				///< Round to negative infinity
-	ROUND_TO_POS_INF,				///< Round to positive infinity
-	ROUND_TO_NEAREST,				///< Round to nearest value
+enum ERoundingMode {
+	ROUND_TO_NEG_INF,				// Round to negative infinity
+	ROUND_TO_POS_INF,				// Round to positive infinity
+	ROUND_TO_NEAREST,				// Round to nearest value
 };
 
 /// Convert a float (32-bits) to a half float (16-bits), fallback version when no intrinsics available
@@ -163,28 +162,28 @@ inline Vec4 ToFloatFallback(UVec4Arg inValue)
 	UVec4 value = inValue.Expand4Uint16Lo();
 
 	// Normal half float path, extract the exponent and mantissa, shift them into place and update the exponent bias
-	UVec4 exponent_mantissa = UVec4::sAnd(value, UVec4::sReplicate(HALF_FLT_EXPONENT_AND_MANTISSA_MASK)).LogicalShiftLeft<FLOAT_EXPONENT_POS - HALF_FLT_EXPONENT_POS>() + UVec4::sReplicate((FLOAT_EXPONENT_BIAS - HALF_FLT_EXPONENT_BIAS) << FLOAT_EXPONENT_POS);
+	UVec4 exponent_mantissa = UVec4::And(value, UVec4::Replicate(HALF_FLT_EXPONENT_AND_MANTISSA_MASK)).LogicalShiftLeft<FLOAT_EXPONENT_POS - HALF_FLT_EXPONENT_POS>() + UVec4::Replicate((FLOAT_EXPONENT_BIAS - HALF_FLT_EXPONENT_BIAS) << FLOAT_EXPONENT_POS);
 
 	// Denormalized half float path, renormalize the float
-	UVec4 exponent_mantissa_denormalized = ((exponent_mantissa + UVec4::sReplicate(1 << FLOAT_EXPONENT_POS)).ReinterpretAsFloat() - UVec4::sReplicate((FLOAT_EXPONENT_BIAS - HALF_FLT_EXPONENT_BIAS + 1) << FLOAT_EXPONENT_POS).ReinterpretAsFloat()).ReinterpretAsInt();
+	UVec4 exponent_mantissa_denormalized = ((exponent_mantissa + UVec4::Replicate(1 << FLOAT_EXPONENT_POS)).ReinterpretAsFloat() - UVec4::Replicate((FLOAT_EXPONENT_BIAS - HALF_FLT_EXPONENT_BIAS + 1) << FLOAT_EXPONENT_POS).ReinterpretAsFloat()).ReinterpretAsInt();
 
 	// NaN / INF path, set all exponent bits
-	UVec4 exponent_mantissa_nan_inf = UVec4::sOr(exponent_mantissa, UVec4::sReplicate(FLOAT_EXPONENT_MASK << FLOAT_EXPONENT_POS));
+	UVec4 exponent_mantissa_nan_inf = UVec4::Or(exponent_mantissa, UVec4::Replicate(FLOAT_EXPONENT_MASK << FLOAT_EXPONENT_POS));
 
 	// Get the exponent to determine which of the paths we should take
-	UVec4 exponent_mask = UVec4::sReplicate(HALF_FLT_EXPONENT_MASK << HALF_FLT_EXPONENT_POS);
-	UVec4 exponent = UVec4::sAnd(value, exponent_mask);
-	UVec4 is_denormalized = UVec4::sEquals(exponent, UVec4::sZero());
-	UVec4 is_nan_inf = UVec4::sEquals(exponent, exponent_mask);
+	UVec4 exponent_mask = UVec4::Replicate(HALF_FLT_EXPONENT_MASK << HALF_FLT_EXPONENT_POS);
+	UVec4 exponent = UVec4::And(value, exponent_mask);
+	UVec4 is_denormalized = UVec4::Equals(exponent, UVec4::Zero());
+	UVec4 is_nan_inf = UVec4::Equals(exponent, exponent_mask);
 
 	// Select the correct result
-	UVec4 result_exponent_mantissa = UVec4::sSelect(UVec4::sSelect(exponent_mantissa, exponent_mantissa_nan_inf, is_nan_inf), exponent_mantissa_denormalized, is_denormalized);
+	UVec4 result_exponent_mantissa = UVec4::Select(UVec4::Select(exponent_mantissa, exponent_mantissa_nan_inf, is_nan_inf), exponent_mantissa_denormalized, is_denormalized);
 
 	// Extract the sign bit and shift it to the left
-	UVec4 sign = UVec4::sAnd(value, UVec4::sReplicate(1 << HALF_FLT_SIGN_POS)).LogicalShiftLeft<FLOAT_SIGN_POS - HALF_FLT_SIGN_POS>();
+	UVec4 sign = UVec4::And(value, UVec4::Replicate(1 << HALF_FLT_SIGN_POS)).LogicalShiftLeft<FLOAT_SIGN_POS - HALF_FLT_SIGN_POS>();
 
 	// Construct the float
-	return UVec4::sOr(sign, result_exponent_mantissa).ReinterpretAsFloat();
+	return UVec4::Or(sign, result_exponent_mantissa).ReinterpretAsFloat();
 }
 
 /// Convert 4 half floats (lower 64 bits) to floats

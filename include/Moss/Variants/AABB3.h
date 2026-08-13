@@ -7,7 +7,7 @@
 #include <Moss/Physics/Geometry/Triangle.h>
 #include <Moss/Physics/Geometry/IndexedTriangle.h>
 #include <Moss/Physics/Geometry/Plane.h>
-#include <Moss/Core/Variants/Matrix/Mat44.h>
+#include <Moss/Variants/Matrix/Mat44.h>
 
 MOSS_WARNINGS_BEGIN
 
@@ -17,13 +17,13 @@ public:
 	MOSS_OVERRIDE_NEW_DELETE
 
 	// Constructor
-	AABB3()									: mMin(RVec3::sReplicate(FLT_MAX)), mMax(Vec3::sReplicate(-FLT_MAX)) { }
+	AABB3()									: mMin(RVec3::Replicate(FLT_MAX)), mMax(Vec3::Replicate(-FLT_MAX)) { }
 	AABB3(RVec3Arg inMin, RVec3Arg inMax)		: mMin(inMin), mMax(inMax) { }
 	AABB3(DVec3Arg inMin, DVec3Arg inMax)	: mMin(inMin.ToVec3RoundDown()), mMax(inMax.ToVec3RoundUp()) { }
-	AABB3(Vec3Arg inCenter, float inRadius)	: mMin(inCenter - RVec3::sReplicate(inRadius)), mMax(inCenter + RVec3::sReplicate(inRadius)) { }
+	AABB3(Vec3Arg inCenter, float inRadius)	: mMin(inCenter - RVec3::Replicate(inRadius)), mMax(inCenter + RVec3::Replicate(inRadius)) { }
 
 	// Create box from 2 points
-	static AABB3	sFromTwoPoints(Vec3Arg inP1, Vec3Arg inP2) { return AABB3(RVec3::sMin(inP1, inP2), RVec3::sMax(inP1, inP2)); }
+	static AABB3	sFromTwoPoints(Vec3Arg inP1, Vec3Arg inP2) { return AABB3(RVec3::Min(inP1, inP2), RVec3::Max(inP1, inP2)); }
 
 	// Create box from indexed triangle
 	static AABB3	sFromTriangle(const VertexList &inVertices, const IndexedTriangle &inTriangle) {
@@ -35,13 +35,13 @@ public:
 	// Get bounding box of size FLT_MAX
 	static AABB3 sBiggest() {
 		// Max half extent of AABB3 is 0.5 * FLT_MAX so that GetSize() remains finite
-		return AABB3(RVec3::sReplicate(-0.5f * FLT_MAX), RVec3::sReplicate(0.5f * FLT_MAX));
+		return AABB3(RVec3::Replicate(-0.5f * FLT_MAX), RVec3::Replicate(0.5f * FLT_MAX));
 	}
 
 	// Reset the bounding box to an empty bounding box
 	void SetEmpty() {
-		mMin = RVec3::sReplicate(FLT_MAX);
-		mMax = RVec3::sReplicate(-FLT_MAX);
+		mMin = RVec3::Replicate(FLT_MAX);
+		mMax = RVec3::Replicate(-FLT_MAX);
 	}
 
 	// Check if the bounding box is valid (max >= min)
@@ -51,23 +51,23 @@ public:
 
 	// Encapsulate point in bounding box
 	void Encapsulate(Vec3Arg inPos) {
-		mMin = RVec3::sMin(mMin, inPos);
-		mMax = RVec3::sMax(mMax, inPos);
+		mMin = RVec3::Min(mMin, inPos);
+		mMax = RVec3::Max(mMax, inPos);
 	}
 
 	// Encapsulate bounding box in bounding box
 	void Encapsulate(const AABB3 &inRHS) {
-		mMin = RVec3::sMin(mMin, inRHS.mMin);
-		mMax = RVec3::sMax(mMax, inRHS.mMax);
+		mMin = RVec3::Min(mMin, inRHS.mMin);
+		mMax = RVec3::Max(mMax, inRHS.mMax);
 	}
 
 	// Encapsulate triangle in bounding box
 	void Encapsulate(const Triangle &inRHS) {
-		RVec3 v = RVec3::sLoadFloat3Unsafe(inRHS.mV[0]);
+		RVec3 v = RVec3::LoadFloat3Unsafe(inRHS.mV[0]);
 		Encapsulate(v);
-		v = RVec3::sLoadFloat3Unsafe(inRHS.mV[1]);
+		v = RVec3::LoadFloat3Unsafe(inRHS.mV[1]);
 		Encapsulate(v);
-		v = RVec3::sLoadFloat3Unsafe(inRHS.mV[2]);
+		v = RVec3::LoadFloat3Unsafe(inRHS.mV[2]);
 		Encapsulate(v);
 	}
 
@@ -78,12 +78,12 @@ public:
 	}
 
 	// Intersect this bounding box with inOther, returns the intersection
-	AABB3 Intersect(const AABB3 &inOther) const { return AABB3(RVec3::sMax(mMin, inOther.mMin), RVec3::sMin(mMax, inOther.mMax)); }
+	AABB3 Intersect(const AABB3 &inOther) const { return AABB3(RVec3::Max(mMin, inOther.mMin), RVec3::Min(mMax, inOther.mMax)); }
 
 	// Make sure that each edge of the bounding box has a minimal length
 	void EnsureMinimalEdgeLength(float inMinEdgeLength) {
-		RVec3 min_length = RVec3::sReplicate(inMinEdgeLength);
-		mMax = RVec3::sSelect(mMax, mMin + min_length, RVec3::sLess(mMax - mMin, min_length));
+		RVec3 min_length = RVec3::Replicate(inMinEdgeLength);
+		mMax = RVec3::Select(mMax, mMin + min_length, RVec3::Less(mMax - mMin, min_length));
 	}
 
 	// Widen the box on both sides by inVector
@@ -114,11 +114,11 @@ public:
 	}
 
 	// Check if this box contains another box
-	bool Contains(const AABB3 &inOther) const { return UVec4::sAnd(RVec3::sLessOrEqual(mMin, inOther.mMin), RVec3::sGreaterOrEqual(mMax, inOther.mMax)).TestAllXYZTrue(); }
+	bool Contains(const AABB3 &inOther) const { return UVec4::And(RVec3::LessOrEqual(mMin, inOther.mMin), RVec3::GreaterOrEqual(mMax, inOther.mMax)).TestAllXYZTrue(); }
 
 	// Check if this box contains a point
 	bool Contains(Vec3Arg inOther) const {
-		return UVec4::sAnd(RVec3::sLessOrEqual(mMin, inOther), RVec3::sGreaterOrEqual(mMax, inOther)).TestAllXYZTrue();
+		return UVec4::And(RVec3::LessOrEqual(mMin, inOther), RVec3::GreaterOrEqual(mMax, inOther)).TestAllXYZTrue();
 	}
 
 	// Check if this box contains a point
@@ -128,7 +128,7 @@ public:
 
 	// Check if this box overlaps with another box
 	bool Overlaps(const AABB3 &inOther) const {
-		return !UVec4::sOr(RVec3::sGreater(mMin, inOther.mMax), RVec3::sLess(mMax, inOther.mMin)).TestAnyXYZTrue();
+		return !UVec4::Or(RVec3::Greater(mMin, inOther.mMax), RVec3::Less(mMax, inOther.mMin)).TestAnyXYZTrue();
 	}
 
 	// Check if this box overlaps with a plane
@@ -165,8 +165,8 @@ public:
 			RVec3 a = col * mMin[c];
 			RVec3 b = col * mMax[c];
 
-			new_min += RVec3::sMin(a, b);
-			new_max += RVec3::sMax(a, b);
+			new_min += RVec3::Min(a, b);
+			new_max += RVec3::Max(a, b);
 		}
 
 		// Return the new bounding box
@@ -183,13 +183,13 @@ public:
 	// Scale this bounding box, can handle non-uniform and negative scaling
 	AABB3 Scaled(Vec3Arg inScale) const
 	{
-		return AABB3::sFromTwoPoints(mMin * inScale, mMax * inScale);
+		return AABB3::FromTwoPoints(mMin * inScale, mMax * inScale);
 	}
 
 	// Calculate the support vector for this convex shape.
 	RVec3			GetSupport(Vec3Arg inDirection) const
 	{
-		return RVec3::sSelect(mMax, mMin, RVec3::sLess(inDirection, RVec3::sZero()));
+		return RVec3::Select(mMax, mMin, RVec3::Less(inDirection, RVec3::Zero()));
 	}
 
 	// Get the vertices of the face that faces inDirection the most
@@ -252,7 +252,7 @@ public:
 	}
 
 	// Get the closest point on or in this box to inPoint
-	RVec3 GetClosestPoint(Vec3Arg inPoint) const { return RVec3::sMin(RVec3::sMax(inPoint, mMin), mMax); }
+	RVec3 GetClosestPoint(Vec3Arg inPoint) const { return RVec3::Min(RVec3::Max(inPoint, mMin), mMax); }
 
 	// Get the squared distance between inPoint and this box (will be 0 if in Point is inside the box)
 	inline float GetSqDistanceTo(Vec3Arg inPoint) const { return (GetClosestPoint(inPoint) - inPoint).LengthSq(); }

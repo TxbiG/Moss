@@ -42,7 +42,7 @@ UVec4 UVec4::Swizzle() const
 #endif
 }
 
-UVec4 UVec4::sZero()
+UVec4 UVec4::Zero()
 {
 #if defined(MOSS_SIMD_SSE)
 	return _mm_setzero_si128();
@@ -53,7 +53,7 @@ UVec4 UVec4::sZero()
 #endif
 }
 
-UVec4 UVec4::sReplicate(uint32 inV)
+UVec4 UVec4::Replicate(uint32 inV)
 {
 #if defined(MOSS_SIMD_SSE)
 	return _mm_set1_epi32(int(inV));
@@ -64,7 +64,7 @@ UVec4 UVec4::sReplicate(uint32 inV)
 #endif
 }
 
-UVec4 UVec4::sLoadInt(const uint32 *inV)
+UVec4 UVec4::LoadInt(const uint32 *inV)
 {
 #if defined(MOSS_SIMD_SSE)
 	return _mm_castps_si128(_mm_load_ss(reinterpret_cast<const float*>(inV)));
@@ -75,7 +75,7 @@ UVec4 UVec4::sLoadInt(const uint32 *inV)
 #endif
 }
 
-UVec4 UVec4::sLoadInt4(const uint32 *inV)
+UVec4 UVec4::LoadInt4(const uint32 *inV)
 {
 #if defined(MOSS_SIMD_SSE)
 	return _mm_loadu_si128(reinterpret_cast<const __m128i *>(inV));
@@ -86,7 +86,7 @@ UVec4 UVec4::sLoadInt4(const uint32 *inV)
 #endif
 }
 
-UVec4 UVec4::sLoadInt4Aligned(const uint32 *inV)
+UVec4 UVec4::LoadInt4Aligned(const uint32 *inV)
 {
 #if defined(MOSS_SIMD_SSE)
 	return _mm_load_si128(reinterpret_cast<const __m128i *>(inV));
@@ -98,7 +98,7 @@ UVec4 UVec4::sLoadInt4Aligned(const uint32 *inV)
 }
 
 template <const int Scale>
-UVec4 UVec4::sGatherInt4(const uint32 *inBase, const UVec4 inOffsets)
+UVec4 UVec4::GatherInt4(const uint32 *inBase, const UVec4 inOffsets)
 {
 #ifdef MOSS_SIMD_AVX2
 	return _mm_i32gather_epi32(reinterpret_cast<const int *>(inBase), inOffsets.mValue, Scale);
@@ -112,7 +112,7 @@ UVec4 UVec4::sGatherInt4(const uint32 *inBase, const UVec4 inOffsets)
 #endif
 }
 
-UVec4 UVec4::sMin(const UVec4 inV1, const UVec4 inV2)
+UVec4 UVec4::Min(const UVec4 inV1, const UVec4 inV2)
 {
 #if defined(MOSS_SIMD_SSE4_1)
 	return _mm_min_epu32(inV1.mValue, inV2.mValue);
@@ -126,7 +126,7 @@ UVec4 UVec4::sMin(const UVec4 inV1, const UVec4 inV2)
 #endif
 }
 
-UVec4 UVec4::sMax(const UVec4 inV1, const UVec4 inV2)
+UVec4 UVec4::Max(const UVec4 inV1, const UVec4 inV2)
 {
 #if defined(MOSS_SIMD_SSE4_1)
 	return _mm_max_epu32(inV1.mValue, inV2.mValue);
@@ -140,7 +140,7 @@ UVec4 UVec4::sMax(const UVec4 inV1, const UVec4 inV2)
 #endif
 }
 
-UVec4 UVec4::sEquals(const UVec4 inV1, const UVec4 inV2)
+UVec4 UVec4::Equals(const UVec4 inV1, const UVec4 inV2)
 {
 #if defined(MOSS_SIMD_SSE)
 	return _mm_cmpeq_epi32(inV1.mValue, inV2.mValue);
@@ -154,7 +154,7 @@ UVec4 UVec4::sEquals(const UVec4 inV1, const UVec4 inV2)
 #endif
 }
 
-UVec4 UVec4::sSelect(const UVec4 inNotSet, const UVec4 inSet, const UVec4 inControl)
+UVec4 UVec4::Select(const UVec4 inNotSet, const UVec4 inSet, const UVec4 inControl)
 {
 #if defined(MOSS_SIMD_SSE4_1) && !defined(MOSS_PLATFORM_WASM) // _mm_blendv_ps has problems on FireFox
 	return _mm_castps_si128(_mm_blendv_ps(_mm_castsi128_ps(inNotSet.mValue), _mm_castsi128_ps(inSet.mValue), _mm_castsi128_ps(inControl.mValue)));
@@ -171,7 +171,7 @@ UVec4 UVec4::sSelect(const UVec4 inNotSet, const UVec4 inSet, const UVec4 inCont
 #endif
 }
 
-UVec4 UVec4::sOr(const UVec4 inV1, const UVec4 inV2)
+UVec4 UVec4::Or(const UVec4 inV1, const UVec4 inV2)
 {
 #if defined(MOSS_SIMD_SSE)
 	return _mm_or_si128(inV1.mValue, inV2.mValue);
@@ -185,7 +185,7 @@ UVec4 UVec4::sOr(const UVec4 inV1, const UVec4 inV2)
 #endif
 }
 
-UVec4 UVec4::sXor(const UVec4 inV1, const UVec4 inV2)
+UVec4 UVec4::Xor(const UVec4 inV1, const UVec4 inV2)
 {
 #if defined(MOSS_SIMD_SSE)
 	return _mm_xor_si128(inV1.mValue, inV2.mValue);
@@ -199,7 +199,7 @@ UVec4 UVec4::sXor(const UVec4 inV1, const UVec4 inV2)
 #endif
 }
 
-UVec4 UVec4::sAnd(const UVec4 inV1, const UVec4 inV2)
+UVec4 UVec4::And(const UVec4 inV1, const UVec4 inV2)
 {
 #if defined(MOSS_SIMD_SSE)
 	return _mm_and_si128(inV1.mValue, inV2.mValue);
@@ -214,7 +214,7 @@ UVec4 UVec4::sAnd(const UVec4 inV1, const UVec4 inV2)
 }
 
 
-UVec4 UVec4::sNot(const UVec4 inV1)
+UVec4 UVec4::Not(const UVec4 inV1)
 {
 #if defined(MOSS_SIMD_AVX512)
 	return _mm_ternarylogic_epi32(inV1.mValue, inV1.mValue, inV1.mValue, 0b01010101);
@@ -227,16 +227,16 @@ UVec4 UVec4::sNot(const UVec4 inV1)
 #endif
 }
 
-UVec4 UVec4::sSort4True(const UVec4 inValue, const UVec4 inIndex)
+UVec4 UVec4::Sort4True(const UVec4 inValue, const UVec4 inIndex)
 {
 	// If inValue.z is false then shift W to Z
-	UVec4 v = UVec4::sSelect(inIndex.Swizzle<SWIZZLE_X, SWIZZLE_Y, SWIZZLE_W, SWIZZLE_W>(), inIndex, inValue.SplatZ());
+	UVec4 v = UVec4::Select(inIndex.Swizzle<SWIZZLE_X, SWIZZLE_Y, SWIZZLE_W, SWIZZLE_W>(), inIndex, inValue.SplatZ());
 
 	// If inValue.y is false then shift Z and further to Y and further
-	v = UVec4::sSelect(v.Swizzle<SWIZZLE_X, SWIZZLE_Z, SWIZZLE_W, SWIZZLE_W>(), v, inValue.SplatY());
+	v = UVec4::Select(v.Swizzle<SWIZZLE_X, SWIZZLE_Z, SWIZZLE_W, SWIZZLE_W>(), v, inValue.SplatY());
 
 	// If inValue.x is false then shift X and further to Y and further
-	v = UVec4::sSelect(v.Swizzle<SWIZZLE_Y, SWIZZLE_Z, SWIZZLE_W, SWIZZLE_W>(), v, inValue.SplatX());
+	v = UVec4::Select(v.Swizzle<SWIZZLE_Y, SWIZZLE_Z, SWIZZLE_W, SWIZZLE_W>(), v, inValue.SplatX());
 
 	return v;
 }
@@ -571,7 +571,7 @@ UVec4 UVec4::ShiftComponents4Minus(int inCount) const
 	uint8x16_t idx = vreinterpretq_u8_u32(*reinterpret_cast<const UVec4::Type *>(sFourMinusXShuffle[inCount]));
 	return vreinterpretq_u32_s8(vqtbl1q_s8(vreinterpretq_s8_u32(mValue), idx));
 #else
-	UVec4 result = UVec4::sZero();
+	UVec4 result = UVec4::Zero();
 	for (int i = 0; i < inCount; i++)
 		result.mU32[i] = mU32[i + 4 - inCount];
 	return result;

@@ -4,8 +4,8 @@
 
 #pragma once
 
-#include <Moss/Core/Variants/Vector/TVec.h>
-#include <Moss/Core/Variants/Math/GaussianElimination.h>
+#include <Moss/Variants/Vector/TVec.h>
+#include <Moss/Variants/Math/GaussianElimination.h>
 
 MOSS_SUPRESS_WARNINGS_BEGIN
 
@@ -224,7 +224,7 @@ public:
 	const TVec<Rows> &					GetColumn(int inIdx) const					{ return mCol[inIdx]; }
 	TVec<Rows> &							GetColumn(int inIdx)						{ return mCol[inIdx]; }
 
-	TVec<Rows>							mCol[Cols];									///< Column
+	TVec<Rows> mCol[Cols];	// Column
 };
 
 // The template specialization doesn't sit well with Doxygen

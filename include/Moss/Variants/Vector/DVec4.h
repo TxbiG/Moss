@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Moss/Core/Variants/Vector/Double4.h>
+#include <Moss/Variants/Vector/Double4.h>
 
 MOSS_WARNINGS_BEGIN
 
@@ -30,41 +30,41 @@ public:
 	using ArgType = DVec4Arg;
 
 	/// Constructor
-								DVec4() = default; ///< Intentionally not initialized for performance reasons
+								DVec4() = default; // Intentionally not initialized for performance reasons
 								DVec4(const DVec4 &inRHS) = default;
 	DVec4 &						operator = (const DVec4 &inRHS) = default;
-	MOSS_INLINE explicit			DVec4(Vec3Arg inRHS);
-	MOSS_INLINE explicit			DVec4(Vec4Arg inRHS);
+	MOSS_INLINE explicit		DVec4(Vec3Arg inRHS);
+	MOSS_INLINE explicit		DVec4(Vec4Arg inRHS);
 	MOSS_INLINE					DVec4(TypeArg inRHS) : mValue(inRHS)			{ CheckW(); }
 
 	/// Create a vector from 3 components
 	MOSS_INLINE					DVec4(double inX, double inY, double inZ);
 
 	/// Load 3 doubles from memory
-	explicit MOSS_INLINE			DVec4(const Double3 &inV);
+	explicit MOSS_INLINE		DVec4(const Double3 &inV);
 
 	/// Vector with all zeros
-	static MOSS_INLINE DVec4		sZero();
+	static MOSS_INLINE DVec4	Zero();
 
 	/// Vectors with the principal axis
-	static MOSS_INLINE DVec4		sAxisX()										{ return DVec4(1, 0, 0); }
-	static MOSS_INLINE DVec4		sAxisY()										{ return DVec4(0, 1, 0); }
-	static MOSS_INLINE DVec4		sAxisZ()										{ return DVec4(0, 0, 1); }
+	static MOSS_INLINE DVec4	AxisX()										{ return DVec4(1, 0, 0); }
+	static MOSS_INLINE DVec4	AxisY()										{ return DVec4(0, 1, 0); }
+	static MOSS_INLINE DVec4	AxisZ()										{ return DVec4(0, 0, 1); }
 
 	/// Replicate inV across all components
-	static MOSS_INLINE DVec4		sReplicate(double inV);
+	static MOSS_INLINE DVec4	Replicate(double inV);
 
 	/// Vector with all NaN's
-	static MOSS_INLINE DVec4		sNaN();
+	static MOSS_INLINE DVec4	NaN();
 
 	/// Load 3 doubles from memory (reads 64 bits extra which it doesn't use)
-	static MOSS_INLINE DVec4		sLoadDouble3Unsafe(const Double3 &inV);
+	static MOSS_INLINE DVec4	LoadDouble3Unsafe(const Double3 &inV);
 
 	/// Store 3 doubles to memory
-	MOSS_INLINE void				StoreDouble3(Double3 *outV) const;
+	MOSS_INLINE void			StoreDouble3(Double3 *outV) const;
 
 	/// Convert to float vector 3 rounding to nearest
-	MOSS_INLINE explicit			operator Vec3() const;
+	MOSS_INLINE explicit		operator Vec3() const;
 
 	/// Prepare to convert to float vector 3 rounding towards zero (returns DVec3 that can be converted to a Vec3 to get the rounding)
 	MOSS_INLINE DVec4			PrepareRoundToZero() const;
@@ -73,58 +73,58 @@ public:
 	MOSS_INLINE DVec4			PrepareRoundToInf() const;
 
 	/// Convert to float vector 3 rounding down
-	MOSS_INLINE Vec3				ToVec3RoundDown() const;
+	MOSS_INLINE Vec3			ToVec3RoundDown() const;
 
 	/// Convert to float vector 3 rounding up
-	MOSS_INLINE Vec3				ToVec3RoundUp() const;
+	MOSS_INLINE Vec3			ToVec3RoundUp() const;
 
 	/// Return the minimum value of each of the components
-	static MOSS_INLINE DVec4		sMin(DVec4Arg inV1, DVec4Arg inV2);
+	static MOSS_INLINE DVec4	Min(DVec4Arg inV1, DVec4Arg inV2);
 
 	/// Return the maximum of each of the components
-	static MOSS_INLINE DVec4		sMax(DVec4Arg inV1, DVec4Arg inV2);
+	static MOSS_INLINE DVec4	Max(DVec4Arg inV1, DVec4Arg inV2);
 
 	/// Clamp a vector between min and max (component wise)
-	static MOSS_INLINE DVec4		sClamp(DVec4Arg inV, DVec4Arg inMin, DVec4Arg inMax);
+	static MOSS_INLINE DVec4	Clamp(DVec4Arg inV, DVec4Arg inMin, DVec4Arg inMax);
 
 	/// Equals (component wise)
-	static MOSS_INLINE DVec4		sEquals(DVec4Arg inV1, DVec4Arg inV2);
+	static MOSS_INLINE DVec4	Equals(DVec4Arg inV1, DVec4Arg inV2);
 
 	/// Less than (component wise)
-	static MOSS_INLINE DVec4		sLess(DVec4Arg inV1, DVec4Arg inV2);
+	static MOSS_INLINE DVec4	Less(DVec4Arg inV1, DVec4Arg inV2);
 
 	/// Less than or equal (component wise)
-	static MOSS_INLINE DVec4		sLessOrEqual(DVec4Arg inV1, DVec4Arg inV2);
+	static MOSS_INLINE DVec4	LessOrEqual(DVec4Arg inV1, DVec4Arg inV2);
 
 	/// Greater than (component wise)
-	static MOSS_INLINE DVec4		sGreater(DVec4Arg inV1, DVec4Arg inV2);
+	static MOSS_INLINE DVec4	Greater(DVec4Arg inV1, DVec4Arg inV2);
 
 	/// Greater than or equal (component wise)
-	static MOSS_INLINE DVec4		sGreaterOrEqual(DVec4Arg inV1, DVec4Arg inV2);
+	static MOSS_INLINE DVec4	GreaterOrEqual(DVec4Arg inV1, DVec4Arg inV2);
 
 	/// Calculates inMul1 * inMul2 + inAdd
-	static MOSS_INLINE DVec4		sFusedMultiplyAdd(DVec4Arg inMul1, DVec4Arg inMul2, DVec4Arg inAdd);
+	static MOSS_INLINE DVec4	FusedMultiplyAdd(DVec4Arg inMul1, DVec4Arg inMul2, DVec4Arg inAdd);
 
 	/// Component wise select, returns inNotSet when highest bit of inControl = 0 and inSet when highest bit of inControl = 1
-	static MOSS_INLINE DVec4		sSelect(DVec4Arg inNotSet, DVec4Arg inSet, DVec4Arg inControl);
+	static MOSS_INLINE DVec4	Select(DVec4Arg inNotSet, DVec4Arg inSet, DVec4Arg inControl);
 
 	/// Logical or (component wise)
-	static MOSS_INLINE DVec4		sOr(DVec4Arg inV1, DVec4Arg inV2);
+	static MOSS_INLINE DVec4	Or(DVec4Arg inV1, DVec4Arg inV2);
 
 	/// Logical xor (component wise)
-	static MOSS_INLINE DVec4		sXor(DVec4Arg inV1, DVec4Arg inV2);
+	static MOSS_INLINE DVec4	Xor(DVec4Arg inV1, DVec4Arg inV2);
 
 	/// Logical and (component wise)
-	static MOSS_INLINE DVec4		sAnd(DVec4Arg inV1, DVec4Arg inV2);
+	static MOSS_INLINE DVec4	And(DVec4Arg inV1, DVec4Arg inV2);
 
 	/// Store if X is true in bit 0, Y in bit 1, Z in bit 2 and W in bit 3 (true is when highest bit of component is set)
 	MOSS_INLINE int				GetTrues() const;
 
 	/// Test if any of the components are true (true is when highest bit of component is set)
-	MOSS_INLINE bool				TestAnyTrue() const;
+	MOSS_INLINE bool			TestAnyTrue() const;
 
 	/// Test if all components are true (true is when highest bit of component is set)
-	MOSS_INLINE bool				TestAllTrue() const;
+	MOSS_INLINE bool			TestAllTrue() const;
 
 	/// Get individual components
 #if defined(MOSS_SIMD_AVX)
@@ -146,34 +146,34 @@ public:
 #endif
 
 	/// Set individual components
-	MOSS_INLINE void				SetX(double inX)								{ mF64[0] = inX; }
-	MOSS_INLINE void				SetY(double inY)								{ mF64[1] = inY; }
-	MOSS_INLINE void				SetZ(double inZ)								{ mF64[2] = mF64[3] = inZ; } // Assure Z and W are the same
+	MOSS_INLINE void			SetX(double inX)								{ mF64[0] = inX; }
+	MOSS_INLINE void			SetY(double inY)								{ mF64[1] = inY; }
+	MOSS_INLINE void			SetZ(double inZ)								{ mF64[2] = mF64[3] = inZ; } // Assure Z and W are the same
 
 	/// Set all components
-	MOSS_INLINE void				Set(double inX, double inY, double inZ)			{ *this = DVec4(inX, inY, inZ); }
+	MOSS_INLINE void			Set(double inX, double inY, double inZ)			{ *this = DVec4(inX, inY, inZ); }
 
 	/// Get double component by index
 	MOSS_INLINE double			operator [] (uint inCoordinate) const			{ MOSS_ASSERT(inCoordinate < 3); return mF64[inCoordinate]; }
 
 	/// Set double component by index
-	MOSS_INLINE void				SetComponent(uint inCoordinate, double inValue)	{ MOSS_ASSERT(inCoordinate < 3); mF64[inCoordinate] = inValue; mValue = sFixW(mValue); } // Assure Z and W are the same
+	MOSS_INLINE void			SetComponent(uint inCoordinate, double inValue)	{ MOSS_ASSERT(inCoordinate < 3); mF64[inCoordinate] = inValue; mValue = sFixW(mValue); } // Assure Z and W are the same
 
 	/// Comparison
-	MOSS_INLINE bool				operator == (DVec4Arg inV2) const;
-	MOSS_INLINE bool				operator != (DVec4Arg inV2) const				{ return !(*this == inV2); }
+	MOSS_INLINE bool			operator == (DVec4Arg inV2) const;
+	MOSS_INLINE bool			operator != (DVec4Arg inV2) const				{ return !(*this == inV2); }
 
 	/// Test if two vectors are close
-	MOSS_INLINE bool				IsClose(DVec4Arg inV2, double inMaxDistSq = 1.0e-24) const;
+	MOSS_INLINE bool			IsClose(DVec4Arg inV2, double inMaxDistSq = 1.0e-24) const;
 
 	/// Test if vector is near zero
-	MOSS_INLINE bool				IsNearZero(double inMaxDistSq = 1.0e-24) const;
+	MOSS_INLINE bool			IsNearZero(double inMaxDistSq = 1.0e-24) const;
 
 	/// Test if vector is normalized
-	MOSS_INLINE bool				IsNormalized(double inTolerance = 1.0e-12) const;
+	MOSS_INLINE bool			IsNormalized(double inTolerance = 1.0e-12) const;
 
 	/// Test if vector contains NaN elements
-	MOSS_INLINE bool				IsNaN() const;
+	MOSS_INLINE bool			IsNaN() const;
 
 	/// Multiply two double vectors (component wise)
 	MOSS_INLINE DVec4			operator * (DVec4Arg inV2) const;
@@ -182,7 +182,7 @@ public:
 	MOSS_INLINE DVec4			operator * (double inV2) const;
 
 	/// Multiply vector with double
-	friend MOSS_INLINE DVec4		operator * (double inV1, DVec4Arg inV2);
+	friend MOSS_INLINE DVec4	operator * (double inV1, DVec4Arg inV2);
 
 	/// Divide vector by double
 	MOSS_INLINE DVec4			operator / (double inV2) const;
@@ -261,10 +261,10 @@ public:
 	}
 
 	/// Internal helper function that checks that W is equal to Z, so e.g. dividing by it should not generate div by 0
-	MOSS_INLINE void				CheckW() const;
+	MOSS_INLINE void			CheckW() const;
 
 	/// Internal helper function that ensures that the Z component is replicated to the W component to prevent divisions by zero
-	static MOSS_INLINE Type		sFixW(TypeArg inValue);
+	static MOSS_INLINE Type		FixW(TypeArg inValue);
 
 	/// Representations of true and false for boolean operations
 	inline static const double	cTrue = BitCast<double>(~uint64(0));

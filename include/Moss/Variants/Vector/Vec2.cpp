@@ -2,7 +2,7 @@
 // SPDX-FileCopyrightText: 2021 Jorrit Rouwe
 // SPDX-License-Identifier: MIT
 
-#include <Moss/Core/Variants/Vec2.h>
+#include <Moss/Variants/Vec2.h>
 
 MOSS_SUPRESS_WARNINGS_BEGIN
 
@@ -46,22 +46,22 @@ const TStaticArray<Vec2, 1026> Vec2::sUnitSphere = []() {
 	TStaticArray<Vec2, 1026> verts;
 
 	// Add unit axis
-	verts.push_back(Vec2::sAxisX());
-	verts.push_back(-Vec2::sAxisX());
-	verts.push_back(Vec2::sAxisY());
-	verts.push_back(-Vec2::sAxisY());
-	verts.push_back(Vec2::sAxisZ());
-	verts.push_back(-Vec2::sAxisZ());
+	verts.push_back(Vec2::AxisX());
+	verts.push_back(-Vec2::AxisX());
+	verts.push_back(Vec2::AxisY());
+	verts.push_back(-Vec2::AxisY());
+	verts.push_back(Vec2::AxisZ());
+	verts.push_back(-Vec2::AxisZ());
 
 	// Subdivide
-	sCreateVertices(verts, Vec2::sAxisX(), Vec2::sAxisY(), Vec2::sAxisZ(), level);
-	sCreateVertices(verts, -Vec2::sAxisX(), Vec2::sAxisY(), Vec2::sAxisZ(), level);
-	sCreateVertices(verts, Vec2::sAxisX(), -Vec2::sAxisY(), Vec2::sAxisZ(), level);
-	sCreateVertices(verts, -Vec2::sAxisX(), -Vec2::sAxisY(), Vec2::sAxisZ(), level);
-	sCreateVertices(verts, Vec2::sAxisX(), Vec2::sAxisY(), -Vec2::sAxisZ(), level);
-	sCreateVertices(verts, -Vec2::sAxisX(), Vec2::sAxisY(), -Vec2::sAxisZ(), level);
-	sCreateVertices(verts, Vec2::sAxisX(), -Vec2::sAxisY(), -Vec2::sAxisZ(), level);
-	sCreateVertices(verts, -Vec2::sAxisX(), -Vec2::sAxisY(), -Vec2::sAxisZ(), level);
+	sCreateVertices(verts, Vec2::AxisX(), Vec2::AxisY(), Vec2::AxisZ(), level);
+	sCreateVertices(verts, -Vec2::AxisX(), Vec2::AxisY(), Vec2::AxisZ(), level);
+	sCreateVertices(verts, Vec2::AxisX(), -Vec2::AxisY(), Vec2::AxisZ(), level);
+	sCreateVertices(verts, -Vec2::AxisX(), -Vec2::AxisY(), Vec2::AxisZ(), level);
+	sCreateVertices(verts, Vec2::AxisX(), Vec2::AxisY(), -Vec2::AxisZ(), level);
+	sCreateVertices(verts, -Vec2::AxisX(), Vec2::AxisY(), -Vec2::AxisZ(), level);
+	sCreateVertices(verts, Vec2::AxisX(), -Vec2::AxisY(), -Vec2::AxisZ(), level);
+	sCreateVertices(verts, -Vec2::AxisX(), -Vec2::AxisY(), -Vec2::AxisZ(), level);
 
 	return verts;
 }();

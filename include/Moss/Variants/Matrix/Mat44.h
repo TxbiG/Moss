@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include <Moss/Core/Variants/Math/MathTypes.h>
+#include <Moss/Variants/Math/MathTypes.h>
 
 MOSS_SUPRESS_WARNINGS_BEGIN
 
@@ -21,7 +21,7 @@ public:
 	using ArgType = const Mat44;
 
 	/// Constructor
-								Mat44() = default; ///< Intentionally not initialized for performance reasons
+								Mat44() = default; // Intentionally not initialized for performance reasons
 	MOSS_INLINE					Mat44(const Vec4 inC1, const Vec4 inC2, const Vec4 inC3, const Vec4 inC4);
 	MOSS_INLINE					Mat44(const Vec4 inC1, const Vec4 inC2, const Vec4 inC3, const Vec3 inC4);
 								Mat44(const Mat44 &inM2) = default;
@@ -29,19 +29,19 @@ public:
 	MOSS_INLINE					Mat44(Type inC1, Type inC2, Type inC3, Type inC4);
 
 	/// Zero matrix
-	static MOSS_INLINE Mat44	sZero();
+	static MOSS_INLINE Mat44	Zero();
 
 	/// Identity matrix
-	static MOSS_INLINE Mat44	sIdentity();
+	static MOSS_INLINE Mat44	Identity();
 
 	/// Matrix filled with NaN's
-	static MOSS_INLINE Mat44	sNaN();
+	static MOSS_INLINE Mat44	NaN();
 
 	/// Load 16 floats from memory
-	static MOSS_INLINE Mat44	sLoadFloat4x4(const Float4 *inV);
+	static MOSS_INLINE Mat44	LoadFloat4x4(const Float4 *inV);
 
 	/// Load 16 floats from memory, 16 bytes aligned
-	static MOSS_INLINE Mat44	sLoadFloat4x4Aligned(const Float4 *inV);
+	static MOSS_INLINE Mat44	LoadFloat4x4Aligned(const Float4 *inV);
 
 	/// Rotate around X, Y or Z axis (angle in radians)
 	static MOSS_INLINE Mat44	sRotationX(float inX);
@@ -49,46 +49,46 @@ public:
 	static MOSS_INLINE Mat44	sRotationZ(float inZ);
 
 	/// Rotate around arbitrary axis
-	static MOSS_INLINE Mat44	sRotation(const Vec3 inAxis, float inAngle);
+	static MOSS_INLINE Mat44	Rotation(const Vec3 inAxis, float inAngle);
 
 	/// Rotate from quaternion
-	static MOSS_INLINE Mat44	sRotation(const Quat inQuat);
+	static MOSS_INLINE Mat44	Rotation(const Quat inQuat);
 
 	/// Get matrix that translates
-	static MOSS_INLINE Mat44	sTranslation(const Vec3 inV);
+	static MOSS_INLINE Mat44	Translation(const Vec3 inV);
 
 	/// Get matrix that rotates and translates
-	static MOSS_INLINE Mat44	sRotationTranslation(const Quat inR, const Vec3 inT);
+	static MOSS_INLINE Mat44	RotationTranslation(const Quat inR, const Vec3 inT);
 
 	/// Get inverse matrix of sRotationTranslation
-	static MOSS_INLINE Mat44	sInverseRotationTranslation(const Quat inR, const Vec3 inT);
+	static MOSS_INLINE Mat44	InverseRotationTranslation(const Quat inR, const Vec3 inT);
 
 	/// Get matrix that scales uniformly
-	static MOSS_INLINE Mat44	sScale(float inScale);
+	static MOSS_INLINE Mat44	Scale(float inScale);
 
 	/// Get matrix that scales (produces a matrix with (inV, 1) on its diagonal)
-	static MOSS_INLINE Mat44	sScale(const Vec3 inV);
+	static MOSS_INLINE Mat44	Scale(const Vec3 inV);
 
 	/// Get outer product of inV and inV2 (equivalent to \f$inV1 \otimes inV2\f$)
-	static MOSS_INLINE Mat44	sOuterProduct(const Vec3 inV1, const Vec3 inV2);
+	static MOSS_INLINE Mat44	OuterProduct(const Vec3 inV1, const Vec3 inV2);
 
 	/// Get matrix that represents a cross product \f$A \times B = \text{sCrossProduct}(A) \: B\f$
-	static MOSS_INLINE Mat44	sCrossProduct(const Vec3 inV);
+	static MOSS_INLINE Mat44	CrossProduct(const Vec3 inV);
 
 	/// Returns matrix ML so that \f$ML(q) \: p = q \: p\f$ (where p and q are quaternions)
-	static MOSS_INLINE Mat44	sQuatLeftMultiply(const Quat inQ);
+	static MOSS_INLINE Mat44	QuatLeftMultiply(const Quat inQ);
 
 	/// Returns matrix MR so that \f$MR(q) \: p = p \: q\f$ (where p and q are quaternions)
-	static MOSS_INLINE Mat44	sQuatRightMultiply(const Quat inQ);
+	static MOSS_INLINE Mat44	QuatRightMultiply(const Quat inQ);
 
 	/// Returns a look at matrix that transforms from world space to view space
 	/// @param inPos Position of the camera
 	/// @param inTarget Target of the camera
 	/// @param inUp Up vector
-	static MOSS_INLINE Mat44	sLookAt(Vec3 position, Vec3 target, Vec3 up);
+	static MOSS_INLINE Mat44	LookAt(Vec3 position, Vec3 target, Vec3 up);
 
 	/// Returns a right-handed perspective projection matrix
-	static MOSS_INLINE Mat44	sPerspective(float inFovY, float aspect, float near, float far);
+	static MOSS_INLINE Mat44	Perspective(float inFovY, float aspect, float near, float far);
 
 	/// Get float component by element index
 	MOSS_INLINE float			operator () (uint inRow, uint inColumn) const			{ MOSS_ASSERT(inRow < 4); MOSS_ASSERT(inColumn < 4); return mCol[inColumn].mF32[inRow]; }
@@ -202,20 +202,20 @@ public:
 	/// Get matrix that transforms a direction with the same transform as this matrix (length is not preserved)
 	MOSS_INLINE Mat44			GetDirectionPreservingMatrix() const					{ return GetRotation().Inversed3x3().Transposed3x3(); }
 
-	/// Pre multiply by translation matrix: result = this * Mat44::sTranslation(inTranslation)
+	/// Pre multiply by translation matrix: result = this * Mat44::Translation(inTranslation)
 	MOSS_INLINE Mat44			PreTranslated(const Vec3 inTranslation) const;
 
-	/// Post multiply by translation matrix: result = Mat44::sTranslation(inTranslation) * this (i.e. add inTranslation to the 4-th column)
+	/// Post multiply by translation matrix: result = Mat44::Translation(inTranslation) * this (i.e. add inTranslation to the 4-th column)
 	MOSS_INLINE Mat44			PostTranslated(const Vec3 inTranslation) const;
 
-	/// Scale a matrix: result = this * Mat44::sScale(inScale)
+	/// Scale a matrix: result = this * Mat44::Scale(inScale)
 	MOSS_INLINE Mat44			PreScaled(const Vec3 inScale) const;
 
-	/// Scale a matrix: result = Mat44::sScale(inScale) * this
+	/// Scale a matrix: result = Mat44::Scale(inScale) * this
 	MOSS_INLINE Mat44			PostScaled(const Vec3 inScale) const;
 
 	/// Decompose a matrix into a rotation & translation part and into a scale part so that:
-	/// this = return_value * Mat44::sScale(outScale).
+	/// this = return_value * Mat44::Scale(outScale).
 	/// This equation only holds when the matrix is orthogonal, if it is not the returned matrix
 	/// will be made orthogonal using the modified Gram-Schmidt algorithm (see: https://en.wikipedia.org/wiki/Gram%E2%80%93Schmidt_process)
 	MOSS_INLINE Mat44			Decompose(Vec3 &outScale) const;
@@ -233,7 +233,7 @@ public:
 	}
 
 private:
-	Vec4						mCol[4];												///< Column
+	Vec4 mCol[4];	// Column
 };
 
 // === View Matrix ===

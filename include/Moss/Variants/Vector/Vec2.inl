@@ -23,7 +23,7 @@ void Vec2::CheckW() const
 #endif // MOSS_FLOATING_POINT_EXCEPTIONS_ENABLED
 }
 
-MOSS_INLINE Vec2::Type Vec2::sFixW(Type inValue)
+MOSS_INLINE Vec2::Type Vec2::FixW(Type inValue)
 {
 #ifdef MOSS_FLOATING_POINT_EXCEPTIONS_ENABLED
     #if defined(MOSS_SIMD_SSE)
@@ -105,7 +105,7 @@ Vec2 Vec2::Swizzle() const
 #endif
 }
 
-Vec2 Vec2::sZero()
+Vec2 Vec2::Zero()
 {
 #if defined(MOSS_SIMD_SSE)
 	return _mm_setzero_ps();
@@ -116,7 +116,7 @@ Vec2 Vec2::sZero()
 #endif
 }
 
-Vec2 Vec2::sReplicate(float inV)
+Vec2 Vec2::Replicate(float inV)
 {
 #if defined(MOSS_SIMD_SSE)
 	return _mm_set1_ps(inV);
@@ -127,12 +127,12 @@ Vec2 Vec2::sReplicate(float inV)
 #endif
 }
 
-Vec2 Vec2::sNaN()
+Vec2 Vec2::NaN()
 {
 	return sReplicate(numeric_limits<float>::quiet_NaN());
 }
 
-Vec2 Vec2::sLoadFloat2Unsafe(const Float2 &inV)
+Vec2 Vec2::LoadFloat2Unsafe(const Float2 &inV)
 {
 #if defined(MOSS_SIMD_SSE)
 	Type v = _mm_loadu_ps(&inV.x);
@@ -144,7 +144,7 @@ Vec2 Vec2::sLoadFloat2Unsafe(const Float2 &inV)
 	return sFixW(v);
 }
 
-Vec2 Vec2::sMin(Vec2 inV1, Vec2 inV2)
+Vec2 Vec2::Min(Vec2 inV1, Vec2 inV2)
 {
 #if defined(MOSS_SIMD_SSE)
 	return _mm_min_ps(inV1.mValue, inV2.mValue);
@@ -156,7 +156,7 @@ Vec2 Vec2::sMin(Vec2 inV1, Vec2 inV2)
 #endif
 }
 
-Vec2 Vec2::sMax(const Vec2 inV1, const Vec2 inV2)
+Vec2 Vec2::Max(const Vec2 inV1, const Vec2 inV2)
 {
 #if defined(MOSS_SIMD_SSE)
 	return _mm_max_ps(inV1.mValue, inV2.mValue);
@@ -168,12 +168,12 @@ Vec2 Vec2::sMax(const Vec2 inV1, const Vec2 inV2)
 #endif
 }
 
-Vec2 Vec2::sClamp(const Vec2 inV, const Vec2 inMin, const Vec2 inMax)
+Vec2 Vec2::Clamp(const Vec2 inV, const Vec2 inMin, const Vec2 inMax)
 {
 	return sMax(sMin(inV, inMax), inMin);
 }
 
-UVec4 Vec2::sEquals(const Vec2 inV1, const Vec2 inV2)
+UVec4 Vec2::Equals(const Vec2 inV1, const Vec2 inV2)
 {
 #if defined(MOSS_SIMD_SSE)
 	return _mm_castps_si128(_mm_cmpeq_ps(inV1.mValue, inV2.mValue));
@@ -188,7 +188,7 @@ UVec4 Vec2::sEquals(const Vec2 inV1, const Vec2 inV2)
 #endif
 }
 
-UVec4 Vec2::sLess(const Vec2 inV1, const Vec2 inV2)
+UVec4 Vec2::Less(const Vec2 inV1, const Vec2 inV2)
 {
 #if defined(MOSS_SIMD_SSE)
 	return _mm_castps_si128(_mm_cmplt_ps(inV1.mValue, inV2.mValue));
@@ -203,7 +203,7 @@ UVec4 Vec2::sLess(const Vec2 inV1, const Vec2 inV2)
 #endif
 }
 
-UVec4 Vec2::sLessOrEqual(const Vec2 inV1, const Vec2 inV2)
+UVec4 Vec2::LessOrEqual(const Vec2 inV1, const Vec2 inV2)
 {
 #if defined(MOSS_SIMD_SSE)
 	return _mm_castps_si128(_mm_cmple_ps(inV1.mValue, inV2.mValue));
@@ -218,7 +218,7 @@ UVec4 Vec2::sLessOrEqual(const Vec2 inV1, const Vec2 inV2)
 #endif
 }
 
-UVec4 Vec2::sGreater(const Vec2 inV1, const Vec2 inV2)
+UVec4 Vec2::Greater(const Vec2 inV1, const Vec2 inV2)
 {
 #if defined(MOSS_SIMD_SSE)
 	return _mm_castps_si128(_mm_cmpgt_ps(inV1.mValue, inV2.mValue));
@@ -233,7 +233,7 @@ UVec4 Vec2::sGreater(const Vec2 inV1, const Vec2 inV2)
 #endif
 }
 
-UVec4 Vec2::sGreaterOrEqual(const Vec2 inV1, const Vec2 inV2)
+UVec4 Vec2::GreaterOrEqual(const Vec2 inV1, const Vec2 inV2)
 {
 #if defined(MOSS_SIMD_SSE)
 	return _mm_castps_si128(_mm_cmpge_ps(inV1.mValue, inV2.mValue));
@@ -248,7 +248,7 @@ UVec4 Vec2::sGreaterOrEqual(const Vec2 inV1, const Vec2 inV2)
 #endif
 }
 
-Vec2 Vec2::sFusedMultiplyAdd(const Vec2 inMul1, const Vec2 inMul2, const Vec2 inAdd)
+Vec2 Vec2::FusedMultiplyAdd(const Vec2 inMul1, const Vec2 inMul2, const Vec2 inAdd)
 {
 #if defined(MOSS_SIMD_SSE)
 	#ifdef MOSS_USE_FMADD
@@ -265,7 +265,7 @@ Vec2 Vec2::sFusedMultiplyAdd(const Vec2 inMul1, const Vec2 inMul2, const Vec2 in
 #endif
 }
 
-Vec2 Vec2::sSelect(const Vec2 inNotSet, const Vec2 inSet, const UVec4 inControl)
+Vec2 Vec2::Select(const Vec2 inNotSet, const Vec2 inSet, const UVec4 inControl)
 {
 #if defined(MOSS_SIMD_SSE4_11) && !defined(MOSS_PLATFORM_WASM) // _mm_blendv_ps has problems on FireFox
 	Type v = _mm_blendv_ps(inNotSet.mValue, inSet.mValue, _mm_castsi128_ps(inControl.mValue));
@@ -288,40 +288,40 @@ Vec2 Vec2::sSelect(const Vec2 inNotSet, const Vec2 inSet, const UVec4 inControl)
 #endif
 }
 
-Vec2 Vec2::sOr(const Vec2 inV1, const Vec2 inV2)
+Vec2 Vec2::Or(const Vec2 inV1, const Vec2 inV2)
 {
 #if defined(MOSS_SIMD_SSE)
 	return _mm_or_ps(inV1.mValue, inV2.mValue);
 #elif defined(MOSS_SIMD_NEON)
 	return vreinterpretq_f32_u32(vorrq_u32(vreinterpretq_u32_f32(inV1.mValue), vreinterpretq_u32_f32(inV2.mValue)));
 #else
-	return Vec2(UVec4::sOr(inV1.ReinterpretAsInt(), inV2.ReinterpretAsInt()).ReinterpretAsFloat());
+	return Vec2(UVec4::Or(inV1.ReinterpretAsInt(), inV2.ReinterpretAsInt()).ReinterpretAsFloat());
 #endif
 }
 
-Vec2 Vec2::sXor(const Vec2 inV1, const Vec2 inV2)
+Vec2 Vec2::Xor(const Vec2 inV1, const Vec2 inV2)
 {
 #if defined(MOSS_SIMD_SSE)
 	return _mm_xor_ps(inV1.mValue, inV2.mValue);
 #elif defined(MOSS_SIMD_NEON)
 	return vreinterpretq_f32_u32(veorq_u32(vreinterpretq_u32_f32(inV1.mValue), vreinterpretq_u32_f32(inV2.mValue)));
 #else
-	return Vec2(UVec4::sXor(inV1.ReinterpretAsInt(), inV2.ReinterpretAsInt()).ReinterpretAsFloat());
+	return Vec2(UVec4::Xor(inV1.ReinterpretAsInt(), inV2.ReinterpretAsInt()).ReinterpretAsFloat());
 #endif
 }
 
-Vec2 Vec2::sAnd(const Vec2 inV1, const Vec2 inV2)
+Vec2 Vec2::And(const Vec2 inV1, const Vec2 inV2)
 {
 #if defined(MOSS_SIMD_SSE)
 	return _mm_and_ps(inV1.mValue, inV2.mValue);
 #elif defined(MOSS_SIMD_NEON)
 	return vreinterpretq_f32_u32(vandq_u32(vreinterpretq_u32_f32(inV1.mValue), vreinterpretq_u32_f32(inV2.mValue)));
 #else
-	return Vec2(UVec4::sAnd(inV1.ReinterpretAsInt(), inV2.ReinterpretAsInt()).ReinterpretAsFloat());
+	return Vec2(UVec4::And(inV1.ReinterpretAsInt(), inV2.ReinterpretAsInt()).ReinterpretAsFloat());
 #endif
 }
 
-Vec2 Vec2::sUnitSpherical(float inTheta, float inPhi)
+Vec2 Vec2::UnitSpherical(float inTheta, float inPhi)
 {
     Vec4 s, c;
     Vec4(inTheta, inPhi, 0, 0).SinCos(s, c);
@@ -330,7 +330,7 @@ Vec2 Vec2::sUnitSpherical(float inTheta, float inPhi)
 }
 
 template <class Random>
-Vec2 Vec2::sRandom(Random &inRandom)
+Vec2 Vec2::Random(Random &inRandom)
 {
 	std::uniform_real_distribution<float> zero_to_one(0.0f, 1.0f);
 	float theta = MOSS_PI * zero_to_one(inRandom);
@@ -619,7 +619,7 @@ Vec2 Vec2::DotV(const Vec2 inV2) const
 	float dot = 0.0f;
 	for (int i = 0; i < 3; i++)
 		dot += mF32[i] * inV2.mF32[i];
-	return Vec2::sReplicate(dot);
+	return Vec2::Replicate(dot);
 #endif
 }
 
@@ -635,7 +635,7 @@ Vec4 Vec2::DotV4(const Vec2 inV2) const
 	float dot = 0.0f;
 	for (int i = 0; i < 3; i++)
 		dot += mF32[i] * inV2.mF32[i];
-	return Vec4::sReplicate(dot);
+	return Vec4::Replicate(dot);
 #endif
 }
 

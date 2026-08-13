@@ -2,7 +2,7 @@
 // SPDX-FileCopyrightText: 2021 Jorrit Rouwe
 // SPDX-License-Identifier: MIT
 
-#include <Moss/Core/Variants/Vector/Vec3.h>
+#include <Moss/Variants/Vector/Vec3.h>
 
 MOSS_SUPRESS_WARNINGS_BEGIN
 

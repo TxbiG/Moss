@@ -4,11 +4,11 @@
 
 #pragma once
 
-#include <Moss/Core/Variants/TStaticArray.h>
-#include <Moss/Core/Variants/Vector/Float3.h>
-#include <Moss/Core/Variants/Math/Swizzle.h>
-#include <Moss/Core/Variants/Math/MathTypes.h>
-#include <Moss/Core/Variants/Vector/UVec4.h>
+#include <Moss/Variants/TStaticArray.h>
+#include <Moss/Variants/Vector/Float3.h>
+#include <Moss/Variants/Math/Swizzle.h>
+#include <Moss/Variants/Math/MathTypes.h>
+#include <Moss/Variants/Vector/UVec4.h>
 
 MOSS_SUPRESS_WARNINGS_BEGIN
 
@@ -33,7 +33,7 @@ public:
 	using ArgType = const Vec3;
 
 	/// Constructor
-								Vec3() = default; ///< Intentionally not initialized for performance reasons
+								Vec3() = default; // Intentionally not initialized for performance reasons
 								Vec3(const Vec3 &inRHS) = default;
 	Vec3 &						operator = (const Vec3 &inRHS) = default;
 	explicit MOSS_INLINE		Vec3(const Vec4 inRHS);
@@ -46,75 +46,75 @@ public:
 	MOSS_INLINE					Vec3(float inX, float inY, float inZ);
 
 	/// Vector with all zeros
-	static MOSS_INLINE Vec3		sZero();
+	static MOSS_INLINE Vec3		Zero();
 
 	/// Vector with all ones
-	static MOSS_INLINE Vec3		sOne();
+	static MOSS_INLINE Vec3		One();
 
 	/// Vector with all NaN's
-	static MOSS_INLINE Vec3		sNaN();
+	static MOSS_INLINE Vec3		NaN();
 
 	/// Vectors with the principal axis
-	static MOSS_INLINE Vec3		sAxisX()										{ return Vec3(1, 0, 0); }
-	static MOSS_INLINE Vec3		sAxisY()										{ return Vec3(0, 1, 0); }
-	static MOSS_INLINE Vec3		sAxisZ()										{ return Vec3(0, 0, 1); }
+	static MOSS_INLINE Vec3		AxisX()										{ return Vec3(1, 0, 0); }
+	static MOSS_INLINE Vec3		AxisY()										{ return Vec3(0, 1, 0); }
+	static MOSS_INLINE Vec3		AxisZ()										{ return Vec3(0, 0, 1); }
 
 	/// Replicate inV across all components
-	static MOSS_INLINE Vec3		sReplicate(float inV);
+	static MOSS_INLINE Vec3		Replicate(float inV);
 
 	/// Load 3 floats from memory (reads 32 bits extra which it doesn't use)
-	static MOSS_INLINE Vec3		sLoadFloat3Unsafe(const Float3 &inV);
+	static MOSS_INLINE Vec3		LoadFloat3Unsafe(const Float3 &inV);
 
 	/// Return the minimum value of each of the components
-	static MOSS_INLINE Vec3		sMin(const Vec3 inV1, const Vec3 inV2);
+	static MOSS_INLINE Vec3		Min(const Vec3 inV1, const Vec3 inV2);
 
 	/// Return the maximum of each of the components
-	static MOSS_INLINE Vec3		sMax(const Vec3 inV1, const Vec3 inV2);
+	static MOSS_INLINE Vec3		Max(const Vec3 inV1, const Vec3 inV2);
 
 	/// Clamp a vector between min and max (component wise)
-	static MOSS_INLINE Vec3		sClamp(const Vec3 inV, const Vec3 inMin, const Vec3 inMax);
+	static MOSS_INLINE Vec3		Clamp(const Vec3 inV, const Vec3 inMin, const Vec3 inMax);
 
 	/// Equals (component wise)
-	static MOSS_INLINE UVec4		sEquals(const Vec3 inV1, const Vec3 inV2);
+	static MOSS_INLINE UVec4	Equals(const Vec3 inV1, const Vec3 inV2);
 
 	/// Less than (component wise)
-	static MOSS_INLINE UVec4		sLess(const Vec3 inV1, const Vec3 inV2);
+	static MOSS_INLINE UVec4	Less(const Vec3 inV1, const Vec3 inV2);
 
 	/// Less than or equal (component wise)
-	static MOSS_INLINE UVec4		sLessOrEqual(const Vec3 inV1, const Vec3 inV2);
+	static MOSS_INLINE UVec4	LessOrEqual(const Vec3 inV1, const Vec3 inV2);
 
 	/// Greater than (component wise)
-	static MOSS_INLINE UVec4		sGreater(const Vec3 inV1, const Vec3 inV2);
+	static MOSS_INLINE UVec4	Greater(const Vec3 inV1, const Vec3 inV2);
 
 	/// Greater than or equal (component wise)
-	static MOSS_INLINE UVec4		sGreaterOrEqual(const Vec3 inV1, const Vec3 inV2);
+	static MOSS_INLINE UVec4	GreaterOrEqual(const Vec3 inV1, const Vec3 inV2);
 
 	/// Calculates inMul1 * inMul2 + inAdd
-	static MOSS_INLINE Vec3		sFusedMultiplyAdd(const Vec3 inMul1, const Vec3 inMul2, const Vec3 inAdd);
+	static MOSS_INLINE Vec3		FusedMultiplyAdd(const Vec3 inMul1, const Vec3 inMul2, const Vec3 inAdd);
 
 	/// Component wise select, returns inNotSet when highest bit of inControl = 0 and inSet when highest bit of inControl = 1
-	static MOSS_INLINE Vec3		sSelect(const Vec3 inNotSet, const Vec3 inSet, const UVec4 inControl);
+	static MOSS_INLINE Vec3		Select(const Vec3 inNotSet, const Vec3 inSet, const UVec4 inControl);
 
 	/// Logical or (component wise)
-	static MOSS_INLINE Vec3		sOr(const Vec3 inV1, const Vec3 inV2);
+	static MOSS_INLINE Vec3		Or(const Vec3 inV1, const Vec3 inV2);
 
 	/// Logical xor (component wise)
-	static MOSS_INLINE Vec3		sXor(const Vec3 inV1, const Vec3 inV2);
+	static MOSS_INLINE Vec3		Xor(const Vec3 inV1, const Vec3 inV2);
 
 	/// Logical and (component wise)
-	static MOSS_INLINE Vec3		sAnd(const Vec3 inV1, const Vec3 inV2);
+	static MOSS_INLINE Vec3		And(const Vec3 inV1, const Vec3 inV2);
 
 	/// Get unit vector given spherical coordinates
 	/// inTheta \f$\in [0, \pi]\f$ is angle between vector and z-axis
 	/// inPhi \f$\in [0, 2 \pi]\f$ is the angle in the xy-plane starting from the x axis and rotating counter clockwise around the z-axis
-	static MOSS_INLINE Vec3		sUnitSpherical(float inTheta, float inPhi);
+	static MOSS_INLINE Vec3		UnitSpherical(float inTheta, float inPhi);
 
 	/// A set of vectors uniformly spanning the surface of a unit sphere, usable for debug purposes
 	MOSS_EXPORT static const TStaticArray<Vec3, 1026> sUnitSphere;
 
 	/// Get random unit vector
 	template <class Random>
-	static inline Vec3			sRandom(Random &inRandom);
+	static inline Vec3			Random(Random &inRandom);
 
 	/// Get individual components
 #if defined(MOSS_SIMD_SSE)
@@ -132,46 +132,46 @@ public:
 #endif
 
 	/// Set individual components
-	MOSS_INLINE void				SetX(float inX)									{ mF32[0] = inX; }
-	MOSS_INLINE void				SetY(float inY)									{ mF32[1] = inY; }
-	MOSS_INLINE void				SetZ(float inZ)									{ mF32[2] = mF32[3] = inZ; } // Assure Z and W are the same
+	MOSS_INLINE void			SetX(float inX)									{ mF32[0] = inX; }
+	MOSS_INLINE void			SetY(float inY)									{ mF32[1] = inY; }
+	MOSS_INLINE void			SetZ(float inZ)									{ mF32[2] = mF32[3] = inZ; } // Assure Z and W are the same
 
 	/// Set all components
-	MOSS_INLINE void				Set(float inX, float inY, float inZ)			{ *this = Vec3(inX, inY, inZ); }
+	MOSS_INLINE void			Set(float inX, float inY, float inZ)			{ *this = Vec3(inX, inY, inZ); }
 
 	/// Get float component by index
 	MOSS_INLINE float			operator [] (uint32 inCoordinate) const			{ MOSS_ASSERT(inCoordinate < 3); return mF32[inCoordinate]; }
 
 	/// Set float component by index
-	MOSS_INLINE void				SetComponent(uint32 inCoordinate, float inValue)	{ MOSS_ASSERT(inCoordinate < 3); mF32[inCoordinate] = inValue; mValue = sFixW(mValue); } // Assure Z and W are the same
+	MOSS_INLINE void			SetComponent(uint32 inCoordinate, float inValue)	{ MOSS_ASSERT(inCoordinate < 3); mF32[inCoordinate] = inValue; mValue = sFixW(mValue); } // Assure Z and W are the same
 
 	/// Comparison
-	MOSS_INLINE bool				operator == (const Vec3 inV2) const;
-	MOSS_INLINE bool				operator != (const Vec3 inV2) const				{ return !(*this == inV2); }
+	MOSS_INLINE bool			operator == (const Vec3 inV2) const;
+	MOSS_INLINE bool			operator != (const Vec3 inV2) const				{ return !(*this == inV2); }
 
 	/// Test if two vectors are close
-	MOSS_INLINE bool				IsClose(const Vec3 inV2, float inMaxDistSq = 1.0e-12f) const;
+	MOSS_INLINE bool			IsClose(const Vec3 inV2, float inMaxDistSq = 1.0e-12f) const;
 
 	/// Test if vector is near zero
-	MOSS_INLINE bool				IsNearZero(float inMaxDistSq = 1.0e-12f) const;
+	MOSS_INLINE bool			IsNearZero(float inMaxDistSq = 1.0e-12f) const;
 
 	/// Test if vector is normalized
-	MOSS_INLINE bool				IsNormalized(float inTolerance = 1.0e-6f) const;
+	MOSS_INLINE bool			IsNormalized(float inTolerance = 1.0e-6f) const;
 
 	/// Test if vector contains NaN elements
-	MOSS_INLINE bool				IsNaN() const;
+	MOSS_INLINE bool			IsNaN() const;
 
 	/// Multiply two float vectors (component wise)
-	MOSS_INLINE Vec3				operator * (const Vec3 inV2) const;
+	MOSS_INLINE Vec3			operator * (const Vec3 inV2) const;
 
 	/// Multiply vector with float
-	MOSS_INLINE Vec3				operator * (float inV2) const;
+	MOSS_INLINE Vec3			operator * (float inV2) const;
 
 	/// Multiply vector with float
-	inline friend Vec3		operator * (float inV1, const Vec3 inV2);
+	inline friend Vec3			operator * (float inV1, const Vec3 inV2);
 
 	/// Divide vector by float
-	MOSS_INLINE Vec3				operator / (float inV2) const;
+	MOSS_INLINE Vec3			operator / (float inV2) const;
 
 	/// Multiply vector with float
 	MOSS_INLINE Vec3 &			operator *= (float inV2);
@@ -183,35 +183,35 @@ public:
 	MOSS_INLINE Vec3 &			operator /= (float inV2);
 
 	/// Add two float vectors (component wise)
-	MOSS_INLINE Vec3				operator + (const Vec3 inV2) const;
+	MOSS_INLINE Vec3			operator + (const Vec3 inV2) const;
 
 	/// Add two float vectors (component wise)
 	MOSS_INLINE Vec3 &			operator += (const Vec3 inV2);
 
 	/// Negate
-	MOSS_INLINE Vec3				operator - () const;
+	MOSS_INLINE Vec3			operator - () const;
 
 	/// Subtract two float vectors (component wise)
-	MOSS_INLINE Vec3				operator - (const Vec3 inV2) const;
+	MOSS_INLINE Vec3			operator - (const Vec3 inV2) const;
 
 	/// Subtract two float vectors (component wise)
 	MOSS_INLINE Vec3 &			operator -= (const Vec3 inV2);
 
 	/// Divide (component wise)
-	MOSS_INLINE Vec3				operator / (const Vec3 inV2) const;
+	MOSS_INLINE Vec3			operator / (const Vec3 inV2) const;
 
 	/// Swizzle the elements in inV
 	template<uint32 SwizzleX, uint32 SwizzleY, uint32 SwizzleZ>
-	MOSS_INLINE Vec3				Swizzle() const;
+	MOSS_INLINE Vec3			Swizzle() const;
 
 	/// Replicate the X component to all components
-	MOSS_INLINE Vec4				SplatX() const;
+	MOSS_INLINE Vec4			SplatX() const;
 
 	/// Replicate the Y component to all components
-	MOSS_INLINE Vec4				SplatY() const;
+	MOSS_INLINE Vec4			SplatY() const;
 
 	/// Replicate the Z component to all components
-	MOSS_INLINE Vec4				SplatZ() const;
+	MOSS_INLINE Vec4			SplatZ() const;
 
 	/// Get index of component with lowest value
 	MOSS_INLINE int				GetLowestComponentIndex() const;
@@ -220,19 +220,19 @@ public:
 	MOSS_INLINE int				GetHighestComponentIndex() const;
 
 	/// Return the absolute value of each of the components
-	MOSS_INLINE Vec3				Abs() const;
+	MOSS_INLINE Vec3			Abs() const;
 
 	/// Reciprocal vector (1 / value) for each of the components
-	MOSS_INLINE Vec3				Reciprocal() const;
+	MOSS_INLINE Vec3			Reciprocal() const;
 
 	/// Cross product
-	MOSS_INLINE Vec3				Cross(const Vec3 inV2) const;
+	MOSS_INLINE Vec3			Cross(const Vec3 inV2) const;
 
 	/// Dot product, returns the dot product in X, Y and Z components
-	MOSS_INLINE Vec3				DotV(const Vec3 inV2) const;
+	MOSS_INLINE Vec3			DotV(const Vec3 inV2) const;
 
 	/// Dot product, returns the dot product in X, Y, Z and W components
-	MOSS_INLINE Vec4				DotV4(const Vec3 inV2) const;
+	MOSS_INLINE Vec4			DotV4(const Vec3 inV2) const;
 
 	/// Dot product
 	MOSS_INLINE float			Dot(const Vec3 inV2) const;
@@ -244,13 +244,13 @@ public:
 	MOSS_INLINE float			Length() const;
 
 	/// Normalize vector
-	MOSS_INLINE Vec3				Normalized() const;
+	MOSS_INLINE Vec3			Normalized() const;
 
 	/// Normalize vector or return inZeroValue if the length of the vector is zero
-	MOSS_INLINE Vec3				NormalizedOr(const Vec3 inZeroValue) const;
+	MOSS_INLINE Vec3			NormalizedOr(const Vec3 inZeroValue) const;
 
 	/// Store 3 floats to memory
-	MOSS_INLINE void				StoreFloat3(Float3 *outV) const;
+	MOSS_INLINE void			StoreFloat3(Float3 *outV) const;
 
 	/// Convert each component from a float to an int
 	MOSS_INLINE UVec4			ToInt() const;
@@ -274,17 +274,17 @@ public:
 	MOSS_INLINE Vec3			GetSign() const;
 
 	/// To String
-	friend ostream &			operator << (ostream &inStream, const Vec3 inV)
+	friend ostream&				operator << (ostream &inStream, const Vec3 inV)
 	{
 		inStream << inV.mF32[0] << ", " << inV.mF32[1] << ", " << inV.mF32[2];
 		return inStream;
 	}
 
 	/// Internal helper function that checks that W is equal to Z, so e.g. dividing by it should not generate div by 0
-	MOSS_INLINE void				CheckW() const;
+	MOSS_INLINE void			CheckW() const;
 
 	/// Internal helper function that ensures that the Z component is replicated to the W component to prevent divisions by zero
-	static MOSS_INLINE Type		sFixW(Type inValue);
+	static MOSS_INLINE Type		FixW(Type inValue);
 
 	union
 	{

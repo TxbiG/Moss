@@ -1,7 +1,7 @@
 #pragma once
 
-#include <Moss/Core/Variants/Vector/Vec3.h>
-#include <Moss/Core/Variants/Vector/Vec4.h>
+#include <Moss/Variants/Vector/Vec3.h>
+#include <Moss/Variants/Vector/Vec4.h>
 
 MOSS_SUPRESS_WARNINGS_BEGIN
 
@@ -23,7 +23,7 @@ public:
 
 	///@name Constructors
 	///@{
-								Quat() = default; ///< Intentionally not initialized for performance reasons
+								Quat() = default; // Intentionally not initialized for performance reasons
 								Quat(const Quat &inRHS) = default;
 	inline						Quat(float inX, float inY, float inZ, float inW)				: mValue(inX, inY, inZ, inW) { }
 	inline explicit				Quat(const Vec4 inV)											: mValue(inV) { }
@@ -77,7 +77,7 @@ public:
 	///@{
 
 	/// @return [0, 0, 0, 0]
-	MOSS_INLINE static Quat		sZero()															{ return Quat(Vec4::sZero()); }
+	MOSS_INLINE static Quat		sZero()															{ return Quat(Vec4::Zero()); }
 
 	/// @return [1, 0, 0, 0] (or in storage format Quat(0, 0, 0, 1))
 	MOSS_INLINE static Quat		sIdentity()														{ return Quat(0, 0, 0, 1); }
@@ -162,13 +162,13 @@ public:
 	MOSS_INLINE float		Dot(const Quat inRHS) const										{ return mValue.Dot(inRHS.mValue); }
 
 	/// The conjugate [w, -x, -y, -z] is the same as the inverse for unit quaternions
-	MOSS_INLINE Quat				Conjugated() const												{ return Quat(Vec4::sXor(mValue, UVec4(0x80000000, 0x80000000, 0x80000000, 0).ReinterpretAsFloat())); }
+	MOSS_INLINE Quat				Conjugated() const												{ return Quat(Vec4::Xor(mValue, UVec4(0x80000000, 0x80000000, 0x80000000, 0).ReinterpretAsFloat())); }
 
 	/// Get inverse quaternion
 	MOSS_INLINE Quat				Inversed() const												{ return Conjugated() / Length(); }
 
 	/// Ensures that the W component is positive by negating the entire quaternion if it is not. This is useful when you want to store a quaternion as a 3 vector by discarding W and reconstructing it as sqrt(1 - x^2 - y^2 - z^2).
-	MOSS_INLINE Quat				EnsureWPositive() const											{ return Quat(Vec4::sXor(mValue, Vec4::sAnd(mValue.SplatW(), UVec4::sReplicate(0x80000000).ReinterpretAsFloat()))); }
+	MOSS_INLINE Quat				EnsureWPositive() const											{ return Quat(Vec4::Xor(mValue, Vec4::And(mValue.SplatW(), UVec4::Replicate(0x80000000).ReinterpretAsFloat()))); }
 
 	/// Get a quaternion that is perpendicular to this quaternion
 	MOSS_INLINE Quat				GetPerpendicular() const										{ return Quat(Vec4(1, -1, 1, -1) * mValue.Swizzle<SWIZZLE_Y, SWIZZLE_X, SWIZZLE_W, SWIZZLE_Z>()); }

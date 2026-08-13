@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include <Moss/Core/Variants/Vector/Vec4.h>
+#include <Moss/Variants/Vector/Vec4.h>
 
 MOSS_SUPRESS_WARNINGS_BEGIN
 
@@ -23,8 +23,8 @@ public:
 #endif
 
 	/// Constructor
-								UVec4() = default; ///< Intentionally not initialized for performance reasons
-								UVec4(const UVec4 &inRHS) = default;
+	UVec4() = default; // Intentionally not initialized for performance reasons
+	UVec4(const UVec4 &inRHS) = default;
 	UVec4 &						operator = (const UVec4 &inRHS) = default;
 	MOSS_INLINE					UVec4(Type inRHS) : mValue(inRHS)					{ }
 
@@ -40,52 +40,52 @@ public:
 	MOSS_INLINE UVec4			Swizzle() const;
 
 	/// Vector with all zeros
-	static MOSS_INLINE UVec4		sZero();
+	static MOSS_INLINE UVec4	Zero();
 
 	/// Replicate int inV across all components
-	static MOSS_INLINE UVec4		sReplicate(uint32 inV);
+	static MOSS_INLINE UVec4	Replicate(uint32 inV);
 
 	/// Load 1 int from memory and place it in the X component, zeros Y, Z and W
-	static MOSS_INLINE UVec4		sLoadInt(const uint32 *inV);
+	static MOSS_INLINE UVec4	LoadInt(const uint32 *inV);
 
 	/// Load 4 ints from memory
-	static MOSS_INLINE UVec4		sLoadInt4(const uint32 *inV);
+	static MOSS_INLINE UVec4	LoadInt4(const uint32 *inV);
 
 	/// Load 4 ints from memory, aligned to 16 bytes
-	static MOSS_INLINE UVec4		sLoadInt4Aligned(const uint32 *inV);
+	static MOSS_INLINE UVec4	LoadInt4Aligned(const uint32 *inV);
 
 	/// Gather 4 ints from memory at inBase + inOffsets[i] * Scale
 	template <const int Scale>
-	static MOSS_INLINE UVec4		sGatherInt4(const uint32 *inBase, UVec4Arg inOffsets);
+	static MOSS_INLINE UVec4	GatherInt4(const uint32 *inBase, UVec4Arg inOffsets);
 
 	/// Return the minimum value of each of the components
-	static MOSS_INLINE UVec4		sMin(UVec4Arg inV1, UVec4Arg inV2);
+	static MOSS_INLINE UVec4	Min(UVec4Arg inV1, UVec4Arg inV2);
 
 	/// Return the maximum of each of the components
-	static MOSS_INLINE UVec4		sMax(UVec4Arg inV1, UVec4Arg inV2);
+	static MOSS_INLINE UVec4	Max(UVec4Arg inV1, UVec4Arg inV2);
 
 	/// Equals (component wise)
-	static MOSS_INLINE UVec4		sEquals(UVec4Arg inV1, UVec4Arg inV2);
+	static MOSS_INLINE UVec4	Equals(UVec4Arg inV1, UVec4Arg inV2);
 
 	/// Component wise select, returns inNotSet when highest bit of inControl = 0 and inSet when highest bit of inControl = 1
-	static MOSS_INLINE UVec4		sSelect(UVec4Arg inNotSet, UVec4Arg inSet, UVec4Arg inControl);
+	static MOSS_INLINE UVec4	Select(UVec4Arg inNotSet, UVec4Arg inSet, UVec4Arg inControl);
 
 	/// Logical or (component wise)
-	static MOSS_INLINE UVec4		sOr(UVec4Arg inV1, UVec4Arg inV2);
+	static MOSS_INLINE UVec4	Or(UVec4Arg inV1, UVec4Arg inV2);
 
 	/// Logical xor (component wise)
-	static MOSS_INLINE UVec4		sXor(UVec4Arg inV1, UVec4Arg inV2);
+	static MOSS_INLINE UVec4	Xor(UVec4Arg inV1, UVec4Arg inV2);
 
 	/// Logical and (component wise)
-	static MOSS_INLINE UVec4		sAnd(UVec4Arg inV1, UVec4Arg inV2);
+	static MOSS_INLINE UVec4	And(UVec4Arg inV1, UVec4Arg inV2);
 
 	/// Logical not (component wise)
-	static MOSS_INLINE UVec4		sNot(UVec4Arg inV1);
+	static MOSS_INLINE UVec4	Not(UVec4Arg inV1);
 
 	/// Sorts the elements in inIndex so that the values that correspond to trues in inValue are the first elements.
 	/// The remaining elements will be set to inValue.w.
 	/// I.e. if inValue = (true, false, true, false) and inIndex = (1, 2, 3, 4) the function returns (1, 3, 4, 4).
-	static MOSS_INLINE UVec4		sSort4True(UVec4Arg inValue, UVec4Arg inIndex);
+	static MOSS_INLINE UVec4	Sort4True(UVec4Arg inValue, UVec4Arg inIndex);
 
 	/// Get individual components
 #if defined(MOSS_SIMD_SSE)
@@ -106,14 +106,14 @@ public:
 #endif
 
 	/// Set individual components
-	MOSS_INLINE void				SetX(uint32 inX)									{ mU32[0] = inX; }
-	MOSS_INLINE void				SetY(uint32 inY)									{ mU32[1] = inY; }
-	MOSS_INLINE void				SetZ(uint32 inZ)									{ mU32[2] = inZ; }
-	MOSS_INLINE void				SetW(uint32 inW)									{ mU32[3] = inW; }
+	MOSS_INLINE void			SetX(uint32 inX)									{ mU32[0] = inX; }
+	MOSS_INLINE void			SetY(uint32 inY)									{ mU32[1] = inY; }
+	MOSS_INLINE void			SetZ(uint32 inZ)									{ mU32[2] = inZ; }
+	MOSS_INLINE void			SetW(uint32 inW)									{ mU32[3] = inW; }
 
 	/// Get component by index
 	MOSS_INLINE uint32			operator [] (uint inCoordinate) const				{ MOSS_ASSERT(inCoordinate < 4); return mU32[inCoordinate]; }
-	MOSS_INLINE uint32 &			operator [] (uint inCoordinate)						{ MOSS_ASSERT(inCoordinate < 4); return mU32[inCoordinate]; }
+	MOSS_INLINE uint32 &		operator [] (uint inCoordinate)						{ MOSS_ASSERT(inCoordinate < 4); return mU32[inCoordinate]; }
 
 	/// Multiplies each of the 4 integer components with an integer (discards any overflow)
 	MOSS_INLINE UVec4			operator * (UVec4Arg inV2) const;
@@ -137,28 +137,28 @@ public:
 	MOSS_INLINE UVec4			SplatW() const;
 
 	/// Convert each component from an int to a float
-	MOSS_INLINE Vec4				ToFloat() const;
+	MOSS_INLINE Vec4			ToFloat() const;
 
 	/// Reinterpret UVec4 as a Vec4 (doesn't change the bits)
-	MOSS_INLINE Vec4				ReinterpretAsFloat() const;
+	MOSS_INLINE Vec4			ReinterpretAsFloat() const;
 
 	/// Store 4 ints to memory
-	MOSS_INLINE void				StoreInt4(uint32 *outV) const;
+	MOSS_INLINE void			StoreInt4(uint32 *outV) const;
 
 	/// Store 4 ints to memory, aligned to 16 bytes
-	MOSS_INLINE void				StoreInt4Aligned(uint32 *outV) const;
+	MOSS_INLINE void			StoreInt4Aligned(uint32 *outV) const;
 
 	/// Test if any of the components are true (true is when highest bit of component is set)
-	MOSS_INLINE bool				TestAnyTrue() const;
+	MOSS_INLINE bool			TestAnyTrue() const;
 
 	/// Test if any of X, Y or Z components are true (true is when highest bit of component is set)
-	MOSS_INLINE bool				TestAnyXYZTrue() const;
+	MOSS_INLINE bool			TestAnyXYZTrue() const;
 
 	/// Test if all components are true (true is when highest bit of component is set)
-	MOSS_INLINE bool				TestAllTrue() const;
+	MOSS_INLINE bool			TestAllTrue() const;
 
 	/// Test if X, Y and Z components are true (true is when highest bit of component is set)
-	MOSS_INLINE bool				TestAllXYZTrue() const;
+	MOSS_INLINE bool			TestAllXYZTrue() const;
 
 	/// Count the number of components that are true (true is when highest bit of component is set)
 	MOSS_INLINE int				CountTrues() const;

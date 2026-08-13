@@ -4,13 +4,13 @@
 
 #pragma once
 
-#include <Moss/Core/Variants/TStaticArray.h>
-#include <Moss/Core/Variants/Vector/Float2.h>
-#include <Moss/Core/Variants/Math/Swizzle.h>
-#include <Moss/Core/Variants/Math/MathTypes.h>
+#include <Moss/Variants/TStaticArray.h>
+#include <Moss/Variants/Vector/Float2.h>
+#include <Moss/Variants/Math/Swizzle.h>
+#include <Moss/Variants/Math/MathTypes.h>
 
-#include <Moss/Core/Variants/Vector/UVec4.h>
-#include <Moss/Core/Variants/Vector/Vec4.h>
+#include <Moss/Variants/Vector/UVec4.h>
+#include <Moss/Variants/Vector/Vec4.h>
 
 MOSS_SUPRESS_WARNINGS_BEGIN
 
@@ -29,7 +29,7 @@ public:
 #endif
 
 	/* 			Constructors		*/
-	Vec2() = default; ///< Intentionally not initialized for performance reasons
+	Vec2() = default; // Intentionally not initialized for performance reasons
 	Vec2(const Vec2 &inRHS) = default;
 	Vec2 &						operator = (const Vec2 &inRHS) = default;
 	explicit MOSS_INLINE		Vec2(Vec4Arg inRHS);
@@ -42,62 +42,62 @@ public:
 	MOSS_INLINE					Vec2(float inX, float inY);
 
 	/// Vector with all zeros
-	static MOSS_INLINE Vec2		sZero();
+	static MOSS_INLINE Vec2		Zero();
 
 	/// Vector with all ones
-	static MOSS_INLINE Vec2		sOne();
+	static MOSS_INLINE Vec2		One();
 
 	/// Vector with all NaN's
-	static MOSS_INLINE Vec2		sNaN();
+	static MOSS_INLINE Vec2		NaN();
 
 	/// Vectors with the principal axis
-	static MOSS_INLINE Vec2		sAxisX()										{ return Vec2(1, 0); }
-	static MOSS_INLINE Vec2		sAxisY()										{ return Vec2(0, 1); }
+	static MOSS_INLINE Vec2		AxisX()										{ return Vec2(1, 0); }
+	static MOSS_INLINE Vec2		AxisY()										{ return Vec2(0, 1); }
 
 	/// Replicate inV across all components
-	static MOSS_INLINE Vec2		sReplicate(float inV);
+	static MOSS_INLINE Vec2		Replicate(float inV);
 
 	/// Load 3 floats from memory (reads 32 bits extra which it doesn't use)
-	static MOSS_INLINE Vec2		sLoadFloat2Unsafe(const Float2 &inV);
+	static MOSS_INLINE Vec2		LoadFloat2Unsafe(const Float2 &inV);
 
 	/// Return the minimum value of each of the components
-	static MOSS_INLINE Vec2		sMin(Vec2 inV1, Vec2 inV2);
+	static MOSS_INLINE Vec2		Min(Vec2 inV1, Vec2 inV2);
 
 	/// Return the maximum of each of the components
-	static MOSS_INLINE Vec2		sMax(Vec2 inV1, Vec2 inV2);
+	static MOSS_INLINE Vec2		Max(Vec2 inV1, Vec2 inV2);
 
 	/// Clamp a vector between min and max (component wise)
-	static MOSS_INLINE Vec2		sClamp(Vec2 inV, Vec2 inMin, Vec2 inMax);
+	static MOSS_INLINE Vec2		Clamp(Vec2 inV, Vec2 inMin, Vec2 inMax);
 
 	/// Equals (component wise)
-	static MOSS_INLINE UVec4	sEquals(Vec2 inV1, Vec2 inV2);
+	static MOSS_INLINE UVec4	Equals(Vec2 inV1, Vec2 inV2);
 
 	/// Less than (component wise)
-	static MOSS_INLINE UVec4	sLess(Vec2 inV1, Vec2 inV2);
+	static MOSS_INLINE UVec4	Less(Vec2 inV1, Vec2 inV2);
 
 	/// Less than or equal (component wise)
-	static MOSS_INLINE UVec4	sLessOrEqual(Vec2 inV1, Vec2 inV2);
+	static MOSS_INLINE UVec4	LessOrEqual(Vec2 inV1, Vec2 inV2);
 
 	/// Greater than (component wise)
-	static MOSS_INLINE UVec4	sGreater(Vec2 inV1, Vec2 inV2);
+	static MOSS_INLINE UVec4	Greater(Vec2 inV1, Vec2 inV2);
 
 	/// Greater than or equal (component wise)
-	static MOSS_INLINE UVec4	sGreaterOrEqual(Vec2 inV1, Vec2 inV2);
+	static MOSS_INLINE UVec4	GreaterOrEqual(Vec2 inV1, Vec2 inV2);
 
 	/// Calculates inMul1 * inMul2 + inAdd
-	static MOSS_INLINE Vec2		sFusedMultiplyAdd(Vec2 inMul1, Vec2 inMul2, Vec2 inAdd);
+	static MOSS_INLINE Vec2		FusedMultiplyAdd(Vec2 inMul1, Vec2 inMul2, Vec2 inAdd);
 
 	/// Component wise select, returns inNotSet when highest bit of inControl = 0 and inSet when highest bit of inControl = 1
-	static MOSS_INLINE Vec2		sSelect(Vec2 inNotSet, Vec2 inSet, UVec4Arg inControl);
+	static MOSS_INLINE Vec2		Select(Vec2 inNotSet, Vec2 inSet, UVec4Arg inControl);
 
 	/// Logical or (component wise)
-	static MOSS_INLINE Vec2		sOr(Vec2 inV1, Vec2 inV2);
+	static MOSS_INLINE Vec2		Or(Vec2 inV1, Vec2 inV2);
 
 	/// Logical xor (component wise)
-	static MOSS_INLINE Vec2		sXor(Vec2 inV1, Vec2 inV2);
+	static MOSS_INLINE Vec2		Xor(Vec2 inV1, Vec2 inV2);
 
 	/// Logical and (component wise)
-	static MOSS_INLINE Vec2		sAnd(Vec2 inV1, Vec2 inV2);
+	static MOSS_INLINE Vec2		And(Vec2 inV1, Vec2 inV2);
 
 	/// Get unit vector given spherical coordinates
 	/// inTheta \f$\in [0, \pi]\f$ is angle between vector and z-axis
@@ -109,7 +109,7 @@ public:
 
 	/// Get random unit vector
 	template <class Random>
-	static inline Vec2			sRandom(Random &inRandom);
+	static inline Vec2			Random(Random &inRandom);
 
 	inline bool sAllLessOrEqual(Vec2 v1, Vec2 v2) { UVec4 mask = sLessOrEqual(v1, v2); return mask.GetX() && mask.GetY(); } // optional: && mask.GetZ() && mask.GetW()
 
@@ -297,7 +297,7 @@ public:
 	MOSS_INLINE void			CheckW() const;
 
 	/// Internal helper function that ensures that the Z component is replicated to the W component to prevent divisions by zero
-	static MOSS_INLINE Type		sFixW(Type inValue);
+	static MOSS_INLINE Type		FixW(Type inValue);
 
 	union
 	{

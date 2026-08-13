@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include <Moss/Core/Variants/Math/MathTypes.h>
+#include <Moss/Variants/Math/MathTypes.h>
 
 MOSS_SUPRESS_WARNINGS_BEGIN
 
@@ -12,7 +12,7 @@ MOSS_SUPRESS_WARNINGS_BEGIN
 class [[nodiscard]] alignas(MOSS_DVECTOR_ALIGNMENT) DMat44
 {
 public:
-	// MOSS_OVERRIDE_NEW_DELETE < not needed yet
+	MOSS_OVERRIDE_NEW_DELETE
 
 	// Underlying column type
 	using Type = Vec4::Type;
@@ -23,7 +23,7 @@ public:
 	using ArgType = DMat44Arg;
 
 	/// Constructor
-								DMat44() = default; ///< Intentionally not initialized for performance reasons
+								DMat44() = default; // Intentionally not initialized for performance reasons
 	MOSS_INLINE					DMat44(Vec4Arg inC1, Vec4Arg inC2, Vec4Arg inC3, DVec3Arg inC4);
 								DMat44(const DMat44 &inM2) = default;
 	MOSS_INLINE explicit		DMat44(Mat44Arg inM);
@@ -31,25 +31,25 @@ public:
 	MOSS_INLINE					DMat44(Type inC1, Type inC2, Type inC3, DTypeArg inC4);
 
 	/// Zero matrix
-	static MOSS_INLINE DMat44	sZero();
+	static MOSS_INLINE DMat44	Zero();
 
 	/// Identity matrix
-	static MOSS_INLINE DMat44	sIdentity();
+	static MOSS_INLINE DMat44	Identity();
 
 	/// Rotate from quaternion
-	static MOSS_INLINE DMat44	sRotation(QuatArg inQuat)								{ return DMat44(Mat44::sRotation(inQuat), DVec3::sZero()); }
+	static MOSS_INLINE DMat44	Rotation(QuatArg inQuat)								{ return DMat44(Mat44::Rotation(inQuat), DVec3::Zero()); }
 
 	/// Get matrix that translates
-	static MOSS_INLINE DMat44	sTranslation(DVec3Arg inV)								{ return DMat44(Vec4(1, 0, 0, 0), Vec4(0, 1, 0, 0), Vec4(0, 0, 1, 0), inV); }
+	static MOSS_INLINE DMat44	Translation(DVec3Arg inV)								{ return DMat44(Vec4(1, 0, 0, 0), Vec4(0, 1, 0, 0), Vec4(0, 0, 1, 0), inV); }
 
 	/// Get matrix that rotates and translates
-	static MOSS_INLINE DMat44	sRotationTranslation(QuatArg inR, DVec3Arg inT)			{ return DMat44(Mat44::sRotation(inR), inT); }
+	static MOSS_INLINE DMat44	RotationTranslation(QuatArg inR, DVec3Arg inT)			{ return DMat44(Mat44::Rotation(inR), inT); }
 
 	/// Get inverse matrix of sRotationTranslation
-	static MOSS_INLINE DMat44	sInverseRotationTranslation(QuatArg inR, DVec3Arg inT);
+	static MOSS_INLINE DMat44	InverseRotationTranslation(QuatArg inR, DVec3Arg inT);
 
 	/// Get matrix that scales (produces a matrix with (inV, 1) on its diagonal)
-	static MOSS_INLINE DMat44	sScale(Vec3Arg inV)										{ return DMat44(Mat44::sScale(inV), DVec3::sZero()); }
+	static MOSS_INLINE DMat44	Scale(Vec3Arg inV)										{ return DMat44(Mat44::Scale(inV), DVec3::Zero()); }
 
 	/// Convert to Mat44 rounding to nearest
 	MOSS_INLINE Mat44			ToMat44() const											{ return Mat44(mCol[0], mCol[1], mCol[2], Vec3(mCol3)); }
@@ -84,22 +84,22 @@ public:
 	/// Multiply vector by only 3x3 part of the transpose of the matrix (\f$result = this^T \: inV\f$)
 	MOSS_INLINE Vec3			Multiply3x3Transposed(Vec3Arg inV) const				{ return GetRotation().Multiply3x3Transposed(inV); }
 
-	/// Scale a matrix: result = this * Mat44::sScale(inScale)
+	/// Scale a matrix: result = this * Mat44::Scale(inScale)
 	MOSS_INLINE DMat44			PreScaled(Vec3Arg inScale) const;
 
-	/// Scale a matrix: result = Mat44::sScale(inScale) * this
+	/// Scale a matrix: result = Mat44::Scale(inScale) * this
 	MOSS_INLINE DMat44			PostScaled(Vec3Arg inScale) const;
 
-	/// Pre multiply by translation matrix: result = this * Mat44::sTranslation(inTranslation)
+	/// Pre multiply by translation matrix: result = this * Mat44::Translation(inTranslation)
 	MOSS_INLINE DMat44			PreTranslated(Vec3Arg inTranslation) const;
 
-	/// Pre multiply by translation matrix: result = this * Mat44::sTranslation(inTranslation)
+	/// Pre multiply by translation matrix: result = this * Mat44::Translation(inTranslation)
 	MOSS_INLINE DMat44			PreTranslated(DVec3Arg inTranslation) const;
 
-	/// Post multiply by translation matrix: result = Mat44::sTranslation(inTranslation) * this (i.e. add inTranslation to the 4-th column)
+	/// Post multiply by translation matrix: result = Mat44::Translation(inTranslation) * this (i.e. add inTranslation to the 4-th column)
 	MOSS_INLINE DMat44			PostTranslated(Vec3Arg inTranslation) const;
 
-	/// Post multiply by translation matrix: result = Mat44::sTranslation(inTranslation) * this (i.e. add inTranslation to the 4-th column)
+	/// Post multiply by translation matrix: result = Mat44::Translation(inTranslation) * this (i.e. add inTranslation to the 4-th column)
 	MOSS_INLINE DMat44			PostTranslated(DVec3Arg inTranslation) const;
 
 	/// Access to the columns
@@ -141,15 +141,14 @@ public:
 	MOSS_INLINE DMat44			Decompose(Vec3 &outScale) const							{ return DMat44(GetRotation().Decompose(outScale), mCol3); }
 
 	/// To String
-	friend ostream &			operator << (ostream &inStream, DMat44Arg inM)
-	{
+	friend ostream&				operator << (ostream& inStream, DMat44Arg inM) {
 		inStream << inM.mCol[0] << ", " << inM.mCol[1] << ", " << inM.mCol[2] << ", " << inM.mCol3;
 		return inStream;
 	}
 
 private:
-	Vec4						mCol[3];												///< Rotation columns
-	DVec3						mCol3;													///< Translation column, 4th element is assumed to be 1
+	Vec4	mCol[3];	// Rotation columns
+	DVec3	mCol3;		// Translation column, 4th element is assumed to be 1
 };
 
 /*

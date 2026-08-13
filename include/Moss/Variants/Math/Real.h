@@ -4,8 +4,8 @@
 
 #pragma once
 
-#include <Moss/Core/Variants/Vector/DVec3.h>
-#include <Moss/Core/Variants/Matrix/DMat44.h>
+#include <Moss/Variants/Vector/DVec3.h>
+#include <Moss/Variants/Matrix/DMat44.h>
 
 MOSS_SUPRESS_WARNINGS_BEGIN
 

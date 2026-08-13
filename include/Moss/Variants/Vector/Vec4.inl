@@ -55,7 +55,7 @@ Vec4 Vec4::Swizzle() const
 #endif
 }
 
-Vec4 Vec4::sZero()
+Vec4 Vec4::Zero()
 {
 #if defined(MOSS_SIMD_SSE)
 	return _mm_setzero_ps();
@@ -66,7 +66,7 @@ Vec4 Vec4::sZero()
 #endif
 }
 
-Vec4 Vec4::sReplicate(float inV)
+Vec4 Vec4::Replicate(float inV)
 {
 #if defined(MOSS_SIMD_SSE)
 	return _mm_set1_ps(inV);
@@ -77,17 +77,11 @@ Vec4 Vec4::sReplicate(float inV)
 #endif
 }
 
-Vec4 Vec4::sOne()
-{
-	return sReplicate(1.0f);
-}
+Vec4 Vec4::One() { return Replicate(1.0f); }
 
-Vec4 Vec4::sNaN()
-{
-	return sReplicate(numeric_limits<float>::quiet_NaN());
-}
+Vec4 Vec4::NaN() { return sReplicate(numeric_limits<float>::quiet_NaN()); }
 
-Vec4 Vec4::sLoadFloat4(const Float4 *inV)
+Vec4 Vec4::LoadFloat4(const Float4 *inV)
 {
 #if defined(MOSS_SIMD_SSE)
 	return _mm_loadu_ps(&inV->x);
@@ -98,8 +92,7 @@ Vec4 Vec4::sLoadFloat4(const Float4 *inV)
 #endif
 }
 
-Vec4 Vec4::sLoadFloat4Aligned(const Float4 *inV)
-{
+Vec4 Vec4::LoadFloat4Aligned(const Float4 *inV) {
 #if defined(MOSS_SIMD_SSE)
 	return _mm_load_ps(&inV->x);
 #elif defined(MOSS_SIMD_NEON)
@@ -110,7 +103,7 @@ Vec4 Vec4::sLoadFloat4Aligned(const Float4 *inV)
 }
 
 template <const int Scale>
-Vec4 Vec4::sGatherFloat4(const float *inBase, const UVec4 inOffsets)
+Vec4 Vec4::GatherFloat4(const float *inBase, const UVec4 inOffsets)
 {
 #if defined(MOSS_SIMD_SSE)
 	#ifdef MOSS_SIMD_AVX2
@@ -135,7 +128,7 @@ Vec4 Vec4::sGatherFloat4(const float *inBase, const UVec4 inOffsets)
 #endif
 }
 
-Vec4 Vec4::sMin(const Vec4 inV1, const Vec4 inV2)
+Vec4 Vec4::Min(const Vec4 inV1, const Vec4 inV2)
 {
 #if defined(MOSS_SIMD_SSE)
 	return _mm_min_ps(inV1.mValue, inV2.mValue);
@@ -149,7 +142,7 @@ Vec4 Vec4::sMin(const Vec4 inV1, const Vec4 inV2)
 #endif
 }
 
-Vec4 Vec4::sMax(const Vec4 inV1, const Vec4 inV2)
+Vec4 Vec4::Max(const Vec4 inV1, const Vec4 inV2)
 {
 #if defined(MOSS_SIMD_SSE)
 	return _mm_max_ps(inV1.mValue, inV2.mValue);
@@ -163,7 +156,7 @@ Vec4 Vec4::sMax(const Vec4 inV1, const Vec4 inV2)
 #endif
 }
 
-UVec4 Vec4::sEquals(const Vec4 inV1, const Vec4 inV2)
+UVec4 Vec4::Equals(const Vec4 inV1, const Vec4 inV2)
 {
 #if defined(MOSS_SIMD_SSE)
 	return _mm_castps_si128(_mm_cmpeq_ps(inV1.mValue, inV2.mValue));
@@ -177,7 +170,7 @@ UVec4 Vec4::sEquals(const Vec4 inV1, const Vec4 inV2)
 #endif
 }
 
-UVec4 Vec4::sLess(const Vec4 inV1, const Vec4 inV2)
+UVec4 Vec4::Less(const Vec4 inV1, const Vec4 inV2)
 {
 #if defined(MOSS_SIMD_SSE)
 	return _mm_castps_si128(_mm_cmplt_ps(inV1.mValue, inV2.mValue));
@@ -191,7 +184,7 @@ UVec4 Vec4::sLess(const Vec4 inV1, const Vec4 inV2)
 #endif
 }
 
-UVec4 Vec4::sLessOrEqual(const Vec4 inV1, const Vec4 inV2)
+UVec4 Vec4::LessOrEqual(const Vec4 inV1, const Vec4 inV2)
 {
 #if defined(MOSS_SIMD_SSE)
 	return _mm_castps_si128(_mm_cmple_ps(inV1.mValue, inV2.mValue));
@@ -205,7 +198,7 @@ UVec4 Vec4::sLessOrEqual(const Vec4 inV1, const Vec4 inV2)
 #endif
 }
 
-UVec4 Vec4::sGreater(const Vec4 inV1, const Vec4 inV2)
+UVec4 Vec4::Greater(const Vec4 inV1, const Vec4 inV2)
 {
 #if defined(MOSS_SIMD_SSE)
 	return _mm_castps_si128(_mm_cmpgt_ps(inV1.mValue, inV2.mValue));
@@ -219,7 +212,7 @@ UVec4 Vec4::sGreater(const Vec4 inV1, const Vec4 inV2)
 #endif
 }
 
-UVec4 Vec4::sGreaterOrEqual(const Vec4 inV1, const Vec4 inV2)
+UVec4 Vec4::GreaterOrEqual(const Vec4 inV1, const Vec4 inV2)
 {
 #if defined(MOSS_SIMD_SSE)
 	return _mm_castps_si128(_mm_cmpge_ps(inV1.mValue, inV2.mValue));
@@ -233,7 +226,7 @@ UVec4 Vec4::sGreaterOrEqual(const Vec4 inV1, const Vec4 inV2)
 #endif
 }
 
-Vec4 Vec4::sFusedMultiplyAdd(const Vec4 inMul1, const Vec4 inMul2, const Vec4 inAdd)
+Vec4 Vec4::FusedMultiplyAdd(const Vec4 inMul1, const Vec4 inMul2, const Vec4 inAdd)
 {
 #if defined(MOSS_SIMD_SSE)
 	#ifdef MOSS_USE_FMADD
@@ -251,7 +244,7 @@ Vec4 Vec4::sFusedMultiplyAdd(const Vec4 inMul1, const Vec4 inMul2, const Vec4 in
 #endif
 }
 
-Vec4 Vec4::sSelect(const Vec4 inNotSet, const Vec4 inSet, const UVec4 inControl)
+Vec4 Vec4::Select(const Vec4 inNotSet, const Vec4 inSet, const UVec4 inControl)
 {
 #if defined(MOSS_SIMD_SSE4_1) && !defined(MOSS_PLATFORM_WASM) // _mm_blendv_ps has problems on FireFox
 	return _mm_blendv_ps(inNotSet.mValue, inSet.mValue, _mm_castsi128_ps(inControl.mValue));
@@ -268,85 +261,85 @@ Vec4 Vec4::sSelect(const Vec4 inNotSet, const Vec4 inSet, const UVec4 inControl)
 #endif
 }
 
-Vec4 Vec4::sOr(const Vec4 inV1, const Vec4 inV2)
+Vec4 Vec4::Or(const Vec4 inV1, const Vec4 inV2)
 {
 #if defined(MOSS_SIMD_SSE)
 	return _mm_or_ps(inV1.mValue, inV2.mValue);
 #elif defined(MOSS_SIMD_NEON)
 	return vreinterpretq_f32_u32(vorrq_u32(vreinterpretq_u32_f32(inV1.mValue), vreinterpretq_u32_f32(inV2.mValue)));
 #else
-	return UVec4::sOr(inV1.ReinterpretAsInt(), inV2.ReinterpretAsInt()).ReinterpretAsFloat();
+	return UVec4::Or(inV1.ReinterpretAsInt(), inV2.ReinterpretAsInt()).ReinterpretAsFloat();
 #endif
 }
 
-Vec4 Vec4::sXor(const Vec4 inV1, const Vec4 inV2)
+Vec4 Vec4::Xor(const Vec4 inV1, const Vec4 inV2)
 {
 #if defined(MOSS_SIMD_SSE)
 	return _mm_xor_ps(inV1.mValue, inV2.mValue);
 #elif defined(MOSS_SIMD_NEON)
 	return vreinterpretq_f32_u32(veorq_u32(vreinterpretq_u32_f32(inV1.mValue), vreinterpretq_u32_f32(inV2.mValue)));
 #else
-	return UVec4::sXor(inV1.ReinterpretAsInt(), inV2.ReinterpretAsInt()).ReinterpretAsFloat();
+	return UVec4::Xor(inV1.ReinterpretAsInt(), inV2.ReinterpretAsInt()).ReinterpretAsFloat();
 #endif
 }
 
-Vec4 Vec4::sAnd(const Vec4 inV1, const Vec4 inV2)
+Vec4 Vec4::And(const Vec4 inV1, const Vec4 inV2)
 {
 #if defined(MOSS_SIMD_SSE)
 	return _mm_and_ps(inV1.mValue, inV2.mValue);
 #elif defined(MOSS_SIMD_NEON)
 	return vreinterpretq_f32_u32(vandq_u32(vreinterpretq_u32_f32(inV1.mValue), vreinterpretq_u32_f32(inV2.mValue)));
 #else
-	return UVec4::sAnd(inV1.ReinterpretAsInt(), inV2.ReinterpretAsInt()).ReinterpretAsFloat();
+	return UVec4::And(inV1.ReinterpretAsInt(), inV2.ReinterpretAsInt()).ReinterpretAsFloat();
 #endif
 }
 
-void Vec4::sSort4(Vec4 &ioValue, UVec4 &ioIndex)
+void Vec4::Sort4(Vec4 &ioValue, UVec4 &ioIndex)
 {
 	// Pass 1, test 1st vs 3rd, 2nd vs 4th
 	Vec4 v1 = ioValue.Swizzle<SWIZZLE_Z, SWIZZLE_W, SWIZZLE_X, SWIZZLE_Y>();
 	UVec4 i1 = ioIndex.Swizzle<SWIZZLE_Z, SWIZZLE_W, SWIZZLE_X, SWIZZLE_Y>();
 	UVec4 c1 = sLess(ioValue, v1).Swizzle<SWIZZLE_Z, SWIZZLE_W, SWIZZLE_Z, SWIZZLE_W>();
 	ioValue = sSelect(ioValue, v1, c1);
-	ioIndex = UVec4::sSelect(ioIndex, i1, c1);
+	ioIndex = UVec4::Select(ioIndex, i1, c1);
 
 	// Pass 2, test 1st vs 2nd, 3rd vs 4th
 	Vec4 v2 = ioValue.Swizzle<SWIZZLE_Y, SWIZZLE_X, SWIZZLE_W, SWIZZLE_Z>();
 	UVec4 i2 = ioIndex.Swizzle<SWIZZLE_Y, SWIZZLE_X, SWIZZLE_W, SWIZZLE_Z>();
 	UVec4 c2 = sLess(ioValue, v2).Swizzle<SWIZZLE_Y, SWIZZLE_Y, SWIZZLE_W, SWIZZLE_W>();
 	ioValue = sSelect(ioValue, v2, c2);
-	ioIndex = UVec4::sSelect(ioIndex, i2, c2);
+	ioIndex = UVec4::Select(ioIndex, i2, c2);
 
 	// Pass 3, test 2nd vs 3rd component
 	Vec4 v3 = ioValue.Swizzle<SWIZZLE_X, SWIZZLE_Z, SWIZZLE_Y, SWIZZLE_W>();
 	UVec4 i3 = ioIndex.Swizzle<SWIZZLE_X, SWIZZLE_Z, SWIZZLE_Y, SWIZZLE_W>();
 	UVec4 c3 = sLess(ioValue, v3).Swizzle<SWIZZLE_X, SWIZZLE_Z, SWIZZLE_Z, SWIZZLE_W>();
 	ioValue = sSelect(ioValue, v3, c3);
-	ioIndex = UVec4::sSelect(ioIndex, i3, c3);
+	ioIndex = UVec4::Select(ioIndex, i3, c3);
 }
 
-void Vec4::sSort4Reverse(Vec4 &ioValue, UVec4 &ioIndex)
+void Vec4::Sort4Reverse(Vec4 &ioValue, UVec4 &ioIndex)
 {
 	// Pass 1, test 1st vs 3rd, 2nd vs 4th
 	Vec4 v1 = ioValue.Swizzle<SWIZZLE_Z, SWIZZLE_W, SWIZZLE_X, SWIZZLE_Y>();
 	UVec4 i1 = ioIndex.Swizzle<SWIZZLE_Z, SWIZZLE_W, SWIZZLE_X, SWIZZLE_Y>();
 	UVec4 c1 = sGreater(ioValue, v1).Swizzle<SWIZZLE_Z, SWIZZLE_W, SWIZZLE_Z, SWIZZLE_W>();
 	ioValue = sSelect(ioValue, v1, c1);
-	ioIndex = UVec4::sSelect(ioIndex, i1, c1);
+	ioIndex = UVec4::Select(ioIndex, i1, c1);
 
 	// Pass 2, test 1st vs 2nd, 3rd vs 4th
 	Vec4 v2 = ioValue.Swizzle<SWIZZLE_Y, SWIZZLE_X, SWIZZLE_W, SWIZZLE_Z>();
 	UVec4 i2 = ioIndex.Swizzle<SWIZZLE_Y, SWIZZLE_X, SWIZZLE_W, SWIZZLE_Z>();
 	UVec4 c2 = sGreater(ioValue, v2).Swizzle<SWIZZLE_Y, SWIZZLE_Y, SWIZZLE_W, SWIZZLE_W>();
 	ioValue = sSelect(ioValue, v2, c2);
-	ioIndex = UVec4::sSelect(ioIndex, i2, c2);
+	ioIndex = UVec4::Select(ioIndex, i2, c2);
 
 	// Pass 3, test 2nd vs 3rd component
 	Vec4 v3 = ioValue.Swizzle<SWIZZLE_X, SWIZZLE_Z, SWIZZLE_Y, SWIZZLE_W>();
 	UVec4 i3 = ioIndex.Swizzle<SWIZZLE_X, SWIZZLE_Z, SWIZZLE_Y, SWIZZLE_W>();
 	UVec4 c3 = sGreater(ioValue, v3).Swizzle<SWIZZLE_X, SWIZZLE_Z, SWIZZLE_Z, SWIZZLE_W>();
 	ioValue = sSelect(ioValue, v3, c3);
-	ioIndex = UVec4::sSelect(ioIndex, i3, c3);
+	ioIndex = UVec4::Select(ioIndex, i3, c3);
 }
 
 bool Vec4::operator == (const Vec4 inV2) const
@@ -626,7 +619,7 @@ Vec4 Vec4::DotV(const Vec4 inV2) const
 	return vdupq_n_f32(vaddvq_f32(mul));
 #else
 	// Brackets placed so that the order is consistent with the vectorized version
-	return Vec4::sReplicate((mF32[0] * inV2.mF32[0] + mF32[1] * inV2.mF32[1]) + (mF32[2] * inV2.mF32[2] + mF32[3] * inV2.mF32[3]));
+	return Vec4::Replicate((mF32[0] * inV2.mF32[0] + mF32[1] * inV2.mF32[1]) + (mF32[2] * inV2.mF32[2] + mF32[3] * inV2.mF32[3]));
 #endif
 }
 
@@ -781,11 +774,11 @@ void Vec4::SinCos(Vec4 &outSin, Vec4 &outCos) const
 	// Original implementation by Stephen L. Moshier (See: http://www.moshier.net/)
 
 	// Make argument positive and remember sign for sin only since cos is symmetric around x (highest bit of a float is the sign bit)
-	UVec4 sin_sign = UVec4::sAnd(ReinterpretAsInt(), UVec4::sReplicate(0x80000000U));
-	Vec4 x = Vec4::sXor(*this, sin_sign.ReinterpretAsFloat());
+	UVec4 sin_sign = UVec4::And(ReinterpretAsInt(), UVec4::Replicate(0x80000000U));
+	Vec4 x = Vec4::Xor(*this, sin_sign.ReinterpretAsFloat());
 
 	// x / (PI / 2) rounded to nearest int gives us the quadrant closest to x
-	UVec4 quadrant = (0.6366197723675814f * x + Vec4::sReplicate(0.5f)).ToInt();
+	UVec4 quadrant = (0.6366197723675814f * x + Vec4::Replicate(0.5f)).ToInt();
 
 	// Make x relative to the closest quadrant.
 	// This does x = x - quadrant * PI / 2 using a two step Cody-Waite argument reduction.
@@ -805,9 +798,9 @@ void Vec4::SinCos(Vec4 &outSin, Vec4 &outCos) const
 
 	// Taylor expansion:
 	// Cos(x) = 1 - x^2/2! + x^4/4! - x^6/6! + x^8/8! + ... = (((x2/8!- 1/6!) * x2 + 1/4!) * x2 - 1/2!) * x2 + 1
-	Vec4 taylor_cos = ((2.443315711809948e-5f * x2 - Vec4::sReplicate(1.388731625493765e-3f)) * x2 + Vec4::sReplicate(4.166664568298827e-2f)) * x2 * x2 - 0.5f * x2 + Vec4::sReplicate(1.0f);
+	Vec4 taylor_cos = ((2.443315711809948e-5f * x2 - Vec4::Replicate(1.388731625493765e-3f)) * x2 + Vec4::Replicate(4.166664568298827e-2f)) * x2 * x2 - 0.5f * x2 + Vec4::Replicate(1.0f);
 	// Sin(x) = x - x^3/3! + x^5/5! - x^7/7! + ... = ((-x2/7! + 1/5!) * x2 - 1/3!) * x2 * x + x
-	Vec4 taylor_sin = ((-1.9515295891e-4f * x2 + Vec4::sReplicate(8.3321608736e-3f)) * x2 - Vec4::sReplicate(1.6666654611e-1f)) * x2 * x + x;
+	Vec4 taylor_sin = ((-1.9515295891e-4f * x2 + Vec4::Replicate(8.3321608736e-3f)) * x2 - Vec4::Replicate(1.6666654611e-1f)) * x2 * x + x;
 
 	// The lowest 2 bits of quadrant indicate the quadrant that we are in.
 	// Let x be the original input value and x' our value that has been mapped to the range [-PI / 4, PI / 4].
@@ -822,19 +815,19 @@ void Vec4::SinCos(Vec4 &outSin, Vec4 &outCos) const
 	//
 	// So: sin_sign = bit2, cos_sign = bit1 ^ bit2, bit1 determines if we use sin or cos Taylor expansion
 	UVec4 bit1 = quadrant.LogicalShiftLeft<31>();
-	UVec4 bit2 = UVec4::sAnd(quadrant.LogicalShiftLeft<30>(), UVec4::sReplicate(0x80000000U));
+	UVec4 bit2 = UVec4::And(quadrant.LogicalShiftLeft<30>(), UVec4::Replicate(0x80000000U));
 
 	// Select which one of the results is sin and which one is cos
-	Vec4 s = Vec4::sSelect(taylor_sin, taylor_cos, bit1);
-	Vec4 c = Vec4::sSelect(taylor_cos, taylor_sin, bit1);
+	Vec4 s = Vec4::Select(taylor_sin, taylor_cos, bit1);
+	Vec4 c = Vec4::Select(taylor_cos, taylor_sin, bit1);
 
 	// Update the signs
-	sin_sign = UVec4::sXor(sin_sign, bit2);
-	UVec4 cos_sign = UVec4::sXor(bit1, bit2);
+	sin_sign = UVec4::Xor(sin_sign, bit2);
+	UVec4 cos_sign = UVec4::Xor(bit1, bit2);
 
 	// Correct the signs
-	outSin = Vec4::sXor(s, sin_sign.ReinterpretAsFloat());
-	outCos = Vec4::sXor(c, cos_sign.ReinterpretAsFloat());
+	outSin = Vec4::Xor(s, sin_sign.ReinterpretAsFloat());
+	outCos = Vec4::Xor(c, cos_sign.ReinterpretAsFloat());
 }
 
 Vec4 Vec4::Tan() const
@@ -843,11 +836,11 @@ Vec4 Vec4::Tan() const
 	// Original implementation by Stephen L. Moshier (See: http://www.moshier.net/)
 
 	// Make argument positive
-	UVec4 tan_sign = UVec4::sAnd(ReinterpretAsInt(), UVec4::sReplicate(0x80000000U));
-	Vec4 x = Vec4::sXor(*this, tan_sign.ReinterpretAsFloat());
+	UVec4 tan_sign = UVec4::And(ReinterpretAsInt(), UVec4::Replicate(0x80000000U));
+	Vec4 x = Vec4::Xor(*this, tan_sign.ReinterpretAsFloat());
 
 	// x / (PI / 2) rounded to nearest int gives us the quadrant closest to x
-	UVec4 quadrant = (0.6366197723675814f * x + Vec4::sReplicate(0.5f)).ToInt();
+	UVec4 quadrant = (0.6366197723675814f * x + Vec4::Replicate(0.5f)).ToInt();
 
 	// Remap x to range [-PI / 4, PI / 4], see Vec4::SinCos
 	Vec4 float_quadrant = quadrant.ToFloat();
@@ -859,15 +852,15 @@ Vec4 Vec4::Tan() const
 	// Roughly equivalent to the Taylor expansion:
 	// Tan(x) = x + x^3/3 + 2*x^5/15 + 17*x^7/315 + 62*x^9/2835 + ...
 	Vec4 tan =
-		(((((9.38540185543e-3f * x2 + Vec4::sReplicate(3.11992232697e-3f)) * x2 + Vec4::sReplicate(2.44301354525e-2f)) * x2
-		+ Vec4::sReplicate(5.34112807005e-2f)) * x2 + Vec4::sReplicate(1.33387994085e-1f)) * x2 + Vec4::sReplicate(3.33331568548e-1f)) * x2 * x + x;
+		(((((9.38540185543e-3f * x2 + Vec4::Replicate(3.11992232697e-3f)) * x2 + Vec4::Replicate(2.44301354525e-2f)) * x2
+		+ Vec4::Replicate(5.34112807005e-2f)) * x2 + Vec4::Replicate(1.33387994085e-1f)) * x2 + Vec4::Replicate(3.33331568548e-1f)) * x2 * x + x;
 
 	// For the 2nd and 4th quadrant we need to invert the value
 	UVec4 bit1 = quadrant.LogicalShiftLeft<31>();
-	tan = Vec4::sSelect(tan, Vec4::sReplicate(-1.0f) / (tan MOSS_IF_FLOATING_POINT_EXCEPTIONS_ENABLED(+ Vec4::sReplicate(FLT_MIN))), bit1); // Add small epsilon to prevent div by zero, works because tan is always positive
+	tan = Vec4::Select(tan, Vec4::Replicate(-1.0f) / (tan MOSS_IF_FLOATING_POINT_EXCEPTIONS_ENABLED(+ Vec4::Replicate(FLT_MIN))), bit1); // Add small epsilon to prevent div by zero, works because tan is always positive
 
 	// Put the sign back
-	return Vec4::sXor(tan, tan_sign.ReinterpretAsFloat());
+	return Vec4::Xor(tan, tan_sign.ReinterpretAsFloat());
 }
 
 Vec4 Vec4::ASin() const
@@ -876,39 +869,39 @@ Vec4 Vec4::ASin() const
 	// Original implementation by Stephen L. Moshier (See: http://www.moshier.net/)
 
 	// Make argument positive
-	UVec4 asin_sign = UVec4::sAnd(ReinterpretAsInt(), UVec4::sReplicate(0x80000000U));
-	Vec4 a = Vec4::sXor(*this, asin_sign.ReinterpretAsFloat());
+	UVec4 asin_sign = UVec4::And(ReinterpretAsInt(), UVec4::Replicate(0x80000000U));
+	Vec4 a = Vec4::Xor(*this, asin_sign.ReinterpretAsFloat());
 
 	// ASin is not defined outside the range [-1, 1] but it often happens that a value is slightly above 1 so we just clamp here
-	a = Vec4::sMin(a, Vec4::sReplicate(1.0f));
+	a = Vec4::Min(a, Vec4::Replicate(1.0f));
 
 	// When |x| <= 0.5 we use the asin approximation as is
 	Vec4 z1 = a * a;
 	Vec4 x1 = a;
 
 	// When |x| > 0.5 we use the identity asin(x) = PI / 2 - 2 * asin(sqrt((1 - x) / 2))
-	Vec4 z2 = 0.5f * (Vec4::sReplicate(1.0f) - a);
+	Vec4 z2 = 0.5f * (Vec4::Replicate(1.0f) - a);
 	Vec4 x2 = z2.Sqrt();
 
 	// Select which of the two situations we have
-	UVec4 greater = Vec4::sGreater(a, Vec4::sReplicate(0.5f));
-	Vec4 z = Vec4::sSelect(z1, z2, greater);
-	Vec4 x = Vec4::sSelect(x1, x2, greater);
+	UVec4 greater = Vec4::Greater(a, Vec4::Replicate(0.5f));
+	Vec4 z = Vec4::Select(z1, z2, greater);
+	Vec4 x = Vec4::Select(x1, x2, greater);
 
 	// Polynomial approximation of asin
-	z = ((((4.2163199048e-2f * z + Vec4::sReplicate(2.4181311049e-2f)) * z + Vec4::sReplicate(4.5470025998e-2f)) * z + Vec4::sReplicate(7.4953002686e-2f)) * z + Vec4::sReplicate(1.6666752422e-1f)) * z * x + x;
+	z = ((((4.2163199048e-2f * z + Vec4::Replicate(2.4181311049e-2f)) * z + Vec4::Replicate(4.5470025998e-2f)) * z + Vec4::Replicate(7.4953002686e-2f)) * z + Vec4::sReplicate(1.6666752422e-1f)) * z * x + x;
 
 	// If |x| > 0.5 we need to apply the remainder of the identity above
-	z = Vec4::sSelect(z, Vec4::sReplicate(0.5f * MOSS_PI) - (z + z), greater);
+	z = Vec4::Select(z, Vec4::Replicate(0.5f * MOSS_PI) - (z + z), greater);
 
 	// Put the sign back
-	return Vec4::sXor(z, asin_sign.ReinterpretAsFloat());
+	return Vec4::Xor(z, asin_sign.ReinterpretAsFloat());
 }
 
 Vec4 Vec4::ACos() const
 {
 	// Not the most accurate, but simple
-	return Vec4::sReplicate(0.5f * MOSS_PI) - ASin();
+	return Vec4::Replicate(0.5f * MOSS_PI) - ASin();
 }
 
 Vec4 Vec4::ATan() const
@@ -917,54 +910,54 @@ Vec4 Vec4::ATan() const
 	// Original implementation by Stephen L. Moshier (See: http://www.moshier.net/)
 
 	// Make argument positive
-	UVec4 atan_sign = UVec4::sAnd(ReinterpretAsInt(), UVec4::sReplicate(0x80000000U));
-	Vec4 x = Vec4::sXor(*this, atan_sign.ReinterpretAsFloat());
-	Vec4 y = Vec4::sZero();
+	UVec4 atan_sign = UVec4::And(ReinterpretAsInt(), UVec4::Replicate(0x80000000U));
+	Vec4 x = Vec4::Xor(*this, atan_sign.ReinterpretAsFloat());
+	Vec4 y = Vec4::Zero();
 
 	// If x > Tan(PI / 8)
-	UVec4 greater1 = Vec4::sGreater(x, Vec4::sReplicate(0.4142135623730950f));
-	Vec4 x1 = (x - Vec4::sReplicate(1.0f)) / (x + Vec4::sReplicate(1.0f));
+	UVec4 greater1 = Vec4::Greater(x, Vec4::Replicate(0.4142135623730950f));
+	Vec4 x1 = (x - Vec4::Replicate(1.0f)) / (x + Vec4::Replicate(1.0f));
 
 	// If x > Tan(3 * PI / 8)
-	UVec4 greater2 = Vec4::sGreater(x, Vec4::sReplicate(2.414213562373095f));
-	Vec4 x2 = Vec4::sReplicate(-1.0f) / (x MOSS_IF_FLOATING_POINT_EXCEPTIONS_ENABLED(+ Vec4::sReplicate(FLT_MIN))); // Add small epsilon to prevent div by zero, works because x is always positive
+	UVec4 greater2 = Vec4::Greater(x, Vec4::Replicate(2.414213562373095f));
+	Vec4 x2 = Vec4::Replicate(-1.0f) / (x MOSS_IF_FLOATING_POINT_EXCEPTIONS_ENABLED(+ Vec4::Replicate(FLT_MIN))); // Add small epsilon to prevent div by zero, works because x is always positive
 
 	// Apply first if
-	x = Vec4::sSelect(x, x1, greater1);
-	y = Vec4::sSelect(y, Vec4::sReplicate(0.25f * MOSS_PI), greater1);
+	x = Vec4::Select(x, x1, greater1);
+	y = Vec4::Select(y, Vec4::Replicate(0.25f * MOSS_PI), greater1);
 
 	// Apply second if
-	x = Vec4::sSelect(x, x2, greater2);
-	y = Vec4::sSelect(y, Vec4::sReplicate(0.5f * MOSS_PI), greater2);
+	x = Vec4::Select(x, x2, greater2);
+	y = Vec4::Select(y, Vec4::Replicate(0.5f * MOSS_PI), greater2);
 
 	// Polynomial approximation
 	Vec4 z = x * x;
-	y += (((8.05374449538e-2f * z - Vec4::sReplicate(1.38776856032e-1f)) * z + Vec4::sReplicate(1.99777106478e-1f)) * z - Vec4::sReplicate(3.33329491539e-1f)) * z * x + x;
+	y += (((8.05374449538e-2f * z - Vec4::Replicate(1.38776856032e-1f)) * z + Vec4::Replicate(1.99777106478e-1f)) * z - Vec4::Replicate(3.33329491539e-1f)) * z * x + x;
 
 	// Put the sign back
-	return Vec4::sXor(y, atan_sign.ReinterpretAsFloat());
+	return Vec4::Xor(y, atan_sign.ReinterpretAsFloat());
 }
 
-Vec4 Vec4::sATan2(const Vec4 inY, const Vec4 inX)
+Vec4 Vec4::ATan2(const Vec4 inY, const Vec4 inX)
 {
-	UVec4 sign_mask = UVec4::sReplicate(0x80000000U);
+	UVec4 sign_mask = UVec4::Replicate(0x80000000U);
 
 	// Determine absolute value and sign of y
-	UVec4 y_sign = UVec4::sAnd(inY.ReinterpretAsInt(), sign_mask);
-	Vec4 y_abs = Vec4::sXor(inY, y_sign.ReinterpretAsFloat());
+	UVec4 y_sign = UVec4::And(inY.ReinterpretAsInt(), sign_mask);
+	Vec4 y_abs = Vec4::Xor(inY, y_sign.ReinterpretAsFloat());
 
 	// Determine absolute value and sign of x
-	UVec4 x_sign = UVec4::sAnd(inX.ReinterpretAsInt(), sign_mask);
-	Vec4 x_abs = Vec4::sXor(inX, x_sign.ReinterpretAsFloat());
+	UVec4 x_sign = UVec4::And(inX.ReinterpretAsInt(), sign_mask);
+	Vec4 x_abs = Vec4::Xor(inX, x_sign.ReinterpretAsFloat());
 
 	// Always divide smallest / largest to avoid dividing by zero
-	UVec4 x_is_numerator = Vec4::sLess(x_abs, y_abs);
-	Vec4 numerator = Vec4::sSelect(y_abs, x_abs, x_is_numerator);
-	Vec4 denominator = Vec4::sSelect(x_abs, y_abs, x_is_numerator);
+	UVec4 x_is_numerator = Vec4::Less(x_abs, y_abs);
+	Vec4 numerator = Vec4::Select(y_abs, x_abs, x_is_numerator);
+	Vec4 denominator = Vec4::Select(x_abs, y_abs, x_is_numerator);
 	Vec4 atan = (numerator / denominator).ATan();
 
 	// If we calculated x / y instead of y / x the result is PI / 2 - result (note that this is true because we know the result is positive because the input was positive)
-	atan = Vec4::sSelect(atan, Vec4::sReplicate(0.5f * MOSS_PI) - atan, x_is_numerator);
+	atan = Vec4::Select(atan, Vec4::Replicate(0.5f * MOSS_PI) - atan, x_is_numerator);
 
 	// Now we need to map to the correct quadrant
 	// x_sign	y_sign	result
@@ -973,8 +966,8 @@ Vec4 Vec4::sATan2(const Vec4 inY, const Vec4 inX)
 	// -1		-1		atan - PI
 	// +1		-1		-atan
 	// This can be written as: x_sign * y_sign * (atan - (x_sign < 0? PI : 0))
-	atan -= Vec4::sAnd(x_sign.ArithmeticShiftRight<31>().ReinterpretAsFloat(), Vec4::sReplicate(MOSS_PI));
-	atan = Vec4::sXor(atan, UVec4::sXor(x_sign, y_sign).ReinterpretAsFloat());
+	atan -= Vec4::And(x_sign.ArithmeticShiftRight<31>().ReinterpretAsFloat(), Vec4::Replicate(MOSS_PI));
+	atan = Vec4::Xor(atan, UVec4::Xor(x_sign, y_sign).ReinterpretAsFloat());
 	return atan;
 }
 

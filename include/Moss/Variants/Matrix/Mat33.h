@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include <Moss/Core/Variants/Math/MathTypes.h>
+#include <Moss/Variants/Math/MathTypes.h>
 
 MOSS_WARNINGS_BEGIN
 
@@ -21,33 +21,32 @@ public:
 	using ArgType = const Mat33;
 
 	/// Constructor
-								Mat33() = default; ///< Intentionally not initialized for performance reasons
+								Mat33() = default; // Intentionally not initialized for performance reasons
 	MOSS_INLINE					Mat33(const Vec3 inC1, const Vec3 inC2, const Vec3 inC3);
 	MOSS_INLINE					Mat33(const Vec3 inC1, const Vec3 inC2, const Vec3 inC3);
 								Mat33(const Mat33 &inM2) = default;
 	MOSS_INLINE					Mat33(Type inC1, Type inC2, Type inC3, Type inC4);
 
 	/// Zero matrix
-	static MOSS_INLINE Mat33	sZero()  { return Mat44(Vec3::sZero(), Vec3::sZero(), Vec3::sZero()); }
+	static MOSS_INLINE Mat33	sZero()  { return Mat44(Vec3::Zero(), Vec3::Zero(), Vec3::Zero()); }
 
 	/// Identity matrix
 	static MOSS_INLINE Mat33	sIdentity() { return Mat44(Vec3(1, 0, 0),  Vec3(0, 1, 0),  Vec3(0, 0, 1)); }
 
 	/// Matrix filled with NaN's
-	static MOSS_INLINE Mat33	sNaN()  { return Mat44(Vec3::sNaN(), Vec3::sNaN(), Vec3::sNaN()); }
+	static MOSS_INLINE Mat33	sNaN()  { return Mat44(Vec3::NaN(), Vec3::NaN(), Vec3::NaN()); }
 
 
 	bool Mat33::operator == (const Mat33 inM2) const
 	{
-		return UVec4::sAnd(
-			UVec4::sAnd(Vec4::sEquals(mCol[0], inM2.mCol[0]), Vec4::sEquals(mCol[1], inM2.mCol[1])),
-			UVec4::sAnd(Vec4::sEquals(mCol[2], inM2.mCol[2]), Vec4::sEquals(mCol[3], inM2.mCol[3]))
-		).TestAllTrue();
+		return UVec4::And(
+			UVec4::And(Vec4::Equals(mCol[0], inM2.mCol[0]), Vec4::Equals(mCol[1], inM2.mCol[1])),
+			UVec4::And(Vec4::Equals(mCol[2], inM2.mCol[2]), Vec4::Equals(mCol[3], inM2.mCol[3]))).TestAllTrue();
 	}
 
 	/// Multiply matrix with float
 	MOSS_INLINE Mat33			operator * (float inV) const {
-		Vec4 multiplier = Vec4::sReplicate(inV);
+		Vec4 multiplier = Vec4::Replicate(inV);
 		Mat44 result;
 		for (int c = 0; c < 2; ++c) { result.mCol[c] = mCol[c] * multiplier; }
 		return result;
@@ -94,7 +93,7 @@ public:
 	}
 
 private:
-	Vec3						mCol[3];												///< Column
+	Vec3 mCol[3];	// Column
 };
 
 static_assert(std::is_trivial<Mat33>(), "Is supposed to be a trivial type!");

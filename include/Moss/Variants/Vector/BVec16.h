@@ -26,7 +26,7 @@ public:
 #endif
 
 	/// Constructor
-								BVec16() = default; ///< Intentionally not initialized for performance reasons
+								BVec16() = default; // Intentionally not initialized for performance reasons
 								BVec16(const BVec16 &inRHS) = default;
 	BVec16 &					operator = (const BVec16 &inRHS) = default;
 	MOSS_INLINE					BVec16(Type inRHS) : mValue(inRHS)					{ }
@@ -45,25 +45,25 @@ public:
 	static MOSS_INLINE BVec16	sZero();
 
 	/// Replicate int inV across all components
-	static MOSS_INLINE BVec16	sReplicate(uint8 inV);
+	static MOSS_INLINE BVec16	Replicate(uint8 inV);
 
 	/// Load 16 bytes from memory
-	static MOSS_INLINE BVec16	sLoadByte16(const uint8 *inV);
+	static MOSS_INLINE BVec16	LoadByte16(const uint8 *inV);
 
 	/// Equals (component wise), highest bit of each component that is set is considered true
-	static MOSS_INLINE BVec16	sEquals(BVec16Arg inV1, BVec16Arg inV2);
+	static MOSS_INLINE BVec16	Equals(BVec16Arg inV1, BVec16Arg inV2);
 
 	/// Logical or (component wise)
-	static MOSS_INLINE BVec16	sOr(BVec16Arg inV1, BVec16Arg inV2);
+	static MOSS_INLINE BVec16	Or(BVec16Arg inV1, BVec16Arg inV2);
 
 	/// Logical xor (component wise)
-	static MOSS_INLINE BVec16	sXor(BVec16Arg inV1, BVec16Arg inV2);
+	static MOSS_INLINE BVec16	Xor(BVec16Arg inV1, BVec16Arg inV2);
 
 	/// Logical and (component wise)
-	static MOSS_INLINE BVec16	sAnd(BVec16Arg inV1, BVec16Arg inV2);
+	static MOSS_INLINE BVec16	And(BVec16Arg inV1, BVec16Arg inV2);
 
 	/// Logical not (component wise)
-	static MOSS_INLINE BVec16	sNot(BVec16Arg inV1);
+	static MOSS_INLINE BVec16	Not(BVec16Arg inV1);
 
 	/// Get component by index
 	MOSS_INLINE uint8			operator [] (uint inCoordinate) const				{ MOSS_ASSERT(inCoordinate < 16); return mU8[inCoordinate]; }

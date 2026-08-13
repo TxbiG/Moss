@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include <Moss/Core/Variants/Math/MathTypes.h>
+#include <Moss/Variants/Math/MathTypes.h>
 
 MOSS_WARNINGS_BEGIN
 
@@ -21,24 +21,24 @@ public:
 	using ArgType = const Mat2x3;
 
 	/// Constructor
-								Mat2x3() = default; ///< Intentionally not initialized for performance reasons
+								Mat2x3() = default; // Intentionally not initialized for performance reasons
 	MOSS_INLINE					Mat2x3(const Vec4 inC1, const Vec4 inC2, const Vec4 inC3, const Vec4 inC4);
 	MOSS_INLINE					Mat2x3(const Vec4 inC1, const Vec4 inC2, const Vec4 inC3, const Vec3 inC4);
 								Mat2x3(const Mat2x3 &inM2) = default;
 	MOSS_INLINE					Mat2x3(Type inC1, Type inC2, Type inC3, Type inC4);
 
 	/// Zero matrix
-	static MOSS_INLINE Mat2x3	sZero()  { return Mat44(Vec2::sZero(), Vec2::sZero(), Vec2::sZero()); }
+	static MOSS_INLINE Mat2x3	Zero()  { return Mat44(Vec2::Zero(), Vec2::Zero(), Vec2::Zero()); }
 
 	/// Identity matrix
-	static MOSS_INLINE Mat2x3	sIdentity() { return Mat44(Vec2(1, 0), Vec2(0, 1),  Vec2(0, 0)); }
+	static MOSS_INLINE Mat2x3	Identity() { return Mat44(Vec2(1, 0), Vec2(0, 1),  Vec2(0, 0)); }
 
 	/// Matrix filled with NaN's
-	static MOSS_INLINE Mat2x3	sNaN()  { return Mat44(Vec2::sNaN(), Vec2::sNaN(), Vec2::sNaN()); }
+	static MOSS_INLINE Mat2x3	NaN()  { return Mat44(Vec2::NaN(), Vec2::NaN(), Vec2::NaN()); }
 
 	/// Multiply matrix with float
 	MOSS_INLINE Mat2x3			operator * (float inV) const {
-		Vec4 multiplier = Vec4::sReplicate(inV);
+		Vec4 multiplier = Vec4::Replicate(inV);
 		Mat44 result;
 		for (int c = 0; c < 2; ++c) { result.mCol[c] = mCol[c] * multiplier; }
 		return result;
@@ -78,13 +78,12 @@ public:
 #endif // !MOSS_DOUBLE_PRECISION
 
 	/// To String
-	friend ostream &			operator << (ostream &inStream, const Mat2x3  inM)
-	{
+	friend ostream&				operator << (ostream &inStream, const Mat2x3  inM) {
 		inStream << inM.mCol[0] << ", " << inM.mCol[1] << ", " << inM.mCol[2] << ", " << inM.mCol[3];
 		return inStream;
 	}
 private:
-	Vec2						mCol[3];												///< Column
+	Vec2 mCol[3]; // Column
 };
 
 static_assert(std::is_trivial<Mat2x3>(), "Is supposed to be a trivial type!");

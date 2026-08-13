@@ -35,37 +35,34 @@ public:
     Vec4 ToVec4() const { return Vec4(r, g, b, a); }
 
     // Grayscale intensity (luminance approx)
-    float GetIntensity() const { return 0.2126f * r + 0.7152f * g + 0.0722f * b; // standard Rec. 709 weights 
-		}
+    float GetIntensity() const { return 0.2126f * r + 0.7152f * g + 0.0722f * b; } // standard Rec. 709 weights
 
-	static Color			sGetDistinctColor(int inIndex);
+	static Color			GetDistinctColor(int inIndex);
 
 	/// Predefined colors
-	static const Color		sBlack;
-	static const Color		sDarkRed;
-	static const Color		sRed;
-	static const Color		sDarkGreen;
-	static const Color		sGreen;
-	static const Color		sDarkBlue;
-	static const Color		sBlue;
-	static const Color		sYellow;
-	static const Color		sPurple;
-	static const Color		sCyan;
-	static const Color		sOrange;
-	static const Color		sDarkOrange;
-	static const Color		sGrey;
-	static const Color		sLightGrey;
-	static const Color		sWhite;
+	static const Color		Black;
+	static const Color		DarkRed;
+	static const Color		Red;
+	static const Color		DarkGreen;
+	static const Color		Green;
+	static const Color		DarkBlue;
+	static const Color		Blue;
+	static const Color		Yellow;
+	static const Color		Purple;
+	static const Color		Cyan;
+	static const Color		Orange;
+	static const Color		DarkOrange;
+	static const Color		Grey;
+	static const Color		LightGrey;
+	static const Color		White;
 
-	union
-	{
-		uint32				mU32;																	///< Combined value for red, green, blue and alpha
-		struct
-		{
-			float			r;																		///< Red channel
-			float			g;																		///< Green channel
-			float			b;																		///< Blue channel
-			float			a;																		///< Alpha channel
+	union {
+		uint32				mU32;	// Combined value for red, green, blue and alpha
+		struct {
+			float			r;		// Red channel
+			float			g;		// Green channel
+			float			b;		// Blue channel
+			float			a;		// Alpha channel
 		};
 	};
 };

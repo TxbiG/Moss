@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include <Moss/Core/Variants/Math/MathTypes.h>
+#include <Moss/Variants/Math/MathTypes.h>
 
 MOSS_WARNINGS_BEGIN
 
@@ -45,7 +45,7 @@ public:
         return Vec2(r.GetX() + r.GetY(), r.GetZ() + r.GetW());
     }
 
-    MOSS_INLINE Mat22 operator * (float s) const { return Mat22(m * Vec4::sReplicate(s)); }
+    MOSS_INLINE Mat22 operator * (float s) const { return Mat22(m * Vec4::Replicate(s)); }
 
     MOSS_INLINE Mat22 operator * (const Mat22 &rhs) const {
         return Mat22(

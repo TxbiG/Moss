@@ -1,9 +1,9 @@
 #pragma once
 
-#include <Moss/Core/Variants/TStaticArray.h>
-#include <Moss/Core/Variants/Vector/Float2.h>
-#include <Moss/Core/Variants/Math/Swizzle.h>
-#include <Moss/Core/Variants/Math/MathTypes.h>
+#include <Moss/Variants/TStaticArray.h>
+#include <Moss/Variants/Vector/Float2.h>
+#include <Moss/Variants/Math/Swizzle.h>
+#include <Moss/Variants/Math/MathTypes.h>
 
 // MMX supports integers (2013) 2xint32 64bit
 // AVX2 supports integers (2013) 8xint32 265bit
@@ -25,7 +25,7 @@ public:
 #endif
 
 	/* 			Constructors		*/
-	iVec2() = default; ///< Intentionally not initialized for performance reasons
+	iVec2() = default; // Intentionally not initialized for performance reasons
 	iVec2(const iVec2 &inRHS) = default;
 	iVec2 &						operator = (const iVec2 &inRHS) = default;
 	explicit MOSS_INLINE		iVec2(Vec4Arg inRHS);
@@ -38,75 +38,75 @@ public:
 	MOSS_INLINE					iVec2(float inX, float inY, float inZ);
 
 	/// Vector with all zeros
-	static MOSS_INLINE iVec2		sZero();
+	static MOSS_INLINE iVec2	Zero();
 
 	/// Vector with all ones
-	static MOSS_INLINE iVec2		sOne();
+	static MOSS_INLINE iVec2	One();
 
 	/// Vector with all NaN's
-	static MOSS_INLINE iVec2		sNaN();
+	static MOSS_INLINE iVec2	NaN();
 
 	/// Vectors with the principal axis
-	static MOSS_INLINE iVec2		sAxisX()										{ return iVec2(1, 0, 0); }
-	static MOSS_INLINE iVec2		sAxisY()										{ return iVec2(0, 1, 0); }
-	static MOSS_INLINE iVec2		sAxisZ()										{ return iVec2(0, 0, 1); }
+	static MOSS_INLINE iVec2	AxisX()										{ return iVec2(1, 0, 0); }
+	static MOSS_INLINE iVec2	AxisY()										{ return iVec2(0, 1, 0); }
+	static MOSS_INLINE iVec2	AxisZ()										{ return iVec2(0, 0, 1); }
 
 	/// Replicate inV across all components
-	static MOSS_INLINE iVec2		sReplicate(float inV);
+	static MOSS_INLINE iVec2	Replicate(float inV);
 
 	/// Load 3 floats from memory (reads 32 bits extra which it doesn't use)
-	static MOSS_INLINE iVec2		sLoadFloat2Unsafe(const Float2 &inV);
+	static MOSS_INLINE iVec2	LoadFloat2Unsafe(const Float2 &inV);
 
 	/// Return the minimum value of each of the components
-	static MOSS_INLINE iVec2		sMin(Vec2Arg inV1, Vec2Arg inV2);
+	static MOSS_INLINE iVec2	Min(Vec2Arg inV1, Vec2Arg inV2);
 
 	/// Return the maximum of each of the components
-	static MOSS_INLINE iVec2		sMax(Vec2Arg inV1, Vec2Arg inV2);
+	static MOSS_INLINE iVec2	Max(Vec2Arg inV1, Vec2Arg inV2);
 
 	/// Clamp a vector between min and max (component wise)
-	static MOSS_INLINE iVec2		sClamp(Vec2Arg inV, Vec2Arg inMin, Vec2Arg inMax);
+	static MOSS_INLINE iVec2	Clamp(Vec2Arg inV, Vec2Arg inMin, Vec2Arg inMax);
 
 	/// Equals (component wise)
-	static MOSS_INLINE UVec4	sEquals(Vec2Arg inV1, Vec2Arg inV2);
+	static MOSS_INLINE UVec4	Equals(Vec2Arg inV1, Vec2Arg inV2);
 
 	/// Less than (component wise)
-	static MOSS_INLINE UVec4	sLess(Vec2Arg inV1, Vec2Arg inV2);
+	static MOSS_INLINE UVec4	Less(Vec2Arg inV1, Vec2Arg inV2);
 
 	/// Less than or equal (component wise)
-	static MOSS_INLINE UVec4	sLessOrEqual(Vec2Arg inV1, Vec2Arg inV2);
+	static MOSS_INLINE UVec4	LessOrEqual(Vec2Arg inV1, Vec2Arg inV2);
 
 	/// Greater than (component wise)
-	static MOSS_INLINE UVec4	sGreater(Vec2Arg inV1, Vec2Arg inV2);
+	static MOSS_INLINE UVec4	Greater(Vec2Arg inV1, Vec2Arg inV2);
 
 	/// Greater than or equal (component wise)
-	static MOSS_INLINE UVec4	sGreaterOrEqual(Vec2Arg inV1, Vec2Arg inV2);
+	static MOSS_INLINE UVec4	GreaterOrEqual(Vec2Arg inV1, Vec2Arg inV2);
 
 	/// Calculates inMul1 * inMul2 + inAdd
-	static MOSS_INLINE iVec2		sFusedMultiplyAdd(Vec2Arg inMul1, Vec2Arg inMul2, Vec2Arg inAdd);
+	static MOSS_INLINE iVec2	FusedMultiplyAdd(Vec2Arg inMul1, Vec2Arg inMul2, Vec2Arg inAdd);
 
 	/// Component wise select, returns inNotSet when highest bit of inControl = 0 and inSet when highest bit of inControl = 1
-	static MOSS_INLINE iVec2		sSelect(Vec2Arg inNotSet, Vec2Arg inSet, UVec4Arg inControl);
+	static MOSS_INLINE iVec2	Select(Vec2Arg inNotSet, Vec2Arg inSet, UVec4Arg inControl);
 
 	/// Logical or (component wise)
-	static MOSS_INLINE iVec2		sOr(Vec2Arg inV1, Vec2Arg inV2);
+	static MOSS_INLINE iVec2	Or(Vec2Arg inV1, Vec2Arg inV2);
 
 	/// Logical xor (component wise)
-	static MOSS_INLINE iVec2		sXor(Vec2Arg inV1, Vec2Arg inV2);
+	static MOSS_INLINE iVec2	Xor(Vec2Arg inV1, Vec2Arg inV2);
 
 	/// Logical and (component wise)
-	static MOSS_INLINE iVec2		sAnd(Vec2Arg inV1, Vec2Arg inV2);
+	static MOSS_INLINE iVec2	And(Vec2Arg inV1, Vec2Arg inV2);
 
 	/// Get unit vector given spherical coordinates
 	/// inTheta \f$\in [0, \pi]\f$ is angle between vector and z-axis
 	/// inPhi \f$\in [0, 2 \pi]\f$ is the angle in the xy-plane starting from the x axis and rotating counter clockwise around the z-axis
-	static MOSS_INLINE iVec2		sUnitSpherical(float inTheta, float inPhi);
+	static MOSS_INLINE iVec2	UnitSpherical(float inTheta, float inPhi);
 
 	/// A set of vectors uniformly spanning the surface of a unit sphere, usable for debug purposes
 	MOSS_EXPORT static const TStaticArray<iVec2, 1026> sUnitSphere;
 
 	/// Get random unit vector
 	template <class Random>
-	static inline iVec2			sRandom(Random &inRandom);
+	static inline iVec2			Random(Random &inRandom);
 
 	/// Get individual components
 #if defined(MOSS_SIMD_SSE)
@@ -124,9 +124,9 @@ public:
 #endif
 
 	/// Set individual components
-	MOSS_INLINE void			SetX(float inX)									{ mF32[0] = inX; }
-	MOSS_INLINE void			SetY(float inY)									{ mF32[1] = inY; }
-	MOSS_INLINE void			SetZ(float inZ)									{ mF32[2] = mF32[3] = inZ; } // Assure Z and W are the same
+	MOSS_INLINE void		SetX(float inX)									{ mF32[0] = inX; }
+	MOSS_INLINE void		SetY(float inY)									{ mF32[1] = inY; }
+	MOSS_INLINE void		SetZ(float inZ)									{ mF32[2] = mF32[3] = inZ; } // Assure Z and W are the same
 
 	/// Set all components
 	MOSS_INLINE void			Set(float inX, float inY, float inZ)			{ *this = Vec3(inX, inY, inZ); }
@@ -285,10 +285,9 @@ public:
 	MOSS_INLINE void			CheckW() const;
 
 	/// Internal helper function that ensures that the Z component is replicated to the W component to prevent divisions by zero
-	static MOSS_INLINE Type		sFixW(Type inValue);
+	static MOSS_INLINE Type		FixW(Type inValue);
 
-	union
-	{
+	union {
 		Type					mValue;
 		int						mF32[4];
 	};

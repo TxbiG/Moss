@@ -4,17 +4,16 @@
 
 #pragma once
 
-#include <Moss/Core/Variants/Math/MathTypes.h>
+#include <Moss/Variants/Math/MathTypes.h>
 
 MOSS_SUPRESS_WARNINGS_BEGIN
 
 // Remove Lookat and etc
 
 /// Holds a 4x4 matrix of floats with the last column consisting of doubles
-class [[nodiscard]] alignas(MOSS_DVECTOR_ALIGNMENT) DMat4x3
-{
+class [[nodiscard]] alignas(MOSS_DVECTOR_ALIGNMENT) DMat4x3 {
 public:
-	// MOSS_OVERRIDE_NEW_DELETE < not needed yet
+	MOSS_OVERRIDE_NEW_DELETE
 
 	// Underlying column type
 	using Type = Vec4::Type;
@@ -25,49 +24,48 @@ public:
 	using ArgType = DMat44Arg;
 
 	/// Constructor
-								DMat44() = default; ///< Intentionally not initialized for performance reasons
-	MOSS_INLINE					DMat44(Vec4Arg inC1, Vec4Arg inC2, Vec4Arg inC3, DVec3Arg inC4);
-								DMat44(const DMat44 &inM2) = default;
-	DMat44 &					operator = (const DMat44 &inM2) = default;
-	MOSS_INLINE explicit		DMat44(Mat44Arg inM);
-	MOSS_INLINE					DMat44(Mat44Arg inRot, DVec3Arg inT);
-	MOSS_INLINE					DMat44(Type inC1, Type inC2, Type inC3, DTypeArg inC4);
+							DMat44() = default; // Intentionally not initialized for performance reasons
+	MOSS_INLINE				DMat44(Vec4Arg inC1, Vec4Arg inC2, Vec4Arg inC3, DVec3Arg inC4);
+							DMat44(const DMat44 &inM2) = default;
+	DMat44&					operator = (const DMat44 &inM2) = default;
+	MOSS_INLINE explicit	DMat44(Mat44Arg inM);
+	MOSS_INLINE				DMat44(Mat44Arg inRot, DVec3Arg inT);
+	MOSS_INLINE				DMat44(Type inC1, Type inC2, Type inC3, DTypeArg inC4);
 
 	/// Zero matrix
-	static MOSS_INLINE DMat44	sZero();
+	static MOSS_INLINE DMat44 Zero();
 
 	/// Identity matrix
-	static MOSS_INLINE DMat44	sIdentity();
+	static MOSS_INLINE DMat44 Identity();
 
 	/// Comparison
-	MOSS_INLINE bool				operator == (DMat44Arg inM2) const;
-	MOSS_INLINE bool				operator != (DMat44Arg inM2) const						{ return !(*this == inM2); }
+	MOSS_INLINE bool		operator == (DMat44Arg inM2) const;
+	MOSS_INLINE bool		operator != (DMat44Arg inM2) const						{ return !(*this == inM2); }
 
 	/// Test if two matrices are close
-	MOSS_INLINE bool				IsClose(DMat44Arg inM2, float inMaxDistSq = 1.0e-12f) const;
+	MOSS_INLINE bool		IsClose(DMat44Arg inM2, float inMaxDistSq = 1.0e-12f) const;
 
 	/// Multiply matrix by matrix
-	MOSS_INLINE DMat44			operator * (Mat44Arg inM) const;
+	MOSS_INLINE DMat44		operator * (Mat44Arg inM) const;
 
 	/// Multiply matrix by matrix
-	MOSS_INLINE DMat44			operator * (DMat44Arg inM) const;
+	MOSS_INLINE DMat44		operator * (DMat44Arg inM) const;
 
 	/// Multiply vector by matrix
-	MOSS_INLINE DVec3			operator * (Vec3Arg inV) const;
+	MOSS_INLINE DVec3		operator * (Vec3Arg inV) const;
 
 	/// Multiply vector by matrix
-	MOSS_INLINE DVec3			operator * (DVec3Arg inV) const;
+	MOSS_INLINE DVec3		operator * (DVec3Arg inV) const;
 
 	/// To String
-	friend ostream &			operator << (ostream &inStream, DMat44Arg inM)
-	{
+	friend ostream&			operator << (ostream &inStream, DMat44Arg inM) {
 		inStream << inM.mCol[0] << ", " << inM.mCol[1] << ", " << inM.mCol[2] << ", " << inM.mCol3;
 		return inStream;
 	}
 
 private:
-	Vec4						mCol[3];												///< Rotation columns
-	DVec3						mCol3;													///< Translation column, 4th element is assumed to be 1
+	Vec4						mCol[3];	// Rotation columns
+	DVec3						mCol3;		// Translation column, 4th element is assumed to be 1
 };
 
 DMat4x3 transpose();

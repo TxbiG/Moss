@@ -89,7 +89,7 @@ void DVec2::CheckW() const
 }
 
 /// Internal helper function that ensures that the Z component is replicated to the W component to prevent divisions by zero
-DVec2::Type DVec2::sFixW(TypeArg inValue)
+DVec2::Type DVec2::FixW(TypeArg inValue)
 {
 #ifdef MOSS_FLOATING_POINT_EXCEPTIONS_ENABLED
 	#if defined(MOSS_SIMD_AVX)
@@ -117,7 +117,7 @@ DVec2::Type DVec2::sFixW(TypeArg inValue)
 #endif // MOSS_FLOATING_POINT_EXCEPTIONS_ENABLED
 }
 
-DVec2 DVec2::sZero()
+DVec2 DVec2::Zero()
 {
 #if defined(MOSS_SIMD_AVX)
 	return _mm256_setzero_pd();
@@ -132,7 +132,7 @@ DVec2 DVec2::sZero()
 #endif
 }
 
-DVec2 DVec2::sReplicate(double inV)
+DVec2 DVec2::Replicate(double inV)
 {
 #if defined(MOSS_SIMD_AVX)
 	return _mm256_set1_pd(inV);
@@ -147,12 +147,12 @@ DVec2 DVec2::sReplicate(double inV)
 #endif
 }
 
-DVec2 DVec2::sNaN()
+DVec2 DVec2::NaN()
 {
 	return sReplicate(numeric_limits<double>::quiet_NaN());
 }
 
-DVec2 DVec2::sLoadDouble3Unsafe(const Double3 &inV)
+DVec2 DVec2::LoadDouble3Unsafe(const Double3 &inV)
 {
 #if defined(MOSS_SIMD_AVX)
 	Type v = _mm256_loadu_pd(&inV.x);
@@ -190,7 +190,7 @@ DVec2::operator Vec2() const
 #endif
 }
 
-DVec2 DVec2::sMin(const DVec2 inV1, const DVec2 inV2)
+DVec2 DVec2::Min(const DVec2 inV1, const DVec2 inV2)
 {
 #if defined(MOSS_SIMD_AVX)
 	return _mm256_min_pd(inV1.mValue, inV2.mValue);
@@ -205,7 +205,7 @@ DVec2 DVec2::sMin(const DVec2 inV1, const DVec2 inV2)
 #endif
 }
 
-DVec2 DVec2::sMax(const DVec2 inV1, const DVec2 inV2)
+DVec2 DVec2::Max(const DVec2 inV1, const DVec2 inV2)
 {
 #if defined(MOSS_SIMD_AVX)
 	return _mm256_max_pd(inV1.mValue, inV2.mValue);
@@ -220,12 +220,12 @@ DVec2 DVec2::sMax(const DVec2 inV1, const DVec2 inV2)
 #endif
 }
 
-DVec2 DVec2::sClamp(const DVec2 inV, const DVec2 inMin, const DVec2 inMax)
+DVec2 DVec2::Clamp(const DVec2 inV, const DVec2 inMin, const DVec2 inMax)
 {
-	return sMax(sMin(inV, inMax), inMin);
+	return Max(sMin(inV, inMax), inMin);
 }
 
-DVec2 DVec2::sEquals(const DVec2 inV1, const DVec2 inV2)
+DVec2 DVec2::Equals(const DVec2 inV1, const DVec2 inV2)
 {
 #if defined(MOSS_SIMD_AVX)
 	return _mm256_cmp_pd(inV1.mValue, inV2.mValue, _CMP_EQ_OQ);
@@ -240,7 +240,7 @@ DVec2 DVec2::sEquals(const DVec2 inV1, const DVec2 inV2)
 #endif
 }
 
-DVec2 DVec2::sLess(const DVec2 inV1, const DVec2 inV2)
+DVec2 DVec2::Less(const DVec2 inV1, const DVec2 inV2)
 {
 #if defined(MOSS_SIMD_AVX)
 	return _mm256_cmp_pd(inV1.mValue, inV2.mValue, _CMP_LT_OQ);
@@ -255,7 +255,7 @@ DVec2 DVec2::sLess(const DVec2 inV1, const DVec2 inV2)
 #endif
 }
 
-DVec2 DVec2::sLessOrEqual(const DVec2 inV1, const DVec2 inV2)
+DVec2 DVec2::LessOrEqual(const DVec2 inV1, const DVec2 inV2)
 {
 #if defined(MOSS_SIMD_AVX)
 	return _mm256_cmp_pd(inV1.mValue, inV2.mValue, _CMP_LE_OQ);
@@ -270,7 +270,7 @@ DVec2 DVec2::sLessOrEqual(const DVec2 inV1, const DVec2 inV2)
 #endif
 }
 
-DVec2 DVec2::sGreater(const DVec2 inV1, const DVec2 inV2)
+DVec2 DVec2::Greater(const DVec2 inV1, const DVec2 inV2)
 {
 #if defined(MOSS_SIMD_AVX)
 	return _mm256_cmp_pd(inV1.mValue, inV2.mValue, _CMP_GT_OQ);
@@ -285,7 +285,7 @@ DVec2 DVec2::sGreater(const DVec2 inV1, const DVec2 inV2)
 #endif
 }
 
-DVec2 DVec2::sGreaterOrEqual(const DVec2 inV1, const DVec2 inV2)
+DVec2 DVec2::GreaterOrEqual(const DVec2 inV1, const DVec2 inV2)
 {
 #if defined(MOSS_SIMD_AVX)
 	return _mm256_cmp_pd(inV1.mValue, inV2.mValue, _CMP_GE_OQ);
@@ -300,7 +300,7 @@ DVec2 DVec2::sGreaterOrEqual(const DVec2 inV1, const DVec2 inV2)
 #endif
 }
 
-DVec2 DVec2::sFusedMultiplyAdd(const DVec2 inMul1, const DVec2 inMul2, const DVec2 inAdd)
+DVec2 DVec2::FusedMultiplyAdd(const DVec2 inMul1, const DVec2 inMul2, const DVec2 inAdd)
 {
 #if defined(MOSS_SIMD_AVX)
 	#ifdef MOSS_USE_FMADD
@@ -315,7 +315,7 @@ DVec2 DVec2::sFusedMultiplyAdd(const DVec2 inMul1, const DVec2 inMul2, const DVe
 #endif
 }
 
-DVec2 DVec2::sSelect(const DVec2 inNotSet, const DVec2 inSet, const DVec2 inControl)
+DVec2 DVec2::Select(const DVec2 inNotSet, const DVec2 inSet, const DVec2 inControl)
 {
 #if defined(MOSS_SIMD_AVX)
 	return _mm256_blendv_pd(inNotSet.mValue, inSet.mValue, inControl.mValue);
@@ -337,7 +337,7 @@ DVec2 DVec2::sSelect(const DVec2 inNotSet, const DVec2 inSet, const DVec2 inCont
 #endif
 }
 
-DVec2 DVec2::sOr(const DVec2 inV1, const DVec2 inV2)
+DVec2 DVec2::Or(const DVec2 inV1, const DVec2 inV2)
 {
 #if defined(MOSS_SIMD_AVX)
 	return _mm256_or_pd(inV1.mValue, inV2.mValue);
@@ -353,7 +353,7 @@ DVec2 DVec2::sOr(const DVec2 inV1, const DVec2 inV2)
 #endif
 }
 
-DVec2 DVec2::sXor(const DVec2 inV1, const DVec2 inV2)
+DVec2 DVec2::Xor(const DVec2 inV1, const DVec2 inV2)
 {
 #if defined(MOSS_SIMD_AVX)
 	return _mm256_xor_pd(inV1.mValue, inV2.mValue);
@@ -369,7 +369,7 @@ DVec2 DVec2::sXor(const DVec2 inV1, const DVec2 inV2)
 #endif
 }
 
-DVec2 DVec2::sAnd(const DVec2 inV1, const DVec2 inV2)
+DVec2 DVec2::And(const DVec2 inV1, const DVec2 inV2)
 {
 #if defined(MOSS_SIMD_AVX)
 	return _mm256_and_pd(inV1.mValue, inV2.mValue);
@@ -923,14 +923,14 @@ Vec2 DVec2::ToVec2RoundDown() const
 {
 	DVec2 to_zero = PrepareRoundToZero();
 	DVec2 to_inf = PrepareRoundToInf();
-	return Vec2(DVec2::sSelect(to_zero, to_inf, DVec2::sLess(*this, DVec2::sZero())));
+	return Vec2(DVec2::Select(to_zero, to_inf, DVec2::Less(*this, DVec2::Zero())));
 }
 
 Vec2 DVec2::ToVec2RoundUp() const
 {
 	DVec2 to_zero = PrepareRoundToZero();
 	DVec2 to_inf = PrepareRoundToInf();
-	return Vec2(DVec2::sSelect(to_inf, to_zero, DVec2::sLess(*this, DVec2::sZero())));
+	return Vec2(DVec2::Select(to_inf, to_zero, DVec2::Less(*this, DVec2::Zero())));
 }
 
 MOSS_SUPRESS_WARNINGS_END

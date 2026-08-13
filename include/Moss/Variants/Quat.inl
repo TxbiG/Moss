@@ -71,13 +71,13 @@ Quat Quat::operator * (const Quat inRHS) const
 #endif
 }
 
-Quat Quat::sRotation(const Vec3 inAxis, float inAngle)
+Quat Quat::Rotation(const Vec3 inAxis, float inAngle)
 {
 	// returns [inAxis * sin(0.5f * inAngle), cos(0.5f * inAngle)]
 	MOSS_ASSERT(inAxis.IsNormalized());
 	Vec4 s, c;
-	Vec4::sReplicate(0.5f * inAngle).SinCos(s, c);
-	return Quat(Vec4::sSelect(Vec4(inAxis) * s, c, UVec4(0, 0, 0, 0xffffffffU)));
+	Vec4::Replicate(0.5f * inAngle).SinCos(s, c);
+	return Quat(Vec4::Select(Vec4(inAxis) * s, c, UVec4(0, 0, 0, 0xffffffffU)));
 }
 
 void Quat::GetAxisAngle(Vec3 &outAxis, float &outAngle) const
@@ -87,17 +87,17 @@ void Quat::GetAxisAngle(Vec3 &outAxis, float &outAngle) const
 	float abs_w = w_pos.GetW();
 	if (abs_w >= 1.0f)
 	{
-		outAxis = Vec3::sZero();
+		outAxis = Vec3::Zero();
 		outAngle = 0.0f;
 	}
 	else
 	{
 		outAngle = 2.0f * ACos(abs_w);
-		outAxis = w_pos.GetXYZ().NormalizedOr(Vec3::sZero());
+		outAxis = w_pos.GetXYZ().NormalizedOr(Vec3::Zero());
 	}
 }
 
-Quat Quat::sFromTo(const Vec3 inFrom, const Vec3 inTo)
+Quat Quat::FromTo(const Vec3 inFrom, const Vec3 inTo)
 {
 	/*
 		Uses (inFrom = v1, inTo = v2):
@@ -137,7 +137,7 @@ Quat Quat::sFromTo(const Vec3 inFrom, const Vec3 inTo)
 		if (len_v1_v2 == 0.0f)
 		{
 			// If either of the vectors has zero length, there is no rotation and we return identity
-			return Quat::sIdentity();
+			return Quat::Identity();
 		}
 		else
 		{
@@ -151,7 +151,7 @@ Quat Quat::sFromTo(const Vec3 inFrom, const Vec3 inTo)
 }
 
 template <class Random>
-Quat Quat::sRandom(Random &inRandom)
+Quat Quat::Random(Random &inRandom)
 {
 	std::uniform_real_distribution<float> zero_to_one(0.0f, 1.0f);
 	float x0 = zero_to_one(inRandom);
@@ -162,7 +162,7 @@ Quat Quat::sRandom(Random &inRandom)
 	return Quat(s.GetX() * r1, c.GetX() * r1, s.GetY() * r2, c.GetY() * r2);
 }
 
-Quat Quat::sEulerAngles(const Vec3 inAngles)
+Quat Quat::EulerAngles(const Vec3 inAngles)
 {
 	Vec4 half(0.5f * inAngles);
 	Vec4 s, c;
@@ -209,7 +209,7 @@ Quat Quat::GetTwist(const Vec3 inAxis) const
 	if (twist_len != 0.0f)
 		return twist / sqrt(twist_len);
 	else
-		return Quat::sIdentity();
+		return Quat::Identity();
 }
 
 void Quat::GetSwingTwist(Quat &outSwing, Quat &outTwist) const
@@ -224,7 +224,7 @@ void Quat::GetSwingTwist(Quat &outSwing, Quat &outTwist) const
 	else
 	{
 		// If both x and w are zero, this must be a 180 degree rotation around either y or z
-		outTwist = Quat::sIdentity();
+		outTwist = Quat::Identity();
 		outSwing = *this;
 	}
 }
@@ -232,7 +232,7 @@ void Quat::GetSwingTwist(Quat &outSwing, Quat &outTwist) const
 Quat Quat::LERP(const Quat inDestination, float inFraction) const
 {
 	float scale0 = 1.0f - inFraction;
-	return Quat(Vec4::sReplicate(scale0) * mValue + Vec4::sReplicate(inFraction) * inDestination.mValue);
+	return Quat(Vec4::Replicate(scale0) * mValue + Vec4::Replicate(inFraction) * inDestination.mValue);
 }
 
 Quat Quat::SLERP(const Quat inDestination, float inFraction) const
@@ -269,7 +269,7 @@ Quat Quat::SLERP(const Quat inDestination, float inFraction) const
 	}
 
 	// Interpolate between the two quaternions
-	return Quat(Vec4::sReplicate(scale0) * mValue + Vec4::sReplicate(scale1) * inDestination.mValue).Normalized();
+	return Quat(Vec4::Replicate(scale0) * mValue + Vec4::Replicate(scale1) * inDestination.mValue).Normalized();
 }
 
 Vec3 Quat::operator * (const Vec3 inValue) const
@@ -287,7 +287,7 @@ Vec3 Quat::InverseRotate(const Vec3 inValue) const
 
 Vec3 Quat::RotateAxisX() const
 {
-	// This is *this * Vec3::sAxisX() written out:
+	// This is *this * Vec3::AxisX() written out:
 	MOSS_ASSERT(IsNormalized());
 	float x = GetX(), y = GetY(), z = GetZ(), w = GetW();
 	float tx = 2.0f * x, tw = 2.0f * w;
@@ -296,7 +296,7 @@ Vec3 Quat::RotateAxisX() const
 
 Vec3 Quat::RotateAxisY() const
 {
-	// This is *this * Vec3::sAxisY() written out:
+	// This is *this * Vec3::AxisY() written out:
 	MOSS_ASSERT(IsNormalized());
 	float x = GetX(), y = GetY(), z = GetZ(), w = GetW();
 	float ty = 2.0f * y, tw = 2.0f * w;
@@ -305,7 +305,7 @@ Vec3 Quat::RotateAxisY() const
 
 Vec3 Quat::RotateAxisZ() const
 {
-	// This is *this * Vec3::sAxisZ() written out:
+	// This is *this * Vec3::AxisZ() written out:
 	MOSS_ASSERT(IsNormalized());
 	float x = GetX(), y = GetY(), z = GetZ(), w = GetW();
 	float tz = 2.0f * z, tw = 2.0f * w;
@@ -318,9 +318,9 @@ void Quat::StoreFloat3(Float3 *outV) const
 	EnsureWPositive().GetXYZ().StoreFloat3(outV);
 }
 
-Quat Quat::sLoadFloat3Unsafe(const Float3 &inV)
+Quat Quat::LoadFloat3Unsafe(const Float3 &inV)
 {
-	Vec3 v = Vec3::sLoadFloat3Unsafe(inV);
+	Vec3 v = Vec3::LoadFloat3Unsafe(inV);
 	float w = sqrt(max(1.0f - v.LengthSq(), 0.0f)); // It is possible that the length of v is a fraction above 1, and we don't want to introduce NaN's in that case so we clamp to 0
 	return Quat(Vec4(v, w));
 }

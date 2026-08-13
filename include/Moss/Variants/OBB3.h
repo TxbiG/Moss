@@ -3,7 +3,7 @@
 #include <Moss/Physics/Geometry/Triangle.h>
 #include <Moss/Physics/Geometry/IndexedTriangle.h>
 #include <Moss/Physics/Geometry/AABox.h>
-#include <Moss/Core/Variants/Matrix/Mat44.h>
+#include <Moss/Variants/Matrix/Mat44.h>
 
 MOSS_WARNINGS_BEGIN
 
@@ -38,7 +38,7 @@ public:
 		// Compute common subexpressions. Add in an epsilon term to
 		// counteract arithmetic errors when two edges are parallel and
 		// their cross product is (near) null (see text for details)
-		RVec3 epsilon = RVec3::sReplicate(inEpsilon);
+		RVec3 epsilon = RVec3::Replicate(inEpsilon);
 		RVec3 abs_r[3] { rot.GetAxisX().Abs() + epsilon, rot.GetAxisY().Abs() + epsilon, rot.GetAxisZ().Abs() + epsilon };
 
 		// Test axes L = A0, L = A1, L = A2
@@ -119,7 +119,7 @@ public:
 		// Compute common subexpressions. Add in an epsilon term to
 		// counteract arithmetic errors when two edges are parallel and
 		// their cross product is (near) null (see text for details)
-		RVec3 epsilon = RVec3::sReplicate(inEpsilon);
+		RVec3 epsilon = RVec3::Replicate(inEpsilon);
 		RVec3 abs_r[3] { rot.GetAxisX().Abs() + epsilon, rot.GetAxisY().Abs() + epsilon, rot.GetAxisZ().Abs() + epsilon };
 
 		// Test axes L = A0, L = A1, L = A2
@@ -188,8 +188,8 @@ public:
 		return true;
 	}
 
-	Mat44			mOrientation; ///< Transform that positions and rotates the local space axis aligned box into world space
-	RVec3			mHalfExtents; ///< Half extents (half the size of the edge) of the local space axis aligned box
+	Mat44			mOrientation; // Transform that positions and rotates the local space axis aligned box into world space
+	RVec3			mHalfExtents; // Half extents (half the size of the edge) of the local space axis aligned box
 };
 
 MOSS_WARNINGS_END

@@ -11,12 +11,12 @@ class [[nodiscard]] DynMatrix
 {
 public:
 	/// Constructor
-					DynMatrix(const DynMatrix &) = default;
-					DynMatrix(uint inRows, uint inCols)			: mRows(inRows), mCols(inCols) { mElements.resize(inRows * inCols); }
+	DynMatrix(const DynMatrix &) = default;
+	DynMatrix(uint inRows, uint inCols)			: mRows(inRows), mCols(inCols) { mElements.resize(inRows * inCols); }
 
 	/// Access an element
 	float			operator () (uint inRow, uint inCol) const	{ MOSS_ASSERT(inRow < mRows && inCol < mCols); return mElements[inRow * mCols + inCol]; }
-	float &			operator () (uint inRow, uint inCol)		{ MOSS_ASSERT(inRow < mRows && inCol < mCols); return mElements[inRow * mCols + inCol]; }
+	float&			operator () (uint inRow, uint inCol)		{ MOSS_ASSERT(inRow < mRows && inCol < mCols); return mElements[inRow * mCols + inCol]; }
 
 	/// Get dimensions
 	uint			GetCols() const								{ return mCols; }

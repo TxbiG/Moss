@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include <Moss/Core/Variants/Math/MathTypes.h>
+#include <Moss/Variants/Math/MathTypes.h>
 
 MOSS_WARNINGS_BEGIN
 
@@ -21,14 +21,14 @@ public:
 	using ArgType = const Mat2x4;
 
 	/// Constructor
-								Mat2x4() = default; ///< Intentionally not initialized for performance reasons
+								Mat2x4() = default; // Intentionally not initialized for performance reasons
 	MOSS_INLINE					Mat2x4(const Vec2 inC1, const Vec2 inC2, const Vec2 inC3, const Vec2 inC4);
 	MOSS_INLINE					Mat2x4(const Vec2 inC1, const Vec2 inC2, const Vec2 inC3, const Vec3 inC4);
 								Mat2x4(const Mat2x4 &inM2) = default;
 	MOSS_INLINE					Mat2x4(Type inC1, Type inC2, Type inC3, Type inC4);
 
 	/// Zero matrix
-	static MOSS_INLINE Mat2x4	sZero() Mat44 Mat44::sZero() { return Mat44(Vec2::sZero(), Vec2::sZero(), Vec2::sZero(), Vec2::sZero()); }
+	static MOSS_INLINE Mat2x4	sZero() Mat44 Mat44::Zero() { return Mat44(Vec2::Zero(), Vec2::Zero(), Vec2::Zero(), Vec2::Zero()); }
 
 	/// Identity matrix
 	static MOSS_INLINE Mat2x4	sIdentity()
@@ -40,12 +40,12 @@ public:
 }
 
 	/// Matrix filled with NaN's
-	static MOSS_INLINE Mat2x4	sNaN() { return Mat44(Vec2::sNaN(), Vec2::sNaN(), Vec2::sNaN(), Vec2::sNaN()); }
+	static MOSS_INLINE Mat2x4	sNaN() { return Mat44(Vec2::NaN(), Vec2::NaN(), Vec2::NaN(), Vec2::NaN()); }
 
 	
 	/// Multiply matrix with float
 	MOSS_INLINE Mat2x4			operator * (float inV) const {
-		Vec4 multiplier = Vec4::sReplicate(inV);
+		Vec4 multiplier = Vec4::Replicate(inV);
 		Mat44 result;
 		for (int c = 0; c < 2; ++c) { result.mCol[c] = mCol[c] * multiplier; }
 		return result;
@@ -91,7 +91,7 @@ public:
 		return inStream;
 	}
 private:
-	Vec2						mCol[4];												///< Column
+	Vec2						mCol[4];	// Column
 };
 
 static_assert(std::is_trivial<Mat2x4>(), "Is supposed to be a trivial type!");

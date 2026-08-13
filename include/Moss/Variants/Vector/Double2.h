@@ -12,7 +12,7 @@ class [[nodiscard]] Double2
 public:
 	MOSS_OVERRIDE_NEW_DELETE
 
-	Double2() = default; ///< Intentionally not initialized for performance reasons
+	Double2() = default; // Intentionally not initialized for performance reasons
 	Double2(const Double2 &inRHS) = default;
 	Double2(double inX, double inY) : x(inX), y(inY) { }
 
