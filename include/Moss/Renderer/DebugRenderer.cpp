@@ -657,17 +657,17 @@ DebugRenderer::Batch DebugRenderer::CreateTriangleBatch(const VertexList &inVert
 		// Calculate normal of face
 		Vec3 vtx[3];
 		for (int j = 0; j < 3; ++j)
-			vtx[j] = Vec3::sLoadFloat3Unsafe(vertices[tri.mIdx[j]].mPosition);
+			vtx[j] = Vec3::LoadFloat3Unsafe(vertices[tri.mIdx[j]].mPosition);
 		Vec3 normal = ((vtx[1] - vtx[0]).Cross(vtx[2] - vtx[0])).Normalized();
 
 		// Add normal to all vertices in face
 		for (int j = 0; j < 3; ++j)
-			(Vec3::sLoadFloat3Unsafe(vertices[tri.mIdx[j]].mNormal) + normal).StoreFloat3(&vertices[tri.mIdx[j]].mNormal);
+			(Vec3::LoadFloat3Unsafe(vertices[tri.mIdx[j]].mNormal) + normal).StoreFloat3(&vertices[tri.mIdx[j]].mNormal);
 	}
 
 	// Renormalize vertex normals
 	for (size_t i = 0; i < vertices.size(); ++i)
-		Vec3::sLoadFloat3Unsafe(vertices[i].mNormal).Normalized().StoreFloat3(&vertices[i].mNormal);
+		Vec3::LoadFloat3Unsafe(vertices[i].mNormal).Normalized().StoreFloat3(&vertices[i].mNormal);
 
 	return CreateTriangleBatch(&vertices[0], (int)vertices.size(), &inTriangles[0].mIdx[0], (int)(3 * inTriangles.size()));
 }

@@ -68,6 +68,7 @@ struct Moss_Curser;
 struct Moss_GamepadBinding;
 struct Moss_Camera; // Camera Device Dont use as the rendering camera
 struct Moss_Storage;
+struct Moss_Surface;
 
 struct Moss_HapticDirection;
 struct Moss_HapticConstant;

@@ -1169,7 +1169,7 @@ enum {
 	SWIZZLE_Y = 1,			// Use the Y component
 	SWIZZLE_Z = 2,			// Use the Z component
 	SWIZZLE_W = 3,			// Use the W component
-	SWIZZLE_UNUSED = 2,		// We always use the Z component when we don't specifically want to initialize a value, this is consistent with what is done in Vec3(x, y, z), Vec3(Float3 &) and Vec3::sLoadFloat3Unsafe
+	SWIZZLE_UNUSED = 2,		// We always use the Z component when we don't specifically want to initialize a value, this is consistent with what is done in Vec3(x, y, z), Vec3(Float3 &) and Vec3::LoadFloat3Unsafe
 };
 
 struct BumpAlloc {

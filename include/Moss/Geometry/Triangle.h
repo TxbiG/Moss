@@ -19,15 +19,15 @@ public:
 	/// Calculate the support vector for this convex shape.
 	inline Vec3	GetSupport(Vec3Arg inDirection) const {
 		float length = inDirection.Length();
-		return length > 0.0f ? Vec3::sLoadFloat3Unsafe(mCenter) + (mRadius/ length) * inDirection : Vec3::sLoadFloat3Unsafe(mCenter);
+		return length > 0.0f ? Vec3::LoadFloat3Unsafe(mCenter) + (mRadius/ length) * inDirection : Vec3::LoadFloat3Unsafe(mCenter);
 	}
 
 	// Properties
-	inline Vec3	GetCenter() const  { return Vec3::sLoadFloat3Unsafe(mCenter); }
+	inline Vec3	GetCenter() const  { return Vec3::LoadFloat3Unsafe(mCenter); }
 	inline float GetRadius() const { return mRadius; }
 
 	/// Test if two spheres overlap
-	inline bool	Overlaps(const Sphere &inB) const { return (Vec3::sLoadFloat3Unsafe(mCenter) - Vec3::sLoadFloat3Unsafe(inB.mCenter)).LengthSq() <= Square(mRadius + inB.mRadius); }
+	inline bool	Overlaps(const Sphere &inB) const { return (Vec3::LoadFloat3Unsafe(mCenter) - Vec3::LoadFloat3Unsafe(inB.mCenter)).LengthSq() <= Square(mRadius + inB.mRadius); }
 
 	/// Check if this sphere overlaps with a box
 	inline bool Overlaps(const AABox &inOther) const { return inOther.GetSqDistanceTo(GetCenter()) <= Square(mRadius); }
@@ -71,7 +71,7 @@ public:
 	/// Get center of triangle
 	Vec3			GetCentroid() const
 	{
-		return (Vec3::sLoadFloat3Unsafe(mV[0]) + Vec3::sLoadFloat3Unsafe(mV[1]) + Vec3::sLoadFloat3Unsafe(mV[2])) * (1.0f / 3.0f);
+		return (Vec3::LoadFloat3Unsafe(mV[0]) + Vec3::LoadFloat3Unsafe(mV[1]) + Vec3::LoadFloat3Unsafe(mV[2])) * (1.0f / 3.0f);
 	}
 
 	/// Vertices

@@ -316,7 +316,7 @@ private:
 		void					RestoreState(StateRecorder &inStream);
 
 		/// Local space positions on body 1 and 2.
-		/// Note: these values are read through sLoadFloat3Unsafe.
+		/// Note: these values are read through LoadFloat3Unsafe.
 		Float3					mPosition1;
 		Float3					mPosition2;
 
@@ -346,7 +346,7 @@ private:
 		uint32					mNextWithSameBodyPair;
 
 		/// Contact normal in the space of 2.
-		/// Note: this value is read through sLoadFloat3Unsafe.
+		/// Note: this value is read through LoadFloat3Unsafe.
 		Float3					mContactNormal;
 
 		/// Flags for this cached manifold
@@ -383,11 +383,11 @@ private:
 		void					RestoreState(StateRecorder &inStream);
 
 		/// Local space position difference from Body A to Body B.
-		/// Note: this value is read through sLoadFloat3Unsafe
+		/// Note: this value is read through LoadFloat3Unsafe
 		Float3					mDeltaPosition;
 
 		/// Local space rotation difference from Body A to Body B, fourth component of quaternion is not stored but is guaranteed >= 0.
-		/// Note: this value is read through sLoadFloat3Unsafe
+		/// Note: this value is read through LoadFloat3Unsafe
 		Float3					mDeltaRotation;
 
 		/// Handle to first manifold in ManifoldCache::mCachedManifolds

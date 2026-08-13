@@ -27,7 +27,7 @@ MOSS_SUPRESS_WARNINGS_BEGIN
 
 static MOSS_INLINE const Float3 &sIndexifyGetFloat3(const TriangleList &inTriangles, uint32 inVertexIndex) { return inTriangles[inVertexIndex / 3].mV[inVertexIndex % 3]; }
 
-static MOSS_INLINE Vec3 sIndexifyGetVec3(const TriangleList &inTriangles, uint32 inVertexIndex) { return Vec3::sLoadFloat3Unsafe(sIndexifyGetFloat3(inTriangles, inVertexIndex)); }
+static MOSS_INLINE Vec3 sIndexifyGetVec3(const TriangleList &inTriangles, uint32 inVertexIndex) { return Vec3::LoadFloat3Unsafe(sIndexifyGetFloat3(inTriangles, inVertexIndex)); }
 
 static void sIndexifyVerticesBruteForce(const TriangleList &inTriangles, const uint32 *inVertexIndices, const uint32 *inVertexIndicesEnd, TArray<uint32> &ioWeldedVertices, float inVertexWeldDistance) {
 	float weld_dist_sq = Square(inVertexWeldDistance);

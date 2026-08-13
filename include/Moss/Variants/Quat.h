@@ -223,7 +223,7 @@ public:
 	MOSS_INLINE Quat				SLERP(const Quat inDestination, float inFraction) const;
 
 	/// Load 3 floats from memory (X, Y and Z component and then calculates W) reads 32 bits extra which it doesn't use
-	static MOSS_INLINE Quat			sLoadFloat3Unsafe(const Float3 &inV);
+	static MOSS_INLINE Quat			LoadFloat3Unsafe(const Float3 &inV);
 
 	/// Store 3 as floats to memory (X, Y and Z component)
 	MOSS_INLINE void				StoreFloat3(Float3 *outV) const;

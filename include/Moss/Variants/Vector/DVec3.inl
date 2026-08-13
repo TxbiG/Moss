@@ -161,21 +161,26 @@ DVec3 DVec3::NaN()
 DVec3 DVec3::LoadDouble3Unsafe(const Double3 &inV)
 {
 #if defined(MOSS_SIMD_AVX)
-	Type v = _mm_and_pd(&inV.x);
+	Type v;
+	v.mLow = _mm_loadu_pd(&inV.x);
+	v.mHigh = _mm_load_sd(&inV.z);
+
 #elif defined(MOSS_SIMD_SSE)
 	Type v;
-	v.mLow = _mm_and_pd(&inV.x);
-	v.mHigh = _mm_and_pd(inV.z);
+	v.mLow = _mm_loadu_pd(&inV.x);
+	v.mHigh = _mm_load_sd(&inV.z);
+
 #elif defined(MOSS_SIMD_NEON)
 	Type v = vld1q_f64_x2(&inV.x);
+
 #else
 	Type v = { inV.x, inV.y, inV.z };
 #endif
+
 	return FixW(v);
 }
 
-void DVec3::StoreDouble3(Double3 *outV) const
-{
+void DVec3::StoreDouble3(Double3 *outV) const {
 	outV->x = mF64[0];
 	outV->y = mF64[1];
 	outV->z = mF64[2];

@@ -53,10 +53,10 @@
  * - Descriptor heaps / render pipelines (Vulkan, DX12, Metal)
  *
  * This allows creating fully customized rendering pipelines while leveraging
- * Moss’s low-level GPU abstractions and helper utilities.
+ * Moss's low-level GPU abstractions and helper utilities.
  *
- * ### Planned Features / TODO:
- * - **Multithreaded Render Submission** — Asynchronous job-based rendering pipeline (future optimization).
+ * ### Forward-Looking Features:
+ * - **Multithreaded Render Submission** - Asynchronous job-based rendering pipeline (future optimization).
  * - Reflections and improved GI support.
  * - Recording gameplay or screen capture.
  * - Display video playback within the renderer.
@@ -72,13 +72,12 @@
 #include <vulkan/vulkan.h>
 #endif // MOSS_GRAPHICS_VULKAN
 
-#include <Moss/Moss_stdinc.h>
 #include <Moss/Moss_Platform.h>
-
-using Moss_CullMask = uint32_t;
-using Moss_LightMask = uint32_t;
-using Moss_VisibleMask = uint32_t;
-
+#include <Moss/Moss_GPU.h>
+#include <Moss/Variants/Color.h>
+#include <Moss/Variants/Rect.h>
+#include <Moss/Variants/Vector/Float2.h>
+#include <Moss/Variants/Vector/Float3.h>
 
 /* ======================================================
  * Forward Declerations
@@ -91,19 +90,275 @@ struct SkyBox;
 struct Viewport;
 struct SubViewport;
 struct FogVolume;
-struct Surface;
 struct SurfaceInstance;
-struct Mesh;
-struct MeshInstance;
-struct Model;
-struct ModelInstance;
 
-struct Frustum2D;
-struct Frustum3D;
+struct Frustum2D { };
+struct Frustum3D { };
 
-enum LightMask;
-enum CullMask;
-enum VisibleLayer;
+
+using Moss_CullMask = uint32_t;
+using Moss_LightMask = uint32_t;
+using Moss_VisibleMask = uint32_t;
+
+using CullMask = Moss_CullMask;
+using LightMask = Moss_LightMask;
+using VisibleLayer = Moss_VisibleMask;
+using CullFilter = Moss_CullMask;
+
+struct Moss_RendererDesc {
+    Moss_Window* window = nullptr;
+    Moss_GPUDevice* gpu_device = nullptr;
+    Color clear_color = Color(0.0f, 0.0f, 0.0f, 1.0f);
+    uint32_t backbuffer_width = 0;
+    uint32_t backbuffer_height = 0;
+    uint32_t virtual_width = 0;
+    uint32_t virtual_height = 0;
+    EGPUPresentMode present_mode = EGPUPresentMode::VSYNC;
+    bool enable_debug = false;
+};
+
+struct Moss_RenderFrameDesc {
+    const void* camera = nullptr;
+    float delta_time = 0.0f;
+    float world_scale = 1.0f;
+    Color clear_color = Color(0.0f, 0.0f, 0.0f, 1.0f);
+};
+
+struct Moss_DrawMeshDesc {
+    const struct Moss_Mesh* mesh = nullptr;
+    Moss_PipelineState* pipeline = nullptr;
+    Moss_ResourceSet* resource_set = nullptr;
+    const float* transform = nullptr;
+    Moss_VisibleMask visibility = 0xFFFFFFFFu;
+};
+
+struct Moss_DrawModelDesc {
+    const struct Moss_Model* model = nullptr;
+    Moss_PipelineState* pipeline = nullptr;
+    Moss_ResourceSet* resource_set = nullptr;
+    const float* transform = nullptr;
+    Moss_VisibleMask visibility = 0xFFFFFFFFu;
+};
+
+enum class MaterialTextureType;
+
+struct Moss_Material;
+struct Moss_SpriteBatch;
+struct Moss_DebugDrawList;
+struct Moss_Camera;
+struct Moss_ShadowMap;
+
+struct Moss_MaterialTextureDesc {
+    MaterialTextureType type;
+    Texture* texture = nullptr;
+    Moss_GPUSampler* sampler = nullptr;
+    uint32_t binding = 0;
+};
+
+struct Moss_MaterialUniformDesc {
+    const char* name = nullptr;
+    const void* data = nullptr;
+    uint32_t size = 0;
+    uint32_t binding = 0;
+};
+
+struct Moss_ShaderVariantDesc {
+    const char* name = nullptr;
+    const char* vertex_shader = nullptr;
+    const char* fragment_shader = nullptr;
+    const char* compute_shader = nullptr;
+    uint32_t flags = 0;
+};
+
+struct Moss_MaterialDesc {
+    const char* name = nullptr;
+    const Moss_MaterialTextureDesc* textures = nullptr;
+    uint32_t texture_count = 0;
+    const Moss_MaterialUniformDesc* uniforms = nullptr;
+    uint32_t uniform_count = 0;
+    const Moss_ShaderVariantDesc* variants = nullptr;
+    uint32_t variant_count = 0;
+    Moss_PipelineState* pipeline = nullptr;
+    Moss_ResourceSet* resource_set = nullptr;
+};
+
+struct Moss_PipelineCacheDesc {
+    uint32_t max_pipelines = 256;
+    bool allow_hot_reload = false;
+};
+
+struct Moss_FontGlyph {
+    uint32_t codepoint = 0;
+    float x0 = 0.0f;
+    float y0 = 0.0f;
+    float x1 = 0.0f;
+    float y1 = 0.0f;
+    float u0 = 0.0f;
+    float v0 = 0.0f;
+    float u1 = 0.0f;
+    float v1 = 0.0f;
+    float xadvance = 0.0f;
+};
+
+struct Moss_FontDesc {
+    const char* path = nullptr;
+    const void* data = nullptr;
+    size_t data_size = 0;
+    float pixel_size = 16.0f;
+    uint32_t atlas_width = 1024;
+    uint32_t atlas_height = 1024;
+    uint32_t first_codepoint = 32;
+    uint32_t codepoint_count = 96;
+    bool upload_to_gpu = true;
+};
+
+struct Moss_FontMetrics {
+    float pixel_size = 0.0f;
+    float ascent = 0.0f;
+    float descent = 0.0f;
+    float line_gap = 0.0f;
+    float line_height = 0.0f;
+    float baseline = 0.0f;
+};
+
+struct Moss_TextMeasure {
+    float width = 0.0f;
+    float height = 0.0f;
+};
+
+struct Moss_DrawTextDesc {
+    Moss_Font* font = nullptr;
+    const char* text = nullptr;
+    Float2 position = Float2(0.0f, 0.0f);
+    Color color = Color(1.0f, 1.0f, 1.0f, 1.0f);
+    float scale = 1.0f;
+    float depth = 0.0f;
+    Moss_VisibleMask visibility = 0xFFFFFFFFu;
+};
+
+struct Moss_FontVertex {
+    Float2 position = Float2(0.0f, 0.0f);
+    Float2 uv = Float2(0.0f, 0.0f);
+    Color color = Color(1.0f, 1.0f, 1.0f, 1.0f);
+};
+
+struct Moss_SpriteDesc {
+    Texture* texture = nullptr;
+    Moss_Material* material = nullptr;
+    Float2 position = Float2(0.0f, 0.0f);
+    Float2 size = Float2(1.0f, 1.0f);
+    Float2 origin = Float2(0.5f, 0.5f);
+    Float2 uv_min = Float2(0.0f, 0.0f);
+    Float2 uv_max = Float2(1.0f, 1.0f);
+    Color color = Color(1.0f, 1.0f, 1.0f, 1.0f);
+    float rotation = 0.0f;
+    float depth = 0.0f;
+    Moss_VisibleMask visibility = 0xFFFFFFFFu;
+};
+
+struct Moss_DebugLineDesc {
+    Float3 from = Float3(0.0f, 0.0f, 0.0f);
+    Float3 to = Float3(0.0f, 0.0f, 0.0f);
+    Color color = Color(1.0f, 1.0f, 1.0f, 1.0f);
+    float thickness = 1.0f;
+};
+
+struct Moss_DebugBoxDesc {
+    Float3 center = Float3(0.0f, 0.0f, 0.0f);
+    Float3 size = Float3(1.0f, 1.0f, 1.0f);
+    const float* transform = nullptr;
+    Color color = Color(1.0f, 1.0f, 1.0f, 1.0f);
+};
+
+struct Moss_DebugSphereDesc {
+    Float3 center = Float3(0.0f, 0.0f, 0.0f);
+    float radius = 1.0f;
+    Color color = Color(1.0f, 1.0f, 1.0f, 1.0f);
+    uint32_t segments = 24;
+};
+
+struct Moss_DebugNavmeshDesc {
+    const Float3* vertices = nullptr;
+    uint32_t vertex_count = 0;
+    const uint32_t* indices = nullptr;
+    uint32_t index_count = 0;
+    Color color = Color(0.1f, 0.8f, 0.3f, 1.0f);
+};
+
+struct Moss_DebugPhysicsContactDesc {
+    Float3 position = Float3(0.0f, 0.0f, 0.0f);
+    Float3 normal = Float3(0.0f, 1.0f, 0.0f);
+    float impulse = 0.0f;
+    Color color = Color(1.0f, 0.6f, 0.1f, 1.0f);
+};
+
+struct Moss_Camera2DDesc {
+    Float2 position = Float2(0.0f, 0.0f);
+    Float2 offset = Float2(0.0f, 0.0f);
+    float zoom = 1.0f;
+    float rotation = 0.0f;
+    float viewport_width = 1.0f;
+    float viewport_height = 1.0f;
+};
+
+struct Moss_Camera3DDesc {
+    Float3 position = Float3(0.0f, 0.0f, 0.0f);
+    Float3 target = Float3(0.0f, 0.0f, -1.0f);
+    Float3 up = Float3(0.0f, 1.0f, 0.0f);
+    float fov_degrees = 45.0f;
+    float aspect_ratio = 1.0f;
+    float near_plane = 0.1f;
+    float far_plane = 1000.0f;
+};
+
+struct Moss_EditorCameraDesc {
+    Moss_Camera3DDesc camera;
+    float move_speed = 5.0f;
+    float look_sensitivity = 0.2f;
+    bool orbit_mode = false;
+};
+
+struct Moss_ShadowMapDesc {
+    uint32_t width = 2048;
+    uint32_t height = 2048;
+    ETextureFormat depth_format = ETextureFormat::Depth32F;
+    bool enable_cascades = false;
+    uint32_t cascade_count = 1;
+};
+enum class MaterialTextureType {
+    Color,
+    Roughness, // packed g
+    Metalness, // packed b
+    Normal,
+    Occlusion, // packed r
+    Emission,
+    Height,    // packed a
+    AlphaMask, // packed into color a
+    Packed,    // occlusion, roughness, metalness, height
+    Max
+};
+
+
+struct Moss_PostProcessPass {
+    Moss_PipelineState* pipeline;
+    Moss_ResourceSet* resource_set;
+    Moss_Framebuffer* target;
+};
+
+struct Viewport {
+    float x;
+    float y;
+    float width;
+    float height;
+
+    float min_depth;
+    float max_depth;
+};
+
+struct SubViewport {
+    Viewport viewport;
+    Moss_Framebuffer* target;
+};
 
 struct Camera2D {
     RVec2 position;
@@ -140,14 +395,22 @@ struct Camera3D {
 };
 
 struct Material2D {
-    Color albedo;
-    Texture* albedoMap, normalMap = nullptr;
+    Color* albedo;
+    Texture* albedoMap;
+    Texture* normalMap;
 };
 
 struct Material3D {
-    Color albedo;
-    Texture* albedoMap, normalMap, roughnessMap, metallicMap, aoMap = nullptr;
-    float metallic, roughness, ao, specular;
+    Color* albedo;
+    float* metallic;
+    float* roughness;
+    float* ao;
+    float* specular;
+    Texture* albedoMap;
+    Texture* normalMap;
+    Texture* roughnessMap;
+    Texture* metallicMap;
+    Texture* aoMap;
 };
 
 
@@ -157,20 +420,20 @@ struct TextureLight2D {
     float intensity, rotation; 
     Texture* texture; 
     Float2 position; 
-    Color color; 
+    Color* color; 
     LightMask filter; 
 };
 // DirectionalLight2D
 struct DirectionalLight2D { 
     float intensity, rotation; 
-    Color color; 
+    Color* color; 
     LightMask filter; 
 };
 // PointLight2D
 struct PointLight2D { 
     float intensity, rotation, radius; 
     Float2 position; 
-    Color color; 
+    Color* color; 
     LightMask filter; 
 };
 
@@ -178,37 +441,37 @@ struct TextureLight3D {
     float intensity; 
     Texture* texture;
     Float3 position, rotation; 
-    Color color; 
+    Color* color; 
     LightMask filter;
 };
 struct DirectionalLight3D { 
     float intensity;
     Float3 rotation;
-    Color color;
+    Color* color;
     LightMask filter;
 };
 struct SpotLight3D { 
     float intensity, radius, angle, penumbra; 
     Float3 position, rotation; 
-    Color color; 
+    Color* color; 
     LightMask filter; 
 };
 struct OmniLight3D { 
     float intensity, radius; 
     Float3 position; 
-    Color color; 
+    Color* color; 
     LightMask filter; 
 };
 
 struct SurfaceColor {
-    Color color;
-    Rect resource_set;
+    Color* color;
+    Rect* resource_set;
     Moss_PipelineState* pipeline;
 };
 struct SurfaceRect {
-    Color color;
+    Color* color;
     Texture* texture;
-    Rect resource_set;
+    Rect* resource_set;
     Moss_PipelineState* pipeline;
 };
 
@@ -220,7 +483,7 @@ struct SurfaceRectInstance {
     float transform[16]; /* column-major mat4 */
 };
 
-struct Mesh {
+struct Moss_Mesh {
     Material3D material;
     Moss_GPUBuffer* vertex_buffer;
     Moss_GPUBuffer* index_buffer;
@@ -231,24 +494,35 @@ struct Mesh {
     uint32_t vertex_stride;
 };
 struct MeshInstance {
-    Mesh* mesh;
+    Moss_Mesh* mesh;
     float transform[16]; /* column-major mat4 */
     Moss_VisibleMask visibility;
 };
 
-struct Model {
-    Mesh** meshes;
-    uint32_t mesh_count;
+struct Moss_ModelNode { char name[128]{}; int32_t parent = -1; float local_transform[16]{}; float world_transform[16]{}; };
+struct Moss_ModelBone { char name[128]{}; int32_t node_index = -1; float inverse_bind_matrix[16]{}; float pose_transform[16]{}; };
+struct Moss_MorphTarget { char name[128]{}; float weight = 0.0f; };
+struct Moss_ModelAnimation { char name[128]{}; float duration_seconds = 0.0f; float ticks_per_second = 0.0f; };
+enum class Moss_ModelLoadError { None, InvalidArgument, FileNotFound, UnsupportedFormat, ImportFailed, OutOfMemory };
+struct Moss_Model {
+    Moss_Mesh** meshes = nullptr; uint32_t mesh_count = 0;
+    Moss_ModelNode* nodes = nullptr; uint32_t node_count = 0;
+    Moss_ModelBone* bones = nullptr; uint32_t bone_count = 0;
+    Moss_MorphTarget* morph_targets = nullptr; uint32_t morph_target_count = 0;
+    Moss_ModelAnimation* animations = nullptr; uint32_t animation_count = 0;
 };
 
 struct ModelInstance {
-    Model* model;
+    Moss_Model* model;
     float transform[16];
     Moss_VisibleMask visibility;
 };
 
+using Mesh = Moss_Mesh;
+using Model = Moss_Model;
+
 struct SkyBox {
-    Moss_Texture* cubemap;
+    Texture* cubemap;
     Moss_GPUSampler* sampler;
     Moss_PipelineState* pipeline;
     Moss_ResourceSet* resource_set;
@@ -277,7 +551,7 @@ struct Sprite2D {
 };
 
 struct Sprite3D {
-    Mesh* sampler;
+    Moss_Mesh* sampler;
 
     float transform[16];  /* world matrix */
 
@@ -299,69 +573,137 @@ struct Decal {
     CullFilter filter; 
 };
 
-MOSS_API Moss_PipelineState* Moss_RendererCreatePipeline(Moss_Renderer* renderer,const Moss_PipelineDesc* desc);
+MOSS_API Moss_Material* Moss_RendererCreateMaterial(Moss_Renderer* renderer, const Moss_MaterialDesc* desc);
+MOSS_API void Moss_RendererDestroyMaterial(Moss_Renderer* renderer, Moss_Material* material);
+MOSS_API int Moss_MaterialSetUniform(Moss_Material* material, const char* name, const void* data, uint32_t size);
+MOSS_API int Moss_MaterialSetTexture(Moss_Material* material, MaterialTextureType type, Texture* texture, Moss_GPUSampler* sampler);
+
+MOSS_API Moss_PipelineState* Moss_RendererCreatePipeline(Moss_Renderer* renderer, const Moss_PipelineDesc* desc);
 MOSS_API void Moss_PipelineBind(Moss_PipelineState* pipeline);
 MOSS_API void Moss_PipelineUnbind(Moss_PipelineState* pipeline);
-MOSS_API void Moss_PipelineSetUniform(Moss_PipelineState* pipeline,const char* name, const void* data, uint32_t size);
+MOSS_API void Moss_PipelineSetUniform(Moss_PipelineState* pipeline, const char* name, const void* data, uint32_t size);
 MOSS_API void Moss_PipelineFlush(Moss_PipelineState* pipeline);
 MOSS_API int Moss_PipelineValidate(Moss_PipelineState* pipeline);
 
-MOSS_API Moss_ResourceSet* Moss_ResourceSetCreate(Moss_Renderer* renderer, const Moss_ResourceSetLayoutDesc* desc);
-MOSS_API void Moss_ResourceSetDestroy(Moss_ResourceSet* set);
+MOSS_API Moss_ResourceSet* Moss_RendererCreateResourceSet(Moss_Renderer* renderer, const Moss_ResourceSetLayoutDesc* desc);
+MOSS_API void Moss_RendererDestroyResourceSet(Moss_Renderer* renderer, Moss_ResourceSet* set);
 MOSS_API void Moss_ResourceSetBindUniformBuffer(Moss_ResourceSet* set, uint32_t binding, Moss_GPUBuffer* buffer);
 MOSS_API void Moss_ResourceSetBindUniformBufferRange(Moss_ResourceSet* set, uint32_t binding, Moss_GPUBuffer* buffer, size_t offset, size_t size);
 MOSS_API void Moss_ResourceSetBindStorageBuffer(Moss_ResourceSet* set, uint32_t binding, Moss_GPUBuffer* buffer);
-MOSS_API void Moss_ResourceSetBindTexture(Moss_ResourceSet* set,uint32_t binding, void* texture);
-MOSS_API void Moss_ResourceSetBindSampler(Moss_ResourceSet* set, uint32_t binding, void* sampler);
+MOSS_API void Moss_ResourceSetBindTexture(Moss_ResourceSet* set, uint32_t binding, Texture* texture);
+MOSS_API void Moss_ResourceSetBindSampler(Moss_ResourceSet* set, uint32_t binding, Moss_GPUSampler* sampler);
 MOSS_API void Moss_ResourceSetBind(Moss_Renderer* renderer, Moss_PipelineState* pipeline, uint32_t set_index, Moss_ResourceSet* set);
 
-// Dont forget the FrameBuffer for post processing
-MOSS_API Moss_Framebuffer* Moss_FramebufferCreate(Moss_Renderer* renderer, const Moss_FramebufferDesc* desc);
-MOSS_API void Moss_FramebufferDestroy(Moss_Framebuffer* framebuffer);
+MOSS_API Moss_Framebuffer* Moss_RendererCreateFramebuffer(Moss_Renderer* renderer, const Moss_FramebufferDesc* desc);
+MOSS_API void Moss_RendererDestroyFramebuffer(Moss_Renderer* renderer, Moss_Framebuffer* framebuffer);
 MOSS_API void Moss_FramebufferResize(Moss_Framebuffer* framebuffer, uint32_t width, uint32_t height);
 MOSS_API void Moss_PostProcessExecute(Moss_Renderer* renderer, const Moss_PostProcessPass* pass);
 MOSS_API void Moss_FramebufferBegin(Moss_Renderer* renderer, Moss_Framebuffer* framebuffer);
 MOSS_API void Moss_FramebufferEnd(Moss_Renderer* renderer, Moss_Framebuffer* framebuffer);
-MOSS_API void Moss_TextureBarrier(Moss_Renderer* renderer, Moss_Texture* texture, EResourceState old_state, EResourceState new_state);
+MOSS_API void Moss_TextureBarrier(Moss_Renderer* renderer, Texture* texture, EResourceState old_state, EResourceState new_state);
 MOSS_API Moss_Framebuffer* Moss_RendererGetBackbuffer(Moss_Renderer* renderer);
+MOSS_API void Moss_RenderSubViewport(Moss_GPUCommandBuffer* cmd, const SubViewport* sub_viewport, Moss_SubViewportRecordFn record, void* user_data);
 
-
-
-void Moss_RenderSubViewport(Moss_GPUCommandBuffer* cmd, const SubViewport* sv, Moss_SubViewportRecordFn record, void* user_data) {
-    Moss_CmdSetFramebuffer(cmd, sv->target);
-    Moss_CmdSetViewport(cmd, &sv->viewport);
-
-    record(cmd, user_data);
-
-    Moss_CmdSetFramebuffer(cmd, NULL); /* backbuffer */
-}
-
-
-MOSS_API Moss_Renderer* Moss_CreateRenderer(Moss_Window* window, Color* bg_color, int* window_width, int* window_height, int* virt_res_wdith, int* virt_res_hight);
+MOSS_API Moss_Renderer* Moss_RendererCreate(const Moss_RendererDesc* desc);
+MOSS_API Moss_Renderer* Moss_CreateRenderer(Moss_Window* window);
 MOSS_API void Moss_RendererDestroy(Moss_Renderer* renderer);
+MOSS_API void Moss_TerminateRenderer(Moss_Renderer* renderer);
 MOSS_API void Moss_RendererBeginFrame(Moss_Renderer* renderer);
+MOSS_API void Moss_RendererBeginFrameEx(Moss_Renderer* renderer, const Moss_RenderFrameDesc* desc);
 MOSS_API void Moss_RendererEndFrame(Moss_Renderer* renderer);
+MOSS_API Moss_GPUDevice* Moss_RendererGetGPUDevice(Moss_Renderer* renderer);
 
-MOSS_API Mesh* Moss_MeshLoadFBX(const char* file_path);
-MOSS_API Mesh* Moss_MeshLoadOBJ(const char* file_path);
-MOSS_API Mesh* Moss_MeshLoadGLB(const char* file_path);
+MOSS_API Moss_Mesh* Moss_MeshLoadFBX(const char* file_path);
+MOSS_API Moss_Mesh* Moss_MeshLoadOBJ(const char* file_path);
+MOSS_API Moss_Mesh* Moss_MeshLoadGLB(const char* file_path);
 
-MOSS_API Model* Moss_ModelLoadFBX(const char* file_path);
-MOSS_API Model* Moss_ModelLoadOBJ(const char* file_path);
-MOSS_API Model* Moss_ModelLoadGLB(const char* file_path);
+MOSS_API Moss_Model* Moss_ModelLoadFBX(const char* file_path);
+MOSS_API Moss_Model* Moss_ModelLoadOBJ(const char* file_path);
+MOSS_API Moss_Model* Moss_ModelLoadGLB(const char* file_path);
+MOSS_API Moss_Model* Moss_ModelLoad(const char* file_path);
+MOSS_API Moss_ModelLoadError Moss_ModelGetLastLoadError();
+MOSS_API const char* Moss_ModelGetLastLoadErrorMessage();
+MOSS_API int Moss_ModelFindBone(const Moss_Model* model, const char* name);
+MOSS_API int Moss_ModelFindMorphTarget(const Moss_Model* model, const char* name);
+MOSS_API bool Moss_ModelSetBoneTransform(Moss_Model* model, uint32_t bone_index, const float* transform16);
+MOSS_API bool Moss_ModelSetMorphWeight(Moss_Model* model, uint32_t morph_index, float weight);
+struct Moss_MeshAssetDesc {
+    const char* path = nullptr;
+};
 
-MOSS_API void Moss_MeshDraw(Mesh* mesh);
-MOSS_API void Moss_ModelDraw(Model* model);
+struct Moss_FontAssetDesc {
+    const char* path = nullptr;
+    float pixel_size = 16.0f;
+};
 
-MOSS_API void Moss_MeshRemove(Mesh* mesh);
-MOSS_API void Moss_ModelRemove(Model* model);
+MOSS_API Moss_AssetHandle Moss_RendererAssetLoadMesh(Moss_AssetManager* manager, Moss_Renderer* renderer, const Moss_MeshAssetDesc* desc);
+MOSS_API Moss_Mesh* Moss_RendererAssetGetMesh(Moss_AssetManager* manager, Moss_AssetHandle handle);
+MOSS_API Moss_AssetHandle Moss_RendererAssetLoadFont(Moss_AssetManager* manager, Moss_Renderer* renderer, const Moss_FontAssetDesc* desc);
+MOSS_API Moss_Font* Moss_RendererAssetGetFont(Moss_AssetManager* manager, Moss_AssetHandle handle);
 
-#if defined(MOSS_DEBUG_RENDERER)
-/*! @brief X @param X X @ingroup Renderer Debug/Utils. */
+MOSS_API void Moss_RendererDrawMesh(Moss_Renderer* renderer, const Moss_DrawMeshDesc* desc);
+MOSS_API void Moss_RendererDrawModelDesc(Moss_Renderer* renderer, const Moss_DrawModelDesc* desc);
+MOSS_API void Moss_RendererDrawModel(Moss_Renderer* renderer, const Moss_Model* model, const float* transform);
+MOSS_API Moss_Font* Moss_RendererCreateFont(Moss_Renderer* renderer, const Moss_FontDesc* desc);
+MOSS_API void Moss_RendererDestroyFont(Moss_Renderer* renderer, Moss_Font* font);
+MOSS_API Moss_Font* Moss_FontLoad(const char* path, float pixel_size);
+MOSS_API Moss_Font* Moss_FontCreateFromMemory(const void* data, size_t data_size, float pixel_size);
+MOSS_API void Moss_FontDestroy(Moss_Font* font);
+MOSS_API const Moss_FontMetrics* Moss_FontGetMetrics(const Moss_Font* font);
+MOSS_API const Moss_FontGlyph* Moss_FontGetGlyph(const Moss_Font* font, uint32_t codepoint);
+MOSS_API const unsigned char* Moss_FontGetAtlasPixels(const Moss_Font* font, uint32_t* width, uint32_t* height, uint32_t* stride);
+MOSS_API Texture* Moss_FontGetAtlasTexture(Moss_Font* font);
+MOSS_API bool Moss_FontUploadAtlas(Moss_Renderer* renderer, Moss_Font* font);
+MOSS_API Moss_TextMeasure Moss_FontMeasureText(const Moss_Font* font, const char* text, float scale);
+MOSS_API size_t Moss_FontBuildTextQuads(const Moss_DrawTextDesc* desc, Moss_FontVertex* out_vertices, size_t vertex_capacity);
+MOSS_API void Moss_RendererDrawText(Moss_Renderer* renderer, const Moss_DrawTextDesc* desc);
+MOSS_API uint32_t Moss_RendererGetFontBackendMask(void);
+MOSS_API bool Moss_RendererBackendSupportsFonts(Moss_GPUBackendType backend);
+MOSS_API void Moss_RendererDrawSprite(Moss_Renderer* renderer, const Moss_SpriteDesc* desc);
+MOSS_API Moss_SpriteBatch* Moss_RendererCreateSpriteBatch(Moss_Renderer* renderer, uint32_t capacity);
+MOSS_API void Moss_RendererDestroySpriteBatch(Moss_Renderer* renderer, Moss_SpriteBatch* batch);
+MOSS_API void Moss_SpriteBatchClear(Moss_SpriteBatch* batch);
+MOSS_API int Moss_SpriteBatchAdd(Moss_SpriteBatch* batch, const Moss_SpriteDesc* desc);
+MOSS_API void Moss_RendererDrawSpriteBatch(Moss_Renderer* renderer, const Moss_SpriteBatch* batch);
+
+MOSS_API Moss_DebugDrawList* Moss_RendererCreateDebugDrawList(Moss_Renderer* renderer, uint32_t capacity);
+MOSS_API void Moss_RendererDestroyDebugDrawList(Moss_Renderer* renderer, Moss_DebugDrawList* list);
+MOSS_API void Moss_DebugDrawListClear(Moss_DebugDrawList* list);
+MOSS_API int Moss_DebugDrawLine(Moss_DebugDrawList* list, const Moss_DebugLineDesc* desc);
+MOSS_API int Moss_DebugDrawBox(Moss_DebugDrawList* list, const Moss_DebugBoxDesc* desc);
+MOSS_API int Moss_DebugDrawSphere(Moss_DebugDrawList* list, const Moss_DebugSphereDesc* desc);
+MOSS_API int Moss_DebugDrawNavmesh(Moss_DebugDrawList* list, const Moss_DebugNavmeshDesc* desc);
+MOSS_API int Moss_DebugDrawPhysicsContact(Moss_DebugDrawList* list, const Moss_DebugPhysicsContactDesc* desc);
+MOSS_API void Moss_RendererDrawDebugList(Moss_Renderer* renderer, const Moss_DebugDrawList* list);
+
+MOSS_API Moss_Camera* Moss_CameraCreate2D(const Moss_Camera2DDesc* desc);
+MOSS_API Moss_Camera* Moss_CameraCreate3D(const Moss_Camera3DDesc* desc);
+MOSS_API Moss_Camera* Moss_CameraCreateEditor(const Moss_EditorCameraDesc* desc);
+MOSS_API void Moss_CameraDestroy(Moss_Camera* camera);
+MOSS_API void Moss_RendererSetCamera(Moss_Renderer* renderer, Moss_Camera* camera);
+
+MOSS_API Moss_ShadowMap* Moss_RendererCreateShadowMap(Moss_Renderer* renderer, const Moss_ShadowMapDesc* desc);
+MOSS_API void Moss_RendererDestroyShadowMap(Moss_Renderer* renderer, Moss_ShadowMap* shadow_map);
+MOSS_API void Moss_RendererBeginShadowPass(Moss_Renderer* renderer, Moss_ShadowMap* shadow_map);
+MOSS_API void Moss_RendererEndShadowPass(Moss_Renderer* renderer, Moss_ShadowMap* shadow_map);
+MOSS_API void Moss_MeshDraw(Moss_Mesh* mesh);
+MOSS_API void Moss_ModelDraw(Moss_Model* model);
+
+MOSS_API void Moss_MeshRemove(Moss_Mesh* mesh);
+MOSS_API void Moss_ModelRemove(Moss_Model* model);
+
+// Compatibility aliases for the older renderer header names.
+MOSS_API Moss_ResourceSet* Moss_ResourceSetCreate(Moss_Renderer* renderer, const Moss_ResourceSetLayoutDesc* desc);
+MOSS_API void Moss_ResourceSetDestroy(Moss_ResourceSet* set);
+MOSS_API Moss_Framebuffer* Moss_FramebufferCreate(Moss_Renderer* renderer, const Moss_FramebufferDesc* desc);
+MOSS_API void Moss_FramebufferDestroy(Moss_Framebuffer* framebuffer);
+
+#if defined(MOSS_DEBUG_RENDERER) || !defined(NDEBUG)
+/*! @brief Get the active physical GPU name for debug overlays. @return Backend-owned string, or null if unavailable. @ingroup Renderer Debug/Utils. */
 MOSS_API char* Moss_GPUGetPhysicalDeviceName();
-/*! @brief X @param X X @ingroup Renderer Debug/Utils. */
+/*! @brief Get the active graphics API name for debug overlays. @return Backend-owned string, or null if unavailable. @ingroup Renderer Debug/Utils. */
 MOSS_API char* Moss_GPUAPIGetName();
-/*! @brief X @param X X @ingroup Renderer Debug/Utils. */
+/*! @brief Get the active graphics API version string for debug overlays. @return Backend-owned string, or null if unavailable. @ingroup Renderer Debug/Utils. */
 MOSS_API char* Moss_GPUAPIGetVersion();
 
 
@@ -369,74 +711,74 @@ MOSS_API char* Moss_GPUAPIGetVersion();
 //===========================================================
 // 2D Debug/Utils Rendering
 //===========================================================
-/*! @brief X @param X X @ingroup Renderer Debug/Utils. */
+/*! @brief Queue a 2D debug line. @param renderer Renderer receiving the line. @param from Start point. @param to End point. @param color Line color. @param thickness Line thickness in pixels. @ingroup Renderer Debug/Utils. */
 MOSS_API void Moss_RendererDrawLine2D(Moss_Renderer* renderer, const Vec2* from, const Vec2* to, Color color, float thickness);
-/*! @brief X @param X X @ingroup Renderer Debug/Utils. */
+/*! @brief Queue connected 2D debug line segments from a point array. @param renderer Renderer receiving the lines. @param positions Points interpreted as pairs or a strip by the backend. @param color Line color. @param thickness Line thickness in pixels. @ingroup Renderer Debug/Utils. */
 MOSS_API void Moss_RendererDrawLines2D(Moss_Renderer* renderer, const TArray<Vec2>* positions, Color color, float thickness);
-/*! @brief X @param X X @ingroup Renderer Debug/Utils. */
+/*! @brief Queue a 2D debug box. @param renderer Renderer receiving the box. @param center Box center. @param size Box width and height. @param rotation Rotation in radians. @param color Line color. @ingroup Renderer Debug/Utils. */
 MOSS_API void Moss_RendererDrawBox2D(Moss_Renderer* renderer, const Vec2* center, const Vec2* size, float rotation, Color color);
-/*! @brief X @param X X @ingroup Renderer Debug/Utils. */
+/*! @brief Queue a 2D debug circle. @param renderer Renderer receiving the circle. @param center Circle center. @param radius Circle radius. @param color Line color. @ingroup Renderer Debug/Utils. */
 MOSS_API void Moss_RendererDrawCircle2D(Moss_Renderer* renderer, const Vec2* center, float radius, Color color);
-/*! @brief X @param X X @ingroup Renderer Debug/Utils. */
-MOSS_API void Moss_RendererDrawCylinder2D(Moss_Renderer* renderer, const RMatrix4x4* matrix, float halfHeight, float radius, Color color);
-/*! @brief X @param X X @ingroup Renderer Debug/Utils. */
+/*! @brief Queue a 2D capsule/cylinder outline from a transform. @param renderer Renderer receiving the shape. @param matrix Shape transform. @param halfHeight Half cylinder height. @param radius End radius. @param color Line color. @ingroup Renderer Debug/Utils. */
+MOSS_API void Moss_RendererDrawCylinder2D(Moss_Renderer* renderer, const RMat44* matrix, float halfHeight, float radius, Color color);
+/*! @brief Queue a 2D debug triangle outline. @param renderer Renderer receiving the triangle. @param p0 First point. @param p1 Second point. @param p2 Third point. @param color Line color. @ingroup Renderer Debug/Utils. */
 MOSS_API void Moss_RendererDrawTriangle2D(Moss_Renderer* renderer, const Vec2* p0, const Vec2* p1, const Vec2* p2, Color color);
-/*! @brief X @param X X @ingroup Renderer Debug/Utils. */
+/*! @brief Queue a 2D debug arrow. @param renderer Renderer receiving the arrow. @param from Tail point. @param to Tip point. @param color Line color. @param headSize Arrow head size. @ingroup Renderer Debug/Utils. */
 MOSS_API void Moss_RendererDrawArrow2D(Moss_Renderer* renderer, const Vec2* from, const Vec2* to, Color color, float headSize);
-/*! @brief X @param X X @ingroup Renderer Debug/Utils. */
+/*! @brief Queue a 2D cross marker. @param renderer Renderer receiving the marker. @param position Marker center. @param color Line color. @param size Marker size. @ingroup Renderer Debug/Utils. */
 MOSS_API void Moss_RendererDrawMarker2D(Moss_Renderer* renderer, const Vec2* position, Color color, float size);
-/*! @brief X @param X X @ingroup Renderer Debug/Utils. */
-MOSS_API void Moss_RendererDrawBone2D(Moss_Renderer* renderer, );
-/*! @brief X @param X X @ingroup Renderer Debug/Utils. */
-MOSS_API void Moss_RendererDrawCoordinateSystem2D(Moss_Renderer* renderer, const RMatrix4x4* matrix, float size);
-/*! @brief X @param X X @ingroup Renderer Debug/Utils. */
-MOSS_API void Moss_RendererDrawCapsule2D(Moss_Renderer* renderer, const RMatrix4x4* matrix, float halfHeightOfCylinder, float radius, Color color);
-/*! @brief X @param X X @ingroup Renderer Debug/Utils. */
-MOSS_API void Moss_RendererDrawConvex2D(Moss_Renderer* renderer, );
-/*! @brief X @param X X @ingroup Renderer Debug/Utils. */
-MOSS_API void Moss_RendererDrawConvexHull2D(Moss_Renderer* renderer, );
-/*! @brief X @param X X @ingroup Renderer Debug/Utils. */
-MOSS_API void Moss_RendererDrawPolygonShape3D(Moss_Renderer* renderer, );
-/*! @brief X @param X X @ingroup Renderer Debug/Utils. */
-MOSS_API void Moss_RendererDrawGizmo2D(Moss_Renderer* renderer, const RMat4x4* transform, float size);
+/*! @brief Queue a 2D bone axis line from a transform. @param renderer Renderer receiving the bone. @param transform Bone transform. @param length Bone length. @param color Line color. @ingroup Renderer Debug/Utils. */
+MOSS_API void Moss_RendererDrawBone2D(Moss_Renderer* renderer, const RMat44* transform, float length, Color color);
+/*! @brief Queue 2D coordinate axes from a transform. @param renderer Renderer receiving the axes. @param matrix Axis transform. @param size Axis length. @ingroup Renderer Debug/Utils. */
+MOSS_API void Moss_RendererDrawCoordinateSystem2D(Moss_Renderer* renderer, const RMat44* matrix, float size);
+/*! @brief Queue a 2D capsule outline. @param renderer Renderer receiving the capsule. @param matrix Capsule transform. @param halfHeightOfCylinder Half height of the straight section. @param radius Capsule radius. @param color Line color. @ingroup Renderer Debug/Utils. */
+MOSS_API void Moss_RendererDrawCapsule2D(Moss_Renderer* renderer, const RMat44* matrix, float halfHeightOfCylinder, float radius, Color color);
+/*! @brief Queue a 2D convex polygon outline. @param renderer Renderer receiving the polygon. @param points Polygon points. @param point_count Number of points. @param color Line color. @ingroup Renderer Debug/Utils. */
+MOSS_API void Moss_RendererDrawConvex2D(Moss_Renderer* renderer, const Vec2* points, uint32_t point_count, Color color);
+/*! @brief Queue a 2D convex hull outline. @param renderer Renderer receiving the hull. @param points Hull points. @param point_count Number of points. @param color Line color. @ingroup Renderer Debug/Utils. */
+MOSS_API void Moss_RendererDrawConvexHull2D(Moss_Renderer* renderer, const Vec2* points, uint32_t point_count, Color color);
+/*! @brief Queue a 2D polygon outline. @param renderer Renderer receiving the polygon. @param points Polygon points. @param point_count Number of points. @param color Line color. @ingroup Renderer Debug/Utils. */
+MOSS_API void Moss_RendererDrawPolygonShape2D(Moss_Renderer* renderer, const Vec2* points, uint32_t point_count, Color color);
+/*! @brief Queue a 2D transform gizmo. @param renderer Renderer receiving the gizmo. @param transform Gizmo transform. @param size Axis size. @ingroup Renderer Debug/Utils. */
+MOSS_API void Moss_RendererDrawGizmo2D(Moss_Renderer* renderer, const RMat44* transform, float size);
 
 //===========================================================
 // 3D Debug/Utils Rendering
 //===========================================================
-/*! @brief X @param X X @ingroup Renderer Debug/Utils. */
+/*! @brief Queue a 3D debug line. @param renderer Renderer receiving the line. @param from Start point. @param to End point. @param color Line color. @param thickness Line thickness in pixels. @ingroup Renderer Debug/Utils. */
 MOSS_API void Moss_RendererDrawLine3D(Moss_Renderer* renderer, const Vec3* from, const Vec3* to, Color color, float thickness);
-/*! @brief X @param X X @ingroup Renderer Debug/Utils. */
+/*! @brief Queue connected 3D debug line segments from a point array. @param renderer Renderer receiving the lines. @param positions Points interpreted as pairs or a strip by the backend. @param color Line color. @param thickness Line thickness in pixels. @ingroup Renderer Debug/Utils. */
 MOSS_API void Moss_RendererDrawLines3D(Moss_Renderer* renderer, const TArray<Vec3>* positions, Color color, float thickness);
-/*! @brief X @param X X @ingroup Renderer Debug/Utils. */
-MOSS_API void Moss_RendererDrawBox3D(Moss_Renderer* renderer, const Vec3* center, const Vec3* size, const RMat4x4* rotation, Color color);
-/*! @brief X @param X X @ingroup Renderer Debug/Utils. */
+/*! @brief Queue a 3D debug box. @param renderer Renderer receiving the box. @param center Box center. @param size Box dimensions. @param rotation Optional orientation transform. @param color Line color. @ingroup Renderer Debug/Utils. */
+MOSS_API void Moss_RendererDrawBox3D(Moss_Renderer* renderer, const Vec3* center, const Vec3* size, const RMat44* rotation, Color color);
+/*! @brief Queue a 3D debug sphere. @param renderer Renderer receiving the sphere. @param center Sphere center. @param radius Sphere radius. @param color Line color. @ingroup Renderer Debug/Utils. */
 MOSS_API void Moss_RendererDrawSphere3D(Moss_Renderer* renderer, const Vec3* center, float radius, Color color);
-/*! @brief X @param X X @ingroup Renderer Debug/Utils. */
+/*! @brief Queue a 3D cylinder outline. @param renderer Renderer receiving the cylinder. @param base Base center. @param top Top center. @param radius Cylinder radius. @param color Line color. @ingroup Renderer Debug/Utils. */
 MOSS_API void Moss_RendererDrawCylinder3D(Moss_Renderer* renderer, const Vec3* base, const Vec3* top, float radius, Color color);
-/*! @brief X @param X X @ingroup Renderer Debug/Utils. */
-MOSS_API void Moss_RendererDrawCone3D(Moss_Renderer* renderer, );
-/*! @brief X @param X X @ingroup Renderer Debug/Utils. */
-MOSS_API void Moss_RendererDrawTriangle3D(Moss_Renderer* renderer, );
-/*! @brief X @param X X @ingroup Renderer Debug/Utils. */
+/*! @brief Queue a 3D cone outline. @param renderer Renderer receiving the cone. @param base Base center. @param tip Cone tip. @param radius Base radius. @param color Line color. @ingroup Renderer Debug/Utils. */
+MOSS_API void Moss_RendererDrawCone3D(Moss_Renderer* renderer, const Vec3* base, const Vec3* tip, float radius, Color color);
+/*! @brief Queue a 3D debug triangle outline. @param renderer Renderer receiving the triangle. @param p0 First point. @param p1 Second point. @param p2 Third point. @param color Line color. @ingroup Renderer Debug/Utils. */
+MOSS_API void Moss_RendererDrawTriangle3D(Moss_Renderer* renderer, const Vec3* p0, const Vec3* p1, const Vec3* p2, Color color);
+/*! @brief Queue a 3D debug arrow. @param renderer Renderer receiving the arrow. @param from Tail point. @param to Tip point. @param color Line color. @param headSize Arrow head size. @ingroup Renderer Debug/Utils. */
 MOSS_API void Moss_RendererDrawArrow3D(Moss_Renderer* renderer, const Vec3* from, const Vec3* to, Color color, float headSize);
-/*! @brief X @param X X @ingroup Renderer Debug/Utils. */
+/*! @brief Queue a 3D cross marker. @param renderer Renderer receiving the marker. @param position Marker center. @param color Line color. @param size Marker size. @ingroup Renderer Debug/Utils. */
 MOSS_API void Moss_RendererDrawMarker3D(Moss_Renderer* renderer, const Vec3* position, Color color, float size);
-/*! @brief X @param X X @ingroup Renderer Debug/Utils. */
-MOSS_API void Moss_RendererDrawPlane3D(Moss_Renderer* renderer, );
-/*! @brief X @param X X @ingroup Renderer Debug/Utils. */
-MOSS_API void Moss_RendererDrawBone3D(Moss_Renderer* renderer, );
-/*! @brief X @param X X @ingroup Renderer Debug/Utils. */
-MOSS_API void Moss_RendererDrawCoordinateSystem3D(Moss_Renderer* renderer, const RMat4x4* matrix, float size);
-/*! @brief X @param X X @ingroup Renderer Debug/Utils. */
-MOSS_API void Moss_RendererDrawCapsule3D(Moss_Renderer* renderer, const RMat4x4* matrix, float halfHeightOfCylinder, float radius, Color color);
-/*! @brief X @param X X @ingroup Renderer Debug/Utils. */
-MOSS_API void Moss_RendererDrawConvex3D(Moss_Renderer* renderer, );
-/*! @brief X @param X X @ingroup Renderer Debug/Utils. */
-MOSS_API void Moss_RendererDrawConvexHull3D(Moss_Renderer* renderer, );
-/*! @brief X @param X X @ingroup Renderer Debug/Utils. */
-MOSS_API void Moss_RendererDrawPolygonShape3D(Moss_Renderer* renderer, );
-/*! @brief X @param X X @ingroup Renderer Debug/Utils. */
-MOSS_API void Moss_RendererDrawGizmo3D(Moss_Renderer* renderer, const RMat4x4* transform, float size);
+/*! @brief Queue a 3D debug plane outline. @param renderer Renderer receiving the plane. @param center Plane center. @param normal Plane normal. @param size Plane size. @param color Line color. @ingroup Renderer Debug/Utils. */
+MOSS_API void Moss_RendererDrawPlane3D(Moss_Renderer* renderer, const Vec3* center, const Vec3* normal, float size, Color color);
+/*! @brief Queue a 3D bone axis line from a transform. @param renderer Renderer receiving the bone. @param transform Bone transform. @param length Bone length. @param color Line color. @ingroup Renderer Debug/Utils. */
+MOSS_API void Moss_RendererDrawBone3D(Moss_Renderer* renderer, const RMat44* transform, float length, Color color);
+/*! @brief Queue 3D coordinate axes from a transform. @param renderer Renderer receiving the axes. @param matrix Axis transform. @param size Axis length. @ingroup Renderer Debug/Utils. */
+MOSS_API void Moss_RendererDrawCoordinateSystem3D(Moss_Renderer* renderer, const RMat44* matrix, float size);
+/*! @brief Queue a 3D capsule outline. @param renderer Renderer receiving the capsule. @param matrix Capsule transform. @param halfHeightOfCylinder Half height of the straight section. @param radius Capsule radius. @param color Line color. @ingroup Renderer Debug/Utils. */
+MOSS_API void Moss_RendererDrawCapsule3D(Moss_Renderer* renderer, const RMat44* matrix, float halfHeightOfCylinder, float radius, Color color);
+/*! @brief Queue a 3D convex polygon outline. @param renderer Renderer receiving the polygon. @param points Polygon points. @param point_count Number of points. @param color Line color. @ingroup Renderer Debug/Utils. */
+MOSS_API void Moss_RendererDrawConvex3D(Moss_Renderer* renderer, const Vec3* points, uint32_t point_count, Color color);
+/*! @brief Queue a 3D convex hull outline. @param renderer Renderer receiving the hull. @param points Hull points. @param point_count Number of points. @param color Line color. @ingroup Renderer Debug/Utils. */
+MOSS_API void Moss_RendererDrawConvexHull3D(Moss_Renderer* renderer, const Vec3* points, uint32_t point_count, Color color);
+/*! @brief Queue a 3D polygon outline. @param renderer Renderer receiving the polygon. @param points Polygon points. @param point_count Number of points. @param color Line color. @ingroup Renderer Debug/Utils. */
+MOSS_API void Moss_RendererDrawPolygonShape3D(Moss_Renderer* renderer, const Vec3* points, uint32_t point_count, Color color);
+/*! @brief Queue a 3D transform gizmo. @param renderer Renderer receiving the gizmo. @param transform Gizmo transform. @param size Axis size. @ingroup Renderer Debug/Utils. */
+MOSS_API void Moss_RendererDrawGizmo3D(Moss_Renderer* renderer, const RMat44* transform, float size);
 #endif
 
 enum Moss_Upscaler {
@@ -445,8 +787,16 @@ enum Moss_Upscaler {
     MOSS_UPSCALER_FSR2
 };
 
-void Moss_RendererSetUpscaler(Moss_Renderer* renderer, Moss_Upscaler upscaler);
-MOSS_API Moss_GPUDevice* Moss_RendererGetGPUDevice(Moss_Renderer* renderer) const;
+
+struct Moss_RendererUpscalerDesc {
+    Moss_Upscaler upscaler = MOSS_UPSCALER_NONE;
+    Moss_FSR2QualityMode fsr2_quality = MOSS_FSR2_QUALITY;
+    bool enable_sharpening = false;
+    float sharpness = 0.0f;
+};
+
+MOSS_API void Moss_RendererSetUpscaler(Moss_Renderer* renderer, Moss_Upscaler upscaler);
+MOSS_API void Moss_RendererSetUpscalerDesc(Moss_Renderer* renderer, const Moss_RendererUpscalerDesc* desc);
 
 // GPU APIs / Tools
 #if defined(MOSS_GRAPHICS_OPENGL) || defined(MOSS_GRAPHICS_OPENGLES)
@@ -454,55 +804,62 @@ MOSS_API Moss_GPUDevice* Moss_RendererGetGPUDevice(Moss_Renderer* renderer) cons
 
 
 #if defined(MOSS_GRAPHICS_VULKAN)
-MOSS_API VkDevice						GetDevice(Moss_Renderer* renderer) const												{ return mDevice; }
-MOSS_API VkDescriptorPool				GetDescriptorPool(Moss_Renderer* renderer) const										{ return mDescriptorPool; }
-MOSS_API VkDescriptorSetLayout			GetDescriptorSetLayoutTexture(Moss_Renderer* renderer) const							{ return mDescriptorSetLayoutTexture; }
-MOSS_API VkSampler						GetTextureSamplerRepeat(Moss_Renderer* renderer) const									{ return mTextureSamplerRepeat; }
-MOSS_API VkSampler						GetTextureSamplerShadow(Moss_Renderer* renderer) const									{ return mTextureSamplerShadow; }
-MOSS_API VkRenderPass					GetRenderPassShadow(Moss_Renderer* renderer) const										{ return mRenderPassShadow; }
-MOSS_API VkRenderPass					GetRenderPass(Moss_Renderer* renderer) const											{ return mRenderPass; }
-MOSS_API VkPipelineLayout				GetPipelineLayout(Moss_Renderer* renderer) const										{ return mPipelineLayout; }
-MOSS_API VkCommandBuffer				GetCommandBuffer(Moss_Renderer* renderer)												{ MOSS_ASSERT(mInFrame); return mCommandBuffers[mFrameIndex]; }
-MOSS_API VkCommandBuffer				StartTempCommandBuffer(Moss_Renderer* renderer);
-MOSS_API void							EndTempCommandBuffer(VkCommandBuffer inCommandBuffer);
-MOSS_API void							AllocateMemory(VkDeviceSize inSize, uint32 inMemoryTypeBits, VkMemoryPropertyFlags inProperties, VkDeviceMemory &outMemory);
-MOSS_API void							FreeMemory(VkDeviceMemory inMemory, VkDeviceSize inSize);
-MOSS_API void							CreateBuffer(VkDeviceSize inSize, VkBufferUsageFlags inUsage, VkMemoryPropertyFlags inProperties, BufferVK &outBuffer);
-MOSS_API void							CopyBuffer(VkBuffer inSrc, VkBuffer inDst, VkDeviceSize inSize);
-MOSS_API void							CreateDeviceLocalBuffer(const void *inData, VkDeviceSize inSize, VkBufferUsageFlags inUsage, BufferVK &outBuffer);
-MOSS_API void							FreeBuffer(BufferVK &ioBuffer);
-MOSS_API unique_ptr<ConstantBufferVK>	CreateConstantBuffer(VkDeviceSize inBufferSize);
-MOSS_API void							CreateImage(uint32 inWidth, uint32 inHeight, VkFormat inFormat, VkImageTiling inTiling, VkImageUsageFlags inUsage, VkMemoryPropertyFlags inProperties, VkImage &outImage, VkDeviceMemory &outMemory);
-MOSS_API void							DestroyImage(VkImage inImage, VkDeviceMemory inMemory);
-MOSS_API VkImageView					CreateImageView(VkImage inImage, VkFormat inFormat, VkImageAspectFlags inAspectFlags);
-MOSS_API VkFormat						FindDepthFormat();
+struct BufferVK;
+struct ConstantBufferVK;
+
+MOSS_API VkDevice                       Moss_VulkanGetDevice(Moss_Renderer* renderer);
+MOSS_API VkDescriptorPool               Moss_VulkanGetDescriptorPool(Moss_Renderer* renderer);
+MOSS_API VkDescriptorSetLayout          Moss_VulkanGetDescriptorSetLayoutTexture(Moss_Renderer* renderer);
+MOSS_API VkSampler                      Moss_VulkanGetTextureSamplerRepeat(Moss_Renderer* renderer);
+MOSS_API VkSampler                      Moss_VulkanGetTextureSamplerShadow(Moss_Renderer* renderer);
+MOSS_API VkRenderPass                   Moss_VulkanGetRenderPassShadow(Moss_Renderer* renderer);
+MOSS_API VkRenderPass                   Moss_VulkanGetRenderPass(Moss_Renderer* renderer);
+MOSS_API VkPipelineLayout               Moss_VulkanGetPipelineLayout(Moss_Renderer* renderer);
+MOSS_API VkCommandBuffer                Moss_VulkanGetCommandBuffer(Moss_Renderer* renderer);
+MOSS_API VkCommandBuffer                Moss_VulkanStartTempCommandBuffer(Moss_Renderer* renderer);
+MOSS_API void                           Moss_VulkanEndTempCommandBuffer(Moss_Renderer* renderer, VkCommandBuffer command_buffer);
+MOSS_API void                           Moss_VulkanAllocateMemory(Moss_Renderer* renderer, VkDeviceSize size, uint32_t memory_type_bits, VkMemoryPropertyFlags properties, VkDeviceMemory* out_memory);
+MOSS_API void                           Moss_VulkanFreeMemory(Moss_Renderer* renderer, VkDeviceMemory memory, VkDeviceSize size);
+MOSS_API void                           Moss_VulkanCreateBuffer(Moss_Renderer* renderer, VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, BufferVK* out_buffer);
+MOSS_API void                           Moss_VulkanCopyBuffer(Moss_Renderer* renderer, VkBuffer src, VkBuffer dst, VkDeviceSize size);
+MOSS_API void                           Moss_VulkanCreateDeviceLocalBuffer(Moss_Renderer* renderer, const void* data, VkDeviceSize size, VkBufferUsageFlags usage, BufferVK* out_buffer);
+MOSS_API void                           Moss_VulkanFreeBuffer(Moss_Renderer* renderer, BufferVK* buffer);
+MOSS_API ConstantBufferVK*              Moss_VulkanCreateConstantBuffer(Moss_Renderer* renderer, VkDeviceSize buffer_size);
+MOSS_API void                           Moss_VulkanCreateImage(Moss_Renderer* renderer, uint32_t width, uint32_t height, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties, VkImage* out_image, VkDeviceMemory* out_memory);
+MOSS_API void                           Moss_VulkanDestroyImage(Moss_Renderer* renderer, VkImage image, VkDeviceMemory memory);
+MOSS_API VkImageView                    Moss_VulkanCreateImageView(Moss_Renderer* renderer, VkImage image, VkFormat format, VkImageAspectFlags aspect_flags);
+MOSS_API VkFormat                       Moss_VulkanFindDepthFormat(Moss_Renderer* renderer);
 
 MOSS_API void Moss_Vulkan_EncodeSPIRV(const char* path);
 MOSS_API void Moss_Vulkan_DecodeSPIRV(const char* path);
 #endif // MOSS_GRAPHICS_VULKAN
 
 #if defined(MOSS_GRAPHICS_DIRECTX)
-MOSS_API ID3D12Device*					GetDevice(Moss_Renderer* renderer);
-MOSS_API ID3D12RootSignature*			GetRootSignature(Moss_Renderer* renderer);
-MOSS_API ID3D12GraphicsCommandList*		GetCommandList(Moss_Renderer* renderer);
-MOSS_API CommandQueueDX12&				GetUploadQueue(Moss_Renderer* renderer);
-MOSS_API DescriptorHeapDX12&			GetDSVHeap(Moss_Renderer* renderer);
-MOSS_API DescriptorHeapDX12&			GetSRVHeap(Moss_Renderer* renderer);
+struct ID3D12Device;
+struct ID3D12RootSignature;
+struct ID3D12GraphicsCommandList;
+struct CommandQueueDX12;
+struct DescriptorHeapDX12;
 
+MOSS_API ID3D12Device*                  Moss_DX12GetDevice(Moss_Renderer* renderer);
+MOSS_API ID3D12RootSignature*           Moss_DX12GetRootSignature(Moss_Renderer* renderer);
+MOSS_API ID3D12GraphicsCommandList*     Moss_DX12GetCommandList(Moss_Renderer* renderer);
+MOSS_API CommandQueueDX12*              Moss_DX12GetUploadQueue(Moss_Renderer* renderer);
+MOSS_API DescriptorHeapDX12*            Moss_DX12GetDSVHeap(Moss_Renderer* renderer);
+MOSS_API DescriptorHeapDX12*            Moss_DX12GetSRVHeap(Moss_Renderer* renderer);
 
 MOSS_API bool Moss_DX_CompileHLSL(const char* inputPath, const char* outputPath, const char* entryPoint, const char* target);
-MOSS_API void Moss_DX_EnableDebugLayer(bool enable);	/* Debug */
-MOSS_API uint32_t Moss_DX_GetShaderModel(void);		/* Info */
+MOSS_API void Moss_DX_EnableDebugLayer(bool enable); /* Debug */
+MOSS_API uint32_t Moss_DX_GetShaderModel(void);      /* Info */
 #endif // MOSS_GRAPHICS_DIRECTX
 
 #if defined(MOSS_GRAPHICS_METAL)
-MOSS_API MTKView*						GetView(Moss_Renderer* renderer) const;
-MOSS_API id<MTLDevice>					GetDevice(Moss_Renderer* renderer) const;
-MOSS_API id<MTLRenderCommandEncoder>	GetRenderEncoder(Moss_Renderer* renderer) const;
+MOSS_API MTKView*                       Moss_MetalGetView(Moss_Renderer* renderer);
+MOSS_API id<MTLDevice>                  Moss_MetalGetDevice(Moss_Renderer* renderer);
+MOSS_API id<MTLRenderCommandEncoder>    Moss_MetalGetRenderEncoder(Moss_Renderer* renderer);
 
-
-MOSS_API bool Moss_Metal_CompileMSL(const char* inputPath, const char* outputPath);	/* Shader tools */
-MOSS_API bool Moss_Metal_SupportsFamily(uint32_t family);	/* Capabilities */
+MOSS_API bool Moss_Metal_CompileMSL(const char* inputPath, const char* outputPath); /* Shader tools */
+MOSS_API bool Moss_Metal_SupportsFamily(uint32_t family); /* Capabilities */
 #endif // MOSS_GRAPHICS_METAL
 
 #endif // MOSS_RENDERER_H

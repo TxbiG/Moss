@@ -932,11 +932,11 @@ class AxisConstraintPart {
 			// v' = v + M^-1 P
 			if constexpr (Type1 == EMotionType::Dynamic) {
 				ioMotionProperties1->SubLinearVelocityStep((inLambda* inInvMass1)* inWorldSpaceAxis);
-				ioMotionProperties1->SubAngularVelocityStep(inLambda* Vec3::sLoadFloat3Unsafe(mInvI1_R1PlusUxAxis));
+				ioMotionProperties1->SubAngularVelocityStep(inLambda* Vec3::LoadFloat3Unsafe(mInvI1_R1PlusUxAxis));
 			}
 			if constexpr (Type2 == EMotionType::Dynamic) {
 				ioMotionProperties2->AddLinearVelocityStep((inLambda* inInvMass2)* inWorldSpaceAxis);
-				ioMotionProperties2->AddAngularVelocityStep(inLambda* Vec3::sLoadFloat3Unsafe(mInvI2_R2xAxis));
+				ioMotionProperties2->AddAngularVelocityStep(inLambda* Vec3::LoadFloat3Unsafe(mInvI2_R2xAxis));
 			}
 			return true;
 		}
@@ -1249,9 +1249,9 @@ public:
 
 		// Calculate jacobian multiplied by angular velocity
 		if constexpr (Type1 != EMotionType::Static)
-			jv += Vec3::sLoadFloat3Unsafe(mR1PlusUxAxis).Dot(ioMotionProperties1->GetAngularVelocity());
+			jv += Vec3::LoadFloat3Unsafe(mR1PlusUxAxis).Dot(ioMotionProperties1->GetAngularVelocity());
 		if constexpr (Type2 != EMotionType::Static)
-			jv -= Vec3::sLoadFloat3Unsafe(mR2xAxis).Dot(ioMotionProperties2->GetAngularVelocity());
+			jv -= Vec3::LoadFloat3Unsafe(mR2xAxis).Dot(ioMotionProperties2->GetAngularVelocity());
 
 		// Lagrange multiplier is:
 		//
@@ -1413,11 +1413,11 @@ public:
 			// integrate + a position integrate and then discard the velocity change.
 			if (ioBody1.IsDynamic()) {
 				ioBody1.SubPositionStep((lambda* ioBody1.GetMotionProperties()->GetInverseMass())* inWorldSpaceAxis);
-				ioBody1.SubRotationStep(lambda* Vec3::sLoadFloat3Unsafe(mInvI1_R1PlusUxAxis));
+				ioBody1.SubRotationStep(lambda* Vec3::LoadFloat3Unsafe(mInvI1_R1PlusUxAxis));
 			}
 			if (ioBody2.IsDynamic()) {
 				ioBody2.AddPositionStep((lambda* ioBody2.GetMotionProperties()->GetInverseMass())* inWorldSpaceAxis);
-				ioBody2.AddRotationStep(lambda* Vec3::sLoadFloat3Unsafe(mInvI2_R2xAxis));
+				ioBody2.AddRotationStep(lambda* Vec3::LoadFloat3Unsafe(mInvI2_R2xAxis));
 			}
 			return true;
 		}
@@ -1459,11 +1459,11 @@ public:
 			// integrate + a position integrate and then discard the velocity change.
 			if (ioBody1.IsDynamic()) {
 				ioBody1.SubPositionStep((lambda* inInvMass1)* inWorldSpaceAxis);
-				ioBody1.SubRotationStep(lambda* Vec3::sLoadFloat3Unsafe(mInvI1_R1PlusUxAxis));
+				ioBody1.SubRotationStep(lambda* Vec3::LoadFloat3Unsafe(mInvI1_R1PlusUxAxis));
 			}
 			if (ioBody2.IsDynamic()) {
 				ioBody2.AddPositionStep((lambda* inInvMass2)* inWorldSpaceAxis);
-				ioBody2.AddRotationStep(lambda* Vec3::sLoadFloat3Unsafe(mInvI2_R2xAxis));
+				ioBody2.AddRotationStep(lambda* Vec3::LoadFloat3Unsafe(mInvI2_R2xAxis));
 			}
 			return true;
 		}
@@ -4163,10 +4163,10 @@ public:
 	/// Get constraint Limits
 	float						GetLimitMin(EAxis inAxis) const							{ return mLimitMin[inAxis]; }
 	float						GetLimitMax(EAxis inAxis) const							{ return mLimitMax[inAxis]; }
-	Vec3						GetTranslationLimitMin() const								{ return Vec3::sLoadFloat3Unsafe(*reinterpret_cast<const Float3*>(&mLimitMin[EAxis::TranslationX])); }
-	Vec3						GetTranslationLimitMax() const								{ return Vec3::sLoadFloat3Unsafe(*reinterpret_cast<const Float3*>(&mLimitMax[EAxis::TranslationX])); }
-	Vec3						GetRotationLimitMin() const								{ return Vec3::sLoadFloat3Unsafe(*reinterpret_cast<const Float3*>(&mLimitMin[EAxis::RotationX])); }
-	Vec3						GetRotationLimitMax() const								{ return Vec3::sLoadFloat3Unsafe(*reinterpret_cast<const Float3*>(&mLimitMax[EAxis::RotationX])); }
+	Vec3						GetTranslationLimitMin() const								{ return Vec3::LoadFloat3Unsafe(*reinterpret_cast<const Float3*>(&mLimitMin[EAxis::TranslationX])); }
+	Vec3						GetTranslationLimitMax() const								{ return Vec3::LoadFloat3Unsafe(*reinterpret_cast<const Float3*>(&mLimitMax[EAxis::TranslationX])); }
+	Vec3						GetRotationLimitMin() const								{ return Vec3::LoadFloat3Unsafe(*reinterpret_cast<const Float3*>(&mLimitMin[EAxis::RotationX])); }
+	Vec3						GetRotationLimitMax() const								{ return Vec3::LoadFloat3Unsafe(*reinterpret_cast<const Float3*>(&mLimitMax[EAxis::RotationX])); }
 
 	/// Check which axis are fixed/free
 	inline bool					IsFixedAxis(EAxis inAxis) const								{ return (mFixedAxis&  (1 << inAxis)) != 0; }
