@@ -7,8 +7,7 @@
 MOSS_SUPRESS_WARNINGS_BEGIN
 
 /// Class that holds 2 floats, used as a storage class mainly.
-class [[nodiscard]] Float2
-{
+class [[nodiscard]] Float2 {
 public:
 	MOSS_OVERRIDE_NEW_DELETE
 
@@ -25,8 +24,7 @@ public:
 	/// To String
 	friend ostream&	operator << (ostream &inStream, const Float2 &inV) { inStream << inV.x << ", " << inV.y; return inStream; }
 
-	float				x;
-	float				y;
+	float x, y;
 };
 
 inline Float2 operator-(const Float2 &lhs, const Float2 &rhs) noexcept {

@@ -10,8 +10,7 @@
 MOSS_SUPRESS_WARNINGS_BEGIN
 
 /// Class that holds 4 float values. Convert to Vec4 to perform calculations.
-class [[nodiscard]] Float4
-{
+class [[nodiscard]] Float4 {
 public:
 	MOSS_OVERRIDE_NEW_DELETE
 
@@ -22,10 +21,10 @@ public:
 
 	/* 			Operators		*/
 	Float4&	operator = (const Float4 &inRHS) = default;
-	float	operator [] (int inCoordinate) const { MOSS_ASSERT(inCoordinate < 4); return *(&x + inCoordinate); }
+	//float	operator [] (int inCoordinate) const { MOSS_ASSERT(inCoordinate < 4); return *(&x + inCoordinate); }
 	bool	operator == (const Float4 &inRHS) const { return x == inRHS.x && y == inRHS.y && z == inRHS.z && w == inRHS.w; }
 	bool	operator != (const Float4 &inRHS) const { return x != inRHS.x || y != inRHS.y || z != inRHS.z || w != inRHS.w; }
-	inline Float4 operator-() const { return Float3{-x, -y, -z, -w}; }
+	inline Float4 operator-() const { return Float4{-x, -y, -z, -w}; }
 	MOSS_INLINE Float4 operator-(const Float4 &rhs) const noexcept { return { x - rhs.x, y - rhs.y, z - rhs.z, w - rhs.w }; }
     MOSS_INLINE Float4 operator+(const Float4 &rhs) const noexcept { return { x + rhs.x, y + rhs.y, z + rhs.z, w + rhs.w }; }
 

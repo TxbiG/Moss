@@ -9,15 +9,13 @@
 MOSS_SUPRESS_WARNINGS_BEGIN
 
 /// Simple variable length array backed by a fixed size buffer
-template <class T, uint N>
-class [[nodiscard]] TStaticArray
-{
+template <class T, uint32 N>
+class [[nodiscard]] TStaticArray {
 public:
 	using value_type = T;
+	using size_type = uint32;
 
-	using size_type = uint;
-
-	static constexpr uint Capacity = N;
+	static constexpr uint32 Capacity = N;
 
 	/// Default constructor
 	TStaticArray() = default;
@@ -241,7 +239,7 @@ public:
 	}
 
 	/// Assignment operator with static array of different max length
-	template <uint M>
+	template <uint32 M>
 	TStaticArray<T, N> &	operator = (const TStaticArray<T, M> &inRHS)
 	{
 		size_type rhs_size = inRHS.size();
@@ -262,7 +260,7 @@ public:
 	}
 
 	/// Comparing arrays
-	bool				operator == (const TStaticArray<T, N> &inRHS) const
+	bool operator == (const TStaticArray<T, N> &inRHS) const
 	{
 		if (mSize != inRHS.mSize)
 			return false;
@@ -272,7 +270,7 @@ public:
 		return true;
 	}
 
-	bool				operator != (const TStaticArray<T, N> &inRHS) const
+	bool operator != (const TStaticArray<T, N> &inRHS) const
 	{
 		if (mSize != inRHS.mSize)
 			return true;
@@ -316,7 +314,7 @@ MOSS_CLANG_SUPPRESS_WARNING("-Wc++98-compat")
 namespace std
 {
 	/// Declare std::hash for TStaticArray
-	template <class T, uint N>
+	template <class T, uint32 N>
 	struct hash<TStaticArray<T, N>>
 	{
 		size_t operator () (const TStaticArray<T, N> &inRHS) const

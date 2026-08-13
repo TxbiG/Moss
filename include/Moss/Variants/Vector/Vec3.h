@@ -6,7 +6,7 @@
 
 #include <Moss/Variants/TStaticArray.h>
 #include <Moss/Variants/Vector/Float3.h>
-#include <Moss/Variants/Math/Swizzle.h>
+#include <Moss/Moss_stdinc.h>
 #include <Moss/Variants/Math/MathTypes.h>
 #include <Moss/Variants/Vector/UVec4.h>
 
