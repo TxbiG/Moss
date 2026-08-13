@@ -228,12 +228,12 @@ enum class Gamepad {
     GAMEPAD_BUTTON_DPAD_DOWN, 
     GAMEPAD_BUTTON_DPAD_LEFT,
 
-    GAMEPAD_BUTTON_LAST = GAMEPAD_BUTTON_DPAD_LEFT
+    GAMEPAD_BUTTON_LAST = GAMEPAD_BUTTON_DPAD_LEFT,
 
     GAMEPAD_BUTTON_CROSS  =  GAMEPAD_BUTTON_A,
     GAMEPAD_BUTTON_CIRCLE =  GAMEPAD_BUTTON_B,
     GAMEPAD_BUTTON_SQUARE =  GAMEPAD_BUTTON_X,
-    GAMEPAD_BUTTON_TRIANGLE = GAMEPAD_BUTTON_Y,
+    GAMEPAD_BUTTON_TRIANGLE = GAMEPAD_BUTTON_Y
 };
 
 enum class Moss_Joystick {
@@ -248,6 +248,7 @@ enum class Moss_Joystick {
     GAMEPAD_AXIS_GYRO_X,
     GAMEPAD_AXIS_GYRO_Y,
     GAMEPAD_AXIS_GYRO_Z,
+
     MOSS_JOY_AXIS_LAST = GAMEPAD_AXIS_GYRO_Z
 };
 
@@ -344,7 +345,7 @@ enum class Moss_HapticFeedbackType {
     STATUS,
     STEERING_AXIS,
     TRIANGLE
-}
+};
 
 
 enum class Moss_HapticEffectType {
@@ -530,6 +531,10 @@ struct Moss_Locale {
 };
 
 
+enum class Moss_PenInputFlags {
+    UNKNOWN = 0
+};
+
 struct Moss_PenAxisEvent {
     Moss_EventType type;     // Moss_EVENT_PEN_AXIS */
     uint32_t reserved;
@@ -540,7 +545,7 @@ struct Moss_PenAxisEvent {
     float y;                // Y coordinate, relative to window */
     Moss_PenAxis axis;       // Axis that has changed */
     float value;            // New value of axis */
-} Moss_PenAxisEvent;
+};
 
 struct Moss_PenButtonEvent {
     Moss_EventType type; // Moss_EVENT_PEN_BUTTON_DOWN or Moss_EVENT_PEN_BUTTON_UP */
@@ -591,13 +596,13 @@ struct Moss_Finger {
 };
 
 /*! @param type The type of encoding. @param dir The encoded direction. */
-typedef struct Moss_HapticDirection { 
+struct Moss_HapticDirection { 
     uint8_t type; 
     int32_t dir[3]; 
 };
 
 /*! @param type Header (HAPTIC_LEFTRIGHT). @param length Duration of the effect in milliseconds. (Replay) @param large_magnitude Control of the large controller motor. (Rumble) @param small_magnitude Control of the small controller motor. (Rumble) */
-typedef struct Moss_HapticLeftRight { 
+struct Moss_HapticLeftRight { 
     Moss_HapticEffectType type; 
     uint32_t length; 
     uint16_t large_magnitude; 
@@ -609,7 +614,7 @@ typedef struct Moss_HapticLeftRight {
     @param period Sample periods. (Custom) @param samples Amount of samples. (Custom) @param data Should contain channels*samples items. (Custom) 
     @param attack_length Duration of the attack. (Envelope) @param attack_level Level at the start of the attack. (Envelope) @param fade_length Duration of the fade. (Envelope) 
     @param fade_level Level at the end of the fade. (Envelope)*/
-typedef struct Moss_HapticCustom { 
+struct Moss_HapticCustom { 
     Moss_HapticEffectType type; 
     Moss_HapticDirection direction; 
     uint32_t length; 
@@ -626,7 +631,7 @@ typedef struct Moss_HapticCustom {
     uint16_t fade_level;
 };
 
-typedef struct Moss_HapticRamp {
+struct Moss_HapticRamp {
     // Header
     Moss_HapticEffectType type;      // HAPTIC_RAMP
     Moss_HapticDirection direction;  // Direction of the effect.
@@ -650,7 +655,7 @@ typedef struct Moss_HapticRamp {
     uint16_t fade_level;      // Level at the end of the fade.
 };
 
-typedef struct Moss_HapticConstant {
+struct Moss_HapticConstant {
     /* Header */
     Moss_HapticEffectType type;      // HAPTIC_CONSTANT
     Moss_HapticDirection direction;  // Direction of the effect.
@@ -673,7 +678,7 @@ typedef struct Moss_HapticConstant {
     uint16_t fade_level;      // Level at the end of the fade.
 };
 
-typedef struct Moss_HapticCondition {
+struct Moss_HapticCondition {
     // Header
     Moss_HapticEffectType type;      // HAPTIC_SPRING, HAPTIC_DAMPER, HAPTIC_INERTIA or HAPTIC_FRICTION
     Moss_HapticDirection direction;  // Direction of the effect.
@@ -695,7 +700,7 @@ typedef struct Moss_HapticCondition {
     int16_t center[3];       // Position of the dead zone.
 };
 
-typedef struct Moss_HapticPeriodic {
+struct Moss_HapticPeriodic {
     /* Header */
     Moss_HapticEffectType type;      // HAPTIC_SINE, HAPTIC_SQUARE HAPTIC_TRIANGLE, HAPTIC_SAWTOOTHUP or HAPTIC_SAWTOOTHDOWN
     Moss_HapticDirection direction;  // Direction of the effect.
@@ -732,7 +737,7 @@ typedef union Moss_HapticEffect {
 };
 
 
-typedef struct Moss_Haptic {
+struct Moss_Haptic {
     // Replay - All effects have this
     uint32_t duration;        // Duration of effect (ms).
     uint16_t delay;           // Delay before starting effect.
