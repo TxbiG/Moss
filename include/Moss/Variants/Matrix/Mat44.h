@@ -123,6 +123,9 @@ public:
 	/// Multiply 3x3 matrix by the transpose of a 3x3 matrix (\f$result = this \: inM^T\f$)
 	MOSS_INLINE Mat44			Multiply3x3RightTransposed(const Mat44  inM) const;
 
+	MOSS_INLINE float &operator[](uint32 inIndex) { MOSS_ASSERT(inIndex < 4); return mF32[inIndex]; }
+	MOSS_INLINE float operator[](uint32 inIndex) const { MOSS_ASSERT(inIndex < 4); return mF32[inIndex]; }
+
 	/// Multiply matrix with float
 	MOSS_INLINE Mat44			operator * (float inV) const;
 	friend MOSS_INLINE Mat44	operator * (float inV, const Mat44  inM)					{ return inM * inV; }

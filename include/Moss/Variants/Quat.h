@@ -95,8 +95,8 @@ public:
 	MOSS_INLINE static Quat		FromTo(const Vec3 inFrom, const Vec3 inTo);
 
 	/// Random unit quaternion
-	template <class Random>
-	inline static Quat			Random(Random &inRandom);
+	template <class Rand>
+	inline static Quat			Random(Rand &inRandom);
 
 	/// Conversion from Euler angles. Rotation order is X then Y then Z (RotZ * RotY * RotX). Angles in radians.
 	inline static Quat			EulerAngles(const Vec3 inAngles);

@@ -150,8 +150,8 @@ Quat Quat::FromTo(const Vec3 inFrom, const Vec3 inTo)
 	return Quat(Vec4(v, w)).Normalized();
 }
 
-template <class Random>
-Quat Quat::Random(Random &inRandom)
+template <class Rand>
+Quat Quat::Random(Rand &inRandom)
 {
 	std::uniform_real_distribution<float> zero_to_one(0.0f, 1.0f);
 	float x0 = zero_to_one(inRandom);
@@ -162,10 +162,10 @@ Quat Quat::Random(Random &inRandom)
 	return Quat(s.GetX() * r1, c.GetX() * r1, s.GetY() * r2, c.GetY() * r2);
 }
 
-Quat Quat::EulerAngles(const Vec3 inAngles)
-{
+Quat Quat::EulerAngles(const Vec3 inAngles) {
 	Vec4 half(0.5f * inAngles);
 	Vec4 s, c;
+
 	half.SinCos(s, c);
 
 	float cx = c.GetX();
@@ -179,7 +179,8 @@ Quat Quat::EulerAngles(const Vec3 inAngles)
 		cz * sx * cy - sz * cx * sy,
 		cz * cx * sy + sz * sx * cy,
 		sz * cx * cy - cz * sx * sy,
-		cz * cx * cy + sz * sx * sy);
+		cz * cx * cy + sz * sx * sy
+	);
 }
 
 Vec3 Quat::GetEulerAngles() const
