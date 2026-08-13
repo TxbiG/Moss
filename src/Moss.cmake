@@ -14,8 +14,8 @@ set(MOSS_HEADER_FILES
 )
 
 set(MOSS_SRC_FILES
-	${MOSS_ROOT_INCLUDE}/*.cpp
-    ${MOSS_ROOT_INCLUDE}/*.c
+	${MOSS_ROOT}/*.cpp
+    ${MOSS_ROOT}/*.c
 )
 
 # Platform-specific sources
