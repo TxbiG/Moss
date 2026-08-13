@@ -2,9 +2,9 @@
 // SPDX-FileCopyrightText: 2021 Jorrit Rouwe
 // SPDX-License-Identifier: MIT
 
-#include <Moss/Core/Variants/Math/Trigonometry.h>
-#include <Moss/Core/Variants/Vector/Vec3.h>
-#include <Moss/Core/Variants/Vector/UVec4.h>
+#include <Moss/Variants/Math/Trigonometry.h>
+#include <Moss/Variants/Vector/Vec3.h>
+#include <Moss/Variants/Vector/UVec4.h>
 
 MOSS_SUPRESS_WARNINGS_BEGIN
 

@@ -2,8 +2,8 @@
 // SPDX-FileCopyrightText: 2021 Jorrit Rouwe
 // SPDX-License-Identifier: MIT
 
-#include <Moss/Core/Variants/Vector/Vec4.h>
-#include <Moss/Core/Variants/Vector/UVec4.h>
+#include <Moss/Variants/Vector/Vec4.h>
+#include <Moss/Variants/Vector/UVec4.h>
 #include <Moss/Core/HashCombine.h>
 
 MOSS_SUPPRESS_WARNINGS_STD_BEGIN

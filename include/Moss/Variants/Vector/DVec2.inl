@@ -5,10 +5,10 @@
 #pragma once
 
 #include <Moss/Moss_stdinc.h>
-#include <Moss/Core/Variants/TArray.h>
-#include <Moss/Core/Variants/Vector/Vec4.h>
-#include <Moss/Core/Variants/Matrix/Mat44.h>
-#include <Moss/Core/Variants/Math/Real.h>
+#include <Moss/Variants/TArray.h>
+#include <Moss/Variants/Vector/Vec4.h>
+#include <Moss/Variants/Matrix/Mat44.h>
+#include <Moss/Variants/Math/Real.h>
 
 #include <Moss/Core/HashCombine.h>
 

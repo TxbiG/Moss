@@ -21,12 +21,15 @@ public:
 	constexpr Float4(float x, float y, float z, float w) : x(x), y(y), z(z), w(w) { }
 
 	/* 			Operators		*/
-	float		operator [] (int inCoordinate) const { MOSS_ASSERT(inCoordinate < 4); return *(&x + inCoordinate); }
+	Float4&	operator = (const Float4 &inRHS) = default;
+	float	operator [] (int inCoordinate) const { MOSS_ASSERT(inCoordinate < 4); return *(&x + inCoordinate); }
+	bool	operator == (const Float4 &inRHS) const { return x == inRHS.x && y == inRHS.y && z == inRHS.z && w == inRHS.w; }
+	bool	operator != (const Float4 &inRHS) const { return x != inRHS.x || y != inRHS.y || z != inRHS.z || w != inRHS.w; }
+	inline Float4 operator-() const { return Float3{-x, -y, -z, -w}; }
+	MOSS_INLINE Float4 operator-(const Float4 &rhs) const noexcept { return { x - rhs.x, y - rhs.y, z - rhs.z, w - rhs.w }; }
+    MOSS_INLINE Float4 operator+(const Float4 &rhs) const noexcept { return { x + rhs.x, y + rhs.y, z + rhs.z, w + rhs.w }; }
 
-	float		x;
-	float		y;
-	float		z;
-	float		w;
+	float x, y, z, w;
 };
 
 static_assert(std::is_trivial<Float4>(), "Is supposed to be a trivial type!");
