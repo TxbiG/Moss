@@ -1,3 +1,5 @@
+[![Build](https://github.com/TxbiG/Moss/actions/workflows/build.yml/badge.svg)](https://github.com/TxbiG/Moss/actions/workflows/build.yml)
+
 # Moss Framework
 **Moss Framework** is a modular, high-performance game development framework designed for building **2D and 3D applications** across multiple platforms.
 
