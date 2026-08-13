@@ -2,7 +2,7 @@
 #define MOSS_SURFACE_GL_H
 
 #include <Moss/Renderer/GL/Renderer_GL.h>
-#include <Moss/Core/Core.h>
+#include <Moss/Moss_stdinc.h>
 #include <Moss/Variants/Color.h>
 #include <Moss/Variants/Rect.h>
 #include <Moss/Variants/Vector/Float2.h>

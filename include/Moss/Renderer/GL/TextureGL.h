@@ -1,7 +1,7 @@
 #ifndef MOSS_TEXTURE_GL_H
 #define MOSS_TEXTURE_GL_H
 
-#include <Moss/Core/Core.h>
+#include <Moss/Moss_stdinc.h>
 #include <Moss/Renderer/GL/Renderer_GL.h>
 #include <Moss/Renderer/GL/ShaderGL.h>
 

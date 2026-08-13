@@ -1284,6 +1284,7 @@ MOSS_API void Moss_WaitForGPUFences(Moss_GPUDevice* device, Moss_GPUFence* const
 MOSS_API void Moss_WaitForGPUIdle(Moss_GPUDevice* device);
 MOSS_API bool Moss_WindowSupportsGPUPresentMode(Moss_Window* window, EGPUPresentMode present_mode);
 
+/*
 MOSS_API Moss_GPUBlitInfo();
 MOSS_API Moss_GPUBlitRegion();
 MOSS_API Moss_GPUBufferBinding();
@@ -1314,7 +1315,7 @@ MOSS_API Moss_GPUVertexAttribute();
 MOSS_API Moss_GPUVertexBufferDescription();
 MOSS_API Moss_GPUVertexInputState();
 MOSS_API Moss_GPUViewport();
-
+*/
 
 MOSS_API void Moss_BindGPUComputeStorageBuffers(Moss_GPUCommandBuffer* cmd, uint32_t first_slot, const Moss_GPUStorageBufferReadWriteBinding* bindings, uint32_t binding_count);
 MOSS_API void Moss_BindGPUComputeStorageTextures( Moss_GPUCommandBuffer* cmd, uint32_t first_slot, const Moss_GPUStorageTextureReadWriteBinding* bindings, uint32_t binding_count);

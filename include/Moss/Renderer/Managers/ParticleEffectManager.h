@@ -1,7 +1,7 @@
 #ifndef MOSS_PARTICLE_EFFECT_H
 #define MOSS_PARTICLE_EFFECT_H
 
-#include <Moss/Core/Core.h>
+#include <Moss/Moss_stdinc.h>
 #include <Moss/Variants/Vector/Float3.h>
 #include <Moss/Variants/Vector/Float2.h>
 #include <Moss/Variants/TMap.h>

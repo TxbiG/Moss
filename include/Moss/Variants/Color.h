@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include <Moss/Core/Core.h>
+#include <Moss/Moss_stdinc.h>
 
 MOSS_SUPRESS_WARNINGS_BEGIN
 

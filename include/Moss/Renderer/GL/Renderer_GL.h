@@ -17,7 +17,7 @@
 
 #include <Moss/Renderer/GL/glad.h>
 
-#include <Moss/Core/Core.h>
+#include <Moss/Moss_stdinc.h>
 #include <Moss/Moss_Platform.h>
 
 #include <Moss/Renderer/Camera2.h>

@@ -1,6 +1,6 @@
 #ifndef MOSS_SURFACE_H
 #define MOSS_SURFACE_H
-#include <Moss/Core/Core.h>
+#include <Moss/Moss_stdinc.h>
 #include <Moss/Variants/Color.h>
 #include <Moss/Variants/Vector/Float2.h>
 #include <Moss/Renderer/gl/TextureGL.h>

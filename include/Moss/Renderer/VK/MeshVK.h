@@ -5,7 +5,7 @@
 // Batching (OpenGL) https://youtu.be/SUMUtevioe4?si=cNQFcEzrD5zi0wxC
 // Instancing https://youtu.be/TOPvFvL_GRY?si=3cqY1wgru2aoXm4-
 // Tessellation https://youtu.be/4MvX5VeQWKA?si=jxluQ7TUEVP5_lUI
-#include <Moss/Core/Core.h>
+#include <Moss/Moss_stdinc.h>
 #include <vector>
 
 // Mesh uses AOS
