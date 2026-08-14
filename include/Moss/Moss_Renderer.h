@@ -78,6 +78,9 @@
 #include <Moss/Variants/Rect.h>
 #include <Moss/Variants/Vector/Float2.h>
 #include <Moss/Variants/Vector/Float3.h>
+#include <Moss/Variants/Vector/Vec2.h>
+#include <Moss/Variants/Vector/Vec3.h>
+#include <Moss/Variants/Math/Real.h>
 
 /* ======================================================
  * Forward Declerations
@@ -96,14 +99,10 @@ struct Frustum2D { };
 struct Frustum3D { };
 
 
-using Moss_CullMask = uint32_t;
-using Moss_LightMask = uint32_t;
-using Moss_VisibleMask = uint32_t;
+using CullMask = uint32_t;
+using LightMask = uint32_t;
+using VisibleLayer = uint32_t;
 
-using CullMask = Moss_CullMask;
-using LightMask = Moss_LightMask;
-using VisibleLayer = Moss_VisibleMask;
-using CullFilter = Moss_CullMask;
 
 struct Moss_RendererDesc {
     Moss_Window* window = nullptr;
@@ -150,7 +149,7 @@ struct Moss_ShadowMap;
 
 struct Moss_MaterialTextureDesc {
     MaterialTextureType type;
-    Texture* texture = nullptr;
+    Texture* texture;
     Moss_GPUSampler* sampler = nullptr;
     uint32_t binding = 0;
 };
@@ -570,7 +569,7 @@ struct Decal {
     float emission_energy, 
     float blendFactor = 1.0f; 
     Mat44 model; 
-    CullFilter filter; 
+    CullMask filter; 
 };
 
 MOSS_API Moss_Material* Moss_RendererCreateMaterial(Moss_Renderer* renderer, const Moss_MaterialDesc* desc);

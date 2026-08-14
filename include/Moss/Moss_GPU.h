@@ -404,6 +404,7 @@ enum class ETextureType {
 };
 //
 enum class ETextureFormat {
+    UNKNOWN = -1
     // Unsigned normalized color formats
     R8, 
     RG8, 
@@ -854,7 +855,7 @@ struct Moss_GPUVertexInputState {
     uint32_t buffer_count = 0;
 };
 
-struct Moss_GPUStorageBufferReadWriteBinding {
+struct GPUStorageBufferReadWriteBinding {
     Moss_GPUBuffer* buffer = nullptr;
     uint64_t offset = 0;
     uint64_t size = 0;
@@ -875,9 +876,9 @@ struct Moss_GPUResourceBinding {
     Moss_ShaderResourceType type = Moss_ShaderResourceType::UNIFORM_BUFFER;
     EShaderStage stage_mask = EShaderStage::NONE;
     Moss_GPUBufferBinding uniform_buffer{};
-    Moss_GPUStorageBufferReadWriteBinding storage_buffer{};
+    GPUStorageBufferReadWriteBinding storage_buffer{};
     Moss_GPUTextureBinding sampled_texture{};
-    Moss_GPUStorageTextureReadWriteBinding storage_texture{};
+    GPUStorageBufferReadWriteBinding storage_texture{};
     Moss_GPUSampler* sampler = nullptr;
     Moss_GPUTextureSamplerBinding texture_sampler{};
 };
@@ -1317,11 +1318,11 @@ MOSS_API Moss_GPUVertexInputState();
 MOSS_API Moss_GPUViewport();
 */
 
-MOSS_API void Moss_BindGPUComputeStorageBuffers(Moss_GPUCommandBuffer* cmd, uint32_t first_slot, const Moss_GPUStorageBufferReadWriteBinding* bindings, uint32_t binding_count);
+MOSS_API void Moss_BindGPUComputeStorageBuffers(Moss_GPUCommandBuffer* cmd, uint32_t first_slot, const GPUStorageBufferReadWriteBinding* bindings, uint32_t binding_count);
 MOSS_API void Moss_BindGPUComputeStorageTextures( Moss_GPUCommandBuffer* cmd, uint32_t first_slot, const Moss_GPUStorageTextureReadWriteBinding* bindings, uint32_t binding_count);
-MOSS_API void Moss_BindGPUFragmentStorageBuffers(Moss_GPUCommandBuffer* cmd, uint32_t first_slot, const Moss_GPUStorageBufferReadWriteBinding* bindings, uint32_t binding_count);
+MOSS_API void Moss_BindGPUFragmentStorageBuffers(Moss_GPUCommandBuffer* cmd, uint32_t first_slot, const GPUStorageBufferReadWriteBinding* bindings, uint32_t binding_count);
 MOSS_API void Moss_BindGPUFragmentStorageTextures(Moss_GPUCommandBuffer* cmd, uint32_t first_slot,const Moss_GPUStorageTextureReadWriteBinding* bindings, uint32_t binding_count);
-MOSS_API void Moss_BindGPUVertexStorageBuffers(Moss_GPUCommandBuffer* cmd, uint32_t first_slot, const Moss_GPUStorageBufferReadWriteBinding* bindings, uint32_t binding_count);
+MOSS_API void Moss_BindGPUVertexStorageBuffers(Moss_GPUCommandBuffer* cmd, uint32_t first_slot, const GPUStorageBufferReadWriteBinding* bindings, uint32_t binding_count);
 MOSS_API void Moss_BindGPUVertexStorageTextures(Moss_GPUCommandBuffer* cmd, uint32_t first_slot, const Moss_GPUStorageTextureReadWriteBinding* bindings, uint32_t binding_count);
 MOSS_API Moss_GPUStorageBufferReadWriteBinding();
 MOSS_API Moss_GPUStorageTextureReadWriteBinding();
@@ -1479,8 +1480,8 @@ struct Moss_ShaderAssetDesc {
     const char* entry_point = nullptr;
 };
 
-MOSS_API Moss_AssetHandle Moss_GPUAssetLoadTexture(Moss_AssetManager* manager, Moss_GPUDevice* device, const Moss_TextureAssetDesc* desc);
-MOSS_API Moss_AssetHandle Moss_GPUAssetLoadShader(Moss_AssetManager* manager, Moss_GPUDevice* device, const Moss_ShaderAssetDesc* desc);
+//MOSS_API Moss_BindlessHandle Moss_GPUAssetLoadTexture(Moss_AssetManager* manager, Moss_GPUDevice* device, const Moss_TextureAssetDesc* desc);
+//MOSS_API Moss_BindlessHandle Moss_GPUAssetLoadShader(Moss_AssetManager* manager, Moss_GPUDevice* device, const Moss_ShaderAssetDesc* desc);
 
 //MOSS_API void Moss_DrawFullscreenTriangle(Moss_GPUDevice* device, Moss_GPUDevice*);
 
