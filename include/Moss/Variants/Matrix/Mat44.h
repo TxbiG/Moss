@@ -154,13 +154,13 @@ public:
 	MOSS_INLINE Vec3			GetTranslation() const									{ return Vec3(mCol[3]); }
 	MOSS_INLINE void			SetTranslation(const Vec3 inV)							{ mCol[3] = Vec4(inV, 1.0f); }
 	MOSS_INLINE Vec3			GetDiagonal3() const									{ return Vec3(mCol[0][0], mCol[1][1], mCol[2][2]); }
-	MOSS_INLINE void			SetDiagonal3(const Vec3 inV)							{ mCol[0][0] = inV.GetX(); mCol[1][1] = inV.GetY(); mCol[2][2] = inV.GetZ(); }
+	MOSS_INLINE void 			SetDiagonal3(const Vec3 inV) 							{ mCol[0].mF32[0] = inV.GetX(); mCol[1].mF32[1] = inV.GetY(); mCol[2].mF32[2] = inV.GetZ(); }
 	MOSS_INLINE Vec4			GetDiagonal4() const									{ return Vec4(mCol[0][0], mCol[1][1], mCol[2][2], mCol[3][3]); }
-	MOSS_INLINE void			SetDiagonal4(const Vec4 inV)							{ mCol[0][0] = inV.GetX(); mCol[1][1] = inV.GetY(); mCol[2][2] = inV.GetZ(); mCol[3][3] = inV.GetW(); }
+	MOSS_INLINE void			SetDiagonal4(const Vec4 inV)							{ mCol[0].mF32[0] = inV.GetX(); mCol[1].mF32[1] = inV.GetY(); mCol[2].mF32[2] = inV.GetZ(); mCol[3].mF32[3] = inV.GetW(); }
 	MOSS_INLINE Vec3			GetColumn3(uint32 inCol) const							{ MOSS_ASSERT(inCol < 4); return Vec3(mCol[inCol]); }
-	MOSS_INLINE void			SetColumn3(uint32 inCol, const Vec3 inV)					{ MOSS_ASSERT(inCol < 4); mCol[inCol] = Vec4(inV, inCol == 3? 1.0f : 0.0f); }
+	MOSS_INLINE void			SetColumn3(uint32 inCol, const Vec3 inV)				{ MOSS_ASSERT(inCol < 4); mCol[inCol] = Vec4(inV, inCol == 3? 1.0f : 0.0f); }
 	MOSS_INLINE Vec4			GetColumn4(uint32 inCol) const							{ MOSS_ASSERT(inCol < 4); return Vec4(mCol[inCol]); }
-	MOSS_INLINE void			SetColumn4(uint32 inCol, const Vec4 inV)					{ MOSS_ASSERT(inCol < 4); mCol[inCol] = inV; }
+	MOSS_INLINE void			SetColumn4(uint32 inCol, const Vec4 inV)				{ MOSS_ASSERT(inCol < 4); mCol[inCol] = inV; }
 
 	/// Store matrix to memory
 	MOSS_INLINE void			StoreFloat4x4(Float4 *outV) const;

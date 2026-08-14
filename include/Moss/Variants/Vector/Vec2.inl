@@ -329,13 +329,13 @@ Vec2 Vec2::UnitSpherical(float inTheta, float inPhi)
     return Vec2(s.GetX() * c.GetY(), s.GetX() * s.GetY());
 }
 
-template <class Random>
-Vec2 Vec2::Random(Random &inRandom)
+template <class Rand>
+Vec2 Vec2::Random(Rand &inRandom)
 {
 	std::uniform_real_distribution<float> zero_to_one(0.0f, 1.0f);
 	float theta = MOSS_PI * zero_to_one(inRandom);
 	float phi = 2.0f * MOSS_PI * zero_to_one(inRandom);
-	return sUnitSpherical(theta, phi);
+	return UnitSpherical(theta, phi);
 }
 
 bool Vec2::operator == (const Vec2 inV2) const

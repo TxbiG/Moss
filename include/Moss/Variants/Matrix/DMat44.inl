@@ -275,24 +275,25 @@ DMat44 DMat44::PostScaled(Vec3Arg inScale) const
 	return DMat44(scale * mCol[0], scale * mCol[1], scale * mCol[2], DVec3(scale) * mCol3);
 }
 
-DMat44 DMat44::PreTranslated(Vec3Arg inTranslation) const
-{
-	return DMat44(mCol[0], mCol[1], mCol[2], GetTranslation() + Multiply3x3(inTranslation));
-}
-
+cpp
 DMat44 DMat44::PreTranslated(DVec3Arg inTranslation) const
 {
-	return DMat44(mCol[0], mCol[1], mCol[2], GetTranslation() + Multiply3x3(inTranslation));
+    return DMat44(mCol[0], mCol[1], mCol[2], GetTranslation() + Multiply3x3(inTranslation));
+}
+
+DMat44 DMat44::PreTranslated(Vec3Arg inTranslation) const
+{
+    return DMat44(mCol[0], mCol[1], mCol[2], GetTranslation() + Multiply3x3(inTranslation));
 }
 
 DMat44 DMat44::PostTranslated(Vec3Arg inTranslation) const
 {
-	return DMat44(mCol[0], mCol[1], mCol[2], GetTranslation() + inTranslation);
+    return DMat44(mCol[0], mCol[1], mCol[2], DVec3(GetTranslation() + inTranslation));
 }
 
 DMat44 DMat44::PostTranslated(DVec3Arg inTranslation) const
 {
-	return DMat44(mCol[0], mCol[1], mCol[2], GetTranslation() + inTranslation);
+    return DMat44(mCol[0], mCol[1], mCol[2], mCol3 + inTranslation);
 }
 
 DMat44 DMat44::Inversed() const

@@ -831,7 +831,7 @@ static inline void Moss_Log(const char* prefix, const char* msg, const char* col
 
 #define MOSS_CHECK(x, msg, ...)                                       \
     do {                                                              \
-        if ((x)) {                                                    \
+        if (!(x)) {                                                    \
             MOSS_FATAL("Assertion Failed: " + msg, ##__VA_ARGS__)     \
             abort();                                             	  \
         }                                                             \
@@ -900,9 +900,9 @@ inline bool MossAssertHelper(const char* expr, const char* file, uint32_t line, 
 	#define MOSS_ERROR(msg, ...)
 	#define MOSS_FATAL(msg, ...)
 	#define MOSS_CHECK(x, msg, ...)
-	#define MOSS_ASSERT(...) __VA_ARGS__
+	#define MOSS_ASSERT(...)  ((void)0)
 
-	#define MOSS_IF_ENABLE_ASSERTS(...) __VA_ARGS__
+	#define MOSS_IF_ENABLE_ASSERTS(...)  ((void)0)
 #endif
 
 // Shorthand for #ifdef MOSS_FLOATING_POINT_EXCEPTIONS_ENABLED / #endif

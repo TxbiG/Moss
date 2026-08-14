@@ -102,22 +102,22 @@ public:
 	/// Get unit vector given spherical coordinates
 	/// inTheta \f$\in [0, \pi]\f$ is angle between vector and z-axis
 	/// inPhi \f$\in [0, 2 \pi]\f$ is the angle in the xy-plane starting from the x axis and rotating counter clockwise around the z-axis
-	static MOSS_INLINE Vec2		sUnitSpherical(float inTheta, float inPhi);
+	static MOSS_INLINE Vec2		UnitSpherical(float inTheta, float inPhi);
 
 	/// A set of vectors uniformly spanning the surface of a unit sphere, usable for debug purposes
 	MOSS_EXPORT static const TStaticArray<Vec2, 1026> sUnitSphere;
 
 	/// Get random unit vector
-	template <class Random>
-	static inline Vec2			Random(Random &inRandom);
+	template <class Rand>
+	static inline Vec2			Random(Rand &inRandom);
 
-	inline bool sAllLessOrEqual(Vec2 v1, Vec2 v2) { UVec4 mask = sLessOrEqual(v1, v2); return mask.GetX() && mask.GetY(); } // optional: && mask.GetZ() && mask.GetW()
+	inline bool AllLessOrEqual(Vec2 v1, Vec2 v2) { UVec4 mask = LessOrEqual(v1, v2); return mask.GetX() && mask.GetY(); } // optional: && mask.GetZ() && mask.GetW()
 
-	inline bool sAllLess(Vec2 v1, Vec2 v2) { UVec4 mask = Less(v1, v2); return mask.GetX() && mask.GetY(); }
+	inline bool AllLess(Vec2 v1, Vec2 v2) { UVec4 mask = Less(v1, v2); return mask.GetX() && mask.GetY(); }
 
-	inline bool sAllGreater(Vec2 v1, Vec2 v2) { UVec4 mask = Greater(v1, v2); return mask.GetX() && mask.GetY(); }
+	inline bool AllGreater(Vec2 v1, Vec2 v2) { UVec4 mask = Greater(v1, v2); return mask.GetX() && mask.GetY(); }
 
-	inline bool sAllGreaterOrEqual(Vec2 v1, Vec2 v2) { UVec4 mask = sGreaterOrEqual(v1, v2); return mask.GetX() && mask.GetY(); }
+	inline bool AllGreaterOrEqual(Vec2 v1, Vec2 v2) { UVec4 mask = GreaterOrEqual(v1, v2); return mask.GetX() && mask.GetY(); }
 
 	/// Get individual components
 #if defined(MOSS_SIMD_SSE)
