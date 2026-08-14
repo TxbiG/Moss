@@ -404,7 +404,7 @@ enum class ETextureType {
 };
 //
 enum class ETextureFormat {
-    UNKNOWN = -1
+    UNKNOWN = -1,
     // Unsigned normalized color formats
     R8, 
     RG8, 

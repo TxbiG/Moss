@@ -66,7 +66,7 @@ struct Moss_Window;
 struct Moss_Monitor;
 struct Moss_Curser;
 struct Moss_GamepadBinding;
-struct Moss_Camera; // Camera Device Dont use as the rendering camera
+struct Moss_Capture; // Camera Device Dont use as the rendering camera
 struct Moss_Storage;
 struct Moss_Surface;
 
@@ -335,7 +335,7 @@ enum class Moss_HapticFeedbackType {
     FRICTION,
     GAIN,
     INERTIA,
-    INFINITY,
+    INFINITY_,
     LEFTRIGHT,
     PAUSE,
     POLAR,
@@ -1028,15 +1028,15 @@ MOSS_API Moss_CameraPosition Moss_GetCameraPosition(Moss_CameraID camera_id);
 MOSS_API const char* Moss_GetCurrentCameraDriver(void);
 MOSS_API int Moss_GetNumCameraDrivers(void);
 MOSS_API const Moss_CameraSpec* Moss_GetCameraSupportedFormats(Moss_CameraID camera_id, int* count);
-MOSS_API Moss_Surface* Moss_AcquireCameraFrame(Moss_Camera* camera, uint64_t* timestamp_ns);
-MOSS_API void Moss_ReleaseCameraFrame(Moss_Camera* camera, Moss_Surface* frame);
-MOSS_API bool Moss_GetCameraFormat(Moss_Camera* camera, Moss_CameraSpec* out_spec);
-MOSS_API Moss_CameraPermissionState Moss_GetCameraPermissionState(Moss_Camera* camera);
-MOSS_API Moss_PropertiesID Moss_GetCameraProperties(Moss_Camera* camera);
-MOSS_API void Moss_CloseCamera(Moss_Camera* camera);
-MOSS_API Moss_CameraID Moss_GetCameraID(Moss_Camera* camera);
-MOSS_API Moss_PropertiesID Moss_GetCameraProperties(Moss_Camera* camera);
-MOSS_API Moss_Camera * Moss_OpenCamera(Moss_CameraID instance_id, const Moss_CameraSpec* spec);
+MOSS_API Moss_Surface* Moss_AcquireCameraFrame(Moss_Capture* camera, uint64_t* timestamp_ns);
+MOSS_API void Moss_ReleaseCameraFrame(Moss_Capture* camera, Moss_Surface* frame);
+MOSS_API bool Moss_GetCameraFormat(Moss_Capture* camera, Moss_CameraSpec* out_spec);
+MOSS_API Moss_CameraPermissionState Moss_GetCameraPermissionState(Moss_Capture* camera);
+MOSS_API Moss_PropertiesID Moss_GetCameraProperties(Moss_Capture* camera);
+MOSS_API void Moss_CloseCamera(Moss_Capture* camera);
+MOSS_API Moss_CameraID Moss_GetCameraID(Moss_Capture* camera);
+MOSS_API Moss_PropertiesID Moss_GetCameraProperties(Moss_Capture* camera);
+MOSS_API Moss_Capture * Moss_OpenCamera(Moss_CameraID instance_id, const Moss_CameraSpec* spec);
 
 
 MOSS_API bool Moss_CopyFile(const char* src_path, const char* dst_path, bool overwrite);
@@ -1055,9 +1055,15 @@ MOSS_API bool Moss_EnumerateDirectory( const char* path, bool recursive, Moss_Di
 MOSS_API bool Moss_GlobDirectory(const char* pattern, Moss_DirectoryIterateFn callback, void* user_data);
 
 
+
+struct Moss_DialogFileFilter {
+    const char* name;
+    const char* pattern;
+};
+
 MOSS_API void Moss_ShowFileDialogWithProperties(Moss_DialogFileCallback callback, void* userdata, Moss_Window* window, const Moss_DialogFileFilter* filters, int nfilters, const char* default_location);
-MOSS_API void Moss_ShowOpenFileDialog(Moss_DialogFileCallback callback, void* userdata, Moss_Window* window, const char* default_location, bool allow_many);
 MOSS_API void Moss_ShowOpenFolderDialog(Moss_DialogFileCallback callback, void* userdata, Moss_Window* window, const Moss_DialogFileFilter* filters, int nfilters, const char* default_location, bool allow_many);
+MOSS_API void Moss_ShowOpenFileDialog(Moss_DialogFileCallback callback, void* userdata, Moss_Window* window, const char* default_location, bool allow_many);
 MOSS_API void Moss_ShowSaveFileDialog(Moss_FileDialogType type, Moss_DialogFileCallback callback, void* userdata, Moss_PropertiesID props);
 
 

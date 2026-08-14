@@ -109,7 +109,7 @@ public:
 	MOSS_INLINE void			SetAxisY(Vec3Arg inV)									{ mCol[1] = Vec4(inV, 0.0f); }
 	MOSS_INLINE Vec3			GetAxisZ() const										{ return Vec3(mCol[2]); }
 	MOSS_INLINE void			SetAxisZ(Vec3Arg inV)									{ mCol[2] = Vec4(inV, 0.0f); }
-	MOSS_INLINE DVec3			GetTranslation() const									{ return mCol3; }
+	MOSS_INLINE Vec3 			GetTranslation() const 									{ return Vec3(mCol[3]); }
 	MOSS_INLINE void			SetTranslation(DVec3Arg inV)							{ mCol3 = inV; }
 	MOSS_INLINE Vec3			GetColumn3(uint32 inCol) const							{ MOSS_ASSERT(inCol < 3); return Vec3(mCol[inCol]); }
 	MOSS_INLINE void			SetColumn3(uint32 inCol, Vec3Arg inV)						{ MOSS_ASSERT(inCol < 3); mCol[inCol] = Vec4(inV, 0.0f); }

@@ -94,6 +94,7 @@ struct Viewport;
 struct SubViewport;
 struct FogVolume;
 struct SurfaceInstance;
+struct Texture;
 
 struct Frustum2D { };
 struct Frustum3D { };
@@ -560,16 +561,17 @@ struct Sprite3D {
     Moss_VisibleMask visibility;
 };
 
-struct Decal { 
-    Texture* Albedo, 
-    Texture* Normal, 
-    Texture* Orm, 
-    Texture* Emission; 
-    Color color; 
-    float emission_energy, 
-    float blendFactor = 1.0f; 
-    Mat44 model; 
-    CullMask filter; 
+
+struct Decal {
+    Texture* Albedo;
+    Texture* Normal;
+    Texture* Orm;
+    Texture* Emission;
+    Color color;
+    float emission_energy;
+    float blendFactor = 1.0f;
+    Mat44 model;
+    CullMask filter;
 };
 
 MOSS_API Moss_Material* Moss_RendererCreateMaterial(Moss_Renderer* renderer, const Moss_MaterialDesc* desc);
