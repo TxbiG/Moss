@@ -18,12 +18,11 @@ public:
 
 	// Constructor
 	AABB3()									: mMin(RVec3::Replicate(FLT_MAX)), mMax(Vec3::Replicate(-FLT_MAX)) { }
-	AABB3(RVec3Arg inMin, RVec3Arg inMax)		: mMin(inMin), mMax(inMax) { }
-	AABB3(DVec3Arg inMin, DVec3Arg inMax)	: mMin(inMin.ToVec3RoundDown()), mMax(inMax.ToVec3RoundUp()) { }
-	AABB3(Vec3Arg inCenter, float inRadius)	: mMin(inCenter - RVec3::Replicate(inRadius)), mMax(inCenter + RVec3::Replicate(inRadius)) { }
+	AABB3(RVec3 inMin, RRVec3 inMax)		: mMin(inMin), mMax(inMax) { }
+	AABB3(RVec3 inCenter, float inRadius)	: mMin(inCenter - RVec3::Replicate(inRadius)), mMax(inCenter + RVec3::Replicate(inRadius)) { }
 
 	// Create box from 2 points
-	static AABB3	sFromTwoPoints(Vec3Arg inP1, Vec3Arg inP2) { return AABB3(RVec3::Min(inP1, inP2), RVec3::Max(inP1, inP2)); }
+	static AABB3	sFromTwoPoints(RVec3 inP1, RVec3 inP2) { return AABB3(RVec3::Min(inP1, inP2), RVec3::Max(inP1, inP2)); }
 
 	// Create box from indexed triangle
 	static AABB3	sFromTriangle(const VertexList &inVertices, const IndexedTriangle &inTriangle) {
@@ -50,7 +49,7 @@ public:
 	}
 
 	// Encapsulate point in bounding box
-	void Encapsulate(Vec3Arg inPos) {
+	void Encapsulate(RVec3 inPos) {
 		mMin = RVec3::Min(mMin, inPos);
 		mMax = RVec3::Max(mMax, inPos);
 	}
@@ -87,7 +86,7 @@ public:
 	}
 
 	// Widen the box on both sides by inVector
-	void ExpandBy(Vec3Arg inVector) {
+	void ExpandBy(RVec3 inVector) {
 		mMin -= inVector;
 		mMax += inVector;
 	}
@@ -117,12 +116,12 @@ public:
 	bool Contains(const AABB3 &inOther) const { return UVec4::And(RVec3::LessOrEqual(mMin, inOther.mMin), RVec3::GreaterOrEqual(mMax, inOther.mMax)).TestAllXYZTrue(); }
 
 	// Check if this box contains a point
-	bool Contains(Vec3Arg inOther) const {
+	bool Contains(RVec3 inOther) const {
 		return UVec4::And(RVec3::LessOrEqual(mMin, inOther), RVec3::GreaterOrEqual(mMax, inOther)).TestAllXYZTrue();
 	}
 
 	// Check if this box contains a point
-	bool Contains(DVec3Arg inOther) const {
+	bool Contains(DRVec3 inOther) const {
 		return Contains(Vec3(inOther));
 	}
 
@@ -140,13 +139,13 @@ public:
 	}
 
 	// Translate bounding box
-	void Translate(Vec3Arg inTranslation) {
+	void Translate(RVec3 inTranslation) {
 		mMin += inTranslation;
 		mMax += inTranslation;
 	}
 
 	// Translate bounding box
-	void Translate(DVec3Arg inTranslation) {
+	void Translate(DRVec3 inTranslation) {
 		mMin = (DVec3(mMin) + inTranslation).ToVec3RoundDown();
 		mMax = (DVec3(mMax) + inTranslation).ToVec3RoundUp();
 	}
@@ -181,20 +180,20 @@ public:
 	}
 
 	// Scale this bounding box, can handle non-uniform and negative scaling
-	AABB3 Scaled(Vec3Arg inScale) const
+	AABB3 Scaled(RVec3 inScale) const
 	{
 		return AABB3::FromTwoPoints(mMin * inScale, mMax * inScale);
 	}
 
 	// Calculate the support vector for this convex shape.
-	RVec3			GetSupport(Vec3Arg inDirection) const
+	RVec3			GetSupport(RVec3 inDirection) const
 	{
 		return RVec3::Select(mMax, mMin, RVec3::Less(inDirection, RVec3::Zero()));
 	}
 
 	// Get the vertices of the face that faces inDirection the most
 	template <class VERTEX_ARRAY>
-	void GetSupportingFace(Vec3Arg inDirection, VERTEX_ARRAY &outVertices) const {
+	void GetSupportingFace(RVec3 inDirection, VERTEX_ARRAY &outVertices) const {
 		outVertices.resize(4);
 
 		int axis = inDirection.Abs().GetHighestComponentIndex();
@@ -252,10 +251,10 @@ public:
 	}
 
 	// Get the closest point on or in this box to inPoint
-	RVec3 GetClosestPoint(Vec3Arg inPoint) const { return RVec3::Min(RVec3::Max(inPoint, mMin), mMax); }
+	RVec3 GetClosestPoint(RVec3 inPoint) const { return RVec3::Min(RVec3::Max(inPoint, mMin), mMax); }
 
 	// Get the squared distance between inPoint and this box (will be 0 if in Point is inside the box)
-	inline float GetSqDistanceTo(Vec3Arg inPoint) const { return (GetClosestPoint(inPoint) - inPoint).LengthSq(); }
+	inline float GetSqDistanceTo(RVec3 inPoint) const { return (GetClosestPoint(inPoint) - inPoint).LengthSq(); }
 
 	// Comparison operators
 	bool operator == (const AABB3 &inRHS) const				{ return mMin == inRHS.mMin && mMax == inRHS.mMax; }

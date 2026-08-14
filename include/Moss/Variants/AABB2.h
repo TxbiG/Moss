@@ -9,15 +9,15 @@ class [[nodiscard]] AABB2 {
 public:
     // Constructors
     AABB2() : mBox(Vec4(FLT_MAX, FLT_MAX, -FLT_MAX, -FLT_MAX)) {}
-    AABB2(Vec2Arg inMin, Vec2Arg inMax) : mBox(inMin.GetX(), inMin.GetY(), inMax.GetX(), inMax.GetY()) {}
-    AABB2(Vec2Arg inCenter, float inRadius) {
+    AABB2(RVec2 inMin, RVec2 inMax) : mBox(inMin.GetX(), inMin.GetY(), inMax.GetX(), inMax.GetY()) {}
+    AABB2(RVec2 inCenter, float inRadius) {
         Vec2 r   = Vec2::Replicate(inRadius);
         Vec2 min = inCenter - r;
         Vec2 max = inCenter + r;
         mBox     = Vec4(min.GetX(), min.GetY(), max.GetX(), max.GetY());
     }
 
-    static AABB2 sFromTwoPoints(Vec2Arg a, Vec2Arg b) { return AABB2(Vec2::Min(a, b), Vec2::Max(a, b)); }
+    static AABB2 sFromTwoPoints(RVec2 a, RVec2 b) { return AABB2(RVec2::Min(a, b), RVec2::Max(a, b)); }
 
     // Reset
     void SetEmpty() { mBox = Vec4(FLT_MAX, FLT_MAX, -FLT_MAX, -FLT_MAX); }
@@ -26,7 +26,7 @@ public:
     bool IsValid() const { return (mBox.GetX() <= mBox.GetZ()) && (mBox.GetY() <= mBox.GetW()); }
 
     // Encapsulation
-    void Encapsulate(Vec2Arg p) {
+    void Encapsulate(RVec2 p) {
         // Broadcast p to Vec4: (px, py, px, py)
         RVec4 point(p.GetX(), p.GetY(), p.GetX(), p.GetY());
 
@@ -38,20 +38,20 @@ public:
 		other.mBox.GetZ()), std::max(mBox.GetW(), other.mBox.GetW())); }
 
     // Query
-    bool Contains(Vec2Arg p) const { return (p.GetX() >= mBox.GetX() && p.GetY() >= mBox.GetY()) && (p.GetX() <= mBox.GetZ() && p.GetY() <= mBox.GetW()); }
+    bool Contains(RVec2 p) const { return (p.GetX() >= mBox.GetX() && p.GetY() >= mBox.GetY()) && (p.GetX() <= mBox.GetZ() && p.GetY() <= mBox.GetW()); }
     bool Overlaps(const AABB2 &other) const { return (other.mBox.GetX() < mBox.GetZ() && other.mBox.GetY() < mBox.GetW() && other.mBox.GetZ() > mBox.GetX() && other.mBox.GetW() > mBox.GetY()); }
 
     // Math
-    RVec2 GetCenter() const { return Vec2((mBox.GetX() + mBox.GetZ()) * 0.5f, (mBox.GetY() + mBox.GetW()) * 0.5f); }
-    RVec2 GetExtent() const { return Vec2( (mBox.GetZ() - mBox.GetX()) * 0.5f, (mBox.GetW() - mBox.GetY()) * 0.5f); }
-    RVec2 GetSize() const { return Vec2(mBox.GetZ() - mBox.GetX(), mBox.GetW() - mBox.GetY()); }
-    float GetArea() const { Vec2 size = GetSize(); return size.GetX() * size.GetY(); }
+    RVec2 GetCenter() const { return RVec2((mBox.GetX() + mBox.GetZ()) * 0.5f, (mBox.GetY() + mBox.GetW()) * 0.5f); }
+    RVec2 GetExtent() const { return RVec2( (mBox.GetZ() - mBox.GetX()) * 0.5f, (mBox.GetW() - mBox.GetY()) * 0.5f); }
+    RVec2 GetSize() const { return RVec2(mBox.GetZ() - mBox.GetX(), mBox.GetW() - mBox.GetY()); }
+    float GetArea() const { RVec2 size = GetSize(); return size.GetX() * size.GetY(); }
 
-    RVec2 GetClosestPoint(Vec2Arg p) const { return Vec2( std::clamp(p.GetX(), mBox.GetX(), mBox.GetZ()), std::clamp(p.GetY(), mBox.GetY(), mBox.GetW())); }
-    float GetSqDistanceTo(Vec2Arg p) const { Vec2 delta = GetClosestPoint(p) - p; return delta.LengthSq(); }
+    RVec2 GetClosestPoint(RVec2 p) const { return RVec2( std::clamp(p.GetX(), mBox.GetX(), mBox.GetZ()), std::clamp(p.GetY(), mBox.GetY(), mBox.GetW())); }
+    float GetSqDistanceTo(RVec2 p) const { Vec2 delta = GetClosestPoint(p) - p; return delta.LengthSq(); }
 
     // Grow/shrink
-    void ExpandBy(Vec2Arg amount) { mBox = Vec4( mBox.GetX() - amount.GetX(), mBox.GetY() - amount.GetY(), mBox.GetZ() + amount.GetX(), mBox.GetW() + amount.GetY() ); }
+    void ExpandBy(RVec2 amount) { mBox = Vec4( mBox.GetX() - amount.GetX(), mBox.GetY() - amount.GetY(), mBox.GetZ() + amount.GetX(), mBox.GetW() + amount.GetY() ); }
 
     void EnsureMinimalEdgeLength(float min_edge) {
         float sizeX = mBox.GetZ() - mBox.GetX();
@@ -62,8 +62,8 @@ public:
     }
 
     // Accessors
-    RVec2 GetMin() const { return Vec2(mBox.GetX(), mBox.GetY()); }
-    RVec2 GetMax() const { return Vec2(mBox.GetZ(), mBox.GetW()); }
+    RVec2 GetMin() const { return RVec2(mBox.GetX(), mBox.GetY()); }
+    RVec2 GetMax() const { return RVec2(mBox.GetZ(), mBox.GetW()); }
 
 
 	bool operator == (const AABB2 &inRHS) const				{ return mMin == inRHS.GetMin() && mMax == inRHS.GetMax(); }
