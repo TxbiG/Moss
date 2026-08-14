@@ -95,6 +95,8 @@ struct SubViewport;
 struct FogVolume;
 struct SurfaceInstance;
 struct Texture;
+struct Moss_Mesh;
+struct Moss_Font;
 
 struct Frustum2D { };
 struct Frustum3D { };
@@ -125,19 +127,19 @@ struct Moss_RenderFrameDesc {
 };
 
 struct Moss_DrawMeshDesc {
-    const struct Moss_Mesh* mesh = nullptr;
+    Moss_Mesh* mesh = nullptr;
     Moss_PipelineState* pipeline = nullptr;
     Moss_ResourceSet* resource_set = nullptr;
-    const float* transform = nullptr;
-    Moss_VisibleMask visibility = 0xFFFFFFFFu;
+    float transform[16];
+    VisibleLayer visibility = 0xFFFFFFFFu;
 };
 
 struct Moss_DrawModelDesc {
-    const struct Moss_Model* model = nullptr;
+    Moss_Model* model = nullptr;
     Moss_PipelineState* pipeline = nullptr;
     Moss_ResourceSet* resource_set = nullptr;
-    const float* transform = nullptr;
-    Moss_VisibleMask visibility = 0xFFFFFFFFu;
+    float transform[16];
+    VisibleLayer visibility = 0xFFFFFFFFu;
 };
 
 enum class MaterialTextureType;
@@ -150,7 +152,7 @@ struct Moss_ShadowMap;
 
 struct Moss_MaterialTextureDesc {
     MaterialTextureType type;
-    Texture* texture;
+    Texture texture;
     Moss_GPUSampler* sampler = nullptr;
     uint32_t binding = 0;
 };
@@ -233,7 +235,7 @@ struct Moss_DrawTextDesc {
     Color color = Color(1.0f, 1.0f, 1.0f, 1.0f);
     float scale = 1.0f;
     float depth = 0.0f;
-    Moss_VisibleMask visibility = 0xFFFFFFFFu;
+    VisibleLayer visibility = 0xFFFFFFFFu;
 };
 
 struct Moss_FontVertex {
@@ -243,7 +245,7 @@ struct Moss_FontVertex {
 };
 
 struct Moss_SpriteDesc {
-    Texture* texture = nullptr;
+    Texture texture = nullptr;
     Moss_Material* material = nullptr;
     Float2 position = Float2(0.0f, 0.0f);
     Float2 size = Float2(1.0f, 1.0f);
@@ -253,7 +255,7 @@ struct Moss_SpriteDesc {
     Color color = Color(1.0f, 1.0f, 1.0f, 1.0f);
     float rotation = 0.0f;
     float depth = 0.0f;
-    Moss_VisibleMask visibility = 0xFFFFFFFFu;
+    VisibleLayer visibility = 0xFFFFFFFFu;
 };
 
 struct Moss_DebugLineDesc {
@@ -395,22 +397,22 @@ struct Camera3D {
 };
 
 struct Material2D {
-    Color* albedo;
-    Texture* albedoMap;
-    Texture* normalMap;
+    Color albedo;
+    Texture albedoMap;
+    Texture normalMap;
 };
 
 struct Material3D {
-    Color* albedo;
+    Color albedo;
     float* metallic;
     float* roughness;
     float* ao;
     float* specular;
-    Texture* albedoMap;
-    Texture* normalMap;
-    Texture* roughnessMap;
-    Texture* metallicMap;
-    Texture* aoMap;
+    Texture albedoMap;
+    Texture normalMap;
+    Texture roughnessMap;
+    Texture metallicMap;
+    Texture aoMap;
 };
 
 
@@ -418,67 +420,67 @@ struct Material3D {
 // TextureLight2D is a Light that uses a texture as its emission
 struct TextureLight2D { 
     float intensity, rotation; 
-    Texture* texture; 
+    Texture texture; 
     Float2 position; 
-    Color* color; 
+    Color color; 
     LightMask filter; 
 };
 // DirectionalLight2D
 struct DirectionalLight2D { 
     float intensity, rotation; 
-    Color* color; 
+    Color color; 
     LightMask filter; 
 };
 // PointLight2D
 struct PointLight2D { 
     float intensity, rotation, radius; 
     Float2 position; 
-    Color* color; 
+    Color color; 
     LightMask filter; 
 };
 
 struct TextureLight3D { 
     float intensity; 
-    Texture* texture;
+    Texture texture;
     Float3 position, rotation; 
-    Color* color; 
+    Color color; 
     LightMask filter;
 };
 struct DirectionalLight3D { 
     float intensity;
     Float3 rotation;
-    Color* color;
+    Color color;
     LightMask filter;
 };
 struct SpotLight3D { 
     float intensity, radius, angle, penumbra; 
     Float3 position, rotation; 
-    Color* color; 
+    Color color; 
     LightMask filter; 
 };
 struct OmniLight3D { 
     float intensity, radius; 
     Float3 position; 
-    Color* color; 
+    Color color; 
     LightMask filter; 
 };
 
 struct SurfaceColor {
-    Color* color;
-    Rect* resource_set;
+    Color color;
+    Rect resource_set;
     Moss_PipelineState* pipeline;
 };
 struct SurfaceRect {
-    Color* color;
-    Texture* texture;
-    Rect* resource_set;
+    Color color;
+    Texture texture;
+    Rect resource_set;
     Moss_PipelineState* pipeline;
 };
 
 struct SurfaceRectInstance {
-    Color* color;
-    Texture* texture;
-    Rect* resource_set;
+    Color color;
+    Texture texture;
+    Rect resource_set;
     Moss_PipelineState* pipeline;
     float transform[16]; /* column-major mat4 */
 };
@@ -496,7 +498,7 @@ struct Moss_Mesh {
 struct MeshInstance {
     Moss_Mesh* mesh;
     float transform[16]; /* column-major mat4 */
-    Moss_VisibleMask visibility;
+    VisibleLayer visibility;
 };
 
 struct Moss_ModelNode { char name[128]{}; int32_t parent = -1; float local_transform[16]{}; float world_transform[16]{}; };
@@ -515,14 +517,14 @@ struct Moss_Model {
 struct ModelInstance {
     Moss_Model* model;
     float transform[16];
-    Moss_VisibleMask visibility;
+    VisibleLayer visibility;
 };
 
 using Mesh = Moss_Mesh;
 using Model = Moss_Model;
 
 struct SkyBox {
-    Texture* cubemap;
+    Texture cubemap;
     Moss_GPUSampler* sampler;
     Moss_PipelineState* pipeline;
     Moss_ResourceSet* resource_set;
@@ -533,13 +535,13 @@ struct FogVolume {
     float density;
     float falloff;
     float height;
-    Color* color;
-    Moss_CullMask cull_mask;
+    Color color;
+    CullMask cull_mask;
 };
 
 struct Sprite2D {
-    Texture* texture;
-    Rect* rect;
+    Texture texture;
+    Rect rect;
     Moss_PipelineState* pipeline;
     float rotation;
     Float2 uv_min;
@@ -547,7 +549,7 @@ struct Sprite2D {
 
     Material2D material;
 
-    Moss_VisibleMask visibility;
+    VisibleLayer visibility;
 };
 
 struct Sprite3D {
@@ -556,17 +558,17 @@ struct Sprite3D {
     float transform[16];  /* world matrix */
 
     float size[2];
-    Color* color;
+    Color color;
 
-    Moss_VisibleMask visibility;
+    VisibleLayer visibility;
 };
 
 
 struct Decal {
-    Texture* Albedo;
-    Texture* Normal;
-    Texture* Orm;
-    Texture* Emission;
+    Texture Albedo;
+    Texture Normal;
+    Texture Orm;
+    Texture Emission;
     Color color;
     float emission_energy;
     float blendFactor = 1.0f;
@@ -577,7 +579,7 @@ struct Decal {
 MOSS_API Moss_Material* Moss_RendererCreateMaterial(Moss_Renderer* renderer, const Moss_MaterialDesc* desc);
 MOSS_API void Moss_RendererDestroyMaterial(Moss_Renderer* renderer, Moss_Material* material);
 MOSS_API int Moss_MaterialSetUniform(Moss_Material* material, const char* name, const void* data, uint32_t size);
-MOSS_API int Moss_MaterialSetTexture(Moss_Material* material, MaterialTextureType type, Texture* texture, Moss_GPUSampler* sampler);
+MOSS_API int Moss_MaterialSetTexture(Moss_Material* material, MaterialTextureType type, Texture texture, Moss_GPUSampler* sampler);
 
 MOSS_API Moss_PipelineState* Moss_RendererCreatePipeline(Moss_Renderer* renderer, const Moss_PipelineDesc* desc);
 MOSS_API void Moss_PipelineBind(Moss_PipelineState* pipeline);
@@ -591,7 +593,7 @@ MOSS_API void Moss_RendererDestroyResourceSet(Moss_Renderer* renderer, Moss_Reso
 MOSS_API void Moss_ResourceSetBindUniformBuffer(Moss_ResourceSet* set, uint32_t binding, Moss_GPUBuffer* buffer);
 MOSS_API void Moss_ResourceSetBindUniformBufferRange(Moss_ResourceSet* set, uint32_t binding, Moss_GPUBuffer* buffer, size_t offset, size_t size);
 MOSS_API void Moss_ResourceSetBindStorageBuffer(Moss_ResourceSet* set, uint32_t binding, Moss_GPUBuffer* buffer);
-MOSS_API void Moss_ResourceSetBindTexture(Moss_ResourceSet* set, uint32_t binding, Texture* texture);
+MOSS_API void Moss_ResourceSetBindTexture(Moss_ResourceSet* set, uint32_t binding, Texture texture);
 MOSS_API void Moss_ResourceSetBindSampler(Moss_ResourceSet* set, uint32_t binding, Moss_GPUSampler* sampler);
 MOSS_API void Moss_ResourceSetBind(Moss_Renderer* renderer, Moss_PipelineState* pipeline, uint32_t set_index, Moss_ResourceSet* set);
 
@@ -601,7 +603,7 @@ MOSS_API void Moss_FramebufferResize(Moss_Framebuffer* framebuffer, uint32_t wid
 MOSS_API void Moss_PostProcessExecute(Moss_Renderer* renderer, const Moss_PostProcessPass* pass);
 MOSS_API void Moss_FramebufferBegin(Moss_Renderer* renderer, Moss_Framebuffer* framebuffer);
 MOSS_API void Moss_FramebufferEnd(Moss_Renderer* renderer, Moss_Framebuffer* framebuffer);
-MOSS_API void Moss_TextureBarrier(Moss_Renderer* renderer, Texture* texture, EResourceState old_state, EResourceState new_state);
+MOSS_API void Moss_TextureBarrier(Moss_Renderer* renderer, Texture texture, EResourceState old_state, EResourceState new_state);
 MOSS_API Moss_Framebuffer* Moss_RendererGetBackbuffer(Moss_Renderer* renderer);
 MOSS_API void Moss_RenderSubViewport(Moss_GPUCommandBuffer* cmd, const SubViewport* sub_viewport, Moss_SubViewportRecordFn record, void* user_data);
 
@@ -637,10 +639,10 @@ struct Moss_FontAssetDesc {
     float pixel_size = 16.0f;
 };
 
-MOSS_API Moss_AssetHandle Moss_RendererAssetLoadMesh(Moss_AssetManager* manager, Moss_Renderer* renderer, const Moss_MeshAssetDesc* desc);
-MOSS_API Moss_Mesh* Moss_RendererAssetGetMesh(Moss_AssetManager* manager, Moss_AssetHandle handle);
-MOSS_API Moss_AssetHandle Moss_RendererAssetLoadFont(Moss_AssetManager* manager, Moss_Renderer* renderer, const Moss_FontAssetDesc* desc);
-MOSS_API Moss_Font* Moss_RendererAssetGetFont(Moss_AssetManager* manager, Moss_AssetHandle handle);
+//MOSS_API Moss_AssetHandle Moss_RendererAssetLoadMesh(Moss_AssetManager* manager, Moss_Renderer* renderer, const Moss_MeshAssetDesc* desc);
+//MOSS_API Moss_Mesh* Moss_RendererAssetGetMesh(Moss_AssetManager* manager, Moss_AssetHandle handle);
+//MOSS_API Moss_AssetHandle Moss_RendererAssetLoadFont(Moss_AssetManager* manager, Moss_Renderer* renderer, const Moss_FontAssetDesc* desc);
+//MOSS_API Moss_Font* Moss_RendererAssetGetFont(Moss_AssetManager* manager, Moss_AssetHandle handle);
 
 MOSS_API void Moss_RendererDrawMesh(Moss_Renderer* renderer, const Moss_DrawMeshDesc* desc);
 MOSS_API void Moss_RendererDrawModelDesc(Moss_Renderer* renderer, const Moss_DrawModelDesc* desc);
@@ -653,7 +655,7 @@ MOSS_API void Moss_FontDestroy(Moss_Font* font);
 MOSS_API const Moss_FontMetrics* Moss_FontGetMetrics(const Moss_Font* font);
 MOSS_API const Moss_FontGlyph* Moss_FontGetGlyph(const Moss_Font* font, uint32_t codepoint);
 MOSS_API const unsigned char* Moss_FontGetAtlasPixels(const Moss_Font* font, uint32_t* width, uint32_t* height, uint32_t* stride);
-MOSS_API Texture* Moss_FontGetAtlasTexture(Moss_Font* font);
+MOSS_API Texture Moss_FontGetAtlasTexture(Moss_Font* font);
 MOSS_API bool Moss_FontUploadAtlas(Moss_Renderer* renderer, Moss_Font* font);
 MOSS_API Moss_TextMeasure Moss_FontMeasureText(const Moss_Font* font, const char* text, float scale);
 MOSS_API size_t Moss_FontBuildTextQuads(const Moss_DrawTextDesc* desc, Moss_FontVertex* out_vertices, size_t vertex_capacity);
