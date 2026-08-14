@@ -158,25 +158,19 @@ DVec3 DVec3::NaN()
 	return Replicate(numeric_limits<double>::quiet_NaN());
 }
 
-DVec3 DVec3::LoadDouble3Unsafe(const Double3 &inV)
-{
-#if defined(MOSS_SIMD_AVX)
-	Type v;
-	v.mLow = _mm_loadu_pd(&inV.x);
-	v.mHigh = _mm_load_sd(&inV.z);
 
+DVec3 DVec3::LoadDouble3Unsafe(const Double3 &inV) {
+#if defined(MOSS_SIMD_AVX)
+	Type v = _mm256_loadu_pd(&inV.x);
 #elif defined(MOSS_SIMD_SSE)
 	Type v;
 	v.mLow = _mm_loadu_pd(&inV.x);
-	v.mHigh = _mm_load_sd(&inV.z);
-
+	v.mHigh = _mm_set1_pd(inV.z);
 #elif defined(MOSS_SIMD_NEON)
 	Type v = vld1q_f64_x2(&inV.x);
-
 #else
 	Type v = { inV.x, inV.y, inV.z };
 #endif
-
 	return FixW(v);
 }
 

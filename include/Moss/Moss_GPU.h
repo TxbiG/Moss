@@ -1324,8 +1324,8 @@ MOSS_API void Moss_BindGPUFragmentStorageBuffers(Moss_GPUCommandBuffer* cmd, uin
 MOSS_API void Moss_BindGPUFragmentStorageTextures(Moss_GPUCommandBuffer* cmd, uint32_t first_slot,const Moss_GPUStorageTextureReadWriteBinding* bindings, uint32_t binding_count);
 MOSS_API void Moss_BindGPUVertexStorageBuffers(Moss_GPUCommandBuffer* cmd, uint32_t first_slot, const GPUStorageBufferReadWriteBinding* bindings, uint32_t binding_count);
 MOSS_API void Moss_BindGPUVertexStorageTextures(Moss_GPUCommandBuffer* cmd, uint32_t first_slot, const Moss_GPUStorageTextureReadWriteBinding* bindings, uint32_t binding_count);
-MOSS_API Moss_GPUStorageBufferReadWriteBinding();
-MOSS_API Moss_GPUStorageTextureReadWriteBinding();
+//MOSS_API Moss_GPUStorageBufferReadWriteBinding();
+//MOSS_API Moss_GPUStorageTextureReadWriteBinding();
 MOSS_API const char* Moss_GetGPUDeviceDriver(Moss_GPUDevice* device);
 MOSS_API const Moss_GPUDeviceProperties* Moss_GetGPUDeviceProperties(Moss_GPUDevice* device);
 MOSS_API void Moss_ReleaseWindowFromGPUDevice(Moss_GPUDevice* device, Moss_Window* window);

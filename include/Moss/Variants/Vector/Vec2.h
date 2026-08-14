@@ -229,12 +229,6 @@ public:
 	MOSS_INLINE float			Cross(Vec2 a, Vec2 b) const;
 	MOSS_INLINE Vec2			Cross(float radian) const;
 
-	MOSS_INLINE float Cross(const Vec2 &a, const Vec2 &b) { return a.x * b.y - a.y * b.x; }
-
-	MOSS_INLINE Vec2 Cross(const Vec2 &v, float s) { return Vec2( s * v.y, -s * v.x ); }
-
-	MOSS_INLINE Vec2 Cross(float s, const Vec2 &v) { return Vec2( -s * v.y, s * v.x ); }
-
 	/// Dot product, returns the dot product in X, Y and Z components
 	MOSS_INLINE Vec2			DotV(Vec2 inV2) const;
 

@@ -147,7 +147,7 @@ public:
 	}
 
 private:
-	DVec4	mCol[3];	// Rotation columns
+	DVec3 	mCol[4];	// Rotation columns
 	DVec3	mCol3;		// Translation column, 4th element is assumed to be 1
 };
 
