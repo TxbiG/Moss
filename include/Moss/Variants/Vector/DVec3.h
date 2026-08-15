@@ -9,20 +9,20 @@
 MOSS_SUPRESS_WARNINGS_BEGIN
 
 /// 3 component vector of doubles (stored as 4 vectors).
-/// Note that we keep the 4th component the same as the 3rd component to avoid divisions by zero when JPH_FLOATING_POINT_EXCEPTIONS_ENABLED defined
+/// Note that we keep the 4th component the same as the 3rd component to avoid divisions by zero when MOSS_FLOATING_POINT_EXCEPTIONS_ENABLED defined
 class [[nodiscard]] alignas(MOSS_DVECTOR_ALIGNMENT) DVec3
 {
 public:
 	MOSS_OVERRIDE_NEW_DELETE
 
 	// Underlying vector type
-#if defined(MOSS_USE_AVX)
+#if defined(MOSS_SIMD_AVX)
 	using Type = __m256d;
 	using TypeArg = __m256d;
-#elif defined(MOSS_USE_SSE)
+#elif defined(MOSS_SIMD_SSE)
 	using Type = struct { __m128d mLow, mHigh; };
 	using TypeArg = const Type &;
-#elif defined(MOSS_USE_NEON)
+#elif defined(MOSS_SIMD_NEON)
 	using Type = float64x2x2_t;
 	using TypeArg = const Type &;
 #else
@@ -134,15 +134,15 @@ public:
 	MOSS_INLINE bool			TestAllTrue() const;
 
 	/// Get individual components
-#if defined(MOSS_USE_AVX)
+#if defined(MOSS_SIMD_AVX)
 	MOSS_INLINE double			GetX() const									{ return _mm_cvtsd_f64(_mm256_castpd256_pd128(mValue)); }
 	MOSS_INLINE double			GetY() const									{ return mF64[1]; }
 	MOSS_INLINE double			GetZ() const									{ return mF64[2]; }
-#elif defined(MOSS_USE_SSE)
+#elif defined(MOSS_SIMD_SSE)
 	MOSS_INLINE double			GetX() const									{ return _mm_cvtsd_f64(mValue.mLow); }
 	MOSS_INLINE double			GetY() const									{ return mF64[1]; }
 	MOSS_INLINE double			GetZ() const									{ return _mm_cvtsd_f64(mValue.mHigh); }
-#elif defined(MOSS_USE_NEON)
+#elif defined(MOSS_SIMD_NEON)
 	MOSS_INLINE double			GetX() const									{ return vgetq_lane_f64(mValue.val[0], 0); }
 	MOSS_INLINE double			GetY() const									{ return vgetq_lane_f64(mValue.val[0], 1); }
 	MOSS_INLINE double			GetZ() const									{ return vgetq_lane_f64(mValue.val[1], 0); }
@@ -161,10 +161,10 @@ public:
 	MOSS_INLINE void			Set(double inX, double inY, double inZ)			{ *this = DVec3(inX, inY, inZ); }
 
 	/// Get double component by index
-	MOSS_INLINE double			operator [] (uint inCoordinate) const			{ JPH_ASSERT(inCoordinate < 3); return mF64[inCoordinate]; }
+	MOSS_INLINE double			operator [] (uint inCoordinate) const			{ MOSS_ASSERT(inCoordinate < 3); return mF64[inCoordinate]; }
 
 	/// Set double component by index
-	MOSS_INLINE void			SetComponent(uint inCoordinate, double inValue)	{ JPH_ASSERT(inCoordinate < 3); mF64[inCoordinate] = inValue; mValue = sFixW(mValue); } // Assure Z and W are the same
+	MOSS_INLINE void			SetComponent(uint inCoordinate, double inValue)	{ MOSS_ASSERT(inCoordinate < 3); mF64[inCoordinate] = inValue; mValue = sFixW(mValue); } // Assure Z and W are the same
 
 	/// Comparison
 	MOSS_INLINE bool			operator == (DVec3Arg inV2) const;
