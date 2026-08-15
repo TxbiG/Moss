@@ -53,6 +53,20 @@ class DMat2x4
 
 // Types to use for passing arguments to functions
 using Vec3Arg = const Vec3;
+
+#ifdef MOSS_DOUBLE_PRECISION
+using RVec2 = const DVec2;
+using RVec3 = const DVec3;
+using RMat44 = const DMat44;
+
+#else
+
+using RVec2 = const Vec2;
+using RVec3 = const Vec3;
+using RMat44 = const Mat44;
+
+#endif // MOSS_DOUBLE_PRECISION
+
 #ifdef MOSS_SIMD_AVX
 	using DVec3Arg = const DVec3;
 #else

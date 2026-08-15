@@ -16,7 +16,7 @@ public:
 
 	/// Constructor
 	OBB2() = default;
-	OBB2(Mat44Arg inOrientation, Vec2Arg inHalfExtents) : mOrientation(inOrientation), mHalfExtents(inHalfExtents) { }
+	OBB2(Mat44Arg inOrientation, RVec2 inHalfExtents) : mOrientation(inOrientation), mHalfExtents(inHalfExtents) { }
 
 	/// Construct from axis aligned box and transform. Only works for rotation/translation matrix (no scaling / shearing).
 	OBB2(Mat44Arg inOrientation, const AABB2& inBox) : OrientedBox(inOrientation.PreTranslated(inBox.GetCenter()), inBox.GetExtent()) { }

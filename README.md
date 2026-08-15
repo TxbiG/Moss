@@ -55,8 +55,6 @@ Comprehensive documentation is available in the [`docs/`](./docs) directory:
 
 ---
 
----
-
 # Bindings
 - [C# - MossSharp](https://github.com/TxbiG/MossSharp)
 - [C - CMoss](https://github.com/TxbiG/CMoss)
@@ -66,7 +64,7 @@ Comprehensive documentation is available in the [`docs/`](./docs) directory:
 - C++ 17.
 - Platform SDKs for the backend you enable.
 - Optional graphics SDKs: Vulkan SDK, DirectX 12 SDK through Windows SDK, Metal through Xcode, OpenGL/OpenGL ES platform libraries.
-- Optional XR SDK: OpenXR loader or bundled OpenXR SDK.
+- Optional XR SDK: bundled OpenXR SDK.
 - Optional Linux packages: X11 or Wayland development packages, OpenGL/EGL/GLES development packages, ALSA development packages.
 
 

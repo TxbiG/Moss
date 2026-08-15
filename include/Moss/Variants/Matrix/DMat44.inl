@@ -36,12 +36,12 @@ DMat44::DMat44(Mat44Arg inRot, DVec3Arg inT) :
 
 DMat44 DMat44::Zero()
 {
-	return DMat44(Vec4::Zero(), Vec4::Zero(), Vec4::Zero(), DVec3::Zero());
+	return DMat44(DVec4::Zero(), DVec4::Zero(), DVec4::Zero(), DVec4::Zero());
 }
 
 DMat44 DMat44::Identity()
 {
-	return DMat44(Vec4(1, 0, 0, 0), Vec4(0, 1, 0, 0), Vec4(0, 0, 1, 0), DVec3::Zero());
+	return DMat44(DVec4(1, 0, 0, 0), DVec4(0, 1, 0, 0), DVec4(0, 0, 1, 0), DVec3::Zero());
 }
 
 DMat44 DMat44::InverseRotationTranslation(QuatArg inR, DVec3Arg inT)
@@ -209,7 +209,7 @@ DMat44 DMat44::operator * (Mat44Arg inM) const
 #else
 	for (int i = 0; i < 3; ++i)
 	{
-		Vec4 coli = inM.GetColumn4(i);
+		DVec4 coli = inM.GetColumn4(i);
 		result.mCol[i] = mCol[0] * coli.mF32[0] + mCol[1] * coli.mF32[1] + mCol[2] * coli.mF32[2];
 	}
 #endif
@@ -246,7 +246,7 @@ DMat44 DMat44::operator * (DMat44Arg inM) const
 #else
 	for (int i = 0; i < 3; ++i)
 	{
-		Vec4 coli = inM.mCol[i];
+		DVec4 coli = inM.mCol[i];
 		result.mCol[i] = mCol[0] * coli.mF32[0] + mCol[1] * coli.mF32[1] + mCol[2] * coli.mF32[2];
 	}
 #endif
@@ -271,11 +271,10 @@ DMat44 DMat44::PreScaled(Vec3Arg inScale) const
 
 DMat44 DMat44::PostScaled(Vec3Arg inScale) const
 {
-	Vec4 scale(inScale, 1);
+	DVec4 scale(inScale, 1);
 	return DMat44(scale * mCol[0], scale * mCol[1], scale * mCol[2], DVec3(scale) * mCol3);
 }
 
-cpp
 DMat44 DMat44::PreTranslated(DVec3Arg inTranslation) const
 {
     return DMat44(mCol[0], mCol[1], mCol[2], GetTranslation() + Multiply3x3(inTranslation));

@@ -15,7 +15,7 @@ public:
 	MOSS_OVERRIDE_NEW_DELETE
 
 	// Underlying column type
-	using Type = Vec4::Type;
+	using Type = DVec4::Type;
 	using DType = DVec3::Type;
 	using DTypeArg = DVec3::TypeArg;
 
@@ -24,7 +24,7 @@ public:
 
 	/// Constructor
 								DMat44() = default; // Intentionally not initialized for performance reasons
-	MOSS_INLINE					DMat44(Vec4Arg inC1, Vec4Arg inC2, Vec4Arg inC3, DVec3Arg inC4);
+	MOSS_INLINE					DMat44(DVec4Arg inC1, DVec4Arg inC2, DVec4Arg inC3, DVec3Arg inC4);
 								DMat44(const DMat44 &inM2) = default;
 	MOSS_INLINE explicit		DMat44(Mat44Arg inM);
 	MOSS_INLINE					DMat44(Mat44Arg inRot, DVec3Arg inT);
@@ -40,7 +40,7 @@ public:
 	static MOSS_INLINE DMat44	Rotation(QuatArg inQuat)								{ return DMat44(Mat44::Rotation(inQuat), DVec3::Zero()); }
 
 	/// Get matrix that translates
-	static MOSS_INLINE DMat44	Translation(DVec3Arg inV)								{ return DMat44(Vec4(1, 0, 0, 0), Vec4(0, 1, 0, 0), Vec4(0, 0, 1, 0), inV); }
+	static MOSS_INLINE DMat44	Translation(DVec3Arg inV)								{ return DMat44(DVec4(1, 0, 0, 0), DVec4(0, 1, 0, 0), DVec4(0, 0, 1, 0), inV); }
 
 	/// Get matrix that rotates and translates
 	static MOSS_INLINE DMat44	RotationTranslation(QuatArg inR, DVec3Arg inT)			{ return DMat44(Mat44::Rotation(inR), inT); }
@@ -104,17 +104,17 @@ public:
 
 	/// Access to the columns
 	MOSS_INLINE Vec3			GetAxisX() const										{ return Vec3(mCol[0]); }
-	MOSS_INLINE void			SetAxisX(Vec3Arg inV)									{ mCol[0] = Vec4(inV, 0.0f); }
+	MOSS_INLINE void			SetAxisX(Vec3Arg inV)									{ mCol[0] = DVec4(inV, 0.0f); }
 	MOSS_INLINE Vec3			GetAxisY() const										{ return Vec3(mCol[1]); }
-	MOSS_INLINE void			SetAxisY(Vec3Arg inV)									{ mCol[1] = Vec4(inV, 0.0f); }
+	MOSS_INLINE void			SetAxisY(Vec3Arg inV)									{ mCol[1] = DVec4(inV, 0.0f); }
 	MOSS_INLINE Vec3			GetAxisZ() const										{ return Vec3(mCol[2]); }
-	MOSS_INLINE void			SetAxisZ(Vec3Arg inV)									{ mCol[2] = Vec4(inV, 0.0f); }
+	MOSS_INLINE void			SetAxisZ(Vec3Arg inV)									{ mCol[2] = DVec4(inV, 0.0f); }
 	MOSS_INLINE DVec3 			GetTranslation() const 									{ return DVec3(mCol[3]); }
 	MOSS_INLINE void			SetTranslation(DVec3Arg inV)							{ mCol3 = inV; }
 	MOSS_INLINE Vec3			GetColumn3(uint32 inCol) const							{ MOSS_ASSERT(inCol < 3); return Vec3(mCol[inCol]); }
-	MOSS_INLINE void			SetColumn3(uint32 inCol, Vec3Arg inV)					{ MOSS_ASSERT(inCol < 3); mCol[inCol] = Vec4(inV, 0.0f); }
-	MOSS_INLINE Vec4			GetColumn4(uint32 inCol) const							{ MOSS_ASSERT(inCol < 3); return mCol[inCol]; }
-	MOSS_INLINE void			SetColumn4(uint32 inCol, Vec4Arg inV)					{ MOSS_ASSERT(inCol < 3); mCol[inCol] = inV; }
+	MOSS_INLINE void			SetColumn3(uint32 inCol, Vec3Arg inV)					{ MOSS_ASSERT(inCol < 3); mCol[inCol] = DVec4(inV, 0.0f); }
+	MOSS_INLINE DVec4			GetColumn4(uint32 inCol) const							{ MOSS_ASSERT(inCol < 3); return mCol[inCol]; }
+	MOSS_INLINE void			SetColumn4(uint32 inCol, DVec4Arg inV)					{ MOSS_ASSERT(inCol < 3); mCol[inCol] = inV; }
 
 	/// Transpose 3x3 subpart of matrix
 	MOSS_INLINE Mat44			Transposed3x3() const									{ return GetRotation().Transposed3x3(); }
@@ -126,7 +126,7 @@ public:
 	MOSS_INLINE DMat44			InversedRotationTranslation() const;
 
 	/// Get rotation part only (note: retains the first 3 values from the bottom row)
-	MOSS_INLINE Mat44			GetRotation() const										{ return Mat44(mCol[0], mCol[1], mCol[2], Vec4(0, 0, 0, 1)); }
+	MOSS_INLINE Mat44			GetRotation() const										{ return Mat44(mCol[0], mCol[1], mCol[2], DVec4(0, 0, 0, 1)); }
 
 	/// Updates the rotation part of this matrix (the first 3 columns)
 	MOSS_INLINE void			SetRotation(Mat44Arg inRotation);
@@ -147,8 +147,8 @@ public:
 	}
 
 private:
-	DVec3 	mCol[4];	// Rotation columns
-	DVec3	mCol3;		// Translation column, 4th element is assumed to be 1
+	DDVec4 	mCol[4];	// Rotation columns
+	DDVec4	mCol3;		// Translation column, 4th element is assumed to be 1
 };
 
 /*

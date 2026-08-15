@@ -17,8 +17,8 @@ public:
 	MOSS_OVERRIDE_NEW_DELETE
 
 	// Constructor
-	AABB3()									: mMin(RVec3::Replicate(FLT_MAX)), mMax(Vec3::Replicate(-FLT_MAX)) { }
-	AABB3(RVec3 inMin, RRVec3 inMax)		: mMin(inMin), mMax(inMax) { }
+	AABB3()									: mMin(RVec3::Replicate(FLT_MAX)), mMax(RVec3::Replicate(-FLT_MAX)) { }
+	AABB3(RVec3 inMin, RVec3 inMax)		: mMin(inMin), mMax(inMax) { }
 	AABB3(RVec3 inCenter, float inRadius)	: mMin(inCenter - RVec3::Replicate(inRadius)), mMax(inCenter + RVec3::Replicate(inRadius)) { }
 
 	// Create box from 2 points
@@ -26,8 +26,8 @@ public:
 
 	// Create box from indexed triangle
 	static AABB3	sFromTriangle(const VertexList &inVertices, const IndexedTriangle &inTriangle) {
-		AABB3 box = sFromTwoPoints(Vec3(inVertices[inTriangle.mIdx[0]]), Vec3(inVertices[inTriangle.mIdx[1]]));
-		box.Encapsulate(Vec3(inVertices[inTriangle.mIdx[2]]));
+		AABB3 box = sFromTwoPoints(RVec3(inVertices[inTriangle.mIdx[0]]), RVec3(inVertices[inTriangle.mIdx[1]]));
+		box.Encapsulate(RVec3(inVertices[inTriangle.mIdx[2]]));
 		return box;
 	}
 
@@ -73,7 +73,7 @@ public:
 	// Encapsulate triangle in bounding box
 	void Encapsulate(const VertexList &inVertices, const IndexedTriangle &inTriangle) {
 		for (uint32 idx : inTriangle.mIdx)
-			Encapsulate(Vec3(inVertices[idx]));
+			Encapsulate(RVec3(inVertices[idx]));
 	}
 
 	// Intersect this bounding box with inOther, returns the intersection
@@ -122,7 +122,7 @@ public:
 
 	// Check if this box contains a point
 	bool Contains(DRVec3 inOther) const {
-		return Contains(Vec3(inOther));
+		return Contains(RVec3(inOther));
 	}
 
 	// Check if this box overlaps with another box
@@ -201,24 +201,24 @@ public:
 			switch (axis)
 			{
 			case 0:
-				outVertices[0] = Vec3(mMax.GetX(), mMin.GetY(), mMin.GetZ());
-				outVertices[1] = Vec3(mMax.GetX(), mMax.GetY(), mMin.GetZ());
-				outVertices[2] = Vec3(mMax.GetX(), mMax.GetY(), mMax.GetZ());
-				outVertices[3] = Vec3(mMax.GetX(), mMin.GetY(), mMax.GetZ());
+				outVertices[0] = RVec3(mMax.GetX(), mMin.GetY(), mMin.GetZ());
+				outVertices[1] = RVec3(mMax.GetX(), mMax.GetY(), mMin.GetZ());
+				outVertices[2] = RVec3(mMax.GetX(), mMax.GetY(), mMax.GetZ());
+				outVertices[3] = RVec3(mMax.GetX(), mMin.GetY(), mMax.GetZ());
 				break;
 
 			case 1:
-				outVertices[0] = Vec3(mMin.GetX(), mMax.GetY(), mMin.GetZ());
-				outVertices[1] = Vec3(mMin.GetX(), mMax.GetY(), mMax.GetZ());
-				outVertices[2] = Vec3(mMax.GetX(), mMax.GetY(), mMax.GetZ());
-				outVertices[3] = Vec3(mMax.GetX(), mMax.GetY(), mMin.GetZ());
+				outVertices[0] = RVec3(mMin.GetX(), mMax.GetY(), mMin.GetZ());
+				outVertices[1] = RVec3(mMin.GetX(), mMax.GetY(), mMax.GetZ());
+				outVertices[2] = RVec3(mMax.GetX(), mMax.GetY(), mMax.GetZ());
+				outVertices[3] = RVec3(mMax.GetX(), mMax.GetY(), mMin.GetZ());
 				break;
 
 			case 2:
-				outVertices[0] = Vec3(mMin.GetX(), mMin.GetY(), mMax.GetZ());
-				outVertices[1] = Vec3(mMax.GetX(), mMin.GetY(), mMax.GetZ());
-				outVertices[2] = Vec3(mMax.GetX(), mMax.GetY(), mMax.GetZ());
-				outVertices[3] = Vec3(mMin.GetX(), mMax.GetY(), mMax.GetZ());
+				outVertices[0] = RVec3(mMin.GetX(), mMin.GetY(), mMax.GetZ());
+				outVertices[1] = RVec3(mMax.GetX(), mMin.GetY(), mMax.GetZ());
+				outVertices[2] = RVec3(mMax.GetX(), mMax.GetY(), mMax.GetZ());
+				outVertices[3] = RVec3(mMin.GetX(), mMax.GetY(), mMax.GetZ());
 				break;
 			}
 		}
@@ -227,24 +227,24 @@ public:
 			switch (axis)
 			{
 			case 0:
-				outVertices[0] = Vec3(mMin.GetX(), mMin.GetY(), mMin.GetZ());
-				outVertices[1] = Vec3(mMin.GetX(), mMin.GetY(), mMax.GetZ());
-				outVertices[2] = Vec3(mMin.GetX(), mMax.GetY(), mMax.GetZ());
-				outVertices[3] = Vec3(mMin.GetX(), mMax.GetY(), mMin.GetZ());
+				outVertices[0] = RVec3(mMin.GetX(), mMin.GetY(), mMin.GetZ());
+				outVertices[1] = RVec3(mMin.GetX(), mMin.GetY(), mMax.GetZ());
+				outVertices[2] = RVec3(mMin.GetX(), mMax.GetY(), mMax.GetZ());
+				outVertices[3] = RVec3(mMin.GetX(), mMax.GetY(), mMin.GetZ());
 				break;
 
 			case 1:
-				outVertices[0] = Vec3(mMin.GetX(), mMin.GetY(), mMin.GetZ());
-				outVertices[1] = Vec3(mMax.GetX(), mMin.GetY(), mMin.GetZ());
-				outVertices[2] = Vec3(mMax.GetX(), mMin.GetY(), mMax.GetZ());
-				outVertices[3] = Vec3(mMin.GetX(), mMin.GetY(), mMax.GetZ());
+				outVertices[0] = RVec3(mMin.GetX(), mMin.GetY(), mMin.GetZ());
+				outVertices[1] = RVec3(mMax.GetX(), mMin.GetY(), mMin.GetZ());
+				outVertices[2] = RVec3(mMax.GetX(), mMin.GetY(), mMax.GetZ());
+				outVertices[3] = RVec3(mMin.GetX(), mMin.GetY(), mMax.GetZ());
 				break;
 
 			case 2:
-				outVertices[0] = Vec3(mMin.GetX(), mMin.GetY(), mMin.GetZ());
-				outVertices[1] = Vec3(mMin.GetX(), mMax.GetY(), mMin.GetZ());
-				outVertices[2] = Vec3(mMax.GetX(), mMax.GetY(), mMin.GetZ());
-				outVertices[3] = Vec3(mMax.GetX(), mMin.GetY(), mMin.GetZ());
+				outVertices[0] = RVec3(mMin.GetX(), mMin.GetY(), mMin.GetZ());
+				outVertices[1] = RVec3(mMin.GetX(), mMax.GetY(), mMin.GetZ());
+				outVertices[2] = RVec3(mMax.GetX(), mMax.GetY(), mMin.GetZ());
+				outVertices[3] = RVec3(mMax.GetX(), mMin.GetY(), mMin.GetZ());
 				break;
 			}
 		}

@@ -45,7 +45,7 @@ DVec3::DVec3(const Vec4 inRHS) :
 DVec3::DVec3(double inX, double inY, double inZ)
 {
 #if defined(MOSS_SIMD_AVX)
-	mValue = _mm256_set_pd(inZ, inZ, inY, inX); // Assure Z and W are the same
+	Type v = _mm256_set_pd(0.0, inV.z, inV.y, inV.x);
 #elif defined(MOSS_SIMD_SSE)
 	mValue.mLow = _mm_set_pd(inY, inX);
 	mValue.mHigh = _mm_set1_pd(inZ);

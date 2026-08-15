@@ -17,7 +17,7 @@ public:
 
 	/// Constructor
 	OrientedBox() = default;
-	OrientedBox(Mat44Arg inOrientation, Vec3Arg inHalfExtents) : mOrientation(inOrientation), mHalfExtents(inHalfExtents) { }
+	OrientedBox(Mat44Arg inOrientation, RVec3 inHalfExtents) : mOrientation(inOrientation), mHalfExtents(inHalfExtents) { }
 
 	/// Construct from axis aligned box and transform. Only works for rotation/translation matrix (no scaling / shearing).
 	OrientedBox(Mat44Arg inOrientation, const AABB3& inBox)	: OrientedBox(inOrientation.PreTranslated(inBox.GetCenter()), inBox.GetExtent()) { }

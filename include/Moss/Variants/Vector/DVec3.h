@@ -18,10 +18,8 @@ public:
 	// Underlying vector type
 #if defined(MOSS_SIMD_AVX)
 	using Type = __m256d;
-	using TypeArg = __m256d;
 #elif defined(MOSS_SIMD_SSE)
 	using Type = struct { __m128d mLow, mHigh; };
-	using TypeArg = const Type &;
 #elif defined(MOSS_SIMD_NEON)
 	using Type = float64x2x2_t;
 	using TypeArg = const Type &;

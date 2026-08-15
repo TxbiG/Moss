@@ -1582,7 +1582,8 @@ MOSS_API void Moss_WindowResizeVK(VkPhysicalDevice physicalDevice, VkDevice devi
 #endif
 
 // Debug / Utils
-void* Moss_Result;
+enum class Moss_Result { Success, Error };
+
 MOSS_API void Moss_GPUFatalError(Moss_Result result);
 
 

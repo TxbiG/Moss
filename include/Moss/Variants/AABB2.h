@@ -11,9 +11,9 @@ public:
     AABB2() : mBox(Vec4(FLT_MAX, FLT_MAX, -FLT_MAX, -FLT_MAX)) {}
     AABB2(RVec2 inMin, RVec2 inMax) : mBox(inMin.GetX(), inMin.GetY(), inMax.GetX(), inMax.GetY()) {}
     AABB2(RVec2 inCenter, float inRadius) {
-        Vec2 r   = Vec2::Replicate(inRadius);
-        Vec2 min = inCenter - r;
-        Vec2 max = inCenter + r;
+        RVec2 r   = RVec2::Replicate(inRadius);
+        RVec2 min = inCenter - r;
+        RVec2 max = inCenter + r;
         mBox     = Vec4(min.GetX(), min.GetY(), max.GetX(), max.GetY());
     }
 
@@ -48,7 +48,7 @@ public:
     float GetArea() const { RVec2 size = GetSize(); return size.GetX() * size.GetY(); }
 
     RVec2 GetClosestPoint(RVec2 p) const { return RVec2( std::clamp(p.GetX(), mBox.GetX(), mBox.GetZ()), std::clamp(p.GetY(), mBox.GetY(), mBox.GetW())); }
-    float GetSqDistanceTo(RVec2 p) const { Vec2 delta = GetClosestPoint(p) - p; return delta.LengthSq(); }
+    float GetSqDistanceTo(RVec2 p) const { RVec2 delta = GetClosestPoint(p) - p; return delta.LengthSq(); }
 
     // Grow/shrink
     void ExpandBy(RVec2 amount) { mBox = Vec4( mBox.GetX() - amount.GetX(), mBox.GetY() - amount.GetY(), mBox.GetZ() + amount.GetX(), mBox.GetW() + amount.GetY() ); }

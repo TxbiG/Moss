@@ -97,6 +97,7 @@ struct SurfaceInstance;
 struct Texture;
 struct Moss_Mesh;
 struct Moss_Font;
+struct Moss_Model;
 
 struct Frustum2D { };
 struct Frustum3D { };
