@@ -709,7 +709,6 @@ using std::tan;
 using std::log;
 using std::log10;
 using std::lround;
-using std::sqrt;
 using std::sqrtf;
 using std::srand;
 

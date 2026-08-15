@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include <Moss/Math/DVec3.h>
+#include <Moss/Variants/Vector/DVec3.h>
 
 MOSS_WARNINGS_BEGIN
 
