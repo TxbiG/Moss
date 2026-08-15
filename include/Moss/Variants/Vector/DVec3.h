@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include <Moss/Variants/VectorMath/Double3.h>
+#include <Moss/Variants/Vector/Double3.h>
 
 MOSS_SUPRESS_WARNINGS_BEGIN
 
