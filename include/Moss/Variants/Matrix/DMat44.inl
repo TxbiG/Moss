@@ -32,12 +32,12 @@ DMat44::DMat44(Mat44Arg inRot, DVec3Arg inT) :
 {
 }
 
-DMat44 DMat44::sZero()
+DMat44 DMat44::Zero()
 {
 	return DMat44(Vec4::sZero(), Vec4::sZero(), Vec4::sZero(), DVec3::sZero());
 }
 
-DMat44 DMat44::sIdentity()
+DMat44 DMat44::Identity()
 {
 	return DMat44(Vec4(1, 0, 0, 0), Vec4(0, 1, 0, 0), Vec4(0, 0, 1, 0), DVec3::sZero());
 }

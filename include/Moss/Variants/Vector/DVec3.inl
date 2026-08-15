@@ -1093,13 +1093,13 @@ DVec3 DVec3::Sqrt() const
 	__riscv_vse64_v_f64m2(res.mF64, rvv_sqrt, 3);
 	return res;
 #else
-	return DVec3(MOSS::Sqrt(mF64[0]), MOSS::Sqrt(mF64[1]), MOSS::Sqrt(mF64[2]));
+	return DVec3(Sqrt(mF64[0]), Sqrt(mF64[1]), Sqrt(mF64[2]));
 #endif
 }
 
 double DVec3::Length() const
 {
-	return MOSS::Sqrt(Dot(*this));
+	return Sqrt(Dot(*this));
 }
 
 DVec3 DVec3::Normalized() const
@@ -1261,14 +1261,14 @@ Vec3 DVec3::ToVec3RoundDown() const
 {
 	DVec3 to_zero = PrepareRoundToZero();
 	DVec3 to_inf = PrepareRoundToInf();
-	return Vec3(DVec3::sSelect(to_zero, to_inf, DVec3::sLess(*this, DVec3::sZero())));
+	return Vec3(DVec3::Select(to_zero, to_inf, DVec3::Less(*this, DVec3::Zero())));
 }
 
 Vec3 DVec3::ToVec3RoundUp() const
 {
 	DVec3 to_zero = PrepareRoundToZero();
 	DVec3 to_inf = PrepareRoundToInf();
-	return Vec3(DVec3::sSelect(to_inf, to_zero, DVec3::sLess(*this, DVec3::sZero())));
+	return Vec3(DVec3::Select(to_inf, to_zero, DVec3::Less(*this, DVec3::Zero())));
 }
 
 MOSS_WARNINGS_END
