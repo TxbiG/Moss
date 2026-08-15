@@ -77,7 +77,7 @@ public:
 	///@{
 
 	/// @return [0, 0, 0, 0]
-	MOSS_INLINE static Quat		sZero()															{ return Quat(Vec4::Zero()); }
+	MOSS_INLINE static Quat		Zero()															{ return Quat(Vec4::Zero()); }
 
 	/// @return [1, 0, 0, 0] (or in storage format Quat(0, 0, 0, 1))
 	MOSS_INLINE static Quat		Identity()														{ return Quat(0, 0, 0, 1); }

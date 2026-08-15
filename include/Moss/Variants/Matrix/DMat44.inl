@@ -9,7 +9,7 @@
 
 MOSS_SUPRESS_WARNINGS_BEGIN
 
-DMat44::DMat44(Vec4Arg inC1, Vec4Arg inC2, Vec4Arg inC3, DVec3Arg inC4) :
+DMat44::DMat44(DMat44& inC1, DMat44& inC2, DMat44& inC3, DVec3& inC4) :
 	mCol { inC1, inC2, inC3 },
 	mCol3(inC4)
 {
@@ -21,26 +21,24 @@ DMat44::DMat44(Type inC1, Type inC2, Type inC3, DTypeArg inC4) :
 {
 }
 
-DMat44::DMat44(Mat44Arg inM) :
+DMat44::DMat44(DVec3& inM) :
 	mCol { inM.GetColumn4(0), inM.GetColumn4(1), inM.GetColumn4(2) },
 	mCol3(inM.GetTranslation())
 {
 }
 
-DMat44::DMat44(Mat44Arg inRot, DVec3Arg inT) :
+DMat44::DMat44(DVec3& inRot, DVec3Arg inT) :
 	mCol { inRot.GetColumn4(0), inRot.GetColumn4(1), inRot.GetColumn4(2) },
 	mCol3(inT)
 {
 }
 
 
-DMat44 DMat44::Zero()
-{
+DMat44 DMat44::Zero() {
 	return DMat44(DVec4::Zero(), DVec4::Zero(), DVec4::Zero(), DVec4::Zero());
 }
 
-DMat44 DMat44::Identity()
-{
+DMat44 DMat44::Identity() {
 	return DMat44(DVec4(1, 0, 0, 0), DVec4(0, 1, 0, 0), DVec4(0, 0, 1, 0), DVec3::Zero());
 }
 
@@ -183,7 +181,7 @@ DVec3 DMat44::Multiply3x3(DVec3Arg inV) const
 #endif
 }
 
-DMat44 DMat44::operator * (Mat44Arg inM) const
+DMat44 DMat44::operator * (DVec3& inM) const
 {
 	DMat44 result;
 
@@ -257,7 +255,7 @@ DMat44 DMat44::operator * (DMat44Arg inM) const
 	return result;
 }
 
-void DMat44::SetRotation(Mat44Arg inRotation)
+void DMat44::SetRotation(DVec3& inRotation)
 {
 	mCol[0] = inRotation.GetColumn4(0);
 	mCol[1] = inRotation.GetColumn4(1);
