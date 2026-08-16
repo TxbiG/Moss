@@ -35,7 +35,7 @@ public:
 
 	/// Constructor
 								DVec3() = default; ///< Intentionally not initialized for performance reasons
-								DVec3(const DVec3 &inRHS) = default;
+								DVec3(const DVec3& inRHS) = default;
 	DVec3 &						operator = (const DVec3 &inRHS) = default;
 	MOSS_INLINE explicit		DVec3(Vec3Arg inRHS);
 	MOSS_INLINE explicit		DVec3(Vec4Arg inRHS);
@@ -275,9 +275,12 @@ public:
 
 	/// Representations of true and false for boolean operations
 	template <class To, class From>
-	static constexpr To BitCast(const From &value)
+	static To BitCast(const From &value)
 	{
-		static_assert(sizeof(To) == sizeof(From)); return std::bit_cast<To>(value);
+		static_assert(sizeof(To) == sizeof(From));
+		To result;
+		memcpy(&result, &value, sizeof(To));
+		return result;
 	}
 	inline static constexpr double	cTrue = BitCast<double>(~uint64_t(0));
 	inline static constexpr double	cFalse = 0.0;

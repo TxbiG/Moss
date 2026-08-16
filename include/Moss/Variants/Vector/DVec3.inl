@@ -11,7 +11,7 @@ MOSS_MAKE_HASHABLE(DVec3, t.GetX(), t.GetY(), t.GetZ())
 
 MOSS_SUPRESS_WARNINGS_BEGIN
 
-DVec3::DVec3(Vec3& inRHS) {
+DVec3::DVec3(Vec3Arg inRHS) {
 #if defined(MOSS_SIMD_AVX)
 	mValue = _mm256_cvtps_pd(inRHS.mValue);
 #elif defined(MOSS_SIMD_SSE)
