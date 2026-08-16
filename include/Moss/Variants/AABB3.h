@@ -9,7 +9,7 @@
 #include <Moss/Physics/Geometry/Plane.h>
 #include <Moss/Variants/Matrix/Mat44.h>
 
-MOSS_WARNINGS_BEGIN
+MOSS_SUPRESS_WARNINGS_BEGIN
 
 // AABB3 (Axis aligned box 3D) is used for 3D Collisions
 class [[nodiscard]] AABB3 {
@@ -265,4 +265,4 @@ public:
 	RVec3			mMax;
 };
 
-MOSS_WARNINGS_END
+MOSS_SUPRESS_WARNINGS_END

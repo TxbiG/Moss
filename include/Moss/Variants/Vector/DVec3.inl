@@ -9,9 +9,9 @@
 // Create a std::Hash for DVec3
 MOSS_MAKE_HASHABLE(DVec3, t.GetX(), t.GetY(), t.GetZ())
 
-MOSS_WARNINGS_BEGIN
+MOSS_SUPRESS_WARNINGS_BEGIN
 
-DVec3::DVec3(Vec3Arg inRHS) {
+DVec3::DVec3(Vec3& inRHS) {
 #if defined(MOSS_SIMD_AVX)
 	mValue = _mm256_cvtps_pd(inRHS.mValue);
 #elif defined(MOSS_SIMD_SSE)
@@ -1268,4 +1268,4 @@ Vec3 DVec3::ToVec3RoundUp() const
 	return Vec3(DVec3::Select(to_inf, to_zero, DVec3::Less(*this, DVec3::Zero())));
 }
 
-MOSS_WARNINGS_END
+MOSS_SUPRESS_WARNINGS_END

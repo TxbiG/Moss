@@ -6,7 +6,7 @@
 
 #include <Moss/Variants/Vector/DVec3.h>
 
-MOSS_WARNINGS_BEGIN
+MOSS_SUPRESS_WARNINGS_BEGIN
 
 DMat44::DMat44(Vec4Arg inC1, Vec4Arg inC2, Vec4Arg inC3, DVec3Arg inC4) :
 	mCol { inC1, inC2, inC3 },
@@ -404,4 +404,4 @@ DMat44 DMat44::InversedRotationTranslation() const
 	return m;
 }
 
-MOSS_WARNINGS_END
+MOSS_SUPRESS_WARNINGS_END

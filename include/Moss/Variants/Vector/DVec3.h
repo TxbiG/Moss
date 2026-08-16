@@ -37,7 +37,7 @@ public:
 								DVec3() = default; ///< Intentionally not initialized for performance reasons
 								DVec3(const DVec3 &inRHS) = default;
 	DVec3 &						operator = (const DVec3 &inRHS) = default;
-	MOSS_INLINE explicit		DVec3(Vec3Arg inRHS);
+	MOSS_INLINE explicit		DVec3(Vec3& inRHS);
 	MOSS_INLINE explicit		DVec3(Vec4Arg inRHS);
 	MOSS_INLINE					DVec3(TypeArg inRHS) : mValue(inRHS)			{ CheckW(); }
 
@@ -164,7 +164,7 @@ public:
 	MOSS_INLINE double			operator [] (uint32_t inCoordinate) const			{ MOSS_ASSERT(inCoordinate < 3); return mF64[inCoordinate]; }
 
 	/// Set double component by index
-	MOSS_INLINE void			SetComponent(uint32_t inCoordinate, double inValue)	{ MOSS_ASSERT(inCoordinate < 3); mF64[inCoordinate] = inValue; mValue = sFixW(mValue); } // Assure Z and W are the same
+	MOSS_INLINE void			SetComponent(uint32_t inCoordinate, double inValue)	{ MOSS_ASSERT(inCoordinate < 3); mF64[inCoordinate] = inValue; mValue = FixW(mValue); } // Assure Z and W are the same
 
 	/// Comparison
 	MOSS_INLINE bool			operator == (DVec3Arg inV2) const;
@@ -204,13 +204,13 @@ public:
 	MOSS_INLINE DVec3 &			operator /= (double inV2);
 
 	/// Add two vectors (component wise)
-	MOSS_INLINE DVec3			operator + (Vec3Arg inV2) const;
+	MOSS_INLINE DVec3			operator + (Vec3& inV2) const;
 
 	/// Add two double vectors (component wise)
 	MOSS_INLINE DVec3			operator + (DVec3Arg inV2) const;
 
 	/// Add two vectors (component wise)
-	MOSS_INLINE DVec3 &			operator += (Vec3Arg inV2);
+	MOSS_INLINE DVec3 &			operator += (Vec3& inV2);
 
 	/// Add two double vectors (component wise)
 	MOSS_INLINE DVec3 &			operator += (DVec3Arg inV2);
@@ -219,13 +219,13 @@ public:
 	MOSS_INLINE DVec3			operator - () const;
 
 	/// Subtract two vectors (component wise)
-	MOSS_INLINE DVec3			operator - (Vec3Arg inV2) const;
+	MOSS_INLINE DVec3			operator - (Vec3& inV2) const;
 
 	/// Subtract two double vectors (component wise)
 	MOSS_INLINE DVec3			operator - (DVec3Arg inV2) const;
 
 	/// Subtract two vectors (component wise)
-	MOSS_INLINE DVec3 &			operator -= (Vec3Arg inV2);
+	MOSS_INLINE DVec3 &			operator -= (Vec3& inV2);
 
 	/// Subtract two vectors (component wise)
 	MOSS_INLINE DVec3 &			operator -= (DVec3Arg inV2);
@@ -274,7 +274,12 @@ public:
 	static MOSS_INLINE Type		FixW(TypeArg inValue);
 
 	/// Representations of true and false for boolean operations
-	inline static constexpr double	cTrue = BitCast<double>(~uint64(0));
+	template <class To, class From>
+	constexpr To BitCast(const From &value)
+	{
+		static_assert(sizeof(To) == sizeof(From)); return std::bit_cast<To>(value);
+	}
+	inline static constexpr double	cTrue = BitCast<double>(~uint64_t(0));
 	inline static constexpr double	cFalse = 0.0;
 
 	union
