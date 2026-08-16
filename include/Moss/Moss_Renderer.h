@@ -380,7 +380,7 @@ struct Camera3D {
     RVec3 position;
 	Vec3 up = Vec3(0.0f, 1.0f, 0.0f);    // Y is up
     Vec3 target;
-	Quat Orientation = Quat(0.0f, 0.0f, -1.0f);
+	Quat Orientation = Quat::Identity();
 
     float speed = 0.1f;
     float sensitivity = 100;

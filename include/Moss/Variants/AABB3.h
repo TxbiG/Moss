@@ -4,9 +4,9 @@
 
 #pragma once
 
-#include <Moss/Physics/Geometry/Triangle.h>
-#include <Moss/Physics/Geometry/IndexedTriangle.h>
-#include <Moss/Physics/Geometry/Plane.h>
+#include <Moss/Geometry/Triangle.h>
+#include <Moss/Geometry/IndexedTriangle.h>
+#include <Moss/Geometry/Plane.h>
 #include <Moss/Variants/Matrix/Mat44.h>
 
 MOSS_SUPRESS_WARNINGS_BEGIN
