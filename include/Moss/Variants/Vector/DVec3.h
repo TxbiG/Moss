@@ -11,8 +11,7 @@ MOSS_SUPRESS_WARNINGS_BEGIN
 
 /// 3 component vector of doubles (stored as 4 vectors).
 /// Note that we keep the 4th component the same as the 3rd component to avoid divisions by zero when MOSS_FLOATING_POINT_EXCEPTIONS_ENABLED defined
-class [[nodiscard]] alignas(MOSS_DVECTOR_ALIGNMENT) DVec3
-{
+class [[nodiscard]] alignas(MOSS_DVECTOR_ALIGNMENT) DVec3 {
 public:
 	MOSS_OVERRIDE_NEW_DELETE
 
@@ -275,8 +274,8 @@ public:
 	static MOSS_INLINE Type		FixW(TypeArg inValue);
 
 	/// Representations of true and false for boolean operations
-	inline static constexpr double	cTrue = BitCast<double>(~uint64_t(0));
-	inline static constexpr double	cFalse = 0.0;
+	inline static const double cTrue = BitCast<double>(~uint64(0));
+	inline static const double cFalse = 0.0;
 
 	union
 	{
