@@ -5,7 +5,6 @@
 #pragma once
 
 #include <Moss/Geometry/Triangle.h>
-#include <Moss/Geometry/Plane.h>
 #include <Moss/Variants/Matrix/Mat44.h>
 
 MOSS_SUPRESS_WARNINGS_BEGIN

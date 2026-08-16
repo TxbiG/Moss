@@ -100,7 +100,7 @@ public:
 	}
 
 	/// Calculate the morton code for inVector, given that all vectors lie in inVectorBounds
-	static uint32 sGetMortonCode(Vec3Arg inVector, const AABox &inVectorBounds) {
+	static uint32 sGetMortonCode(Vec3Arg inVector, const AABox& inVectorBounds) {
 		// Convert to 10 bit fixed point
 		Vec3 scaled = (inVector - inVectorBounds.mMin) / inVectorBounds.GetSize();
 		uint32 x = sExpandBits(scaled.GetX());

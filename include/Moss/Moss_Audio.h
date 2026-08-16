@@ -75,7 +75,7 @@ Edit the audio raw
 #define MOSS_AUDIO_H
 
 #include <Moss/Moss_stdinc.h>
-#include <Moss/Moss_Physics.h>
+//#include <Moss/Moss_Physics.h>
 #include <Moss/Variants/Vector/Vec2.h>
 #include <Moss/Variants/Vector/Vec3.h>
 
@@ -97,10 +97,6 @@ struct Moss_Microphone;
 struct Wav;
 
 using ChannelID = uint32_t;
-
-enum class Moss_MicrophoneSampleFormat {
-    F32
-};
 
 enum class AudioEffectType {
     LOWPASS                     = 0, 
@@ -237,7 +233,7 @@ MOSS_API Moss_AudioSource* Moss_AudioLoadOgg(const char* filename, AudioLoadType
 /*! @brief Load an MP3 audio source. @param filename Path to the MP3 file. @return Pointer to a loaded audio source. */
 MOSS_API Moss_AudioSource* Moss_AudioLoadMP3(const char* filename);
 /*! @brief Register a decoder for encoded audio formats such as OGG/Vorbis or MP3. @param format Encoded format handled by the callback. @param callback Decode callback. @param userdata User pointer passed to the callback. @return true when registered. */
-MOSS_API bool Moss_AudioRegisterDecoder(Moss_AudioEncodedFormat format, Moss_AudioDecodeCallback callback, void* userdata);
+//MOSS_API bool Moss_AudioRegisterDecoder(Moss_AudioEncodedFormat format, Moss_AudioDecodeCallback callback, void* userdata);
 /*! @brief Destroy an audio source created by Moss_AudioLoad* or Moss_AudioCaptureMicrophone. @param source Audio source to release. */
 MOSS_API void Moss_AudioSourceDestroy(Moss_AudioSource* source);
 /*! @brief Create an audio source from a microphone device. @param mic Microphone device handle. @return Pointer to an audio source capturing microphone input. */
