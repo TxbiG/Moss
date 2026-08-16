@@ -34,18 +34,18 @@ DMat44::DMat44(Mat44Arg inRot, DVec3Arg inT) :
 
 DMat44 DMat44::Zero()
 {
-	return DMat44(Vec4::sZero(), Vec4::sZero(), Vec4::sZero(), DVec3::sZero());
+	return DMat44(Vec4::Zero(), Vec4::Zero(), Vec4::Zero(), DVec3::Zero());
 }
 
 DMat44 DMat44::Identity()
 {
-	return DMat44(Vec4(1, 0, 0, 0), Vec4(0, 1, 0, 0), Vec4(0, 0, 1, 0), DVec3::sZero());
+	return DMat44(Vec4(1, 0, 0, 0), Vec4(0, 1, 0, 0), Vec4(0, 0, 1, 0), DVec3::Zero());
 }
 
-DMat44 DMat44::sInverseRotationTranslation(QuatArg inR, DVec3Arg inT)
+DMat44 DMat44::InverseRotationTranslation(QuatArg inR, DVec3Arg inT)
 {
-	Mat44 m = Mat44::sRotation(inR.Conjugated());
-	DMat44 dm(m, DVec3::sZero());
+	Mat44 m = Mat44::Rotation(inR.Conjugated());
+	DMat44 dm(m, DVec3::Zero());
 	dm.SetTranslation(-dm.Multiply3x3(inT));
 	return dm;
 }
@@ -72,7 +72,7 @@ DVec3 DMat44::operator * (Vec3Arg inV) const
 	__m128 t = _mm_mul_ps(mCol[0].mValue, _mm_shuffle_ps(inV.mValue, inV.mValue, _MM_SHUFFLE(0, 0, 0, 0)));
 	t = _mm_add_ps(t, _mm_mul_ps(mCol[1].mValue, _mm_shuffle_ps(inV.mValue, inV.mValue, _MM_SHUFFLE(1, 1, 1, 1))));
 	t = _mm_add_ps(t, _mm_mul_ps(mCol[2].mValue, _mm_shuffle_ps(inV.mValue, inV.mValue, _MM_SHUFFLE(2, 2, 2, 2))));
-	return DVec3::sFixW(_mm256_add_pd(mCol3.mValue, _mm256_cvtps_pd(t)));
+	return DVec3::FixW(_mm256_add_pd(mCol3.mValue, _mm256_cvtps_pd(t)));
 #elif defined(MOSS_SIMD_SSE)
 	__m128 t = _mm_mul_ps(mCol[0].mValue, _mm_shuffle_ps(inV.mValue, inV.mValue, _MM_SHUFFLE(0, 0, 0, 0)));
 	t = _mm_add_ps(t, _mm_mul_ps(mCol[1].mValue, _mm_shuffle_ps(inV.mValue, inV.mValue, _MM_SHUFFLE(1, 1, 1, 1))));
@@ -86,7 +86,7 @@ DVec3 DMat44::operator * (Vec3Arg inV) const
 	t = vmlaq_f32(t, mCol[2].mValue, vdupq_laneq_f32(inV.mValue, 2));
 	float64x2_t low = vaddq_f64(mCol3.mValue.val[0], vcvt_f64_f32(vget_low_f32(t)));
 	float64x2_t high = vaddq_f64(mCol3.mValue.val[1], vcvt_high_f64_f32(t));
-	return DVec3::sFixW({ low, high });
+	return DVec3::FixW({ low, high });
 #elif defined(MOSS_SIMD_RVV)
 	const vfloat32m1_t v0 = __riscv_vfmv_v_f_f32m1(inV.mF32[0], 4);
 	const vfloat32m1_t v1 = __riscv_vfmv_v_f_f32m1(inV.mF32[1], 4);
@@ -106,7 +106,7 @@ DVec3 DMat44::operator * (Vec3Arg inV) const
 
 	DVec3 v;
 	__riscv_vse64_v_f64m2(v.mF64, t_f64, 4);
-	return DVec3::sFixW(v.mValue);
+	return DVec3::FixW(v.mValue);
 #else
 	return DVec3(
 		mCol3.mF64[0] + double(mCol[0].mF32[0] * inV.mF32[0] + mCol[1].mF32[0] * inV.mF32[1] + mCol[2].mF32[0] * inV.mF32[2]),
@@ -121,7 +121,7 @@ DVec3 DMat44::operator * (DVec3Arg inV) const
 	__m256d t = _mm256_add_pd(mCol3.mValue, _mm256_mul_pd(_mm256_cvtps_pd(mCol[0].mValue), _mm256_set1_pd(inV.mF64[0])));
 	t = _mm256_add_pd(t, _mm256_mul_pd(_mm256_cvtps_pd(mCol[1].mValue), _mm256_set1_pd(inV.mF64[1])));
 	t = _mm256_add_pd(t, _mm256_mul_pd(_mm256_cvtps_pd(mCol[2].mValue), _mm256_set1_pd(inV.mF64[2])));
-	return DVec3::sFixW(t);
+	return DVec3::FixW(t);
 #elif defined(MOSS_SIMD_SSE)
 	__m128d xxxx = _mm_set1_pd(inV.mF64[0]);
 	__m128d yyyy = _mm_set1_pd(inV.mF64[1]);
@@ -149,7 +149,7 @@ DVec3 DMat44::operator * (DVec3Arg inV) const
 	float64x2_t t_high = vaddq_f64(mCol3.mValue.val[1], vmulq_f64(vcvt_high_f64_f32(col0), xxxx));
 	t_high = vaddq_f64(t_high, vmulq_f64(vcvt_high_f64_f32(col1), yyyy));
 	t_high = vaddq_f64(t_high, vmulq_f64(vcvt_high_f64_f32(col2), zzzz));
-	return DVec3::sFixW({ t_low, t_high });
+	return DVec3::FixW({ t_low, t_high });
 #elif defined(MOSS_SIMD_RVV)
 	const vfloat64m2_t xxxx = __riscv_vfmv_v_f_f64m2(inV.mF64[0], 4);
 	const vfloat64m2_t yyyy = __riscv_vfmv_v_f_f64m2(inV.mF64[1], 4);
@@ -172,7 +172,7 @@ DVec3 DMat44::operator * (DVec3Arg inV) const
 
 	DVec3 v;
 	__riscv_vse64_v_f64m2(v.mF64, t, 4);
-	return DVec3::sFixW(v.mValue);
+	return DVec3::FixW(v.mValue);
 #else
 	return DVec3(
 		mCol3.mF64[0] + double(mCol[0].mF32[0]) * inV.mF64[0] + double(mCol[1].mF32[0]) * inV.mF64[1] + double(mCol[2].mF32[0]) * inV.mF64[2],
@@ -187,7 +187,7 @@ DVec3 DMat44::Multiply3x3(DVec3Arg inV) const
 	__m256d t = _mm256_mul_pd(_mm256_cvtps_pd(mCol[0].mValue), _mm256_set1_pd(inV.mF64[0]));
 	t = _mm256_add_pd(t, _mm256_mul_pd(_mm256_cvtps_pd(mCol[1].mValue), _mm256_set1_pd(inV.mF64[1])));
 	t = _mm256_add_pd(t, _mm256_mul_pd(_mm256_cvtps_pd(mCol[2].mValue), _mm256_set1_pd(inV.mF64[2])));
-	return DVec3::sFixW(t);
+	return DVec3::FixW(t);
 #elif defined(MOSS_SIMD_SSE)
 	__m128d xxxx = _mm_set1_pd(inV.mF64[0]);
 	__m128d yyyy = _mm_set1_pd(inV.mF64[1]);
@@ -215,7 +215,7 @@ DVec3 DMat44::Multiply3x3(DVec3Arg inV) const
 	float64x2_t t_high = vmulq_f64(vcvt_high_f64_f32(col0), xxxx);
 	t_high = vaddq_f64(t_high, vmulq_f64(vcvt_high_f64_f32(col1), yyyy));
 	t_high = vaddq_f64(t_high, vmulq_f64(vcvt_high_f64_f32(col2), zzzz));
-	return DVec3::sFixW({ t_low, t_high });
+	return DVec3::FixW({ t_low, t_high });
 #elif defined(MOSS_SIMD_RVV)
 	const vfloat64m2_t xxxx = __riscv_vfmv_v_f_f64m2(inV.mF64[0], 4);
 	const vfloat64m2_t yyyy = __riscv_vfmv_v_f_f64m2(inV.mF64[1], 4);
@@ -235,7 +235,7 @@ DVec3 DMat44::Multiply3x3(DVec3Arg inV) const
 
 	DVec3::Type v;
 	__riscv_vse64_v_f64m2(v.mData, t, 4);
-	return DVec3::sFixW(v);
+	return DVec3::FixW(v);
 #else
 	return DVec3(
 		double(mCol[0].mF32[0]) * inV.mF64[0] + double(mCol[1].mF32[0]) * inV.mF64[1] + double(mCol[2].mF32[0]) * inV.mF64[2],

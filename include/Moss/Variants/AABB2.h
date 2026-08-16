@@ -17,7 +17,7 @@ public:
         mBox     = Vec4(min.GetX(), min.GetY(), max.GetX(), max.GetY());
     }
 
-    static AABB2 sFromTwoPoints(RVec2 a, RVec2 b) { return AABB2(RVec2::Min(a, b), RVec2::Max(a, b)); }
+    static AABB2 FromTwoPoints(RVec2 a, RVec2 b) { return AABB2(RVec2::Min(a, b), RVec2::Max(a, b)); }
 
     // Reset
     void SetEmpty() { mBox = Vec4(FLT_MAX, FLT_MAX, -FLT_MAX, -FLT_MAX); }
@@ -69,7 +69,6 @@ public:
 	bool operator == (const AABB2 &inRHS) const				{ return mMin == inRHS.GetMin() && mMax == inRHS.GetMax(); }
 	bool operator != (const AABB2 &inRHS) const				{ return mMin != inRHS.GetMin() || mMax != inRHS.GetMax(); }
 
-private:
     RVec4 mBox; // (x, y = min, z, w = max)
 };
 

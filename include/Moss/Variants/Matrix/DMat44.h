@@ -82,10 +82,10 @@ public:
 	/// Multiply vector by only 3x3 part of the transpose of the matrix (\f$result = this^T \: inV\f$)
 	MOSS_INLINE Vec3			Multiply3x3Transposed(Vec3Arg inV) const				{ return GetRotation().Multiply3x3Transposed(inV); }
 
-	/// Scale a matrix: result = this * Mat44::sScale(inScale)
+	/// Scale a matrix: result = this * Mat44::Scale(inScale)
 	MOSS_INLINE DMat44			PreScaled(Vec3Arg inScale) const;
 
-	/// Scale a matrix: result = Mat44::sScale(inScale) * this
+	/// Scale a matrix: result = Mat44::Scale(inScale) * this
 	MOSS_INLINE DMat44			PostScaled(Vec3Arg inScale) const;
 
 	/// Pre multiply by translation matrix: result = this * Mat44::sTranslation(inTranslation)

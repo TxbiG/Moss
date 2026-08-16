@@ -18,21 +18,21 @@ public:
 
 	// Constructor
 	AABB3()									: mMin(RVec3::Replicate(FLT_MAX)), mMax(RVec3::Replicate(-FLT_MAX)) { }
-	AABB3(RVec3 inMin, RVec3 inMax)		: mMin(inMin), mMax(inMax) { }
+	AABB3(RVec3 inMin, RVec3 inMax)			: mMin(inMin), mMax(inMax) { }
 	AABB3(RVec3 inCenter, float inRadius)	: mMin(inCenter - RVec3::Replicate(inRadius)), mMax(inCenter + RVec3::Replicate(inRadius)) { }
 
 	// Create box from 2 points
-	static AABB3	sFromTwoPoints(RVec3 inP1, RVec3 inP2) { return AABB3(RVec3::Min(inP1, inP2), RVec3::Max(inP1, inP2)); }
+	static AABB3	FromTwoPoints(RVec3 inP1, RVec3 inP2) { return AABB3(RVec3::Min(inP1, inP2), RVec3::Max(inP1, inP2)); }
 
 	// Create box from indexed triangle
-	static AABB3	sFromTriangle(const VertexList &inVertices, const IndexedTriangle &inTriangle) {
-		AABB3 box = sFromTwoPoints(RVec3(inVertices[inTriangle.mIdx[0]]), RVec3(inVertices[inTriangle.mIdx[1]]));
+	static AABB3	FromTriangle(const VertexList &inVertices, const IndexedTriangle &inTriangle) {
+		AABB3 box = FromTwoPoints(RVec3(inVertices[inTriangle.mIdx[0]]), RVec3(inVertices[inTriangle.mIdx[1]]));
 		box.Encapsulate(RVec3(inVertices[inTriangle.mIdx[2]]));
 		return box;
 	}
 
 	// Get bounding box of size FLT_MAX
-	static AABB3 sBiggest() {
+	static AABB3 Biggest() {
 		// Max half extent of AABB3 is 0.5 * FLT_MAX so that GetSize() remains finite
 		return AABB3(RVec3::Replicate(-0.5f * FLT_MAX), RVec3::Replicate(0.5f * FLT_MAX));
 	}
