@@ -143,22 +143,22 @@ Debug / Utilities
  * Forward Declarations
  * =================================================== */
 
-typedef struct MossXR_Context        MossXR_Context;
-typedef struct MossXR_Session        MossXR_Session;
-typedef struct MossXR_Swapchain      MossXR_Swapchain;
-typedef struct MossXR_Space          MossXR_Space;
-typedef struct MossXR_Action         MossXR_Action;
-typedef struct MossXR_ActionSet      MossXR_ActionSet;
-typedef struct MossXR_Layer          MossXR_Layer;
-typedef struct MossXR_Anchor         MossXR_Anchor;
-typedef struct MossXR_Origin         MossXR_Origin;
+struct MossXR_Context        MossXR_Context;
+struct MossXR_Session        MossXR_Session;
+struct MossXR_Swapchain      MossXR_Swapchain;
+struct MossXR_Space          MossXR_Space;
+struct MossXR_Action         MossXR_Action;
+struct MossXR_ActionSet      MossXR_ActionSet;
+struct MossXR_Layer          MossXR_Layer;
+struct MossXR_Anchor         MossXR_Anchor;
+struct MossXR_Origin         MossXR_Origin;
 
 
-typedef struct MossXR_HandModifier   MossXR_HandModifier;   // Hand Modifier tracks Hand movement.
-typedef struct MossXR_BodyModifier   MossXR_BodyModifier;   // Body Modifier tracks body.
-typedef struct MossXR_FaceModifier   MossXR_FaceModifier;   // Facial Modifier tracks facial expressions.
+struct MossXR_HandModifier   MossXR_HandModifier;   // Hand Modifier tracks Hand movement.
+struct MossXR_BodyModifier   MossXR_BodyModifier;   // Body Modifier tracks body.
+struct MossXR_FaceModifier   MossXR_FaceModifier;   // Facial Modifier tracks facial expressions.
 
-typedef int64_t MossXR_Time;
+int64_t MossXR_Time;
 
 /* ======================================================
  * Enums
@@ -265,7 +265,7 @@ enum class XRHandJoint {
  * Math / Pose
  * =================================================== */
 
-typedef struct MossXR_Pose {
+struct MossXR_Pose {
     Vec3 position;
     Quat orientation;
 };
@@ -410,7 +410,7 @@ MOSS_API float Moss_XR_GetActionFloat(MossXR_Action* action);
 /*! @brief X @param X */
 MOSS_API bool  Moss_XR_GetActionPose(MossXR_Action* action, MossXR_Pose* outPose);
 /*! @brief X @param X */
-MOSS_API void Moss_XR_PlayHaptic(MossXR_Action* action, XrPath hand, float amplitude, float durationSeconds);
+//MOSS_API void Moss_XR_PlayHaptic(MossXR_Action* action, XrPath hand, float amplitude, float durationSeconds);
 /*! @brief X @param X */
 MOSS_API void Moss_XR_StopHaptic(MossXR_Action* action);
 
@@ -436,9 +436,9 @@ MOSS_API MossXR_FaceModifier* Moss_XR_CreateFace(void);
 /*! @brief X @param X */
 MOSS_API void Moss_XR_DestroyFace(MossXR_FaceModifier* face);
 /*! @brief X @param X */
-void Moss_XR_UpdateBodyTracking(MossXR_Session* session);
+MOSS_API void Moss_XR_UpdateBodyTracking(MossXR_Session* session);
 /*! @brief X @param X */
-void Moss_XR_UpdateHandTracking(MossXR_Session* session);
+MOSS_API void Moss_XR_UpdateHandTracking(MossXR_Session* session);
 
 /* ======================================================
  * Passthrough & Foveation
