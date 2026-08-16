@@ -28,7 +28,7 @@ public:
     // Encapsulation
     void Encapsulate(RVec2 p) {
         // Broadcast p to Vec4: (px, py, px, py)
-        RVec4 point(p.GetX(), p.GetY(), p.GetX(), p.GetY());
+        Vec4 point(p.GetX(), p.GetY(), p.GetX(), p.GetY());
 
         // Min for lower half, Max for upper half
         mBox = Vec4( std::min(mBox.GetX(), point.GetX()), std::min(mBox.GetY(), point.GetY()), std::max(mBox.GetZ(), point.GetZ()), std::max(mBox.GetW(), point.GetW()));
@@ -66,10 +66,10 @@ public:
     RVec2 GetMax() const { return RVec2(mBox.GetZ(), mBox.GetW()); }
 
 
-	bool operator == (const AABB2 &inRHS) const				{ return mMin == inRHS.GetMin() && mMax == inRHS.GetMax(); }
-	bool operator != (const AABB2 &inRHS) const				{ return mMin != inRHS.GetMin() || mMax != inRHS.GetMax(); }
+	bool operator == (const AABB2 &inRHS) const { return GetMin() == inRHS.GetMin() && GetMax() == inRHS.GetMax(); }
+	bool operator != (const AABB2 &inRHS) const { return GetMin() != inRHS.GetMin() || GetMax() != inRHS.GetMax(); }
 
-    RVec4 mBox; // (x, y = min, z, w = max)
+    Vec4 mBox; // (x, y = min, z, w = max)
 };
 
 MOSS_SUPRESS_WARNINGS_END
