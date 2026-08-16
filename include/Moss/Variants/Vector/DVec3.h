@@ -4,6 +4,7 @@
 
 #pragma once
 
+#include <Moss/Moss_stdinc.h>
 #include <Moss/Variants/Vector/Double3.h>
 
 MOSS_SUPRESS_WARNINGS_BEGIN
@@ -274,14 +275,6 @@ public:
 	static MOSS_INLINE Type		FixW(TypeArg inValue);
 
 	/// Representations of true and false for boolean operations
-	template <class To, class From>
-	static To BitCast(const From &value)
-	{
-		static_assert(sizeof(To) == sizeof(From));
-		To result;
-		memcpy(&result, &value, sizeof(To));
-		return result;
-	}
 	inline static constexpr double	cTrue = BitCast<double>(~uint64_t(0));
 	inline static constexpr double	cFalse = 0.0;
 

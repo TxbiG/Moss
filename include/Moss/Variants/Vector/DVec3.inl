@@ -1096,7 +1096,7 @@ DVec3 DVec3::Sqrt() const
 
 double DVec3::Length() const
 {
-	return Sqrt(Dot(*this));
+	return std::sqrt(Dot(*this));
 }
 
 DVec3 DVec3::Normalized() const
