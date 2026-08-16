@@ -43,8 +43,8 @@
 #include <Moss/Moss_Audio.h>                // Contains the code for setting up Audio and drivers.
 #include <Moss/Moss_GPU.h>                  // Contains the rendering side of the framework.
 #include <Moss/Moss_Renderer.h>             // Contains the rendering side of the framework.
-#include <Moss/Moss_GUI.h>                  // Contains
+//#include <Moss/Moss_GUI.h>                  // Contains
 //#include <Moss/Moss_Physics.h>              // Contains all the physics side for 2D & 3D
-#include <Moss/Moss_Network.h>              // Contains all network libraries needed by enet6.
+//#include <Moss/Moss_Network.h>              // Contains all network libraries needed by enet6.
 #include <Moss/Moss_XR.h>                   // Contains
-#include <Moss/Moss_Navigation.h>           // Contains
+//#include <Moss/Moss_Navigation.h>           // Contains
