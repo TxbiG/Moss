@@ -15,9 +15,9 @@
 static uint32 timeBase = 0;
 
 static int addressFamily[] = {
-    AF_UNSPEC, /* ENET_ADDRESS_TYPE_ANY */
-    AF_INET,   /* ENET_ADDRESS_TYPE_IPV4 */
-    AF_INET6   /* ENET_ADDRESS_TYPE_IPV6 */
+    AF_UNSPEC, /* ENetAddressType::ANY */
+    AF_INET,   /* ENetAddressType::IPV4 */
+    AF_INET6   /* ENetAddressType::IPV6 */
 };
 int Moss_Init_Network(void) {
     WORD versionRequested = MAKEWORD (1, 1);
@@ -73,12 +73,12 @@ int enet_address_set_host (ENetAddress* address, ENetAddressType type, const cha
                 tempAddress.port = port; /* preserve port */
 
                 int addressScore = 0;
-                if (tempAddress.type == type || (tempAddress.type == ENET_ADDRESS_TYPE_IPV6 && type == ENET_ADDRESS_TYPE_ANY))
+                if (tempAddress.type == type || (tempAddress.type == ENetAddressType::IPV6 && type == ENetAddressType::ANY))
                     addressScore += 10;
-                else if (tempAddress.type == ENET_ADDRESS_TYPE_IPV4)
+                else if (tempAddress.type == ENetAddressType::IPV4)
                 {
-                    if (type == ENET_ADDRESS_TYPE_ANY) { addressScore += 5; } /* lower score than IPv6 addresses */
-                    else if (type == ENET_ADDRESS_TYPE_IPV6)
+                    if (type == ENetAddressType::ANY) { addressScore += 5; } /* lower score than IPv6 addresses */
+                    else if (type == ENetAddressType::IPV6)
                     {
                         /* Convert that IPv4 to an IPv6 */
                         enet_address_convert_ipv6(&tempAddress); addressScore += 3; /* lower score than a real IPv6 */
@@ -103,7 +103,7 @@ int enet_address_set_host (ENetAddress* address, ENetAddressType type, const cha
 static int enet_address_to_sock_addr(const ENetAddress * address, void * sockAddr) {
     switch (address->type)
     {
-        case ENET_ADDRESS_TYPE_IPV4:
+        case ENetAddressType::IPV4:
         {
             struct sockaddr_in* socketAddress = (struct sockaddr_in*) sockAddr;
             int addr;
@@ -119,7 +119,7 @@ static int enet_address_to_sock_addr(const ENetAddress * address, void * sockAdd
             return sizeof(struct sockaddr_in);
         }
 
-        case ENET_ADDRESS_TYPE_IPV6:
+        case ENetAddressType::IPV6:
         {
             struct sockaddr_in6* socketAddress = (struct sockaddr_in6*) sockAddr;
             int i;
@@ -176,54 +176,54 @@ int enet_socket_get_address (ENetSocket socket, ENetAddress * address) {
 
 int enet_socket_listen (ENetSocket socket, int backlog) { return listen (socket, backlog < 0 ? SOMAXCONN : backlog) == SOCKET_ERROR ? -1 : 0; }
 
-ENetSocket enet_socket_create(ENetAddressType adress_type, ENetSocketType socket_type) { return socket (PF_INET, socket_type == ENET_SOCKET_TYPE_DATAGRAM ? SOCK_DGRAM : SOCK_STREAM, 0); }
+ENetSocket enet_socket_create(ENetAddressType adress_type, ENetSocketType socket_type) { return socket (PF_INET, socket_type == ENetSocketType::DATAGRAM ? SOCK_DGRAM : SOCK_STREAM, 0); }
 
 /*
 ENetSocket enet_socket_create(ENetAddressType address_type, ENetSocketType socket_type) {
-    int family = address_type == ENET_ADDRESS_TYPE_IPV6 || address_type == ENET_ADDRESS_TYPE_ANY ? PF_INET6 : PF_INET;
-    return socket(family, socket_type == ENET_SOCKET_TYPE_DATAGRAM ? SOCK_DGRAM : SOCK_STREAM, 0);
+    int family = address_type == ENetAddressType::IPV6 || address_type == ENetAddressType::ANY ? PF_INET6 : PF_INET;
+    return socket(family, socket_type == ENetSocketType::DATAGRAM ? SOCK_DGRAM : SOCK_STREAM, 0);
 }
 */
 int enet_socket_set_option (ENetSocket socket, ENetSocketOption option, int value) {
     int result = SOCKET_ERROR;
     switch (option)
     {
-        case ENET_SOCKOPT_NONBLOCK:
+        case ENetSocketOption::NONBLOCK:
         {
             u_long nonBlocking = (u_long) value;
             result = ioctlsocket (socket, FIONBIO, & nonBlocking);
             break;
         }
 
-        case ENET_SOCKOPT_BROADCAST:
+        case ENetSocketOption::BROADCAST:
             result = setsockopt (socket, SOL_SOCKET, SO_BROADCAST, (char *) & value, sizeof (int));
             break;
 
-        case ENET_SOCKOPT_REUSEADDR:
+        case ENetSocketOption::REUSEADDR:
             result = setsockopt (socket, SOL_SOCKET, SO_REUSEADDR, (char *) & value, sizeof (int));
             break;
 
-        case ENET_SOCKOPT_RCVBUF:
+        case ENetSocketOption::RCVBUF:
             result = setsockopt (socket, SOL_SOCKET, SO_RCVBUF, (char *) & value, sizeof (int));
             break;
 
-        case ENET_SOCKOPT_SNDBUF:
+        case ENetSocketOption::SNDBUF:
             result = setsockopt (socket, SOL_SOCKET, SO_SNDBUF, (char *) & value, sizeof (int));
             break;
 
-        case ENET_SOCKOPT_RCVTIMEO:
+        case ENetSocketOption::RCVTIMEO:
             result = setsockopt (socket, SOL_SOCKET, SO_RCVTIMEO, (char *) & value, sizeof (int));
             break;
 
-        case ENET_SOCKOPT_SNDTIMEO:
+        case ENetSocketOption::SNDTIMEO:
             result = setsockopt (socket, SOL_SOCKET, SO_SNDTIMEO, (char *) & value, sizeof (int));
             break;
 
-        case ENET_SOCKOPT_NODELAY:
+        case ENetSocketOption::NODELAY:
             result = setsockopt (socket, IPPROTO_TCP, TCP_NODELAY, (char *) & value, sizeof (int));
             break;
 
-        case ENET_SOCKOPT_TTL:
+        case ENetSocketOption::TTL:
             result = setsockopt (socket, IPPROTO_IP, IP_TTL, (char *) & value, sizeof (int));
             break;
 
@@ -237,12 +237,12 @@ int enet_socket_get_option (ENetSocket socket, ENetSocketOption option, int * va
     int result = SOCKET_ERROR, len;
     switch (option)
     {
-        case ENET_SOCKOPT_ERROR:
+        case ENetSocketOption::ERROR:
             len = sizeof(int);
             result = getsockopt (socket, SOL_SOCKET, SO_ERROR, (char *) value, & len);
             break;
 
-        case ENET_SOCKOPT_TTL:
+        case ENetSocketOption::TTL:
             len = sizeof(int);
             result = getsockopt (socket, IPPROTO_IP, IP_TTL, (char *) value, & len);
             break;
