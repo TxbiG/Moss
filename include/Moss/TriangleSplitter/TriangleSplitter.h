@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include <Moss/Physics/Geometry/IndexedTriangle.h>
+#include <Moss/Physics/Geometry/Triangle.h>
 #include <Moss/Core/NonCopyable.h>
 #include <Moss/Physics/Geometry/AABox.h>
 
@@ -14,7 +14,7 @@ MOSS_SUPRESS_WARNINGS_BEGIN
 class MOSS_EXPORT TriangleSplitter : public NonCopyable {
 public:
 	/// Constructor
-								TriangleSplitter(const VertexList &inVertices, const IndexedTriangleList &inTriangles);
+	TriangleSplitter(const VertexList &inVertices, const IndexedTriangleList &inTriangles);
 
 	/// Virtual destructor
 	virtual						~TriangleSplitter() = default;
