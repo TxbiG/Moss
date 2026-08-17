@@ -204,7 +204,7 @@ fd_set ENetSocketSet;
 #define ENET_TIME_DIFFERENCE(a, b) ((a) - (b) >= ENET_TIME_OVERFLOW ? (b) - (a) : (a) - (b))
 
 #ifndef ENET_BUFFER_MAXIMUM
-#define ENET_BUFFER_MAXIMUM (1 + 2 * ENET_PROTOCOL_MAXIMUM_PACKET_COMMANDS)
+#define ENET_BUFFER_MAXIMUM (1 + 2 * MAXIMUM_PACKET_COMMANDS)
 #endif
 
 // Protocall
@@ -217,66 +217,82 @@ fd_set ENetSocketSet;
 #define ENET_PACKED
 #endif
 
-enum class ENetSocketType { ENET_SOCKET_TYPE_STREAM = 1, ENET_SOCKET_TYPE_DATAGRAM = 2 };
-enum class ENetSocketShutdown { ENET_SOCKET_SHUTDOWN_READ = 0, ENET_SOCKET_SHUTDOWN_WRITE = 1, ENET_SOCKET_SHUTDOWN_READ_WRITE = 2 };
-enum class ENetAddressType { ENET_ADDRESS_TYPE_ANY  = 0, ENET_ADDRESS_TYPE_IPV4 = 1, ENET_ADDRESS_TYPE_IPV6 = 2 };
-enum class ENetSocketWait { ENET_SOCKET_WAIT_NONE = 0, ENET_SOCKET_WAIT_SEND = (1 << 0), ENET_SOCKET_WAIT_RECEIVE = (1 << 1), ENET_SOCKET_WAIT_INTERRUPT = (1 << 2) };
+enum class ENetSocketType { 
+   STREAM = 1, 
+   DATAGRAM = 2 
+};
+enum class ENetSocketShutdown { 
+   READ = 0, 
+   WRITE = 1, 
+   READ_WRITE = 2 
+};
+enum class ENetAddressType { 
+   ANY  = 0, 
+   IPV4 = 1, 
+   IPV6 = 2 
+};
+enum class ENetSocketWait { 
+   NONE = 0, 
+   SEND = (1 << 0), 
+   RECEIVE = (1 << 1), 
+   INTERRUPT = (1 << 2) 
+};
 
 enum class ENetSocketOption {
-   ENET_SOCKOPT_NONBLOCK  = 1,
-   ENET_SOCKOPT_BROADCAST = 2,
-   ENET_SOCKOPT_RCVBUF    = 3,
-   ENET_SOCKOPT_SNDBUF    = 4,
-   ENET_SOCKOPT_REUSEADDR = 5,
-   ENET_SOCKOPT_RCVTIMEO  = 6,
-   ENET_SOCKOPT_SNDTIMEO  = 7,
-   ENET_SOCKOPT_ERROR     = 8,
-   ENET_SOCKOPT_NODELAY   = 9,
-   ENET_SOCKOPT_TTL       = 10,
-   ENET_SOCKOPT_IPV6ONLY  = 11
+   NONBLOCK  = 1,
+   BROADCAST = 2,
+   RCVBUF    = 3,
+   SNDBUF    = 4,
+   REUSEADDR = 5,
+   RCVTIMEO  = 6,
+   SNDTIMEO  = 7,
+   ERROR     = 8,
+   NODELAY   = 9,
+   TTL       = 10,
+   IPV6ONLY  = 11
 };
 
 enum class ENetProtocalSize{
-   ENET_PROTOCOL_MINIMUM_MTU             = 576,
-   ENET_PROTOCOL_MAXIMUM_MTU             = 4096,
-   ENET_PROTOCOL_MAXIMUM_PACKET_COMMANDS = 32,
-   ENET_PROTOCOL_MINIMUM_WINDOW_SIZE     = 4096,
-   ENET_PROTOCOL_MAXIMUM_WINDOW_SIZE     = 65536,
-   ENET_PROTOCOL_MINIMUM_CHANNEL_COUNT   = 1,
-   ENET_PROTOCOL_MAXIMUM_CHANNEL_COUNT   = 255,
-   ENET_PROTOCOL_MAXIMUM_PEER_ID         = 0xFFF,
-   ENET_PROTOCOL_MAXIMUM_FRAGMENT_COUNT  = 1024 * 1024
+   MINIMUM_MTU             = 576,
+   MAXIMUM_MTU             = 4096,
+   MAXIMUM_PACKET_COMMANDS = 32,
+   MINIMUM_WINDOW_SIZE     = 4096,
+   MAXIMUM_WINDOW_SIZE     = 65536,
+   MINIMUM_CHANNEL_COUNT   = 1,
+   MAXIMUM_CHANNEL_COUNT   = 255,
+   MAXIMUM_PEER_ID         = 0xFFF,
+   MAXIMUM_FRAGMENT_COUNT  = 1024 * 1024
 };
 
 enum class ENetProtocolCommand {
-   ENET_PROTOCOL_COMMAND_NONE               = 0,
-   ENET_PROTOCOL_COMMAND_ACKNOWLEDGE        = 1,
-   ENET_PROTOCOL_COMMAND_CONNECT            = 2,
-   ENET_PROTOCOL_COMMAND_VERIFY_CONNECT     = 3,
-   ENET_PROTOCOL_COMMAND_DISCONNECT         = 4,
-   ENET_PROTOCOL_COMMAND_PING               = 5,
-   ENET_PROTOCOL_COMMAND_SEND_RELIABLE      = 6,
-   ENET_PROTOCOL_COMMAND_SEND_UNRELIABLE    = 7,
-   ENET_PROTOCOL_COMMAND_SEND_FRAGMENT      = 8,
-   ENET_PROTOCOL_COMMAND_SEND_UNSEQUENCED   = 9,
-   ENET_PROTOCOL_COMMAND_BANDWIDTH_LIMIT    = 10,
-   ENET_PROTOCOL_COMMAND_THROTTLE_CONFIGURE = 11,
-   ENET_PROTOCOL_COMMAND_SEND_UNRELIABLE_FRAGMENT = 12,
-   ENET_PROTOCOL_COMMAND_COUNT              = 13,
+   NONE               = 0,
+   ACKNOWLEDGE        = 1,
+   CONNECT            = 2,
+   VERIFY_CONNECT     = 3,
+   DISCONNECT         = 4,
+   PING               = 5,
+   SEND_RELIABLE      = 6,
+   SEND_UNRELIABLE    = 7,
+   SEND_FRAGMENT      = 8,
+   SEND_UNSEQUENCED   = 9,
+   BANDWIDTH_LIMIT    = 10,
+   THROTTLE_CONFIGURE = 11,
+   SEND_UNRELIABLE_FRAGMENT = 12,
+   COUNT              = 13,
 
-   ENET_PROTOCOL_COMMAND_MASK               = 0x0F
+   MASK               = 0x0F
 };
 
 enum class ENetProtocolFlag {
-   ENET_PROTOCOL_COMMAND_FLAG_ACKNOWLEDGE = (1 << 7),
-   ENET_PROTOCOL_COMMAND_FLAG_UNSEQUENCED = (1 << 6),
+   FLAG_ACKNOWLEDGE = (1 << 7),
+   FLAG_UNSEQUENCED = (1 << 6),
 
-   ENET_PROTOCOL_HEADER_FLAG_COMPRESSED = (1 << 14),
-   ENET_PROTOCOL_HEADER_FLAG_SENT_TIME  = (1 << 15),
-   ENET_PROTOCOL_HEADER_FLAG_MASK       = ENET_PROTOCOL_HEADER_FLAG_COMPRESSED | ENET_PROTOCOL_HEADER_FLAG_SENT_TIME,
+   HEADER_FLAG_COMPRESSED = (1 << 14),
+   HEADER_FLAG_SENT_TIME  = (1 << 15),
+   HEADER_FLAG_MASK       = HEADER_FLAG_COMPRESSED | HEADER_FLAG_SENT_TIME,
 
-   ENET_PROTOCOL_HEADER_SESSION_MASK    = (3 << 12),
-   ENET_PROTOCOL_HEADER_SESSION_SHIFT   = 12
+   HEADER_SESSION_MASK    = (3 << 12),
+   HEADER_SESSION_SHIFT   = 12
 };
 
 /**
@@ -291,30 +307,30 @@ enum class ENetProtocolFlag {
 enum class ENetPacketFlag {
    /** packet must be received by the target peer and resend attempts should be
      * made until the packet is delivered */
-   ENET_PACKET_FLAG_RELIABLE    = (1 << 0),
+   RELIABLE    = (1 << 0),
    /** packet will not be sequenced with other packets
      */
-   ENET_PACKET_FLAG_UNSEQUENCED = (1 << 1),
+   UNSEQUENCED = (1 << 1),
    /** packet will not allocate data, and user must supply it instead */
-   ENET_PACKET_FLAG_NO_ALLOCATE = (1 << 2),
+   NO_ALLOCATE = (1 << 2),
    /** packet will be fragmented using unreliable (instead of reliable) sends
      * if it exceeds the MTU */
-   ENET_PACKET_FLAG_UNRELIABLE_FRAGMENT = (1 << 3),
+   UNRELIABLE_FRAGMENT = (1 << 3),
 
    /** whether the packet has been sent from all queues it has been entered into */
-   ENET_PACKET_FLAG_SENT = (1<<8)
+   SENT = (1<<8)
 };
 enum class ENetPeerState : uint8 {
-   ENET_PEER_STATE_DISCONNECTED                = 0,
-   ENET_PEER_STATE_CONNECTING                  = 1,
-   ENET_PEER_STATE_ACKNOWLEDGING_CONNECT       = 2,
-   ENET_PEER_STATE_CONNECTION_PENDING          = 3,
-   ENET_PEER_STATE_CONNECTION_SUCCEEDED        = 4,
-   ENET_PEER_STATE_CONNECTED                   = 5,
-   ENET_PEER_STATE_DISCONNECT_LATER            = 6,
-   ENET_PEER_STATE_DISCONNECTING               = 7,
-   ENET_PEER_STATE_ACKNOWLEDGING_DISCONNECT    = 8,
-   ENET_PEER_STATE_ZOMBIE                      = 9 
+   DISCONNECTED                = 0,
+   CONNECTING                  = 1,
+   ACKNOWLEDGING_CONNECT       = 2,
+   CONNECTION_PENDING          = 3,
+   CONNECTION_SUCCEEDED        = 4,
+   CONNECTED                   = 5,
+   DISCONNECT_LATER            = 6,
+   DISCONNECTING               = 7,
+   ACKNOWLEDGING_DISCONNECT    = 8,
+   ZOMBIE                      = 9 
 };
 
 
@@ -403,18 +419,18 @@ struct ENetAddress {  ENetAddressType type; uint16_t port; union { uint8_t v4[4]
  * of the allocated data.  The flags field is either 0 (specifying no flags), 
  * or a bitwise-or of any combination of the following flags:
  *
- *    ENET_PACKET_FLAG_RELIABLE - packet must be received by the target peer
+ *    RELIABLE - packet must be received by the target peer
  *    and resend attempts should be made until the packet is delivered
  *
- *    ENET_PACKET_FLAG_UNSEQUENCED - packet will not be sequenced with other packets 
+ *    UNSEQUENCED - packet will not be sequenced with other packets 
  *    (not supported for reliable packets)
  *
- *    ENET_PACKET_FLAG_NO_ALLOCATE - packet will not allocate data, and user must supply it instead
+ *    NO_ALLOCATE - packet will not allocate data, and user must supply it instead
  *
- *    ENET_PACKET_FLAG_UNRELIABLE_FRAGMENT - packet will be fragmented using unreliable
+ *    UNRELIABLE_FRAGMENT - packet will be fragmented using unreliable
  *    (instead of reliable) sends if it exceeds the MTU
  *
- *    ENET_PACKET_FLAG_SENT - whether the packet has been sent from all queues it has been entered into
+ *    SENT - whether the packet has been sent from all queues it has been entered into
    @sa ENetPacketFlag
  */
 struct _ENetPacket {
@@ -658,13 +674,13 @@ struct ENetHost {
    uint32_t          totalQueued;
    size_t               packetSize;
    uint16_t          headerFlags;
-   ENetProtocol         commands [ENET_PROTOCOL_MAXIMUM_PACKET_COMMANDS];
+   ENetProtocol         commands [MAXIMUM_PACKET_COMMANDS];
    size_t               commandCount;
    ENetBuffer           buffers [ENET_BUFFER_MAXIMUM];
    size_t               bufferCount;
    ENetChecksumCallback checksum;                    // callback the user can set to enable packet checksums for this host */
    ENetCompressor       compressor;
-   uint8_t           packetData [2][ENET_PROTOCOL_MAXIMUM_MTU];
+   uint8_t           packetData [2][MAXIMUM_MTU];
    ENetAddress          receivedAddress;
    uint8_t*         receivedData;
    size_t               receivedDataLength;
@@ -675,7 +691,7 @@ struct ENetHost {
    ENetInterceptCallback intercept;               // callback the user can set to intercept received raw UDP packets */
    size_t               connectedPeers;
    size_t               bandwidthLimitedPeers;
-   size_t               duplicatePeers;            // optional number of allowed peers from duplicate IPs, defaults to ENET_PROTOCOL_MAXIMUM_PEER_ID */
+   size_t               duplicatePeers;            // optional number of allowed peers from duplicate IPs, defaults to MAXIMUM_PEER_ID */
    size_t               maximumPacketSize;         // the maximum allowable packet size that may be sent or received on a peer */
    size_t               maximumWaitingData;        // the maximum aggregate amount of buffer space a peer may use waiting for packets to be delivered */
 };
@@ -1475,7 +1491,7 @@ struct ENetStreamFrame {
 struct ENetTCPFrameHeader {
     uint32_t_t length;     // payload size (network byte order)
     uint8  channelID;
-    uint8  flags;      // ENET_PACKET_FLAG_
+    uint8  flags;      // 
 } ENetTCPFrameHeader;
 #pragma pack(pop)
 
