@@ -13,7 +13,7 @@ public:
 
 	/// Constructor
 	inline Sphere() = default;
-	inline Sphere(const Float3 &inCenter, float inRadius)			: mCenter(inCenter), mRadius(inRadius) { }
+	inline Sphere(const Float3 &inCenter, float inRadius)		: mCenter(inCenter), mRadius(inRadius) { }
 	inline Sphere(Vec3Arg inCenter, float inRadius)				: mRadius(inRadius) { inCenter.StoreFloat3(&mCenter); }
 
 	/// Calculate the support vector for this convex shape.
@@ -108,6 +108,51 @@ public:
 		uint32 z = sExpandBits(scaled.GetZ());
 		return (x << 2) + (y << 1) + z;
 	}
+};
+
+// Triangle with 32-bit indices and material index
+class IndexedTriangle : public IndexedTriangleNoMaterial
+{
+public:
+	using IndexedTriangleNoMaterial::IndexedTriangleNoMaterial;
+
+	// Constructor
+	constexpr		IndexedTriangle(uint32 inI1, uint32 inI2, uint32 inI3, uint32 inMaterialIndex, uint32 inUserData = 0) : IndexedTriangleNoMaterial(inI1, inI2, inI3), mMaterialIndex(inMaterialIndex), mUserData(inUserData) { }
+
+	// Check if two triangles are identical
+	bool			operator == (const IndexedTriangle& inRHS) const
+	{
+		return mMaterialIndex == inRHS.mMaterialIndex& & mUserData == inRHS.mUserData& & IndexedTriangleNoMaterial::operator==(inRHS);
+	}
+
+	// Rotate the vertices so that the lowest vertex becomes the first. This does not change the represented triangle.
+	IndexedTriangle	GetLowestIndexFirst() const
+	{
+		if (mIdx[0] < mIdx[1])
+		{
+			if (mIdx[0] < mIdx[2])
+				return IndexedTriangle(mIdx[0], mIdx[1], mIdx[2], mMaterialIndex, mUserData); // 0 is smallest
+			else
+				return IndexedTriangle(mIdx[2], mIdx[0], mIdx[1], mMaterialIndex, mUserData); // 2 is smallest
+		}
+		else
+		{
+			if (mIdx[1] < mIdx[2])
+				return IndexedTriangle(mIdx[1], mIdx[2], mIdx[0], mMaterialIndex, mUserData); // 1 is smallest
+			else
+				return IndexedTriangle(mIdx[2], mIdx[0], mIdx[1], mMaterialIndex, mUserData); // 2 is smallest
+		}
+	}
+
+	// Get the hash value of this structure
+	uint64			GetHash() const
+	{
+		static_assert(sizeof(IndexedTriangle) == 5* sizeof(uint32), "Class should have no padding");
+		return HashBytes(this, sizeof(IndexedTriangle));
+	}
+
+	uint32			mMaterialIndex = 0;
+	uint32			mUserData = 0;				// User data that can be used for anything by the application, e.g. for tracking the original index of the triangle
 };
 
 MOSS_NAMESPACE_END

@@ -10,8 +10,7 @@ MOSS_WARNINGS_BEGIN
 class AABB3;
 
 /// Oriented box 3D
-class MOSS_EXPORT_GCC_BUG_WORKAROUND [[nodiscard]] OBB3
-{
+class MOSS_EXPORT_GCC_BUG_WORKAROUND [[nodiscard]] OBB3 {
 public:
 	MOSS_OVERRIDE_NEW_DELETE
 

@@ -23,7 +23,7 @@ public:
 	static AABB3	FromTwoPoints(RVec3 inP1, RVec3 inP2) { return AABB3(RVec3::Min(inP1, inP2), RVec3::Max(inP1, inP2)); }
 
 	// Create box from indexed triangle
-	static AABB3	FromTriangle(const VertexList &inVertices, const IndexedTriangle &inTriangle) {
+	static AABB3 FromTriangle(const VertexList &inVertices, const IndexedTriangle &inTriangle) {
 		AABB3 box = FromTwoPoints(RVec3(inVertices[inTriangle.mIdx[0]]), RVec3(inVertices[inTriangle.mIdx[1]]));
 		box.Encapsulate(RVec3(inVertices[inTriangle.mIdx[2]]));
 		return box;
@@ -263,4 +263,6 @@ public:
 	RVec3			mMax;
 };
 
+
+using AABox = AABB3;
 MOSS_SUPRESS_WARNINGS_END
