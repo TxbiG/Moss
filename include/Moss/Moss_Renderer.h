@@ -143,7 +143,19 @@ struct Moss_DrawModelDesc {
     VisibleLayer visibility = 0xFFFFFFFFu;
 };
 
-enum MaterialTextureType;
+enum class MaterialTextureType {
+    Color,
+    Roughness, // packed g
+    Metalness, // packed b
+    Normal,
+    Occlusion, // packed r
+    Emission,
+    Height,    // packed a
+    AlphaMask, // packed into color a
+    Packed,    // occlusion, roughness, metalness, height
+    Max
+};
+
 
 struct Moss_Material;
 struct Moss_SpriteBatch;
@@ -327,18 +339,6 @@ struct Moss_ShadowMapDesc {
     ETextureFormat depth_format = ETextureFormat::Depth32F;
     bool enable_cascades = false;
     uint32_t cascade_count = 1;
-};
-enum class MaterialTextureType {
-    Color,
-    Roughness, // packed g
-    Metalness, // packed b
-    Normal,
-    Occlusion, // packed r
-    Emission,
-    Height,    // packed a
-    AlphaMask, // packed into color a
-    Packed,    // occlusion, roughness, metalness, height
-    Max
 };
 
 
@@ -729,7 +729,7 @@ MOSS_API char* Moss_GPUAPIGetName();
 /*! @brief Get the active graphics API version string for debug overlays. @return Backend-owned string, or null if unavailable. @ingroup Renderer Debug/Utils. */
 MOSS_API char* Moss_GPUAPIGetVersion();
 
-
+/*
 /// Note that this class is meant to be a quick start for implementing a debug renderer, it is not the most efficient way to implement a debug renderer.
 class MOSS_DEBUG_RENDERER_EXPORT DebugRendererSimple : public DebugRenderer
 {
@@ -922,6 +922,7 @@ private:
 	using Frame = DebugRendererRecorder::Frame;
 	TArray<Frame>						mFrames;
 };
+*/
 
 //===========================================================
 // 2D Debug/Utils Rendering
