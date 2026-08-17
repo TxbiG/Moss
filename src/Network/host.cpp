@@ -14,7 +14,7 @@
 
     @param address   the address at which other peers may connect to this host.  If NULL, then no peers may connect to the host.
     @param peerCount the maximum number of peers that should be allocated for the host.
-    @param channelLimit the maximum number of channels allowed; if 0, then this is equivalent to ENET_PROTOCOL_MAXIMUM_CHANNEL_COUNT
+    @param channelLimit the maximum number of channels allowed; if 0, then this is equivalent to ENetProtocalSize::MAXIMUM_CHANNEL_COUNT
     @param incomingBandwidth downstream bandwidth of the host in bytes/second; if 0, ENet will assume unlimited bandwidth.
     @param outgoingBandwidth upstream bandwidth of the host in bytes/second; if 0, ENet will assume unlimited bandwidth.
 
@@ -29,7 +29,7 @@ ENetHost* enet_host_create(ENetAddressType type, const ENetAddress * address, si
     ENetHost * host;
     ENetPeer * currentPeer;
 
-    if (peerCount > ENET_PROTOCOL_MAXIMUM_PEER_ID)
+    if (peerCount > ENetProtocalSize::MAXIMUM_PEER_ID)
       return NULL;
 
     host = (ENetHost *) enet_malloc (sizeof (ENetHost));
@@ -48,7 +48,7 @@ ENetHost* enet_host_create(ENetAddressType type, const ENetAddress * address, si
 
     host->socket = enet_socket_create(type, ENET_SOCKET_TYPE_DATAGRAM);
 
-    if (host->socket != ENET_SOCKET_NULL && type == ENET_ADDRESS_TYPE_ANY) { enet_socket_set_option(host->socket, ENET_SOCKOPT_IPV6ONLY, 0); }
+    if (host->socket != ENET_SOCKET_NULL && type == ENetAddressType::ANY) { enet_socket_set_option(host->socket, ENET_SOCKOPT_IPV6ONLY, 0); }
 
     if (host->socket == ENET_SOCKET_NULL || (address != NULL && enet_socket_bind (host -> socket, address) < 0))
     {
@@ -62,13 +62,13 @@ ENetHost* enet_host_create(ENetAddressType type, const ENetAddress * address, si
 
     enet_socket_set_option (host->socket, ENET_SOCKOPT_NONBLOCK, 1);
     enet_socket_set_option (host->socket, ENET_SOCKOPT_BROADCAST, 1);
-    enet_socket_set_option (host->socket, ENET_SOCKOPT_RCVBUF, ENET_HOST_RECEIVE_BUFFER_SIZE);
-    enet_socket_set_option (host->socket, ENET_SOCKOPT_SNDBUF, ENET_HOST_SEND_BUFFER_SIZE);
+    enet_socket_set_option (host->socket, ENET_SOCKOPT_RCVBUF, ENetHostState::ENET_HOST_RECEIVE_BUFFER_SIZE);
+    enet_socket_set_option (host->socket, ENET_SOCKOPT_SNDBUF, ENetHostState::ENET_HOST_SEND_BUFFER_SIZE);
 
     if (address != NULL && enet_socket_get_address (host -> socket, & host -> address) < 0) { host->address = * address;}
 
-    if (! channelLimit || channelLimit > ENET_PROTOCOL_MAXIMUM_CHANNEL_COUNT) {channelLimit = ENET_PROTOCOL_MAXIMUM_CHANNEL_COUNT;}
-    else if (channelLimit < ENET_PROTOCOL_MINIMUM_CHANNEL_COUNT) { channelLimit = ENET_PROTOCOL_MINIMUM_CHANNEL_COUNT; }
+    if (! channelLimit || channelLimit > ENetProtocalSize::MAXIMUM_CHANNEL_COUNT) {channelLimit = ENetProtocalSize::MAXIMUM_CHANNEL_COUNT;}
+    else if (channelLimit < ENetProtocalSize::MINIMUM_CHANNEL_COUNT) { channelLimit = ENetProtocalSize::MINIMUM_CHANNEL_COUNT; }
 
     host->randomSeed = (uint32) (size_t) host;
     host->randomSeed += enet_host_random_seed ();
@@ -83,7 +83,7 @@ ENetHost* enet_host_create(ENetAddressType type, const ENetAddress * address, si
     host->commandCount = 0;
     host->bufferCount = 0;
     host->checksum = NULL;
-    host->receivedAddress.type = ENET_ADDRESS_TYPE_ANY;
+    host->receivedAddress.type = ENetAddressType::ANY;
     host->receivedAddress.port = 0;
     host->receivedData = NULL;
     host->receivedDataLength = 0;
@@ -96,7 +96,7 @@ ENetHost* enet_host_create(ENetAddressType type, const ENetAddress * address, si
 
     host->connectedPeers = 0;
     host->bandwidthLimitedPeers = 0;
-    host->duplicatePeers = ENET_PROTOCOL_MAXIMUM_PEER_ID;
+    host->duplicatePeers = ENetProtocalSize::MAXIMUM_PEER_ID;
     host->maximumPacketSize = ENET_HOST_DEFAULT_MAXIMUM_PACKET_SIZE;
     host->maximumWaitingData = ENET_HOST_DEFAULT_MAXIMUM_WAITING_DATA;
 
@@ -171,13 +171,13 @@ ENetPeer* enet_host_connect(ENetHost * host, const ENetAddress * address, size_t
     ENetChannel * channel;
     ENetProtocol command;
 
-    if (channelCount < ENET_PROTOCOL_MINIMUM_CHANNEL_COUNT) channelCount = ENET_PROTOCOL_MINIMUM_CHANNEL_COUNT;
+    if (channelCount < ENetProtocalSize::MINIMUM_CHANNEL_COUNT) channelCount = ENetProtocalSize::MINIMUM_CHANNEL_COUNT;
     else
-    if (channelCount > ENET_PROTOCOL_MAXIMUM_CHANNEL_COUNT) channelCount = ENET_PROTOCOL_MAXIMUM_CHANNEL_COUNT;
+    if (channelCount > ENetProtocalSize::MAXIMUM_CHANNEL_COUNT) channelCount = ENetProtocalSize::MAXIMUM_CHANNEL_COUNT;
 
     for (currentPeer = host -> peers; currentPeer < & host -> peers [host -> peerCount]; ++ currentPeer)
     {
-       if (currentPeer -> state == ENET_PEER_STATE_DISCONNECTED) break;
+       if (currentPeer -> state == ENetPeerState::DISCONNECTED) break;
     }
 
     if (currentPeer >= & host -> peers [host -> peerCount]) return NULL;
@@ -185,18 +185,18 @@ ENetPeer* enet_host_connect(ENetHost * host, const ENetAddress * address, size_t
     currentPeer -> channels = (ENetChannel *) enet_malloc (channelCount * sizeof (ENetChannel));
     if (currentPeer -> channels == NULL) return NULL;
     currentPeer -> channelCount = channelCount;
-    currentPeer -> state = ENET_PEER_STATE_CONNECTING;
+    currentPeer -> state = ENetPeerState::CONNECTING;
     currentPeer -> address = * address;
     currentPeer -> connectID = enet_host_random (host);
     currentPeer -> mtu = host -> mtu;
 
-    if (host -> outgoingBandwidth == 0) currentPeer -> windowSize = ENET_PROTOCOL_MAXIMUM_WINDOW_SIZE;
+    if (host -> outgoingBandwidth == 0) currentPeer -> windowSize = ENetProtocalSize::MAXIMUM_WINDOW_SIZE;
     else
-      currentPeer -> windowSize = (host -> outgoingBandwidth / ENET_PEER_WINDOW_SIZE_SCALE) *  ENET_PROTOCOL_MINIMUM_WINDOW_SIZE;
+      currentPeer -> windowSize = (host -> outgoingBandwidth / ENET_PEER_WINDOW_SIZE_SCALE) *  ENetProtocalSize::MINIMUM_WINDOW_SIZE;
 
-    if (currentPeer -> windowSize < ENET_PROTOCOL_MINIMUM_WINDOW_SIZE) currentPeer -> windowSize = ENET_PROTOCOL_MINIMUM_WINDOW_SIZE;
+    if (currentPeer -> windowSize < ENetProtocalSize::MINIMUM_WINDOW_SIZE) currentPeer -> windowSize = ENetProtocalSize::MINIMUM_WINDOW_SIZE;
     else
-    if (currentPeer -> windowSize > ENET_PROTOCOL_MAXIMUM_WINDOW_SIZE) currentPeer -> windowSize = ENET_PROTOCOL_MAXIMUM_WINDOW_SIZE;
+    if (currentPeer -> windowSize > ENetProtocalSize::MAXIMUM_WINDOW_SIZE) currentPeer -> windowSize = ENetProtocalSize::MAXIMUM_WINDOW_SIZE;
          
     for (channel = currentPeer -> channels; channel < & currentPeer -> channels [channelCount]; ++ channel)
     {
@@ -212,7 +212,7 @@ ENetPeer* enet_host_connect(ENetHost * host, const ENetAddress * address, size_t
         memset (channel -> reliableWindows, 0, sizeof (channel -> reliableWindows));
     }
         
-    command.header.command = ENET_PROTOCOL_COMMAND_CONNECT | ENET_PROTOCOL_COMMAND_FLAG_ACKNOWLEDGE;
+    command.header.command = ENetProtocolCommand::CONNECT | ENetProtocolCommand::FLAG_ACKNOWLEDGE;
     command.header.channelID = 0xFF;
     command.connect.outgoingPeerID = ENET_HOST_TO_NET_16 (currentPeer -> incomingPeerID);
     command.connect.incomingSessionID = currentPeer -> incomingSessionID;
@@ -242,7 +242,7 @@ void enet_host_broadcast(ENetHost* host, uint8 channelID, ENetPacket* packet) {
   ENetPeer* currentPeer;
 
   for (currentPeer = host -> peers; currentPeer < & host -> peers [host -> peerCount]; ++ currentPeer) {
-    if (currentPeer -> state != ENET_PEER_STATE_CONNECTED) continue;
+    if (currentPeer -> state != ENetPeerState::CONNECTED) continue;
     enet_peer_send(currentPeer, channelID, packet);
   }
 
@@ -263,13 +263,13 @@ void enet_host_compress(ENetHost * host, const ENetCompressor * compressor)
 
 /** Limits the maximum allowed channels of future incoming connections.
   @param host host to limit
-  @param channelLimit the maximum number of channels allowed; if 0, then this is equivalent to ENET_PROTOCOL_MAXIMUM_CHANNEL_COUNT
+  @param channelLimit the maximum number of channels allowed; if 0, then this is equivalent to ENetProtocalSize::MAXIMUM_CHANNEL_COUNT
 */
 void enet_host_channel_limit(ENetHost * host, size_t channelLimit)
 {
-  if (! channelLimit || channelLimit > ENET_PROTOCOL_MAXIMUM_CHANNEL_COUNT) channelLimit = ENET_PROTOCOL_MAXIMUM_CHANNEL_COUNT;
+  if (! channelLimit || channelLimit > ENetProtocalSize::MAXIMUM_CHANNEL_COUNT) channelLimit = ENetProtocalSize::MAXIMUM_CHANNEL_COUNT;
   else
-  if (channelLimit < ENET_PROTOCOL_MINIMUM_CHANNEL_COUNT) channelLimit = ENET_PROTOCOL_MINIMUM_CHANNEL_COUNT;
+  if (channelLimit < ENetProtocalSize::MINIMUM_CHANNEL_COUNT) channelLimit = ENetProtocalSize::MINIMUM_CHANNEL_COUNT;
 
   host -> channelLimit = channelLimit;
 }
@@ -316,7 +316,7 @@ enet_host_bandwidth_throttle(ENetHost * host)
 
         for (peer = host -> peers; peer < & host -> peers [host -> peerCount]; ++ peer)
         {
-            if (peer -> state != ENET_PEER_STATE_CONNECTED && peer -> state != ENET_PEER_STATE_DISCONNECT_LATER) continue;
+            if (peer -> state != ENetPeerState::CONNECTED && peer -> state != ENetPeerState::DISCONNECT_LATER) continue;
             dataTotal += peer -> outgoingDataTotal;
         }
     }
@@ -333,7 +333,7 @@ enet_host_bandwidth_throttle(ENetHost * host)
         for (peer = host -> peers; peer < & host -> peers [host -> peerCount]; ++ peer) {
             uint32 peerBandwidth;
             
-            if ((peer -> state != ENET_PEER_STATE_CONNECTED && peer -> state != ENET_PEER_STATE_DISCONNECT_LATER) || peer -> incomingBandwidth == 0 || peer -> outgoingBandwidthThrottleEpoch == timeCurrent) continue;
+            if ((peer -> state != ENetPeerState::CONNECTED && peer -> state != ENetPeerState::DISCONNECT_LATER) || peer -> incomingBandwidth == 0 || peer -> outgoingBandwidthThrottleEpoch == timeCurrent) continue;
 
             peerBandwidth = (peer->incomingBandwidth * elapsedTime) / 1000;
             if ((throttle * peer->outgoingDataTotal) / ENET_PEER_PACKET_THROTTLE_SCALE <= peerBandwidth) continue;
@@ -363,7 +363,7 @@ enet_host_bandwidth_throttle(ENetHost * host)
 
         for (peer = host -> peers; peer < & host -> peers [host -> peerCount]; ++ peer)
         {
-            if ((peer -> state != ENET_PEER_STATE_CONNECTED && peer -> state != ENET_PEER_STATE_DISCONNECT_LATER) || peer -> outgoingBandwidthThrottleEpoch == timeCurrent) continue;
+            if ((peer -> state != ENetPeerState::CONNECTED && peer -> state != ENetPeerState::DISCONNECT_LATER) || peer -> outgoingBandwidthThrottleEpoch == timeCurrent) continue;
 
             peer ->packetThrottleLimit = throttle;
 
@@ -390,7 +390,7 @@ enet_host_bandwidth_throttle(ENetHost * host)
 
            for (peer = host -> peers; peer < & host -> peers [host -> peerCount]; ++ peer)
            {
-               if ((peer -> state != ENET_PEER_STATE_CONNECTED && peer -> state != ENET_PEER_STATE_DISCONNECT_LATER) || peer -> incomingBandwidthThrottleEpoch == timeCurrent) continue;
+               if ((peer -> state != ENetPeerState::CONNECTED && peer -> state != ENetPeerState::DISCONNECT_LATER) || peer -> incomingBandwidthThrottleEpoch == timeCurrent) continue;
 
                if (peer -> outgoingBandwidth > 0 && peer -> outgoingBandwidth >= bandwidthLimit) continue;
 
@@ -403,9 +403,9 @@ enet_host_bandwidth_throttle(ENetHost * host)
        }
 
        for (peer = host -> peers; peer < & host -> peers [host -> peerCount]; ++ peer) {
-           if (peer -> state != ENET_PEER_STATE_CONNECTED && peer -> state != ENET_PEER_STATE_DISCONNECT_LATER) continue;
+           if (peer -> state != ENetPeerState::CONNECTED && peer -> state != ENetPeerState::DISCONNECT_LATER) continue;
 
-           command.header.command = ENET_PROTOCOL_COMMAND_BANDWIDTH_LIMIT | ENET_PROTOCOL_COMMAND_FLAG_ACKNOWLEDGE;
+           command.header.command = ENetProtocolCommand::BANDWIDTH_LIMIT | ENetProtocolCommand::FLAG_ACKNOWLEDGE;
            command.header.channelID = 0xFF;
            command.bandwidthLimit.outgoingBandwidth = ENET_HOST_TO_NET_32 (host -> outgoingBandwidth);
 

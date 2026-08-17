@@ -16,8 +16,7 @@ static unsigned int _parseDecimal ( const char** pchCursor )
     }
     return nVal;
 }
- 
- 
+
  
 static unsigned int _parseHex ( const char** pchCursor ){
     unsigned int nVal = 0;
@@ -273,14 +272,14 @@ int enet_address_equal_host(const ENetAddress * firstAddress, const ENetAddress 
 {
     if (firstAddress->type != secondAddress->type) return 0;
     if (firstAddress->port != secondAddress->port) return 0;
-    if (firstAddress->type == ENET_ADDRESS_TYPE_IPV4) { if (memcmp(&firstAddress->host.v4[0], &secondAddress->host.v4[0], 4*sizeof(uint8)) != 0) { return 0; } }
-    else if (firstAddress->type == ENET_ADDRESS_TYPE_IPV6) { if (memcmp(&firstAddress->host.v6[0], &secondAddress->host.v6[0], 8 * sizeof(uint16)) != 0) { return 0; } }
+    if (firstAddress->type == ENetAddressType::IPV4) { if (memcmp(&firstAddress->host.v4[0], &secondAddress->host.v4[0], 4*sizeof(uint8)) != 0) { return 0; } }
+    else if (firstAddress->type == ENetAddressType::IPV6) { if (memcmp(&firstAddress->host.v6[0], &secondAddress->host.v6[0], 8 * sizeof(uint16)) != 0) { return 0; } }
     return 1;
 }
 
 int enet_address_is_broadcast(const ENetAddress * address) {
     /* there's no broadcast address in ipv6 */
-    if (address->type == ENET_ADDRESS_TYPE_IPV4 && address->host.v4[0] == 0xFF && address->host.v4[1] == 0xFF && address->host.v4[2] == 0xFF && address->host.v4[3] == 0xFF) { return 1; }
+    if (address->type == ENetAddressType::IPV4 && address->host.v4[0] == 0xFF && address->host.v4[1] == 0xFF && address->host.v4[2] == 0xFF && address->host.v4[3] == 0xFF) { return 1; }
     return 0;
 }
 
@@ -298,9 +297,9 @@ int enet_address_equal(const ENetAddress * firstAddress, const ENetAddress * sec
 int enet_address_is_any(const ENetAddress * address) {
     switch (address->type)
     {
-        case ENET_ADDRESS_TYPE_IPV4: 
+        case ENetAddressType::IPV4: 
             { uint8 zero[4] = { 0 }; return memcmp(&address->host.v4[0], zero, 4 * sizeof(uint8)) != 0; }
-        case ENET_ADDRESS_TYPE_IPV6: 
+        case ENetAddressType::IPV6: 
             { uint16 zero[8] = { 0 }; return memcmp(&address->host.v6[0], zero, 8 * sizeof(uint16)) != 0; }
         default:
             break;
@@ -313,9 +312,9 @@ int enet_address_is_any(const ENetAddress * address) {
 int enet_address_is_loopback(const ENetAddress * address) {
     switch (address->type)
     {
-        case ENET_ADDRESS_TYPE_IPV4:
+        case ENetAddressType::IPV4:
             { return address->host.v4[0] == 127; }
-        case ENET_ADDRESS_TYPE_IPV6:
+        case ENetAddressType::IPV6:
             { uint16 loopback[8] = { 0, 0, 0, 0, 0, 0, 0, 1 }; return memcmp(&address->host.v6[0], loopback, 8 * sizeof(uint16)) != 0; }
         default:
             break;
@@ -335,12 +334,12 @@ int enet_address_get_host_ip(const ENetAddress * address, char * name, size_t na
         MS_IPv6WithPort = MS_IPv6 + MS_PortPart + 2,                        // plus two brackets.
     };
 
-    if (address -> type == ENET_ADDRESS_TYPE_IPV4)
+    if (address -> type == ENetAddressType::IPV4)
     {
         if (address->port != 0) { if (nameLength < MS_IPv4WithPort) { return -1; } sprintf(name, "%u.%u.%u.%u:%u", address->host.v4[0], address->host.v4[1], address->host.v4[2], address->host.v4[3], address->port); }
         else { if (nameLength < MS_IPv4) { return -1; } sprintf(name, "%u.%u.%u.%u", address->host.v4[0], address->host.v4[1], address->host.v4[2], address->host.v4[3]); }
     }
-    else if (address->type == ENET_ADDRESS_TYPE_IPV6)
+    else if (address->type == ENetAddressType::IPV6)
     {
         /* check if ipv4-mapped address */
         if (address -> host.v6[0] == 0 && address -> host.v6[1] == 0 && address -> host.v6[2] == 0 && address -> host.v6[3] == 0 && address -> host.v6[4] == 0 && address -> host.v6[5] == 0xFFFF)
@@ -426,12 +425,12 @@ int enet_address_set_host_ip(ENetAddress * address, const char * name) {
 
     if (isIPv6)
     {
-        address->type = ENET_ADDRESS_TYPE_IPV6;
+        address->type = ENetAddressType::IPV6;
         for (int i = 0; i < 8; ++i) { address->host.v6[i] = (result[i * 2] << 8) | result[i * 2 + 1]; }
     }
     else
     {
-        address->type = ENET_ADDRESS_TYPE_IPV4;
+        address->type = ENetAddressType::IPV4;
         for (int i = 0; i < 4; ++i) { address->host.v4[i] = result[i]; }
     }
 
@@ -446,14 +445,14 @@ void enet_address_build_any(ENetAddress * address, ENetAddressType type) {
 
     switch (type)
     {
-        case ENET_ADDRESS_TYPE_IPV4:
+        case ENetAddressType::IPV4:
         {
             memset(&address->host.v4, 0, sizeof(address->host.v4));
             address->port = ENET_PORT_ANY;
             break;
         }
 
-        case ENET_ADDRESS_TYPE_IPV6:
+        case ENetAddressType::IPV6:
         {
             memset(&address->host.v6, 0, sizeof(address->host.v6));
             address->port = ENET_PORT_ANY;
@@ -469,7 +468,7 @@ void enet_address_build_loopback(ENetAddress * address, ENetAddressType type) {
     address->type = type;
 
     switch (type) {
-        case ENET_ADDRESS_TYPE_IPV4: {
+        case ENetAddressType::IPV4: {
             uint8 loopbackIpV4[4] = { 127, 0, 0, 1 };
 
             memcpy(&address->host.v4, loopbackIpV4, sizeof(address->host.v4));
@@ -477,7 +476,7 @@ void enet_address_build_loopback(ENetAddress * address, ENetAddressType type) {
             break;
         }
 
-        case ENET_ADDRESS_TYPE_IPV6: {
+        case ENetAddressType::IPV6: {
             uint16 loopbackIpV6[8] = { 0, 0, 0, 0, 0, 0, 0, 1 };
 
             memcpy(&address->host.v6, loopbackIpV6, sizeof(address->host.v6));
@@ -494,10 +493,10 @@ void enet_address_convert_ipv6(ENetAddress * address)
 {
     uint8 ipv4[4];
 
-    if (address->type == ENET_ADDRESS_TYPE_IPV4)
+    if (address->type == ENetAddressType::IPV4)
     {
         /* Turn into IPv4-mapped IPv6 */
-        address->type = ENET_ADDRESS_TYPE_IPV6;
+        address->type = ENetAddressType::IPV6;
         memcpy(&ipv4[0], &address->host.v4[0], 4 * sizeof(uint8)); /* save IPv4 before modifying the IPv6 because of the union */
 
         address->host.v6[0] = 0;

@@ -63,9 +63,9 @@ typedef int socklen_t;
 
 static uint32 timeBase = 0;
 static int addressFamily[] = {
-    AF_UNSPEC, /* ENET_ADDRESS_TYPE_ANY */
-    AF_INET,   /* ENET_ADDRESS_TYPE_IPV4 */
-    AF_INET6   /* ENET_ADDRESS_TYPE_IPV6 */
+    AF_UNSPEC, /* ENetAddressType::ANY */
+    AF_INET,   /* ENetAddressType::IPV4 */
+    AF_INET6   /* ENetAddressType::IPV6 */
 };
 
 int Moss_Init_Network (void)
@@ -128,13 +128,13 @@ int enet_address_set_host (ENetAddress * address, ENetAddressType type, const ch
                 tempAddress.port = port; /* preserve port */
 
                 int addressScore = 0;
-                if (tempAddress.type == type || (tempAddress.type == ENET_ADDRESS_TYPE_IPV6 && type == ENET_ADDRESS_TYPE_ANY))
+                if (tempAddress.type == type || (tempAddress.type == ENetAddressType::IPV6 && type == ENetAddressType::ANY))
                     addressScore += 10;
-                else if (tempAddress.type == ENET_ADDRESS_TYPE_IPV4)
+                else if (tempAddress.type == ENetAddressType::IPV4)
                 {
-                    if (type == ENET_ADDRESS_TYPE_ANY)
+                    if (type == ENetAddressType::ANY)
                         addressScore += 5; /* lower score than IPv6 addresses */
-                    else if (type == ENET_ADDRESS_TYPE_IPV6)
+                    else if (type == ENetAddressType::IPV6)
                     {
                         /* Convert that IPv4 to an IPv6 */
                         enet_address_convert_ipv6(&tempAddress);
@@ -176,14 +176,14 @@ int enet_address_set_host (ENetAddress * address, ENetAddressType type, const ch
     {
         if (hostEntry->h_addrtype == AF_INET && hostEntry->h_length >= 4)
         {
-            address->type = ENET_ADDRESS_TYPE_IPV4;
+            address->type = ENetAddressType::IPV4;
             memcpy(address->host.v4, hostEntry->h_addr_list[0], 4);
             address->port = port;
             return 0;
         }
         if (hostEntry->h_addrtype == AF_INET6 && hostEntry->h_length >= 16)
         {
-            address->type = ENET_ADDRESS_TYPE_IPV6;
+            address->type = ENetAddressType::IPV6;
             memcpy(address->host.v6, hostEntry->h_addr_list[0], 16);
             address->port = port;
             return 0;
@@ -191,7 +191,7 @@ int enet_address_set_host (ENetAddress * address, ENetAddressType type, const ch
     }
 #endif
 
-    if (enet_address_set_host_ip(address, name) == 0) { if (type == ENET_ADDRESS_TYPE_ANY) { enet_address_convert_ipv6(address); } return 0; }
+    if (enet_address_set_host_ip(address, name) == 0) { if (type == ENetAddressType::ANY) { enet_address_convert_ipv6(address); } return 0; }
     else { return -1; }
 }
 
@@ -250,7 +250,7 @@ int enet_socket_bind (ENetSocket socket, const ENetAddress * address) {
 
     if (address != NULL)
     {
-       sin.sin_port = ENET_HOST_TO_NET_16 (address -> port);
+       sin.sin_port = ENET_HOST_TO_NET_16(address -> port);
        sin.sin_addr.s_addr = address -> host;
     }
     else
@@ -278,9 +278,9 @@ int enet_socket_listen (ENetSocket socket, int backlog) {
 }
 
 ENetSocket enet_socket_create(ENetAddressType address_type, ENetSocketType socket_type) {
-    int family = address_type == ENET_ADDRESS_TYPE_IPV6 ? PF_INET6 : PF_INET;
-    if (address_type == ENET_ADDRESS_TYPE_ANY) { family = PF_INET6; }
-    return socket(family, socket_type == ENET_SOCKET_TYPE_DATAGRAM ? SOCK_DGRAM : SOCK_STREAM, 0);
+    int family = address_type == ENetAddressType::IPV6 ? PF_INET6 : PF_INET;
+    if (address_type == ENetAddressType::ANY) { family = PF_INET6; }
+    return socket(family, socket_type == ENetSocketType::DATAGRAM ? SOCK_DGRAM : SOCK_STREAM, 0);
 }
 int enet_socket_set_option (ENetSocket socket, ENetSocketOption option, int value) {
     int result = -1;
@@ -496,19 +496,19 @@ enet_socket_wait (ENetSocket socket, uint32 * condition, uint32 timeout)
     pollSocket.fd = socket;
     pollSocket.events = 0;
 
-    if (* condition & ENET_SOCKET_WAIT_SEND)
+    if (* condition & ENetSocketWait::SEND)
       pollSocket.events |= POLLOUT;
 
-    if (* condition & ENET_SOCKET_WAIT_RECEIVE)
+    if (* condition & ENetSocketWait::RECEIVE)
       pollSocket.events |= POLLIN;
 
     pollCount = poll (& pollSocket, 1, timeout);
 
     if (pollCount < 0)
     {
-        if (errno == EINTR && * condition & ENET_SOCKET_WAIT_INTERRUPT)
+        if (errno == EINTR && * condition & ENetSocketWait::INTERRUPT)
         {
-            * condition = ENET_SOCKET_WAIT_INTERRUPT;
+            * condition = ENetSocketWait::INTERRUPT;
 
             return 0;
         }
@@ -516,16 +516,16 @@ enet_socket_wait (ENetSocket socket, uint32 * condition, uint32 timeout)
         return -1;
     }
 
-    * condition = ENET_SOCKET_WAIT_NONE;
+    * condition = ENetSocketWait::NONE;
 
     if (pollCount == 0)
       return 0;
 
     if (pollSocket.revents & POLLOUT)
-      * condition |= ENET_SOCKET_WAIT_SEND;
+      * condition |= ENetSocketWait::SEND;
     
     if (pollSocket.revents & POLLIN)
-      * condition |= ENET_SOCKET_WAIT_RECEIVE;
+      * condition |= ENetSocketWait::RECEIVE;
 
     return 0;
 #else
@@ -539,19 +539,19 @@ enet_socket_wait (ENetSocket socket, uint32 * condition, uint32 timeout)
     FD_ZERO (& readSet);
     FD_ZERO (& writeSet);
 
-    if (* condition & ENET_SOCKET_WAIT_SEND)
+    if (* condition & ENetSocketWait::SEND)
       FD_SET (socket, & writeSet);
 
-    if (* condition & ENET_SOCKET_WAIT_RECEIVE)
+    if (* condition & ENetSocketWait::RECEIVE)
       FD_SET (socket, & readSet);
 
     selectCount = select (socket + 1, & readSet, & writeSet, NULL, & timeVal);
 
     if (selectCount < 0)
     {
-        if (errno == EINTR && * condition & ENET_SOCKET_WAIT_INTERRUPT)
+        if (errno == EINTR && * condition & ENetSocketWait::INTERRUPT)
         {
-            * condition = ENET_SOCKET_WAIT_INTERRUPT;
+            * condition = ENetSocketWait::INTERRUPT;
 
             return 0;
         }
@@ -559,16 +559,16 @@ enet_socket_wait (ENetSocket socket, uint32 * condition, uint32 timeout)
         return -1;
     }
 
-    * condition = ENET_SOCKET_WAIT_NONE;
+    * condition = ENetSocketWait::NONE;
 
     if (selectCount == 0)
       return 0;
 
     if (FD_ISSET (socket, & writeSet))
-      * condition |= ENET_SOCKET_WAIT_SEND;
+      * condition |= ENetSocketWait::SEND;
 
     if (FD_ISSET (socket, & readSet))
-      * condition |= ENET_SOCKET_WAIT_RECEIVE;
+      * condition |= ENetSocketWait::RECEIVE;
 
     return 0;
 #endif
@@ -577,7 +577,7 @@ enet_socket_wait (ENetSocket socket, uint32 * condition, uint32 timeout)
 
 
 static int enet_address_from_sock_addr4(ENetAddress * address, const struct sockaddr_in* sockAddr) {
-    address->type = ENET_ADDRESS_TYPE_IPV4;
+    address->type = ENetAddressType::IPV4;
     address->port = ENET_NET_TO_HOST_16(sockAddr->sin_port);
 
     memcpy(&address->host.v4[0], &sockAddr->sin_addr.s_addr, 4 * sizeof(enet_uint8));
@@ -588,7 +588,7 @@ static int enet_address_from_sock_addr4(ENetAddress * address, const struct sock
 static int enet_address_from_sock_addr6(ENetAddress * address, const struct sockaddr_in6* sockAddr) {
     int i;
 
-    address->type = ENET_ADDRESS_TYPE_IPV6;
+    address->type = ENetAddressType::IPV6;
     address->port = ENET_NET_TO_HOST_16(sockAddr->sin6_port);
 
     for (i = 0; i < 8; ++i)
@@ -623,7 +623,7 @@ static int enet_address_from_sock_addr(ENetAddress * address, const struct socka
 static int enet_address_to_sock_addr(const ENetAddress* address, void* sockAddr)
 {
     switch (address->type) {
-        case ENET_ADDRESS_TYPE_IPV4: {
+        case ENetAddressType::IPV4: {
             struct sockaddr_in* socketAddress = (struct sockaddr_in*) sockAddr;
             int addr;
 
@@ -638,7 +638,7 @@ static int enet_address_to_sock_addr(const ENetAddress* address, void* sockAddr)
             return sizeof(struct sockaddr_in);
         }
 
-        case ENET_ADDRESS_TYPE_IPV6: {
+        case ENetAddressType::IPV6: {
             struct sockaddr_in6* socketAddress = (struct sockaddr_in6*) sockAddr;
 
             memset(socketAddress, 0, sizeof(struct sockaddr_in6));
