@@ -1,7 +1,7 @@
 #ifndef MOSS_RENDERER_INTERNAL_H
 #define MOSS_RENDERER_INTERNAL_H
-#include <Moss/Moss_Renderer.h>
 
+#include "../renderer_intern.h"
 
 struct Moss_Renderer {
     Moss_Window* window;

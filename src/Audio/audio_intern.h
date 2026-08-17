@@ -1347,6 +1347,11 @@ void ApplyFrequencyOcclusion(float* outL, float* outR, int samples, float cutoff
 }
 
 
+void CastMultiBounceRays(const PhysicsSystem& physics, const SoundSource3D& src,  const Listener3D& listener, std::vector<ReflectionHit> reflections, int value, float point) {
+
+}
+
+
 void ProcessSound(const PhysicsSystem& physics, const SoundSource3D& src, const Listener3D& listener, const Vec3& srcVel, const Vec3& listenerVel, const float* monoInput, int samples,
     float* outL, float* outR) {
     float distance = (listener.position - src.position).Length();
@@ -1730,3 +1735,4 @@ void AudioEffect_Destroy(AudioEffect* fx) {
     AudioEffect_FreeState(fx);
     free(fx);
 }
+*/

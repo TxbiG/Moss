@@ -1,4 +1,4 @@
-#include "renderer_intern.h"
+#include "renderer_gl.h"
 
 // Compatibility
 

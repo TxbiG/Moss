@@ -4,9 +4,9 @@
 
 #pragma once
 
-#include <Moss/Physics/Geometry/Triangle.h>
+#include <Moss/Geometry/Triangle.h>
 #include <Moss/Core/NonCopyable.h>
-#include <Moss/Physics/Geometry/AABox.h>
+#include <Moss/Variants/AABB3.h>
 
 MOSS_SUPRESS_WARNINGS_BEGIN
 

@@ -33,7 +33,7 @@ public:
 	inline bool	Overlaps(const Sphere &inB) const { return (Vec3::LoadFloat3Unsafe(mCenter) - Vec3::LoadFloat3Unsafe(inB.mCenter)).LengthSq() <= Square(mRadius + inB.mRadius); }
 
 	/// Check if this sphere overlaps with a box
-	inline bool Overlaps(const AABox &inOther) const { return inOther.GetSqDistanceTo(GetCenter()) <= Square(mRadius); }
+	bool Overlaps(const AABox &inOther) const;
 
 	/// Create the minimal sphere that encapsulates this sphere and inPoint
 	inline void EncapsulatePoint(Vec3Arg inPoint) {
@@ -103,14 +103,7 @@ public:
 	}
 
 	/// Calculate the morton code for inVector, given that all vectors lie in inVectorBounds
-	static uint32 sGetMortonCode(Vec3Arg inVector, const AABox& inVectorBounds) {
-		// Convert to 10 bit fixed point
-		Vec3 scaled = (inVector - inVectorBounds.mMin) / inVectorBounds.GetSize();
-		uint32 x = sExpandBits(scaled.GetX());
-		uint32 y = sExpandBits(scaled.GetY());
-		uint32 z = sExpandBits(scaled.GetZ());
-		return (x << 2) + (y << 1) + z;
-	}
+	static uint32 sGetMortonCode(Vec3Arg inVector, const AABox& inVectorBounds);
 };
 
 
@@ -132,23 +125,23 @@ public:
 	// Check if two triangles are identical
 	bool			operator == (const IndexedTriangleNoMaterial& inRHS) const
 	{
-		return mIdx[0] == inRHS.mIdx[0]& & mIdx[1] == inRHS.mIdx[1]& & mIdx[2] == inRHS.mIdx[2];
+		return mIdx[0] == inRHS.mIdx[0]&& mIdx[1] == inRHS.mIdx[1]&& mIdx[2] == inRHS.mIdx[2];
 	}
 
 	// Check if two triangles are equivalent (using the same vertices)
 	bool			IsEquivalent(const IndexedTriangleNoMaterial& inRHS) const
 	{
-		return (mIdx[0] == inRHS.mIdx[0]& & mIdx[1] == inRHS.mIdx[1]& & mIdx[2] == inRHS.mIdx[2])
-			|| (mIdx[0] == inRHS.mIdx[1]& & mIdx[1] == inRHS.mIdx[2]& & mIdx[2] == inRHS.mIdx[0])
-			|| (mIdx[0] == inRHS.mIdx[2]& & mIdx[1] == inRHS.mIdx[0]& & mIdx[2] == inRHS.mIdx[1]);
+		return (mIdx[0] == inRHS.mIdx[0]&& mIdx[1] == inRHS.mIdx[1]&& mIdx[2] == inRHS.mIdx[2])
+			|| (mIdx[0] == inRHS.mIdx[1]&& mIdx[1] == inRHS.mIdx[2]&& mIdx[2] == inRHS.mIdx[0])
+			|| (mIdx[0] == inRHS.mIdx[2]&& mIdx[1] == inRHS.mIdx[0]&& mIdx[2] == inRHS.mIdx[1]);
 	}
 
 	// Check if two triangles are opposite (using the same vertices but in opposing order)
 	bool			IsOpposite(const IndexedTriangleNoMaterial& inRHS) const
 	{
-		return (mIdx[0] == inRHS.mIdx[0]& & mIdx[1] == inRHS.mIdx[2]& & mIdx[2] == inRHS.mIdx[1])
-			|| (mIdx[0] == inRHS.mIdx[1]& & mIdx[1] == inRHS.mIdx[0]& & mIdx[2] == inRHS.mIdx[2])
-			|| (mIdx[0] == inRHS.mIdx[2]& & mIdx[1] == inRHS.mIdx[1]& & mIdx[2] == inRHS.mIdx[0]);
+		return (mIdx[0] == inRHS.mIdx[0]&& mIdx[1] == inRHS.mIdx[2]&& mIdx[2] == inRHS.mIdx[1])
+			|| (mIdx[0] == inRHS.mIdx[1]&& mIdx[1] == inRHS.mIdx[0]&& mIdx[2] == inRHS.mIdx[2])
+			|| (mIdx[0] == inRHS.mIdx[2]&& mIdx[1] == inRHS.mIdx[1]&& mIdx[2] == inRHS.mIdx[0]);
 	}
 
 	// Check if triangle is degenerate
@@ -198,7 +191,7 @@ public:
 	// Check if two triangles are identical
 	bool			operator == (const IndexedTriangle& inRHS) const
 	{
-		return mMaterialIndex == inRHS.mMaterialIndex& & mUserData == inRHS.mUserData& & IndexedTriangleNoMaterial::operator==(inRHS);
+		return mMaterialIndex == inRHS.mMaterialIndex&& mUserData == inRHS.mUserData&& IndexedTriangleNoMaterial::operator==(inRHS);
 	}
 
 	// Rotate the vertices so that the lowest vertex becomes the first. This does not change the represented triangle.

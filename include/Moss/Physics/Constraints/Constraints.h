@@ -165,7 +165,7 @@ public:
 	/// @param inBaumgarte Baumgarte constant (fraction of the error to correct)
 	inline bool SolvePositionConstraint(Body& ioBody1, Body& ioBody2, float inC, float inBaumgarte) const {
 		// Only apply position constraint when the constraint is hard, otherwise the velocity bias will fix the constraint
-		if (inC != 0.0f& & !mSpringPart.IsActive()) {
+		if (inC != 0.0f&& !mSpringPart.IsActive()) {
 			// Calculate lagrange multiplier (lambda) for Baumgarte stabilization:
 			//
 			// lambda = -K^-1* beta / dt* C
@@ -1238,7 +1238,7 @@ public:
 	MOSS_INLINE float TemplatedSolveVelocityConstraintGetTotalLambda(const MotionProperties*ioMotionProperties1, const MotionProperties*ioMotionProperties2, Vec3Arg inWorldSpaceAxis) const {
 		// Calculate jacobian multiplied by linear velocity
 		float jv;
-		if constexpr (Type1 != EMotionType::Static& & Type2 != EMotionType::Static)
+		if constexpr (Type1 != EMotionType::Static&& Type2 != EMotionType::Static)
 			jv = inWorldSpaceAxis.Dot(ioMotionProperties1->GetLinearVelocity() - ioMotionProperties2->GetLinearVelocity());
 		else if constexpr (Type1 != EMotionType::Static)
 			jv = inWorldSpaceAxis.Dot(ioMotionProperties1->GetLinearVelocity());
@@ -1388,7 +1388,7 @@ public:
 	/// @param inBaumgarte Baumgarte constant (fraction of the error to correct)
 	inline bool SolvePositionConstraint(Body& ioBody1, Body& ioBody2, Vec3Arg inWorldSpaceAxis, float inC, float inBaumgarte) const {
 		// Only apply position constraint when the constraint is hard, otherwise the velocity bias will fix the constraint
-		if (inC != 0.0f& & !mSpringPart.IsActive()) {
+		if (inC != 0.0f&& !mSpringPart.IsActive()) {
 			// Calculate lagrange multiplier (lambda) for Baumgarte stabilization:
 			//
 			// lambda = -K^-1* beta / dt* C
@@ -1434,7 +1434,7 @@ public:
 	/// @param inBaumgarte Baumgarte constant (fraction of the error to correct)
 	inline bool	SolvePositionConstraintWithMassOverride(Body& ioBody1, float inInvMass1, Body& ioBody2, float inInvMass2, Vec3Arg inWorldSpaceAxis, float inC, float inBaumgarte) const {
 		// Only apply position constraint when the constraint is hard, otherwise the velocity bias will fix the constraint
-		if (inC != 0.0f& & !mSpringPart.IsActive()) {
+		if (inC != 0.0f&& !mSpringPart.IsActive()) {
 			// Calculate lagrange multiplier (lambda) for Baumgarte stabilization:
 			//
 			// lambda = -K^-1* beta / dt* C
@@ -1539,7 +1539,7 @@ public:
 	/// @param inN2 The world space normal in which the constraint operates for body 2
 	/// @param inRatio The ratio how forces are applied between bodies
 	inline void CalculateConstraintProperties(const Body& inBody1, const Body& inBody2, Vec3Arg inR1, Vec3Arg inN1, Vec3Arg inR2, Vec3Arg inN2, float inRatio) {
-		MOSS_ASSERT(inN1.IsNormalized(1.0e-4f)& & inN2.IsNormalized(1.0e-4f));
+		MOSS_ASSERT(inN1.IsNormalized(1.0e-4f)&& inN2.IsNormalized(1.0e-4f));
 
 		float inv_effective_mass = 0.0f;
 
@@ -2002,8 +2002,8 @@ public:
 		MOSS_ASSERT(inTwistMinAngle <= inTwistMaxAngle);
 		MOSS_ASSERT(inSwingYMinAngle <= inSwingYMaxAngle);
 		MOSS_ASSERT(inSwingZMinAngle <= inSwingZMaxAngle);
-		MOSS_ASSERT(inSwingYMinAngle >= -MOSS_PI& & inSwingYMaxAngle <= MOSS_PI);
-		MOSS_ASSERT(inSwingZMinAngle >= -MOSS_PI& & inSwingZMaxAngle <= MOSS_PI);
+		MOSS_ASSERT(inSwingYMinAngle >= -MOSS_PI&& inSwingYMaxAngle <= MOSS_PI);
+		MOSS_ASSERT(inSwingZMinAngle >= -MOSS_PI&& inSwingZMaxAngle <= MOSS_PI);
 
 		// Calculate the sine and cosine of the half angles
 		Vec4 half_twist = 0.5f* Vec4(inTwistMinAngle, inTwistMaxAngle, 0, 0);
@@ -2021,14 +2021,14 @@ public:
 
 		// Store axis flags which are used at runtime to quickly decided which constraints to apply
 		mRotationFlags = 0;
-		if (inTwistMinAngle > -cLockedAngle& & inTwistMaxAngle < cLockedAngle) {
+		if (inTwistMinAngle > -cLockedAngle&& inTwistMaxAngle < cLockedAngle) {
 			mRotationFlags |= TwistXLocked;
 			mSinTwistHalfMinAngle = 0.0f;
 			mSinTwistHalfMaxAngle = 0.0f;
 			mCosTwistHalfMinAngle = 1.0f;
 			mCosTwistHalfMaxAngle = 1.0f;
 		}
-		else if (inTwistMinAngle < -cFreeAngle& & inTwistMaxAngle > cFreeAngle) {
+		else if (inTwistMinAngle < -cFreeAngle&& inTwistMaxAngle > cFreeAngle) {
 			mRotationFlags |= TwistXFree;
 			mSinTwistHalfMinAngle = -1.0f;
 			mSinTwistHalfMaxAngle = 1.0f;
@@ -2042,14 +2042,14 @@ public:
 			mCosTwistHalfMaxAngle = twist_c.GetY();
 		}
 
-		if (inSwingYMinAngle > -cLockedAngle& & inSwingYMaxAngle < cLockedAngle) {
+		if (inSwingYMinAngle > -cLockedAngle&& inSwingYMaxAngle < cLockedAngle) {
 			mRotationFlags |= SwingYLocked;
 			mSinSwingYHalfMinAngle = 0.0f;
 			mSinSwingYHalfMaxAngle = 0.0f;
 			mCosSwingYHalfMinAngle = 1.0f;
 			mCosSwingYHalfMaxAngle = 1.0f;
 		}
-		else if (inSwingYMinAngle < -cFreeAngle& & inSwingYMaxAngle > cFreeAngle) {
+		else if (inSwingYMinAngle < -cFreeAngle&& inSwingYMaxAngle > cFreeAngle) {
 			mRotationFlags |= SwingYFree;
 			mSinSwingYHalfMinAngle = -1.0f;
 			mSinSwingYHalfMaxAngle = 1.0f;
@@ -2064,14 +2064,14 @@ public:
 			MOSS_ASSERT(mSinSwingYHalfMinAngle <= mSinSwingYHalfMaxAngle);
 		}
 
-		if (inSwingZMinAngle > -cLockedAngle& & inSwingZMaxAngle < cLockedAngle) {
+		if (inSwingZMinAngle > -cLockedAngle&& inSwingZMaxAngle < cLockedAngle) {
 			mRotationFlags |= SwingZLocked;
 			mSinSwingZHalfMinAngle = 0.0f;
 			mSinSwingZHalfMaxAngle = 0.0f;
 			mCosSwingZHalfMinAngle = 1.0f;
 			mCosSwingZHalfMaxAngle = 1.0f;
 		}
-		else if (inSwingZMinAngle < -cFreeAngle& & inSwingZMaxAngle > cFreeAngle) {
+		else if (inSwingZMinAngle < -cFreeAngle&& inSwingZMaxAngle > cFreeAngle) {
 			mRotationFlags |= SwingZFree;
 			mSinSwingZHalfMinAngle = -1.0f;
 			mSinSwingZHalfMaxAngle = 1.0f;
@@ -2692,7 +2692,7 @@ public:
 		// where:
 		//
 		// c1, c2 = matrix that takes us from body 1 and 2 COM to constraint space 1 and 2
-		if (inAxisX1 == inAxisX2& & inAxisY1 == inAxisY2) {
+		if (inAxisX1 == inAxisX2&& inAxisY1 == inAxisY2) {
 			// Axis are the same -> identity transform
 			return Quat::Identity();
 		}
@@ -2710,7 +2710,7 @@ public:
 	/// @param inAxisZ2 Reference axis Z for body 2
 	static Quat sGetInvInitialOrientationXZ(Vec3Arg inAxisX1, Vec3Arg inAxisZ1, Vec3Arg inAxisX2, Vec3Arg inAxisZ2) {
 		// See comment at sGetInvInitialOrientationXY
-		if (inAxisX1 == inAxisX2& & inAxisZ1 == inAxisZ2) {
+		if (inAxisX1 == inAxisX2&& inAxisZ1 == inAxisZ2) {
 			return Quat::Identity();
 		}
 		else {
@@ -3819,7 +3819,7 @@ public:
 	virtual Mat44				GetConstraintToBody2Matrix() const override;
 
 	/// Update maximum angle between body 1 and 2 (see ConeConstraintSettings)
-	void						SetHalfConeAngle(float inHalfConeAngle)		{ MOSS_ASSERT(inHalfConeAngle >= 0.0f& & inHalfConeAngle <= MOSS_PI); mCosHalfConeAngle = Cos(inHalfConeAngle); }
+	void						SetHalfConeAngle(float inHalfConeAngle)		{ MOSS_ASSERT(inHalfConeAngle >= 0.0f&& inHalfConeAngle <= MOSS_PI); mCosHalfConeAngle = Cos(inHalfConeAngle); }
 	float						GetCosHalfConeAngle() const					{ return mCosHalfConeAngle; }
 
 	///@name Get Lagrange multiplier from last physics update (the linear/angular impulse applied to satisfy the constraint)
@@ -4105,7 +4105,7 @@ public:
 
 	/// Make axis free (unconstrained)
 	void						MakeFreeAxis(EAxis inAxis)									{ mLimitMin[inAxis] = -FLT_MAX; mLimitMax[inAxis] = FLT_MAX; }
-	bool						IsFreeAxis(EAxis inAxis) const								{ return mLimitMin[inAxis] == -FLT_MAX& & mLimitMax[inAxis] == FLT_MAX; }
+	bool						IsFreeAxis(EAxis inAxis) const								{ return mLimitMin[inAxis] == -FLT_MAX&& mLimitMax[inAxis] == FLT_MAX; }
 
 	/// Make axis fixed (fixed at value 0)
 	void						MakeFixedAxis(EAxis inAxis)									{ mLimitMin[inAxis] = FLT_MAX; mLimitMax[inAxis] = -FLT_MAX; }
@@ -4246,10 +4246,10 @@ private:
 
 	// Constraint settings helper functions
 	inline bool					IsTranslationConstrained() const							{ return (mFreeAxis&  0b111) != 0b111; }
-	inline bool					IsTranslationFullyConstrained() const						{ return (mFixedAxis&  0b111) == 0b111& & !mHasSpringLimits; }
+	inline bool					IsTranslationFullyConstrained() const						{ return (mFixedAxis&  0b111) == 0b111&& !mHasSpringLimits; }
 	inline bool					IRotationConstrained() const								{ return (mFreeAxis&  0b111000) != 0b111000; }
 	inline bool					IRotationFullyConstrained() const							{ return (mFixedAxis&  0b111000) == 0b111000; }
-	inline bool					HasFriction(EAxis inAxis) const								{ return !IsFixedAxis(inAxis)& & mMaxFriction[inAxis] > 0.0f; }
+	inline bool					HasFriction(EAxis inAxis) const								{ return !IsFixedAxis(inAxis)&& mMaxFriction[inAxis] > 0.0f; }
 
 	// CONFIGURATION PROPERTIES FOLLOW
 

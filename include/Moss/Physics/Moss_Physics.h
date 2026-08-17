@@ -32,14 +32,14 @@
  * ---
  *
  * ### Core Features:
- * - **Jolt 5.3.0 Integration** — Lightweight, SIMD-accelerated, and cross-platform physics core.
- * - **2D & 3D Simulation** — Unified system supporting both 2D arcade-style and full 3D rigid-body dynamics.
- * - **Deterministic Simulation** — Ensures reproducible results across different platforms and frame rates.
- * - **Broadphase&  Narrowphase Collision** — Highly optimized multi-threaded broadphase with efficient shape queries.
- * - **Continuous Collision Detection (CCD)** — Prevents tunneling for fast-moving objects.
- * - **Constraint Solver** — Handles joints, springs, and ragdolls with stable stacking and accurate motion.
- * - **Trigger & Query Support** — Overlap queries, raycasts, sweeps, and shape casts.
- * - **Material System** — Custom friction, restitution, and physical material blending.
+ * - **Jolt 5.3.0 Integration** â€” Lightweight, SIMD-accelerated, and cross-platform physics core.
+ * - **2D & 3D Simulation** â€” Unified system supporting both 2D arcade-style and full 3D rigid-body dynamics.
+ * - **Deterministic Simulation** â€” Ensures reproducible results across different platforms and frame rates.
+ * - **Broadphase&  Narrowphase Collision** â€” Highly optimized multi-threaded broadphase with efficient shape queries.
+ * - **Continuous Collision Detection (CCD)** â€” Prevents tunneling for fast-moving objects.
+ * - **Constraint Solver** â€” Handles joints, springs, and ragdolls with stable stacking and accurate motion.
+ * - **Trigger & Query Support** â€” Overlap queries, raycasts, sweeps, and shape casts.
+ * - **Material System** â€” Custom friction, restitution, and physical material blending.
  *
  * ---
  *
@@ -525,23 +525,23 @@ public:
 	// Check if two triangles are identical
 	bool			operator == (const IndexedTriangleNoMaterial& inRHS) const
 	{
-		return mIdx[0] == inRHS.mIdx[0]& & mIdx[1] == inRHS.mIdx[1]& & mIdx[2] == inRHS.mIdx[2];
+		return mIdx[0] == inRHS.mIdx[0]&& mIdx[1] == inRHS.mIdx[1]&& mIdx[2] == inRHS.mIdx[2];
 	}
 
 	// Check if two triangles are equivalent (using the same vertices)
 	bool			IsEquivalent(const IndexedTriangleNoMaterial& inRHS) const
 	{
-		return (mIdx[0] == inRHS.mIdx[0]& & mIdx[1] == inRHS.mIdx[1]& & mIdx[2] == inRHS.mIdx[2])
-			|| (mIdx[0] == inRHS.mIdx[1]& & mIdx[1] == inRHS.mIdx[2]& & mIdx[2] == inRHS.mIdx[0])
-			|| (mIdx[0] == inRHS.mIdx[2]& & mIdx[1] == inRHS.mIdx[0]& & mIdx[2] == inRHS.mIdx[1]);
+		return (mIdx[0] == inRHS.mIdx[0]&& mIdx[1] == inRHS.mIdx[1]&& mIdx[2] == inRHS.mIdx[2])
+			|| (mIdx[0] == inRHS.mIdx[1]&& mIdx[1] == inRHS.mIdx[2]&& mIdx[2] == inRHS.mIdx[0])
+			|| (mIdx[0] == inRHS.mIdx[2]&& mIdx[1] == inRHS.mIdx[0]&& mIdx[2] == inRHS.mIdx[1]);
 	}
 
 	// Check if two triangles are opposite (using the same vertices but in opposing order)
 	bool			IsOpposite(const IndexedTriangleNoMaterial& inRHS) const
 	{
-		return (mIdx[0] == inRHS.mIdx[0]& & mIdx[1] == inRHS.mIdx[2]& & mIdx[2] == inRHS.mIdx[1])
-			|| (mIdx[0] == inRHS.mIdx[1]& & mIdx[1] == inRHS.mIdx[0]& & mIdx[2] == inRHS.mIdx[2])
-			|| (mIdx[0] == inRHS.mIdx[2]& & mIdx[1] == inRHS.mIdx[1]& & mIdx[2] == inRHS.mIdx[0]);
+		return (mIdx[0] == inRHS.mIdx[0]&& mIdx[1] == inRHS.mIdx[2]&& mIdx[2] == inRHS.mIdx[1])
+			|| (mIdx[0] == inRHS.mIdx[1]&& mIdx[1] == inRHS.mIdx[0]&& mIdx[2] == inRHS.mIdx[2])
+			|| (mIdx[0] == inRHS.mIdx[2]&& mIdx[1] == inRHS.mIdx[1]&& mIdx[2] == inRHS.mIdx[0]);
 	}
 
 	// Check if triangle is degenerate
@@ -591,7 +591,7 @@ public:
 	// Check if two triangles are identical
 	bool			operator == (const IndexedTriangle& inRHS) const
 	{
-		return mMaterialIndex == inRHS.mMaterialIndex& & mUserData == inRHS.mUserData& & IndexedTriangleNoMaterial::operator==(inRHS);
+		return mMaterialIndex == inRHS.mMaterialIndex&& mUserData == inRHS.mUserData&& IndexedTriangleNoMaterial::operator==(inRHS);
 	}
 
 	// Rotate the vertices so that the lowest vertex becomes the first. This does not change the represented triangle.
@@ -762,7 +762,7 @@ public:
 	void SetTorqueLimit(float inLimit) { mMinTorqueLimit = -inLimit; mMaxTorqueLimit = inLimit; }
 
 	// Check if settings are valid
-	bool IsValid() const { return mSpringSettings.mFrequency >= 0.0f& & mSpringSettings.mDamping >= 0.0f& & mMinForceLimit <= mMaxForceLimit& & mMinTorqueLimit <= mMaxTorqueLimit; }
+	bool IsValid() const { return mSpringSettings.mFrequency >= 0.0f&& mSpringSettings.mDamping >= 0.0f&& mMinForceLimit <= mMaxForceLimit&& mMinTorqueLimit <= mMaxTorqueLimit; }
 
 	// Saves the contents of the motor settings in binary form to inStream.
 	void SaveBinaryState(StreamOut& inStream) const;
@@ -2578,7 +2578,7 @@ public:
 	// See comment at GetIndexInActiveBodiesInternal for reasoning why TSAN is disabled here
 	MOSS_TSAN_NO_SANITIZE
 	// If this body is currently actively simulating (true) or sleeping (false)
-	inline bool				IsActive() const												{ return mMotionProperties != nullptr& & mMotionProperties->mIndexInActiveBodies != cInactiveIndex; }
+	inline bool				IsActive() const												{ return mMotionProperties != nullptr&& mMotionProperties->mIndexInActiveBodies != cInactiveIndex; }
 
 	// Check if this body is static (not movable)
 	inline bool				IsStatic() const												{ return mMotionType == EMotionType::Static; }
@@ -3109,7 +3109,7 @@ public:
 	{
 		// If cos max slope angle is close to one the system is turned off,
 		// otherwise check the angle between the up and normal vector
-		return mCosMaxSlopeAngle < cNoMaxSlopeAngle& & inNormal.Dot(mUp) < mCosMaxSlopeAngle;
+		return mCosMaxSlopeAngle < cNoMaxSlopeAngle&& inNormal.Dot(mUp) < mCosMaxSlopeAngle;
 	}
 
 	// Get the current shape that the character is using.
@@ -3544,10 +3544,10 @@ public:
 		ContactKey&	operator = (const ContactKey& inContact) = default;
 
 		// Checks if two contacts refer to the same body (or virtual character)
-		inline bool	IsSameBody(const ContactKey& inOther) const { return mBodyB == inOther.mBodyB& & mCharacterIDB == inOther.mCharacterIDB; }
+		inline bool	IsSameBody(const ContactKey& inOther) const { return mBodyB == inOther.mBodyB&& mCharacterIDB == inOther.mCharacterIDB; }
 
 		// Equality operator
-		bool operator == (const ContactKey& inRHS) const { return mBodyB == inRHS.mBodyB& & mCharacterIDB == inRHS.mCharacterIDB& & mSubShapeIDB == inRHS.mSubShapeIDB; }
+		bool operator == (const ContactKey& inRHS) const { return mBodyB == inRHS.mBodyB&& mCharacterIDB == inRHS.mCharacterIDB&& mSubShapeIDB == inRHS.mSubShapeIDB; }
 
 		bool operator != (const ContactKey& inRHS) const { return !(*this == inRHS); }
 
@@ -3598,7 +3598,7 @@ public:
 	// Check if the character is currently in contact with or has collided with another body in the last operation (e.g. Update or WalkStairs)
 	bool HasCollidedWith(const BodyID& inBody) const {
 		for (const CharacterVirtual::Contact& c : mActiveContacts)
-			if (c.mHadCollision& & c.mBodyB == inBody)
+			if (c.mHadCollision&& c.mBodyB == inBody)
 				return true;
 		return false;
 	}
@@ -3607,7 +3607,7 @@ public:
 	bool HasCollidedWith(const CharacterID& inCharacterID) const
 	{
 		for (const CharacterVirtual::Contact& c : mActiveContacts)
-			if (c.mHadCollision& & c.mCharacterIDB == inCharacterID)
+			if (c.mHadCollision&& c.mCharacterIDB == inCharacterID)
 				return true;
 		return false;
 	}

@@ -222,7 +222,7 @@ public:
 	uint8						GetNumStepsBetweenCollisionTestInactive() const { return mNumStepsBetweenCollisionTestInactive; }
 
 	// Generic interface of a constraint
-	virtual bool				IsActive() const override					{ return mIsActive& & Constraint::IsActive(); }
+	virtual bool				IsActive() const override					{ return mIsActive&& Constraint::IsActive(); }
 	virtual void				NotifyShapeChanged(const BodyID& inBodyID, Vec3Arg inDeltaCOM) override { /* Do nothing*/ }
 	virtual void				SetupVelocityConstraint(float inDeltaTime) override;
 	virtual void				ResetWarmStart() override;
@@ -476,7 +476,7 @@ public:
 	float					GetCurrentRatio() const;
 
 	// Only allow sleeping when the transmission is idle
-	bool					AllowSleep() const							{ return mGearSwitchTimeLeft <= 0.0f& & mClutchReleaseTimeLeft <= 0.0f& & mGearSwitchLatencyTimeLeft <= 0.0f; }
+	bool					AllowSleep() const							{ return mGearSwitchTimeLeft <= 0.0f&& mClutchReleaseTimeLeft <= 0.0f&& mGearSwitchLatencyTimeLeft <= 0.0f; }
 
 	// Saving state for replay
 	void					SaveState(StateRecorder& inStream) const;
@@ -603,7 +603,7 @@ public:
 	// Constructor
 	// @param inObjectLayer Object layer to test collision with
 	// @param inConvexRadiusFraction Fraction of half the wheel width (or wheel radius if it is smaller) that is used as the convex radius
-									VehicleCollisionTesterCastCylinder(ObjectLayer inObjectLayer, float inConvexRadiusFraction = 0.1f) : VehicleCollisionTester(inObjectLayer), mConvexRadiusFraction(inConvexRadiusFraction) { MOSS_ASSERT(mConvexRadiusFraction >= 0.0f& & mConvexRadiusFraction <= 1.0f); }
+									VehicleCollisionTesterCastCylinder(ObjectLayer inObjectLayer, float inConvexRadiusFraction = 0.1f) : VehicleCollisionTester(inObjectLayer), mConvexRadiusFraction(inConvexRadiusFraction) { MOSS_ASSERT(mConvexRadiusFraction >= 0.0f&& mConvexRadiusFraction <= 1.0f); }
 
 	// See: VehicleCollisionTester
 	virtual bool					Collide(PhysicsSystem& inPhysicsSystem, const VehicleConstraint& inVehicleConstraint, uint8 inWheelIndex, RVec3Arg inOrigin, Vec3Arg inDirection, const BodyID& inVehicleBodyID, Body*&outBody, SubShapeID& outSubShapeID, RVec3& outContactPosition, Vec3& outContactNormal, float& outSuspensionLength) const override;
@@ -783,7 +783,7 @@ public:
 	// @param inLeftRatio Value between -1 and 1 indicating an extra multiplier to the rotation rate of the left track (used for steering)
 	// @param inRightRatio Value between -1 and 1 indicating an extra multiplier to the rotation rate of the right track (used for steering)
 	// @param inBrake Value between 0 and 1 indicating how strong the brake pedal is pressed
-	void SetDriverInput(float inForward, float inLeftRatio, float inRightRatio, float inBrake) { MOSS_ASSERT(inLeftRatio != 0.0f& & inRightRatio != 0.0f); mForwardInput = inForward; mLeftRatio = inLeftRatio; mRightRatio = inRightRatio; mBrakeInput = inBrake; }
+	void SetDriverInput(float inForward, float inLeftRatio, float inRightRatio, float inBrake) { MOSS_ASSERT(inLeftRatio != 0.0f&& inRightRatio != 0.0f); mForwardInput = inForward; mLeftRatio = inLeftRatio; mRightRatio = inRightRatio; mBrakeInput = inBrake; }
 
 	// Value between -1 and 1 for auto transmission and value between 0 and 1 indicating desired driving direction and amount the gas pedal is pressed
 	void SetForwardInput(float inForward) { mForwardInput = inForward; }

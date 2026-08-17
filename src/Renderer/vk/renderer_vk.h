@@ -2,7 +2,7 @@
 #define MOSS_RENDERER_INTERNAL_H
 
 #include <vulkan/vulkan.h>
-
+#include "../renderer_intern.h"
 #include <Moss/Moss_Renderer.h>
 
 inline static const uint32_t cFrameCount = 2;

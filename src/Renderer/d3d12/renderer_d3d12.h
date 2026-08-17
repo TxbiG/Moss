@@ -1,6 +1,7 @@
 #ifndef MOSS_RENDERER_INTERNAL_H
 #define MOSS_RENDERER_INTERNAL_H
-#include <Moss/Moss_Renderer.h>
+
+#include "../renderer_intern.h"
 
 #define MOSS_MAX_COLOR_ATTACHMENTS 8
 #define MOSS_MAX_BINDINGS 16

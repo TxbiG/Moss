@@ -1,6 +1,4 @@
-#include <Moss/Renderer/Renderer_intern.h>
-
-
+#include "renderer_gl.h"
 
 typedef struct Moss_PipelineState {
     GLuint program;         // OpenGL shader program
