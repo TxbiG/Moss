@@ -96,7 +96,7 @@ if(WIN32)
 	list(APPEND MOSS_SRC_FILES
 		${MOSS_PLATFORM_FILES}
 		${MOSS_AUDIO_PLATFORM_FILES}
-		${MOSS_ROOT}/Network/win32.c
+		${MOSS_ROOT}/Network/win32.cpp
 	)
 elseif(UNIX AND NOT APPLE) # catches Linux/FreeBSD
 	if(USE_WAYLAND)
@@ -138,7 +138,7 @@ elseif(APPLE)
 	list(APPEND MOSS_SRC_FILES
 		${MOSS_PLATFORM_FILES}
 		${MOSS_AUDIO_PLATFORM_FILES}
-		${MOSS_ROOT}/Network/unix.c
+		${MOSS_ROOT}/Network/unix.cpp
 	)
 endif()
 
