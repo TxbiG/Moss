@@ -1,7 +1,7 @@
 #ifndef MOSS_WIN32_AUDIO_H
 #define MOSS_WIN32_AUDIO_H
 
-#include <Moss/Audio/audio_intern.h>
+#include "./audio_intern.h"
 
 #define WIN32_LEAN_AND_MEAN
 #define NOMINMAX

@@ -1,9 +1,4 @@
-#include <Moss/Platform/Windows/win32_platform.h>
-
-
-
-
-
+#include "win32_platform.h"
 
 
 Moss_Haptic* Moss_OpenHaptic(Moss_HapticID id) {

@@ -1,5 +1,5 @@
 // win32_speaker.cpp
-#include <Moss/Audio/xaudio/win32_audio.h>
+#include "win32_audio.h"
 
 #include <mmdeviceapi.h>
 #include <Functiondiscoverykeys_devpkey.h>

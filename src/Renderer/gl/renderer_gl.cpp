@@ -1,6 +1,18 @@
-#include <Moss/Renderer/Renderer_intern.h>
+#include "renderer_intern.h"
 
 // Compatibility
+
+struct Texture {
+
+};
+
+struct Font {
+
+};
+
+
+
+
 
 
 RendererGL::~RendererGL() override = default;

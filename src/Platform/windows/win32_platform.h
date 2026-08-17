@@ -1,7 +1,7 @@
 #ifndef MOSS_PLATFORM_WIN32_H
 #define MOSS_PLATFORM_WIN32_H
 
-#include <Moss/Platform/platform_intern.h>
+#include "./platform_intern.h
 
 #define WIN32_LEAN_AND_MEAN
 #define NOMINMAX

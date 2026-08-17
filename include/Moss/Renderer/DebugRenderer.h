@@ -178,8 +178,7 @@ public:
 	static DebugRenderer *	sInstance;
 
 	/// Vertex format used by the triangle renderer
-	class Vertex
-	{
+	class Vertex {
 	public:
 		Float3				mPosition;
 		Float3				mNormal;

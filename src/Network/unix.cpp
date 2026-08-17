@@ -172,13 +172,23 @@ int enet_address_set_host (ENetAddress * address, ENetAddressType type, const ch
     hostEntry = gethostbyname (name);
 #endif
 
-    /* TODO */
-    /*if (hostEntry != NULL && hostEntry -> h_addrtype == AF_INET)
+    if (hostEntry != NULL && hostEntry->h_addr_list != NULL && hostEntry->h_addr_list[0] != NULL)
     {
-        address -> host = * (enet_uint32 *) hostEntry -> h_addr_list [0];
-
-        return 0;
-    }*/
+        if (hostEntry->h_addrtype == AF_INET && hostEntry->h_length >= 4)
+        {
+            address->type = ENET_ADDRESS_TYPE_IPV4;
+            memcpy(address->host.v4, hostEntry->h_addr_list[0], 4);
+            address->port = port;
+            return 0;
+        }
+        if (hostEntry->h_addrtype == AF_INET6 && hostEntry->h_length >= 16)
+        {
+            address->type = ENET_ADDRESS_TYPE_IPV6;
+            memcpy(address->host.v6, hostEntry->h_addr_list[0], 16);
+            address->port = port;
+            return 0;
+        }
+    }
 #endif
 
     if (enet_address_set_host_ip(address, name) == 0) { if (type == ENET_ADDRESS_TYPE_ANY) { enet_address_convert_ipv6(address); } return 0; }
@@ -267,10 +277,11 @@ int enet_socket_listen (ENetSocket socket, int backlog) {
     return listen (socket, backlog < 0 ? SOMAXCONN : backlog);
 }
 
-ENetSocket enet_socket_create (ENetSocketType type) {
-    return socket (PF_INET, type == ENET_SOCKET_TYPE_DATAGRAM ? SOCK_DGRAM : SOCK_STREAM, 0);
+ENetSocket enet_socket_create(ENetAddressType address_type, ENetSocketType socket_type) {
+    int family = address_type == ENET_ADDRESS_TYPE_IPV6 ? PF_INET6 : PF_INET;
+    if (address_type == ENET_ADDRESS_TYPE_ANY) { family = PF_INET6; }
+    return socket(family, socket_type == ENET_SOCKET_TYPE_DATAGRAM ? SOCK_DGRAM : SOCK_STREAM, 0);
 }
-
 int enet_socket_set_option (ENetSocket socket, ENetSocketOption option, int value) {
     int result = -1;
     switch (option)
@@ -650,4 +661,3 @@ static int enet_address_to_sock_addr(const ENetAddress* address, void* sockAddr)
 }
 
 #endif
-

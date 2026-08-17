@@ -23,8 +23,7 @@ public:
         // Setup cube geometry here...
     }
 
-    void Draw(const Mat44& modelMatrix)
-    {
+    void Draw(const Mat44& modelMatrix) {
         // Set shader uniforms like density, color, step size...
         pipeline->Activate();
         primitive->Draw(); // Draws the fog volume cube

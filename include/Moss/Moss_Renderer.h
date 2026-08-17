@@ -143,7 +143,7 @@ struct Moss_DrawModelDesc {
     VisibleLayer visibility = 0xFFFFFFFFu;
 };
 
-enum class MaterialTextureType;
+enum MaterialTextureType;
 
 struct Moss_Material;
 struct Moss_SpriteBatch;
@@ -702,6 +702,25 @@ MOSS_API void Moss_ResourceSetDestroy(Moss_ResourceSet* set);
 MOSS_API Moss_Framebuffer* Moss_FramebufferCreate(Moss_Renderer* renderer, const Moss_FramebufferDesc* desc);
 MOSS_API void Moss_FramebufferDestroy(Moss_Framebuffer* framebuffer);
 
+
+enum Moss_Upscaler {
+    MOSS_UPSCALER_NONE,
+    MOSS_UPSCALER_FSR1,
+    MOSS_UPSCALER_FSR2
+};
+
+
+struct Moss_RendererUpscalerDesc {
+    Moss_Upscaler upscaler = MOSS_UPSCALER_NONE;
+    Moss_FSR2QualityMode fsr2_quality = MOSS_FSR2_QUALITY;
+    bool enable_sharpening = false;
+    float sharpness = 0.0f;
+};
+
+MOSS_API void Moss_RendererSetUpscaler(Moss_Renderer* renderer, Moss_Upscaler upscaler);
+MOSS_API void Moss_RendererSetUpscalerDesc(Moss_Renderer* renderer, const Moss_RendererUpscalerDesc* desc);
+
+
 #if defined(MOSS_DEBUG_RENDERER) || !defined(NDEBUG)
 /*! @brief Get the active physical GPU name for debug overlays. @return Backend-owned string, or null if unavailable. @ingroup Renderer Debug/Utils. */
 MOSS_API char* Moss_GPUGetPhysicalDeviceName();
@@ -711,6 +730,198 @@ MOSS_API char* Moss_GPUAPIGetName();
 MOSS_API char* Moss_GPUAPIGetVersion();
 
 
+/// Note that this class is meant to be a quick start for implementing a debug renderer, it is not the most efficient way to implement a debug renderer.
+class MOSS_DEBUG_RENDERER_EXPORT DebugRendererSimple : public DebugRenderer
+{
+public:
+	MOSS_OVERRIDE_NEW_DELETE
+
+	/// Constructor
+								DebugRendererSimple();
+
+	/// Should be called every frame by the application to provide the camera position.
+	/// This is used to determine the correct LOD for rendering.
+	void						SetCameraPos(RVec3Arg inCameraPos)
+	{
+		mCameraPos = inCameraPos;
+		mCameraPosSet = true;
+	}
+
+	/// Fallback implementation that uses DrawLine to draw a triangle (override this if you have a version that renders solid triangles)
+	virtual void				DrawTriangle(RVec3Arg inV1, RVec3Arg inV2, RVec3Arg inV3, ColorArg inColor, ECastShadow inCastShadow) override
+	{
+		DrawLine(inV1, inV2, inColor);
+		DrawLine(inV2, inV3, inColor);
+		DrawLine(inV3, inV1, inColor);
+	}
+
+protected:
+	/// Implementation of DebugRenderer interface
+	virtual Batch				CreateTriangleBatch(const Triangle *inTriangles, int inTriangleCount) override;
+	virtual Batch				CreateTriangleBatch(const Vertex *inVertices, int inVertexCount, const uint32 *inIndices, int inIndexCount) override;
+	virtual void				DrawGeometry(RMat44Arg inModelMatrix, const AABox &inWorldSpaceBounds, float inLODScaleSq, ColorArg inModelColor, const GeometryRef &inGeometry, ECullMode inCullMode, ECastShadow inCastShadow, EDrawMode inDrawMode) override;
+
+private:
+	/// Implementation specific batch object
+	class BatchImpl : public RefTargetVirtual
+	{
+	public:
+		MOSS_OVERRIDE_NEW_DELETE
+
+		virtual void			AddRef() override			{ ++mRefCount; }
+		virtual void			Release() override			{ if (--mRefCount == 0) delete this; }
+
+		TArray<Triangle>			mTriangles;
+
+	private:
+		atomic<uint32>			mRefCount = 0;
+	};
+
+	/// Last provided camera position
+	RVec3						mCameraPos;
+	bool						mCameraPosSet = false;
+};
+
+/// Implementation of DebugRenderer that records the API invocations to be played back later
+class MOSS_EXPORT DebugRendererRecorder final : public DebugRenderer {
+public:
+	MOSS_OVERRIDE_NEW_DELETE
+
+	/// Constructor
+										DebugRendererRecorder(StreamOut &inStream) : mStream(inStream) { Initialize(); }
+
+	/// Implementation of DebugRenderer interface
+	virtual void						DrawLine(RVec3Arg inFrom, RVec3Arg inTo, ColorArg inColor) override;
+	virtual void						DrawTriangle(RVec3Arg inV1, RVec3Arg inV2, RVec3Arg inV3, ColorArg inColor, ECastShadow inCastShadow) override;
+	virtual Batch						CreateTriangleBatch(const Triangle *inTriangles, int inTriangleCount) override;
+	virtual Batch						CreateTriangleBatch(const Vertex *inVertices, int inVertexCount, const uint32 *inIndices, int inIndexCount) override;
+	virtual void						DrawGeometry(RMat44Arg inModelMatrix, const AABox &inWorldSpaceBounds, float inLODScaleSq, ColorArg inModelColor, const GeometryRef &inGeometry, ECullMode inCullMode, ECastShadow inCastShadow, EDrawMode inDrawMode) override;
+	virtual void						DrawText3D(RVec3Arg inPosition, const string_view &inString, ColorArg inColor, float inHeight) override;
+
+	/// Mark the end of a frame
+	void								EndFrame();
+
+	/// Control commands written into the stream
+	enum class ECommand : uint8
+	{
+		CreateBatch,
+		CreateBatchIndexed,
+		CreateGeometry,
+		EndFrame
+	};
+
+	/// Holds a single line segment
+	struct LineBlob
+	{
+		RVec3							mFrom;
+		RVec3							mTo;
+		Color							mColor;
+	};
+
+	/// Holds a single triangle
+	struct TriangleBlob
+	{
+		RVec3							mV1;
+		RVec3							mV2;
+		RVec3							mV3;
+		Color							mColor;
+		ECastShadow						mCastShadow;
+	};
+
+	/// Holds a single text entry
+	struct TextBlob
+	{
+										TextBlob() = default;
+										TextBlob(RVec3Arg inPosition, const string_view &inString, ColorArg inColor, float inHeight) : mPosition(inPosition), mString(inString), mColor(inColor), mHeight(inHeight) { }
+
+		RVec3							mPosition;
+		String							mString;
+		Color							mColor;
+		float							mHeight;
+	};
+
+	/// Holds a single geometry draw call
+	struct GeometryBlob
+	{
+		RMat44							mModelMatrix;
+		Color							mModelColor;
+		uint32							mGeometryID;
+		ECullMode						mCullMode;
+		ECastShadow						mCastShadow;
+		EDrawMode						mDrawMode;
+	};
+
+	/// All information for a single frame
+	struct Frame
+	{
+		TArray<LineBlob>					mLines;
+		TArray<TriangleBlob>				mTriangles;
+		TArray<TextBlob>					mTexts;
+		TArray<GeometryBlob>				mGeometries;
+	};
+
+private:
+	/// Implementation specific batch object
+	class BatchImpl : public RefTargetVirtual
+	{
+	public:
+		MOSS_OVERRIDE_NEW_DELETE
+
+										BatchImpl(uint32 inID)		: mID(inID) {  }
+
+		virtual void					AddRef() override			{ ++mRefCount; }
+		virtual void					Release() override			{ if (--mRefCount == 0) delete this; }
+
+		atomic<uint32>					mRefCount = 0;
+		uint32							mID;
+	};
+
+	/// Lock that prevents concurrent access to the internal structures
+	Mutex								mMutex;
+
+	/// Stream that recorded data will be sent to
+	StreamOut &							mStream;
+
+	/// Next available ID
+	uint32								mNextBatchID = 1;
+	uint32								mNextGeometryID = 1;
+
+	/// Cached geometries and their IDs
+	TMap<GeometryRef, uint32>	mGeometries;
+
+	/// Data that is being accumulated for the current frame
+	Frame								mCurrentFrame;
+};
+
+class MOSS_DEBUG_RENDERER_EXPORT DebugRendererPlayback
+{
+public:
+	/// Constructor
+										DebugRendererPlayback(DebugRenderer &inRenderer) : mRenderer(inRenderer) { }
+
+	/// Parse a stream of frames
+	void								Parse(StreamIn &inStream);
+
+	/// Get the number of parsed frames
+	uint32								GetNumFrames() const				{ return (uint32)mFrames.size(); }
+
+	/// Draw a frame
+	void								DrawFrame(uint32 inFrameNumber) const;
+
+private:
+	/// The debug renderer we're using to do the actual rendering
+	DebugRenderer &						mRenderer;
+
+	/// Mapping of ID to batch
+	TMap<uint32, DebugRenderer::Batch> mBatches;
+
+	/// Mapping of ID to geometry
+	TMap<uint32, DebugRenderer::GeometryRef> mGeometries;
+
+	/// The list of parsed frames
+	using Frame = DebugRendererRecorder::Frame;
+	TArray<Frame>						mFrames;
+};
 
 //===========================================================
 // 2D Debug/Utils Rendering
@@ -785,22 +996,6 @@ MOSS_API void Moss_RendererDrawPolygonShape3D(Moss_Renderer* renderer, const Vec
 MOSS_API void Moss_RendererDrawGizmo3D(Moss_Renderer* renderer, const RMat44* transform, float size);
 #endif
 
-enum Moss_Upscaler {
-    MOSS_UPSCALER_NONE,
-    MOSS_UPSCALER_FSR1,
-    MOSS_UPSCALER_FSR2
-};
-
-
-struct Moss_RendererUpscalerDesc {
-    Moss_Upscaler upscaler = MOSS_UPSCALER_NONE;
-    Moss_FSR2QualityMode fsr2_quality = MOSS_FSR2_QUALITY;
-    bool enable_sharpening = false;
-    float sharpness = 0.0f;
-};
-
-MOSS_API void Moss_RendererSetUpscaler(Moss_Renderer* renderer, Moss_Upscaler upscaler);
-MOSS_API void Moss_RendererSetUpscalerDesc(Moss_Renderer* renderer, const Moss_RendererUpscalerDesc* desc);
 
 // GPU APIs / Tools
 #if defined(MOSS_GRAPHICS_OPENGL) || defined(MOSS_GRAPHICS_OPENGLES)

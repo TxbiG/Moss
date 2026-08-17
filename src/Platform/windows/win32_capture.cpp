@@ -1,6 +1,8 @@
 #include <Moss/Moss_Platform.h>
 #include <Moss/Moss_stdinc.h>
 
+#include "win32_platform.h"
+
 #define WIN32_LEAN_AND_MEAN
 #define NOMINMAX
 #include <windows.h>

@@ -135,6 +135,12 @@ int enet_socket_listen (ENetSocket socket, int backlog) { return listen (socket,
 
 ENetSocket enet_socket_create(ENetAddressType adress_type, ENetSocketType socket_type) { return socket (PF_INET, socket_type == ENET_SOCKET_TYPE_DATAGRAM ? SOCK_DGRAM : SOCK_STREAM, 0); }
 
+/*
+ENetSocket enet_socket_create(ENetAddressType address_type, ENetSocketType socket_type) {
+    int family = address_type == ENET_ADDRESS_TYPE_IPV6 || address_type == ENET_ADDRESS_TYPE_ANY ? PF_INET6 : PF_INET;
+    return socket(family, socket_type == ENET_SOCKET_TYPE_DATAGRAM ? SOCK_DGRAM : SOCK_STREAM, 0);
+}
+*/
 int enet_socket_set_option (ENetSocket socket, ENetSocketOption option, int value) {
     int result = SOCKET_ERROR;
     switch (option)
