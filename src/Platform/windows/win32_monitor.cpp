@@ -175,7 +175,7 @@ Moss_GammaRamp* Moss_GetGammaRamp(Moss_Monitor monitor)
 }
 
 void Moss_SetGammaRamp(Moss_Monitor* monitor, const Moss_GammaRamp* gammaRamp) {
-    if (!gammaRamp || gammaRamp->size != 256) {
+    if (!gammaRamp || gammaRamp->size != 256U) {
         return; // Invalid input
     }
 
@@ -234,26 +234,26 @@ Moss_Monitor* Moss_MonitorGetSecondary() {
 
 void Moss_MonitorGetPhysicalSize(Moss_Monitor* monitor, int* width_mm, int* height_mm) {
     if (!monitor) return;
-    Moss_GetMonitorPhysicalSize(*monitor, width_mm, height_mm);
+    Moss_GetMonitorPhysicalSize(monitor, width_mm, height_mm);
 }
 
 void Moss_MonitorGetContentScale(Moss_Monitor* monitor, float* xscale, float* yscale) {
     if (!monitor) return;
-    Moss_GetMonitorContentScale(*monitor, xscale, yscale);
+    Moss_GetMonitorContentScale(monitor, xscale, yscale);
 }
 
 void Moss_MonitorGetPosition(Moss_Monitor* monitor, int* x, int* y) {
     if (!monitor) return;
-    Moss_GetMonitorPosition(*monitor, x, y);
+    Moss_GetMonitorPosition(monitor, x, y);
 }
 
 const char* Moss_MonitorGetName(Moss_Monitor* monitor) {
-    return monitor ? Moss_GetMonitorName(*monitor) : nullptr;
+    return monitor ? Moss_GetMonitorName(monitor) : nullptr;
 }
 
 void Moss_MonitorSetGammaRamp(Moss_Monitor* monitor, const Moss_GammaRamp* gammaRamp) {
     if (!monitor) return;
-    Moss_SetGammaRamp(*monitor, gammaRamp);
+    Moss_SetGammaRamp(monitor, gammaRamp);
 }
 
 Moss_GammaRamp* Moss_MonitorGetGammaRamp(Moss_Monitor* monitor) {
@@ -262,7 +262,7 @@ Moss_GammaRamp* Moss_MonitorGetGammaRamp(Moss_Monitor* monitor) {
 
 void Moss_MonitorSetGamma(Moss_Monitor* monitor, float gamma) {
     if (!monitor) return;
-    Moss_SetGamma(*monitor, gamma);
+    Moss_SetGamma(monitor, gamma);
 }
 
 static int CountVideoModes(const char* deviceName) {
@@ -299,23 +299,6 @@ Moss_VideoMode* Moss_GetVideoModes(Moss_Monitor monitor, int* outCount) {
     }
 
     return modes;
-}
-
-Moss_VideoMode Moss_GetCurrentVideoMode(Moss_Monitor* monitor) {
-    Moss_VideoMode mode = {0};
-    DEVMODEA dm = { .dmSize = sizeof(DEVMODEA) };
-
-    if (EnumDisplaySettingsA(monitor.monitorInfo.szDevice, ENUM_CURRENT_SETTINGS, &dm)) {
-        mode.width = dm.dmPelsWidth;
-        mode.height = dm.dmPelsHeight;
-        mode.refreshRate = dm.dmDisplayFrequency;
-
-        if (dm.dmBitsPerPel == 16) { mode.redBits = 5; mode.greenBits = 6; mode.blueBits = 5; } 
-        else if (dm.dmBitsPerPel == 24 || dm.dmBitsPerPel == 32) { mode.redBits = mode.greenBits = mode.blueBits = 8; } 
-        else { mode.redBits = mode.greenBits = mode.blueBits = dm.dmBitsPerPel / 3; }
-    }
-
-    return mode;
 }
 
 void Moss_SetMonitorCallback(Moss_MonitorCallback callback) {

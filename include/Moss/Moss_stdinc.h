@@ -892,16 +892,16 @@ inline bool MossAssertHelper(const char* expr, const char* file, uint32_t line, 
 
 #define MOSS_IF_ENABLE_ASSERTS(...)		__VA_ARGS__
 #else
-	#define MOSS_TRACE(msg, ...)
-	#define MOSS_DEBUG(msg, ...)
-	#define MOSS_INFO(msg, ...)
-	#define MOSS_WARN(msg, ...)
-	#define MOSS_ERROR(msg, ...)
-	#define MOSS_FATAL(msg, ...)
-	#define MOSS_CHECK(x, msg, ...)
-	#define MOSS_ASSERT(...)  ((void)0)
+	#define MOSS_TRACE(msg, ...)  		((void)0)
+	#define MOSS_DEBUG(msg, ...)  		((void)0)
+	#define MOSS_INFO(msg, ...)  		((void)0)
+	#define MOSS_WARN(msg, ...)  		((void)0)
+	#define MOSS_ERROR(msg, ...)  		((void)0)
+	#define MOSS_FATAL(msg, ...)  		((void)0)
+	#define MOSS_CHECK(x, msg, ...)  	((void)0)
+	#define MOSS_ASSERT(...)  			((void)0)
 
-	#define MOSS_IF_ENABLE_ASSERTS(...)  ((void)0)
+	#define MOSS_IF_ENABLE_ASSERTS(...) ((void)0)
 #endif
 
 // Shorthand for #ifdef MOSS_FLOATING_POINT_EXCEPTIONS_ENABLED / #endif

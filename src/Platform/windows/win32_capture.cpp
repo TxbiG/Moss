@@ -54,10 +54,10 @@ Moss_CameraPermissionState Moss_GetCameraPermissionState(Moss_Camera* camera) {}
 Moss_PropertiesID Moss_GetCameraProperties(Moss_Camera* camera) {}
 void Moss_CloseCamera(Moss_Camera *camera) {}
 Moss_CameraID Moss_GetCameraID(Moss_Camera *camera) {}
-Moss_PropertiesID Moss_GetCameraProperties(Moss_Camera *camera) {}
+//Moss_PropertiesID Moss_GetCameraProperties(Moss_Camera *camera) {}
 Moss_Camera* Moss_OpenCamera(Moss_CameraID instance_id, const Moss_CameraSpec *spec) {}
 
-Moss_VideoCapture* Moss_OpenCapture(Moss_VideoCaptureID captureID) {
+Moss_VideoCapture* Moss_OpenCapture(Moss_CameraID captureID) {
     Moss_VideoCapture* cap = calloc(1, sizeof(Moss_VideoCapture));
     if (!cap) { return NULL; }
 
@@ -101,12 +101,12 @@ Moss_VideoCapture* Moss_OpenCapture(Moss_VideoCaptureID captureID) {
 void Moss_CloseCapture(Moss_VideoCapture* cap) {
     if (!cap) return;
 
-    if (cap->mediaControl) cap->mediaControl->Stop(cap->mediaControl);
-    if (cap->videoProcAmp) cap->videoProcAmp->Release(cap->videoProcAmp);
-    if (cap->streamConfig) cap->streamConfig->Release(cap->streamConfig);
-    if (cap->videoCaptureFilter) cap->videoCaptureFilter->>Release(cap->videoCaptureFilter);
-    if (cap->captureBuilder) cap->captureBuilder->Release(cap->captureBuilder);
-    if (cap->graph) cap->graph->Release(cap->graph);
+    if (cap->mediaControl) cap->mediaControl->Stop();
+    if (cap->videoProcAmp) cap->videoProcAmp->Release();
+    if (cap->streamConfig) cap->streamConfig->Release();
+    if (cap->videoCaptureFilter) cap->videoCaptureFilter->Release();
+    if (cap->captureBuilder) cap->captureBuilder->Release();
+    if (cap->graph) cap->graph->Release();
 
     CoUninitialize();
     free(cap);
@@ -128,53 +128,49 @@ unsigned char* Moss_VideoCaptureReadFrame(Moss_VideoCapture* cap)
 // Sets
 void Moss_VideoCaptureSetBrightness(Moss_VideoCapture* cap, int brightness) {
     if (cap && cap->videoProcAmp) {
-        cap->videoProcAmp->Set(cap->videoProcAmp, VideoProcAmp_Brightness, brightness, VideoProcAmp_Flags_Manual);
+        cap->videoProcAmp->Set(VideoProcAmp_Brightness, brightness, VideoProcAmp_Flags_Manual);
     }
 }
 
 void Moss_VideoCaptureSetContrast(Moss_VideoCapture* cap, int contrast) {
     if (cap && cap->videoProcAmp) {
-        cap->videoProcAmp->Set(cap->videoProcAmp, VideoProcAmp_Contrast, contrast, VideoProcAmp_Flags_Manual);
+        cap->videoProcAmp->Set(VideoProcAmp_Contrast, contrast, VideoProcAmp_Flags_Manual);
     }
 }
 void Moss_VideoCaptureSetHUE(Moss_VideoCapture* cap, int hue) {
     if (cap && cap->videoProcAmp) {
-        cap->videoProcAmp->Set(cap->videoProcAmp, VideoProcAmp_Hue, hue, VideoProcAmp_Flags_Manual);
+        cap->videoProcAmp->Set(VideoProcAmp_Hue, hue, VideoProcAmp_Flags_Manual);
     }
 }
 void Moss_VideoCaptureSetSaturation(Moss_VideoCapture* cap, int saturation) {
     if (cap && cap->videoProcAmp) {
-        cap->videoProcAmp->Set(cap->videoProcAmp, VideoProcAmp_Saturation, saturation, VideoProcAmp_Flags_Manual);
+        cap->videoProcAmp->Set(VideoProcAmp_Saturation, saturation, VideoProcAmp_Flags_Manual);
     }
 }
 
 // Gets
-int Moss_VideoCaptureGetBrightness(Moss_VideoCapture* cap) {
-    long value = 0, flags = 0;
+int Moss_VideoCaptureGetBrightness(Moss_VideoCapture* cap, long value = 0, long flags = 0;) {
     if (cap && cap->videoProcAmp) {
-        cap->videoProcAmp->Get(cap->videoProcAmp, VideoProcAmp_Brightness, &value, &flags);
+        cap->videoProcAmp->Get(VideoProcAmp_Brightness, &value, &flags);
     }
     return (int)value;
 }
 
-int Moss_VideoCaptureGetContrast(Moss_VideoCapture* cap) {
-    long value = 0, flags = 0;
+int Moss_VideoCaptureGetContrast(Moss_VideoCapture* cap, long value = 0, long flags = 0;) {
     if (cap && cap->videoProcAmp) {
-        cap->videoProcAmp->Get(cap->videoProcAmp, VideoProcAmp_Contrast, &value, &flags);
+        cap->videoProcAmp->Get(VideoProcAmp_Contrast, &value, &flags);
     }
     return (int)value;
 }
-int Moss_VideoCaptureGetHUE(Moss_VideoCapture* cap) {
-    long value = 0, flags = 0;
+int Moss_VideoCaptureGetHUE(Moss_VideoCapture* cap, long value = 0, long flags = 0;) {
     if (cap && cap->videoProcAmp) {
-        cap->videoProcAmp->Get(cap->videoProcAmp, VideoProcAmp_Hue, &value, &flags);
+        cap->videoProcAmp->Get(VideoProcAmp_Hue, &value, &flags);
     }
     return (int)value;
 }
-int Moss_VideoCaptureGetSaturation(Moss_VideoCapture* cap) {
-    long value = 0, flags = 0;
+int Moss_VideoCaptureGetSaturation(Moss_VideoCapture* cap, long value = 0, long flags = 0;) {
     if (cap && cap->videoProcAmp) {
-        cap->videoProcAmp->Get(cap->videoProcAmp, VideoProcAmp_Saturation, &value, &flags);
+        cap->videoProcAmp->Get(VideoProcAmp_Saturation, &value, &flags);
     }
     return (int)value;
 }
