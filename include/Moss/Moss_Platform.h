@@ -834,19 +834,19 @@ MOSS_API Moss_Monitor* Moss_MonitorGetPrimary();
 /*! @brief X. @param X X @ingroup Monitor @returns returns monitor unless if theres not a second will return nullptr. */
 MOSS_API Moss_Monitor* Moss_MonitorGetSecondary();
 /*! @brief X. @param X X @ingroup Monitor */
-MOSS_API void Moss_MonitorGetPhysicalSize(Moss_Monitor monitor, int* width_mm, int* height_mm);
+MOSS_API void Moss_MonitorGetPhysicalSize(Moss_Monitor* monitor, int* width_mm, int* height_mm);
 /*! @brief X. @param X X @ingroup Monitor */
-MOSS_API void Moss_MonitorGetContentScale(Moss_Monitor monitor, float* xscale, float* yscale);
+MOSS_API void Moss_MonitorGetContentScale(Moss_Monitor* monitor, float* xscale, float* yscale);
 /*! @brief X. @param X X @ingroup Monitor */
-MOSS_API void Moss_MonitorGetPosition(Moss_Monitor monitor, int* x, int* y);
+MOSS_API void Moss_MonitorGetPosition(Moss_Monitor* monitor, int* x, int* y);
 /*! @brief X. @param X X @ingroup Monitor */
-MOSS_API const char* Moss_MonitorGetName(Moss_Monitor monitor);
+MOSS_API const char* Moss_MonitorGetName(Moss_Monitor* monitor);
 /*! @brief X. @param X X @ingroup Monitor */
-MOSS_API void Moss_MonitorSetGammaRamp(Moss_Monitor monitor, const Moss_GammaRamp* gammaRamp);
+MOSS_API void Moss_MonitorSetGammaRamp(Moss_Monitor* monitor, const Moss_GammaRamp* gammaRamp);
 /*! @brief X. @param X X @ingroup Monitor */
-MOSS_API Moss_GammaRamp* Moss_MonitorGetGammaRamp(Moss_Monitor monitor);
+MOSS_API Moss_GammaRamp* Moss_MonitorGetGammaRamp(Moss_Monitor* monitor);
 /*! @brief X. @param X X @ingroup Monitor */
-MOSS_API void Moss_MonitorSetGamma(Moss_Monitor monitor, float gamma);
+MOSS_API void Moss_MonitorSetGamma(Moss_Monitor* monitor, float gamma);
 
 
 

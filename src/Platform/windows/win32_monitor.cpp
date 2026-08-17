@@ -28,19 +28,12 @@ struct Moss_Monitor {
     */
 };
 
-static Moss_Monitor primaryMonitor = { 0 };
-static Moss_Monitor secondaryMonitor = { 0 };
+static Moss_Monitor* primaryMonitor = { 0 };
+static Moss_Monitor* secondaryMonitor = { 0 };
 
 static Moss_MonitorCallback g_monitorCallback = nullptr;
 
-static bool Moss_MonitorCopyRect(const RECT& src, Moss_MonitorRect* out_rect) {
-    if (!out_rect) return false;
-    out_rect->x = src.left;
-    out_rect->y = src.top;
-    out_rect->width = src.right - src.left;
-    out_rect->height = src.bottom - src.top;
-    return true;
-}
+
 BOOL CALLBACK MonitorEnumProc(HMONITOR handle, HDC hdc, LPRECT rect, LPARAM data) {
     Moss_Monitor* monitors = (Moss_Monitor*)data;
 
@@ -66,24 +59,22 @@ BOOL CALLBACK MonitorEnumProc(HMONITOR handle, HDC hdc, LPRECT rect, LPARAM data
 }
 
 void Moss_InitMonitors() {
-    Moss_Monitor monitors[2] = { 0 };
+    Moss_Monitor* monitors[2] = { 0 };
     EnumDisplayMonitors(NULL, NULL, MonitorEnumProc, (LPARAM)monitors);
 
     primaryMonitor = monitors[0];
     secondaryMonitor = monitors[1];
 }
 
+
+
 Moss_Monitor* Moss_GetPrimaryMonitor() {
-    if (primaryMonitor.handle == NULL) {
-        Moss_InitMonitors();
-    }
+    if (primaryMonitor.handle == NULL) { Moss_InitMonitors(); }
     return &primaryMonitor;
 }
 
 Moss_Monitor* Moss_GetSecondaryMonitor() {
-    if (secondaryMonitor.handle == NULL) {
-        Moss_InitMonitors();
-    }
+    if (secondaryMonitor.handle == NULL) { Moss_InitMonitors(); }
     return &secondaryMonitor;
 }
 
@@ -183,7 +174,7 @@ Moss_GammaRamp* Moss_GetGammaRamp(Moss_Monitor monitor)
     return outRamp;
 }
 
-void Moss_SetGammaRamp(Moss_Monitor monitor, const Moss_GammaRamp* gammaRamp) {
+void Moss_SetGammaRamp(Moss_Monitor* monitor, const Moss_GammaRamp* gammaRamp) {
     if (!gammaRamp || gammaRamp->size != 256) {
         return; // Invalid input
     }
@@ -204,8 +195,7 @@ void Moss_SetGammaRamp(Moss_Monitor monitor, const Moss_GammaRamp* gammaRamp) {
     DeleteDC(hdc);
 }
 
-void Moss_SetGamma(Moss_Monitor monitor, float gamma)
-{
+void Moss_SetGamma(Moss_Monitor* monitor, float gamma) {
     if (gamma <= 0.0f) return; // Invalid gamma
 
     // Get device context for the monitor's device name
@@ -255,16 +245,6 @@ void Moss_MonitorGetContentScale(Moss_Monitor* monitor, float* xscale, float* ys
 void Moss_MonitorGetPosition(Moss_Monitor* monitor, int* x, int* y) {
     if (!monitor) return;
     Moss_GetMonitorPosition(*monitor, x, y);
-}
-
-bool Moss_MonitorGetRect(Moss_Monitor* monitor, Moss_MonitorRect* out_rect) {
-    if (!monitor) return false;
-    return Moss_MonitorCopyRect(monitor->monitorInfo.rcMonitor, out_rect);
-}
-
-bool Moss_MonitorGetWorkArea(Moss_Monitor* monitor, Moss_MonitorRect* out_rect) {
-    if (!monitor) return false;
-    return Moss_MonitorCopyRect(monitor->monitorInfo.rcWork, out_rect);
 }
 
 const char* Moss_MonitorGetName(Moss_Monitor* monitor) {
@@ -321,7 +301,7 @@ Moss_VideoMode* Moss_GetVideoModes(Moss_Monitor monitor, int* outCount) {
     return modes;
 }
 
-Moss_VideoMode Moss_GetCurrentVideoMode(Moss_Monitor monitor) {
+Moss_VideoMode Moss_GetCurrentVideoMode(Moss_Monitor* monitor) {
     Moss_VideoMode mode = {0};
     DEVMODEA dm = { .dmSize = sizeof(DEVMODEA) };
 

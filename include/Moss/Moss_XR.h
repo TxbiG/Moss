@@ -142,23 +142,21 @@ Debug / Utilities
 /* ======================================================
  * Forward Declarations
  * =================================================== */
+struct MossXR_Context;
+struct MossXR_Session;
+struct MossXR_Swapchain;
+struct MossXR_Space;
+struct MossXR_Action;
+struct MossXR_ActionSet;
+struct MossXR_Layer;
+struct MossXR_Anchor;
+struct MossXR_Origin;
 
-struct MossXR_Context        MossXR_Context;
-struct MossXR_Session        MossXR_Session;
-struct MossXR_Swapchain      MossXR_Swapchain;
-struct MossXR_Space          MossXR_Space;
-struct MossXR_Action         MossXR_Action;
-struct MossXR_ActionSet      MossXR_ActionSet;
-struct MossXR_Layer          MossXR_Layer;
-struct MossXR_Anchor         MossXR_Anchor;
-struct MossXR_Origin         MossXR_Origin;
+struct MossXR_HandModifier;   // Hand Modifier tracks Hand movement.
+struct MossXR_BodyModifier;   // Body Modifier tracks body.
+struct MossXR_FaceModifier;   // Facial Modifier tracks facial expressions.
 
-
-struct MossXR_HandModifier   MossXR_HandModifier;   // Hand Modifier tracks Hand movement.
-struct MossXR_BodyModifier   MossXR_BodyModifier;   // Body Modifier tracks body.
-struct MossXR_FaceModifier   MossXR_FaceModifier;   // Facial Modifier tracks facial expressions.
-
-int64_t MossXR_Time;
+using MossXR_Time = int64_t;
 
 /* ======================================================
  * Enums

@@ -24,19 +24,33 @@ static IAudioCaptureClient* g_captureClient = nullptr;
 
 extern std::vector<AudioStream*> g_activeStreams;
 
-struct Moss_Microphone{
+
+struct Moss_Microphone {
     IMMDevice* inputDevice = nullptr;
     IAudioClient* audioClient = nullptr;
     IAudioCaptureClient* captureClient = nullptr;
     WAVEFORMATEX* format = nullptr;
 
     std::vector<std::wstring> microphoneIds;
-    std::vector<std::string>  microphoneNames;
+    std::vector<std::string> microphoneNames;
 
     std::atomic<bool> capturing = false;
     std::thread captureThread;
 
+    std::mutex bufferMutex;
+    std::vector<float> ringBuffer;
+    uint32_t ringFrameCapacity = 0;
+    uint32_t readFrame = 0;
+    uint32_t writeFrame = 0;
+    uint32_t availableFrames = 0;
+
+    uint32_t sampleRate = 48000;
+    uint32_t channels = 1;
+    uint32_t bufferFrames = 480;
+    bool voiceMetricsEnabled = true;
+
     float micGain = 1.0f;
+    Moss_MicrophoneLevels levels{};
 
     MicrophoneCallback micCallback = nullptr;
     void* micUserData = nullptr;

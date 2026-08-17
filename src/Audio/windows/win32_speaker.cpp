@@ -134,9 +134,7 @@ bool Moss_AudioSelectSpeakerDevice(int id) {
     return true;
 }
 
-int Moss_GetCurrentSpeakerDeviceID() {
-    return g_CurrentSpeakerID;
-}
+int Moss_GetCurrentSpeakerDeviceID() { return g_CurrentSpeakerID; }
 
 // -----------------------------
 // Speaker helper functions
@@ -146,7 +144,6 @@ const char* Moss_GetSpeakerDeviceName(int id) {
         return nullptr;
     return g_SpeakerDevices[id].name.c_str();
 }
+
 // Returns the number of enumerated speaker devices
-int Moss_ListSpeakerDevices() {
-    return static_cast<int>(g_SpeakerDevices.size());
-}
+int Moss_ListSpeakerDevices() { return static_cast<int>(g_SpeakerDevices.size()); }

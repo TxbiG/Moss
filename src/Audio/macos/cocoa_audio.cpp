@@ -1,7 +1,9 @@
 #ifndef MOSS_COCOA_AUDIO_H
 #define MOSS_COCOA_AUDIO_H
 
-#include <Moss/Audio/coreaudio/coreaudio_audio.h>
+#include "coreaudio_audio.h"
+#include <algorithm>
+#include <cstring>
 
 
 double GetDefaultOutputDeviceSampleRate() {
@@ -168,6 +170,26 @@ size_t streamPCM(float* out, size_t frames, int numChannels) {
 }
 
 
+void AudioStream::setVolume(float value) {
+    volume = std::clamp(value, 0.0f, 1.0f);
+}
+
+void AudioStream::setPitch(float value) {
+    pitch = std::clamp(value, 0.25f, 4.0f);
+}
+
+void AudioStream::setPlaybackRate(float value) {
+    playbackRate = std::clamp(value, 0.25f, 4.0f);
+    setPitch(playbackRate);
+}
+
+void AudioStream::setPan(float value) {
+    pan = std::clamp(value, -1.0f, 1.0f);
+}
+
+void AudioStream::setLooping(bool value) {
+    loop = value;
+}
 void AudioStream::play() {
     std::lock_guard<std::mutex> lock(audioMutex);
     if (!playing) {
@@ -184,9 +206,6 @@ void AudioStream::stop() {
 
 
 
-
-
-
 static MicrophoneCallback = nullptr;
 static AudioStreamCallback = nullptr;
 
@@ -199,13 +218,26 @@ void Moss_Terminate_Audio();
 void Moss_AudioUpdate(float deltaTime);
 
 
-Moss_AudioSource* Moss_AudioLoadWav();
+bool Moss_AudioRegisterDecoder(Moss_AudioEncodedFormat format, Moss_AudioDecodeCallback callback, void* userdata) {
+    return Moss_AudioRegisterDecoderShared(format, callback, userdata);
+}
 
-Moss_AudioSource* Moss_AudioLoadOgg(const char* filename, AudioLoadType type);
+Moss_AudioSource* Moss_AudioLoadWavFile(const char* filename) { return Moss_AudioLoadWaveSourceShared(filename); }
 
-Moss_AudioSource* Moss_AudioLoadMP3(const char* filename);
+Moss_AudioSource* Moss_AudioLoadWav() { return nullptr; }
 
+Moss_AudioSource* Moss_AudioLoadOgg(const char* filename, AudioLoadType type) { if (Moss_AudioSource* source = Moss_AudioDecodeWithRegisteredDecoderShared(Moss_AudioEncodedFormat::OGG, filename, type)) return source; return Moss_AudioLoadWaveSourceShared(filename); }
+
+Moss_AudioSource* Moss_AudioLoadMP3(const char* filename) { if (Moss_AudioSource* source = Moss_AudioDecodeWithRegisteredDecoderShared(Moss_AudioEncodedFormat::MP3, filename, AudioLoadType::FULLY_LOADED)) return source; return Moss_AudioLoadWaveSourceShared(filename); }
+
+
+void Moss_AudioSourceDestroy(Moss_AudioSource* source) {
+    if (source && source->destroy) {
+        source->destroy(source);
+    }
+}
 Moss_AudioSource* Moss_AudioCaptureMicrophone(Microphone* mic);
+Moss_AudioSource* Moss_AudioCaptureMossMicrophone(Moss_Microphone* mic);
 
 // Effects
 
@@ -372,5 +404,25 @@ int Moss_AudioMicrophoneGetChannels(Microphone* mic);
 void Moss_AudioStreamSetCallback(AudioStream* stream, AudioStreamCallback callback, void* userData);
 
 void Moss_AudioMicrophoneSetCallback(Microphone* mic, MicrophoneCallback callback, void* userData);
+
+
+
+void Moss_AudioStreamSetVolume(AudioStream* audiostream, float volume) { if (audiostream) audiostream->setVolume(volume); }
+void Moss_AudioStreamSetPitch(AudioStream* audiostream, float pitch) { if (audiostream) audiostream->setPitch(pitch); }
+void Moss_AudioStreamSetPlaybackRate(AudioStream* audiostream, float rate) { if (audiostream) audiostream->setPlaybackRate(rate); }
+void Moss_AudioStreamSetPan(AudioStream* audiostream, float pan) { if (audiostream) audiostream->setPan(pan); }
+void Moss_AudioStreamSetLoop(AudioStream* audiostream, bool loop) { if (audiostream) audiostream->setLooping(loop); }
+
+void Moss_AudioStream2DSetVolume(AudioStream2D* audiostream, float volume) { if (audiostream) audiostream->stream.setVolume(volume); }
+void Moss_AudioStream2DSetPitch(AudioStream2D* audiostream, float pitch) { if (audiostream) audiostream->stream.setPitch(pitch); }
+void Moss_AudioStream2DSetPlaybackRate(AudioStream2D* audiostream, float rate) { if (audiostream) audiostream->stream.setPlaybackRate(rate); }
+void Moss_AudioStream2DSetPan(AudioStream2D* audiostream, float pan) { if (audiostream) { audiostream->pan = std::clamp(pan, -1.0f, 1.0f); audiostream->stream.setPan(audiostream->pan); } }
+void Moss_AudioStream2DSetLoop(AudioStream2D* audiostream, bool loop) { if (audiostream) audiostream->stream.setLooping(loop); }
+
+void Moss_AudioStream3DSetVolume(AudioStream3D* audiostream, float volume) { if (audiostream) audiostream->stream.setVolume(volume); }
+void Moss_AudioStream3DSetPitch(AudioStream3D* audiostream, float pitch) { if (audiostream) audiostream->stream.setPitch(pitch); }
+void Moss_AudioStream3DSetPlaybackRate(AudioStream3D* audiostream, float rate) { if (audiostream) audiostream->stream.setPlaybackRate(rate); }
+void Moss_AudioStream3DSetPan(AudioStream3D* audiostream, float pan) { if (audiostream) { audiostream->pan = std::clamp(pan, -1.0f, 1.0f); audiostream->stream.setPan(audiostream->pan); } }
+void Moss_AudioStream3DSetLoop(AudioStream3D* audiostream, bool loop) { if (audiostream) audiostream->stream.setLooping(loop); }
 
 #endif // MOSS_COCOA_AUDIO_H
