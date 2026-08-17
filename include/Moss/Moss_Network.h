@@ -956,7 +956,7 @@ MOSS_API void enet_peer_set_data(ENetPeer*, const void*);
 
 //////////////////////////////////////////////////////////////////////
 
-
+/*
 #define NET_FLAG_RELIABLE      0x01
 #define NET_FLAG_FRAGMENT     0x02
 #define NET_FLAG_HANDSHAKE    0x04
@@ -1020,8 +1020,8 @@ struct {
    ENetTransportPeer *peer;
    const uint8 *data;
    size_t data_len;
-   int channel; /* opaque; map to ENet channels if needed */
-} ENetTransportEvent;
+   int channel; // opaque; map to ENet channels if needed
+};
 
 
 // place this in internal
@@ -1037,31 +1037,31 @@ struct ENetTransport {
 
 struct ENetTransport ENetTransport;
 
-/* factory / lifecycle */
+// factory / lifecycle 
 ENetTransport* enet_transport_create(ENetTransportType type, const char *bind_host, uint16_t_t port, const ENetTransportConfig *cfg);
 void enet_transport_destroy(ENetTransport *t);
 
-/* poll: non-blocking; fills events up to capacity, returns count */
+// poll: non-blocking; fills events up to capacity, returns count
 int enet_transport_poll(ENetTransport *t, ENetTransportEvent *events, int capacity, int timeout_ms);
 
-/* send on a peer; returns bytes sent or negative on error */
+/* send on a peer; returns bytes sent or negative on error
 int enet_transport_send(ENetTransport *t, ENetTransportPeer *peer, const uint8 *data, size_t len, int channel);
 
-/* connect / close */
+/* connect / close 
 int enet_transport_connect(ENetTransport *t, ENetTransportPeer *peer, const char *host, uint16_t_t port);
 
 int enet_transport_close_peer(ENetTransport *t, ENetTransportPeer *peer);
 
-/*! @brief X @param X X. */
+/*! @brief X @param X X. 
 MOSS_API ENetHost* enet_host_create_with_transport(const ENetAddress* address, size_t peerCount, size_t channelLimit, uint32_t incomingBandwidth, uint32_t outgoingBandwidth, ENetTransportType transport);
 
-/*! @brief X @param X X. */
+/*! @brief X @param X X. 
 MOSS_API ENetPeer* enet_host_connect(ENetHost* host, const ENetAddress* address, size_t channelCount, uint32_t data);
 
-/*! @param endpoint URL or address */
+/*! @param endpoint URL or address 
 MOSS_API ENetPeer* enet_host_connect_ex(ENetHost* host, const char* endpoint, size_t channelCount, uint32_t data);
 
-/*! @brief X @param X X. */
+/*! @brief X @param X X. 
 MOSS_API uint32_t enet_host_transport_caps(ENetHost* host);
 
 /////////////////////////////////////////////////////////////////////////
@@ -1321,18 +1321,18 @@ enum class ENetHttpMethod : uint8 {
 enum class ENetHttpError : int32_t {
     ENET_HTTP_OK = 0,
 
-    /* Transport-level */
+    /* Transport-level 
     ENET_HTTP_ERR_DNS_FAILURE,
     ENET_HTTP_ERR_CONNECT_FAILED,
     ENET_HTTP_ERR_TLS_FAILED,
     ENET_HTTP_ERR_TIMEOUT,
     ENET_HTTP_ERR_CANCELED,
 
-    /* Protocol-level */
+    /* Protocol-level 
     ENET_HTTP_ERR_INVALID_RESPONSE,
     ENET_HTTP_ERR_TOO_LARGE,
 
-    /* Client misuse */
+    /* Client misuse 
     ENET_HTTP_ERR_INVALID_ARGUMENT,
     ENET_HTTP_ERR_INTERNAL
 } ENetHttpError;
@@ -1376,7 +1376,7 @@ struct ENetHttpRequestDesc {
 } ENetHttpRequestDesc;
 
 struct ENetHttpResponse {
-    int http_status;  /* e.g. 200, 404 */
+    int http_status;  /* e.g. 200, 404 
     ENetHttpError error;
 
     const ENetHttpHeader* headers;
@@ -1397,13 +1397,13 @@ struct ENetHttpServerResponse {
 void (*ENetHttpEndpointHandler)(const ENetHttpServerRequest* request, ENetHttpServerResponse* response, void* userData);
 void (*ENetHttpResponseCallback)(const ENetHttpResponse* response, void* userData);
 
-/*! @brief X @param X X. */
+/*! @brief X @param X X. 
 MOSS_API ENetHttpServer* enet_http_server_start( const char* bindAddress, enet_uint16_t port);
 
-/*! @brief X @param X X. */
+/*! @brief X @param X X. 
 MOSS_API void enet_http_server_stop(ENetHttpServer* server);
 
-/*! @brief X @param X X. */
+/*! @brief X @param X X. 
 MOSS_API void enet_http_register_endpoint(ENetHttpServer* server, const char* path, ENetHttpEndpointHandler handler, void* userData);
 
 
@@ -1418,46 +1418,9 @@ MOSS_API void enet_http_request_release(ENetHttpRequest* request);
 
 
 
-//////////////////
 int (*ENetConnectValidator)(ENetPeer* peer, const void* data, size_t dataLength);
 
 MOSS_API void enet_host_set_connect_validator(ENetHost* host, ENetConnectValidator validator);
-/////////////////
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 struct NetPeer {
    ENetAddress address;
@@ -1512,7 +1475,7 @@ struct ENetStreamFrame {
 struct ENetTCPFrameHeader {
     uint32_t_t length;     // payload size (network byte order)
     uint8  channelID;
-    uint8  flags;      // ENET_PACKET_FLAG_*
+    uint8  flags;      // ENET_PACKET_FLAG_
 } ENetTCPFrameHeader;
 #pragma pack(pop)
 
@@ -1553,5 +1516,5 @@ void (*ENetWebRTCSignalCallback)(ENetHost*, ENetPeer*, const ENetWebRTCSignal*, 
 MOSS_API void enet_host_set_webrtc_signal_callback(ENetHost*, ENetWebRTCSignalCallback, void*);
 
 MOSS_API int enet_webrtc_handle_signal(ENetHost*, ENetPeer*, const ENetWebRTCSignal*);
-
+*/
 #endif // MOSS_NETWORK_H

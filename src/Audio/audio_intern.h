@@ -2351,20 +2351,6 @@ Angles ComputeHRTFAngles(const Vec3& dir, const Listener3D& listener) {
     float elevation = asinf(dir.Dot(listener.up));
     return { azimuth * 180.0f / JPH_PI, elevation * 180.0f / JPH_PI };
 }
-/*! */
-const HRTF& GetHRTF(float azimuthDeg, float elevationDeg) {
-    static HRTF dummy;
-    azimuthDeg  = NormalizeAzimuth(azimuthDeg);
-    elevationDeg = ClampElevation(elevationDeg);
-    constexpr int AZ_STEP = 5, EL_STEP = 5;
-    int az = Quantize(azimuthDeg, AZ_STEP);
-    int el = Quantize(elevationDeg, EL_STEP);
-
-    auto elIt = gHRTFs.find(el);
-    if (elIt == gHRTFs.end()) return dummy;
-    auto azIt = elIt->second.find(az);
-    return azIt != elIt->second.end() ? azIt->second : dummy;
-}
 
 /*! */
 void Convolve(const float* input, int samples, const std::vector<float>& ir, float* output) {

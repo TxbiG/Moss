@@ -6,6 +6,9 @@
 
 MOSS_NAMESPACE_BEGIN
 
+class AABB3;
+using AABox = AABB3;
+
 
 class [[nodiscard]] Sphere {
 public:
@@ -118,8 +121,7 @@ public:
 
 
 
-class IndexedTriangleNoMaterial
-{
+class IndexedTriangleNoMaterial {
 public:
 	MOSS_OVERRIDE_NEW_DELETE
 
