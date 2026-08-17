@@ -102,8 +102,9 @@ Modified ENet6 v6.1.2 by SirLynix https://github.com/SirLynix/enet6/
 #define MOSS_NETWORK_H
 
 #include <Moss/Moss_stdinc.h>
+
 #include <stdlib.h>
-#include <stdint.h>
+#include <cstdint>
 
 #ifdef MOSS_PLATFORM_WINDOWS
 #  ifdef MOSS_COMPILER_MSVC
@@ -134,8 +135,8 @@ Modified ENet6 v6.1.2 by SirLynix https://github.com/SirLynix/enet6/
 #define SOCK_ERRNO WSAGetLastError()
 #define SOCK_EWOULDBLOCK WSAEWOULDBLOCK
 
-typedef SOCKET ENetSocket;
-typedef fd_set ENetSocketSet;
+SOCKET ENetSocket;
+fd_set ENetSocketSet;
 #endif // MOSS_PLATFORM_WINDOWS
 #ifdef MOSS_PLATFORM_LINUX || MOSS_PLATFORM_MACOS || MOSS_PLATFORM_ANDROID || MOSS_PLATFORM_IOS || MOSS_PLATFORM_BSD || MOSS_PLATFORM_UNIX
 
@@ -159,8 +160,8 @@ typedef fd_set ENetSocketSet;
 #define SOCK_EWOULDBLOCK EWOULDBLOCK
 #define ENET_SOCKET_NULL -1
 
-typedef int ENetSocket;
-typedef fd_set ENetSocketSet;
+int ENetSocket;
+fd_set ENetSocketSet;
 #endif // MOSS_PLATFORM_LINUX || MOSS_PLATFORM_MACOS || MOSS_PLATFORM_ANDROID || MOSS_PLATFORM_IOS
 
 
@@ -168,11 +169,11 @@ typedef fd_set ENetSocketSet;
 #define ENET_BUFFER_MAXIMUM MSG_MAXIOVLEN
 #endif
 
-#define ENET_HOST_TO_NET_16(value) (htons(value)) /**< macro that converts host to net byte-order of a 16-bit value */
-#define ENET_HOST_TO_NET_32(value) (htonl(value)) /**< macro that converts host to net byte-order of a 32-bit value */
+#define ENET_HOST_TO_NET_16(value) (htons(value)) // macro that converts host to net byte-order of a 16-bit value */
+#define ENET_HOST_TO_NET_32(value) (htonl(value)) // macro that converts host to net byte-order of a 32-bit value */
 
-#define ENET_NET_TO_HOST_16(value) (ntohs(value)) /**< macro that converts net to host byte-order of a 16-bit value */
-#define ENET_NET_TO_HOST_32(value) (ntohl(value)) /**< macro that converts net to host byte-order of a 32-bit value */
+#define ENET_NET_TO_HOST_16(value) (ntohs(value)) // macro that converts net to host byte-order of a 16-bit value */
+#define ENET_NET_TO_HOST_32(value) (ntohl(value)) // macro that converts net to host byte-order of a 32-bit value */
 
 #define ENET_ADDRESS_MAX_LENGTH 40 /*full IPv6 addresses take 39 characters + 1 null byte */
 
@@ -221,7 +222,7 @@ enum class ENetSocketShutdown { ENET_SOCKET_SHUTDOWN_READ = 0, ENET_SOCKET_SHUTD
 enum class ENetAddressType { ENET_ADDRESS_TYPE_ANY  = 0, ENET_ADDRESS_TYPE_IPV4 = 1, ENET_ADDRESS_TYPE_IPV6 = 2 };
 enum class ENetSocketWait { ENET_SOCKET_WAIT_NONE = 0, ENET_SOCKET_WAIT_SEND = (1 << 0), ENET_SOCKET_WAIT_RECEIVE = (1 << 1), ENET_SOCKET_WAIT_INTERRUPT = (1 << 2) };
 
-typedef enum class ENetSocketOption {
+enum class ENetSocketOption {
    ENET_SOCKOPT_NONBLOCK  = 1,
    ENET_SOCKOPT_BROADCAST = 2,
    ENET_SOCKOPT_RCVBUF    = 3,
@@ -303,7 +304,7 @@ enum class ENetPacketFlag {
    /** whether the packet has been sent from all queues it has been entered into */
    ENET_PACKET_FLAG_SENT = (1<<8)
 };
-enum class ENetPeerState : uint8_t_t {
+enum class ENetPeerState : uint8 {
    ENET_PEER_STATE_DISCONNECTED                = 0,
    ENET_PEER_STATE_CONNECTING                  = 1,
    ENET_PEER_STATE_ACKNOWLEDGING_CONNECT       = 2,
@@ -317,7 +318,7 @@ enum class ENetPeerState : uint8_t_t {
 };
 
 
-enum class ENetHost {
+enum class ENetHostState {
    ENET_HOST_RECEIVE_BUFFER_SIZE          = 256 * 1024,
    ENET_HOST_SEND_BUFFER_SIZE             = 256 * 1024,
    ENET_HOST_BANDWIDTH_THROTTLE_INTERVAL  = 1000,
@@ -391,7 +392,7 @@ enum class ENetEventType {
  * but not for enet_host_create.  Once a server responds to a broadcast, the
  * address is updated from ENET_HOST_BROADCAST to the server's actual IP address.
  */
-typedef struct _ENetAddress {  ENetAddressType type; uint16 port; union { uint8_t v4[4]; uint16 v6[8]; } host; } ENetAddress;
+struct ENetAddress {  ENetAddressType type; uint16_t port; union { uint8_t v4[4]; uint16_t v6[8]; } host; };
 
 /**
  * ENet packet structure.
@@ -416,29 +417,29 @@ typedef struct _ENetAddress {  ENetAddressType type; uint16 port; union { uint8_
  *    ENET_PACKET_FLAG_SENT - whether the packet has been sent from all queues it has been entered into
    @sa ENetPacketFlag
  */
-typedef struct _ENetPacket {
-   size_t                   referenceCount;  /**< internal use only */
-   uint32_t              flags;           /**< bitwise-or of ENetPacketFlag constants */
-   uint8_t *             data;            /**< allocated data for packet */
-   size_t                   dataLength;      /**< length of data */
-   ENetPacketFreeCallback   freeCallback;    /**< function to be called when the packet is no longer in use */
-   void *                   userData;        /**< application private data, may be freely modified */
+struct _ENetPacket {
+   size_t                   referenceCount;  // internal use only */
+   uint32_t              flags;           // bitwise-or of ENetPacketFlag constants */
+   uint8_t *             data;            // allocated data for packet */
+   size_t                   dataLength;      // length of data */
+   ENetPacketFreeCallback   freeCallback;    // function to be called when the packet is no longer in use */
+   void *                   userData;        // application private data, may be freely modified */
 } ENetPacket;
 
-typedef struct _ENetListNode { struct _ENetListNode * next; struct _ENetListNode * previous; } ENetListNode;
+struct _ENetListNode { struct _ENetListNode * next; struct _ENetListNode * previous; } ENetListNode;
 
 
-typedef ENetListNode* ENetListIterator;
+ENetListNode* ENetListIterator;
 
-typedef struct _ENetList { ENetListNode sentinel; } ENetList;
+struct _ENetList { ENetListNode sentinel; } ENetList;
 
 
-typedef struct _ENetProtocolHeader { uint16 peerID; uint16 sentTime; } ENET_PACKED ENetProtocolHeader;
-typedef struct _ENetProtocolCommandHeader { uint8_t command; uint8_t channelID; uint16 reliableSequenceNumber; } ENET_PACKED ENetProtocolCommandHeader;
-typedef struct _ENetProtocolAcknowledge { ENetProtocolCommandHeader header; uint16 receivedReliableSequenceNumber; uint16 receivedSentTime; } ENET_PACKED ENetProtocolAcknowledge;
-typedef struct _ENetProtocolConnect {
+struct ENetProtocolHeader { uint16_t peerID; uint16_t sentTime; } ENET_PACKED;
+struct ENetProtocolCommandHeader { uint8_t command; uint8_t channelID; uint16_t reliableSequenceNumber; } ENET_PACKED;
+struct ENetProtocolAcknowledge { ENetProtocolCommandHeader header; uint16_t receivedReliableSequenceNumber; uint16_t receivedSentTime; } ENET_PACKED;
+struct ENetProtocolConnect {
    ENetProtocolCommandHeader header;
-   uint16 outgoingPeerID;
+   uint16_t outgoingPeerID;
    uint8_t  incomingSessionID;
    uint8_t  outgoingSessionID;
    uint32_t mtu;
@@ -451,11 +452,11 @@ typedef struct _ENetProtocolConnect {
    uint32_t packetThrottleDeceleration;
    uint32_t connectID;
    uint32_t data;
-} ENET_PACKED ENetProtocolConnect;
+} ENET_PACKED;
 
-typedef struct _ENetProtocolVerifyConnect {
+struct ENetProtocolVerifyConnect {
    ENetProtocolCommandHeader header;
-   uint16 outgoingPeerID;
+   uint16_t outgoingPeerID;
    uint8_t  incomingSessionID;
    uint8_t  outgoingSessionID;
    uint32_t mtu;
@@ -467,83 +468,83 @@ typedef struct _ENetProtocolVerifyConnect {
    uint32_t packetThrottleAcceleration;
    uint32_t packetThrottleDeceleration;
    uint32_t connectID;
-} ENET_PACKED ENetProtocolVerifyConnect;
+} ENET_PACKED;
 
-typedef struct _ENetProtocolBandwidthLimit { ENetProtocolCommandHeader header; uint32_t incomingBandwidth; uint32_t outgoingBandwidth; } ENET_PACKED ENetProtocolBandwidthLimit;
-typedef struct _ENetProtocolThrottleConfigure { ENetProtocolCommandHeader header; uint32_t packetThrottleInterval; uint32_t packetThrottleAcceleration; uint32_t packetThrottleDeceleration; } ENET_PACKED ENetProtocolThrottleConfigure;
-typedef struct _ENetProtocolDisconnect { ENetProtocolCommandHeader header; uint32_t data; } ENET_PACKED ENetProtocolDisconnect;
-typedef struct _ENetProtocolPing { ENetProtocolCommandHeader header; } ENET_PACKED ENetProtocolPing;
-typedef struct _ENetProtocolSendReliable { ENetProtocolCommandHeader header; uint16 dataLength; } ENET_PACKED ENetProtocolSendReliable;
-typedef struct _ENetProtocolSendUnreliable { ENetProtocolCommandHeader header; uint16 unreliableSequenceNumber; uint16 dataLength; } ENET_PACKED ENetProtocolSendUnreliable;
-typedef struct _ENetProtocolSendUnsequenced{ ENetProtocolCommandHeader header; uint16 unsequencedGroup; uint16 dataLength; } ENET_PACKED ENetProtocolSendUnsequenced;
-typedef struct _ENetProtocolSendFragment { ENetProtocolCommandHeader header; uint16 startSequenceNumber; uint16 dataLength;  uint32_t fragmentCount; uint32_t fragmentNumber; uint32_t totalLength; uint32_t fragmentOffset; } ENET_PACKED ENetProtocolSendFragment;
+struct ENetProtocolBandwidthLimit { ENetProtocolCommandHeader header; uint32_t incomingBandwidth; uint32_t outgoingBandwidth; } ENET_PACKED;
+struct ENetProtocolThrottleConfigure { ENetProtocolCommandHeader header; uint32_t packetThrottleInterval; uint32_t packetThrottleAcceleration; uint32_t packetThrottleDeceleration; } ENET_PACKED;
+struct ENetProtocolDisconnect { ENetProtocolCommandHeader header; uint32_t data; } ENET_PACKED;
+struct ENetProtocolPing { ENetProtocolCommandHeader header; } ENET_PACKED;
+struct ENetProtocolSendReliable { ENetProtocolCommandHeader header; uint16_t dataLength; } ENET_PACKED;
+struct ENetProtocolSendUnreliable { ENetProtocolCommandHeader header; uint16_t unreliableSequenceNumber; uint16_t dataLength; } ENET_PACKED;
+struct ENetProtocolSendUnsequenced{ ENetProtocolCommandHeader header; uint16_t unsequencedGroup; uint16_t dataLength; } ENET_PACKED;
+struct ENetProtocolSendFragment { ENetProtocolCommandHeader header; uint16_t startSequenceNumber; uint16_t dataLength;  uint32_t fragmentCount; uint32_t fragmentNumber; uint32_t totalLength; uint32_t fragmentOffset; } ENET_PACKED;
 
 
-typedef union _ENetProtocol {
+union _ENetProtocol {
    ENetProtocolCommandHeader header;         ENetProtocolAcknowledge acknowledge;         ENetProtocolConnect connect;
    ENetProtocolVerifyConnect verifyConnect;  ENetProtocolDisconnect disconnect;           ENetProtocolPing ping;
    ENetProtocolSendReliable sendReliable;    ENetProtocolSendUnreliable sendUnreliable;   ENetProtocolSendUnsequenced sendUnsequenced;
    ENetProtocolSendFragment sendFragment;    ENetProtocolBandwidthLimit bandwidthLimit;   ENetProtocolThrottleConfigure throttleConfigure;
 } ENET_PACKED ENetProtocol;
 
-typedef struct _ENetAcknowledgement { ENetListNode acknowledgementList; uint32_t sentTime; ENetProtocol command; } ENetAcknowledgement;
+struct _ENetAcknowledgement { ENetListNode acknowledgementList; uint32_t sentTime; ENetProtocol command; } ENetAcknowledgement;
 
-typedef struct _ENetOutgoingCommand {
+struct ENetOutgoingCommand {
    ENetListNode outgoingCommandList;
-   uint16  reliableSequenceNumber;
-   uint16  unreliableSequenceNumber;
+   uint16_t  reliableSequenceNumber;
+   uint16_t  unreliableSequenceNumber;
    uint32_t  sentTime;
    uint32_t  roundTripTimeout;
    uint32_t  queueTime;
    uint32_t  fragmentOffset;
-   uint16  fragmentLength;
-   uint16  sendAttempts;
+   uint16_t  fragmentLength;
+   uint16_t  sendAttempts;
    ENetProtocol command;
    ENetPacket * packet;
-} ENetOutgoingCommand;
+};
 
-typedef struct _ENetIncomingCommand {
+struct ENetIncomingCommand {
    ENetListNode     incomingCommandList;
-   uint16      reliableSequenceNumber;
-   uint16      unreliableSequenceNumber;
+   uint16_t      reliableSequenceNumber;
+   uint16_t      unreliableSequenceNumber;
    ENetProtocol     command;
    uint32_t      fragmentCount;
    uint32_t      fragmentsRemaining;
    uint32_t *    fragments;
    ENetPacket *     packet;
-} ENetIncomingCommand;
+};
 
-typedef struct _ENetChannel {
-   uint16  outgoingReliableSequenceNumber;
-   uint16  outgoingUnreliableSequenceNumber;
-   uint16  usedReliableWindows;
-   uint16  reliableWindows [ENetHost::ENET_PEER_RELIABLE_WINDOWS];
-   uint16  incomingReliableSequenceNumber;
-   uint16  incomingUnreliableSequenceNumber;
+struct ENetChannel {
+   uint16_t  outgoingReliableSequenceNumber;
+   uint16_t  outgoingUnreliableSequenceNumber;
+   uint16_t  usedReliableWindows;
+   uint16_t  reliableWindows [ENetHostState::ENET_PEER_RELIABLE_WINDOWS];
+   uint16_t  incomingReliableSequenceNumber;
+   uint16_t  incomingUnreliableSequenceNumber;
    ENetList     incomingReliableCommands;
    ENetList     incomingUnreliableCommands;
-} ENetChannel;
+};
 
 /**
  * An ENet peer which data packets may be sent or received from. 
  *
  * No fields should be modified unless otherwise specified. 
  */
-typedef struct _ENetPeer { 
+struct ENetPeer { 
    ENetListNode  dispatchList;
-   struct _ENetHost* host;
-   uint16   outgoingPeerID;
-   uint16   incomingPeerID;
+   struct ENetHost* host;
+   uint16_t   outgoingPeerID;
+   uint16_t   incomingPeerID;
    uint32_t   connectID;
    uint8_t    outgoingSessionID;
    uint8_t    incomingSessionID;
-   ENetAddress    address;             /**< Internet address of the peer */
-   void *         data;                /**< Application private data, may be freely modified */
+   ENetAddress    address;             // Internet address of the peer */
+   void*          data;                // Application private data, may be freely modified */
    ENetPeerState  state;
    ENetChannel*   channels;
-   size_t         channelCount;        /**< Number of channels allocated for communication with peer */
-   uint32_t   incomingBandwidth;         /**< Downstream bandwidth of the client in bytes/second */
-   uint32_t   outgoingBandwidth;         /**< Upstream bandwidth of the client in bytes/second */
+   size_t         channelCount;        // Number of channels allocated for communication with peer */
+   uint32_t   incomingBandwidth;         // Downstream bandwidth of the client in bytes/second */
+   uint32_t   outgoingBandwidth;         // Upstream bandwidth of the client in bytes/second */
    uint32_t   incomingBandwidthThrottleEpoch;
    uint32_t   outgoingBandwidthThrottleEpoch;
    uint32_t   incomingDataTotal;
@@ -555,7 +556,7 @@ typedef struct _ENetPeer {
    uint32_t   packetLossEpoch;
    uint32_t   packetsSent;
    uint32_t   packetsLost;
-   uint32_t   packetLoss;          /**< mean packet loss of reliable packets as a ratio with respect to the constant ENET_PEER_PACKET_LOSS_SCALE */
+   uint32_t   packetLoss;          // mean packet loss of reliable packets as a ratio with respect to the constant ENET_PEER_PACKET_LOSS_SCALE */
    uint32_t   packetLossVariance;
    uint32_t   packetThrottle;
    uint32_t   packetThrottleLimit;
@@ -572,21 +573,21 @@ typedef struct _ENetPeer {
    uint32_t   lowestRoundTripTime;
    uint32_t   lastRoundTripTimeVariance;
    uint32_t   highestRoundTripTimeVariance;
-   uint32_t   roundTripTime;            /**< mean round trip time (RTT), in milliseconds, between sending a reliable packet and receiving its acknowledgement */
+   uint32_t   roundTripTime;            // mean round trip time (RTT), in milliseconds, between sending a reliable packet and receiving its acknowledgement */
    uint32_t   roundTripTimeVariance;
    uint32_t   mtu;
    uint32_t   windowSize;
    uint32_t   reliableDataInTransit;
-   uint16   outgoingReliableSequenceNumber;
+   uint16_t   outgoingReliableSequenceNumber;
    ENetList acknowledgements;
    ENetList sentReliableCommands;
    ENetList outgoingSendReliableCommands;
    ENetList outgoingCommands;
    ENetList dispatchedCommands;
-   uint16   flags;
-   uint16   reserved;
-   uint16   incomingUnsequencedGroup;
-   uint16   outgoingUnsequencedGroup;
+   uint16_t   flags;
+   uint16_t   reserved;
+   uint16_t   incomingUnsequencedGroup;
+   uint16_t   outgoingUnsequencedGroup;
    uint32_t   unsequencedWindow [ENET_PEER_UNSEQUENCED_WINDOW_SIZE / 32]; 
    uint32_t   eventData;
    size_t        totalWaitingData;
@@ -597,16 +598,23 @@ typedef struct _ENetPeer {
    uint32_t transport_caps;
    void* transport_data;
    */
-} ENetPeer;
+};
 
-typedef struct { void* data; size_t dataLength; } ENetBuffer;
+struct ENetBuffer { void* data; size_t dataLength; };
 
-typedef void (MOSS_CALL* ENetPacketAcknowledgedCallback) (struct _ENetPacket*);
-typedef void (MOSS_CALL* ENetPacketFreeCallback) (struct _ENetPacket*);
+
+using ENetPacket = (MOSS_CALL* ENetPacketAcknowledgedCallback);
+using ENetPacket = (MOSS_CALL* ENetPacketFreeCallback);
+/** Callback that computes the checksum of the data held in buffers[0:bufferCount-1] */
+uint32_t (MOSS_CALL* ENetChecksumCallback) (const ENetBuffer* buffers, size_t bufferCount);
+
+/** Callback for intercepting received raw UDP packets. Should return 1 to intercept, 0 to ignore, or -1 to propagate an error. */
+int (MOSS_CALL * ENetInterceptCallback) (struct ENetHost* host, struct ENetEvent * event);
+
 
 /** An ENet packet compressor for compressing UDP packets before socket sends or receives.
  */
-typedef struct _ENetCompressor {
+struct ENetCompressor {
    /** Context data for the compressor. Must be non-NULL. */
    void* context;
    /** Compresses from inBuffers[0:inBufferCount-1], containing inLimit bytes, to outData, outputting at most outLimit bytes. Should return 0 on failure. */
@@ -615,13 +623,7 @@ typedef struct _ENetCompressor {
    size_t (MOSS_CALL* decompress) (void* context, const uint8_t* inData, size_t inLimit, uint8_t * outData, size_t outLimit);
    /** Destroys the context when compression is disabled or the host is destroyed. May be NULL. */
    void (MOSS_CALL* destroy) (void* context);
-} ENetCompressor;
-
-/** Callback that computes the checksum of the data held in buffers[0:bufferCount-1] */
-typedef uint32_t (MOSS_CALL* ENetChecksumCallback) (const ENetBuffer* buffers, size_t bufferCount);
-
-/** Callback for intercepting received raw UDP packets. Should return 1 to intercept, 0 to ignore, or -1 to propagate an error. */
-typedef int (MOSS_CALL * ENetInterceptCallback) (struct _ENetHost* host, struct _ENetEvent * event);
+};
  
 /** An ENet host for communicating with peers.
   *
@@ -639,60 +641,60 @@ typedef int (MOSS_CALL * ENetInterceptCallback) (struct _ENetHost* host, struct 
     @sa enet_host_bandwidth_limit()
     @sa enet_host_bandwidth_throttle()
   */
-typedef struct _ENetHost {
+struct ENetHost {
    ENetSocket           socket;
-   ENetAddress          address;                     /**< Internet address of the host */
-   uint32_t          incomingBandwidth;           /**< downstream bandwidth of the host */
-   uint32_t          outgoingBandwidth;           /**< upstream bandwidth of the host */
+   ENetAddress          address;                     // Internet address of the host */
+   uint32_t          incomingBandwidth;           // downstream bandwidth of the host */
+   uint32_t          outgoingBandwidth;           // upstream bandwidth of the host */
    uint32_t          bandwidthThrottleEpoch;
    uint32_t          mtu;
    uint32_t          randomSeed;
    int                  recalculateBandwidthLimits;
-   ENetPeer*           peers;                       /**< array of peers allocated for this host */
-   size_t               peerCount;                   /**< number of peers allocated for this host */
-   size_t               channelLimit;                /**< maximum number of channels allowed for connected peers */
+   ENetPeer*           peers;                       // array of peers allocated for this host */
+   size_t               peerCount;                   // number of peers allocated for this host */
+   size_t               channelLimit;                // maximum number of channels allowed for connected peers */
    uint32_t          serviceTime;
    ENetList             dispatchQueue;
    uint32_t          totalQueued;
    size_t               packetSize;
-   uint16          headerFlags;
+   uint16_t          headerFlags;
    ENetProtocol         commands [ENET_PROTOCOL_MAXIMUM_PACKET_COMMANDS];
    size_t               commandCount;
    ENetBuffer           buffers [ENET_BUFFER_MAXIMUM];
    size_t               bufferCount;
-   ENetChecksumCallback checksum;                    /**< callback the user can set to enable packet checksums for this host */
+   ENetChecksumCallback checksum;                    // callback the user can set to enable packet checksums for this host */
    ENetCompressor       compressor;
    uint8_t           packetData [2][ENET_PROTOCOL_MAXIMUM_MTU];
    ENetAddress          receivedAddress;
    uint8_t*         receivedData;
    size_t               receivedDataLength;
-   uint32_t          totalSentData;               /**< total data sent, user should reset to 0 as needed to prevent overflow */
-   uint32_t          totalSentPackets;            /**< total UDP packets sent, user should reset to 0 as needed to prevent overflow */
-   uint32_t          totalReceivedData;           /**< total data received, user should reset to 0 as needed to prevent overflow */
-   uint32_t          totalReceivedPackets;        /**< total UDP packets received, user should reset to 0 as needed to prevent overflow */
-   ENetInterceptCallback intercept;                  /**< callback the user can set to intercept received raw UDP packets */
+   uint32_t          totalSentData;               // total data sent, user should reset to 0 as needed to prevent overflow */
+   uint32_t          totalSentPackets;            // total UDP packets sent, user should reset to 0 as needed to prevent overflow */
+   uint32_t          totalReceivedData;           // total data received, user should reset to 0 as needed to prevent overflow */
+   uint32_t          totalReceivedPackets;        // total UDP packets received, user should reset to 0 as needed to prevent overflow */
+   ENetInterceptCallback intercept;               // callback the user can set to intercept received raw UDP packets */
    size_t               connectedPeers;
    size_t               bandwidthLimitedPeers;
-   size_t               duplicatePeers;              /**< optional number of allowed peers from duplicate IPs, defaults to ENET_PROTOCOL_MAXIMUM_PEER_ID */
-   size_t               maximumPacketSize;           /**< the maximum allowable packet size that may be sent or received on a peer */
-   size_t               maximumWaitingData;          /**< the maximum aggregate amount of buffer space a peer may use waiting for packets to be delivered */
-} ENetHost;
+   size_t               duplicatePeers;            // optional number of allowed peers from duplicate IPs, defaults to ENET_PROTOCOL_MAXIMUM_PEER_ID */
+   size_t               maximumPacketSize;         // the maximum allowable packet size that may be sent or received on a peer */
+   size_t               maximumWaitingData;        // the maximum aggregate amount of buffer space a peer may use waiting for packets to be delivered */
+};
 
 /**
  * An ENet event as returned by enet_host_service().
    
    @sa enet_host_service
  */
-typedef struct _ENetEvent {
-   ENetEventType        type;      /**< type of the event */
-   ENetPeer *           peer;      /**< peer that generated a connect, disconnect or receive event */
-   uint8_t                channelID; /**< channel on the peer that generated the event, if appropriate */
-   uint32_t               data;      /**< data associated with the event, if appropriate */
-   ENetPacket *         packet;    /**< packet associated with the event, if appropriate */
-} ENetEvent;
+struct ENetEvent {
+   ENetEventType        type;      // type of the event
+   ENetPeer *           peer;      // peer that generated a connect, disconnect or receive event
+   uint8_t              channelID; // channel on the peer that generated the event, if appropriate */
+   uint32_t             data;      // data associated with the event, if appropriate */
+   ENetPacket *         packet;    // packet associated with the event, if appropriate */
+};
 
 // Call back
-typedef struct _ENetCallbacks {
+struct ENetCallbacks {
     void* (MOSS_CALL* malloc) (size_t size);
     void (MOSS_CALL* free) (void * memory);
     void (MOSS_CALL* no_memory) (void);
@@ -850,11 +852,11 @@ MOSS_API int                  enet_peer_has_outgoing_commands(ENetPeer*);
 /*! @brief X.*/
 MOSS_API void                 enet_peer_setup_outgoing_command(ENetPeer*, ENetOutgoingCommand*);
 /*! @brief X.*/
-MOSS_API ENetOutgoingCommand* enet_peer_queue_outgoing_command(ENetPeer*, const ENetProtocol*, ENetPacket*, uint32_t, uint16);
+MOSS_API ENetOutgoingCommand* enet_peer_queue_outgoing_command(ENetPeer*, const ENetProtocol*, ENetPacket*, uint32_t, uint16_t);
 /*! @brief X.*/
 MOSS_API ENetIncomingCommand* enet_peer_queue_incoming_command(ENetPeer*, const ENetProtocol*, const void*, size_t, uint32_t, uint32_t);
 /*! @brief X.*/
-MOSS_API ENetAcknowledgement* enet_peer_queue_acknowledgement(ENetPeer*, const ENetProtocol*, uint16);
+MOSS_API ENetAcknowledgement* enet_peer_queue_acknowledgement(ENetPeer*, const ENetProtocol*, uint16_t);
 /*! @brief X.*/
 MOSS_API void                 enet_peer_dispatch_incoming_unreliable_commands(ENetPeer*, ENetChannel*, ENetIncomingCommand*);
 /*! @brief X.*/
@@ -918,7 +920,7 @@ MOSS_API uint32_t enet_host_get_bytes_sent(const ENetHost*);
 /*! @brief X.*/
 MOSS_API uint32_t enet_host_get_bytes_received(const ENetHost*);
 /*! @brief X.*/
-MOSS_API void enet_host_set_max_duplicate_peers(ENetHost*, uint16);
+MOSS_API void enet_host_set_max_duplicate_peers(ENetHost*, uint16_t);
 /*! @brief X.*/
 MOSS_API void enet_host_set_intercept_callback(ENetHost*, ENetInterceptCallback);
 /*! @brief X.*/
@@ -929,7 +931,7 @@ MOSS_API uint32_t enet_peer_get_id(const ENetPeer*);
 /*! @brief X.*/
 MOSS_API int enet_peer_get_ip(const ENetPeer*, char*, size_t);
 /*! @brief X.*/
-MOSS_API uint16 enet_peer_get_port(const ENetPeer*);
+MOSS_API uint16_t enet_peer_get_port(const ENetPeer*);
 /*! @brief X.*/
 MOSS_API uint32_t enet_peer_get_mtu(const ENetPeer*);
 /*! @brief X.*/
@@ -983,13 +985,13 @@ enum class ENetTransportCaps {
    UNORDERED  = 1 << 3
 };
 
-typedef enum NetEventType {
+enum NetEventType {
    CONNECT,
    DISCONNECT,
    RECEIVE
 } NetEventType;
 
-typedef enum NetConnectionState {
+enum NetConnectionState {
    DISCONNECTED,
    CONNECTING,
    HANDSHAKE,
@@ -997,7 +999,7 @@ typedef enum NetConnectionState {
    DISCONNECTING
 } NetConnectionState;
 
-typedef struct ENetTransportConfig {
+struct ENetTransportConfig {
    int backlog;
    int heartbeat_ms;
    const char *ws_path;
@@ -1009,14 +1011,14 @@ typedef struct ENetTransportConfig {
 } ENetTransportConfig;
 
 
-typedef struct ENetTransportPeer {
+struct ENetTransportPeer {
    void *backend_ctx;
 } ENetTransportPeer;
 
-typedef struct {
+struct {
    ENetTransportEventType type;
    ENetTransportPeer *peer;
-   const uint8_t_t *data;
+   const uint8 *data;
    size_t data_len;
    int channel; /* opaque; map to ENet channels if needed */
 } ENetTransportEvent;
@@ -1028,25 +1030,25 @@ struct ENetTransport {
 
    int (*init)(ENetTransportConfig*);
    int (*poll)(ENetTransportEvent*, int);
-   int (*send)(ENetTransportPeer*, const uint8_t_t*, size_t);
+   int (*send)(ENetTransportPeer*, const uint8*, size_t);
    void (*close_peer)(ENetTransportPeer*);
    void (*shutdown)(void);
 };
 
-typedef struct ENetTransport ENetTransport;
+struct ENetTransport ENetTransport;
 
 /* factory / lifecycle */
-ENetTransport* enet_transport_create(ENetTransportType type, const char *bind_host, uint16_t port, const ENetTransportConfig *cfg);
+ENetTransport* enet_transport_create(ENetTransportType type, const char *bind_host, uint16_t_t port, const ENetTransportConfig *cfg);
 void enet_transport_destroy(ENetTransport *t);
 
 /* poll: non-blocking; fills events up to capacity, returns count */
 int enet_transport_poll(ENetTransport *t, ENetTransportEvent *events, int capacity, int timeout_ms);
 
 /* send on a peer; returns bytes sent or negative on error */
-int enet_transport_send(ENetTransport *t, ENetTransportPeer *peer, const uint8_t_t *data, size_t len, int channel);
+int enet_transport_send(ENetTransport *t, ENetTransportPeer *peer, const uint8 *data, size_t len, int channel);
 
 /* connect / close */
-int enet_transport_connect(ENetTransport *t, ENetTransportPeer *peer, const char *host, uint16_t port);
+int enet_transport_connect(ENetTransport *t, ENetTransportPeer *peer, const char *host, uint16_t_t port);
 
 int enet_transport_close_peer(ENetTransport *t, ENetTransportPeer *peer);
 
@@ -1071,9 +1073,9 @@ MOSS_API void enet_transport_handle_event(ENetHost* host, const ENetTransportEve
 MOSS_API void enet_peer_reset(ENetPeer* peer);
 MOSS_API void enet_peer_timeout(ENetPeer* peer);
 MOSS_API void enet_peer_ping(ENetPeer* peer);
-MOSS_API size_t enet_packet_encode(const NetPacket* packet, uint8_t_t* outBuffer, size_t bufferSize);
-MOSS_API bool enet_packet_decode(NetPacket* outPacket, const uint8_t_t* buffer, size_t bufferSize);
-MOSS_API void enet_fragment_send(ENetPeer* peer, uint8_t_t channelId, const uint8_t_t* data, size_t size);
+MOSS_API size_t enet_packet_encode(const NetPacket* packet, uint8* outBuffer, size_t bufferSize);
+MOSS_API bool enet_packet_decode(NetPacket* outPacket, const uint8* buffer, size_t bufferSize);
+MOSS_API void enet_fragment_send(ENetPeer* peer, uint8 channelId, const uint8* data, size_t size);
 MOSS_API bool enet_fragment_receive(ENetPeer* peer, const NetPacket* fragment, NetPacket* outPacket);
 MOSS_API void enet_bandwidth_update(ENetHost* host, float deltaTime);
 MOSS_API size_t enet_peer_send_window(const ENetPeer* peer);
@@ -1083,9 +1085,9 @@ MOSS_API void enet_peer_disconnect(ENetPeer* peer, uint32_t_t reason);
 MOSS_API void enet_peer_disconnect_now(ENetPeer* peer);
 MOSS_API void enet_peer_get_stats(const ENetPeer* peer, float* rtt, float* packetLoss, uint32_t_t* sent, uint32_t_t* received);
 MOSS_API void enet_host_flush(ENetHost* host);
-MOSS_API void enet_host_broadcast(ENetHost* host, uint8_t_t channelId, const uint8_t_t* data, size_t size);
-MOSS_API void enet_host_set_protocol_id(ENetHost* host, uint16_t protocolId);
-MOSS_API uint16_t enet_host_get_protocol_id(const ENetHost* host);
+MOSS_API void enet_host_broadcast(ENetHost* host, uint8 channelId, const uint8* data, size_t size);
+MOSS_API void enet_host_set_protocol_id(ENetHost* host, uint16_t_t protocolId);
+MOSS_API uint16_t_t enet_host_get_protocol_id(const ENetHost* host);
 
 
 
@@ -1101,51 +1103,51 @@ struct NetSocket {
    ENetAddress localAddress;
 };
 
-NetSocket* net_socket_create(uint16_t port);
+NetSocket* net_socket_create(uint16_t_t port);
 
 void net_socket_close(NetSocket* socket);
 
-int net_socket_send(NetSocket* socket, ENetAddress* address, const uint8_t_t* data, size_t size);
+int net_socket_send(NetSocket* socket, ENetAddress* address, const uint8* data, size_t size);
 
-int net_socket_receive(NetSocket* socket, ENetAddress* outAddress, uint8_t_t* buffer, size_t bufferSize);
+int net_socket_receive(NetSocket* socket, ENetAddress* outAddress, uint8* buffer, size_t bufferSize);
 
 
 // =============================================
 // Packet & protocol mechanics
 // =============================================
 
-typedef struct NetPacketHeader {
-   uint16_t protocolId;
-   uint8_t_t  flags;
-   uint8_t_t  channelId;
-   uint16_t sequence;
-   uint16_t ack;
+struct NetPacketHeader {
+   uint16_t_t protocolId;
+   uint8  flags;
+   uint8  channelId;
+   uint16_t_t sequence;
+   uint16_t_t ack;
    uint32_t_t ackBits;
 } NetPacketHeader;
 
-typedef struct NetPacket {
+struct NetPacket {
     NetPacketHeader header;
-    uint8_t_t* payload;
+    uint8* payload;
     size_t payloadSize;
 } NetPacket;
 
-typedef struct NetChannel {
-    uint8_t_t id;
+struct NetChannel {
+    uint8 id;
     bool reliable;
-    uint16_t nextSendSeq;
-    uint16_t nextRecvSeq;
+    uint16_t_t nextSendSeq;
+    uint16_t_t nextRecvSeq;
     PacketQueue outgoing;
     PacketQueue incoming;
 } NetChannel;
 
-typedef struct ReliablePacket {
-    uint16_t sequence;
+struct ReliablePacket {
+    uint16_t_t sequence;
     uint32_t_t sendTime;
-    uint8_t_t retries;
+    uint8 retries;
     NetPacket* packet;
 } ReliablePacket;
 
-void net_channel_send(NetPeer* peer, uint8_t_t channelId, const uint8_t_t* data, size_t size, bool reliable);
+void net_channel_send(NetPeer* peer, uint8 channelId, const uint8* data, size_t size, bool reliable);
 
 void net_reliability_update(NetPeer* peer, float deltaTime);
 
@@ -1154,20 +1156,20 @@ void net_reliability_update(NetPeer* peer, float deltaTime);
 // Security & handshake
 // =============================================
 
-typedef struct NetCryptoContext {
-    uint8_t_t encryptionKey[32];
-    uint8_t_t hmacKey[32];
+struct NetCryptoContext {
+    uint8 encryptionKey[32];
+    uint8 hmacKey[32];
     uint64_t nonce;
 } NetCryptoContext;
 
-typedef struct NetHandshake {
+struct NetHandshake {
     uint32_t_t challenge;
     uint32_t_t response;
     bool verified;
 } NetHandshake;
 
-bool net_security_encrypt(NetCryptoContext*, uint8_t_t* data, size_t);
-bool net_security_decrypt(NetCryptoContext*, uint8_t_t* data, size_t);
+bool net_security_encrypt(NetCryptoContext*, uint8* data, size_t);
+bool net_security_decrypt(NetCryptoContext*, uint8* data, size_t);
 
 bool net_handshake_process(NetPeer* peer, NetPacket* packet);
 
@@ -1176,18 +1178,18 @@ bool net_handshake_process(NetPeer* peer, NetPacket* packet);
 // Peer & host state
 // =============================================
 
-typedef struct NetPeer {
+struct NetPeer {
    ENetAddress address;
    uint32_t_t peerId;
-   uint16_t localSequence;
-   uint16_t remoteSequence;
+   uint16_t_t localSequence;
+   uint16_t_t remoteSequence;
    float lastReceiveTime;
    float rtt;
    float packetLoss;
    bool connected;
 } NetPeer;
 
-typedef struct NetHost {
+struct NetHost {
     NetSocket* socket;
     NetPeer* peers;
     size_t maxPeers;
@@ -1195,7 +1197,7 @@ typedef struct NetHost {
     float currentTime;
 } NetHost;
 
-NetHost* net_host_create(uint16_t port, size_t maxPeers);
+NetHost* net_host_create(uint16_t_t port, size_t maxPeers);
 void net_host_destroy(NetHost* host);
 void net_host_update(NetHost* host, float deltaTime);
 
@@ -1204,19 +1206,19 @@ void net_host_update(NetHost* host, float deltaTime);
 // Events & NAT traversal
 // =============================================
 
-typedef struct NetEvent {
+struct NetEvent {
     NetEventType type;
     NetPeer* peer;
-    uint8_t_t channelId;
-    uint8_t_t* data;
+    uint8 channelId;
+    uint8* data;
     size_t dataSize;
 } NetEvent;
 
-typedef void (*NetEventCallback)(NetEvent*, void*);
+void (*NetEventCallback)(NetEvent*, void*);
 
 void net_host_set_callback(NetHost*, NetEventCallback, void* userData);
 
-typedef struct NetNATState {
+struct NetNATState {
     bool punchInProgress;
     uint32_t_t retries;
 } NetNATState;
@@ -1229,19 +1231,19 @@ void net_nat_update(NetPeer*, float deltaTime);
 // Transport abstraction (UDP / TCP / WS / WebRTC)
 // ===============================================
 
-typedef struct ENetTransportPeer {
+struct ENetTransportPeer {
    void *backend_ctx;
 } ENetTransportPeer;
 
-typedef struct {
+struct {
    ENetTransportEventType type;
    ENetTransportPeer *peer;
-   const uint8_t_t *data;
+   const uint8 *data;
    size_t data_len;
    int channel;
 } ENetTransportEvent;
 
-typedef struct ENetTransportConfig {
+struct ENetTransportConfig {
    int backlog;
    int heartbeat_ms;
    const char *ws_path;
@@ -1256,7 +1258,7 @@ struct ENetTransport {
    ENetTransportCaps caps;
    int (*init)(ENetTransportConfig*);
    int (*poll)(ENetTransportEvent*, int);
-   int (*send)(ENetTransportPeer*, const uint8_t_t*, size_t);
+   int (*send)(ENetTransportPeer*, const uint8*, size_t);
    void (*close_peer)(ENetTransportPeer*);
    void (*shutdown)(void);
 };
@@ -1264,14 +1266,14 @@ struct ENetTransport {
 ENetTransport* enet_transport_create(
    ENetTransportType type,
    const char *bind_host,
-   uint16_t port,
+   uint16_t_t port,
    const ENetTransportConfig *cfg
 );
 
 void enet_transport_destroy(ENetTransport*);
 int enet_transport_poll(ENetTransport*, ENetTransportEvent*, int, int);
-int enet_transport_send(ENetTransport*, ENetTransportPeer*, const uint8_t_t*, size_t, int);
-int enet_transport_connect(ENetTransport*, ENetTransportPeer*, const char*, uint16_t);
+int enet_transport_send(ENetTransport*, ENetTransportPeer*, const uint8*, size_t, int);
+int enet_transport_connect(ENetTransport*, ENetTransportPeer*, const char*, uint16_t_t);
 int enet_transport_close_peer(ENetTransport*, ENetTransportPeer*);
 
 // =============================================
@@ -1304,10 +1306,10 @@ MOSS_API uint32_t enet_host_transport_caps(ENetHost*);
 // HTTP/REST
 // =============================================
 
-typedef struct ENetHttpServer ENetHttpServer;
-typedef struct ENetHttpRequest ENetHttpRequest;
+struct ENetHttpServer ENetHttpServer;
+struct ENetHttpRequest ENetHttpRequest;
 
-enum class ENetHttpMethod : uint8_t_t {
+enum class ENetHttpMethod : uint8 {
     ENET_HTTP_GET,
     ENET_HTTP_POST,
     ENET_HTTP_PUT,
@@ -1335,7 +1337,7 @@ enum class ENetHttpError : int32_t {
     ENET_HTTP_ERR_INTERNAL
 } ENetHttpError;
 
-typedef struct ENetHttpHeader {
+struct ENetHttpHeader {
     const char* name;
     const char* value;
 } ENetHttpHeader;
@@ -1348,18 +1350,18 @@ struct ENetHttpServerRequest {
     size_t body_size;
 };
 
-typedef struct ENetTransportSecurity {
+struct ENetTransportSecurity {
     const char* cert_file;   // server.pem
     const char* key_file;    // server.key
     const char* ca_file;     // ca.pem (optional)
     int verify_peer;         // 1 = verify client/server cert
 } ENetTransportSecurity;
 
-typedef struct ENetHttpTLSConfig {
+struct ENetHttpTLSConfig {
     const ENetTransportSecurity* security;
 } ENetHttpTLSConfig;
 
-typedef struct ENetHttpRequestDesc {
+struct ENetHttpRequestDesc {
     ENetHttpMethod method;
     const char*    url;
 
@@ -1373,7 +1375,7 @@ typedef struct ENetHttpRequestDesc {
     uint32_t_t timeout_ms;
 } ENetHttpRequestDesc;
 
-typedef struct ENetHttpResponse {
+struct ENetHttpResponse {
     int http_status;  /* e.g. 200, 404 */
     ENetHttpError error;
 
@@ -1384,7 +1386,7 @@ typedef struct ENetHttpResponse {
     size_t body_size;
 } ENetHttpResponse;
 
-typedef struct ENetHttpServerResponse {
+struct ENetHttpServerResponse {
     int status;
     const ENetHttpHeader* headers;
     size_t header_count;
@@ -1392,11 +1394,11 @@ typedef struct ENetHttpServerResponse {
     size_t body_size;
 } ENetHttpServerResponse;
 
-typedef void (*ENetHttpEndpointHandler)(const ENetHttpServerRequest* request, ENetHttpServerResponse* response, void* userData);
-typedef void (*ENetHttpResponseCallback)(const ENetHttpResponse* response, void* userData);
+void (*ENetHttpEndpointHandler)(const ENetHttpServerRequest* request, ENetHttpServerResponse* response, void* userData);
+void (*ENetHttpResponseCallback)(const ENetHttpResponse* response, void* userData);
 
 /*! @brief X @param X X. */
-MOSS_API ENetHttpServer* enet_http_server_start( const char* bindAddress, enet_uint16 port);
+MOSS_API ENetHttpServer* enet_http_server_start( const char* bindAddress, enet_uint16_t port);
 
 /*! @brief X @param X X. */
 MOSS_API void enet_http_server_stop(ENetHttpServer* server);
@@ -1417,7 +1419,7 @@ MOSS_API void enet_http_request_release(ENetHttpRequest* request);
 
 
 //////////////////
-typedef int (*ENetConnectValidator)(ENetPeer* peer, const void* data, size_t dataLength);
+int (*ENetConnectValidator)(ENetPeer* peer, const void* data, size_t dataLength);
 
 MOSS_API void enet_host_set_connect_validator(ENetHost* host, ENetConnectValidator validator);
 /////////////////
@@ -1457,12 +1459,12 @@ MOSS_API void enet_host_set_connect_validator(ENetHost* host, ENetConnectValidat
 
 
 
-typedef struct NetPeer {
+struct NetPeer {
    ENetAddress address;
    uint32_t_t peerId;
 
-   uint16_t localSequence;
-   uint16_t remoteSequence;
+   uint16_t_t localSequence;
+   uint16_t_t remoteSequence;
 
    float lastReceiveTime;
    float rtt;
@@ -1471,19 +1473,19 @@ typedef struct NetPeer {
    bool connected;
 } NetPeer;
 
-typedef struct NetChannel {
-    uint8_t_t id;
+struct NetChannel {
+    uint8 id;
     bool reliable;
 
-    uint16_t nextSendSeq;
-    uint16_t nextRecvSeq;
+    uint16_t_t nextSendSeq;
+    uint16_t_t nextRecvSeq;
 
     PacketQueue outgoing;
     PacketQueue incoming;
 } NetChannel;
 
 
-typedef struct NetHost {
+struct NetHost {
     NetSocket* socket;
     NetPeer* peers;
     size_t maxPeers;
@@ -1492,29 +1494,29 @@ typedef struct NetHost {
     float currentTime;
 } NetHost;
 
-typedef struct NetEvent {
+struct NetEvent {
     NetEventType type;
     NetPeer* peer;
-    uint8_t_t channelId;
-    uint8_t_t* data;
+    uint8 channelId;
+    uint8* data;
     size_t dataSize;
 } NetEvent;
 
-typedef struct ENetStreamFrame {
+struct ENetStreamFrame {
    uint32_t_t length;
-   uint8_t_t  data[];
+   uint8  data[];
 } ENetStreamFrame;
 
 
 #pragma pack(push, 1)
-typedef struct ENetTCPFrameHeader {
+struct ENetTCPFrameHeader {
     uint32_t_t length;     // payload size (network byte order)
-    uint8_t_t  channelID;
-    uint8_t_t  flags;      // ENET_PACKET_FLAG_*
+    uint8  channelID;
+    uint8  flags;      // ENET_PACKET_FLAG_*
 } ENetTCPFrameHeader;
 #pragma pack(pop)
 
-NetHost* net_host_create(uint16_t port, size_t maxPeers);
+NetHost* net_host_create(uint16_t_t port, size_t maxPeers);
 void net_host_destroy(NetHost* host);
 
 void net_host_update(NetHost* host, float deltaTime);
@@ -1535,18 +1537,18 @@ MOSS_API void enet_transport_webrtc_signal(ENetTransport*, ENetTransportPeer*, c
 
 
 // WebRTC
-typedef enum ENetWebRTCSignalType {
+enum ENetWebRTCSignalType {
     ENET_WEBRTC_SIGNAL_OFFER,
     ENET_WEBRTC_SIGNAL_ANSWER,
     ENET_WEBRTC_SIGNAL_ICE_CANDIDATE
 } ENetWebRTCSignalType;
 
-typedef struct ENetWebRTCSignal {
+struct ENetWebRTCSignal {
     ENetWebRTCSignalType type;
     const char* data;
 } ENetWebRTCSignal;
 
-typedef void (*ENetWebRTCSignalCallback)(ENetHost*, ENetPeer*, const ENetWebRTCSignal*, void*);
+void (*ENetWebRTCSignalCallback)(ENetHost*, ENetPeer*, const ENetWebRTCSignal*, void*);
 
 MOSS_API void enet_host_set_webrtc_signal_callback(ENetHost*, ENetWebRTCSignalCallback, void*);
 
