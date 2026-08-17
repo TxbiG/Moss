@@ -59,13 +59,13 @@ file(GLOB_RECURSE MOSS_SRC_FILES CONFIGURE_DEPENDS
 # so this is kept as an explicit list rather than globbed to avoid pulling
 # the wrong platform backend in.
 list(APPEND MOSS_SRC_FILES
-	${MOSS_ROOT}/Network/address.c
-	${MOSS_ROOT}/Network/callbacks.c
-	${MOSS_ROOT}/Network/host.c
-	${MOSS_ROOT}/Network/list.c
-	${MOSS_ROOT}/Network/packet.c
-	${MOSS_ROOT}/Network/peer.c
-	${MOSS_ROOT}/Network/protocol.c
+	${MOSS_ROOT}/Network/address.cpp
+	${MOSS_ROOT}/Network/callbacks.cpp
+	${MOSS_ROOT}/Network/host.cpp
+	${MOSS_ROOT}/Network/list.cpp
+	${MOSS_ROOT}/Network/packet.cpp
+	${MOSS_ROOT}/Network/peer.cpp
+	${MOSS_ROOT}/Network/protocol.cpp
 )
 
 # Generic audio backend (non-platform-specific). Non-recursive glob so it
