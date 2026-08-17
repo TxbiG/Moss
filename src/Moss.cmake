@@ -54,20 +54,6 @@ file(GLOB_RECURSE MOSS_SRC_FILES CONFIGURE_DEPENDS
 	"${MOSS_ROOT}/XR/*.cpp"
 )
 
-# enet networking core (address/host/peer/protocol/etc.) - third-party-ish,
-# stable, and platform.c backends (win32.c/unix.c) live in the same folder,
-# so this is kept as an explicit list rather than globbed to avoid pulling
-# the wrong platform backend in.
-list(APPEND MOSS_SRC_FILES
-	${MOSS_ROOT}/Network/address.cpp
-	${MOSS_ROOT}/Network/callbacks.cpp
-	${MOSS_ROOT}/Network/host.cpp
-	${MOSS_ROOT}/Network/list.cpp
-	${MOSS_ROOT}/Network/packet.cpp
-	${MOSS_ROOT}/Network/peer.cpp
-	${MOSS_ROOT}/Network/protocol.cpp
-)
-
 # Generic audio backend (non-platform-specific). Non-recursive glob so it
 # doesn't reach into Audio/xaudio, Audio/linux, Audio/macos.
 file(GLOB MOSS_AUDIO_GENERIC_FILES CONFIGURE_DEPENDS
@@ -96,7 +82,6 @@ if(WIN32)
 	list(APPEND MOSS_SRC_FILES
 		${MOSS_PLATFORM_FILES}
 		${MOSS_AUDIO_PLATFORM_FILES}
-		${MOSS_ROOT}/Network/win32.cpp
 	)
 elseif(UNIX AND NOT APPLE) # catches Linux/FreeBSD
 	if(USE_WAYLAND)
@@ -119,7 +104,6 @@ elseif(UNIX AND NOT APPLE) # catches Linux/FreeBSD
 	list(APPEND MOSS_SRC_FILES
 		${MOSS_PLATFORM_FILES}
 		${MOSS_AUDIO_PLATFORM_FILES}
-		${MOSS_ROOT}/Network/unix.c
 	)
 	# NOTE: previously Network/unix.c was only appended in the X11 branch,
 	# so a Wayland build never got the enet unix backend. That looked like
@@ -138,7 +122,6 @@ elseif(APPLE)
 	list(APPEND MOSS_SRC_FILES
 		${MOSS_PLATFORM_FILES}
 		${MOSS_AUDIO_PLATFORM_FILES}
-		${MOSS_ROOT}/Network/unix.cpp
 	)
 endif()
 
