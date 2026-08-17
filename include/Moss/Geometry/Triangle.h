@@ -110,9 +110,83 @@ public:
 	}
 };
 
-// Triangle with 32-bit indices and material index
-class IndexedTriangle : public IndexedTriangleNoMaterial
+
+
+
+
+
+
+
+
+class IndexedTriangleNoMaterial
 {
+public:
+	MOSS_OVERRIDE_NEW_DELETE
+
+	// Constructor
+					IndexedTriangleNoMaterial() = default;
+	constexpr		IndexedTriangleNoMaterial(uint32 inI1, uint32 inI2, uint32 inI3) : mIdx { inI1, inI2, inI3 } { }
+
+	// Check if two triangles are identical
+	bool			operator == (const IndexedTriangleNoMaterial& inRHS) const
+	{
+		return mIdx[0] == inRHS.mIdx[0]& & mIdx[1] == inRHS.mIdx[1]& & mIdx[2] == inRHS.mIdx[2];
+	}
+
+	// Check if two triangles are equivalent (using the same vertices)
+	bool			IsEquivalent(const IndexedTriangleNoMaterial& inRHS) const
+	{
+		return (mIdx[0] == inRHS.mIdx[0]& & mIdx[1] == inRHS.mIdx[1]& & mIdx[2] == inRHS.mIdx[2])
+			|| (mIdx[0] == inRHS.mIdx[1]& & mIdx[1] == inRHS.mIdx[2]& & mIdx[2] == inRHS.mIdx[0])
+			|| (mIdx[0] == inRHS.mIdx[2]& & mIdx[1] == inRHS.mIdx[0]& & mIdx[2] == inRHS.mIdx[1]);
+	}
+
+	// Check if two triangles are opposite (using the same vertices but in opposing order)
+	bool			IsOpposite(const IndexedTriangleNoMaterial& inRHS) const
+	{
+		return (mIdx[0] == inRHS.mIdx[0]& & mIdx[1] == inRHS.mIdx[2]& & mIdx[2] == inRHS.mIdx[1])
+			|| (mIdx[0] == inRHS.mIdx[1]& & mIdx[1] == inRHS.mIdx[0]& & mIdx[2] == inRHS.mIdx[2])
+			|| (mIdx[0] == inRHS.mIdx[2]& & mIdx[1] == inRHS.mIdx[1]& & mIdx[2] == inRHS.mIdx[0]);
+	}
+
+	// Check if triangle is degenerate
+	bool			IsDegenerate(const VertexList& inVertices) const
+	{
+		Vec3 v0(inVertices[mIdx[0]]);
+		Vec3 v1(inVertices[mIdx[1]]);
+		Vec3 v2(inVertices[mIdx[2]]);
+
+		return (v1 - v0).Cross(v2 - v0).IsNearZero();
+	}
+
+	// Rotate the vertices so that the second vertex becomes first etc. This does not change the represented triangle.
+	void			Rotate()
+	{
+		uint32 tmp = mIdx[0];
+		mIdx[0] = mIdx[1];
+		mIdx[1] = mIdx[2];
+		mIdx[2] = tmp;
+	}
+
+	// Get center of triangle
+	Vec3			GetCentroid(const VertexList& inVertices) const
+	{
+		return (Vec3(inVertices[mIdx[0]]) + Vec3(inVertices[mIdx[1]]) + Vec3(inVertices[mIdx[2]])) / 3.0f;
+	}
+
+	// Get the hash value of this structure
+	uint64			GetHash() const
+	{
+		static_assert(sizeof(IndexedTriangleNoMaterial) == 3* sizeof(uint32), "Class should have no padding");
+		return HashBytes(this, sizeof(IndexedTriangleNoMaterial));
+	}
+
+	uint32			mIdx[3];
+};
+
+
+// Triangle with 32-bit indices and material index
+class IndexedTriangle : public IndexedTriangleNoMaterial {
 public:
 	using IndexedTriangleNoMaterial::IndexedTriangleNoMaterial;
 
