@@ -1,6 +1,19 @@
 #ifndef VEHICLE3D_H
 #define VEHICLE3D_H
 
+enum class ETrackSide : uint
+{
+	Left = 0,
+	Right = 1,
+	Num = 2
+};
+
+enum class ETransmissionMode : uint8
+{
+	Auto,																///< Automatically shift gear up and down
+	Manual,																///< Manual gear shift (call SetTransmissionInput)
+};
+
 class VehicleControllerSettings : public SerializableObject, public RefTarget<VehicleControllerSettings> {
 public:
 	MOSS_OVERRIDE_NEW_DELETE
@@ -14,18 +27,28 @@ public:
 	virtual VehicleController*	ConstructController(VehicleConstraint& inConstraint) const = 0;
 };
 
-class VehicleConstraintSettings : public ConstraintSettings {
-	MOSS_OVERRIDE_NEW_DELETE
-	Vec3						mUp { 0, 1, 0 };							// Vector indicating the up direction of the vehicle (in local space to the body)
-	Vec3						mForward { 0, 0, 1 };						// Vector indicating forward direction of the vehicle (in local space to the body)
-	float						mMaxPitchRollAngle = MOSS_PI;				// Defines the maximum pitch/roll angle (rad), can be used to avoid the car from getting upside down. The vehicle up direction will stay within a cone centered around the up axis with half top angle mMaxPitchRollAngle, set to pi to turn off.
-	TArray<Ref<WheelSettings>>	mWheels;									// List of wheels and their properties
-	VehicleAntiRollBars			mAntiRollBars;								// List of anti rollbars and their properties
-	Ref<VehicleControllerSettings> mController;								// Defines how the vehicle can accelerate / decelerate
+/// Configuration for constraint that simulates a wheeled vehicle.
+///
+/// The properties in this constraint are largely based on "Car Physics for Games" by Marco Monster.
+/// See: https://www.asawicki.info/Mirror/Car%20Physics%20for%20Games/Car%20Physics%20for%20Games.html
+class MOSS_EXPORT VehicleConstraintSettings : public ConstraintSettings
+{
+	MOSS_DECLARE_SERIALIZABLE_VIRTUAL(MOSS_EXPORT, VehicleConstraintSettings)
+
+public:
+	/// Saves the contents of the constraint settings in binary form to inStream.
+	virtual void				SaveBinaryState(StreamOut &inStream) const override;
+
+	Vec3						mUp { 0, 1, 0 };							///< Vector indicating the up direction of the vehicle (in local space to the body)
+	Vec3						mForward { 0, 0, 1 };						///< Vector indicating forward direction of the vehicle (in local space to the body)
+	float						mMaxPitchRollAngle = MOSS_PI;				///< Defines the maximum pitch/roll angle (rad), can be used to avoid the car from getting upside down. The vehicle up direction will stay within a cone centered around the up axis with half top angle mMaxPitchRollAngle, set to pi to turn off.
+	Array<Ref<WheelSettings>>	mWheels;									///< List of wheels and their properties
+	VehicleAntiRollBars			mAntiRollBars;								///< List of anti rollbars and their properties
+	Ref<VehicleControllerSettings> mController;								///< Defines how the vehicle can accelerate / decelerate
 
 protected:
-	// This function should not be called directly, it is used by sRestoreFromBinaryState.
-	virtual void				RestoreBinaryState(StreamIn& inStream) override;
+	/// This function should not be called directly, it is used by sRestoreFromBinaryState.
+	virtual void				RestoreBinaryState(StreamIn &inStream) override;
 };
 
 class MOSS_API MotorSettings {
@@ -66,41 +89,66 @@ public:
 	float					mMaxTorqueLimit = FLT_MAX;					// Maximum torque to apply in case of a angular constraint (N m). Not used when motor is a position motor.
 };
 
-struct WheelSettings {
-	MOSS_OVERRIDE_NEW_DELETE
-	Vec3					mPosition { 0, 0, 0 };						// Attachment point of wheel suspension in local space of the body
-	Vec3					mSuspensionForcePoint { 0, 0, 0 };			// Where tire forces (suspension and traction) are applied, in local space of the body. A good default is the center of the wheel in its neutral pose. See mEnableSuspensionForcePoint.
-	Vec3					mSuspensionDirection { 0, -1, 0 };			// Direction of the suspension in local space of the body, should point down
-	Vec3					mSteeringAxis { 0, 1, 0 };					// Direction of the steering axis in local space of the body, should point up (e.g. for a bike would be -mSuspensionDirection)
-	Vec3					mWheelUp { 0, 1, 0 };						// Up direction when the wheel is in the neutral steering position (usually VehicleConstraintSettings::mUp but can be used to give the wheel camber or for a bike would be -mSuspensionDirection)
-	Vec3					mWheelForward { 0, 0, 1 };					// Forward direction when the wheel is in the neutral steering position (usually VehicleConstraintSettings::mForward but can be used to give the wheel toe, does not need to be perpendicular to mWheelUp)
-	float					mSuspensionMinLength = 0.3f;				// How long the suspension is in max raised position relative to the attachment point (m)
-	float					mSuspensionMaxLength = 0.5f;				// How long the suspension is in max droop position relative to the attachment point (m)
-	float					mSuspensionPreloadLength = 0.0f;			// The natural length (m) of the suspension spring is defined as mSuspensionMaxLength + mSuspensionPreloadLength. Can be used to preload the suspension as the spring is compressed by mSuspensionPreloadLength when the suspension is in max droop position. Note that this means when the vehicle touches the ground there is a discontinuity so it will also make the vehicle more bouncy as we're updating with discrete time steps.
-	SpringSettings			mSuspensionSpring { ESpringMode::FrequencyAndDamping, 1.5f, 0.5f }; // Settings for the suspension spring
-	float					mRadius = 0.3f;								// Radius of the wheel (m)
-	float					mWidth = 0.1f;								// Width of the wheel (m)
-	bool					mEnableSuspensionForcePoint = false;		// Enables mSuspensionForcePoint, if disabled, the forces are applied at the collision contact point. This leads to a more accurate simulation when interacting with dynamic objects but makes the vehicle less stable. When setting this to true, all forces will be applied to a fixed point on the vehicle body.
+/// Base class for wheel settings, each VehicleController can implement a derived class of this
+class MOSS_EXPORT WheelSettings : public SerializableObject, public RefTarget<WheelSettings>
+{
+	MOSS_DECLARE_SERIALIZABLE_VIRTUAL(MOSS_EXPORT, WheelSettings)
+
+public:
+	/// Saves the contents in binary form to inStream.
+	virtual void			SaveBinaryState(StreamOut &inStream) const;
+
+	/// Restores the contents in binary form to inStream.
+	virtual void			RestoreBinaryState(StreamIn &inStream);
+
+	Vec3					mPosition { 0, 0, 0 };						///< Attachment point of wheel suspension in local space of the body
+	Vec3					mSuspensionForcePoint { 0, 0, 0 };			///< Where tire forces (suspension and traction) are applied, in local space of the body. A good default is the center of the wheel in its neutral pose. See mEnableSuspensionForcePoint.
+	Vec3					mSuspensionDirection { 0, -1, 0 };			///< Direction of the suspension in local space of the body, should point down
+	Vec3					mSteeringAxis { 0, 1, 0 };					///< Direction of the steering axis in local space of the body, should point up (e.g. for a bike would be -mSuspensionDirection)
+	Vec3					mWheelUp { 0, 1, 0 };						///< Up direction when the wheel is in the neutral steering position (usually VehicleConstraintSettings::mUp but can be used to give the wheel camber or for a bike would be -mSuspensionDirection)
+	Vec3					mWheelForward { 0, 0, 1 };					///< Forward direction when the wheel is in the neutral steering position (usually VehicleConstraintSettings::mForward but can be used to give the wheel toe, does not need to be perpendicular to mWheelUp)
+	float					mSuspensionMinLength = 0.3f;				///< How long the suspension is in max raised position relative to the attachment point (m)
+	float					mSuspensionMaxLength = 0.5f;				///< How long the suspension is in max droop position relative to the attachment point (m)
+	float					mSuspensionPreloadLength = 0.0f;			///< The natural length (m) of the suspension spring is defined as mSuspensionMaxLength + mSuspensionPreloadLength. Can be used to preload the suspension as the spring is compressed by mSuspensionPreloadLength when the suspension is in max droop position. Note that this means when the vehicle touches the ground there is a discontinuity so it will also make the vehicle more bouncy as we're updating with discrete time steps.
+	SpringSettings			mSuspensionSpring { ESpringMode::FrequencyAndDamping, 1.5f, 0.5f }; ///< Settings for the suspension spring
+	float					mRadius = 0.3f;								///< Radius of the wheel (m)
+	float					mWidth = 0.1f;								///< Width of the wheel (m)
+	bool					mEnableSuspensionForcePoint = false;		///< Enables mSuspensionForcePoint, if disabled, the forces are applied at the collision contact point. This leads to a more accurate simulation when interacting with dynamic objects but makes the vehicle less stable. When setting this to true, all forces will be applied to a fixed point on the vehicle body.
 };
 
-struct WheelSettingsWV : public WheelSettings {
-	MOSS_OVERRIDE_NEW_DELETE
-	float						mInertia = 0.9f;							// Moment of inertia (kg m^2), for a cylinder this would be 0.5* M* R^2 which is 0.9 for a wheel with a mass of 20 kg and radius 0.3 m
-	float						mAngularDamping = 0.2f;						// Angular damping factor of the wheel: dw/dt = -c* w
-	float						mMaxSteerAngle = DegreesToRadians(70.0f);	// How much this wheel can steer (radians)
-	LinearCurve					mLongitudinalFriction;						// On the Y-axis: friction in the forward direction of the tire. Friction is normally between 0 (no friction) and 1 (full friction) although friction can be a little bit higher than 1 because of the profile of a tire. On the X-axis: the slip ratio (fraction) defined as (omega_wheel* r_wheel - v_longitudinal) / |v_longitudinal|. You can see slip ratio as the amount the wheel is spinning relative to the floor: 0 means the wheel has full traction and is rolling perfectly in sync with the ground, 1 is for example when the wheel is locked and sliding over the ground.
-	LinearCurve					mLateralFriction;							// On the Y-axis: friction in the sideways direction of the tire. Friction is normally between 0 (no friction) and 1 (full friction) although friction can be a little bit higher than 1 because of the profile of a tire. On the X-axis: the slip angle (degrees) defined as angle between relative contact velocity and tire direction.
-	float						mMaxBrakeTorque = 1500.0f;					// How much torque (Nm) the brakes can apply to this wheel
-	float						mMaxHandBrakeTorque = 4000.0f;				// How much torque (Nm) the hand brake can apply to this wheel (usually only applied to the rear wheels)
-};
- WheelSettingsTV : public WheelSettings {
-	MOSS_OVERRIDE_NEW_DELETE
+
+class MOSS_EXPORT WheelSettingsWV : public WheelSettings
+{
+	MOSS_DECLARE_SERIALIZABLE_VIRTUAL(MOSS_EXPORT, WheelSettingsWV)
+
+public:
+	/// Constructor
+								WheelSettingsWV();
+
 	// See: WheelSettings
-	virtual void				SaveBinaryState(StreamOut& inStream) const override;
-	virtual void				RestoreBinaryState(StreamIn& inStream) override;
+	virtual void				SaveBinaryState(StreamOut &inStream) const override;
+	virtual void				RestoreBinaryState(StreamIn &inStream) override;
 
-	float						mLongitudinalFriction = 4.0f;				// Friction in forward direction of tire
-	float						mLateralFriction = 2.0f;					// Friction in sideways direction of tire
+	float						mInertia = 0.9f;							///< Moment of inertia (kg m^2), for a cylinder this would be 0.5 * M * R^2 which is 0.9 for a wheel with a mass of 20 kg and radius 0.3 m
+	float						mAngularDamping = 0.2f;						///< Angular damping factor of the wheel: dw/dt = -c * w. Value should be zero or positive and is usually close to 0.
+	float						mMaxSteerAngle = DegreesToRadians(70.0f);	///< How much this wheel can steer (radians)
+	LinearCurve					mLongitudinalFriction;						///< On the Y-axis: friction in the forward direction of the tire. Friction is normally between 0 (no friction) and 1 (full friction) although friction can be a little bit higher than 1 because of the profile of a tire. On the X-axis: the slip ratio (fraction) defined as (omega_wheel * r_wheel - v_longitudinal) / |v_longitudinal|. You can see slip ratio as the amount the wheel is spinning relative to the floor: 0 means the wheel has full traction and is rolling perfectly in sync with the ground, 1 is for example when the wheel is locked and sliding over the ground.
+	LinearCurve					mLateralFriction;							///< On the Y-axis: friction in the sideways direction of the tire. Friction is normally between 0 (no friction) and 1 (full friction) although friction can be a little bit higher than 1 because of the profile of a tire. On the X-axis: the slip angle (degrees) defined as angle between relative contact velocity and tire direction.
+	float						mMaxBrakeTorque = 1500.0f;					///< How much torque (Nm) the brakes can apply to this wheel
+	float						mMaxHandBrakeTorque = 4000.0f;				///< How much torque (Nm) the hand brake can apply to this wheel (usually only applied to the rear wheels)
+};
+
+class MOSS_EXPORT WheelSettingsTV : public WheelSettings
+{
+	MOSS_DECLARE_SERIALIZABLE_VIRTUAL(MOSS_EXPORT, WheelSettingsTV)
+
+public:
+	// See: WheelSettings
+	virtual void				SaveBinaryState(StreamOut &inStream) const override;
+	virtual void				RestoreBinaryState(StreamIn &inStream) override;
+
+	float						mLongitudinalFriction = 4.0f;				///< Friction in forward direction of tire
+	float						mLateralFriction = 2.0f;					///< Friction in sideways direction of tire
 };
 
 
@@ -429,65 +477,69 @@ public:
 	float						mBrakeImpulse = 0.0f;						// Amount of impulse that the brakes can apply to the floor (excluding friction), spread out from brake impulse applied on track
 };
 
-class VehicleTransmissionSettings {
+/// Configuration for the transmission of a vehicle (gear box)
+class MOSS_EXPORT VehicleTransmissionSettings {
+	MOSS_DECLARE_SERIALIZABLE_NON_VIRTUAL(MOSS_EXPORT, VehicleTransmissionSettings)
+
 public:
-	// Saves the contents in binary form to inStream.
-	void					SaveBinaryState(StreamOut& inStream) const;
+	/// Saves the contents in binary form to inStream.
+	void SaveBinaryState(StreamOut &inStream) const;
 
-	// Restores the contents in binary form to inStream.
-	void					RestoreBinaryState(StreamIn& inStream);
+	/// Restores the contents in binary form to inStream.
+	void RestoreBinaryState(StreamIn &inStream);
 
-	ETransmissionMode		mMode = ETransmissionMode::Auto;			// How to switch gears
-	TArray<float>			mGearRatios { 2.66f, 1.78f, 1.3f, 1.0f, 0.74f }; // Ratio in rotation rate between engine and gear box, first element is 1st gear, 2nd element 2nd gear etc.
-	TArray<float>			mReverseGearRatios { -2.90f };				// Ratio in rotation rate between engine and gear box when driving in reverse
-	float					mSwitchTime = 0.5f;							// How long it takes to switch gears (s), only used in auto mode
-	float					mClutchReleaseTime = 0.3f;					// How long it takes to release the clutch (go to full friction), only used in auto mode
-	float					mSwitchLatency = 0.5f;						// How long to wait after releasing the clutch before another switch is attempted (s), only used in auto mode
-	float					mShiftUpRPM = 4000.0f;						// If RPM of engine is bigger then this we will shift a gear up, only used in auto mode
-	float					mShiftDownRPM = 2000.0f;					// If RPM of engine is smaller then this we will shift a gear down, only used in auto mode
-	float					mClutchStrength = 10.0f;					// Strength of the clutch when fully engaged. Total torque a clutch applies is Torque = ClutchStrength* (Velocity Engine - Avg Velocity Wheels At Clutch) (units: k m^2 s^-1)
+	ETransmissionMode		mMode = ETransmissionMode::Auto;			///< How to switch gears
+	Array<float>			mGearRatios { 2.66f, 1.78f, 1.3f, 1.0f, 0.74f }; ///< Ratio in rotation rate between engine and gear box, first element is 1st gear, 2nd element 2nd gear etc.
+	Array<float>			mReverseGearRatios { -2.90f };				///< Ratio in rotation rate between engine and gear box when driving in reverse
+	float					mSwitchTime = 0.5f;							///< How long it takes to switch gears (s), only used in auto mode
+	float					mClutchReleaseTime = 0.3f;					///< How long it takes to release the clutch (go to full friction), only used in auto mode
+	float					mSwitchLatency = 0.5f;						///< How long to wait after releasing the clutch before another switch is attempted (s), only used in auto mode
+	float					mShiftUpRPM = 4000.0f;						///< If RPM of engine is bigger then this we will shift a gear up, only used in auto mode
+	float					mShiftDownRPM = 2000.0f;					///< If RPM of engine is smaller then this we will shift a gear down, only used in auto mode
+	float					mClutchStrength = 10.0f;					///< Strength of the clutch when fully engaged. Total torque a clutch applies is Torque = ClutchStrength * (Velocity Engine - Avg Velocity Wheels At Clutch) (units: k m^2 s^-1)
 };
 
-class VehicleTransmission : public VehicleTransmissionSettings
+// Runtime data for transmission
+class MOSS_EXPORT VehicleTransmission : public VehicleTransmissionSettings
 {
 public:
-	// Set input from driver regarding the transmission (only relevant when transmission is set to manual mode)
-	// @param inCurrentGear Current gear, -1 = reverse, 0 = neutral, 1 = 1st gear etc.
-	// @param inClutchFriction Value between 0 and 1 indicating how much friction the clutch gives (0 = no friction, 1 = full friction)
+	/// Set input from driver regarding the transmission (only relevant when transmission is set to manual mode)
+	/// @param inCurrentGear Current gear, -1 = reverse, 0 = neutral, 1 = 1st gear etc.
+	/// @param inClutchFriction Value between 0 and 1 indicating how much friction the clutch gives (0 = no friction, 1 = full friction)
 	void					Set(int inCurrentGear, float inClutchFriction) { mCurrentGear = inCurrentGear; mClutchFriction = inClutchFriction; }
 
-	// Update the current gear and clutch friction if the transmission is in auto mode
-	// @param inDeltaTime Time step delta time in s
-	// @param inCurrentRPM Current RPM for engine
-	// @param inForwardInput Hint if the user wants to drive forward (> 0) or backwards (< 0)
-	// @param inCanShiftUp Indicates if we want to allow the transmission to shift up (e.g. pass false if wheels are slipping)
+	/// Update the current gear and clutch friction if the transmission is in auto mode
+	/// @param inDeltaTime Time step delta time in s
+	/// @param inCurrentRPM Current RPM for engine
+	/// @param inForwardInput Hint if the user wants to drive forward (> 0) or backwards (< 0)
+	/// @param inCanShiftUp Indicates if we want to allow the transmission to shift up (e.g. pass false if wheels are slipping)
 	void					Update(float inDeltaTime, float inCurrentRPM, float inForwardInput, bool inCanShiftUp);
 
-	// Current gear, -1 = reverse, 0 = neutral, 1 = 1st gear etc.
+	/// Current gear, -1 = reverse, 0 = neutral, 1 = 1st gear etc.
 	int						GetCurrentGear() const						{ return mCurrentGear; }
 
-	// Value between 0 and 1 indicating how much friction the clutch gives (0 = no friction, 1 = full friction)
+	/// Value between 0 and 1 indicating how much friction the clutch gives (0 = no friction, 1 = full friction)
 	float					GetClutchFriction() const					{ return mClutchFriction; }
 
-	// If the auto box is currently switching gears
+	/// If the auto box is currently switching gears
 	bool					IsSwitchingGear() const						{ return mGearSwitchTimeLeft > 0.0f; }
 
-	// Return the transmission ratio based on the current gear (ratio between engine and differential)
+	/// Return the transmission ratio based on the current gear (ratio between engine and differential)
 	float					GetCurrentRatio() const;
 
-	// Only allow sleeping when the transmission is idle
-	bool					AllowSleep() const							{ return mGearSwitchTimeLeft <= 0.0f&& mClutchReleaseTimeLeft <= 0.0f&& mGearSwitchLatencyTimeLeft <= 0.0f; }
+	/// Only allow sleeping when the transmission is idle
+	bool					AllowSleep() const							{ return mGearSwitchTimeLeft <= 0.0f && mClutchReleaseTimeLeft <= 0.0f && mGearSwitchLatencyTimeLeft <= 0.0f; }
 
-	// Saving state for replay
-	void					SaveState(StateRecorder& inStream) const;
-	void					RestoreState(StateRecorder& inStream);
+	/// Saving state for replay
+	void					SaveState(StateRecorder &inStream) const;
+	void					RestoreState(StateRecorder &inStream);
 
 private:
-	int						mCurrentGear = 0;							// Current gear, -1 = reverse, 0 = neutral, 1 = 1st gear etc.
-	float					mClutchFriction = 1.0f;						// Value between 0 and 1 indicating how much friction the clutch gives (0 = no friction, 1 = full friction)
-	float					mGearSwitchTimeLeft = 0.0f;					// When switching gears this will be > 0 and will cause the engine to not provide any torque to the wheels for a short time (used for automatic gear switching only)
-	float					mClutchReleaseTimeLeft = 0.0f;				// After switching gears this will be > 0 and will cause the clutch friction to go from 0 to 1 (used for automatic gear switching only)
-	float					mGearSwitchLatencyTimeLeft = 0.0f;			// After releasing the clutch this will be > 0 and will prevent another gear switch (used for automatic gear switching only)
+	int						mCurrentGear = 0;							///< Current gear, -1 = reverse, 0 = neutral, 1 = 1st gear etc.
+	float					mClutchFriction = 1.0f;						///< Value between 0 and 1 indicating how much friction the clutch gives (0 = no friction, 1 = full friction)
+	float					mGearSwitchTimeLeft = 0.0f;					///< When switching gears this will be > 0 and will cause the engine to not provide any torque to the wheels for a short time (used for automatic gear switching only)
+	float					mClutchReleaseTimeLeft = 0.0f;				///< After switching gears this will be > 0 and will cause the clutch friction to go from 0 to 1 (used for automatic gear switching only)
+	float					mGearSwitchLatencyTimeLeft = 0.0f;			///< After releasing the clutch this will be > 0 and will prevent another gear switch (used for automatic gear switching only)
 };
 
 class VehicleCollisionTester : public RefTarget<VehicleCollisionTester>, public NonCopyable {
@@ -573,21 +625,22 @@ private:
 	float							mCosMaxSlopeAngle;
 };
 
-// Collision tester that tests collision using a sphere cast
-class VehicleCollisionTesterCastSphere : public VehicleCollisionTester {
+/// Collision tester that tests collision using a sphere cast
+class MOSS_EXPORT VehicleCollisionTesterCastSphere : public VehicleCollisionTester
+{
 public:
 	MOSS_OVERRIDE_NEW_DELETE
 
-	// Constructor
-	// @param inObjectLayer Object layer to test collision with
-	// @param inUp World space up vector, used to avoid colliding with vertical walls.
-	// @param inRadius Radius of sphere
-	// @param inMaxSlopeAngle Max angle (rad) that is considered for colliding wheels. This is to avoid colliding with vertical walls.
-									VehicleCollisionTesterCastSphere(ObjectLayer inObjectLayer, float inRadius, Vec3Arg inUp = Vec3::AxisY(), float inMaxSlopeAngle = DegreesToRadians(80.0f)) : VehicleCollisionTester(inObjectLayer), mRadius(inRadius), mUp(inUp), mCosMaxSlopeAngle(Cos(inMaxSlopeAngle)) { }
+	/// Constructor
+	/// @param inObjectLayer Object layer to test collision with
+	/// @param inUp World space up vector, used to avoid colliding with vertical walls.
+	/// @param inRadius Radius of sphere
+	/// @param inMaxSlopeAngle Max angle (rad) that is considered for colliding wheels. This is to avoid colliding with vertical walls.
+									VehicleCollisionTesterCastSphere(ObjectLayer inObjectLayer, float inRadius, Vec3Arg inUp = Vec3::sAxisY(), float inMaxSlopeAngle = DegreesToRadians(80.0f)) : VehicleCollisionTester(inObjectLayer), mRadius(inRadius), mUp(inUp), mCosMaxSlopeAngle(Cos(inMaxSlopeAngle)) { }
 
 	// See: VehicleCollisionTester
-	virtual bool					Collide(PhysicsSystem& inPhysicsSystem, const VehicleConstraint& inVehicleConstraint, uint8 inWheelIndex, RVec3Arg inOrigin, Vec3Arg inDirection, const BodyID& inVehicleBodyID, Body*&outBody, SubShapeID& outSubShapeID, RVec3& outContactPosition, Vec3& outContactNormal, float& outSuspensionLength) const override;
-	virtual void					PredictContactProperties(PhysicsSystem& inPhysicsSystem, const VehicleConstraint& inVehicleConstraint, uint8 inWheelIndex, RVec3Arg inOrigin, Vec3Arg inDirection, const BodyID& inVehicleBodyID, Body*&ioBody, SubShapeID& ioSubShapeID, RVec3& ioContactPosition, Vec3& ioContactNormal, float& ioSuspensionLength) const override;
+	virtual bool					Collide(PhysicsSystem &inPhysicsSystem, const VehicleConstraint &inVehicleConstraint, uint inWheelIndex, RVec3Arg inOrigin, Vec3Arg inDirection, const BodyID &inVehicleBodyID, Body *&outBody, SubShapeID &outSubShapeID, RVec3 &outContactPosition, Vec3 &outContactNormal, float &outSuspensionLength) const override;
+	virtual void					PredictContactProperties(PhysicsSystem &inPhysicsSystem, const VehicleConstraint &inVehicleConstraint, uint inWheelIndex, RVec3Arg inOrigin, Vec3Arg inDirection, const BodyID &inVehicleBodyID, Body *&ioBody, SubShapeID &ioSubShapeID, RVec3 &ioContactPosition, Vec3 &ioContactNormal, float &ioSuspensionLength) const override;
 
 private:
 	float							mRadius;
@@ -595,86 +648,175 @@ private:
 	float							mCosMaxSlopeAngle;
 };
 
-// Collision tester that tests collision using a cylinder shape
-class VehicleCollisionTesterCastCylinder : public VehicleCollisionTester {
+/// Collision tester that tests collision using a cylinder shape
+class MOSS_EXPORT VehicleCollisionTesterCastCylinder : public VehicleCollisionTester
+{
 public:
 	MOSS_OVERRIDE_NEW_DELETE
 
-	// Constructor
-	// @param inObjectLayer Object layer to test collision with
-	// @param inConvexRadiusFraction Fraction of half the wheel width (or wheel radius if it is smaller) that is used as the convex radius
-									VehicleCollisionTesterCastCylinder(ObjectLayer inObjectLayer, float inConvexRadiusFraction = 0.1f) : VehicleCollisionTester(inObjectLayer), mConvexRadiusFraction(inConvexRadiusFraction) { MOSS_ASSERT(mConvexRadiusFraction >= 0.0f&& mConvexRadiusFraction <= 1.0f); }
+	/// Constructor
+	/// @param inObjectLayer Object layer to test collision with
+	/// @param inConvexRadiusFraction Fraction of half the wheel width (or wheel radius if it is smaller) that is used as the convex radius
+	explicit						VehicleCollisionTesterCastCylinder(ObjectLayer inObjectLayer, float inConvexRadiusFraction = 0.1f) : VehicleCollisionTester(inObjectLayer), mConvexRadiusFraction(inConvexRadiusFraction) { MOSS_ASSERT(mConvexRadiusFraction >= 0.0f && mConvexRadiusFraction <= 1.0f); }
 
 	// See: VehicleCollisionTester
-	virtual bool					Collide(PhysicsSystem& inPhysicsSystem, const VehicleConstraint& inVehicleConstraint, uint8 inWheelIndex, RVec3Arg inOrigin, Vec3Arg inDirection, const BodyID& inVehicleBodyID, Body*&outBody, SubShapeID& outSubShapeID, RVec3& outContactPosition, Vec3& outContactNormal, float& outSuspensionLength) const override;
-	virtual void					PredictContactProperties(PhysicsSystem& inPhysicsSystem, const VehicleConstraint& inVehicleConstraint, uint8 inWheelIndex, RVec3Arg inOrigin, Vec3Arg inDirection, const BodyID& inVehicleBodyID, Body*&ioBody, SubShapeID& ioSubShapeID, RVec3& ioContactPosition, Vec3& ioContactNormal, float& ioSuspensionLength) const override;
+	virtual bool					Collide(PhysicsSystem &inPhysicsSystem, const VehicleConstraint &inVehicleConstraint, uint inWheelIndex, RVec3Arg inOrigin, Vec3Arg inDirection, const BodyID &inVehicleBodyID, Body *&outBody, SubShapeID &outSubShapeID, RVec3 &outContactPosition, Vec3 &outContactNormal, float &outSuspensionLength) const override;
+	virtual void					PredictContactProperties(PhysicsSystem &inPhysicsSystem, const VehicleConstraint &inVehicleConstraint, uint inWheelIndex, RVec3Arg inOrigin, Vec3Arg inDirection, const BodyID &inVehicleBodyID, Body *&ioBody, SubShapeID &ioSubShapeID, RVec3 &ioContactPosition, Vec3 &ioContactNormal, float &ioSuspensionLength) const override;
 
 private:
 	float							mConvexRadiusFraction;
 };
 
-struct WheeledVehicleControllerSettings : public VehicleControllerSettings {
-	VehicleEngineSettings		mEngine;									// The properties of the engine
-	VehicleTransmissionSettings	mTransmission;								// The properties of the transmission (aka gear box)
-	TArray<VehicleDifferentialSettings> mDifferentials;						// List of differentials and their properties
-	float						mDifferentialLimitedSlipRatio = 1.4f;		// Ratio max / min average wheel speed of each differential (measured at the clutch). When the ratio is exceeded all torque gets distributed to the differential with the minimal average velocity. This allows implementing a limited slip differential between differentials. Set to FLT_MAX for an open differential. Value should be > 1.
+/// Settings of a vehicle with regular wheels
+///
+/// The properties in this controller are largely based on "Car Physics for Games" by Marco Monster.
+/// See: https://www.asawicki.info/Mirror/Car%20Physics%20for%20Games/Car%20Physics%20for%20Games.html
+class MOSS_EXPORT WheeledVehicleControllerSettings : public VehicleControllerSettings
+{
+	MOSS_DECLARE_SERIALIZABLE_VIRTUAL(MOSS_EXPORT, WheeledVehicleControllerSettings)
+
+public:
+	// See: VehicleControllerSettings
+	virtual VehicleController *	ConstructController(VehicleConstraint &inConstraint) const override;
+	virtual void				SaveBinaryState(StreamOut &inStream) const override;
+	virtual void				RestoreBinaryState(StreamIn &inStream) override;
+
+	VehicleEngineSettings		mEngine;									///< The properties of the engine
+	VehicleTransmissionSettings	mTransmission;								///< The properties of the transmission (aka gear box)
+	Array<VehicleDifferentialSettings> mDifferentials;						///< List of differentials and their properties
+	float						mDifferentialLimitedSlipRatio = 1.4f;		///< Ratio max / min average wheel speed of each differential (measured at the clutch). When the ratio is exceeded all torque gets distributed to the differential with the minimal average velocity. This allows implementing a limited slip differential between differentials. Set to FLT_MAX for an open differential. Value should be > 1.
 };
 
-struct MotorcycleControllerSettings : public WheeledVehicleControllerSettings {
-	float						mMaxLeanAngle = DegreesToRadians(45.0f);	// How far we're willing to make the bike lean over in turns (in radians)
-	float						mLeanSpringConstant = 5000.0f;				// Spring constant for the lean spring
-	float						mLeanSpringDamping = 1000.0f;				// Spring damping constant for the lean spring
-	float						mLeanSpringIntegrationCoefficient = 0.0f;	// The lean spring applies an additional force equal to this coefficient* Integral(delta angle, 0, t), this effectively makes the lean spring a PID controller
-	float						mLeanSpringIntegrationCoefficientDecay = 4.0f;// How much to decay the angle integral when the wheels are not touching the floor: new_value = e^(-decay* t)* initial_value
-	// How much to smooth the lean angle (0 = no smoothing, 1 = lean angle never changes)
-	// Note that this is frame rate dependent because the formula is: smoothing_factor* previous + (1 - smoothing_factor)* current
+
+class MOSS_EXPORT MotorcycleControllerSettings : public WheeledVehicleControllerSettings {
+	MOSS_DECLARE_SERIALIZABLE_VIRTUAL(MOSS_EXPORT, MotorcycleControllerSettings)
+
+public:
+	// See: VehicleControllerSettings
+	virtual VehicleController *	ConstructController(VehicleConstraint &inConstraint) const override;
+	virtual void				SaveBinaryState(StreamOut &inStream) const override;
+	virtual void				RestoreBinaryState(StreamIn &inStream) override;
+
+	/// How far we're willing to make the bike lean over in turns (in radians)
+	float						mMaxLeanAngle = DegreesToRadians(45.0f);
+
+	/// Spring constant for the lean spring
+	float						mLeanSpringConstant = 5000.0f;
+
+	/// Spring damping constant for the lean spring
+	float						mLeanSpringDamping = 1000.0f;
+
+	/// The lean spring applies an additional force equal to this coefficient * Integral(delta angle, 0, t), this effectively makes the lean spring a PID controller
+	float						mLeanSpringIntegrationCoefficient = 0.0f;
+
+	/// How much to decay the angle integral when the wheels are not touching the floor: new_value = e^(-decay * t) * initial_value
+	float						mLeanSpringIntegrationCoefficientDecay = 4.0f;
+
+	/// How much to smooth the lean angle (0 = no smoothing, 1 = lean angle never changes)
+	/// Note that this is frame rate dependent because the formula is: smoothing_factor * previous + (1 - smoothing_factor) * current
 	float						mLeanSmoothingFactor = 0.8f;
 };
 
-struct VehicleTrackSettings {
-	uint8					mDrivenWheel;								// Which wheel on the track is connected to the engine
-	TArray<uint8>			mWheels;									// Indices of wheels that are inside this track, should include the driven wheel too
-	float					mInertia = 10.0f;							// Moment of inertia (kg m^2) of the track and its wheels as seen on the driven wheel
-	float					mAngularDamping = 0.5f;						// Damping factor of track and its wheels: dw/dt = -c* w as seen on the driven wheel
-	float					mMaxBrakeTorque = 15000.0f;					// How much torque (Nm) the brakes can apply on the driven wheel
-	float					mDifferentialRatio = 6.0f;					// Ratio between rotation speed of gear box and driven wheel of track
-};
+/// Generic properties for tank tracks
+class MOSS_EXPORT VehicleTrackSettings
+{
+	MOSS_DECLARE_SERIALIZABLE_NON_VIRTUAL(MOSS_EXPORT, VehicleTrackSettings)
 
-struct VehicleEngineSettings {
-	float					MaxTorque = 500.0f;						// Max amount of torque (Nm) that the engine can deliver
-	float					MinRPM = 1000.0f;							// Min amount of revolutions per minute (rpm) the engine can produce without stalling
-	float					MaxRPM = 6000.0f;							// Max amount of revolutions per minute (rpm) the engine can generate
-	LinearCurve				NormalizedTorque;							// Y-axis: Curve that describes a ratio of the max torque the engine can produce (0 = 0, 1 = mMaxTorque). X-axis: the fraction of the RPM of the engine (0 = mMinRPM, 1 = mMaxRPM)
-	float					Inertia = 0.5f;							// Moment of inertia (kg m^2) of the engine
-	float					AngularDamping = 0.2f;						// Angular damping factor of the wheel: dw/dt = -c* w
-};
-
-struct TrackedVehicleControllerSettings : public VehicleControllerSettings {
-	VehicleEngineSettings		mEngine;									// The properties of the engine
-	VehicleTransmissionSettings	mTransmission;								// The properties of the transmission (aka gear box)
-	VehicleTrackSettings		mTracks[(int)ETrackSide::Num];				// List of tracks and their properties
-};
-
-struct VehicleDifferentialSettings {
 public:
-	// Calculate the torque ratio between left and right wheel
-	// @param inLeftAngularVelocity Angular velocity of left wheel (rad / s)
-	// @param inRightAngularVelocity Angular velocity of right wheel (rad / s)
-	// @param outLeftTorqueFraction Fraction of torque that should go to the left wheel
-	// @param outRightTorqueFraction Fraction of torque that should go to the right wheel
-	void					CalculateTorqueRatio(float inLeftAngularVelocity, float inRightAngularVelocity, float& outLeftTorqueFraction, float& outRightTorqueFraction) const;
+	/// Saves the contents in binary form to inStream.
+	void					SaveBinaryState(StreamOut &inStream) const;
 
-	int						mLeftWheel = -1;							// Index (in mWheels) that represents the left wheel of this differential (can be -1 to indicate no wheel)
-	int						mRightWheel = -1;							// Index (in mWheels) that represents the right wheel of this differential (can be -1 to indicate no wheel)
-	float					mDifferentialRatio = 3.42f;					// Ratio between rotation speed of gear box and wheels
-	float					mLeftRightSplit = 0.5f;						// Defines how the engine torque is split across the left and right wheel (0 = left, 0.5 = center, 1 = right)
-	float					mLimitedSlipRatio = 1.4f;					// Ratio max / min wheel speed. When this ratio is exceeded, all torque gets distributed to the slowest moving wheel. This allows implementing a limited slip differential. Set to FLT_MAX for an open differential. Value should be > 1.
-	float					mEngineTorqueRatio = 1.0f;					// How much of the engines torque is applied to this differential (0 = none, 1 = full), make sure the sum of all differentials is 1.
+	/// Restores the contents in binary form to inStream.
+	void					RestoreBinaryState(StreamIn &inStream);
+
+	uint					mDrivenWheel;								///< Which wheel on the track is connected to the engine
+	Array<uint>				mWheels;									///< Indices of wheels that are inside this track, should include the driven wheel too
+	float					mInertia = 10.0f;							///< Moment of inertia (kg m^2) of the track and its wheels as seen on the driven wheel
+	float					mAngularDamping = 0.5f;						///< Damping factor of track and its wheels: dw/dt = -c * w as seen on the driven wheel
+	float					mMaxBrakeTorque = 15000.0f;					///< How much torque (Nm) the brakes can apply on the driven wheel
+	float					mDifferentialRatio = 6.0f;					///< Ratio between rotation speed of gear box and driven wheel of track
+};
+
+/// Generic properties for a vehicle engine
+class MOSS_EXPORT VehicleEngineSettings
+{
+	MOSS_DECLARE_SERIALIZABLE_NON_VIRTUAL(MOSS_EXPORT, VehicleEngineSettings)
+
+public:
+	/// Constructor
+							VehicleEngineSettings();
+
+	/// Saves the contents in binary form to inStream.
+	void					SaveBinaryState(StreamOut &inStream) const;
+
+	/// Restores the contents in binary form to inStream.
+	void					RestoreBinaryState(StreamIn &inStream);
+
+	float					mMaxTorque = 500.0f;						///< Max amount of torque (Nm) that the engine can deliver
+	float					mMinRPM = 1000.0f;							///< Min amount of revolutions per minute (rpm) the engine can produce without stalling
+	float					mMaxRPM = 6000.0f;							///< Max amount of revolutions per minute (rpm) the engine can generate
+	LinearCurve				mNormalizedTorque;							///< Y-axis: Curve that describes a ratio of the max torque the engine can produce (0 = 0, 1 = mMaxTorque). X-axis: the fraction of the RPM of the engine (0 = mMinRPM, 1 = mMaxRPM)
+	float					mInertia = 0.5f;							///< Moment of inertia (kg m^2) of the engine
+	float					mAngularDamping = 0.2f;						///< Angular damping factor of the wheel: dw/dt = -c * w. Value should be zero or positive and is usually close to 0.
+};
+
+/// Settings of a vehicle with tank tracks
+///
+/// Default settings are based around what I could find about the M1 Abrams tank.
+/// Note to avoid issues with very heavy objects vs very light objects the mass of the tank should be a lot lower (say 10x) than that of a real tank. That means that the engine/brake torque is also 10x less.
+class MOSS_EXPORT TrackedVehicleControllerSettings : public VehicleControllerSettings
+{
+	MOSS_DECLARE_SERIALIZABLE_VIRTUAL(MOSS_EXPORT, TrackedVehicleControllerSettings)
+
+public:
+	// Constructor
+								TrackedVehicleControllerSettings();
+
+	// See: VehicleControllerSettings
+	virtual VehicleController *	ConstructController(VehicleConstraint &inConstraint) const override;
+	virtual void				SaveBinaryState(StreamOut &inStream) const override;
+	virtual void				RestoreBinaryState(StreamIn &inStream) override;
+
+	VehicleEngineSettings		mEngine;									///< The properties of the engine
+	VehicleTransmissionSettings	mTransmission;								///< The properties of the transmission (aka gear box)
+	VehicleTrackSettings		mTracks[(int)ETrackSide::Num];				///< List of tracks and their properties
+};
+
+class MOSS_EXPORT VehicleDifferentialSettings
+{
+	MOSS_DECLARE_SERIALIZABLE_NON_VIRTUAL(MOSS_EXPORT, VehicleDifferentialSettings)
+
+public:
+	/// Saves the contents in binary form to inStream.
+	void					SaveBinaryState(StreamOut &inStream) const;
+
+	/// Restores the contents in binary form to inStream.
+	void					RestoreBinaryState(StreamIn &inStream);
+
+	/// Calculate the torque ratio between left and right wheel
+	/// @param inLeftAngularVelocity Angular velocity of left wheel (rad / s)
+	/// @param inRightAngularVelocity Angular velocity of right wheel (rad / s)
+	/// @param outLeftTorqueFraction Fraction of torque that should go to the left wheel
+	/// @param outRightTorqueFraction Fraction of torque that should go to the right wheel
+	void					CalculateTorqueRatio(float inLeftAngularVelocity, float inRightAngularVelocity, float &outLeftTorqueFraction, float &outRightTorqueFraction) const;
+
+	int						mLeftWheel = -1;							///< Index (in mWheels) that represents the left wheel of this differential (can be -1 to indicate no wheel)
+	int						mRightWheel = -1;							///< Index (in mWheels) that represents the right wheel of this differential (can be -1 to indicate no wheel)
+	float					mDifferentialRatio = 3.42f;					///< Ratio between rotation speed of gear box and wheels
+	float					mLeftRightSplit = 0.5f;						///< Defines how the engine torque is split across the left and right wheel (0 = left, 0.5 = center, 1 = right)
+	float					mLimitedSlipRatio = 1.4f;					///< Ratio max / min wheel speed. When this ratio is exceeded, all torque gets distributed to the slowest moving wheel. This allows implementing a limited slip differential. Set to FLT_MAX for an open differential. Value should be > 1.
+	float					mEngineTorqueRatio = 1.0f;					///< How much of the engines torque is applied to this differential (0 = none, 1 = full), make sure the sum of all differentials is 1.
 };
 
 
-struct VehicleTrack : public VehicleTrackSettings {
-	float					mAngularVelocity = 0.0f;					// Angular velocity of the driven wheel, will determine the speed of the entire track
+class MOSS_EXPORT VehicleTrack : public VehicleTrackSettings
+{
+public:
+	/// Saving state for replay
+	void					SaveState(StateRecorder &inStream) const;
+	void					RestoreState(StateRecorder &inStream);
+
+	float					mAngularVelocity = 0.0f;					///< Angular velocity of the driven wheel, will determine the speed of the entire track
 };
 
 class VehicleController : public NonCopyable {
@@ -721,54 +863,54 @@ protected:
 };
 
 
-class VehicleEngine : public VehicleEngineSettings
+class MOSS_EXPORT VehicleEngine : public VehicleEngineSettings
 {
 public:
-	// Multiply an angular velocity (rad/s) with this value to get rounds per minute (RPM)
-	static constexpr float	cAngularVelocityToRPM = 60.0f / (2.0f* MOSS_PI);
+	/// Multiply an angular velocity (rad/s) with this value to get rounds per minute (RPM)
+	static constexpr float	cAngularVelocityToRPM = 60.0f / (2.0f * MOSS_PI);
 
-	// Clamp the RPM between min and max RPM
+	/// Clamp the RPM between min and max RPM
 	inline void				ClampRPM()									{ mCurrentRPM = Clamp(mCurrentRPM, mMinRPM, mMaxRPM); }
 
-	// Current rotation speed of engine in rounds per minute
+	/// Current rotation speed of engine in rounds per minute
 	float					GetCurrentRPM() const						{ return mCurrentRPM; }
 
-	// Update rotation speed of engine in rounds per minute
+	/// Update rotation speed of engine in rounds per minute
 	void					SetCurrentRPM(float inRPM)					{ mCurrentRPM = inRPM; ClampRPM(); }
 
-	// Get current angular velocity of the engine in radians / second
+	/// Get current angular velocity of the engine in radians / second
 	inline float			GetAngularVelocity() const					{ return mCurrentRPM / cAngularVelocityToRPM; }
 
-	// Get the amount of torque (N m) that the engine can supply
-	// @param inAcceleration How much the gas pedal is pressed [0, 1]
-	float					GetTorque(float inAcceleration) const		{ return inAcceleration* mMaxTorque* mNormalizedTorque.GetValue(mCurrentRPM / mMaxRPM); }
+	/// Get the amount of torque (N m) that the engine can supply
+	/// @param inAcceleration How much the gas pedal is pressed [0, 1]
+	float					GetTorque(float inAcceleration) const		{ return inAcceleration * mMaxTorque * mNormalizedTorque.GetValue(mCurrentRPM / mMaxRPM); }
 
-	// Apply a torque to the engine rotation speed
-	// @param inTorque Torque in N m
-	// @param inDeltaTime Delta time in seconds
+	/// Apply a torque to the engine rotation speed
+	/// @param inTorque Torque in N m
+	/// @param inDeltaTime Delta time in seconds
 	void					ApplyTorque(float inTorque, float inDeltaTime);
 
-	// Update the engine RPM for damping
-	// @param inDeltaTime Delta time in seconds
+	/// Update the engine RPM for damping
+	/// @param inDeltaTime Delta time in seconds
 	void					ApplyDamping(float inDeltaTime);
 
-#ifndef MOSS_DEBUG_RENDERER
+#ifdef MOSS_DEBUG_RENDERER
 	// Function that converts RPM to an angle in radians for debugging purposes
-	float					ConvertRPMToAngle(float inRPM) const		{ return (-0.75f + 1.5f* inRPM / mMaxRPM)* MOSS_PI; }
+	float					ConvertRPMToAngle(float inRPM) const		{ return (-0.75f + 1.5f * inRPM / mMaxRPM) * MOSS_PI; }
 
-	// Debug draw a RPM meter
-	void					DrawRPM(DebugRenderer*inRenderer, RVec3Arg inPosition, Vec3Arg inForward, Vec3Arg inUp, float inSize, float inShiftDownRPM, float inShiftUpRPM) const;
+	/// Debug draw a RPM meter
+	void					DrawRPM(DebugRenderer *inRenderer, RVec3Arg inPosition, Vec3Arg inForward, Vec3Arg inUp, float inSize, float inShiftDownRPM, float inShiftUpRPM) const;
 #endif // MOSS_DEBUG_RENDERER
 
-	// If the engine is idle we allow the vehicle to sleep
-	bool					AllowSleep() const							{ return mCurrentRPM <= 1.01f* mMinRPM; }
+	/// If the engine is idle we allow the vehicle to sleep
+	bool					AllowSleep() const							{ return mCurrentRPM <= 1.01f * mMinRPM; }
 
-	// Saving state for replay
-	void					SaveState(StateRecorder& inStream) const;
-	void					RestoreState(StateRecorder& inStream);
+	/// Saving state for replay
+	void					SaveState(StateRecorder &inStream) const;
+	void					RestoreState(StateRecorder &inStream);
 
 private:
-	float					mCurrentRPM = mMinRPM;						// Current rotation speed of engine in rounds per minute
+	float					mCurrentRPM = mMinRPM;						///< Current rotation speed of engine in rounds per minute
 };
 
 class TrackedVehicleController : public VehicleController {
@@ -858,10 +1000,19 @@ protected:
 #endif // MOSS_DEBUG_RENDERER
 };
 
-struct VehicleAntiRollBar {
-	int						leftWheel;
-	int						rightWheel = 1;
-	float					stiffness = 1000.0f;
+class MOSS_EXPORT VehicleAntiRollBar {
+	MOSS_DECLARE_SERIALIZABLE_NON_VIRTUAL(MOSS_EXPORT, VehicleAntiRollBar)
+
+public:
+	/// Saves the contents in binary form to inStream.
+	void					SaveBinaryState(StreamOut &inStream) const;
+
+	/// Restores the contents in binary form to inStream.
+	void					RestoreBinaryState(StreamIn &inStream);
+
+	int						mLeftWheel = 0;								///< Index (in mWheels) that represents the left wheel of this anti-rollbar
+	int						mRightWheel = 1;							///< Index (in mWheels) that represents the right wheel of this anti-rollbar
+	float					mStiffness = 1000.0f;						///< Stiffness (spring constant in N/m) of anti rollbar, can be 0 to disable the anti-rollbar
 };
 
 class WheeledVehicleController : public VehicleController {

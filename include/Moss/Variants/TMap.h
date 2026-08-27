@@ -9,9 +9,7 @@
 MOSS_SUPRESS_WARNINGS_BEGIN
 
 
-/*
-		TMap<> is an UnorderedMap
-*/
+/* TMap<> is an UnorderedMap */
 
 /// Internal helper class to provide context for UnorderedMap
 template <class Key, class Value>
@@ -19,10 +17,7 @@ class TMapDetail
 {
 public:
 	/// Get key from key value pair
-	static const Key &			sGetKey(const std::pair<Key, Value> &inKeyValue)
-	{
-		return inKeyValue.first;
-	}
+	static const Key& sGetKey(const std::pair<Key, Value> &inKeyValue) { return inKeyValue.first; }
 };
 
 /// Hash Map class
@@ -81,5 +76,10 @@ public:
 		return iterator(this, it.mIndex);
 	}
 };
+
+// Forward declaration of UnorderedMap (defined in UnorderedMap.h).
+// This is provided because compiling UnorderedMap.h can be expensive due to its use of templates.
+template <class Key, class Value, class Hash = JPH::Hash<Key>, class KeyEqual = std::equal_to<Key>>
+class TMap;
 
 MOSS_SUPRESS_WARNINGS_END

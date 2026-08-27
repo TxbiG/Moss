@@ -1,13 +1,12 @@
-#ifndef JOLT_BODY3D_H
-#define JOLT_BODY3D_H
-
+#pragma
 
 #include <Moss/Core/HashCombine.h>
 #include <Moss/Core/Mutex.h>
 #include <Moss/Core/MutexArray.h>
 
-
 MOSS_NAMESPACE_BEGIN
+
+static constexpr uint cBodyTypeCount = 2;
 
 enum class EBodyType : uint8 { 
 	Rigid, 
@@ -19,7 +18,7 @@ enum class EMotionType : uint8 {
 	Dynamic 
 };
 
-enum class EAllowedDOFs {
+enum class EAllowedDOFs : uint8 {
 	None				= 0b000000,									// No degrees of freedom are allowed. Note that this is not valid and will crash. Use a static body instead.
 	All					= 0b111111,									// All degrees of freedom are allowed
 	TranslationX		= 0b000001,									// Body can move in world space X axis
@@ -30,6 +29,50 @@ enum class EAllowedDOFs {
 	RotationZ			= 0b100000,									// Body can rotate around world space Z axis
 	Plane2D				= TranslationX | TranslationY | RotationZ,	// Body can only move in X and Y axis and rotate around Z axis
 };
+
+enum class EOverrideMassProperties : uint8 {
+	CalculateMassAndInertia,			// Tells the system to calculate the mass and inertia based on density
+	CalculateInertia,					// Tells the system to take the mass from mMassPropertiesOverride and to calculate the inertia based on density of the shapes and to scale it to the provided mass
+	MassAndInertiaProvided				// Tells the system to take the mass and inertia from mMassPropertiesOverride
+};
+
+enum class ECanSleep {
+	CannotSleep = 0,																		//< Object cannot go to sleep
+	CanSleep = 1,																			//< Object can go to sleep
+};
+
+enum class EMotionQuality : uint8
+{
+	// Update the body in discrete steps. Body will tunnel through thin objects if its velocity is high enough.
+	// This is the cheapest way of simulating a body.
+	Discrete,
+
+	// Update the body using linear casting. When stepping the body, its collision shape is cast from
+	// start to destination using the starting rotation. The body will not be able to tunnel through thin
+	// objects at high velocity, but tunneling is still possible if the body is long and thin and has high
+	// angular velocity. Time is stolen from the object (which means it will move up to the first collision
+	// and will not bounce off the surface until the next integration step). This will make the body appear
+	// to go slower when it collides with high velocity. In order to not get stuck, the body is always
+	// allowed to move by a fraction of it's inner radius, which may eventually lead it to pass through geometry.
+	//
+	// Note that if you're using a collision listener, you can receive contact added/persisted notifications of contacts
+	// that may in the end not happen. This happens between bodies that are using casting: If bodies A and B collide at t1
+	// and B and C collide at t2 where t2 < t1 and A and C don't collide. In this case you may receive an incorrect contact
+	// point added callback between A and B (which will be removed the next frame).
+	LinearCast,
+};
+
+#ifndef MOSS_DEBUG_RENDERER
+// Defines how to color soft body constraints
+enum class ESoftBodyConstraintColor
+{
+	ConstraintType,				// Draw different types of constraints in different colors
+	ConstraintGroup,			// Draw constraints in the same group in the same color, non-parallel group will be red
+	ConstraintOrder,			// Draw constraints in the same group in the same color, non-parallel group will be red, and order within each group will be indicated with gradient
+};
+
+#endif // MOSS_DEBUG_RENDERER
+
 
 // Bitwise OR operator for EAllowedDOFs
 constexpr EAllowedDOFs operator | (EAllowedDOFs inLHS, EAllowedDOFs inRHS) { return EAllowedDOFs(uint8(inLHS) | uint8(inRHS)); }
@@ -52,16 +95,67 @@ constexpr EAllowedDOFs & operator &= (EAllowedDOFs &ioLHS, EAllowedDOFs inRHS) {
 // Bitwise XOR assignment operator for EAllowedDOFs
 constexpr EAllowedDOFs & operator ^= (EAllowedDOFs &ioLHS, EAllowedDOFs inRHS) { ioLHS = ioLHS ^ inRHS; return ioLHS; }
 
+
+
+class BodyID {
+public:
+	MOSS_OVERRIDE_NEW_DELETE
+
+	static constexpr uint32	cInvalidBodyID = 0xffffffff;	// The value for an invalid body ID
+	static constexpr uint32	cBroadPhaseBit = 0x80000000;	// This bit is used by the broadphase
+	static constexpr uint32	cMaxBodyIndex = 0x7fffff;		// Maximum value for body index (also the maximum amount of bodies supported - 1)
+	static constexpr uint8	cMaxSequenceNumber = 0xff;		// Maximum value for the sequence number
+	static constexpr uint	cSequenceNumberShift = 23;		// Number of bits to shift to get the sequence number
+
+	// Construct invalid body ID
+	BodyID() : mID(cInvalidBodyID) { }
+
+	// Construct from index and sequence number combined in a single uint32 (use with care!)
+	explicit BodyID(uint32 inID) : mID(inID) { MOSS_ASSERT((inID & cBroadPhaseBit) == 0 || inID == cInvalidBodyID); } // Check bit used by broadphase
+
+	// Construct from index and sequence number
+	explicit BodyID(uint32 inID, uint8 inSequenceNumber) : mID((uint32(inSequenceNumber) << cSequenceNumberShift) | inID) { MOSS_ASSERT(inID <= cMaxBodyIndex); } // Should not overlap with broadphase bit or sequence number
+
+	// Get index in body array
+	inline uint32 GetIndex() const { return mID & cMaxBodyIndex; }
+
+	// Get sequence number of body.
+	// The sequence number can be used to check if a body ID with the same body index has been reused by another body.
+	// It is mainly used in multi threaded situations where a body is removed and its body index is immediately reused by a body created from another thread.
+	// Functions querying the broadphase can (after acquiring a body lock) detect that the body has been removed (we assume that this won't happen more than 128 times in a row).
+	inline uint8 GetSequenceNumber() const { return uint8(mID >> cSequenceNumberShift); }
+
+	// Returns the index and sequence number combined in an uint32
+	inline uint32 GetIndexAndSequenceNumber() const { return mID; }
+
+	// Check if the ID is valid
+	inline bool IsInvalid() const { return mID == cInvalidBodyID; }
+
+	// Equals check
+	inline bool operator == (const BodyID &inRHS) const { return mID == inRHS.mID; }
+
+	// Not equals check
+	inline bool operator != (const BodyID &inRHS) const { return mID != inRHS.mID; }
+
+	// Smaller than operator, can be used for sorting bodies
+	inline bool operator < (const BodyID &inRHS) const { return mID < inRHS.mID; }
+	// Greater than operator, can be used for sorting bodies
+	inline bool operator > (const BodyID &inRHS) const { return mID > inRHS.mID; }
+
+private:
+	uint32					mID;
+};
+
 class MOSS_EXPORT BodyAccess {
 public:
-	/// Access rules, used to detect race conditions during simulation
+	// Access rules, used to detect race conditions during simulation
 	enum class EAccess : uint8 {
 		None		= 0,
 		Read		= 1,
 		ReadWrite	= 3,
 	};
 
-	/// Grant a scope specific access rights on the current thread
+	// Grant a scope specific access rights on the current thread
 	class Grant {
 	public:
 		inline Grant(EAccess inVelocity, EAccess inPosition) {
@@ -81,18 +175,18 @@ public:
 		}
 	};
 
-	/// Check if we have permission
+	// Check if we have permission
 	static inline bool CheckRights(EAccess inRights, EAccess inDesiredRights) {
 		return (uint8(inRights) & uint8(inDesiredRights)) == uint8(inDesiredRights);
 	}
 
-	/// Access to read/write velocities
+	// Access to read/write velocities
 	static inline EAccess & VelocityAccess() {
 		static thread_local EAccess sAccess = BodyAccess::EAccess::ReadWrite;
 		return sAccess;
 	}
 
-	/// Access to read/write positions
+	// Access to read/write positions
 	static inline EAccess & PositionAccess() {
 		static thread_local EAccess sAccess = BodyAccess::EAccess::ReadWrite;
 		return sAccess;
@@ -100,22 +194,22 @@ public:
 };
 
 
-/// Structure that holds a body pair
+// Structure that holds a body pair
 struct alignas(uint64) BodyPair {
 	MOSS_OVERRIDE_NEW_DELETE
 
-	/// Constructor
-							BodyPair() = default;
-							BodyPair(BodyID inA, BodyID inB)							: mBodyA(inA), mBodyB(inB) { }
+	// Constructor
+	BodyPair() = default;
+	BodyPair(BodyID inA, BodyID inB) : mBodyA(inA), mBodyB(inB) { }
 
-	/// Equals operator
-	bool					operator == (const BodyPair &inRHS) const					{ return *reinterpret_cast<const uint64 *>(this) == *reinterpret_cast<const uint64 *>(&inRHS); }
+	// Equals operator
+	bool operator == (const BodyPair &inRHS) const 	{ return *reinterpret_cast<const uint64*>(this) == *reinterpret_cast<const uint64*>(&inRHS); }
 
-	/// Smaller than operator, used for consistently ordering body pairs
-	bool					operator < (const BodyPair &inRHS) const					{ return *reinterpret_cast<const uint64 *>(this) < *reinterpret_cast<const uint64 *>(&inRHS); }
+	// Smaller than operator, used for consistently ordering body pairs
+	bool operator < (const BodyPair &inRHS) const 	{ return *reinterpret_cast<const uint64*>(this) < *reinterpret_cast<const uint64*>(&inRHS); }
 
-	/// Get the hash value of this object
-	uint64					GetHash() const												{ return Hash64(*reinterpret_cast<const uint64 *>(this)); }
+	// Get the hash value of this object
+	uint64 GetHash() const							{ return Hash64(*reinterpret_cast<const uint64*>(this)); }
 
 	BodyID					mBodyA;
 	BodyID					mBodyB;
@@ -126,21 +220,16 @@ static_assert(sizeof(BodyPair) == sizeof(uint64), "Mismatch in class size");
 
 
 template <bool Write, class BodyType>
-class BodyLockBase : public NonCopyable
-{
+class BodyLockBase : public NonCopyable {
 public:
-	/// Constructor will lock the body
-								BodyLockBase(const BodyLockInterface &inBodyLockInterface, const BodyID &inBodyID) :
-		mBodyLockInterface(inBodyLockInterface)
-	{
-		if (inBodyID == BodyID())
-		{
+	// Constructor will lock the body
+	BodyLockBase(const BodyLockInterface &inBodyLockInterface, const BodyID &inBodyID) : mBodyLockInterface(inBodyLockInterface) {
+		if (inBodyID == BodyID()) {
 			// Invalid body id
 			mBodyLockMutex = nullptr;
 			mBody = nullptr;
 		}
-		else
-		{
+		else {
 			// Get mutex
 			mBodyLockMutex = Write? inBodyLockInterface.LockWrite(inBodyID) : inBodyLockInterface.LockRead(inBodyID);
 
@@ -149,11 +238,9 @@ public:
 		}
 	}
 
-	/// Explicitly release the lock (normally this is done in the destructor)
-	inline void					ReleaseLock()
-	{
-		if (mBodyLockMutex != nullptr)
-		{
+	// Explicitly release the lock (normally this is done in the destructor)
+	inline void ReleaseLock() {
+		if (mBodyLockMutex != nullptr) {
 			if (Write)
 				mBodyLockInterface.UnlockWrite(mBodyLockMutex);
 			else
@@ -164,27 +251,17 @@ public:
 		}
 	}
 
-	/// Destructor will unlock the body
-								~BodyLockBase()
-	{
-		ReleaseLock();
-	}
+	// Destructor will unlock the body
+	~BodyLockBase() { ReleaseLock(); }
 
-	/// Test if the lock was successful (if the body ID was valid)
-	inline bool					Succeeded() const
-	{
-		return mBody != nullptr;
-	}
+	// Test if the lock was successful (if the body ID was valid)
+	inline bool Succeeded() const { return mBody != nullptr; }
 
-	/// Test if the lock was successful (if the body ID was valid) and the body is still in the broad phase
-	inline bool					SucceededAndIsInBroadPhase() const
-	{
-		return mBody != nullptr && mBody->IsInBroadPhase();
-	}
+	// Test if the lock was successful (if the body ID was valid) and the body is still in the broad phase
+	inline bool SucceededAndIsInBroadPhase() const { return mBody != nullptr && mBody->IsInBroadPhase(); }
 
-	/// Access the body
-	inline BodyType &			GetBody() const
-	{
+	// Access the body
+	inline BodyType& GetBody() const {
 		MOSS_ASSERT(mBody != nullptr, "Should check Succeeded() first");
 		return *mBody;
 	}
@@ -195,34 +272,28 @@ private:
 	BodyType *					mBody;
 };
 
-/// A body lock takes a body ID and locks the underlying body so that other threads cannot access its members
-///
-/// The common usage pattern is:
-///
-///		BodyLockInterface lock_interface = physics_system.GetBodyLockInterface(); // Or non-locking interface if the lock is already taken
-///		BodyID body_id = ...; // Obtain ID to body
-///
-///		// Scoped lock
-///		{
-///			BodyLockRead lock(lock_interface, body_id);
-///			if (lock.Succeeded()) // body_id may no longer be valid
-///			{
-///				const Body &body = lock.GetBody();
-///
-///				// Do something with body
-///				...
-///			}
-///		}
-class BodyLockRead : public BodyLockBase<false, const Body>
-{
-	using BodyLockBase::BodyLockBase;
-};
+// A body lock takes a body ID and locks the underlying body so that other threads cannot access its members
+//
+// The common usage pattern is:
+//
+//		BodyLockInterface lock_interface = physics_system.GetBodyLockInterface(); // Or non-locking interface if the lock is already taken
+//		BodyID body_id = ...; // Obtain ID to body
+//
+//		// Scoped lock
+//		{
+//			BodyLockRead lock(lock_interface, body_id);
+//			if (lock.Succeeded()) // body_id may no longer be valid
+//			{
+//				const Body &body = lock.GetBody();
+//
+//				// Do something with body
+//				...
+//			}
+//		}
+class BodyLockRead : public BodyLockBase<false, const Body> { using BodyLockBase::BodyLockBase; };
 
-/// Specialization that locks a body for writing to. @see BodyLockRead for usage patterns.
-class BodyLockWrite : public BodyLockBase<true, Body>
-{
-	using BodyLockBase::BodyLockBase;
-};
+// Specialization that locks a body for writing to. @see BodyLockRead for usage patterns.
+class BodyLockWrite : public BodyLockBase<true, Body> { using BodyLockBase::BodyLockBase; };
 
 
 // Classes
@@ -236,23 +307,105 @@ class DebugRenderer;
 class BodyDrawFilter;
 #endif // MOSS_DEBUG_RENDERER
 
-#ifndef MOSS_DEBUG_RENDERER
 
-/// Defines how to color soft body constraints
-enum class ESoftBodyConstraintColor
+/// Settings for constructing a rigid body
+class MOSS_EXPORT BodyCreationSettings
 {
-	ConstraintType,				/// Draw different types of constraints in different colors
-	ConstraintGroup,			/// Draw constraints in the same group in the same color, non-parallel group will be red
-	ConstraintOrder,			/// Draw constraints in the same group in the same color, non-parallel group will be red, and order within each group will be indicated with gradient
+	MOSS_DECLARE_SERIALIZABLE_NON_VIRTUAL(MOSS_EXPORT, BodyCreationSettings)
+
+public:
+	/// Constructor
+							BodyCreationSettings() = default;
+							BodyCreationSettings(const ShapeSettings *inShape, RVec3Arg inPosition, QuatArg inRotation, EMotionType inMotionType, ObjectLayer inObjectLayer) : mPosition(inPosition), mRotation(inRotation), mObjectLayer(inObjectLayer), mMotionType(inMotionType), mShape(inShape) { }
+							BodyCreationSettings(const Shape *inShape, RVec3Arg inPosition, QuatArg inRotation, EMotionType inMotionType, ObjectLayer inObjectLayer) : mPosition(inPosition), mRotation(inRotation), mObjectLayer(inObjectLayer), mMotionType(inMotionType), mShapePtr(inShape) { }
+
+	/// Test if two BodyCreationSettings are equal
+	bool					operator == (const BodyCreationSettings &inRHS) const;
+	bool					operator != (const BodyCreationSettings &inRHS) const			{ return !(*this == inRHS); }
+
+	/// Access to the shape settings object. This contains serializable (non-runtime optimized) information about the Shape.
+	const ShapeSettings *	GetShapeSettings() const										{ return mShape; }
+	void					SetShapeSettings(const ShapeSettings *inShape)					{ mShape = inShape; mShapePtr = nullptr; }
+
+	/// Convert ShapeSettings object into a Shape object. This will free the ShapeSettings object and make the object ready for runtime. Serialization is no longer possible after this.
+	Shape::ShapeResult		ConvertShapeSettings();
+
+	/// Access to the run-time shape object. Will convert from ShapeSettings object if needed.
+	const Shape *			GetShape() const;
+	void					SetShape(const Shape *inShape)									{ mShapePtr = inShape; mShape = nullptr; }
+
+	/// Check if the mass properties of this body will be calculated (only relevant for kinematic or dynamic objects that need a MotionProperties object)
+	bool					HasMassProperties() const										{ return mAllowDynamicOrKinematic || mMotionType != EMotionType::Static; }
+
+	/// Calculate (or return when overridden) the mass and inertia for this body
+	MassProperties			GetMassProperties() const;
+
+	/// Saves the state of this object in binary form to inStream. Doesn't store the shape nor the group filter.
+	void					SaveBinaryState(StreamOut &inStream) const;
+
+	/// Restore the state of this object from inStream. Doesn't restore the shape nor the group filter.
+	void					RestoreBinaryState(StreamIn &inStream);
+
+	using GroupFilterToIDMap = StreamUtils::ObjectToIDMap<GroupFilter>;
+	using IDToGroupFilterMap = StreamUtils::IDToObjectMap<GroupFilter>;
+	using ShapeToIDMap = Shape::ShapeToIDMap;
+	using IDToShapeMap = Shape::IDToShapeMap;
+	using MaterialToIDMap = StreamUtils::ObjectToIDMap<PhysicsMaterial>;
+	using IDToMaterialMap = StreamUtils::IDToObjectMap<PhysicsMaterial>;
+
+	/// Save body creation settings, its shape, materials and group filter. Pass in an empty map in ioShapeMap / ioMaterialMap / ioGroupFilterMap or reuse the same map while saving multiple shapes to the same stream in order to avoid writing duplicates.
+	/// Pass nullptr to ioShapeMap and ioMaterial map to skip saving shapes
+	/// Pass nullptr to ioGroupFilterMap to skip saving group filters
+	void					SaveWithChildren(StreamOut &inStream, ShapeToIDMap *ioShapeMap, MaterialToIDMap *ioMaterialMap, GroupFilterToIDMap *ioGroupFilterMap) const;
+
+	using BCSResult = Result<BodyCreationSettings>;
+
+	/// Restore body creation settings, its shape, materials and group filter. Pass in an empty map in ioShapeMap / ioMaterialMap / ioGroupFilterMap or reuse the same map while reading multiple shapes from the same stream in order to restore duplicates.
+	static BCSResult		sRestoreWithChildren(StreamIn &inStream, IDToShapeMap &ioShapeMap, IDToMaterialMap &ioMaterialMap, IDToGroupFilterMap &ioGroupFilterMap);
+
+	RVec3					mPosition = RVec3::sZero();										///< Position of the body (not of the center of mass)
+	Quat					mRotation = Quat::sIdentity();									///< Rotation of the body
+	Vec3					mLinearVelocity = Vec3::sZero();								///< World space linear velocity of the center of mass (m/s)
+	Vec3					mAngularVelocity = Vec3::sZero();								///< World space angular velocity (rad/s)
+
+	/// User data value (can be used by application)
+	uint64					mUserData = 0;
+
+	///@name Collision settings
+	ObjectLayer				mObjectLayer = 0;												///< The collision layer this body belongs to (determines if two objects can collide)
+	CollisionGroup			mCollisionGroup;												///< The collision group this body belongs to (determines if two objects can collide)
+
+	///@name Simulation properties
+	EMotionType				mMotionType = EMotionType::Dynamic;								///< Motion type, determines if the object is static, dynamic or kinematic
+	EAllowedDOFs			mAllowedDOFs = EAllowedDOFs::All;								///< Which degrees of freedom this body has (can be used to limit simulation to 2D)
+	bool					mAllowDynamicOrKinematic = false;								///< When this body is created as static, this setting tells the system to create a MotionProperties object so that the object can be switched to kinematic or dynamic
+	bool					mIsSensor = false;												///< If this body is a sensor. A sensor will receive collision callbacks, but will not cause any collision responses and can be used as a trigger volume. See description at Body::SetIsSensor.
+	bool					mCollideKinematicVsNonDynamic = false;							///< If kinematic objects can generate contact points against other kinematic or static objects. See description at Body::SetCollideKinematicVsNonDynamic.
+	bool					mUseManifoldReduction = true;									///< If this body should use manifold reduction (see description at Body::SetUseManifoldReduction)
+	bool					mApplyGyroscopicForce = false;									///< Set to indicate that the gyroscopic force should be applied to this body (aka Dzhanibekov effect, see https://en.wikipedia.org/wiki/Tennis_racket_theorem)
+	EMotionQuality			mMotionQuality = EMotionQuality::Discrete;						///< Motion quality, or how well it detects collisions when it has a high velocity
+	bool					mEnhancedInternalEdgeRemoval = false;							///< Set to indicate that extra effort should be made to try to remove ghost contacts (collisions with internal edges of a mesh). This is more expensive but makes bodies move smoother over a mesh with convex edges.
+	bool					mAllowSleeping = true;											///< If this body can go to sleep or not
+	float					mFriction = 0.2f;												///< Friction of the body (dimensionless number, usually between 0 and 1, 0 = no friction, 1 = friction force equals force that presses the two bodies together). Note that bodies can have negative friction but the combined friction (see PhysicsSystem::SetCombineFriction) should never go below zero.
+	float					mRestitution = 0.0f;											///< Restitution of body (dimensionless number, usually between 0 and 1, 0 = completely inelastic collision response, 1 = completely elastic collision response). Note that bodies can have negative restitution but the combined restitution (see PhysicsSystem::SetCombineRestitution) should never go below zero.
+	float					mLinearDamping = 0.05f;											///< Linear damping: dv/dt = -c * v. c. Value should be zero or positive and is usually close to 0.
+	float					mAngularDamping = 0.05f;										///< Angular damping: dw/dt = -c * w. c. Value should be zero or positive and is usually close to 0.
+	float					mMaxLinearVelocity = 500.0f;									///< Maximum linear velocity that this body can reach (m/s)
+	float					mMaxAngularVelocity = 0.25f * MOSS_PI * 60.0f;					///< Maximum angular velocity that this body can reach (rad/s)
+	float					mGravityFactor = 1.0f;											///< Value to multiply gravity with for this body
+	uint					mNumVelocityStepsOverride = 0;									///< Used only when this body is dynamic and colliding. Override for the number of solver velocity iterations to run, 0 means use the default in PhysicsSettings::mNumVelocitySteps. The number of iterations to use is the max of all contacts and constraints in the island.
+	uint					mNumPositionStepsOverride = 0;									///< Used only when this body is dynamic and colliding. Override for the number of solver position iterations to run, 0 means use the default in PhysicsSettings::mNumPositionSteps. The number of iterations to use is the max of all contacts and constraints in the island.
+
+	///@name Mass properties of the body (by default calculated by the shape)
+	EOverrideMassProperties	mOverrideMassProperties = EOverrideMassProperties::CalculateMassAndInertia; ///< Determines how mMassPropertiesOverride will be used
+	float					mInertiaMultiplier = 1.0f;										///< When calculating the inertia (not when it is provided) the calculated inertia will be multiplied by this value
+	MassProperties			mMassPropertiesOverride;										///< Contains replacement mass settings which override the automatically calculated values
+
+private:
+	/// Collision volume for the body
+	RefConst<ShapeSettings>	mShape;															///< Shape settings, can be serialized. Mutually exclusive with mShapePtr
+	RefConst<Shape>			mShapePtr;														///< Actual shape, cannot be serialized. Mutually exclusive with mShape
 };
-
-#endif // MOSS_DEBUG_RENDERER
-
-/// Array of bodies
-using BodyVector = TArray<Body *>;
-
-/// Array of body ID's
-using BodyIDVector = TArray<BodyID>;
 
 class BodyActivationListener {
 public:
@@ -269,91 +422,97 @@ public:
 };
 
 
+// Array of bodies
+using BodyVector = TArray<Body*>;
+
+// Array of body ID's
+using BodyIDVector = TArray<BodyID>;
+
+
 /* BodyInterface */
 class MOSS_EXPORT BodyInterface : public NonCopyable {
 public:
 	// Initialize the interface (should only be called by PhysicsSystem)
-	void						Init(BodyLockInterface &inBodyLockInterface, BodyManager &inBodyManager, BroadPhase &inBroadPhase) { mBodyLockInterface = &inBodyLockInterface; mBodyManager = &inBodyManager; mBroadPhase = &inBroadPhase; }
+	void Init(BodyLockInterface &inBodyLockInterface, BodyManager &inBodyManager, BroadPhase &inBroadPhase) { mBodyLockInterface = &inBodyLockInterface; mBodyManager = &inBodyManager; mBroadPhase = &inBroadPhase; }
 
 	// Create a rigid body
 	// @return Created body or null when out of bodies
-	Body *						CreateBody(const BodyCreationSettings &inSettings);
+	Body* CreateBody(const BodyCreationSettings &inSettings);
 
 	// Create a soft body
 	// @return Created body or null when out of bodies
-	Body *						CreateSoftBody(const SoftBodyCreationSettings &inSettings);
+	Body* CreateSoftBody(const SoftBodyCreationSettings &inSettings);
 
 	// Create a rigid body with specified ID. This function can be used if a simulation is to run in sync between clients or if a simulation needs to be restored exactly.
 	// The ID created on the server can be replicated to the client and used to create a deterministic simulation.
 	// @return Created body or null when the body ID is invalid or a body of the same ID already exists.
-	Body *						CreateBodyWithID(const BodyID &inBodyID, const BodyCreationSettings &inSettings);
+	Body* CreateBodyWithID(const BodyID &inBodyID, const BodyCreationSettings &inSettings);
 
 	// Create a soft body with specified ID. See comments at CreateBodyWithID.
-	Body *						CreateSoftBodyWithID(const BodyID &inBodyID, const SoftBodyCreationSettings &inSettings);
+	Body* CreateSoftBodyWithID(const BodyID &inBodyID, const SoftBodyCreationSettings &inSettings);
 
 	// Advanced use only. Creates a rigid body without specifying an ID. This body cannot be added to the physics system until it has been assigned a body ID.
 	// This can be used to decouple allocation from registering the body. A call to CreateBodyWithoutID followed by AssignBodyID is equivalent to calling CreateBodyWithID.
 	// @return Created body
-	Body *						CreateBodyWithoutID(const BodyCreationSettings &inSettings) const;
+	Body* CreateBodyWithoutID(const BodyCreationSettings &inSettings) const;
 
 	// Advanced use only. Creates a body without specifying an ID. See comments at CreateBodyWithoutID.
-	Body *						CreateSoftBodyWithoutID(const SoftBodyCreationSettings &inSettings) const;
+	Body* CreateSoftBodyWithoutID(const SoftBodyCreationSettings &inSettings) const;
 
 	// Advanced use only. Destroy a body previously created with CreateBodyWithoutID that hasn't gotten an ID yet through the AssignBodyID function,
 	// or a body that has had its body ID unassigned through UnassignBodyIDs. Bodies that have an ID should be destroyed through DestroyBody.
-	void						DestroyBodyWithoutID(Body *inBody) const;
+	void DestroyBodyWithoutID(Body *inBody) const;
 
 	// Advanced use only. Assigns the next available body ID to a body that was created using CreateBodyWithoutID. After this call, the body can be added to the physics system.
 	// @return false if the body already has an ID or out of body ids.
-	bool						AssignBodyID(Body *ioBody);
+	bool AssignBodyID(Body *ioBody);
 
 	// Advanced use only. Assigns a body ID to a body that was created using CreateBodyWithoutID. After this call, the body can be added to the physics system.
 	// @return false if the body already has an ID or if the ID is not valid.
 	bool						AssignBodyID(Body *ioBody, const BodyID &inBodyID);
 
 	// Advanced use only. See UnassignBodyIDs. Unassigns the ID of a single body.
-	Body *						UnassignBodyID(const BodyID &inBodyID);
+	Body* UnassignBodyID(const BodyID &inBodyID);
 
 	// Advanced use only. Removes a number of body IDs from their bodies and returns the body pointers. Before calling this, the body should have been removed from the physics system.
 	// The body can be destroyed through DestroyBodyWithoutID. This can be used to decouple deallocation. A call to UnassignBodyIDs followed by calls to DestroyBodyWithoutID is equivalent to calling DestroyBodies.
 	// @param inBodyIDs A list of body IDs
 	// @param inNumber Number of bodies in the list
 	// @param outBodies If not null on input, this will contain a list of body pointers corresponding to inBodyIDs that can be destroyed afterwards (caller assumes ownership over these).
-	void						UnassignBodyIDs(const BodyID *inBodyIDs, int inNumber, Body **outBodies);
+	void UnassignBodyIDs(const BodyID *inBodyIDs, int inNumber, Body **outBodies);
 
 	// Destroy a body.
 	// Make sure that you remove the body from the physics system using BodyInterface::RemoveBody before calling this function.
-	void						DestroyBody(const BodyID &inBodyID);
+	void DestroyBody(const BodyID &inBodyID);
 
 	// Destroy multiple bodies
 	// Make sure that you remove the bodies from the physics system using BodyInterface::RemoveBody before calling this function.
-	void						DestroyBodies(const BodyID *inBodyIDs, int inNumber);
+	void DestroyBodies(const BodyID *inBodyIDs, int inNumber);
 
 	// Add body to the physics system.
 	// Note that if you need to add multiple bodies, use the AddBodiesPrepare/AddBodiesFinalize function.
 	// Adding many bodies, one at a time, results in a really inefficient broadphase until PhysicsSystem::OptimizeBroadPhase is called or when PhysicsSystem::Update rebuilds the tree!
 	// After adding, to get a body by ID use the BodyLockRead or BodyLockWrite interface!
-	void						AddBody(const BodyID &inBodyID, EActivation inActivationMode);
+	void AddBody(const BodyID &inBodyID, EActivation inActivationMode);
 
 	// Remove body from the physics system.
-	void						RemoveBody(const BodyID &inBodyID);
+	void RemoveBody(const BodyID &inBodyID);
 
 	// Check if a body has been added to the physics system.
-	bool						IsAdded(const BodyID &inBodyID) const;
+	bool IsAdded(const BodyID &inBodyID) const;
 
 	// Combines CreateBody and AddBody
 	// @return Created body ID or an invalid ID when out of bodies
-	BodyID						CreateAndAddBody(const BodyCreationSettings &inSettings, EActivation inActivationMode);
+	BodyID CreateAndAddBody(const BodyCreationSettings &inSettings, EActivation inActivationMode);
 
 	// Combines CreateSoftBody and AddBody
 	// @return Created body ID or an invalid ID when out of bodies
-	BodyID						CreateAndAddSoftBody(const SoftBodyCreationSettings &inSettings, EActivation inActivationMode);
+	BodyID CreateAndAddSoftBody(const SoftBodyCreationSettings &inSettings, EActivation inActivationMode);
 
 	// Add state handle, used to keep track of a batch of bodies while adding them to the PhysicsSystem.
-	using AddState = void *;
+	using AddState = void*;
 
 	//@name Batch adding interface
-	//@{
 
 	// Prepare adding inNumber bodies at ioBodies to the PhysicsSystem, returns a handle that should be used in AddBodiesFinalize/Abort.
 	// This can be done on a background thread without influencing the PhysicsSystem.
@@ -372,10 +531,8 @@ public:
 	// Remove inNumber bodies in ioBodies from the PhysicsSystem.
 	// ioBodies may be shuffled around by this function.
 	void						RemoveBodies(BodyID *ioBodies, int inNumber);
-	//@}
 
 	//@name Activate / deactivate a body
-	//@{
 	void						ActivateBody(const BodyID &inBodyID);
 	void						ActivateBodies(const BodyID *inBodyIDs, int inNumber);
 	void						ActivateBodiesInAABox(const AABox &inBox, const BroadPhaseLayerFilter &inBroadPhaseLayerFilter, const ObjectLayerFilter &inObjectLayerFilter);
@@ -383,7 +540,6 @@ public:
 	void						DeactivateBodies(const BodyID *inBodyIDs, int inNumber);
 	bool						IsActive(const BodyID &inBodyID) const;
 	void						ResetSleepTimer(const BodyID &inBodyID);
-	//@}
 
 	// Create a two body constraint
 	TwoBodyConstraint *			CreateConstraint(const TwoBodyConstraintSettings *inSettings, const BodyID &inBodyID1, const BodyID &inBodyID2);
@@ -392,7 +548,6 @@ public:
 	void						ActivateConstraint(const TwoBodyConstraint *inConstraint);
 
 	//@name Access to the shape of a body
-	//@{
 
 	// Get the current shape
 	RefConst<Shape>				GetShape(const BodyID &inBodyID) const;
@@ -410,16 +565,12 @@ public:
 	// @param inUpdateMassProperties When true, the mass and inertia tensor is recalculated
 	// @param inActivationMode Whether or not to activate the body
 	void						NotifyShapeChanged(const BodyID &inBodyID, Vec3Arg inPreviousCenterOfMass, bool inUpdateMassProperties, EActivation inActivationMode) const;
-	//@}
 
 	//@name Object layer of a body
-	//@{
 	void						SetObjectLayer(const BodyID &inBodyID, ObjectLayer inLayer);
 	ObjectLayer					GetObjectLayer(const BodyID &inBodyID) const;
-	//@}
 
 	//@name Position and rotation of a body
-	//@{
 	void						SetPositionAndRotation(const BodyID &inBodyID, RVec3Arg inPosition, QuatArg inRotation, EActivation inActivationMode);
 	void						SetPositionAndRotationWhenChanged(const BodyID &inBodyID, RVec3Arg inPosition, QuatArg inRotation, EActivation inActivationMode); // Will only update the position/rotation and activate the body when the difference is larger than a very small number. This avoids updating the broadphase/waking up a body when the resulting position/orientation doesn't really change.
 	void						GetPositionAndRotation(const BodyID &inBodyID, RVec3 &outPosition, Quat &outRotation) const;
@@ -430,7 +581,6 @@ public:
 	Quat						GetRotation(const BodyID &inBodyID) const;
 	RMat44						GetWorldTransform(const BodyID &inBodyID) const;
 	RMat44						GetCenterOfMassTransform(const BodyID &inBodyID) const;
-	//@}
 
 	// Set velocity of body such that it will be positioned at inTargetPosition/Rotation in inDeltaTime seconds (will activate body if needed)
 	void						MoveKinematic(const BodyID &inBodyID, RVec3Arg inTargetPosition, QuatArg inTargetRotation, float inDeltaTime);
@@ -452,70 +602,50 @@ public:
 	void						SetPositionRotationAndVelocity(const BodyID &inBodyID, RVec3Arg inPosition, QuatArg inRotation, Vec3Arg inLinearVelocity, Vec3Arg inAngularVelocity);
 
 	//@name Add forces to the body
-	//@{
 	void						AddForce(const BodyID &inBodyID, Vec3Arg inForce, EActivation inActivationMode = EActivation::Activate); // See Body::AddForce
 	void						AddForce(const BodyID &inBodyID, Vec3Arg inForce, RVec3Arg inPoint, EActivation inActivationMode = EActivation::Activate); // Applied at inPoint
 	void						AddTorque(const BodyID &inBodyID, Vec3Arg inTorque, EActivation inActivationMode = EActivation::Activate); // See Body::AddTorque
 	void						AddForceAndTorque(const BodyID &inBodyID, Vec3Arg inForce, Vec3Arg inTorque, EActivation inActivationMode = EActivation::Activate); // A combination of Body::AddForce and Body::AddTorque
-	//@}
 
 	//@name Add an impulse to the body
-	//@{
 	void						AddImpulse(const BodyID &inBodyID, Vec3Arg inImpulse); // Applied at center of mass
 	void						AddImpulse(const BodyID &inBodyID, Vec3Arg inImpulse, RVec3Arg inPoint); // Applied at inPoint
 	void						AddAngularImpulse(const BodyID &inBodyID, Vec3Arg inAngularImpulse);
 	bool						ApplyBuoyancyImpulse(const BodyID &inBodyID, RVec3Arg inSurfacePosition, Vec3Arg inSurfaceNormal, float inBuoyancy, float inLinearDrag, float inAngularDrag, Vec3Arg inFluidVelocity, Vec3Arg inGravity, float inDeltaTime);
-	//@}
 
 	//@name Body type
-	//@{
 	EBodyType					GetBodyType(const BodyID &inBodyID) const;
-	//@}
 
 	//@name Body motion type
-	//@{
 	void						SetMotionType(const BodyID &inBodyID, EMotionType inMotionType, EActivation inActivationMode);
 	EMotionType					GetMotionType(const BodyID &inBodyID) const;
-	//@}
 
 	//@name Body motion quality
-	//@{
 	void						SetMotionQuality(const BodyID &inBodyID, EMotionQuality inMotionQuality);
 	EMotionQuality				GetMotionQuality(const BodyID &inBodyID) const;
-	//@}
 
 	// Get inverse inertia tensor in world space
 	Mat44						GetInverseInertia(const BodyID &inBodyID) const;
 
 	//@name Restitution
-	//@{
 	void						SetRestitution(const BodyID &inBodyID, float inRestitution);
 	float						GetRestitution(const BodyID &inBodyID) const;
-	//@}
 
 	//@name Friction
-	//@{
 	void						SetFriction(const BodyID &inBodyID, float inFriction);
 	float						GetFriction(const BodyID &inBodyID) const;
-	//@}
 
 	//@name Gravity factor
-	//@{
 	void						SetGravityFactor(const BodyID &inBodyID, float inGravityFactor);
 	float						GetGravityFactor(const BodyID &inBodyID) const;
-	//@}
 
 	//@name Manifold reduction
-	//@{
 	void						SetUseManifoldReduction(const BodyID &inBodyID, bool inUseReduction);
 	bool						GetUseManifoldReduction(const BodyID &inBodyID) const;
-	//@}
 
 	//@name Collision group
-	//@{
 	void						SetCollisionGroup(const BodyID &inBodyID, const CollisionGroup &inCollisionGroup);
 	const CollisionGroup &		GetCollisionGroup(const BodyID &inBodyID) const;
-	//@}
 
 	// Get transform and shape for this body, used to perform collision detection
 	TransformedShape			GetTransformedShape(const BodyID &inBodyID) const;
@@ -539,25 +669,24 @@ private:
 	BroadPhase *				mBroadPhase = nullptr;
 };
 
-/// Class that contains all bodies
-class MOSS_EXPORT BodyManager : public NonCopyable
-{
+// Class that contains all bodies
+class MOSS_EXPORT BodyManager : public NonCopyable {
 public:
 	MOSS_OVERRIDE_NEW_DELETE
 
-	/// Destructor
+	// Destructor
 	~BodyManager();
 
-	/// Initialize the manager
+	// Initialize the manager
 	void	Init(uint32 inMaxBodies, uint32 inNumBodyMutexes, const BroadPhaseLayerInterface &inLayerInterface);
 
-	/// Gets the current amount of bodies that are in the body manager
+	// Gets the current amount of bodies that are in the body manager
 	uint32	GetNumBodies() const;
 
-	/// Gets the max bodies that we can support
+	// Gets the max bodies that we can support
 	uint32	GetMaxBodies() const						{ return uint32(mBodies.capacity()); }
 
-	/// Helper struct that counts the number of bodies of each type
+	// Helper struct that counts the number of bodies of each type
 	struct BodyStats {
 		uint32	mNumBodies					= 0;	// Total number of bodies in the body manager
 		uint32	mMaxBodies					= 0;	// Max allowed number of bodies in the body manager (as configured in Init(...))
@@ -574,76 +703,76 @@ public:
 		uint32	mNumActiveSoftBodies		= 0;	// Number of soft bodies that are currently active
 	};
 
-	/// Get stats about the bodies in the body manager (slow, iterates through all bodies)
+	// Get stats about the bodies in the body manager (slow, iterates through all bodies)
 	BodyStats	GetBodyStats() const;
 
-	/// Create a body using creation settings. The returned body will not be part of the body manager yet.
+	// Create a body using creation settings. The returned body will not be part of the body manager yet.
 	Body*	AllocateBody(const BodyCreationSettings &inBodyCreationSettings) const;
 
-	/// Create a soft body using creation settings. The returned body will not be part of the body manager yet.
+	// Create a soft body using creation settings. The returned body will not be part of the body manager yet.
 	Body*	AllocateSoftBody(const SoftBodyCreationSettings &inSoftBodyCreationSettings) const;
 
-	/// Free a body that has not been added to the body manager yet (if it has, use DestroyBodies).
+	// Free a body that has not been added to the body manager yet (if it has, use DestroyBodies).
 	void	FreeBody(Body *inBody) const;
 
-	/// Add a body to the body manager, assigning it the next available ID. Returns false if no more IDs are available.
+	// Add a body to the body manager, assigning it the next available ID. Returns false if no more IDs are available.
 	bool	AddBody(Body *ioBody);
 
-	/// Add a body to the body manager, assigning it a custom ID. Returns false if the ID is not valid.
+	// Add a body to the body manager, assigning it a custom ID. Returns false if the ID is not valid.
 	bool	AddBodyWithCustomID(Body *ioBody, const BodyID &inBodyID);
 
-	/// Remove a list of bodies from the body manager
+	// Remove a list of bodies from the body manager
 	void	RemoveBodies(const BodyID *inBodyIDs, int inNumber, Body **outBodies);
 
-	/// Remove a set of bodies from the body manager and frees them.
+	// Remove a set of bodies from the body manager and frees them.
 	void	DestroyBodies(const BodyID *inBodyIDs, int inNumber);
 
-	/// Activate a list of bodies.
-	/// This function should only be called when an exclusive lock for the bodies are held.
+	// Activate a list of bodies.
+	// This function should only be called when an exclusive lock for the bodies are held.
 	void	ActivateBodies(const BodyID *inBodyIDs, int inNumber);
 
-	/// Deactivate a list of bodies.
-	/// This function should only be called when an exclusive lock for the bodies are held.
+	// Deactivate a list of bodies.
+	// This function should only be called when an exclusive lock for the bodies are held.
 	void	DeactivateBodies(const BodyID *inBodyIDs, int inNumber);
 
-	/// Update the motion quality for a body
+	// Update the motion quality for a body
 	void	SetMotionQuality(Body &ioBody, EMotionQuality inMotionQuality);
 
-	/// Get copy of the list of active bodies under protection of a lock.
+	// Get copy of the list of active bodies under protection of a lock.
 	void	GetActiveBodies(EBodyType inType, BodyIDVector &outBodyIDs) const;
 
-	/// Get the list of active bodies. Note: Not thread safe. The active bodies list can change at any moment.
+	// Get the list of active bodies. Note: Not thread safe. The active bodies list can change at any moment.
 	const BodyID *					GetActiveBodiesUnsafe(EBodyType inType) const { return mActiveBodies[int(inType)]; }
 
-	/// Get the number of active bodies.
+	// Get the number of active bodies.
 	uint32							GetNumActiveBodies(EBodyType inType) const	{ return mNumActiveBodies[int(inType)].load(memory_order_acquire); }
 
-	/// Get the number of active bodies that are using continuous collision detection
+	// Get the number of active bodies that are using continuous collision detection
 	uint32							GetNumActiveCCDBodies() const				{ return mNumActiveCCDBodies; }
 
-	/// Listener that is notified whenever a body is activated/deactivated
+	// Listener that is notified whenever a body is activated/deactivated
 	void							SetBodyActivationListener(BodyActivationListener *inListener);
-	BodyActivationListener *		GetBodyActivationListener() const			{ return mActivationListener; }
+	BodyActivationListener*		GetBodyActivationListener() const			{ return mActivationListener; }
 
-	/// Check if this is a valid body pointer. When a body is freed the memory that the pointer occupies is reused to store a freelist.
+	// Check if this is a valid body pointer. When a body is freed the memory that the pointer occupies is reused to store a freelist.
 	static inline bool IsValidBodyPointer(const Body *inBody)		{ return (uintptr_t(inBody) & cIsFreedBody) == 0; }
 
-	/// Get all bodies. Note that this can contain invalid body pointers, call sIsValidBodyPointer to check.
-	const BodyVector &				GetBodies() const							{ return mBodies; }
+	// Get all bodies. Note that this can contain invalid body pointers, call sIsValidBodyPointer to check.
+	const BodyVector&			GetBodies() const							{ return mBodies; }
 
-	/// Get all bodies. Note that this can contain invalid body pointers, call sIsValidBodyPointer to check.
-	BodyVector &					GetBodies()									{ return mBodies; }
+	// Get all bodies. Note that this can contain invalid body pointers, call sIsValidBodyPointer to check.
+	BodyVector&					GetBodies()									{ return mBodies; }
 
-	/// Get all body IDs under the protection of a lock
-	void							GetBodyIDs(BodyIDVector &outBodies) const;
+	// Get all body IDs under the protection of a lock
+	void						GetBodyIDs(BodyIDVector &outBodies) const;
 
-	/// Access a body (not protected by lock)
-	const Body &					GetBody(const BodyID &inID) const			{ return *mBodies[inID.GetIndex()]; }
+	// Access a body (not protected by lock)
+	const Body&					GetBody(const BodyID &inID) const			{ return *mBodies[inID.GetIndex()]; }
 
-	/// Access a body (not protected by lock)
+	// Access a body (not protected by lock)
 	Body &							GetBody(const BodyID &inID)					{ return *mBodies[inID.GetIndex()]; }
 
-	/// Access a body, will return a nullptr if the body ID is no longer valid (not protected by lock)
+	// Access a body, will return a nullptr if the body ID is no longer valid (not protected by lock)
 	const Body *					TryGetBody(const BodyID &inID) const
 	{
 		uint32 idx = inID.GetIndex();
@@ -657,7 +786,7 @@ public:
 		return nullptr;
 	}
 
-	/// Access a body, will return a nullptr if the body ID is no longer valid (not protected by lock)
+	// Access a body, will return a nullptr if the body ID is no longer valid (not protected by lock)
 	Body *							TryGetBody(const BodyID &inID)
 	{
 		uint32 idx = inID.GetIndex();
@@ -671,47 +800,47 @@ public:
 		return nullptr;
 	}
 
-	/// Access the mutex for a single body
-	SharedMutex &					GetMutexForBody(const BodyID &inID) const	{ return mBodyMutexes.GetMutexByObjectIndex(inID.GetIndex()); }
+	// Access the mutex for a single body
+	SharedMutex& GetMutexForBody(const BodyID &inID) const	{ return mBodyMutexes.GetMutexByObjectIndex(inID.GetIndex()); }
 
-	/// Bodies are protected using an array of mutexes (so a fixed number, not 1 per body). Each bit in this mask indicates a locked mutex.
+	// Bodies are protected using an array of mutexes (so a fixed number, not 1 per body). Each bit in this mask indicates a locked mutex.
 	using MutexMask = uint64;
 
-	///@name Batch body mutex access (do not use directly)
-	///@{
+	//@name Batch body mutex access (do not use directly)
+
 	MutexMask						GetAllBodiesMutexMask() const				{ return mBodyMutexes.GetNumMutexes() == sizeof(MutexMask) * 8? ~MutexMask(0) : (MutexMask(1) << mBodyMutexes.GetNumMutexes()) - 1; }
 	MutexMask						GetMutexMask(const BodyID *inBodies, int inNumber) const;
 	void							LockRead(MutexMask inMutexMask) const;
 	void							UnlockRead(MutexMask inMutexMask) const;
 	void							LockWrite(MutexMask inMutexMask) const;
 	void							UnlockWrite(MutexMask inMutexMask) const;
-	///@}
 
-	/// Lock all bodies. This should only be done during PhysicsSystem::Update().
+
+	// Lock all bodies. This should only be done during PhysicsSystem::Update().
 	void							LockAllBodies() const;
 
-	/// Unlock all bodies. This should only be done during PhysicsSystem::Update().
+	// Unlock all bodies. This should only be done during PhysicsSystem::Update().
 	void							UnlockAllBodies() const;
 
-	/// Function to update body's layer (should only be called by the BodyInterface since it also requires updating the broadphase)
+	// Function to update body's layer (should only be called by the BodyInterface since it also requires updating the broadphase)
 	inline void						SetBodyObjectLayerInternal(Body &ioBody, ObjectLayer inLayer) const { ioBody.mObjectLayer = inLayer; ioBody.mBroadPhaseLayer = mBroadPhaseLayerInterface->GetBroadPhaseLayer(inLayer); }
 
-	/// Set the Body::EFlags::InvalidateContactCache flag for the specified body. This means that the collision cache is invalid for any body pair involving that body until the next physics step.
+	// Set the Body::EFlags::InvalidateContactCache flag for the specified body. This means that the collision cache is invalid for any body pair involving that body until the next physics step.
 	void							InvalidateContactCacheForBody(Body &ioBody);
 
-	/// Reset the Body::EFlags::InvalidateContactCache flag for all bodies. All contact pairs in the contact cache will now by valid again.
+	// Reset the Body::EFlags::InvalidateContactCache flag for all bodies. All contact pairs in the contact cache will now by valid again.
 	void							ValidateContactCacheForAllBodies();
 
-	/// Saving state for replay
+	// Saving state for replay
 	void							SaveState(StateRecorder &inStream, const StateRecorderFilter *inFilter) const;
 
-	/// Restoring state for replay. Returns false if failed.
+	// Restoring state for replay. Returns false if failed.
 	bool							RestoreState(StateRecorder &inStream);
 
-	/// Save the state of a single body for replay
+	// Save the state of a single body for replay
 	void							SaveBodyState(const Body &inBody, StateRecorder &inStream) const;
 
-	/// Save the state of a single body for replay
+	// Save the state of a single body for replay
 	void							RestoreBodyState(Body &inBody, StateRecorder &inStream);
 
 #ifndef MOSS_DEBUG_RENDERER
@@ -725,9 +854,8 @@ public:
 		MaterialColor,				// Color as defined by the PhysicsMaterial of the shape
 	};
 
-	/// Draw settings
-	struct DrawSettings
-	{
+	// Draw settings
+	struct DrawSettings {
 		bool						mDrawGetSupportFunction = false;				// Draw the GetSupport() function, used for convex collision detection
 		bool						mDrawSupportDirection = false;					// When drawing the support function, also draw which direction mapped to a specific support point
 		bool						mDrawGetSupportingFace = false;					// Draw the faces that were found colliding during collision detection
@@ -751,15 +879,15 @@ public:
 		ESoftBodyConstraintColor	mDrawSoftBodyConstraintColor = ESoftBodyConstraintColor::ConstraintType; // Coloring scheme to use for soft body constraints
 	};
 
-	/// Draw the state of the bodies (debugging purposes)
+	// Draw the state of the bodies (debugging purposes)
 	void							Draw(const DrawSettings &inSettings, const PhysicsSettings &inPhysicsSettings, DebugRenderer *inRenderer, const BodyDrawFilter *inBodyFilter = nullptr);
 #endif // MOSS_DEBUG_RENDERER
 
 #ifdef MOSS_DEBUG
-	/// Lock the active body list, asserts when Activate/DeactivateBody is called.
+	// Lock the active body list, asserts when Activate/DeactivateBody is called.
 	void							SetActiveBodiesLocked(bool inLocked)		{ mActiveBodiesLocked = inLocked; }
 
-	/// Per thread override of the locked state, to be used by the PhysicsSystem only!
+	// Per thread override of the locked state, to be used by the PhysicsSystem only!
 	class GrantActiveBodiesAccess
 	{
 	public:
@@ -781,84 +909,84 @@ public:
 #endif
 
 #ifdef MOSS_DEBUG
-	/// Validate if the cached bounding boxes are correct for all active bodies
+	// Validate if the cached bounding boxes are correct for all active bodies
 	void							ValidateActiveBodyBounds();
 #endif // MOSS_DEBUG
 
 private:
-	/// Increment and get the sequence number of the body
+	// Increment and get the sequence number of the body
 #ifdef MOSS_COMPILER_CLANG
 	__attribute__((no_sanitize("implicit-conversion"))) // We intentionally overflow the uint8 sequence number
 #endif
 	inline uint8					GetNextSequenceNumber(int inBodyIndex)		{ return ++mBodySequenceNumbers[inBodyIndex]; }
 
-	/// Add a single body to mActiveBodies, note doesn't lock the active body mutex!
+	// Add a single body to mActiveBodies, note doesn't lock the active body mutex!
 	inline void						AddBodyToActiveBodies(Body &ioBody);
 
-	/// Remove a single body from mActiveBodies, note doesn't lock the active body mutex!
+	// Remove a single body from mActiveBodies, note doesn't lock the active body mutex!
 	inline void						RemoveBodyFromActiveBodies(Body &ioBody);
 
-	/// Helper function to remove a body from the manager
+	// Helper function to remove a body from the manager
 	MOSS_INLINE Body *				RemoveBodyInternal(const BodyID &inBodyID);
 
-	/// Helper function to delete a body (which could actually be a BodyWithMotionProperties)
+	// Helper function to delete a body (which could actually be a BodyWithMotionProperties)
 	inline static void DeleteBody(Body *inBody);
 
 #if defined(MOSS_DEBUG)
-	/// Function to check that the free list is not corrupted
+	// Function to check that the free list is not corrupted
 	void							ValidateFreeList() const;
 #endif // defined(MOSS_DEBUG)
 
-	/// List of pointers to all bodies. Contains invalid pointers for deleted bodies, check with sIsValidBodyPointer. Note that this array is reserved to the max bodies that is passed in the Init function so that adding bodies will not reallocate the array.
+	// List of pointers to all bodies. Contains invalid pointers for deleted bodies, check with sIsValidBodyPointer. Note that this array is reserved to the max bodies that is passed in the Init function so that adding bodies will not reallocate the array.
 	BodyVector						mBodies;
 
-	/// Current number of allocated bodies
+	// Current number of allocated bodies
 	uint32							mNumBodies = 0;
 
-	/// Indicates that there are no more freed body IDs
+	// Indicates that there are no more freed body IDs
 	static constexpr uintptr_t		cBodyIDFreeListEnd = ~uintptr_t(0);
 
-	/// Bit that indicates a pointer in mBodies is actually the index of the next freed body. We use the lowest bit because we know that Bodies need to be 16 byte aligned so addresses can never end in a 1 bit.
+	// Bit that indicates a pointer in mBodies is actually the index of the next freed body. We use the lowest bit because we know that Bodies need to be 16 byte aligned so addresses can never end in a 1 bit.
 	static constexpr uintptr_t		cIsFreedBody = uintptr_t(1);
 
-	/// Amount of bits to shift to get an index to the next freed body
+	// Amount of bits to shift to get an index to the next freed body
 	static constexpr uint32			cFreedBodyIndexShift = 1;
 
-	/// Index of first entry in mBodies that is unused
+	// Index of first entry in mBodies that is unused
 	uintptr_t						mBodyIDFreeListStart = cBodyIDFreeListEnd;
 
-	/// Protects mBodies array (but not the bodies it points to), mNumBodies and mBodyIDFreeListStart
+	// Protects mBodies array (but not the bodies it points to), mNumBodies and mBodyIDFreeListStart
 	mutable Mutex					mBodiesMutex;
 
-	/// An array of mutexes protecting the bodies in the mBodies array
+	// An array of mutexes protecting the bodies in the mBodies array
 	using BodyMutexes = MutexArray<SharedMutex>;
 	mutable BodyMutexes				mBodyMutexes;
 
-	/// List of next sequence number for a body ID
+	// List of next sequence number for a body ID
 	TArray<uint8>					mBodySequenceNumbers;
 
-	/// Mutex that protects the mActiveBodies array
+	// Mutex that protects the mActiveBodies array
 	mutable Mutex					mActiveBodiesMutex;
 
-	/// List of all active dynamic bodies (size is equal to max amount of bodies)
+	// List of all active dynamic bodies (size is equal to max amount of bodies)
 	BodyID *						mActiveBodies[cBodyTypeCount] = { };
 
-	/// How many bodies there are in the list of active bodies
+	// How many bodies there are in the list of active bodies
 	atomic<uint32>					mNumActiveBodies[cBodyTypeCount] = { };
 
-	/// How many of the active bodies have continuous collision detection enabled
+	// How many of the active bodies have continuous collision detection enabled
 	uint32							mNumActiveCCDBodies = 0;
 
-	/// Mutex that protects the mBodiesCacheInvalid array
+	// Mutex that protects the mBodiesCacheInvalid array
 	mutable Mutex					mBodiesCacheInvalidMutex;
 
-	/// List of all bodies that should have their cache invalidated
+	// List of all bodies that should have their cache invalidated
 	BodyIDVector					mBodiesCacheInvalid;
 
-	/// Listener that is notified whenever a body is activated/deactivated
+	// Listener that is notified whenever a body is activated/deactivated
 	BodyActivationListener *		mActivationListener = nullptr;
 
-	/// Cached broadphase layer interface
+	// Cached broadphase layer interface
 	const BroadPhaseLayerInterface *mBroadPhaseLayerInterface = nullptr;
 
 #ifdef MOSS_DEBUG
@@ -868,66 +996,64 @@ private:
 	static bool		 GetOverrideAllowDeactivation();
 	static void		 SetOverrideAllowDeactivation(bool inValue);
 
-	/// Debug system that tries to limit changes to active bodies during the PhysicsSystem::Update()
+	// Debug system that tries to limit changes to active bodies during the PhysicsSystem::Update()
 	bool							mActiveBodiesLocked = false;
 #endif
 };
 
 
-/// Base class interface for locking a body. Usually you will use BodyLockRead / BodyLockWrite / BodyLockMultiRead / BodyLockMultiWrite instead.
-class BodyLockInterface : public NonCopyable
-{
+// Base class interface for locking a body. Usually you will use BodyLockRead / BodyLockWrite / BodyLockMultiRead / BodyLockMultiWrite instead.
+class BodyLockInterface : public NonCopyable {
 public:
-	/// Redefine MutexMask
+	// Redefine MutexMask
 	using MutexMask = BodyManager::MutexMask;
 
-	/// Constructor
+	// Constructor
 	explicit					BodyLockInterface(BodyManager &inBodyManager)		: mBodyManager(inBodyManager) { }
 	virtual						~BodyLockInterface() = default;
 
-	///@name Locking functions
-	///@{
+	//@name Locking functions
+
 	virtual SharedMutex *		LockRead(const BodyID &inBodyID) const = 0;
 	virtual void				UnlockRead(SharedMutex *inMutex) const = 0;
 	virtual SharedMutex *		LockWrite(const BodyID &inBodyID) const = 0;
 	virtual void				UnlockWrite(SharedMutex *inMutex) const = 0;
-	///@}
 
-	/// Get the mask needed to lock all bodies
+
+	// Get the mask needed to lock all bodies
 	inline MutexMask			GetAllBodiesMutexMask() const
 	{
 		return mBodyManager.GetAllBodiesMutexMask();
 	}
 
-	///@name Batch locking functions
-	///@{
+	//@name Batch locking functions
+
 	virtual MutexMask			GetMutexMask(const BodyID *inBodies, int inNumber) const = 0;
 	virtual void				LockRead(MutexMask inMutexMask) const = 0;
 	virtual void				UnlockRead(MutexMask inMutexMask) const = 0;
 	virtual void				LockWrite(MutexMask inMutexMask) const = 0;
 	virtual void				UnlockWrite(MutexMask inMutexMask) const = 0;
-	///@}
 
-	/// Convert body ID to body
+
+	// Convert body ID to body
 	inline Body *				TryGetBody(const BodyID &inBodyID) const			{ return mBodyManager.TryGetBody(inBodyID); }
 
 protected:
 	BodyManager &				mBodyManager;
 };
 
-/// Implementation that performs no locking (assumes the lock has already been taken)
-class BodyLockInterfaceNoLock final : public BodyLockInterface
-{
+// Implementation that performs no locking (assumes the lock has already been taken)
+class BodyLockInterfaceNoLock final : public BodyLockInterface {
 public:
 	using BodyLockInterface::BodyLockInterface;
 
-	///@name Locking functions
+	//@name Locking functions
 	virtual SharedMutex *		LockRead([[maybe_unused]] const BodyID &inBodyID) const override	{ return nullptr; }
 	virtual void				UnlockRead([[maybe_unused]] SharedMutex *inMutex) const override	{ /* Nothing to do */ }
 	virtual SharedMutex *		LockWrite([[maybe_unused]] const BodyID &inBodyID) const override	{ return nullptr; }
 	virtual void				UnlockWrite([[maybe_unused]] SharedMutex *inMutex) const override	{ /* Nothing to do */ }
 
-	///@name Batch locking functions
+	//@name Batch locking functions
 	virtual MutexMask			GetMutexMask([[maybe_unused]] const BodyID *inBodies, [[maybe_unused]] int inNumber) const override { return 0; }
 	virtual void				LockRead([[maybe_unused]] MutexMask inMutexMask) const override		{ /* Nothing to do */ }
 	virtual void				UnlockRead([[maybe_unused]] MutexMask inMutexMask) const override	{ /* Nothing to do */ }
@@ -935,53 +1061,38 @@ public:
 	virtual void				UnlockWrite([[maybe_unused]] MutexMask inMutexMask) const override	{ /* Nothing to do */ }
 };
 
-/// Implementation that uses the body manager to lock the correct mutex for a body
-class BodyLockInterfaceLocking final : public BodyLockInterface
-{
+// Implementation that uses the body manager to lock the correct mutex for a body
+class BodyLockInterfaceLocking final : public BodyLockInterface {
 public:
 	using BodyLockInterface::BodyLockInterface;
 
-	///@name Locking functions
-	virtual SharedMutex*		LockRead(const BodyID &inBodyID) const override {
+	//@name Locking functions
+	virtual SharedMutex* LockRead(const BodyID &inBodyID) const override {
 		SharedMutex &mutex = mBodyManager.GetMutexForBody(inBodyID);
 		PhysicsLock::LockShared(mutex MOSS_IF_ENABLE_ASSERTS(, &mBodyManager, EPhysicsLockTypes::PerBody));
 		return &mutex;
 	}
 
-	virtual void				UnlockRead(SharedMutex *inMutex) const override {
-		PhysicsLock::UnlockShared(*inMutex MOSS_IF_ENABLE_ASSERTS(, &mBodyManager, EPhysicsLockTypes::PerBody));
-	}
+	virtual void UnlockRead(SharedMutex *inMutex) const override { PhysicsLock::UnlockShared(*inMutex MOSS_IF_ENABLE_ASSERTS(, &mBodyManager, EPhysicsLockTypes::PerBody)); }
 
-	virtual SharedMutex*		LockWrite(const BodyID &inBodyID) const override {
+	virtual SharedMutex* LockWrite(const BodyID &inBodyID) const override {
 		SharedMutex &mutex = mBodyManager.GetMutexForBody(inBodyID);
 		PhysicsLock::Lock(mutex MOSS_IF_ENABLE_ASSERTS(, &mBodyManager, EPhysicsLockTypes::PerBody));
 		return &mutex;
 	}
 
-	virtual void				UnlockWrite(SharedMutex *inMutex) const override {
-		PhysicsLock::Unlock(*inMutex MOSS_IF_ENABLE_ASSERTS(, &mBodyManager, EPhysicsLockTypes::PerBody));
-	}
+	virtual void UnlockWrite(SharedMutex *inMutex) const override { PhysicsLock::Unlock(*inMutex MOSS_IF_ENABLE_ASSERTS(, &mBodyManager, EPhysicsLockTypes::PerBody)); }
 
-	///@name Batch locking functions
-	virtual MutexMask			GetMutexMask(const BodyID *inBodies, int inNumber) const override {
-		return mBodyManager.GetMutexMask(inBodies, inNumber);
-	}
+	//@name Batch locking functions
+	virtual MutexMask GetMutexMask(const BodyID *inBodies, int inNumber) const override { return mBodyManager.GetMutexMask(inBodies, inNumber); }
 
-	virtual void				LockRead(MutexMask inMutexMask) const override {
-		mBodyManager.LockRead(inMutexMask);
-	}
+	virtual void LockRead(MutexMask inMutexMask) const override { mBodyManager.LockRead(inMutexMask); }
 
-	virtual void				UnlockRead(MutexMask inMutexMask) const override {
-		mBodyManager.UnlockRead(inMutexMask);
-	}
+	virtual void UnlockRead(MutexMask inMutexMask) const override { mBodyManager.UnlockRead(inMutexMask); }
 
-	virtual void				LockWrite(MutexMask inMutexMask) const override {
-		mBodyManager.LockWrite(inMutexMask);
-	}
+	virtual void LockWrite(MutexMask inMutexMask) const override { mBodyManager.LockWrite(inMutexMask); }
 
-	virtual void				UnlockWrite(MutexMask inMutexMask) const override {
-		mBodyManager.UnlockWrite(inMutexMask);
-	}
+	virtual void UnlockWrite(MutexMask inMutexMask) const override { mBodyManager.UnlockWrite(inMutexMask); }
 };
 
 
@@ -989,95 +1100,82 @@ public:
 // Class function to filter out bodies, returns true if test should collide with body
 class MOSS_EXPORT BodyFilter : public NonCopyable {
 public:
-	/// Destructor
-	virtual					~BodyFilter() = default;
+	// Destructor
+	virtual ~BodyFilter() = default;
 
-	/// Filter function. Returns true if we should collide with inBodyID
-	virtual bool			ShouldCollide([[maybe_unused]] const BodyID &inBodyID) const {
+	// Filter function. Returns true if we should collide with inBodyID
+	virtual bool ShouldCollide([[maybe_unused]] const BodyID &inBodyID) const {
 		return true;
 	}
 
-	/// Filter function. Returns true if we should collide with inBody (this is called after the body is locked and makes it possible to filter based on body members)
-	virtual bool			ShouldCollideLocked([[maybe_unused]] const Body &inBody) const {
+	// Filter function. Returns true if we should collide with inBody (this is called after the body is locked and makes it possible to filter based on body members)
+	virtual bool ShouldCollideLocked([[maybe_unused]] const Body &inBody) const {
 		return true;
 	}
 };
 
-/// A simple body filter implementation that ignores a single, specified body
+// A simple body filter implementation that ignores a single, specified body
 class MOSS_EXPORT IgnoreSingleBodyFilter : public BodyFilter
 {
 public:
-	/// Constructor, pass the body you want to ignore
-	explicit IgnoreSingleBodyFilter(const BodyID &inBodyID) : mBodyID(inBodyID) {
-	}
+	// Constructor, pass the body you want to ignore
+	explicit IgnoreSingleBodyFilter(const BodyID &inBodyID) : mBodyID(inBodyID) { }
 
-	/// Filter function. Returns true if we should collide with inBodyID
-	virtual bool ShouldCollide(const BodyID &inBodyID) const override {
-		return mBodyID != inBodyID;
-	}
+	// Filter function. Returns true if we should collide with inBodyID
+	virtual bool ShouldCollide(const BodyID &inBodyID) const override { return mBodyID != inBodyID; }
 
 private:
 	BodyID					mBodyID;
 };
 
-/// A simple body filter implementation that ignores multiple, specified bodies
-class MOSS_EXPORT IgnoreMultipleBodiesFilter : public BodyFilter
-{
+// A simple body filter implementation that ignores multiple, specified bodies
+class MOSS_EXPORT IgnoreMultipleBodiesFilter : public BodyFilter {
 public:
-	/// Remove all bodies from the filter
-	void Clear() {
-		mBodyIDs.clear();
-	}
+	// Remove all bodies from the filter
+	void Clear() { mBodyIDs.clear(); }
 
-	/// Reserve space for inSize body ID's
-	void Reserve(uint32 inSize) {
-		mBodyIDs.reserve(inSize);
-	}
+	// Reserve space for inSize body ID's
+	void Reserve(uint inSize) { mBodyIDs.reserve(inSize); }
 
-	/// Add a body to be ignored
-	void IgnoreBody(const BodyID &inBodyID) {
-		mBodyIDs.push_back(inBodyID);
-	}
+	// Add a body to be ignored
+	void IgnoreBody(const BodyID &inBodyID) { mBodyIDs.push_back(inBodyID); }
 
-	/// Filter function. Returns true if we should collide with inBodyID
-	virtual bool ShouldCollide(const BodyID &inBodyID) const override {
-		return std::find(mBodyIDs.begin(), mBodyIDs.end(), inBodyID) == mBodyIDs.end();
-	}
+	// Filter function. Returns true if we should collide with inBodyID
+	virtual bool ShouldCollide(const BodyID &inBodyID) const override { return std::find(mBodyIDs.begin(), mBodyIDs.end(), inBodyID) == mBodyIDs.end(); }
 
 private:
-	TArray<BodyID>			mBodyIDs;
+	Array<BodyID>			mBodyIDs;
 };
 
-/// Ignores a single body and chains the filter to another filter
+// Ignores a single body and chains the filter to another filter
 class MOSS_EXPORT IgnoreSingleBodyFilterChained : public BodyFilter {
 public:
-	/// Constructor
+	// Constructor
 	explicit IgnoreSingleBodyFilterChained(const BodyID inBodyID, const BodyFilter &inFilter) : mBodyID(inBodyID), mFilter(inFilter) { }
 
-	/// Filter function. Returns true if we should collide with inBodyID
-	virtual bool ShouldCollide(const BodyID &inBodyID) const override {
-		return inBodyID != mBodyID && mFilter.ShouldCollide(inBodyID);
+	// Filter function. Returns true if we should collide with inBodyID
+	virtual bool ShouldCollide(const BodyID &inBodyID) const override { return inBodyID != mBodyID && mFilter.ShouldCollide(inBodyID);
 	}
 
-	/// Filter function. Returns true if we should collide with inBody (this is called after the body is locked and makes it possible to filter based on body members)
-	virtual bool ShouldCollideLocked(const Body &inBody) const override {
-		return mFilter.ShouldCollideLocked(inBody);
-	}
+	// Filter function. Returns true if we should collide with inBody (this is called after the body is locked and makes it possible to filter based on body members)
+	virtual bool ShouldCollideLocked(const Body &inBody) const override { return mFilter.ShouldCollideLocked(inBody); }
 
 private:
 	BodyID					mBodyID;
-	const BodyFilter &		mFilter;
+	const BodyFilter&		mFilter;
 };
 
 #ifndef MOSS_DEBUG_RENDERER
-/// Class function to filter out bodies for debug rendering, returns true if body should be rendered
+// Class function to filter out bodies for debug rendering, returns true if body should be rendered
 class MOSS_EXPORT BodyDrawFilter : public NonCopyable {
 public:
-	/// Destructor
-	virtual					~BodyDrawFilter() = default;
+	// Destructor
+	virtual ~BodyDrawFilter() = default;
 
-	/// Filter function. Returns true if inBody should be rendered
-	virtual bool			ShouldDraw([[maybe_unused]] const Body& inBody) const { return true; }
+	// Filter function. Returns true if inBody should be rendered
+	virtual bool ShouldDraw([[maybe_unused]] const Body& inBody) const {
+		return true;
+	}
 };
 #endif // MOSS_DEBUG_RENDERER
 
@@ -1086,16 +1184,13 @@ public:
 template <bool Write, class BodyType>
 class BodyLockMultiBase : public NonCopyable {
 public:
-	/// Redefine MutexMask
+	// Redefine MutexMask
 	using MutexMask = BodyLockInterface::MutexMask;
 
-	/// Constructor will lock the bodies
+	// Constructor will lock the bodies
 	BodyLockMultiBase(const BodyLockInterface &inBodyLockInterface, const BodyID *inBodyIDs, int inNumber) :
-		mBodyLockInterface(inBodyLockInterface),
-		mMutexMask(inBodyLockInterface.GetMutexMask(inBodyIDs, inNumber)),
-		mBodyIDs(inBodyIDs),
-		mNumBodyIDs(inNumber)
-	{
+		mBodyLockInterface(inBodyLockInterface), mMutexMask(inBodyLockInterface.GetMutexMask(inBodyIDs, inNumber)),
+		mBodyIDs(inBodyIDs), mNumBodyIDs(inNumber) {
 		if (mMutexMask != 0) {
 			// Get mutex
 			if (Write)
@@ -1105,18 +1200,24 @@ public:
 		}
 	}
 
-	/// Destructor will unlock the bodies
+	// Destructor will unlock the bodies
 	~BodyLockMultiBase() {
 		if (mMutexMask != 0) {
 			if (Write)
 				mBodyLockInterface.UnlockWrite(mMutexMask);
 			else
 				mBodyLockInterface.UnlockRead(mMutexMask);
+	
+			mMutexMask = 0;
+			mBodyIDs = nullptr;
+			mNumBodyIDs = 0;
 		}
 	}
 
-	/// Access the body (returns null if body was not properly locked)
-	inline BodyType *			GetBody(int inBodyIndex) const {
+	inline int GetNumBodies() const	{ return mNumBodyIDs; }
+
+	// Access the body (returns null if body was not properly locked)
+	inline BodyType* GetBody(int inBodyIndex) const {
 		// Range check
 		MOSS_ASSERT(inBodyIndex >= 0 && inBodyIndex < mNumBodyIDs);
 
@@ -1136,38 +1237,78 @@ private:
 	int							mNumBodyIDs;
 };
 
-/// A multi body lock takes a number of body IDs and locks the underlying bodies so that other threads cannot access its members
-///
-/// The common usage pattern is:
-///
-///		BodyLockInterface lock_interface = physics_system.GetBodyLockInterface(); // Or non-locking interface if the lock is already taken
-///		const BodyID *body_id = ...; // Obtain IDs to bodies
-///		int num_body_ids = ...;
-///
-///		// Scoped lock
-///		{
-///			BodyLockMultiRead lock(lock_interface, body_ids, num_body_ids);
-///			for (int i = 0; i < num_body_ids; ++i)
-///			{
-///				const Body *body = lock.GetBody(i);
-///				if (body != nullptr)
-///				{
-///					const Body &body = lock.Body();
-///
-///					// Do something with body
-///					...
-///				}
-///			}
-///		}
-class BodyLockMultiRead : public BodyLockMultiBase<false, const Body>
-{
-	using BodyLockMultiBase::BodyLockMultiBase;
-};
+// A multi body lock takes a number of body IDs and locks the underlying bodies so that other threads cannot access its members
+//
+// The common usage pattern is:
+//
+//		BodyLockInterface lock_interface = physics_system.GetBodyLockInterface(); // Or non-locking interface if the lock is already taken
+//		const BodyID *body_id = ...; // Obtain IDs to bodies
+//		int num_body_ids = ...;
+//
+//		// Scoped lock
+//		{
+//			BodyLockMultiRead lock(lock_interface, body_ids, num_body_ids);
+//			for (int i = 0; i < num_body_ids; ++i)
+//			{
+//				const Body *body = lock.GetBody(i);
+//				if (body != nullptr)
+//				{
+//					const Body &body = lock.Body();
+//
+//					// Do something with body
+//					...
+//				}
+//			}
+//		}
+class BodyLockMultiRead : public BodyLockMultiBase<false, const Body> { using BodyLockMultiBase::BodyLockMultiBase; };
 
-/// Specialization that locks multiple bodies for writing to. @see BodyLockMultiRead for usage patterns.
-class BodyLockMultiWrite : public BodyLockMultiBase<true, Body>
-{
-	using BodyLockMultiBase::BodyLockMultiBase;
+// Specialization that locks multiple bodies for writing to. @see BodyLockMultiRead for usage patterns.
+class BodyLockMultiWrite : public BodyLockMultiBase<true, Body> { using BodyLockMultiBase::BodyLockMultiBase; };
+
+class MOSS_EXPORT MassProperties {
+	MOSS_DECLARE_SERIALIZABLE_NON_VIRTUAL(MOSS_EXPORT, MassProperties)
+public:
+	// Test if two MassProperties are equal
+	bool operator == (const MassProperties &inRHS) const { return mMass == inRHS.mMass && mInertia == inRHS.mInertia; }
+
+	bool operator != (const MassProperties &inRHS) const { return !(*this == inRHS); }
+
+	// Using eigendecomposition, decompose the inertia tensor into a diagonal matrix D and a right-handed rotation matrix R so that the inertia tensor is \f$R \: D \: R^{-1}\f$.
+	// @see https://en.wikipedia.org/wiki/Moment_of_inertia section 'Principal axes'
+	// @param outRotation The rotation matrix R
+	// @param outDiagonal The diagonal of the diagonal matrix D
+	// @return True if successful, false if failed
+	bool DecomposePrincipalMomentsOfInertia(Mat44 &outRotation, Vec3 &outDiagonal) const;
+
+	// Set the mass and inertia of a box with edge size inBoxSize and density inDensity
+	void SetMassAndInertiaOfSolidBox(Vec3Arg inBoxSize, float inDensity);
+
+	// Set the mass and scale the inertia tensor to match the mass
+	void ScaleToMass(float inMass);
+
+	// Calculates the size of the solid box that has an inertia tensor diagonal inInertiaDiagonal
+	static Vec3 sGetEquivalentSolidBoxSize(float inMass, Vec3Arg inInertiaDiagonal);
+
+	// Rotate the inertia by 3x3 matrix inRotation
+	void Rotate(Mat44Arg inRotation);
+
+	// Translate the inertia by a vector inTranslation
+	void Translate(Vec3Arg inTranslation);
+
+	// Scale the mass and inertia by inScale, note that elements can be < 0 to flip the shape
+	void Scale(Vec3Arg inScale);
+
+	// Saves the state of this object in binary form to inStream.
+	void SaveBinaryState(StreamOut &inStream) const;
+
+	// Restore the state of this object from inStream.
+	void RestoreBinaryState(StreamIn &inStream);
+
+	// Mass of the shape (kg)
+	float mMass = 0.0f;
+
+	// Inertia tensor of the shape (kg m^2)
+	Mat44 mInertia = Mat44::sZero();
 };
 
 
@@ -1175,15 +1316,15 @@ class BodyLockMultiWrite : public BodyLockMultiBase<true, Body>
 // MotionProperties
 //--------------------------------------------------------------------------------------------------
 // The Body class only keeps track of state for static bodies, the MotionProperties class keeps the additional state needed for a moving Body. It has a 1-on-1 relationship with the body.
-class MotionProperties {
+class MOSS_EXPORT MotionProperties {
 public:
 	MOSS_OVERRIDE_NEW_DELETE
 
 	// Motion quality, or how well it detects collisions when it has a high velocity
-	EMotionQuality GetMotionQuality() const										{ return mMotionQuality; }
+	EMotionQuality GetMotionQuality() const		{ return mMotionQuality; }
 
 	// Get the allowed degrees of freedom that this body has (this can be changed by calling SetMassProperties)
-	inline EAllowedDOFs GetAllowedDOFs() const											{ return mAllowedDOFs; }
+	inline EAllowedDOFs GetAllowedDOFs() const 	{ return mAllowedDOFs; }
 
 	// If this body can go to sleep.
 	inline bool GetAllowSleeping() const										{ return mAllowSleeping; }
@@ -1210,7 +1351,6 @@ public:
 	inline void MoveKinematic(Vec3Arg inDeltaPosition, QuatArg inDeltaRotation, float inDeltaTime);
 
 	//@name Velocity limits
-	//@{
 
 	// Maximum linear velocity that a body can achieve. Used to prevent the system from exploding.
 	inline float GetMaxLinearVelocity() const									{ return mMaxLinearVelocity; }
@@ -1219,7 +1359,6 @@ public:
 	// Maximum angular velocity that a body can achieve. Used to prevent the system from exploding.
 	inline float GetMaxAngularVelocity() const									{ return mMaxAngularVelocity; }
 	inline void SetMaxAngularVelocity(float inAngularVelocity)					{ MOSS_ASSERT(inAngularVelocity >= 0.0f); mMaxAngularVelocity = inAngularVelocity; }
-	//@}
 
 	// Clamp velocity according to limit
 	inline void ClampLinearVelocity();
@@ -1330,17 +1469,15 @@ public:
 	void SetNumPositionStepsOverride(uint32 inN) { MOSS_ASSERT(inN < 256); mNumPositionStepsOverride = uint8(inN); }
 	uint32 GetNumPositionStepsOverride() const { return mNumPositionStepsOverride; }
 
-	////////////////////////////////////////
+	//////////////////
 	// FUNCTIONS BELOW THIS LINE ARE FOR INTERNAL USE ONLY
-	////////////////////////////////////////
+	//////////////////
 
 	//@name Update linear and angular velocity (used during constraint solving)
-	//@{
 	inline void AddLinearVelocityStep(Vec3Arg inLinearVelocityChange) { MOSS_DET_LOG("AddLinearVelocityStep: " << inLinearVelocityChange); MOSS_ASSERT(BodyAccess::CheckRights(BodyAccess::VelocityAccess(), BodyAccess::EAccess::ReadWrite)); mLinearVelocity = LockTranslation(mLinearVelocity + inLinearVelocityChange); MOSS_ASSERT(!mLinearVelocity.IsNaN()); }
 	inline void SubLinearVelocityStep(Vec3Arg inLinearVelocityChange) { MOSS_DET_LOG("SubLinearVelocityStep: " << inLinearVelocityChange); MOSS_ASSERT(BodyAccess::CheckRights(BodyAccess::VelocityAccess(), BodyAccess::EAccess::ReadWrite)); mLinearVelocity = LockTranslation(mLinearVelocity - inLinearVelocityChange); MOSS_ASSERT(!mLinearVelocity.IsNaN()); }
 	inline void AddAngularVelocityStep(Vec3Arg inAngularVelocityChange) { MOSS_DET_LOG("AddAngularVelocityStep: " << inAngularVelocityChange); MOSS_ASSERT(BodyAccess::CheckRights(BodyAccess::VelocityAccess(), BodyAccess::EAccess::ReadWrite)); mAngularVelocity += inAngularVelocityChange; MOSS_ASSERT(!mAngularVelocity.IsNaN()); }
 	inline void SubAngularVelocityStep(Vec3Arg inAngularVelocityChange) { MOSS_DET_LOG("SubAngularVelocityStep: " << inAngularVelocityChange); MOSS_ASSERT(BodyAccess::CheckRights(BodyAccess::VelocityAccess(), BodyAccess::EAccess::ReadWrite)); mAngularVelocity -= inAngularVelocityChange; MOSS_ASSERT(!mAngularVelocity.IsNaN()); }
-	//@}
 
 	// Apply the gyroscopic force (aka Dzhanibekov effect, see https://en.wikipedia.org/wiki/Tennis_racket_theorem)
 	inline void ApplyGyroscopicForceInternal(QuatArg inBodyRotation, float inDeltaTime);
@@ -1424,7 +1561,7 @@ private:
 //--------------------------------------------------------------------------------------------------
 // Body
 //--------------------------------------------------------------------------------------------------
-class MOSS_EXPORT_GCC_BUG_WORKAROUND alignas(MOSS_RVECTOR_ALIGNMENT) Body : public NonCopyable {
+class MOSS_EXPORT_GCC_BUG_WORKAROUND alignas(max(MOSS_VECTOR_ALIGNMENT, MOSS_RVECTOR_ALIGNMENT)) Body : public NonCopyable {
 public:
 	MOSS_OVERRIDE_NEW_DELETE
 
@@ -1720,7 +1857,6 @@ public:
 	static BodyFixedToWorld;
 
 	//@name THESE FUNCTIONS ARE FOR INTERNAL USE ONLY AND SHOULD NOT BE CALLED BY THE APPLICATION
-	//@{
 
 	// Helper function for BroadPhase::FindCollidingPairs that returns true when two bodies can collide
 	// It assumes that body 1 is dynamic and active and guarantees that it body 1 collides with body 2 that body 2 will not collide with body 1 in order to avoid finding duplicate collision pairs
@@ -1776,22 +1912,21 @@ public:
 	// Restoring state for replay
 	void					RestoreState(StateRecorder &inStream);
 
-	//@}
 
-	static constexpr uint32	cInactiveIndex = MotionProperties::cInactiveIndex;				// Constant indicating that body is not active
+	static constexpr uint32	cInactiveIndex = MotionProperties::cInactiveIndex;		// Constant indicating that body is not active
 
 private:
 	friend class BodyManager;
 	friend class BodyWithMotionProperties;
 	friend class SoftBodyWithMotionPropertiesAndShape;
 
-							Body() = default;												// Bodies must be created through BodyInterface::CreateBody
+	Body() = default;											// Bodies must be created through BodyInterface::CreateBody
 
-	explicit				Body(bool);														// Alternative constructor that initializes all members
+	explicit Body(bool);										// Alternative constructor that initializes all members
 
-							~Body()															{ MOSS_ASSERT(mMotionProperties == nullptr); } // Bodies must be destroyed through BodyInterface::DestroyBody
+	~Body()	{ MOSS_ASSERT(mMotionProperties == nullptr); } 		// Bodies must be destroyed through BodyInterface::DestroyBody
 
-	inline void				GetSleepTestPoints(RVec3 *outPoints) const;						// Determine points to test for checking if body is sleeping: COM, COM + largest bounding box axis, COM + second largest bounding box axis
+	inline void GetSleepTestPoints(RVec3 *outPoints) const;		// Determine points to test for checking if body is sleeping: COM, COM + largest bounding box axis, COM + second largest bounding box axis
 
 	enum class EFlags : uint8
 	{
@@ -1848,4 +1983,4 @@ MOSS_API void EstimateCollisionResponse(const Body* body1, const Body* body2, co
 
 MOSS_NAMESPACE_END
 
-#endif // JOLT_BODY3D_H
+MOSS_MAKE_HASHABLE(BodyID, t.GetIndexAndSequenceNumber())

@@ -17,6 +17,7 @@ class Mat44;
 class Mat4x4;
 
 
+class DVec2;
 class DVec3;
 class UVec4;
 
@@ -55,17 +56,19 @@ class DMat2x4
 using Vec3Arg = const Vec3;
 
 #ifdef MOSS_DOUBLE_PRECISION
-using RVec2 = const DVec2;
-using RVec3 = const DVec3;
-using RMat44 = const DMat44;
+using RVec2 = DVec2;
+using RVec3 = DVec3;
+using RMat44 = DMat44;
 
 #else
 
-using RVec2 = const Vec2;
-using RVec3 = const Vec3;
-using RMat44 = const Mat44;
+using RVec2 = Vec2;
+using RVec3 = Vec3;
+using RMat44 = Mat44;
 
 #endif // MOSS_DOUBLE_PRECISION
+
+using DRVec3 = DVec3;
 
 #ifdef MOSS_SIMD_AVX
 	using DVec3Arg = const DVec3;

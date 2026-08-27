@@ -1,11 +1,82 @@
+#pragma once
+
+#include <Jolt/Physics/Character/CharacterBase.h>
+#include <Jolt/Physics/Collision/ObjectLayer.h>
+#include <Jolt/Physics/Collision/TransformedShape.h>
+#include <Jolt/Physics/EActivation.h>
+#include <Jolt/Physics/Body/AllowedDOFs.h>
 
 
+MOSS_NAMESPACE_BEGIN
 
+class MOSS_EXPORT CharacterID {
+public:
+	MOSS_OVERRIDE_NEW_DELETE
 
+	static constexpr uint32	cInvalidCharacterID = 0xffffffff;	///< The value for an invalid character ID
 
+	/// Construct invalid character ID
+	CharacterID() : mID(cInvalidCharacterID) { }
 
+	/// Construct with specific value, make sure you don't use the same value twice!
+	explicit CharacterID(uint32 inID) : mID(inID) { }
 
+	/// Get the numeric value of the ID
+	inline uint32 GetValue() const {
+		return mID;
+	}
 
+	/// Check if the ID is valid
+	inline bool IsInvalid() const {
+		return mID == cInvalidCharacterID;
+	}
+
+	/// Equals check
+	inline bool operator == (const CharacterID &inRHS) const {
+		return mID == inRHS.mID;
+	}
+
+	/// Not equals check
+	inline bool operator != (const CharacterID &inRHS) const {
+		return mID != inRHS.mID;
+	}
+
+	/// Smaller than operator, can be used for sorting characters
+	inline bool operator < (const CharacterID &inRHS) const {
+		return mID < inRHS.mID;
+	}
+
+	/// Greater than operator, can be used for sorting characters
+	inline bool operator > (const CharacterID &inRHS) const {
+		return mID > inRHS.mID;
+	}
+
+	/// Get the hash for this character ID
+	inline uint64 GetHash() const {
+		return Hash<uint32>{} (mID);
+	}
+
+	/// Generate the next available character ID
+	static CharacterID sNextCharacterID() {
+		for (;;) {
+			uint32 next = sNextID.fetch_add(1, std::memory_order_relaxed);
+			if (next != cInvalidCharacterID)
+				return CharacterID(next);
+		}
+	}
+
+	/// Set the next available character ID, can be used after destroying all character to prepare for a second deterministic run
+	static void sSetNextCharacterID(uint32 inNextValue = 1) {
+		sNextID.store(inNextValue, std::memory_order_relaxed);
+	}
+
+private:
+	/// Next character ID to be assigned
+	inline static atomic<uint32> sNextID = 1;
+
+	/// ID value
+	uint32					mID;
+};
 
 
 // Base class for configuration of a character
@@ -91,8 +162,13 @@ public:
 };
 
 struct CharacterContactSettings {
-	bool canPushCharacter;
-	bool canReceiveImpulses;
+	/// True when the object can push the virtual character.
+	bool								mCanPushCharacter = true;
+
+	/// True when the virtual character can apply impulses (push) the body.
+	/// Note that this only works against rigid bodies. Other CharacterVirtual objects can only be moved in their own update,
+	/// so you must ensure that in their OnCharacterContactAdded mCanPushCharacter is true.
+	bool								mCanReceiveImpulses = true;
 };
 
 typedef struct CharacterVirtualContact {
@@ -223,109 +299,117 @@ protected:
 // This object usually represents the player or a humanoid AI. It uses a single rigid body,
 // usually with a capsule shape to simulate movement and collision for the character.
 // The character is a keyframed object, the application controls it by setting the velocity.
-class MOSS_API Character : public CharacterBase {
+class MOSS_EXPORT Character : public CharacterBase
+{
 public:
 	MOSS_OVERRIDE_NEW_DELETE
 
-	// @param inSettings The settings for the character
-	// @param inPosition Initial position for the character
-	// @param inRotation Initial rotation for the character (usually only around Y)
-	// @param inUserData Application specific value
-	// @param inSystem Physics system that this character will be added to later
-	Character(const CharacterSettings *inSettings, RVec3Arg inPosition, QuatArg inRotation, uint64 inUserData, PhysicsSystem *inSystem);
-	virtual	~Character() override;
+	/// Constructor
+	/// @param inSettings The settings for the character
+	/// @param inPosition Initial position for the character
+	/// @param inRotation Initial rotation for the character (usually only around Y)
+	/// @param inUserData Application specific value
+	/// @param inSystem Physics system that this character will be added to later
+										Character(const CharacterSettings *inSettings, RVec3Arg inPosition, QuatArg inRotation, uint64 inUserData, PhysicsSystem *inSystem);
 
-	// Add bodies and constraints to the system and optionally activate the bodies
-	void AddToPhysicsSystem(EActivation inActivationMode = EActivation::Activate, bool inLockBodies = true);
+	/// Destructor
+	virtual								~Character() override;
 
-	// Remove bodies and constraints from the system
-	void RemoveFromPhysicsSystem(bool inLockBodies = true);
+	/// Add bodies and constraints to the system and optionally activate the bodies
+	void								AddToPhysicsSystem(EActivation inActivationMode = EActivation::Activate, bool inLockBodies = true);
 
-	// Wake up the character
-	void Activate(bool inLockBodies = true);
+	/// Remove bodies and constraints from the system
+	void								RemoveFromPhysicsSystem(bool inLockBodies = true);
 
-	// Needs to be called after every PhysicsSystem::Update
-	// @param inMaxSeparationDistance Max distance between the floor and the character to still consider the character standing on the floor
-	// @param inLockBodies If the collision query should use the locking body interface (true) or the non locking body interface (false)
-	void PostSimulation(float inMaxSeparationDistance, bool inLockBodies = true);
+	/// Wake up the character
+	void								Activate(bool inLockBodies = true);
 
-	// Control the velocity of the character
-	void SetLinearAndAngularVelocity(Vec3Arg inLinearVelocity, Vec3Arg inAngularVelocity, bool inLockBodies = true);
+	/// Needs to be called after every PhysicsSystem::Update
+	/// @param inMaxSeparationDistance Max distance between the floor and the character to still consider the character standing on the floor
+	/// @param inLockBodies If the collision query should use the locking body interface (true) or the non locking body interface (false)
+	void								PostSimulation(float inMaxSeparationDistance, bool inLockBodies = true);
 
-	// Get the linear velocity of the character (m / s)
-	Vec3 GetLinearVelocity(bool inLockBodies = true) const;
+	/// Control the velocity of the character
+	void								SetLinearAndAngularVelocity(Vec3Arg inLinearVelocity, Vec3Arg inAngularVelocity, bool inLockBodies = true);
 
-	// Set the linear velocity of the character (m / s)
-	void SetLinearVelocity(Vec3Arg inLinearVelocity, bool inLockBodies = true);
+	/// Get the linear velocity of the character (m / s)
+	Vec3								GetLinearVelocity(bool inLockBodies = true) const;
 
-	// Add world space linear velocity to current velocity (m / s)
-	void AddLinearVelocity(Vec3Arg inLinearVelocity, bool inLockBodies = true);
+	/// Set the linear velocity of the character (m / s)
+	void								SetLinearVelocity(Vec3Arg inLinearVelocity, bool inLockBodies = true);
 
-	// Add impulse to the center of mass of the character
-	void AddImpulse(Vec3Arg inImpulse, bool inLockBodies = true);
+	/// Add world space linear velocity to current velocity (m / s)
+	void								AddLinearVelocity(Vec3Arg inLinearVelocity, bool inLockBodies = true);
 
-	// Get the body associated with this character
-	BodyID GetBodyID() const										{ return mBodyID; }
+	/// Add impulse to the center of mass of the character
+	void								AddImpulse(Vec3Arg inImpulse, bool inLockBodies = true);
 
-	// Get position / rotation of the body
-	void GetPositionAndRotation(RVec3 &outPosition, Quat &outRotation, bool inLockBodies = true) const;
+	/// Get the body associated with this character
+	BodyID								GetBodyID() const										{ return mBodyID; }
 
-	// Set the position / rotation of the body, optionally activating it.
-	void SetPositionAndRotation(RVec3Arg inPosition, QuatArg inRotation, EActivation inActivationMode = EActivation::Activate, bool inLockBodies = true) const;
+	/// Get position / rotation of the body
+	void								GetPositionAndRotation(RVec3 &outPosition, Quat &outRotation, bool inLockBodies = true) const;
 
-	// Get the position of the character
-	RVec3 GetPosition(bool inLockBodies = true) const;
+	/// Set the position / rotation of the body, optionally activating it.
+	void								SetPositionAndRotation(RVec3Arg inPosition, QuatArg inRotation, EActivation inActivationMode = EActivation::Activate, bool inLockBodies = true) const;
 
-	// Set the position of the character, optionally activating it.
-	void SetPosition(RVec3Arg inPosition, EActivation inActivationMode = EActivation::Activate, bool inLockBodies = true);
+	/// Get the position of the character
+	RVec3								GetPosition(bool inLockBodies = true) const;
 
-	// Get the rotation of the character
-	Quat GetRotation(bool inLockBodies = true) const;
+	/// Set the position of the character, optionally activating it.
+	void								SetPosition(RVec3Arg inPosition, EActivation inActivationMode = EActivation::Activate, bool inLockBodies = true);
 
-	// Set the rotation of the character, optionally activating it.
-	void SetRotation(QuatArg inRotation, EActivation inActivationMode = EActivation::Activate, bool inLockBodies = true);
+	/// Get the rotation of the character
+	Quat								GetRotation(bool inLockBodies = true) const;
 
-	// Position of the center of mass of the underlying rigid body
-	RVec3 GetCenterOfMassPosition(bool inLockBodies = true) const;
+	/// Set the rotation of the character, optionally activating it.
+	void								SetRotation(QuatArg inRotation, EActivation inActivationMode = EActivation::Activate, bool inLockBodies = true);
 
-	// Calculate the world transform of the character
-	RMat44 GetWorldTransform(bool inLockBodies = true) const;
+	/// Position of the center of mass of the underlying rigid body
+	RVec3								GetCenterOfMassPosition(bool inLockBodies = true) const;
 
-	// Get the layer of the character
-	ObjectLayer	GetLayer() const										{ return mLayer; }
+	/// Calculate the world transform of the character
+	RMat44								GetWorldTransform(bool inLockBodies = true) const;
 
-	// Update the layer of the character
-	void SetLayer(ObjectLayer inLayer, bool inLockBodies = true);
+	/// Get the layer of the character
+	ObjectLayer							GetLayer() const										{ return mLayer; }
 
-	// Switch the shape of the character (e.g. for stance). When inMaxPenetrationDepth is not FLT_MAX, it checks
-	// if the new shape collides before switching shape. Returns true if the switch succeeded.
-	bool SetShape(const Shape *inShape, float inMaxPenetrationDepth, bool inLockBodies = true);
+	/// Update the layer of the character
+	void								SetLayer(ObjectLayer inLayer, bool inLockBodies = true);
 
-	// Get the transformed shape that represents the volume of the character, can be used for collision checks.
-	TransformedShape GetTransformedShape(bool inLockBodies = true) const;
+	/// Switch the shape of the character (e.g. for stance). When inMaxPenetrationDepth is not FLT_MAX, it checks
+	/// if the new shape collides before switching shape. Returns true if the switch succeeded.
+	bool								SetShape(const Shape *inShape, float inMaxPenetrationDepth, bool inLockBodies = true);
 
-	// @brief Get all contacts for the character at a particular location
-	// @param inPosition Position to test.
-	// @param inRotation Rotation at which to test the shape.
-	// @param inMovementDirection A hint in which direction the character is moving, will be used to calculate a proper normal.
-	// @param inMaxSeparationDistance How much distance around the character you want to report contacts in (can be 0 to match the character exactly).
-	// @param inShape Shape to test collision with.
-	// @param inBaseOffset All hit results will be returned relative to this offset, can be zero to get results in world position, but when you're testing far from the origin you get better precision by picking a position that's closer e.g. GetPosition() since floats are most accurate near the origin
-	// @param ioCollector Collision collector that receives the collision results.
-	// @param inLockBodies If the collision query should use the locking body interface (true) or the non locking body interface (false)
-	void CheckCollision(RVec3Arg inPosition, QuatArg inRotation, Vec3Arg inMovementDirection, float inMaxSeparationDistance, const Shape *inShape, RVec3Arg inBaseOffset, CollideShapeCollector &ioCollector, bool inLockBodies = true) const;
+	/// Get the transformed shape that represents the volume of the character, can be used for collision checks.
+	TransformedShape					GetTransformedShape(bool inLockBodies = true) const;
+
+	/// @brief Get all contacts for the character at a particular location
+	/// @param inPosition Position to test.
+	/// @param inRotation Rotation at which to test the shape.
+	/// @param inMovementDirection A hint in which direction the character is moving, will be used to calculate a proper normal.
+	/// @param inMaxSeparationDistance How much distance around the character you want to report contacts in (can be 0 to match the character exactly).
+	/// @param inShape Shape to test collision with.
+	/// @param inBaseOffset All hit results will be returned relative to this offset, can be zero to get results in world position, but when you're testing far from the origin you get better precision by picking a position that's closer e.g. GetPosition() since floats are most accurate near the origin
+	/// @param ioCollector Collision collector that receives the collision results.
+	/// @param inLockBodies If the collision query should use the locking body interface (true) or the non locking body interface (false)
+	void								CheckCollision(RVec3Arg inPosition, QuatArg inRotation, Vec3Arg inMovementDirection, float inMaxSeparationDistance, const Shape *inShape, RVec3Arg inBaseOffset, CollideShapeCollector &ioCollector, bool inLockBodies = true) const;
+
+	/// Get the character settings that can recreate this character
+	CharacterSettings					GetCharacterSettings(bool inLockBodies = true) const;
 
 private:
-	// Check collisions between inShape and the world using the center of mass transform
-	void CheckCollision(RMat44Arg inCenterOfMassTransform, Vec3Arg inMovementDirection, float inMaxSeparationDistance, const Shape *inShape, RVec3Arg inBaseOffset, CollideShapeCollector &ioCollector, bool inLockBodies) const;
-	// Check collisions between inShape and the world using the current position / rotation of the character
-	void CheckCollision(const Shape *inShape, float inMaxSeparationDistance, RVec3Arg inBaseOffset, CollideShapeCollector &ioCollector, bool inLockBodies) const;
+	/// Check collisions between inShape and the world using the center of mass transform
+	void								CheckCollision(RMat44Arg inCenterOfMassTransform, Vec3Arg inMovementDirection, float inMaxSeparationDistance, const Shape *inShape, RVec3Arg inBaseOffset, CollideShapeCollector &ioCollector, bool inLockBodies) const;
 
-	// The body of this character
-	BodyID mBodyID;
+	/// Check collisions between inShape and the world using the current position / rotation of the character
+	void								CheckCollision(const Shape *inShape, float inMaxSeparationDistance, RVec3Arg inBaseOffset, CollideShapeCollector &ioCollector, bool inLockBodies) const;
 
-	// The layer the body is in
-	ObjectLayer	mLayer;
+	/// The body of this character
+	BodyID								mBodyID;
+
+	/// The layer the body is in
+	ObjectLayer							mLayer;
 };
 
 /* CharacterVirtualSettings */
@@ -957,3 +1041,140 @@ public:
 
 	TArray<CharacterVirtual*> mCharacters;	// The list of characters to check collision against
 };
+
+
+
+
+/// Uniquely identifies a contact between a character and another body or character
+class MOSS_EXPORT CharacterContactKey
+{
+public:
+	/// Constructor
+										CharacterContactKey() = default;
+										CharacterContactKey(const CharacterContactKey &inContact) = default;
+										CharacterContactKey(const BodyID &inBodyB, const SubShapeID &inSubShapeID) : mBodyB(inBodyB), mSubShapeIDB(inSubShapeID) { }
+										CharacterContactKey(const CharacterID &inCharacterIDB, const SubShapeID &inSubShapeID) : mCharacterIDB(inCharacterIDB), mSubShapeIDB(inSubShapeID) { }
+	CharacterContactKey &				operator = (const CharacterContactKey &inContact) = default;
+
+	/// Checks if two contacts refer to the same body (or virtual character)
+	inline bool							IsSameBody(const CharacterContactKey &inOther) const
+	{
+		return mBodyB == inOther.mBodyB && mCharacterIDB == inOther.mCharacterIDB;
+	}
+
+	/// Equality operator
+	inline bool							operator == (const CharacterContactKey &inRHS) const
+	{
+		return mBodyB == inRHS.mBodyB && mCharacterIDB == inRHS.mCharacterIDB && mSubShapeIDB == inRHS.mSubShapeIDB;
+	}
+
+	inline bool							operator != (const CharacterContactKey &inRHS) const
+	{
+		return !(*this == inRHS);
+	}
+
+	/// Hash of this structure
+	inline uint64						GetHash() const
+	{
+		static_assert(sizeof(BodyID) + sizeof(CharacterID) + sizeof(SubShapeID) == sizeof(CharacterContactKey), "No padding expected");
+		return HashBytes(this, sizeof(CharacterContactKey));
+	}
+
+	// Saving / restoring state for replay
+	void								SaveState(StateRecorder &inStream) const;
+	void								RestoreState(StateRecorder &inStream);
+
+	BodyID								mBodyB;													///< ID of body we're colliding with (if not invalid)
+	CharacterID							mCharacterIDB;											///< Character we're colliding with (if not invalid)
+	SubShapeID							mSubShapeIDB;											///< Sub shape ID of body or character we're colliding with
+};
+
+/// Encapsulates a collision contact between a character and another rigid body / character
+class MOSS_EXPORT CharacterContact : public CharacterContactKey
+{
+public:
+	// Saving / restoring state for replay
+	void								SaveState(StateRecorder &inStream) const;
+	void								RestoreState(StateRecorder &inStream);
+
+	RVec3								mPosition;												///< Position where the character makes contact
+	Vec3								mLinearVelocity;										///< Velocity of the contact point
+	Vec3								mContactNormal;											///< Contact normal, pointing towards the character
+	Vec3								mSurfaceNormal;											///< Surface normal of the contact. Has been flipped if the contact is back facing (mIsBackFacingContact) and is equal to the contact normal if the contact normal is pointing up more.
+	float								mDistance;												///< Distance to the contact <= 0 means that it is an actual contact, > 0 means predictive
+	float								mFraction;												///< Fraction along the path where this contact takes place
+	EMotionType							mMotionTypeB;											///< Motion type of B, used to determine the priority of the contact
+	bool								mIsSensorB;												///< If B is a sensor
+	const CharacterVirtual *			mCharacterB = nullptr;									///< Character we're colliding with (if not nullptr). Note that this may be a dangling pointer when accessed through GetActiveContacts(), use mCharacterIDB instead.
+	uint64								mUserData;												///< User data of B
+	const PhysicsMaterial *				mMaterial;												///< Material of B
+	bool								mHadCollision = false;									///< If the character actually collided with the contact (can be false if a predictive contact never becomes a real one)
+	bool								mWasDiscarded = false;									///< If the contact validate callback chose to discard this contact or when the body is a sensor
+	bool								mCanPushCharacter = true;								///< When true, the velocity of the contact point can push the character
+	bool								mIsBackFacingContact = false;							///< If this contact came from a back facing triangle / collision shape
+};
+
+
+
+class JPH_EXPORT BodyAccess {
+public:
+	/// Access rules, used to detect race conditions during simulation
+	enum class EAccess : uint8 {
+		None		= 0,
+		Read		= 1,
+		ReadWrite	= 3,
+	};
+
+	/// Grant a scope specific access rights on the current thread
+	class Grant {
+	public:
+		inline Grant(EAccess inVelocity, EAccess inPosition) {
+			EAccess &velocity = sVelocityAccess();
+			EAccess &position = sPositionAccess();
+
+			JPH_ASSERT(velocity == EAccess::ReadWrite);
+			JPH_ASSERT(position == EAccess::ReadWrite);
+
+			velocity = inVelocity;
+			position = inPosition;
+		}
+
+		inline ~Grant() {
+			sVelocityAccess() = EAccess::ReadWrite;
+			sPositionAccess() = EAccess::ReadWrite;
+		}
+	};
+
+	/// Check if we have permission
+	static inline bool sCheckRights(EAccess inRights, EAccess inDesiredRights) {
+		return (uint8(inRights) & uint8(inDesiredRights)) == uint8(inDesiredRights);
+	}
+
+	/// Access to read/write velocities
+	static inline EAccess& sVelocityAccess() {
+		static thread_local EAccess sAccess = BodyAccess::EAccess::ReadWrite;
+		return sAccess;
+	}
+
+	/// Access to read/write positions
+	static inline EAccess& sPositionAccess() {
+		static thread_local EAccess sAccess = BodyAccess::EAccess::ReadWrite;
+		return sAccess;
+	}
+};
+
+class BodyActivationListener {
+public:
+	/// Ensure virtual destructor
+	virtual					~BodyActivationListener() = default;
+
+	/// Called whenever a body activates, note this can be called from any thread so make sure your code is thread safe.
+	/// At the time of the callback the body inBodyID will be locked and no bodies can be written/activated/deactivated from the callback.
+	virtual void			OnBodyActivated(const BodyID &inBodyID, uint64 inBodyUserData) = 0;
+
+	/// Called whenever a body deactivates, note this can be called from any thread so make sure your code is thread safe.
+	/// At the time of the callback the body inBodyID will be locked and no bodies can be written/activated/deactivated from the callback.
+	virtual void			OnBodyDeactivated(const BodyID &inBodyID, uint64 inBodyUserData) = 0;
+};
+
+MOSS_NAMESPACE_END

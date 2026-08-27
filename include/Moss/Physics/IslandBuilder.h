@@ -12,57 +12,70 @@ MOSS_SUPRESS_WARNINGS_BEGIN
 
 class TempAllocator;
 
-//#define MOSS_VALIDATE_ISLAND_BUILDER
-
-/// Keeps track of connected bodies and builds islands for multithreaded velocity/position update
-class IslandBuilder : public NonCopyable
+// Keeps track of connected bodies and builds islands for multithreaded velocity/position update
+class MOSS_EXPORT IslandBuilder : public NonCopyable
 {
 public:
-	/// Destructor
+	// Destructor
 							~IslandBuilder();
 
-	/// Initialize the island builder with the maximum amount of bodies that could be active
+	// Initialize the island builder with the maximum amount of bodies that could be active
 	void					Init(uint32 inMaxActiveBodies);
 
-	/// Prepare for simulation step by allocating space for the contact constraints
+	// Prepare for simulation step by allocating space for the contact constraints
 	void					PrepareContactConstraints(uint32 inMaxContactConstraints, TempAllocator *inTempAllocator);
 
-	/// Prepare for simulation step by allocating space for the non-contact constraints
+	// Prepare for simulation step by allocating space for the non-contact constraints
 	void					PrepareNonContactConstraints(uint32 inNumConstraints, TempAllocator *inTempAllocator);
 
-	/// Link two bodies by their index in the BodyManager::mActiveBodies list to form islands
+	// Link two bodies by their index in the BodyManager::mActiveBodies list to form islands
 	void					LinkBodies(uint32 inFirst, uint32 inSecond);
 
-	/// Link a constraint to a body by their index in the BodyManager::mActiveBodies
-	void					LinkConstraint(uint32 inConstraintIndex, uint32 inFirst, uint32 inSecond);
+	// Link a constraint to a body by their index in the BodyManager::mActiveBodies
+	void					LinkConstraint(uint32 inConstraintIndex, uint32 inIndexInActiveBodyList);
 
-	/// Link a contact to a body by their index in the BodyManager::mActiveBodies
-	void					LinkContact(uint32 inContactIndex, uint32 inFirst, uint32 inSecond);
+	// Link a contact to a body by their index in the BodyManager::mActiveBodies
+	void					LinkContact(uint32 inContactIndex, uint32 inIndexInActiveBodyList);
 
-	/// Finalize the islands after all bodies have been Link()-ed
+	// Finalize the islands after all bodies have been Link()-ed
 	void					Finalize(const BodyID *inActiveBodies, uint32 inNumActiveBodies, uint32 inNumContacts, TempAllocator *inTempAllocator);
 
-	/// Get the amount of islands formed
+	// Get the amount of islands formed
 	uint32					GetNumIslands() const							{ return mNumIslands; }
 
-	/// Get iterator for a particular island, return false if there are no constraints
+	// Get iterator for a particular island, return false if there are no constraints
 	void					GetBodiesInIsland(uint32 inIslandIndex, BodyID *&outBodiesBegin, BodyID *&outBodiesEnd) const;
 	bool					GetConstraintsInIsland(uint32 inIslandIndex, uint32 *&outConstraintsBegin, uint32 *&outConstraintsEnd) const;
 	bool					GetContactsInIsland(uint32 inIslandIndex, uint32 *&outContactsBegin, uint32 *&outContactsEnd) const;
 
-	/// The number of position iterations for each island
-	void					SetNumPositionSteps(uint32 inIslandIndex, uint32 inNumPositionSteps)	{ MOSS_ASSERT(inIslandIndex < mNumIslands); MOSS_ASSERT(inNumPositionSteps < 256); mNumPositionSteps[inIslandIndex] = uint8(inNumPositionSteps); }
-	uint32					GetNumPositionSteps(uint32 inIslandIndex) const						{ MOSS_ASSERT(inIslandIndex < mNumIslands); return mNumPositionSteps[inIslandIndex]; }
+	// The number of position iterations for each island
+	void					SetNumPositionSteps(uint32 inIslandIndex, uint inNumPositionSteps)	{ MOSS_ASSERT(inIslandIndex < mNumIslands); MOSS_ASSERT(inNumPositionSteps < 256); mNumPositionSteps[inIslandIndex] = uint8(inNumPositionSteps); }
+	uint					GetNumPositionSteps(uint32 inIslandIndex) const						{ MOSS_ASSERT(inIslandIndex < mNumIslands); return mNumPositionSteps[inIslandIndex]; }
 
-	/// After you're done calling the three functions above, call this function to free associated data
+#ifdef MOSS_TRACK_SIMULATION_STATS
+	struct IslandStats
+	{
+		atomic<uint64>		mVelocityConstraintTicks = 0;
+		atomic<uint64>		mPositionConstraintTicks = 0;
+		atomic<uint64>		mUpdateBoundsTicks = 0;
+		uint8				mNumVelocitySteps = 0;
+		uint8				mNumPositionSteps = 0;												// Tracking this a 2nd time since IslandBuilder::mNumPositionSteps is not filled in when there are no constraints or for large islands.
+		bool				mIsLargeIsland = false;
+	};
+
+	// Tracks simulation stats per island
+	IslandStats &			GetIslandStats(uint32 inIslandIndex)								{ return mIslandStats[inIslandIndex]; }
+#endif
+
+	// After you're done calling the three functions above, call this function to free associated data
 	void					ResetIslands(TempAllocator *inTempAllocator);
 
 private:
-	/// Returns the index of the lowest body in the group
+	// Returns the index of the lowest body in the group
 	uint32					GetLowestBodyIndex(uint32 inActiveBodyIndex) const;
 
 #ifdef MOSS_VALIDATE_ISLAND_BUILDER
-	/// Helper function to validate all islands so far generated
+	// Helper function to validate all islands so far generated
 	void					ValidateIslands(uint32 inNumActiveBodies) const;
 #endif
 
@@ -70,10 +83,10 @@ private:
 	void					BuildBodyIslands(const BodyID *inActiveBodies, uint32 inNumActiveBodies, TempAllocator *inTempAllocator);
 	void					BuildConstraintIslands(const uint32 *inConstraintToBody, uint32 inNumConstraints, uint32 *&outConstraints, uint32 *&outConstraintsEnd, TempAllocator *inTempAllocator) const;
 
-	/// Sorts the islands so that the islands with most constraints go first
+	// Sorts the islands so that the islands with most constraints go first
 	void					SortIslands(TempAllocator *inTempAllocator);
 
-	/// Intermediate data structure that for each body keeps track what the lowest index of the body is that it is connected to
+	// Intermediate data structure that for each body keeps track what the lowest index of the body is that it is connected to
 	struct BodyLink
 	{
 		MOSS_OVERRIDE_NEW_DELETE
@@ -101,6 +114,10 @@ private:
 
 	uint8 *					mNumPositionSteps = nullptr;					// Number of position steps for each island
 
+#ifdef MOSS_TRACK_SIMULATION_STATS
+	IslandStats *			mIslandStats = nullptr;							// Per island statistics
+#endif
+
 	// Counters
 	uint32					mMaxActiveBodies;								// Maximum size of the active bodies list (see BodyManager::mActiveBodies)
 	uint32					mNumActiveBodies = 0;							// Number of active bodies passed to
@@ -110,14 +127,14 @@ private:
 	uint32					mNumIslands = 0;								// Final number of islands
 
 #ifdef MOSS_VALIDATE_ISLAND_BUILDER
-	/// Structure to keep track of all added links to validate that islands were generated correctly
+	// Structure to keep track of all added links to validate that islands were generated correctly
 	struct LinkValidation
 	{
 		uint32				mFirst;
 		uint32				mSecond;
 	};
 
-	LinkValidation *		mLinkValidation = nullptr;
+	LinkValidation*		mLinkValidation = nullptr;
 	atomic<uint32>			mNumLinkValidation;
 #endif
 };

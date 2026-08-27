@@ -1,4 +1,38 @@
 # Variants
+
+- [Overview](/docs/Variants.md#overview)
+    - [Signed Integers](/docs/Variants.md#signed-integers), [Unsigned Integers](/docs/Variants.md#unsigned-integers)
+    - [AABB2](/docs/Variants.md#aabb), [AABB3](/docs/Variants.md#aabb)
+    - [OOB2](/docs/Variants.md#aabb), [OOB3](/docs/Variants.md#aabb)
+    - [Color](/docs/Variants.md#color)
+    - [Rect](/docs/Variants.md#rect), [iRect](/docs/Variants.md#recti)
+    - [Curve](/docs/Variants.md#curve), [Curve2](/docs/Variants.md#curve2), [Curve3](/docs/Variants.md#curve3)
+    - [Vec2](/docs/Variants.md#vec2), [Vec3](Variants.md#vec3), [Vec4](/docs/Variants.md#vec4)
+    - [iVec2](/docs/Variants.md#vec2i), [iVec3](/docs/Variants.md#vec3i), [iVec4](/docs/Variants.md#vec4i)
+    - [uVec2](/docs/Variants.md#uvec2), [uVec3](/docs/Variants.md#uvec3), [uVec4](/docs/Variants.md#uvec4)
+    - [dVec2](/docs/Variants.md#bvec2), [dVec3](/docs/Variants.md#bvec3), [dVec4](/docs/Variants.md#bvec4)
+    - [Float2](/docs/Variants.md#float2), [Float3](/docs/Variants.md#float3), [Float4](/docs/Variants.md#float4)
+    - [Int2](/docs/Variants.md#float2), [Int3](/docs/Variants.md#float3), [Int4](/docs/Variants.md#float4)
+    - [Double2](/docs/Variants.md#double2), [Double3](/docs/Variants.md#double3), [Double4](/docs/Variants.md#double4)
+    - [Mat2x2](/docs/Variants.md#mat2x2), [Mat2x3](/docs/Variants.md#mat2x3), [Mat2x4](/docs/Variants.md#mat2x4), [Mat3x2](/docs/Variants.md#mat3x2), [Mat3x3](/docs/Variants.md#mat3x3), [Mat3x4](/docs/Variants.md#mat3x4), [Mat4x2](/docs/Variants.md#mat4x2), [Mat4x3](/docs/Variants.md#mat4x3), [Mat4x4](/docs/Variants.md#mat4x4)
+    - [Quat](/docs/Variants.md#quat), [Basis](/docs/Variants.md#basis),
+    - [TArray](/docs/Variants.md#), [TMap](/docs/Variants.md#), [TSet](/docs/Variants.md#), [TStaticArray](/docs/Variants.md#), [TMultiMap](/docs/Variants.md#), [TPair](/docs/Variants.md#)
+    - [Hash](/docs/Variants.md#)
+    
+
+## Signed Integers & Unsigned Integers
+```cpp
+// Provided by Moss
+typedef signed char int8;
+typedef signed short int16;
+typedef signed int int32;
+typedef signed long long int64;
+
+typedef unsigned char uint8;
+typedef unsigned short uint16;
+typedef unsigned int uint32;
+typedef unsigned long long uint64;
+```
 ## Signed Integers & Unsigned Integers
 ```cpp
 // Provided by Moss
@@ -33,16 +67,15 @@ typedef unsigned long long uint64;
 #define MIN_UINT32  ((uint32)0x00000000)
 #define MIN_UINT64  ((uint64)(0x0000000000000000))
 ```
-
-## AABB & OOB
-```cpp
-AABB();
-AABB();
-```
-| Variant | Operator |
+## Geometry Types
+| Type | Purpose |
 | --- | --- |
-| `git status` | List all *new or modified* files |
-| `git diff` | Show file differences that **haven't been** staged |
+| `Rect`, `iRect` | 2D rectangles. |
+| `AABB3`, `AABox3` | Axis-aligned bounds 3D. |
+| `AABB2`, `AABox2` | Axis-aligned bounds 2D. |
+| `OOB3`, `AABox3` | Oriented bounds 3D. |
+| `OOB2`, `AABox2` | Oriented bounds 2D. |
+| `Curve`, `Curve2`, `Curve3` | Curve data for interpolation and authored paths. |
 
 ## Basis
 ```cpp
@@ -62,10 +95,11 @@ Color();
 Color(float r, float g, float b);
 Color(float r, float g, float b, float a);
 ```
-| Variant | Operator |
-| --- | --- |
-| `git status` | List all *new or modified* files |
-| `git diff` | Show file differences that **haven't been** staged |
+
+```cpp
+Color color(1.0f, 0.5f, 0.25f, 1.0f);
+float intensity = color.GetIntensity();
+```
 
 ## Rect
 ```cpp
@@ -94,400 +128,38 @@ Quat();
 | `git status` | List all *new or modified* files |
 | `git diff` | Show file differences that **haven't been** staged |
 
-## Float2
-```cpp
-Float2();
-Float2();
-```
-| Variant | Operator |
+## Vector Types
+| Type | Purpose |
 | --- | --- |
-| `git status` | List all *new or modified* files |
-| `git diff` | Show file differences that **haven't been** staged |
+| `Float2`, `Float3`, `Float4` | Plain float vector storage used by public descriptors. |
+| `Int2`, `Int3`, `Int4` | Plain integer vector storage. |
+| `Double2`, `Double3`, `Double4` | Plain double vector storage. |
+| `Vec2`, `Vec3`, `Vec4` | Math vector types with operators and SIMD-friendly implementations. |
+| `iVec2`, `iVec3`, `iVec4` | Integer math vector types. |
+| `UVec2`, `UVec3`, `UVec4` | Unsigned integer math vector types. |
+| `DVec2`, `DVec3`, `DVec4` | Double precision math vector types. |
 
-## Float3
-```cpp
-Float3();
-Float3();
-```
-| Variant | Operator |
+## Matrix And Rotation Types
+| Type | Purpose |
 | --- | --- |
-| `git status` | List all *new or modified* files |
-| `git diff` | Show file differences that **haven't been** staged |
+| `Mat2x2`, `Mat2x3`, `Mat2x4` | 2-row matrix variants. |
+| `Mat3x2`, `Mat3x3`, `Mat3x4` | 3-row matrix variants. |
+| `Mat4x2`, `Mat4x3`, `Mat4x4`, `Mat44` | 4-row and transform matrix variants. |
+| `Quat` | Quaternion rotation. |
+| `Basis` | 3D orientation basis. |
 
-## Float4
-```cpp
-Float4();
-Float4();
-```
-| Variant | Operator |
+## Containers
+| Type | Purpose |
 | --- | --- |
-| `git status` | List all *new or modified* files |
-| `git diff` | Show file differences that **haven't been** staged |
-
-## Double2
-## Double3
-## Double4
-
-## Vec2
-Vec2 is a ```float``` type variable. vec2 is used for 2D coordinates
-```cpp
-Vec2();
-Vec2(float x, float y);
-```
-Example
-```cpp
-Vec2(float x, float y);
-```
-| Variant | Operator |
-| --- | --- |
-| `git status` | List all *new or modified* files |
-| `git diff` | Show file differences that **haven't been** staged |
-
-## Vec3
-Vec3 is a ```float``` type variable. vec3 is used for 3D coordinates
-```cpp
-Vec3();
-Vec3(float x, float y, float z);
-```
-Example
-```cpp
-```
-| Variant | Operator |
-| --- | --- |
-| `git status` | List all *new or modified* files |
-| `git diff` | Show file differences that **haven't been** staged |
-
-## Vec4
-Vec4 is a ```float``` type variable
-```cpp
-Vec4();
-Vec4(float x, float y, float z, float w);
-```
-Example
-```cpp
-```
-| Variant | Operator |
-| --- | --- |
-| `git status` | List all *new or modified* files |
-| `git diff` | Show file differences that **haven't been** staged |
-
-## Vec2i
-Vec2 is a ```int``` type variable
-```cpp
-Vec2i();
-Vec2i(int x, int y);
-```
-Example
-```cpp
-```
-| Variant | Operator |
-| --- | --- |
-| `git status` | List all *new or modified* files |
-| `git diff` | Show file differences that **haven't been** staged |
-
-## Vec3i
-Vec3 is a ```int``` type variable
-```cpp
-Vec3i();
-Vec3i(int x, int y, int z);
-```
-Example
-```cpp
-```
-| Variant | Operator |
-| --- | --- |
-| `git status` | List all *new or modified* files |
-| `git diff` | Show file differences that **haven't been** staged |
-
-## Vec4i
-Vec4i is a ```int``` type variable
-```cpp
-Vec4i();
-Vec4i(int x, int y, int z, int w);
-```
-Example
-```cpp
-```
-
-| Variant | Operator |
-| --- | --- |
-| `git status` | List all *new or modified* files |
-| `git diff` | Show file differences that **haven't been** staged |
+| `TArray<T>` | Dynamic array. |
+| `TMap<K, V>` | Key/value map. |
+| `TSet<T>` | Set container. |
+| `TStaticArray<T, N>` | Fixed-size array. |
+| `TMultiMap<K, V>` | Multi-value map. |
+| `TPair<A, B>` | Pair value. |
 
 
-## uVec2
-Example
-```cpp
-```
-| Variant | Operator |
-| --- | --- |
-| `git status` | List all *new or modified* files |
-| `git diff` | Show file differences that **haven't been** staged |
-
-## uVec3
-Example
-```cpp
-```
-| Variant | Operator |
-| --- | --- |
-| `git status` | List all *new or modified* files |
-| `git diff` | Show file differences that **haven't been** staged |
-## uVec4
-Example
-```cpp
-```
-| Variant | Operator |
-| --- | --- |
-| `git status` | List all *new or modified* files |
-| `git diff` | Show file differences that **haven't been** staged |
-
-## dVec2
-Example
-```cpp
-```
-| Variant | Operator |
-| --- | --- |
-| `git status` | List all *new or modified* files |
-| `git diff` | Show file differences that **haven't been** staged |
-
-## dVec3
-Example
-```cpp
-```
-| Variant | Operator |
-| --- | --- |
-| `git status` | List all *new or modified* files |
-| `git diff` | Show file differences that **haven't been** staged |
-
-## dVec4
-Example
-```cpp
-```
-| Variant | Operator |
-| --- | --- |
-| `git status` | List all *new or modified* files |
-| `git diff` | Show file differences that **haven't been** staged |
-
-## dVec2
-Example
-```cpp
-```
-| Variant | Operator |
-| --- | --- |
-| `git status` | List all *new or modified* files |
-| `git diff` | Show file differences that **haven't been** staged |
-
-## dVec3
-Example
-```cpp
-```
-| Variant | Operator |
-| --- | --- |
-| `git status` | List all *new or modified* files |
-| `git diff` | Show file differences that **haven't been** staged |
-## dVec4
-Example
-```cpp
-```
-| Variant | Operator |
-| --- | --- |
-| `git status` | List all *new or modified* files |
-| `git diff` | Show file differences that **haven't been** staged |
-
-## bVec2
-Example
-```cpp
-```
-| Variant | Operator |
-| --- | --- |
-| `git status` | List all *new or modified* files |
-| `git diff` | Show file differences that **haven't been** staged |
-
-## bVec3
-Example
-```cpp
-```
-| Variant | Operator |
-| --- | --- |
-| `git status` | List all *new or modified* files |
-| `git diff` | Show file differences that **haven't been** staged |
-
-## bVec4
-Example
-```cpp
-```
-| Variant | Operator |
-| --- | --- |
-| `git status` | List all *new or modified* files |
-| `git diff` | Show file differences that **haven't been** staged |
-
-## Mat2x2
-Example
-```cpp
-```
-| Variant | Operator |
-| --- | --- |
-| `git status` | List all *new or modified* files |
-| `git diff` | Show file differences that **haven't been** staged |
-
-## Mat2x3
-Example
-```cpp
-```
-| Variant | Operator |
-| --- | --- |
-| `git status` | List all *new or modified* files |
-| `git diff` | Show file differences that **haven't been** staged |
-
-## Mat2x4
-Example
-```cpp
-```
-| Variant | Operator |
-| --- | --- |
-| `git status` | List all *new or modified* files |
-| `git diff` | Show file differences that **haven't been** staged |
-
-## Mat3x2
-Example
-```cpp
-```
-| Variant | Operator |
-| --- | --- |
-| `git status` | List all *new or modified* files |
-| `git diff` | Show file differences that **haven't been** staged |
-
-## Mat3x3
-Example
-```cpp
-```
-| Variant | Operator |
-| --- | --- |
-| `git status` | List all *new or modified* files |
-| `git diff` | Show file differences that **haven't been** staged |
-
-## Mat3x4
-Example
-```cpp
-```
-| Variant | Operator |
-| --- | --- |
-| `git status` | List all *new or modified* files |
-| `git diff` | Show file differences that **haven't been** staged |
-
-## Mat4x2
-Example
-```cpp
-```
-| Variant | Operator |
-| --- | --- |
-| `git status` | List all *new or modified* files |
-| `git diff` | Show file differences that **haven't been** staged |
-
-## Mat4x3
-Example
-```cpp
-```
-| Variant | Operator |
-| --- | --- |
-| `git status` | List all *new or modified* files |
-| `git diff` | Show file differences that **haven't been** staged |
-
-## Mat4x4
-Example
-```cpp
-```
-| Variant | Operator |
-| --- | --- |
-| `git status` | List all *new or modified* files |
-| `git diff` | Show file differences that **haven't been** staged |
-
-## TArray
-TArray is a ```template``` Array.
-```cpp
-template<T>
-TArray<T>;
-```
-Example
-```cpp
-TArray<vec3> tarray;
-```
-| Variant | Operator |
-| --- | --- |
-| `git status` | List all *new or modified* files |
-| `git diff` | Show file differences that **haven't been** staged |
-
-## TMap
-TMap is a ```template``` unordered_map.
-```cpp
-template<T>
-TMap<T>;
-```
-Example
-```cpp
-TMap<vec3> tvector;
-```
-| Variant | Operator |
-| --- | --- |
-| `git status` | List all *new or modified* files |
-| `git diff` | Show file differences that **haven't been** staged |
-
-## TMultiMap
-TMultiMap is a ```template```.
-```cpp
-template<T>
-TMultiMap<T>;
-```
-Example
-```cpp
-TMultiMap<vec3> tvector;
-```
-| Variant | Operator |
-| --- | --- |
-| `git status` | List all *new or modified* files |
-| `git diff` | Show file differences that **haven't been** staged |
-
-## TPair
-TPair is a ```template```.
-```cpp
-template<T>
-TPair<T>;
-```
-Example
-```cpp
-TPair<vec3> tvector;
-```
-| Variant | Operator |
-| --- | --- |
-| `git status` | List all *new or modified* files |
-| `git diff` | Show file differences that **haven't been** staged |
-
-## TSet
-TSet is a ```template``` Vector that is not to be confused with Vecs.
-```cpp
-template<T>
-TVector<T>;
-```
-Example
-```cpp
-TVector<vec3> tvector;
-```
-| Variant | Operator |
-| --- | --- |
-| `git status` | List all *new or modified* files |
-| `git diff` | Show file differences that **haven't been** staged |
-
-## TStaticArray
-TStaticArray is a ```template``` Vector that is not to be confused with Vecs.
-```cpp
-template<T>
-TStaticArray<T>;
-```
-Example
-```cpp
-TStaticArray<vec3> tvector;
-```
-| Variant | Operator |
-| --- | --- |
-| `git status` | List all *new or modified* files |
-| `git diff` | Show file differences that **haven't been** staged |
+## Notes
+- Public C-like APIs prefer plain descriptor-friendly types such as `Float2`, `Float3`, `Float4`, `Color`, and scalar integers.
+- Internal math and physics code may use richer vector/matrix types such as `Vec3`, `Quat`, and `Mat44`.
+- Keep ownership rules outside variant types; variants should be cheap value objects.

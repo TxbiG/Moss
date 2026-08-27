@@ -31,6 +31,6 @@ inline Float2 operator-(const Float2 &lhs, const Float2 &rhs) noexcept {
     return Float2{lhs.x - rhs.x, lhs.y - rhs.y};
 }
 
-MOSS_SUPRESS_WARNINGS_END
+static_assert(std::is_trivially_default_constructible<Float2>() && std::is_trivially_copyable<Float2>(), "Is supposed to be a trivial type!");
 
-MOSS_MAKE_HASHABLE(Float2, t.x, t.y)
+MOSS_SUPRESS_WARNINGS_END

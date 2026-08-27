@@ -6,6 +6,7 @@
 
 #include <Moss/Geometry/Triangle.h>
 #include <Moss/Variants/Matrix/Mat44.h>
+#include <Moss/Variants/Plane.h>
 
 MOSS_SUPRESS_WARNINGS_BEGIN
 
@@ -99,34 +100,22 @@ public:
 	RVec3 GetSize() const { return mMax - mMin; }
 
 	// Get surface area of bounding box
-	float GetSurfaceArea() const {
-		RVec3 extent = mMax - mMin;
-		return 2.0f * (extent.GetX() * extent.GetY() + extent.GetX() * extent.GetZ() + extent.GetY() * extent.GetZ());
-	}
+	float GetSurfaceArea() const { RVec3 extent = mMax - mMin; return 2.0f * (extent.GetX() * extent.GetY() + extent.GetX() * extent.GetZ() + extent.GetY() * extent.GetZ()); }
 
 	// Get volume of bounding box
-	float GetVolume() const {
-		RVec3 extent = mMax - mMin;
-		return extent.GetX() * extent.GetY() * extent.GetZ();
-	}
+	float GetVolume() const { RVec3 extent = mMax - mMin; return extent.GetX() * extent.GetY() * extent.GetZ(); }
 
 	// Check if this box contains another box
 	bool Contains(const AABB3 &inOther) const { return UVec4::And(RVec3::LessOrEqual(mMin, inOther.mMin), RVec3::GreaterOrEqual(mMax, inOther.mMax)).TestAllXYZTrue(); }
 
 	// Check if this box contains a point
-	bool Contains(RVec3 inOther) const {
-		return UVec4::And(RVec3::LessOrEqual(mMin, inOther), RVec3::GreaterOrEqual(mMax, inOther)).TestAllXYZTrue();
-	}
+	bool Contains(RVec3 inOther) const { return UVec4::And(RVec3::LessOrEqual(mMin, inOther), RVec3::GreaterOrEqual(mMax, inOther)).TestAllXYZTrue(); }
 
 	// Check if this box contains a point
-	bool Contains(DRVec3 inOther) const {
-		return Contains(RVec3(inOther));
-	}
+	bool Contains(DRVec3 inOther) const { return Contains(RVec3(inOther)); }
 
 	// Check if this box overlaps with another box
-	bool Overlaps(const AABB3 &inOther) const {
-		return !UVec4::Or(RVec3::Greater(mMin, inOther.mMax), RVec3::Less(mMax, inOther.mMin)).TestAnyXYZTrue();
-	}
+	bool Overlaps(const AABB3 &inOther) const { return !UVec4::Or(RVec3::Greater(mMin, inOther.mMax), RVec3::Less(mMax, inOther.mMin)).TestAnyXYZTrue(); }
 
 	// Check if this box overlaps with a plane
 	bool Overlaps(const Plane &inPlane) const {
@@ -137,16 +126,14 @@ public:
 	}
 
 	// Translate bounding box
-	void Translate(RVec3 inTranslation) {
-		mMin += inTranslation;
-		mMax += inTranslation;
-	}
-
-	// Translate bounding box
-	void Translate(DRVec3 inTranslation) {
+	void Translate(DVec3Arg inTranslation) {
 		mMin = (DVec3(mMin) + inTranslation).ToVec3RoundDown();
 		mMax = (DVec3(mMax) + inTranslation).ToVec3RoundUp();
 	}
+
+
+	// Translate bounding box
+	void Translate(RVec3 inTranslation) { mMin += inTranslation; mMax += inTranslation; }
 
 	// Transform bounding box
 	AABB3 Transformed(Mat44Arg inMatrix) const {
@@ -178,16 +165,10 @@ public:
 	}
 
 	// Scale this bounding box, can handle non-uniform and negative scaling
-	AABB3 Scaled(RVec3 inScale) const
-	{
-		return AABB3::FromTwoPoints(mMin * inScale, mMax * inScale);
-	}
+	AABB3 Scaled(RVec3 inScale) const { return AABB3::FromTwoPoints(mMin * inScale, mMax * inScale); }
 
 	// Calculate the support vector for this convex shape.
-	RVec3			GetSupport(RVec3 inDirection) const
-	{
-		return RVec3::Select(mMax, mMin, RVec3::Less(inDirection, RVec3::Zero()));
-	}
+	RVec3 GetSupport(RVec3 inDirection) const { return RVec3::Select(mMax, mMin, RVec3::Less(inDirection, RVec3::Zero())); }
 
 	// Get the vertices of the face that faces inDirection the most
 	template <class VERTEX_ARRAY>

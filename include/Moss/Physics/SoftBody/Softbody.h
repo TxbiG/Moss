@@ -1,3 +1,26 @@
+#pragma once
+
+
+#include <Moss/Physics/Collision/Shape/Shape.h>
+
+MOSS_NAMESPACE_BEGIN
+
+enum class SoftBodyValidateResult
+{
+	AcceptContact,														///< Accept this contact
+	RejectContact,														///< Reject this contact
+};
+
+class SoftBodyContactSettings
+{
+public:
+	float							mInvMassScale1 = 1.0f;				///< Scale factor for the inverse mass of the soft body (0 = infinite mass, 1 = use original mass, 2 = body has half the mass). For the same contact pair, you should strive to keep the value the same over time.
+	float							mInvMassScale2 = 1.0f;				///< Scale factor for the inverse mass of the other body (0 = infinite mass, 1 = use original mass, 2 = body has half the mass). For the same contact pair, you should strive to keep the value the same over time.
+	float							mInvInertiaScale2 = 1.0f;			///< Scale factor for the inverse inertia of the other body (usually same as mInvMassScale2)
+	bool							mIsSensor;							///< If the contact should be treated as a sensor vs body contact (no collision response)
+};
+
+
 class MassProperties {
 public:
 	// Using eigendecomposition, decompose the inertia tensor into a diagonal matrix D and a right-handed rotation matrix R so that the inertia tensor is \f$R \: D \: R^{-1}\f$.
@@ -31,8 +54,7 @@ public:
 
 // A listener class that receives collision contact events for soft bodies against rigid bodies.
 // It can be registered with the PhysicsSystem.
-class SoftBodyContactListener
-{
+class SoftBodyContactListener {
 public:
 	// Ensure virtual destructor
 	virtual							~SoftBodyContactListener() = default;
@@ -55,8 +77,7 @@ public:
 };
 
 // Temporary data used by the update of a soft body
-class SoftBodyUpdateContext : public NonCopyable
-{
+class SoftBodyUpdateContext : public NonCopyable {
 public:
 	static constexpr uint32				cVertexCollisionBatch = 64;					// Number of vertices to process in a batch in DetermineCollisionPlanes
 	static constexpr uint32				cVertexConstraintBatch = 256;				// Number of vertices to group for processing batches of constraints in ApplyEdgeConstraints
@@ -73,8 +94,7 @@ public:
 	float								mSubStepDeltaTime;							// Delta time for each sub step
 
 	// Describes progress in the current update
-	enum class EState
-	{
+	enum class EState {
 		DetermineCollisionPlanes,													// Determine collision planes for vertices in parallel
 		DetermineSensorCollisions,													// Determine collisions with sensors in parallel
 		ApplyConstraints,															// Apply constraints in parallel
@@ -101,8 +121,7 @@ public:
 // Note that at run-time you should only modify the inverse mass and/or velocity of a vertex to control the soft body.
 // Modifying the position can lead to missed collisions.
 // The other members are used internally by the soft body solver.
-class SoftBodyVertex
-{
+class SoftBodyVertex {
 public:
 	// Reset collision information to prepare for a new collision check
 	inline void		ResetCollision()
@@ -111,6 +130,15 @@ public:
 		mCollidingShapeIndex = -1;
 		mHasContact = false;
 	}
+
+	/// Mark this vertex as being in contact with inBodyID
+	inline void		MarkCCDContact(const BodyID &inBodyID, const Plane &inContactPlane)
+	{
+		mCollisionPlane = inContactPlane;
+		mCollidingShapeIndex = int(inBodyID.GetIndexAndSequenceNumber() | BodyID::cBroadPhaseBit); // We reuse the broad phase bit to indicate this is a CCD contact
+		mHasContact = true;
+	}
+
 
 	Vec3			mPreviousPosition;					// Internal use only. Position at the previous time step
 	Vec3			mPosition;							// Position, relative to the center of mass of the soft body
@@ -123,8 +151,7 @@ public:
 };
 
 // An interface to query which vertices of a soft body are colliding with other bodies
-class SoftBodyManifold
-{
+class SoftBodyManifold {
 public:
 	// Get the vertices of the soft body for iterating
 	const TArray<SoftBodyVertex> &	GetVertices() const							{ return mVertices; }
@@ -170,12 +197,7 @@ private:
 	friend class SoftBodyMotionProperties;
 
 	// Constructor
-	explicit						SoftBodyManifold(const SoftBodyMotionProperties *inMotionProperties) :
-										mVertices(inMotionProperties->mVertices),
-										mCollidingShapes(inMotionProperties->mCollidingShapes),
-										mCollidingSensors(inMotionProperties->mCollidingSensors)
-	{
-	}
+	explicit SoftBodyManifold(const SoftBodyMotionProperties *inMotionProperties) :	mVertices(inMotionProperties->mVertices), mCollidingShapes(inMotionProperties->mCollidingShapes), mCollidingSensors(inMotionProperties->mCollidingSensors) { }
 
 	using CollidingShape = SoftBodyMotionProperties::CollidingShape;
 	using CollidingSensor = SoftBodyMotionProperties::CollidingSensor;
@@ -185,8 +207,7 @@ private:
 	const TArray<CollidingSensor>&	mCollidingSensors;
 };
 
-class MOSS_EXPORT SoftBodyMotionProperties : public MotionProperties
-{
+class MOSS_EXPORT SoftBodyMotionProperties : public MotionProperties {
 public:
 	using Vertex = SoftBodyVertex;
 	using Edge = SoftBodySharedSettings::Edge;
@@ -199,7 +220,7 @@ public:
 	using LRA = SoftBodySharedSettings::LRA;
 
 	// Initialize the soft body motion properties
-	void								Initialize(const SoftBodyCreationSettings &inSettings);
+	void Initialize(const SoftBodyCreationSettings &inSettings);
 
 	// Get the shared settings of the soft body
 	const SoftBodySharedSettings *		GetSettings() const							{ return mSettings; }
@@ -241,6 +262,10 @@ public:
 	float								GetSkinnedMaxDistanceMultiplier() const		{ return mSkinnedMaxDistanceMultiplier; }
 	void								SetSkinnedMaxDistanceMultiplier(float inSkinnedMaxDistanceMultiplier) { mSkinnedMaxDistanceMultiplier = inSkinnedMaxDistanceMultiplier; }
 
+	/// How big the particles are, can be used to push the vertices a little bit away from the surface of other bodies to prevent z-fighting
+	float								GetVertexRadius() const						{ return mVertexRadius; }
+	void								SetVertexRadius(float inVertexRadius)		{ MOSS_ASSERT(mVertexRadius >= 0.0f); mVertexRadius = inVertexRadius; }
+
 	// Get local bounding box
 	const AABox &						GetLocalBounds() const						{ return mLocalBounds; }
 
@@ -255,6 +280,9 @@ public:
 	void								DrawVertices(DebugRenderer *inRenderer, RMat44Arg inCenterOfMassTransform) const;
 	void								DrawVertexVelocities(DebugRenderer *inRenderer, RMat44Arg inCenterOfMassTransform) const;
 	void								DrawEdgeConstraints(DebugRenderer *inRenderer, RMat44Arg inCenterOfMassTransform, ESoftBodyConstraintColor inConstraintColor) const;
+	void								DrawRods(DebugRenderer *inRenderer, RMat44Arg inCenterOfMassTransform, ESoftBodyConstraintColor inConstraintColor) const;
+	void								DrawRodStates(DebugRenderer *inRenderer, RMat44Arg inCenterOfMassTransform, ESoftBodyConstraintColor inConstraintColor) const;
+	void								DrawRodBendTwistConstraints(DebugRenderer *inRenderer, RMat44Arg inCenterOfMassTransform, ESoftBodyConstraintColor inConstraintColor) const;
 	void								DrawBendConstraints(DebugRenderer *inRenderer, RMat44Arg inCenterOfMassTransform, ESoftBodyConstraintColor inConstraintColor) const;
 	void								DrawVolumeConstraints(DebugRenderer *inRenderer, RMat44Arg inCenterOfMassTransform, ESoftBodyConstraintColor inConstraintColor) const;
 	void								DrawSkinConstraints(DebugRenderer *inRenderer, RMat44Arg inCenterOfMassTransform, ESoftBodyConstraintColor inConstraintColor) const;
@@ -300,8 +328,7 @@ public:
 	void								DetermineCollidingShapes(const SoftBodyUpdateContext &inContext, const PhysicsSystem &inSystem, const BodyLockInterface &inBodyLockInterface);
 
 	// Return code for ParallelUpdate
-	enum class EStatus
-	{
+	enum class EStatus {
 		NoWork	= 1 << 0,				// No work was done because other threads were still working on a batch that cannot run concurrently
 		DidWork	= 1 << 1,				// Work was done to progress the update
 		Done	= 1 << 2,				// All work is done
@@ -313,15 +340,16 @@ public:
 	// Update the velocities of all rigid bodies that we collided with. Not part of the public API.
 	void								UpdateRigidBodyVelocities(const SoftBodyUpdateContext &inContext, BodyInterface &inBodyInterface);
 
+	inline void							RequestContactCallback()					{ mNeedContactCallback.store(true, memory_order_relaxed); }
+
 private:
 	// SoftBodyManifold needs to have access to CollidingShape
 	friend class SoftBodyManifold;
 
 	// Information about a leaf shape that we're colliding with
-	struct LeafShape
-	{
-										LeafShape() = default;
-										LeafShape(Mat44Arg inTransform, Vec3Arg inScale, const Shape *inShape) : mTransform(inTransform), mScale(inScale), mShape(inShape) { }
+	struct LeafShape {
+		LeafShape() = default;
+		LeafShape(Mat44Arg inTransform, Vec3Arg inScale, const Shape *inShape) : mTransform(inTransform), mScale(inScale), mShape(inShape) { }
 
 		Mat44							mTransform;									// Transform of the shape relative to the soft body
 		Vec3							mScale;										// Scale of the shape
@@ -329,13 +357,9 @@ private:
 	};
 
 	// Collect information about the colliding bodies
-	struct CollidingShape
-	{
+	struct CollidingShape {
 		// Get the velocity of a point on this body
-		Vec3							GetPointVelocity(Vec3Arg inPointRelativeToCOM) const
-		{
-			return mLinearVelocity + mAngularVelocity.Cross(inPointRelativeToCOM);
-		}
+		Vec3 GetPointVelocity(Vec3Arg inPointRelativeToCOM) const { return mLinearVelocity + mAngularVelocity.Cross(inPointRelativeToCOM); }
 
 		Mat44							mCenterOfMassTransform;						// Transform of the body relative to the soft body
 		TArray<LeafShape>				mShapes;									// Leaf shapes of the body we hit
@@ -354,17 +378,24 @@ private:
 	};
 
 	// Collect information about the colliding sensors
-	struct CollidingSensor
-	{
+	struct CollidingSensor {
 		Mat44							mCenterOfMassTransform;						// Transform of the body relative to the soft body
 		TArray<LeafShape>				mShapes;									// Leaf shapes of the body we hit
 		BodyID							mBodyID;									// Body ID of the body we hit
 		bool							mHasContact;								// If the sensor collided with the soft body
 	};
 
+	// Information about the current state of a rod.
+	struct RodState {
+		Quat							mRotation;									///< Rotation of the rod, relative to center of mass transform
+		union {
+			Vec3						mAngularVelocity;							///< Angular velocity of the rod, relative to center of mass transform, valid only outside of the simulation.
+			Quat						mPreviousRotationInternal;					///< Internal use only. Previous rotation of the rod, relative to center of mass transform, valid only during the simulation.
+		};
+	};
+
 	// Information about the state of all skinned vertices
-	struct SkinState
-	{
+	struct SkinState {
 		Vec3							mPreviousPosition = Vec3::Zero();			// Previous position of the skinned vertex, used to interpolate between the previous and current position
 		Vec3							mPosition = Vec3::NaN();					// Current position of the skinned vertex
 		Vec3							mNormal = Vec3::NaN();						// Normal of the skinned vertex
@@ -427,13 +458,14 @@ private:
 #ifndef MOSS_DEBUG_RENDERER
 	// Helper function to draw constraints
 	template <typename GetEndIndex, typename DrawConstraint>
-		inline void						DrawConstraints(ESoftBodyConstraintColor inConstraintColor, const GetEndIndex &inGetEndIndex, const DrawConstraint &inDrawConstraint, ColorArg inBaseColor) const;
+		inline void DrawConstraints(ESoftBodyConstraintColor inConstraintColor, const GetEndIndex &inGetEndIndex, const DrawConstraint &inDrawConstraint, ColorArg inBaseColor) const;
 
-	RMat44								mSkinStateTransform = RMat44::Identity();	// The matrix that transforms mSkinState to world space
+	RMat44	mSkinStateTransform = RMat44::Identity();	// The matrix that transforms mSkinState to world space
 #endif // MOSS_DEBUG_RENDERER
 
 	RefConst<SoftBodySharedSettings>	mSettings;									// Configuration of the particles and constraints
 	TArray<Vertex>						mVertices;									// Current state of all vertices in the simulation
+	TArray<RodState>						mRodStates;									///< Current state of all rods in the simulation
 	TArray<CollidingShape>				mCollidingShapes;							// List of colliding shapes retrieved during the last update
 	TArray<CollidingSensor>				mCollidingSensors;							// List of colliding sensors retrieved during the last update
 	TArray<SkinState>					mSkinState;									// List of skinned positions (1-on-1 with mVertices but only those that are used by the skinning constraints are filled in)
@@ -449,22 +481,18 @@ private:
 	bool								mSkinStatePreviousPositionValid = false;	// True if the skinning was updated in the last update so that the previous position of the skin state is valid
 };
 
-class MOSS_EXPORT SoftBodySharedSettings : public RefTarget<SoftBodySharedSettings>
-{
+class MOSS_EXPORT SoftBodySharedSettings : public RefTarget<SoftBodySharedSettings> {
 	MOSS_DECLARE_SERIALIZABLE_NON_VIRTUAL(MOSS_EXPORT, SoftBodySharedSettings)
-
 public:
 	// Which type of bend constraint should be created
-	enum class EBendType
-	{
+	enum class EBendType {
 		None,														// No bend constraints will be created
 		Distance,													// A simple distance constraint
 		Dihedral,													// A dihedral bend constraint (most expensive, but also supports triangles that are initially not in the same plane)
 	};
 
 	// The type of long range attachment constraint to create
-	enum class ELRAType
-	{
+	enum class ELRAType {
 		None,														// Don't create a LRA constraint
 		EuclideanDistance,											// Create a LRA constraint based on Euclidean distance between the closest kinematic vertex and this vertex
 		GeodesicDistance,											// Create a LRA constraint based on the geodesic distance between the closest kinematic vertex and this vertex (follows the edge constraints)
@@ -473,11 +501,10 @@ public:
 	// Per vertex attributes used during the CreateConstraints function.
 	// For an edge or shear constraint, the compliance is averaged between the two attached vertices.
 	// For a bend constraint, the compliance is averaged between the two vertices on the shared edge.
-	struct MOSS_EXPORT VertexAttributes
-	{
+	struct MOSS_EXPORT VertexAttributes {
 		// Constructor
-						VertexAttributes() = default;
-						VertexAttributes(float inCompliance, float inShearCompliance, float inBendCompliance, ELRAType inLRAType = ELRAType::None, float inLRAMaxDistanceMultiplier = 1.0f) : mCompliance(inCompliance), mShearCompliance(inShearCompliance), mBendCompliance(inBendCompliance), mLRAType(inLRAType), mLRAMaxDistanceMultiplier(inLRAMaxDistanceMultiplier) { }
+		VertexAttributes() = default;
+		VertexAttributes(float inCompliance, float inShearCompliance, float inBendCompliance, ELRAType inLRAType = ELRAType::None, float inLRAMaxDistanceMultiplier = 1.0f) : mCompliance(inCompliance), mShearCompliance(inShearCompliance), mBendCompliance(inBendCompliance), mLRAType(inLRAType), mLRAMaxDistanceMultiplier(inLRAMaxDistanceMultiplier) { }
 
 		float			mCompliance = 0.0f;							// The compliance of the normal edges. Set to FLT_MAX to disable regular edges for any edge involving this vertex.
 		float			mShearCompliance = 0.0f;					// The compliance of the shear edges. Set to FLT_MAX to disable shear edges for any edge involving this vertex.
@@ -510,8 +537,7 @@ public:
 	void				CalculateSkinnedConstraintNormals();
 
 	// Information about the optimization of the soft body, the indices of certain elements may have changed.
-	class OptimizationResults
-	{
+	class OptimizationResults {
 	public:
 		TArray<uint32>		mEdgeRemap;									// Maps old edge index to new edge index
 		TArray<uint32>		mLRARemap;									// Maps old LRA index to new LRA index
@@ -555,8 +581,7 @@ public:
 	static Ref<SoftBodySharedSettings> sCreateCube(uint32 inGridSize, float inGridSpacing);
 
 	// A vertex is a particle, the data in this structure is only used during creation of the soft body and not during simulation
-	struct MOSS_EXPORT Vertex
-	{
+	struct MOSS_EXPORT Vertex {
 		MOSS_DECLARE_SERIALIZABLE_NON_VIRTUAL(MOSS_EXPORT, Vertex)
 
 		// Constructor
@@ -569,8 +594,7 @@ public:
 	};
 
 	// A face defines the surface of the body
-	struct MOSS_EXPORT Face
-	{
+	struct MOSS_EXPORT Face {
 		MOSS_DECLARE_SERIALIZABLE_NON_VIRTUAL(MOSS_EXPORT, Face)
 
 		// Constructor
@@ -585,13 +609,12 @@ public:
 	};
 
 	// An edge keeps two vertices at a constant distance using a spring: |x1 - x2| = rest length
-	struct MOSS_EXPORT Edge
-	{
+	struct MOSS_EXPORT Edge {
 		MOSS_DECLARE_SERIALIZABLE_NON_VIRTUAL(MOSS_EXPORT, Edge)
 
 		// Constructor
-						Edge() = default;
-						Edge(uint32 inVertex1, uint32 inVertex2, float inCompliance = 0.0f) : mVertex { inVertex1, inVertex2 }, mCompliance(inCompliance) { }
+		Edge() = default;
+		Edge(uint32 inVertex1, uint32 inVertex2, float inCompliance = 0.0f) : mVertex { inVertex1, inVertex2 }, mCompliance(inCompliance) { }
 
 		// Return the lowest vertex index of this constraint
 		uint32			GetMinVertexIndex() const					{ return min(mVertex[0], mVertex[1]); }
@@ -619,13 +642,12 @@ public:
 	 * - "Strain Based Dynamics" - Matthias Muller et al.
 	 * - "Simulation of Clothing with Folds and Wrinkles" - R. Bridson et al.
 	 */
-	struct MOSS_EXPORT DihedralBend
-	{
+	struct MOSS_EXPORT DihedralBend {
 		MOSS_DECLARE_SERIALIZABLE_NON_VIRTUAL(MOSS_EXPORT, DihedralBend)
 
 		// Constructor
-						DihedralBend() = default;
-						DihedralBend(uint32 inVertex1, uint32 inVertex2, uint32 inVertex3, uint32 inVertex4, float inCompliance = 0.0f) : mVertex { inVertex1, inVertex2, inVertex3, inVertex4 }, mCompliance(inCompliance) { }
+		DihedralBend() = default;
+		DihedralBend(uint32 inVertex1, uint32 inVertex2, uint32 inVertex3, uint32 inVertex4, float inCompliance = 0.0f) : mVertex { inVertex1, inVertex2, inVertex3, inVertex4 }, mCompliance(inCompliance) { }
 
 		// Return the lowest vertex index of this constraint
 		uint32			GetMinVertexIndex() const					{ return min(min(mVertex[0], mVertex[1]), min(mVertex[2], mVertex[3])); }
@@ -636,13 +658,12 @@ public:
 	};
 
 	// Volume constraint, keeps the volume of a tetrahedron constant
-	struct MOSS_EXPORT Volume
-	{
+	struct MOSS_EXPORT Volume {
 		MOSS_DECLARE_SERIALIZABLE_NON_VIRTUAL(MOSS_EXPORT, Volume)
 
 		// Constructor
-						Volume() = default;
-						Volume(uint32 inVertex1, uint32 inVertex2, uint32 inVertex3, uint32 inVertex4, float inCompliance = 0.0f) : mVertex { inVertex1, inVertex2, inVertex3, inVertex4 }, mCompliance(inCompliance) { }
+		Volume() = default;
+		Volume(uint32 inVertex1, uint32 inVertex2, uint32 inVertex3, uint32 inVertex4, float inCompliance = 0.0f) : mVertex { inVertex1, inVertex2, inVertex3, inVertex4 }, mCompliance(inCompliance) { }
 
 		// Return the lowest vertex index of this constraint
 		uint32			GetMinVertexIndex() const					{ return min(min(mVertex[0], mVertex[1]), min(mVertex[2], mVertex[3])); }
@@ -653,46 +674,40 @@ public:
 	};
 
 	// An inverse bind matrix take a skinned vertex from its bind pose into joint local space
-	class MOSS_EXPORT InvBind
-	{
+	class MOSS_EXPORT InvBind {
 		MOSS_DECLARE_SERIALIZABLE_NON_VIRTUAL(MOSS_EXPORT, InvBind)
 
 	public:
 		// Constructor
-						InvBind() = default;
-						InvBind(uint32 inJointIndex, Mat44Arg inInvBind) : mJointIndex(inJointIndex), mInvBind(inInvBind) { }
+		InvBind() = default;
+		InvBind(uint32 inJointIndex, Mat44Arg inInvBind) : mJointIndex(inJointIndex), mInvBind(inInvBind) { }
 
 		uint32			mJointIndex = 0;							// Joint index to which this is attached
 		Mat44			mInvBind = Mat44Identity();				// The inverse bind matrix, this takes a vertex in its bind pose (Vertex::mPosition) to joint local space
 	};
 
 	// A joint and its skin weight
-	class MOSS_EXPORT SkinWeight
-	{
+	class MOSS_EXPORT SkinWeight {
 		MOSS_DECLARE_SERIALIZABLE_NON_VIRTUAL(MOSS_EXPORT, SkinWeight)
-
 	public:
 		// Constructor
-						SkinWeight() = default;
-						SkinWeight(uint32 inInvBindIndex, float inWeight) : mInvBindIndex(inInvBindIndex), mWeight(inWeight) { }
+		SkinWeight() = default;
+		SkinWeight(uint32 inInvBindIndex, float inWeight) : mInvBindIndex(inInvBindIndex), mWeight(inWeight) { }
 
 		uint32			mInvBindIndex = 0;							// Index in mInvBindMatrices
 		float			mWeight = 0.0f;								// Weight with which it is skinned
 	};
 
 	// A constraint that skins a vertex to joints and limits the distance that the simulated vertex can travel from this vertex
-	class MOSS_EXPORT Skinned
-	{
+	class MOSS_EXPORT Skinned {
 		MOSS_DECLARE_SERIALIZABLE_NON_VIRTUAL(MOSS_EXPORT, Skinned)
-
 	public:
 		// Constructor
-						Skinned() = default;
-						Skinned(uint32 inVertex, float inMaxDistance, float inBackStopDistance, float inBackStopRadius) : mVertex(inVertex), mMaxDistance(inMaxDistance), mBackStopDistance(inBackStopDistance), mBackStopRadius(inBackStopRadius) { }
+		Skinned() = default;
+		Skinned(uint32 inVertex, float inMaxDistance, float inBackStopDistance, float inBackStopRadius) : mVertex(inVertex), mMaxDistance(inMaxDistance), mBackStopDistance(inBackStopDistance), mBackStopRadius(inBackStopRadius) { }
 
 		// Normalize the weights so that they add up to 1
-		void			NormalizeWeights()
-		{
+		void NormalizeWeights() {
 			// Get the total weight
 			float total = 0.0f;
 			for (const SkinWeight &w : mWeights)
@@ -717,8 +732,7 @@ public:
 
 	// A long range attachment constraint, this is a constraint that sets a max distance between a kinematic vertex and a dynamic vertex
 	// See: "Long Range Attachments - A Method to Simulate Inextensible Clothing in Computer Games", Tae-Yong Kim, Nuttapong Chentanez and Matthias Mueller-Fischer
-	class MOSS_EXPORT LRA
-	{
+	class MOSS_EXPORT LRA {
 		MOSS_DECLARE_SERIALIZABLE_NON_VIRTUAL(MOSS_EXPORT, LRA)
 
 	public:
@@ -732,6 +746,44 @@ public:
 		uint32			mVertex[2];									// The vertices that are connected. The first vertex should be kinematic, the 2nd dynamic.
 		float			mMaxDistance = 0.0f;						// The maximum distance between the vertices
 	};
+
+	/// A discrete Cosserat rod connects two particles with a rigid rod that has fixed length and inertia.
+	/// A rod can be used instead of an Edge to constraint two vertices. The orientation of the rod can be
+	/// used to orient geometry attached to the rod (e.g. a plant leaf). Note that each rod needs to be constrained
+	/// by at least one RodBendTwist constraint in order to constrain the rotation of the rod. If you don't do
+	/// this then the orientation is likely to rotate around the rod axis with constant velocity.
+	/// Based on "Position and Orientation Based Cosserat Rods" - Kugelstadt and Schoemer - SIGGRAPH 2016
+	/// See: https://www.researchgate.net/publication/325597548_Position_and_Orientation_Based_Cosserat_Rods
+	struct MOSS_EXPORT RodStretchShear {
+		MOSS_DECLARE_SERIALIZABLE_NON_VIRTUAL(MOSS_EXPORT, RodStretchShear)
+
+		/// Constructor
+		RodStretchShear() = default;
+		RodStretchShear(uint32 inVertex1, uint32 inVertex2, float inCompliance = 0.0f) : mVertex { inVertex1, inVertex2 }, mCompliance(inCompliance) { }
+
+		/// Return the lowest vertex index of this constraint
+		uint32			GetMinVertexIndex() const					{ return min(mVertex[0], mVertex[1]); }
+
+		uint32			mVertex[2];									///< Indices of the vertices that form the rod
+		float			mLength = 1.0f;								///< Fixed length of the rod, calculated by CalculateRodProperties
+		float			mInvMass = 1.0f;							///< Inverse of the mass of the rod (0 for static rods), calculated by CalculateRodProperties but can be overridden afterwards
+		float			mCompliance = 0.0f;							///< Inverse of the stiffness of the rod
+		Quat			mBishop	= Quat::sZero();					///< The Bishop frame of the rod (the rotation of the rod in its rest pose so that it has zero twist towards adjacent rods), calculated by CalculateRodProperties
+	};
+
+	/// A constraint that connects two Cosserat rods and limits bend and twist between the rods.
+	struct MOSS_EXPORT RodBendTwist {
+		MOSS_DECLARE_SERIALIZABLE_NON_VIRTUAL(MOSS_EXPORT, RodBendTwist)
+
+		/// Constructor
+		RodBendTwist() = default;
+		RodBendTwist(uint32 inRod1, uint32 inRod2, float inCompliance = 0.0f) : mRod { inRod1, inRod2 }, mCompliance(inCompliance) { }
+
+		uint32			mRod[2];									///< Indices of rods that are constrained (index in mRodStretchShearConstraints)
+		float			mCompliance = 0.0f;							///< Inverse of the stiffness of the rod
+		Quat			mOmega0 = Quat::sZero();					///< The initial rotation between the rods: rod1.mBishop.Conjugated() * rod2.mBishop, calculated by CalculateRodProperties
+	};
+
 
 	// Add a face to this soft body
 	void				AddFace(const Face &inFace)					{ MOSS_ASSERT(!inFace.IsDegenerate()); mFaces.push_back(inFace); }
@@ -751,18 +803,16 @@ private:
 	friend class SoftBodyMotionProperties;
 
 	// Calculate the closest kinematic vertex array
-	void				CalculateClosestKinematic();
+	void CalculateClosestKinematic();
 
 	// Tracks the closest kinematic vertex
-	struct ClosestKinematic
-	{
+	struct ClosestKinematic {
 		uint32			mVertex = 0xffffffff;						// Vertex index of closest kinematic vertex
 		float			mDistance = FLT_MAX;						// Distance to the closest kinematic vertex
 	};
 
 	// Tracks the end indices of the various constraint groups
-	struct UpdateGroup
-	{
+	struct UpdateGroup {
 		uint32			mEdgeEndIndex;								// The end index of the edge constraints in this group
 		uint32			mLRAEndIndex;								// The end index of the LRA constraints in this group
 		uint32			mDihedralBendEndIndex;						// The end index of the dihedral bend constraints in this group
@@ -776,16 +826,17 @@ private:
 };
 
 class MOSS_API SoftBodyCreationSettings {
+	MOSS_DECLARE_SERIALIZABLE_NON_VIRTUAL(MOSS_EXPORT, SoftBodyCreationSettings)
 public:
 	// Constructor
-						SoftBodyCreationSettings() = default;
-						SoftBodyCreationSettings(const SoftBodySharedSettings *inSettings, RVec3Arg inPosition, QuatArg inRotation, ObjectLayer inObjectLayer) : mSettings(inSettings), mPosition(inPosition), mRotation(inRotation), mObjectLayer(inObjectLayer) { }
+	SoftBodyCreationSettings() = default;
+	SoftBodyCreationSettings(const SoftBodySharedSettings *inSettings, RVec3Arg inPosition, QuatArg inRotation, ObjectLayer inObjectLayer) : mSettings(inSettings), mPosition(inPosition), mRotation(inRotation), mObjectLayer(inObjectLayer) { }
 
 	// Saves the state of this object in binary form to inStream. Doesn't store the shared settings nor the group filter.
-	void				SaveBinaryState(StreamOut &inStream) const;
+	void SaveBinaryState(StreamOut &inStream) const;
 
 	// Restore the state of this object from inStream. Doesn't restore the shared settings nor the group filter.
-	void				RestoreBinaryState(StreamIn &inStream);
+	void RestoreBinaryState(StreamIn &inStream);
 
 	using GroupFilterToIDMap = StreamUtils::ObjectToIDMap<GroupFilter>;
 	using IDToGroupFilterMap = StreamUtils::IDToObjectMap<GroupFilter>;
@@ -925,3 +976,64 @@ private:
 	RefConst<ShapeSettings>	mShape;															// Shape settings, can be serialized. Mutually exclusive with mShapePtr
 	RefConst<Shape>			mShapePtr;														// Actual shape, cannot be serialized. Mutually exclusive with mShape
 };
+
+/// Shape used exclusively for soft bodies. Adds the ability to perform collision checks against soft bodies.
+class MOSS_EXPORT SoftBodyShape final : public Shape
+{
+public:
+	MOSS_OVERRIDE_NEW_DELETE
+
+	/// Constructor
+									SoftBodyShape()											: Shape(EShapeType::SoftBody, EShapeSubType::SoftBody) { }
+
+	/// Determine amount of bits needed to encode sub shape id
+	uint							GetSubShapeIDBits() const;
+
+	/// Convert a sub shape ID back to a face index
+	uint32							GetFaceIndex(const SubShapeID &inSubShapeID) const;
+
+	// See Shape
+	virtual bool					MustBeStatic() const override							{ return false; }
+	virtual Vec3					GetCenterOfMass() const override						{ return Vec3::sZero(); }
+	virtual AABox					GetLocalBounds() const override;
+	virtual uint					GetSubShapeIDBitsRecursive() const override				{ return GetSubShapeIDBits(); }
+	virtual float					GetInnerRadius() const override							{ return 0.0f; }
+	virtual MassProperties			GetMassProperties() const override						{ return MassProperties(); }
+	virtual const PhysicsMaterial *	GetMaterial(const SubShapeID &inSubShapeID) const override;
+	virtual Vec3					GetSurfaceNormal(const SubShapeID &inSubShapeID, Vec3Arg inLocalSurfacePosition) const override;
+	virtual void					GetSupportingFace(const SubShapeID &inSubShapeID, Vec3Arg inDirection, Vec3Arg inScale, Mat44Arg inCenterOfMassTransform, SupportingFace &outVertices) const override;
+	virtual void					GetSubmergedVolume(Mat44Arg inCenterOfMassTransform, Vec3Arg inScale, const Plane &inSurface, float &outTotalVolume, float &outSubmergedVolume, Vec3 &outCenterOfBuoyancy
+#ifdef MOSS_DEBUG_RENDERER // Not using MOSS_IF_DEBUG_RENDERER for Doxygen
+		, RVec3Arg inBaseOffset
+#endif
+		) const override;
+#ifdef MOSS_DEBUG_RENDERER
+	virtual void					Draw(DebugRenderer *inRenderer, RMat44Arg inCenterOfMassTransform, Vec3Arg inScale, ColorArg inColor, bool inUseMaterialColors, bool inDrawWireframe) const override;
+#endif // MOSS_DEBUG_RENDERER
+	virtual bool					CastRay(const RayCast &inRay, const SubShapeIDCreator &inSubShapeIDCreator, RayCastResult &ioHit) const override;
+	virtual void					CastRay(const RayCast &inRay, const RayCastSettings &inRayCastSettings, const SubShapeIDCreator &inSubShapeIDCreator, CastRayCollector &ioCollector, const ShapeFilter &inShapeFilter = { }) const override;
+	virtual void					CollidePoint(Vec3Arg inPoint, const SubShapeIDCreator &inSubShapeIDCreator, CollidePointCollector &ioCollector, const ShapeFilter &inShapeFilter = { }) const override;
+	virtual void					CollideSoftBodyVertices(Mat44Arg inCenterOfMassTransform, Vec3Arg inScale, const CollideSoftBodyVertexIterator &inVertices, uint inNumVertices, int inCollidingShapeIndex) const override;
+	virtual void					GetTrianglesStart(GetTrianglesContext &ioContext, const AABox &inBox, Vec3Arg inPositionCOM, QuatArg inRotation, Vec3Arg inScale) const override;
+	virtual int						GetTrianglesNext(GetTrianglesContext &ioContext, int inMaxTrianglesRequested, Float3 *outTriangleVertices, const PhysicsMaterial **outMaterials = nullptr) const override;
+	virtual Stats					GetStats() const override;
+	virtual float					GetVolume() const override;
+
+	// Register shape functions with the registry
+	static void						sRegister();
+
+private:
+	// Helper functions called by CollisionDispatch
+	static void						sCollideConvexVsSoftBody(const Shape *inShape1, const Shape *inShape2, Vec3Arg inScale1, Vec3Arg inScale2, Mat44Arg inCenterOfMassTransform1, Mat44Arg inCenterOfMassTransform2, const SubShapeIDCreator &inSubShapeIDCreator1, const SubShapeIDCreator &inSubShapeIDCreator2, const CollideShapeSettings &inCollideShapeSettings, CollideShapeCollector &ioCollector, const ShapeFilter &inShapeFilter);
+	static void						sCollideSphereVsSoftBody(const Shape *inShape1, const Shape *inShape2, Vec3Arg inScale1, Vec3Arg inScale2, Mat44Arg inCenterOfMassTransform1, Mat44Arg inCenterOfMassTransform2, const SubShapeIDCreator &inSubShapeIDCreator1, const SubShapeIDCreator &inSubShapeIDCreator2, const CollideShapeSettings &inCollideShapeSettings, CollideShapeCollector &ioCollector, const ShapeFilter &inShapeFilter);
+	static void						sCastConvexVsSoftBody(const ShapeCast &inShapeCast, const ShapeCastSettings &inShapeCastSettings, const Shape *inShape, Vec3Arg inScale, const ShapeFilter &inShapeFilter, Mat44Arg inCenterOfMassTransform2, const SubShapeIDCreator &inSubShapeIDCreator1, const SubShapeIDCreator &inSubShapeIDCreator2, CastShapeCollector &ioCollector);
+	static void						sCastSphereVsSoftBody(const ShapeCast &inShapeCast, const ShapeCastSettings &inShapeCastSettings, const Shape *inShape, Vec3Arg inScale, const ShapeFilter &inShapeFilter, Mat44Arg inCenterOfMassTransform2, const SubShapeIDCreator &inSubShapeIDCreator1, const SubShapeIDCreator &inSubShapeIDCreator2, CastShapeCollector &ioCollector);
+
+	struct SBSGetTrianglesContext;
+
+	friend class BodyManager;
+
+	const SoftBodyMotionProperties *mSoftBodyMotionProperties;
+};
+
+MOSS_NAMESPACE_END

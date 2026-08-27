@@ -21,7 +21,6 @@ public:
 
 	/* 			Operators		*/
 	Float4&	operator = (const Float4 &inRHS) = default;
-	//float	operator [] (int inCoordinate) const { MOSS_ASSERT(inCoordinate < 4); return *(&x + inCoordinate); }
 	bool	operator == (const Float4 &inRHS) const { return x == inRHS.x && y == inRHS.y && z == inRHS.z && w == inRHS.w; }
 	bool	operator != (const Float4 &inRHS) const { return x != inRHS.x || y != inRHS.y || z != inRHS.z || w != inRHS.w; }
 	inline Float4 operator-() const { return Float4{-x, -y, -z, -w}; }

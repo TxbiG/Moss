@@ -15,7 +15,7 @@ MOSS_SUPRESS_WARNINGS_BEGIN
 class MOSS_EXPORT TempAllocator : public NonCopyable
 {
 public:
-	//MOSS_OVERRIDE_NEW_DELETE
+	MOSS_OVERRIDE_NEW_DELETE
 
 	/// Destructor
 	virtual							~TempAllocator() = default;
@@ -31,7 +31,7 @@ public:
 class MOSS_EXPORT TempAllocatorImpl final : public TempAllocator
 {
 public:
-	//MOSS_OVERRIDE_NEW_DELETE
+	MOSS_OVERRIDE_NEW_DELETE
 
 	/// Constructs the allocator with a maximum allocatable size of inSize
 	explicit						TempAllocatorImpl(size_t inSize) :

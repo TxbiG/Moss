@@ -21,23 +21,59 @@ class PhysicsStepListener;
 class SoftBodyContactListener;
 class SimShapeFilter;
 
+enum class EActivation
+{
+	Activate,				///< Activate the body, making it part of the simulation
+	DontActivate			///< Leave activation state as it is (will not deactivate an active body)
+};
 
-// If objects are closer than this distance, they are considered to be colliding (used for GJK) (unit: meter)
+/// Enum used by PhysicsSystem to report error conditions during the PhysicsSystem::Update call. This is a bit field, multiple errors can trigger in the same update.
+enum class EPhysicsUpdateError : uint32
+{
+	None					= 0,			///< No errors
+	ManifoldCacheFull		= 1 << 0,		///< The manifold cache is full, this means that the total number of contacts between bodies is too high. Some contacts were ignored. Increase inMaxContactConstraints in PhysicsSystem::Init.
+	BodyPairCacheFull		= 1 << 1,		///< The body pair cache is full, this means that too many bodies contacted. Some contacts were ignored. Increase inMaxBodyPairs in PhysicsSystem::Init.
+	ContactConstraintsFull	= 1 << 2,		///< The contact constraints buffer is full. Some contacts were ignored. Increase inMaxContactConstraints in PhysicsSystem::Init.
+};
+
+/// OR operator for EPhysicsUpdateError
+inline EPhysicsUpdateError operator | (EPhysicsUpdateError inA, EPhysicsUpdateError inB)
+{
+	return static_cast<EPhysicsUpdateError>(static_cast<uint32>(inA) | static_cast<uint32>(inB));
+}
+
+/// OR operator for EPhysicsUpdateError
+inline EPhysicsUpdateError operator |= (EPhysicsUpdateError &ioA, EPhysicsUpdateError inB)
+{
+	ioA = ioA | inB;
+	return ioA;
+}
+
+/// AND operator for EPhysicsUpdateError
+inline EPhysicsUpdateError operator & (EPhysicsUpdateError inA, EPhysicsUpdateError inB)
+{
+	return static_cast<EPhysicsUpdateError>(static_cast<uint32>(inA) & static_cast<uint32>(inB));
+}
+
+/// If objects are closer than this distance, they are considered to be colliding (used for GJK) (unit: meter)
 constexpr float cDefaultCollisionTolerance = 1.0e-4f;
 
-// A factor that determines the accuracy of the penetration depth calculation. If the change of the squared distance is less than tolerance * current_penetration_depth^2 the algorithm will terminate. (unit: dimensionless)
-constexpr float cDefaultPenetrationTolerance = 1.0e-4f; //< Stop when there's less than 1% change
+/// A factor that determines the accuracy of the penetration depth calculation. If the change of the squared distance is less than tolerance * current_penetration_depth^2 the algorithm will terminate. (unit: dimensionless)
+constexpr float cDefaultPenetrationTolerance = 1.0e-4f; ///< Stop when there's less than 1% change
 
-// How much padding to add around objects
+/// How much padding to add around objects
 constexpr float cDefaultConvexRadius = 0.05f;
 
-// Used by (Tapered)CapsuleShape to determine when supporting face is an edge rather than a point (unit: meter)
-static constexpr float cCapsuleProjectionSlop = 0.02f;
+/// Used by (Tapered)CapsuleShape to determine when supporting face is an edge rather than a point (unit: meter)
+constexpr float cCapsuleProjectionSlop = 0.02f;
 
-// Maximum amount of jobs to allow
+/// Max squared distance to consider a vertex to be the same as another vertex, used by the internal edge removal algorithm to determine if two edges are shared (unit: meter^2)
+constexpr float cDefaultInternalEdgeRemovalVertexToleranceSq = 1.0e-8f;
+
+/// Maximum amount of jobs to allow
 constexpr int cMaxPhysicsJobs = 2048;
 
-// Maximum amount of barriers to allow
+/// Maximum amount of barriers to allow
 constexpr int cMaxPhysicsBarriers = 8;
 
 struct PhysicsSettings {
@@ -360,7 +396,10 @@ public:
 	/// Trace the accumulated broadphase stats to the TTY
 	void						ReportBroadphaseStats()										{ mBroadPhase->ReportStats(); }
 #endif // MOSS_TRACK_BROADPHASE_STATS
-
+#if defined(MOSS_TRACK_SIMULATION_STATS) && defined(MOSS_PROFILE_ENABLED)
+	/// Dump the per body simulation stats to the TTY
+	void						ReportSimulationStats()										{ mBodyManager.ReportSimulationStats(); }
+#endif
 private:
 	using CCDBody = PhysicsUpdateContext::Step::CCDBody;
 
@@ -386,6 +425,14 @@ private:
 	void						JobSoftBodySimulate(PhysicsUpdateContext *ioContext, uint32 inThreadIndex) const;
 	void						JobSoftBodyFinalize(PhysicsUpdateContext *ioContext);
 
+	// Tries to spawn a new FindCollisions job if max concurrency hasn't been reached yet
+	void						TrySpawnJobFindCollisions(PhysicsUpdateContext::Step *ioStep) const;
+
+#ifdef JPH_TRACK_SIMULATION_STATS
+	/// Gather stats from the islands and distribute them over the bodies
+	void						GatherIslandStats();
+#endif
+
 	/// Tries to spawn a new FindCollisions job if max concurrency hasn't been reached yet
 	void						TrySpawnJobFindCollisions(PhysicsUpdateContext::Step *ioStep) const;
 
@@ -399,6 +446,10 @@ private:
 
 	/// Called at the end of JobSolveVelocityConstraints to check if bodies need to go to sleep and to update their bounding box in the broadphase
 	void						CheckSleepAndUpdateBounds(uint32 inIslandIndex, const PhysicsUpdateContext *ioContext, const PhysicsUpdateContext::Step *ioStep, BodiesToSleep &ioBodiesToSleep);
+
+	// Helper function that solves the velocity of a CCD contact
+	template <EMotionType Type2>
+	static void					sSolveCCDContact(Body &ioBody1, float inInvM1, Mat44Arg inInvI1, Vec3Arg inR1PlusU, Body &ioBody2, Vec3Arg inR2, Vec3Arg inContactNormal, float inNormalVelocityBias, Vec3Arg inFrictionDirection, const ContactSettings &inContactSettings);
 
 	/// Number of constraints to process at once in JobDetermineActiveConstraints
 	static constexpr int		cDetermineActiveConstraintsBatchSize = 64;
@@ -481,6 +532,30 @@ private:
 
 	/// Previous frame's delta time of one sub step to allow scaling previous frame's constraint impulses
 	float						mPreviousStepDeltaTime = 0.0f;
+};
+
+
+class MOSS_EXPORT PhysicsStepListenerContext {
+public:
+	float					mDeltaTime;								///< Delta time of the current step
+	bool					mIsFirstStep;							///< True if this is the first step
+	bool					mIsLastStep;							///< True if this is the last step
+	PhysicsSystem *			mPhysicsSystem;							///< The physics system that is being stepped
+};
+
+/// A listener class that receives a callback before every physics simulation step
+class MOSS_EXPORT PhysicsStepListener {
+public:
+	/// Ensure virtual destructor
+	virtual					~PhysicsStepListener() = default;
+
+	/// Called before every simulation step (received inCollisionSteps times for every PhysicsSystem::Update(...) call)
+	/// This is called while all body and constraint mutexes are locked. You can read/write bodies and constraints but not add/remove them.
+	/// Multiple listeners can be executed in parallel and it is the responsibility of the listener to avoid race conditions.
+	/// The best way to do this is to have each step listener operate on a subset of the bodies and constraints
+	/// and making sure that these bodies and constraints are not touched by any other step listener.
+	/// Note that this function is not called if there aren't any active bodies or when the physics system is updated with 0 delta time.
+	virtual void			OnStep(const PhysicsStepListenerContext &inContext) = 0;
 };
 
 MOSS_SUPRESS_WARNINGS_END

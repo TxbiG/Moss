@@ -1,11 +1,17 @@
 # Audio
 ## Overview
-Moss features a flexible and extensible Audio System designed for immersive soundscapes and high-performance 2D and 3D audio rendering. It provides a unified API across platforms and integrates seamlessly with Moss’s scene and physics systems.
+Moss features a flexible and extensible Audio System designed for immersive soundscapes and high-performance 2D and 3D audio rendering. It provides a unified API across platforms and integrates with Moss scene and physics systems.
 
 Supported Audio - ```XAudio2 / WASAPI```, ```CoreAudio```, ```ALSA```.
 
-
 Supports ```Mono```, ```Stereo```, ```Quadraphonic```, ```4.1 Surround```, ```5.1 Surround```, ```6.1 Surround```, ```7.1 Surround```, ```Spatial```
+
+- [Overview](/docs/Audio.md#overview)
+  - [Channels](/docs/Audio.md#channels), [Effects](/docs/Audio.md#effects)
+  - [AudioStream](/docs/Audio.md#audiostream), [AudioStream2](/docs/Audio.md#audiostream2), [AudioStream3](/docs/Audio.md#audiostream3)
+  - [AudioListener2](/docs/Audio.md#audiolistener2), [AudioListener3](/docs/Audio.md#audiolistener3)
+  - [Speaker](/docs/Audio.md#speaker), [Microphone](/docs/Audio.md#microphone)
+  - [RayTrace Audio](/docs/Audio.md#raytraceaudio)
 
 ## Enums
 ```cpp
@@ -59,7 +65,13 @@ void Moss_AudioUpdate(float deltaTime);
 
 ### Loading Audio
 ```cpp
+Moss_AudioSource* Moss_AudioLoadWavFile(const char* filename);
+Moss_AudioSource* Moss_AudioLoadOgg(const char* filename, AudioLoadType type);
+Moss_AudioSource* Moss_AudioLoadMP3(const char* filename);
+void Moss_AudioSourceDestroy(Moss_AudioSource* source);
 ```
+
+WAV loading is implemented through the shared PCM source path. OGG and MP3 entry points first try decoders registered with `Moss_AudioRegisterDecoder`; without a registered decoder they fall back to WAV-compatible data for older smoke tests.
 
 ### Audio Effects
 ```cpp
@@ -169,7 +181,7 @@ typedef void (*AudioStreamCallback)(float* buffer, int frames, void* userData);
 
 void Moss_AudioStreamSetCallback(AudioStream* stream, AudioStreamCallback callback, void* userData);
 
-typedef void (*MicrophoneCallback)(const float* buffer, int samples, void* userData);
+typedef void (*MicrophoneCallback)(const float* buffer, int frames, void* userData);
 
 void Moss_AudioMicrophoneSetCallback(Microphone* mic, MicrophoneCallback callback, void* userData);
 ```
@@ -364,40 +376,57 @@ Moss_AudioSpeakerPause();
 Moss_AudioSpeakerResume();
 ```
 ### Microphone
-```cpp
-// Initialize microphone
-if (Moss_AudioMicrophoneOpen()) {
-    Moss_AudioMicrophonePlay();
-}
-
-// Stop capture
-Moss_AudioMicrophoneStop();
-Moss_AudioMicrophoneClose();
-```
+The forward microphone API is `Moss_Microphone*`. The older `Microphone*` helpers remain as compatibility wrappers.
 
 ```cpp
-void OnMicData(const float* buffer, int samples, void* userData) {
-    // Process microphone audio samples
-}
+Moss_MicrophoneDesc desc{};
+desc.device_index = 0;
+desc.sample_rate = 48000;
+desc.channels = 1;
+desc.buffer_frames = 480;
+desc.ring_buffer_frames = 48000;
+desc.start_immediately = true;
 
-Microphone* mic = nullptr;
+Moss_Microphone* mic = Moss_MicrophoneOpen(&desc);
 
-// Set callback
-Moss_AudioMicrophoneSetCallback(mic, OnMicData, nullptr);
+float frames[480] = {};
+uint32_t framesRead = Moss_MicrophoneRead(mic, frames, 480);
+Moss_MicrophoneLevels levels = Moss_MicrophoneGetLevels(mic);
 
-// Adjust gain
-Moss_AudioMicrophoneSetGain(mic, 1.0f);
+Moss_MicrophoneStop(mic);
+Moss_MicrophoneClose(mic);
 ```
+
+Callback mode uses the same float sample layout as polling. The callback receives frames already converted to the microphone descriptor channel count when the backend supports conversion.
 
 ```cpp
-// Get number of available microphone devices
-int micCount = Moss_ListMicrophoneDevices();
-
-for (int i = 0; i < micCount; ++i) {
-    const char* name = Moss_GetMicrophoneDeviceName(i);
-    // Display or log microphone name
+void OnMicData(const float* buffer, int frames, void* userData) {
+    // Keep this real-time safe: copy or enqueue only.
 }
+
+Moss_MicrophoneSetCallback(mic, OnMicData, nullptr);
 ```
+
+Microphones can also feed audio sources through the forward-path source helper.
+
+```cpp
+Moss_AudioSource* source = Moss_AudioCaptureMossMicrophone(mic);
+```
+
+Device enumeration rules:
+- `Moss_MicrophoneGetDeviceCount()` and `Moss_MicrophoneGetDeviceName(index)` enumerate capture devices for the new API.
+- `Moss_ListMicrophoneDevices()` and `Moss_GetMicrophoneDeviceName(index)` are compatibility wrappers.
+- Speaker enumeration uses `Moss_ListSpeakerDevices()` and `Moss_GetSpeakerDeviceName(index)`.
+
+Sample-rate and channel rules:
+- Backends open the platform mix format when required by the OS.
+- Samples exposed through `Moss_MicrophoneRead` are `float` samples in the requested output channel count when conversion is available.
+- Mono output from multi-channel input is averaged. Multi-channel output from fewer source channels repeats/clamps the nearest available source channel.
+
+Thread-safety rules:
+- `Moss_MicrophoneRead` is polling-friendly and protected by the microphone ring-buffer lock.
+- Microphone callbacks run from the capture thread. Do not allocate heavily, call blocking APIs, or call close/stop from inside the callback.
+- Level queries return the latest calculated RMS, peak, smoothed volume, and voice activity values.
 
 
 

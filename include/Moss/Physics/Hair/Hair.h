@@ -53,7 +53,6 @@ public:
 /// This class defines the setup of a hair groom, it can be shared between multiple hair instances
 class MOSS_EXPORT HairSettings : public RefTarget<HairSettings> {
 	MOSS_DECLARE_SERIALIZABLE_NON_VIRTUAL(MOSS_EXPORT, HairSettings)
-
 public:
 	/// How much a vertex is influenced by a joint
 	struct MOSS_EXPORT SkinWeight : public MOSS_HairSkinWeight { MOSS_DECLARE_SERIALIZABLE_NON_VIRTUAL(MOSS_EXPORT, SkinWeight) };

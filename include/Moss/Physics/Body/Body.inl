@@ -196,19 +196,16 @@ void Body::ResetSleepTimer()
 
 void MotionProperties::MoveKinematic(Vec3Arg inDeltaPosition, QuatArg inDeltaRotation, float inDeltaTime)
 {
-	MOSS_ASSERT(BodyAccess::CheckRights(BodyAccess::VelocityAccess(), BodyAccess::EAccess::ReadWrite));
-	MOSS_ASSERT(BodyAccess::CheckRights(BodyAccess::PositionAccess(), BodyAccess::EAccess::Read));
-	MOSS_ASSERT(mCachedBodyType == EBodyType::RigidBody);
-	MOSS_ASSERT(mCachedMotionType != EMotionType::Static);
+	JPH_ASSERT(BodyAccess::sCheckRights(BodyAccess::sVelocityAccess(), BodyAccess::EAccess::ReadWrite));
+	JPH_ASSERT(BodyAccess::sCheckRights(BodyAccess::sPositionAccess(), BodyAccess::EAccess::Read));
+	JPH_ASSERT(mCachedBodyType == EBodyType::RigidBody);
+	JPH_ASSERT(mCachedMotionType != EMotionType::Static);
 
 	// Calculate required linear velocity
 	mLinearVelocity = LockTranslation(inDeltaPosition / inDeltaTime);
 
 	// Calculate required angular velocity
-	Vec3 axis;
-	float angle;
-	inDeltaRotation.GetAxisAngle(axis, angle);
-	mAngularVelocity = LockAngular(axis * (angle / inDeltaTime));
+	mAngularVelocity = LockAngular(inDeltaRotation.GetAngularVelocity(inDeltaTime));
 }
 
 void MotionProperties::ClampLinearVelocity()
@@ -221,8 +218,7 @@ void MotionProperties::ClampLinearVelocity()
 		mLinearVelocity *= mMaxLinearVelocity / sqrt(len_sq);
 }
 
-void MotionProperties::ClampAngularVelocity()
-{
+void MotionProperties::ClampAngularVelocity() {
 	MOSS_ASSERT(BodyAccess::CheckRights(BodyAccess::VelocityAccess(), BodyAccess::EAccess::ReadWrite));
 
 	float len_sq = mAngularVelocity.LengthSq();
@@ -231,8 +227,7 @@ void MotionProperties::ClampAngularVelocity()
 		mAngularVelocity *= mMaxAngularVelocity / sqrt(len_sq);
 }
 
-inline Mat44 MotionProperties::GetLocalSpaceInverseInertiaUnchecked() const
-{
+inline Mat44 MotionProperties::GetLocalSpaceInverseInertiaUnchecked() const {
 	Mat44 rotation = Mat44::Rotation(mInertiaRotation);
 	Mat44 rotation_mul_scale_transposed(mInvInertiaDiagonal.SplatX() * rotation.GetColumn4(0), mInvInertiaDiagonal.SplatY() * rotation.GetColumn4(1), mInvInertiaDiagonal.SplatZ() * rotation.GetColumn4(2), Vec4(0, 0, 0, 1));
 	return rotation.Multiply3x3RightTransposed(rotation_mul_scale_transposed);

@@ -1,19 +1,32 @@
 # Renderer
 ## Overview
+The Moss renderer is the higher-level drawing layer built on top of `Moss_GPU.h`. New renderer APIs use C-like descriptors, opaque handles, explicit create/destroy calls, and backend-independent draw descriptions.
 The Moss Renderer supports a wide range of graphics APIs such as ```OpenGL```, ```Vulkan```, ```Metal```, and ```DirectX12```. The Renderer is written in a C like style but is completely made in C++.
 
 Renderer supports ```Windows```, ```Linux```, ```MacOS```, ```FreeBSD```, ```IOS``` and ```Android```.
 
 > [!NOTE]  
 > When working with Vulkan, ensure your graphics card supports it and you've installed [Vulkan SDK](https://vulkan.lunarg.com/sdk/home)
+> All Features used for OpenGL are from [LearnOpenGL](https://learnopengl.com)
 
 > [!TIP]
 > For noise textures I recommend using this website [opengameart.org/content/700-noise-textures](https://opengameart.org/content/700-noise-textures)
 > 
 > Moss does support making noise texureing using FastNoiseLite
 
+## Renderer
+- [Overview](/docs/Renderer.md#overview)
+    - [Introduction](/docs/Renderer.md#introduction)
+    - [Choosing a Renderer](/docs/Renderer.md#choosing-a-renderer)
+    - [Renderer Life-cycle](/docs/Renderer.md#renderer-life-cycles)
+    - [Textures](/docs/Renderer.md#), [Shaders](/docs/Renderer.md#shaders), [Surface](/docs/Renderer.md#surface), [Mesh](/docs/Renderer.md#mesh), [Model](/docs/Renderer.md#Model)
+    - [ParallaxLayer], [Line2D], [FogVolume], [Decal](/docs/3D.md#decal), [Sprite2D](/docs/2D.md#sprite2d), [Sprite3D]()
+    - [Viewport & SubViewports](/docs/Renderer.md#), [Cameras](/docs/Renderer.md#)
+    - [Lighting](/docs/Renderer.md#)
+    - [Postprocessing](/docs/Renderer.md#post-processing), [Compositor]()
+    - [Graphics API Specific](/docs/Renderer.md#graphics-api-specific)
 
-## Choosing a Renderer
+## Choosing A Renderer
 - ```Compatibility```: Web, Older / low-end. Desktop, Consoles, Mobile.
 - ```Mobile```: Newer / high-end Mobile devices.
 - ```Forward+```: Newer / high-end Desktop, Consoles.
@@ -232,3 +245,89 @@ for (auto& [id, emitter] : g_particleSystem3D.m_activeEmitterBuckets) {
 
 ## Metal Spesific
 [Add Text here]
+
+
+
+## Renderer Lifecycle
+```cpp
+Moss_RendererDesc desc{};
+desc.window = window;
+desc.gpu_device = gpu_device;
+Moss_Renderer* renderer = Moss_RendererCreate(&desc);
+
+Moss_RenderFrameDesc frame{};
+Moss_RendererBeginFrameEx(renderer, &frame);
+Moss_PresentRenderer(renderer);
+
+Moss_RendererDestroy(renderer);
+```
+
+## Renderer Resources
+| Resource | Create | Destroy |
+| --- | --- | --- |
+| Material | `Moss_RendererCreateMaterial` | `Moss_RendererDestroyMaterial` |
+| Mesh | `Moss_RendererCreateMesh` | `Moss_RendererDestroyMesh` |
+| Model | `Moss_RendererLoadModel` | `Moss_ModelRemove` |
+| Sprite batch | `Moss_RendererCreateSpriteBatch` | `Moss_RendererDestroySpriteBatch` |
+| Debug draw list | `Moss_RendererCreateDebugDrawList` | `Moss_RendererDestroyDebugDrawList` |
+| Camera | `Moss_CameraCreate2D`, `Moss_CameraCreate3D`, `Moss_CameraCreateEditor` | `Moss_CameraDestroy` |
+| Shadow map | `Moss_RendererCreateShadowMap` | `Moss_RendererDestroyShadowMap` |
+
+## Materials
+Materials collect textures, uniforms, shader variants, pipeline state, and resource sets.
+
+```cpp
+Moss_MaterialDesc material_desc{};
+material_desc.name = "terrain";
+material_desc.pipeline = pipeline;
+material_desc.resource_set = resource_set;
+Moss_Material* material = Moss_RendererCreateMaterial(renderer, &material_desc);
+```
+
+## Meshes And Models
+Meshes are submitted through `Moss_DrawMeshDesc`; models are submitted through `Moss_DrawModelDesc`.
+
+```cpp
+Moss_DrawMeshDesc draw{};
+draw.mesh = mesh;
+draw.pipeline = pipeline;
+draw.resource_set = resource_set;
+draw.transform = transform;
+Moss_RendererDrawMesh(renderer, &draw);
+```
+
+## Sprites And 2D Drawing
+Sprite batches collect `Moss_SpriteDesc` entries and submit them together.
+
+```cpp
+Moss_SpriteBatch* batch = Moss_RendererCreateSpriteBatch(renderer, 1024);
+Moss_SpriteBatchAdd(batch, &sprite);
+Moss_RendererDrawSpriteBatch(renderer, batch);
+```
+
+## Debug Draw
+Debug lists are shared by renderer, physics, and navigation helpers.
+
+```cpp
+Moss_DebugDrawList* list = Moss_RendererCreateDebugDrawList(renderer, 256);
+Moss_DebugDrawLine(list, &line);
+Moss_DebugDrawBox(list, &box);
+Moss_RendererDrawDebugList(renderer, list);
+```
+
+## Cameras
+Use `Moss_CameraCreate2D` for orthographic 2D camera data, `Moss_CameraCreate3D` for perspective scene cameras, and `Moss_CameraCreateEditor` for editor-style movement settings.
+
+## Shaders And GPU Resources
+Shader modules, GPU buffers, textures, samplers, resource sets, barriers, and command buffers live in `Moss_GPU.h`. Renderer objects should reference those resources rather than owning backend-specific objects directly.
+
+## Post-Processing And Shadows
+Framebuffer, post-processing, and shadow-map APIs are present at the renderer layer. Backend render pass and shadow implementation details are still being filled in per graphics backend.
+
+## Backend Notes
+- OpenGL/OpenGL ES: compatibility and mobile paths.
+- Vulkan: modern explicit backend path.
+- DirectX 12: Windows explicit backend path.
+- Metal: Apple explicit backend path.
+
+Backend modules register native function tables with `Moss_RegisterNativeGPUBackend(...)` before device creation. If no native table is registered, Moss reports the backend as compiled/supported but using the fallback function table through `Moss_GetGPUBackendInfo(...)`.

@@ -11,6 +11,8 @@
 	#include <x86intrin.h>
 #elif defined(MOSS_CPU_E2K)
 	#include <x86intrin.h>
+#elif defined(MOSS_CPU_LOONGARCH)
+	#include <larchintrin.h>
 #endif
 
 MOSS_SUPRESS_WARNINGS_BEGIN
@@ -23,8 +25,7 @@ uint64 GetProcessorTickCount(); // Not inline to avoid having to include Windows
 #else
 
 /// Functionality to get the processors cycle counter
-MOSS_INLINE uint64 GetProcessorTickCount()
-{
+MOSS_INLINE uint64 GetProcessorTickCount() {
 #if defined(MOSS_PLATFORM_BLUE)
 	return MOSS_PLATFORM_BLUE_GET_TICKS();
 #elif defined(MOSS_CPU_X86)
@@ -35,7 +36,16 @@ MOSS_INLINE uint64 GetProcessorTickCount()
 	uint64 val;
 	asm volatile("mrs %0, cntvct_el0" : "=r" (val));
 	return val;
-#elif defined(MOSS_CPU_ARM) || defined(MOSS_CPU_RISCV) || defined(MOSS_CPU_WASM) || defined(MOSS_CPU_PPC) || defined(MOSS_CPU_LOONGARCH)
+#elif defined(MOSS_CPU_LOONGARCH)
+	#if MOSS_CPU_ARCH_BITS == 64
+		__drdtime_t t = __rdtime_d();
+		return t.dvalue;
+	#else
+		__rdtime_t h = __rdtimeh_w();
+		__rdtime_t l = __rdtimel_w();
+		return ((uint64)h.value << 32) + l.value;
+	#endif
+#elif defined(JPH_CPU_ARM) || defined(JPH_CPU_RISCV) || defined(JPH_CPU_WASM) || defined(JPH_CPU_PPC)
 	return 0; // Not supported
 #else
 	#error Undefined

@@ -37,9 +37,7 @@ Comprehensive documentation is available in the [`docs/`](./docs) directory:
 * Platform backend architecture
 * Performance guidelines
 
-- [Build guide](docs/Build.md)
 - [API cheatsheet](docs/API_Cheatsheet.md)
-- [Backend and platform matrix](docs/BackendMatrix.md)
 - [Roadmap](docs/roadmap.md)
 
 
@@ -56,17 +54,18 @@ Comprehensive documentation is available in the [`docs/`](./docs) directory:
 ---
 
 # Bindings
-- [C# - MossSharp](https://github.com/TxbiG/MossSharp)
 - [C - CMoss](https://github.com/TxbiG/CMoss)
+- [C# - MossSharp](https://github.com/TxbiG/MossSharp)
+- [Zig - MossZig](https://github.com/TxbiG/CMoss)
+- [Rust - MossRS](https://github.com/TxbiG/CMoss)
+- [Java - JavaMoss](https://github.com/TxbiG/CMoss)
+- [JavaScript - MossScript](https://github.com/TxbiG/CMoss)
+- [Lua - LuaMoss](https://github.com/TxbiG/CMoss)
+- [Python - PyMoss](https://github.com/TxbiG/CMoss)
 
 ## Compiling
 - CMake 3.20 or newer.
 - C++ 17.
-- Platform SDKs for the backend you enable.
-- Optional graphics SDKs: Vulkan SDK, DirectX 12 SDK through Windows SDK, Metal through Xcode, OpenGL/OpenGL ES platform libraries.
-- Optional XR SDK: bundled OpenXR SDK.
-- Optional Linux packages: X11 or Wayland development packages, OpenGL/EGL/GLES development packages, ALSA development packages.
-
 
 ## Design Philosophy
 - Modularity: systems are separable and replaceable.
