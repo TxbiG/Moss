@@ -1,8 +1,7 @@
 #pragma once
 
-#include <Moss/Physics/Geometry/Triangle.h>
-#include <Moss/Physics/Geometry/IndexedTriangle.h>
-#include <Moss/Physics/Geometry/AABox.h>
+#include <Moss/Geometry/Triangle.h>
+#include <Moss/Geometry/IndexedTriangle.h>
 #include <Moss/Variants/Matrix/Mat44.h>
 
 MOSS_WARNINGS_BEGIN
