@@ -1,10 +1,22 @@
-#pragma
+#pragma once
 
 #include <Moss/Core/HashCombine.h>
 #include <Moss/Core/Mutex.h>
 #include <Moss/Core/MutexArray.h>
 
 MOSS_NAMESPACE_BEGIN
+
+// Classes
+class BodyCreationSettings;
+class SoftBodyCreationSettings;
+class BodyActivationListener;
+class StateRecorderFilter;
+struct PhysicsSettings;
+#ifndef MOSS_DEBUG_RENDERER
+class DebugRenderer;
+class BodyDrawFilter;
+#endif // MOSS_DEBUG_RENDERER
+
 
 static constexpr uint cBodyTypeCount = 2;
 
