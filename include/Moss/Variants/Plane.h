@@ -17,13 +17,13 @@ public:
 	Plane(Vec3Arg inNormal, float inConstant)	: mNormalAndConstant(inNormal, inConstant) { }
 
 	/// Create from point and normal
-	static Plane	sFromPointAndNormal(Vec3Arg inPoint, Vec3Arg inNormal)					{ return Plane(Vec4(inNormal, -inNormal.Dot(inPoint))); }
+	static Plane	FromPointAndNormal(Vec3Arg inPoint, Vec3Arg inNormal)					{ return Plane(Vec4(inNormal, -inNormal.Dot(inPoint))); }
 
 	/// Create from point and normal, double precision version that more accurately calculates the plane constant
-	static Plane	sFromPointAndNormal(DVec3Arg inPoint, Vec3Arg inNormal)					{ return Plane(Vec4(inNormal, -float(DVec3(inNormal).Dot(inPoint)))); }
+	static Plane	FromPointAndNormal(DVec3Arg inPoint, Vec3Arg inNormal)					{ return Plane(Vec4(inNormal, -float(DVec3(inNormal).Dot(inPoint)))); }
 
 	/// Create from 3 counter clockwise points
-	static Plane	sFromPointsCCW(Vec3Arg inV1, Vec3Arg inV2, Vec3Arg inV3)				{ return sFromPointAndNormal(inV1, (inV2 - inV1).Cross(inV3 - inV1).Normalized()); }
+	static Plane	FromPointsCCW(Vec3Arg inV1, Vec3Arg inV2, Vec3Arg inV3)				{ return sFromPointAndNormal(inV1, (inV2 - inV1).Cross(inV3 - inV1).Normalized()); }
 
 	// Properties
 	Vec3			GetNormal() const														{ return Vec3(mNormalAndConstant); }
@@ -35,7 +35,7 @@ public:
 	void			StoreFloat4(Float4 *outV) const											{ mNormalAndConstant.StoreFloat4(outV); }
 
 	/// Offset the plane (positive value means move it in the direction of the plane normal)
-	Plane			Offset(float inDistance) const											{ return Plane(mNormalAndConstant - Vec4(Vec3::sZero(), inDistance)); }
+	Plane			Offset(float inDistance) const											{ return Plane(mNormalAndConstant - Vec4(Vec3::Zero(), inDistance)); }
 
 	/// Transform the plane by a matrix
 	inline Plane	GetTransformed(Mat44Arg inTransform) const {
@@ -57,7 +57,7 @@ public:
 	Vec3			ProjectPointOnPlane(Vec3Arg inPoint) const								{ return inPoint - GetNormal() * SignedDistance(inPoint); }
 
 	/// Returns intersection point between 3 planes
-	static bool		sIntersectPlanes(const Plane &inP1, const Plane &inP2, const Plane &inP3, Vec3 &outPoint) {
+	static bool		IntersectPlanes(const Plane &inP1, const Plane &inP2, const Plane &inP3, Vec3 &outPoint) {
 		// We solve the equation:
 		// |ax, ay, az, aw|   | x |   | 0 |
 		// |bx, by, bz, bw| * | y | = | 0 |
