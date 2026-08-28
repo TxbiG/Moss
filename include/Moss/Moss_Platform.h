@@ -82,7 +82,7 @@ struct Moss_Haptic;
 struct Moss_Gamepad;
 struct Moss_GamepadAxis;
 
-enum class Keyboard {
+enum class {
     KEY_0, 
     KEY_1, 
     KEY_2, 
@@ -395,7 +395,7 @@ enum class Moss_WindowFlags {
     FOREIGN = 0x00000800,            // window not created by Moss
     ALLOW_HIGHDPI = 0x00002000,      // window should be created in high-DPI mode if supported. On macOS NSHighResolutionCapable must be set true in the application's Info.plist for this to have any effect.
     
-    KEYBOARD_GRABBED = 0x00100000,   // window has grabbed Moss_keyboard input
+    KEYBOARD_GRABBED = 0x00100000,   // window has grabbed Moss_input
 
     INPUT_GRABBED = MOUSE_GRABBED // equivalent to MOUSE_GRABBED for compatibility
 };
@@ -854,11 +854,11 @@ MOSS_API void Moss_MonitorSetGamma(Moss_Monitor* monitor, float gamma);
 
 
 
-MOSS_API bool Moss_IsKeyPressed(Moss_Keyboard key);
-MOSS_API bool Moss_IsReleased(Moss_Keyboard key);
-MOSS_API bool Moss_IsKeyJustPressed(Moss_Keyboard key);
-MOSS_API bool Moss_IsKeyJustReleased(Moss_Keyboard key);
-MOSS_API Moss_Keyboard Moss_InputGetKey();
+MOSS_API bool Moss_IsKeyPressed(Keyboard  key);
+MOSS_API bool Moss_IsReleased(Keyboard  key);
+MOSS_API bool Moss_IsKeyJustPressed(Keyboard  key);
+MOSS_API bool Moss_IsKeyJustReleased(Keyboard  key);
+MOSS_API Keyboard  Moss_InputGetKey();
 
 MOSS_API bool Moss_IsMousePressed(Mouse button);
 MOSS_API bool Moss_IsMouseReleased(Mouse button);
