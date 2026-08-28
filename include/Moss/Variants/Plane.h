@@ -23,7 +23,7 @@ public:
 	static Plane	FromPointAndNormal(DVec3Arg inPoint, Vec3Arg inNormal)					{ return Plane(Vec4(inNormal, -float(DVec3(inNormal).Dot(inPoint)))); }
 
 	/// Create from 3 counter clockwise points
-	static Plane	FromPointsCCW(Vec3Arg inV1, Vec3Arg inV2, Vec3Arg inV3)				{ return sFromPointAndNormal(inV1, (inV2 - inV1).Cross(inV3 - inV1).Normalized()); }
+	static Plane	FromPointsCCW(Vec3Arg inV1, Vec3Arg inV2, Vec3Arg inV3)				{ return FromPointAndNormal(inV1, (inV2 - inV1).Cross(inV3 - inV1).Normalized()); }
 
 	// Properties
 	Vec3			GetNormal() const														{ return Vec3(mNormalAndConstant); }
