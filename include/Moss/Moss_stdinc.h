@@ -605,6 +605,16 @@
 	#error Undefined
 #endif
 
+#ifndef MOSSCALL
+#if defined(MOSS_PLATFORM_WINDOWS) && !defined(__GNUC__)
+#define MOSSCALL __cdecl
+#elif defined(MOSS_PLATFORM_WINDOWS) && defined(__GNUC__)
+#define MOSSCALL __attribute__((cdecl))
+#else
+#define MOSSCALL
+#endif
+#endif
+
 #define MOSS_NOINLINE     __attribute__((noinline))
 #define MOSS_ALIGN(x)     __attribute__((aligned(x)))
 
@@ -983,9 +993,6 @@ inline bool MossAssertHelper(const char* expr, const char* file, uint32_t line, 
 		#define MOSS_TSAN_ENABLED
 	#endif
 #endif
-
-
-#define MOSS_CALL __cdecl
 
 // Attribute to disable Thread Sanitizer for a particular function
 #ifdef MOSS_TSAN_ENABLED

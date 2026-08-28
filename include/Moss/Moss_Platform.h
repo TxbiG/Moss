@@ -82,7 +82,7 @@ struct Moss_Haptic;
 struct Moss_Gamepad;
 struct Moss_GamepadAxis;
 
-enum class Moss_Keyboard : uint16_t {
+enum class Keyboard {
     KEY_0, 
     KEY_1, 
     KEY_2, 
@@ -202,11 +202,12 @@ enum class Moss_Keyboard : uint16_t {
     KEY_KP_EQUAL, 
     KEY_KP_MULTIPLY, 
     KEY_KP_SUBTRACT,
-    LAST_KEY = KEY_KP_SUBTRACT
+    LAST_KEY = KEY_KP_SUBTRACT,
+    COUNT = KEY_KP_SUBTRACT
 };
 
 // Mouse
-enum class Moss_Mouse { 
+enum class Mouse { 
     LEFT, 
     RIGHT, 
     MIDDLE, 
@@ -240,7 +241,9 @@ enum class Gamepad {
     GAMEPAD_BUTTON_CROSS  =  GAMEPAD_BUTTON_A,
     GAMEPAD_BUTTON_CIRCLE =  GAMEPAD_BUTTON_B,
     GAMEPAD_BUTTON_SQUARE =  GAMEPAD_BUTTON_X,
-    GAMEPAD_BUTTON_TRIANGLE = GAMEPAD_BUTTON_Y
+    GAMEPAD_BUTTON_TRIANGLE = GAMEPAD_BUTTON_Y,
+
+    COUNT = GAMEPAD_BUTTON_LAST
 };
 
 enum class Moss_Joystick {
@@ -256,7 +259,8 @@ enum class Moss_Joystick {
     GAMEPAD_AXIS_GYRO_Y,
     GAMEPAD_AXIS_GYRO_Z,
 
-    MOSS_JOY_AXIS_LAST = GAMEPAD_AXIS_GYRO_Z
+    MOSS_JOY_AXIS_LAST = GAMEPAD_AXIS_GYRO_Z,
+    COUNT = MOSS_JOY_AXIS_LAST
 };
 
 // Cursor
@@ -856,11 +860,11 @@ MOSS_API bool Moss_IsKeyJustPressed(Moss_Keyboard key);
 MOSS_API bool Moss_IsKeyJustReleased(Moss_Keyboard key);
 MOSS_API Moss_Keyboard Moss_InputGetKey();
 
-MOSS_API bool Moss_IsMousePressed(Moss_Mouse button);
-MOSS_API bool Moss_IsMouseReleased(Moss_Mouse button);
-MOSS_API bool Moss_IsMouseJustPressed(Moss_Mouse button);
-MOSS_API bool Moss_IsMouseJustReleased(Moss_Mouse button);
-MOSS_API Moss_Mouse Moss_InputGetMouseButton();
+MOSS_API bool Moss_IsMousePressed(Mouse button);
+MOSS_API bool Moss_IsMouseReleased(Mouse button);
+MOSS_API bool Moss_IsMouseJustPressed(Mouse button);
+MOSS_API bool Moss_IsMouseJustReleased(Mouse button);
+MOSS_API Mouse Moss_InputGetMouseButton();
 MOSS_API void Moss_GetMousePosition(int* x, int* y);
 MOSS_API void Moss_SetMousePosition(int x, int y);
 MOSS_API void Moss_SetMouseVisible(bool visible);

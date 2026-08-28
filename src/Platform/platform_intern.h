@@ -56,11 +56,11 @@ enum class Moss_GamepadType {
     COUNT
 };
 
-typedef struct GAMEPAD_STATE {
+struct GAMEPAD_STATE {
     bool connected = false;
     bool buttons[static_cast<size_t>(Gamepad::COUNT)] = {};
     float axes[static_cast<int>(Joystick::COUNT)] = {};
-} GAMEPAD_STATE;
+};
 
 struct KeyState {
     bool pressed;
@@ -68,7 +68,7 @@ struct KeyState {
     bool justReleased;
 };
 
-typedef struct INPUT_STATE {
+struct INPUT_STATE {
     // keyboard
     uint8_t keys[static_cast<size_t>(Keyboard::COUNT)];
     uint8_t keys_prev[static_cast<size_t>(Keyboard::COUNT)];
@@ -90,8 +90,7 @@ extern KeyState* keyboardState;
 
 
 
-struct Moss_Camera
-{
+struct Moss_Camera {
     // A mutex for locking
     Moss_Mutex *lock;
 
@@ -149,7 +148,7 @@ struct Moss_Camera
     SurfaceList app_held_output_surfaces;
 
     // A fake video frame we allocate if the camera fails/disconnects.
-    Uint8 *zombie_pixels;
+    uint8_t *zombie_pixels;
 
     // non-zero if acquire_surface needs to be scaled for final output.
     int needs_scaling;  // -1: downscale, 0: no scaling, 1: upscale
@@ -175,51 +174,49 @@ struct Moss_Camera
 };
 
 
-typedef struct Moss_Storage
-{
+struct Moss_Storage {
     /* The version of this interface */
-    Uint32 version;
+    uint32_t version;
 
     /* Called when the storage is closed */
-    bool (MossCALL *close)(void *userdata);
+    bool (MOSSCALL *close)(void *userdata);
 
     /* Optional, returns whether the storage is currently ready for access */
-    bool (MossCALL *ready)(void *userdata);
+    bool (MOSSCALL *ready)(void *userdata);
 
     /* Enumerate a directory, optional for write-only storage */
-    bool (MossCALL *enumerate)(void *userdata, const char *path, Moss_EnumerateDirectoryCallback callback, void *callback_userdata);
+    bool (MOSSCALL *enumerate)(void *userdata, const char *path, Moss_EnumerateDirectoryCallback callback, void *callback_userdata);
 
     /* Get path information, optional for write-only storage */
-    bool (MossCALL *info)(void *userdata, const char *path, Moss_PathInfo *info);
+    bool (MOSSCALL *info)(void *userdata, const char *path, Moss_PathInfo *info);
 
     /* Read a file from storage, optional for write-only storage */
-    bool (MossCALL *read_file)(void *userdata, const char *path, void *destination, Uint64 length);
+    bool (MOSSCALL *read_file)(void *userdata, const char *path, void *destination, Uint64 length);
 
     /* Write a file to storage, optional for read-only storage */
-    bool (MossCALL *write_file)(void *userdata, const char *path, const void *source, Uint64 length);
+    bool (MOSSCALL *write_file)(void *userdata, const char *path, const void *source, Uint64 length);
 
     /* Create a directory, optional for read-only storage */
-    bool (MossCALL *mkdir)(void *userdata, const char *path);
+    bool (MOSSCALL *mkdir)(void *userdata, const char *path);
 
     /* Remove a file or empty directory, optional for read-only storage */
-    bool (MossCALL *remove)(void *userdata, const char *path);
+    bool (MOSSCALL *remove)(void *userdata, const char *path);
 
     /* Rename a path, optional for read-only storage */
-    bool (MossCALL *rename)(void *userdata, const char *oldpath, const char *newpath);
+    bool (MOSSCALL *rename)(void *userdata, const char *oldpath, const char *newpath);
 
     /* Copy a file, optional for read-only storage */
-    bool (MossCALL *copy)(void *userdata, const char *oldpath, const char *newpath);
+    bool (MOSSCALL *copy)(void *userdata, const char *oldpath, const char *newpath);
 
     /* Get the space remaining, optional for read-only storage */
-    Uint64 (MossCALL *space_remaining)(void *userdata);
+    uint64_t (MOSSCALL *space_remaining)(void *userdata);
 
 
     void *userdata;
     char root[4096];
 };
 
-struct Moss_Gamepad
-{
+struct Moss_Gamepad {
     /*
     uint32_t index;
     Moss_GamepadBackend backend;
@@ -237,28 +234,24 @@ struct Moss_Gamepad
     int num_bindings _guarded;
     Moss_GamepadBinding *bindings _guarded;
     Moss_GamepadBinding **last_match_axis _guarded;
-    uint8 *last_hat_mask _guarded;
-    uint64 guide_button_down _guarded;
+    uint8_t *last_hat_mask _guarded;
+    uint64_t guide_button_down _guarded;
 
     struct Moss_Gamepad *next _guarded; // pointer to next gamepad we have allocated
 };
 
-typedef struct Moss_GamepadBinding
-{
+struct Moss_GamepadBinding {
     Moss_GamepadBindingType input_type;
-    union
-    {
+    union {
         int button;
 
-        struct
-        {
+        struct {
             int axis;
             int axis_min;
             int axis_max;
         } axis;
 
-        struct
-        {
+        struct {
             int hat;
             int hat_mask;
         } hat;
@@ -266,12 +259,10 @@ typedef struct Moss_GamepadBinding
     } input;
 
     Moss_GamepadBindingType output_type;
-    union
-    {
+    union {
         Moss_GamepadButton button;
 
-        struct
-        {
+        struct {
             Moss_GamepadAxis axis;
             int axis_min;
             int axis_max;
