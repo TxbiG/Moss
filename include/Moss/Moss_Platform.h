@@ -82,7 +82,7 @@ struct Moss_Haptic;
 struct Moss_Gamepad;
 struct Moss_GamepadAxis;
 
-enum class {
+enum class Keyboard {
     KEY_0, 
     KEY_1, 
     KEY_2, 
@@ -858,7 +858,7 @@ MOSS_API bool Moss_IsKeyPressed(Keyboard  key);
 MOSS_API bool Moss_IsReleased(Keyboard  key);
 MOSS_API bool Moss_IsKeyJustPressed(Keyboard  key);
 MOSS_API bool Moss_IsKeyJustReleased(Keyboard  key);
-MOSS_API Keyboard  Moss_InputGetKey();
+MOSS_API Keyboard Moss_InputGetKey();
 
 MOSS_API bool Moss_IsMousePressed(Mouse button);
 MOSS_API bool Moss_IsMouseReleased(Mouse button);
