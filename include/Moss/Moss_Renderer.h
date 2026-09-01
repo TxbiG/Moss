@@ -1062,7 +1062,7 @@ MOSS_API bool Moss_Metal_CompileMSL(const char* inputPath, const char* outputPat
 MOSS_API bool Moss_Metal_SupportsFamily(uint32_t family); /* Capabilities */
 #endif // MOSS_GRAPHICS_METAL
 
-MOSS_API bool Moss_FrustumContainsAABB(const Frustum* frustum, const Float3* aabb_min, const Float3* aabb_max);
+//MOSS_API bool Moss_FrustumContainsAABB(const Frustum* frustum, const Float3* aabb_min, const Float3* aabb_max);
 
 
 #endif // MOSS_RENDERER_H
