@@ -82,17 +82,6 @@
 #include <Moss/Variants/Vector/Vec3.h>
 #include <Moss/Variants/Math/Real.h>
 
-// NOTE: these four were missing — RVec2/RVec3/RMat44/Quat/Mat44/TArray were used
-// below (Camera2D, Camera3D, Decal, and several Moss_RendererDraw*3D signatures)
-// with no declaration anywhere in this header. Point these at your actual paths
-// if they differ.
-#include <Moss/Variants/Vector/RVec2.h>
-#include <Moss/Variants/Vector/RVec3.h>
-#include <Moss/Variants/Matrix/RMat44.h>
-#include <Moss/Variants/Matrix/Mat44.h>
-#include <Moss/Variants/Quat.h>
-#include <Moss/Containers/TArray.h>
-
 /* ======================================================
  * Forward Declerations
  * =================================================== */
