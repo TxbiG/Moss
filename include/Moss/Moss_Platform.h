@@ -395,7 +395,7 @@ enum class Moss_WindowFlags {
     FOREIGN = 0x00000800,            // window not created by Moss
     ALLOW_HIGHDPI = 0x00002000,      // window should be created in high-DPI mode if supported. On macOS NSHighResolutionCapable must be set true in the application's Info.plist for this to have any effect.
     
-    KEYBOARD_GRABBED = 0x00100000,   // window has grabbed Moss_keyboard input
+    KEYBOARD_GRABBED = 0x00100000,   // window has grabbed Moss_input
 
     INPUT_GRABBED = MOUSE_GRABBED // equivalent to MOUSE_GRABBED for compatibility
 };
@@ -792,7 +792,7 @@ typedef void (*Moss_WindowResizeCallback)(int width, int height);
 //! @brief Callback for monitor configuration changes (e.g. hotplug events). @param monitorName Name or ID of the monitor that changed. @param connected True if the monitor was connected; false if disconnected.
 typedef void (*Moss_MonitorCallback)(const char* monitorName, bool connected);
 //! @brief X. @param width X. @param X. */
-typedef void (MOSS_CALL* Moss_DialogFileCallback)(void* userdata, const char*  const* filelist, int filter);
+typedef void (MOSSCALL* Moss_DialogFileCallback)(void* userdata, const char* const* filelist, int filter);
 //! @brief X. @param width X. @param X. */
 typedef bool (*Moss_DirectoryIterateFn)(const Moss_PathInfo* info, const char* path, void* user_data);
 //! @brief X. @param width X. @param X. */
@@ -854,11 +854,11 @@ MOSS_API void Moss_MonitorSetGamma(Moss_Monitor* monitor, float gamma);
 
 
 
-MOSS_API bool Moss_IsKeyPressed(Moss_Keyboard key);
-MOSS_API bool Moss_IsReleased(Moss_Keyboard key);
-MOSS_API bool Moss_IsKeyJustPressed(Moss_Keyboard key);
-MOSS_API bool Moss_IsKeyJustReleased(Moss_Keyboard key);
-MOSS_API Moss_Keyboard Moss_InputGetKey();
+MOSS_API bool Moss_IsKeyPressed(Keyboard  key);
+MOSS_API bool Moss_IsReleased(Keyboard  key);
+MOSS_API bool Moss_IsKeyJustPressed(Keyboard  key);
+MOSS_API bool Moss_IsKeyJustReleased(Keyboard  key);
+MOSS_API Keyboard Moss_InputGetKey();
 
 MOSS_API bool Moss_IsMousePressed(Mouse button);
 MOSS_API bool Moss_IsMouseReleased(Mouse button);
