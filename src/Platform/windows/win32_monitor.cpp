@@ -30,66 +30,60 @@ struct Moss_Monitor {
     */
 };
 
-static Moss_Monitor* primaryMonitor = { 0 };
-static Moss_Monitor* secondaryMonitor = { 0 };
+static Moss_Monitor primaryMonitor = {};
+static Moss_Monitor secondaryMonitor = {};
+static bool monitorsInitialized = false;
 
 static Moss_MonitorCallback g_monitorCallback = nullptr;
 
 
 BOOL CALLBACK MonitorEnumProc(HMONITOR handle, HDC hdc, LPRECT rect, LPARAM data) {
-    Moss_Monitor* monitors = (Moss_Monitor*)data;
+    Moss_Monitor** monitors = (Moss_Monitor**)data;
+    MONITORINFOEXA mi = {};
+    mi.cbSize = sizeof(MONITORINFOEXA);
+    if (!GetMonitorInfoA(handle, (LPMONITORINFO)&mi)) return TRUE;
 
-    MONITORINFOEXA mi = { .cbSize = sizeof(MONITORINFOEXA) };
-    if (!GetMonitorInfoA(handle, (LPMONITORINFO)&mi)) {
-        return TRUE; // continue enumeration
-    }
-
-    DISPLAY_DEVICEA dd = { .cb = sizeof(DISPLAY_DEVICEA) };
+    DISPLAY_DEVICEA dd = {};
+    dd.cb = sizeof(DISPLAY_DEVICEA);
     EnumDisplayDevicesA(NULL, 0, &dd, 0);
 
     if (mi.dwFlags & MONITORINFOF_PRIMARY) {
-        monitors[0].handle = handle;
-        monitors[0].monitorInfo = mi;
-        monitors[0].displayDevice = dd;
-    } else if (monitors[1].handle == NULL) {
-        monitors[1].handle = handle;
-        monitors[1].monitorInfo = mi;
-        monitors[1].displayDevice = dd;
+        monitors[0]->handle = handle;
+        monitors[0]->monitorInfo = mi;
+        monitors[0]->displayDevice = dd;
+    } else if (monitors[1]->handle == NULL) {
+        monitors[1]->handle = handle;
+        monitors[1]->monitorInfo = mi;
+        monitors[1]->displayDevice = dd;
     }
-
-    return monitors[0].handle && monitors[1].handle ? FALSE : TRUE;
+    return (monitors[0]->handle && monitors[1]->handle) ? FALSE : TRUE;
 }
 
 void Moss_InitMonitors() {
-    Moss_Monitor* monitors[2] = { 0 };
+    Moss_Monitor* monitors[2] = { &primaryMonitor, &secondaryMonitor };
     EnumDisplayMonitors(NULL, NULL, MonitorEnumProc, (LPARAM)monitors);
-
-    primaryMonitor = monitors[0];
-    secondaryMonitor = monitors[1];
+    monitorsInitialized = true;
 }
-
 
 
 Moss_Monitor* Moss_GetPrimaryMonitor() {
-    if (primaryMonitor.handle == NULL) { Moss_InitMonitors(); }
+    if (!monitorsInitialized) Moss_InitMonitors();
     return &primaryMonitor;
 }
-
 Moss_Monitor* Moss_GetSecondaryMonitor() {
-    if (secondaryMonitor.handle == NULL) { Moss_InitMonitors(); }
+    if (!monitorsInitialized) Moss_InitMonitors();
     return &secondaryMonitor;
 }
 
 // Monitor
-void Moss_GetMonitorPhysicalSize(Moss_Monitor monitor, int* width_mm, int* height_mm)
-{
+void Moss_GetMonitorPhysicalSize(Moss_Monitor* monitor, int* width_mm, int* height_mm) {
     DWORD count = 0;
-    if (!GetNumberOfPhysicalMonitorsFromHMONITOR(monitor.handle, &count) || count == 0) { return; }
+    if (!GetNumberOfPhysicalMonitorsFromHMONITOR(monitor->handle, &count) || count == 0) { return; }
 
     PHYSICAL_MONITOR* physicalMonitors = (PHYSICAL_MONITOR*)malloc(sizeof(PHYSICAL_MONITOR) * count);
     if (!physicalMonitors) return;
 
-    if (GetPhysicalMonitorsFromHMONITOR(monitor.handle, count, physicalMonitors)) {
+    if (GetPhysicalMonitorsFromHMONITOR(monitor->handle, count, physicalMonitors)) {
         for (DWORD i = 0; i < count; i++) {
             DWORD minSize = 0, maxSize = 0, displaySize = 0;
             
@@ -112,8 +106,7 @@ void Moss_GetMonitorPhysicalSize(Moss_Monitor monitor, int* width_mm, int* heigh
     free(physicalMonitors);
 }
 
-void Moss_GetMonitorContentScale(Moss_Monitor monitor, float* xscale, float* yscale)
-{
+void Moss_GetMonitorContentScale(Moss_Monitor* monitor, float* xscale, float* yscale) {
     UINT dpiX = 96, dpiY = 96;  // default DPI (100% scaling)
 
     // Check if GetDpiForMonitor is available (Windows 8.1+)
@@ -124,7 +117,7 @@ void Moss_GetMonitorContentScale(Moss_Monitor monitor, float* xscale, float* ysc
             (GetDpiForMonitorFunc)GetProcAddress(shcore, "GetDpiForMonitor");
 
         if (getDpiForMonitor) {
-            HRESULT hr = getDpiForMonitor(monitor.handle, MDT_EFFECTIVE_DPI, &dpiX, &dpiY);
+            HRESULT hr = getDpiForMonitor(monitor->handle, MDT_EFFECTIVE_DPI, &dpiX, &dpiY);
             if (FAILED(hr)) {
                 dpiX = dpiY = 96;  // fallback to default if call fails
             }
@@ -136,23 +129,23 @@ void Moss_GetMonitorContentScale(Moss_Monitor monitor, float* xscale, float* ysc
     *yscale = dpiY / 96.0f;
 }
 
-void Moss_GetMonitorPosition(Moss_Monitor monitor, int* x, int* y)
+void Moss_GetMonitorPosition(Moss_Monitor* monitor, int* x, int* y)
 {
     MONITORINFO mi = { .cbSize = sizeof(mi) };
-    if (GetMonitorInfo(monitor.handle, &mi)) {
+    if (GetMonitorInfo(monitor->handle, &mi)) {
         *x = mi.rcMonitor.left;
         *y = mi.rcMonitor.top;
     }
 }
 
-const char* Moss_GetMonitorName(Moss_Monitor monitor) { return monitor.monitorInfo.szDevice; }
+const char* Moss_GetMonitorName(Moss_Monitor* monitor) { return monitor->monitorInfo.szDevice; }
 
-Moss_GammaRamp* Moss_GetGammaRamp(Moss_Monitor monitor)
+Moss_GammaRamp* Moss_GetGammaRamp(Moss_Monitor* monitor)
 {
     Moss_GammaRamp* outRamp = (Moss_GammaRamp*)malloc(sizeof(Moss_GammaRamp));
     if (!outRamp) return NULL;  // allocation failed
 
-    HDC hdc = CreateDC(NULL, monitor.monitorInfo.szDevice, NULL, NULL);
+    HDC hdc = CreateDC(NULL, monitor->monitorInfo.szDevice, NULL, NULL);
     if (!hdc) {
         free(outRamp);
         return NULL;
@@ -181,7 +174,7 @@ void Moss_SetGammaRamp(Moss_Monitor* monitor, const Moss_GammaRamp* gammaRamp) {
         return; // Invalid input
     }
 
-    HDC hdc = CreateDCA("DISPLAY", monitor.monitorInfo.szDevice, NULL, NULL);
+    HDC hdc = CreateDCA("DISPLAY", monitor->monitorInfo.szDevice, NULL, NULL);
     if (!hdc) return;
 
     WORD ramp[3 * 256]; // Windows expects RGB WORD arrays packed together
@@ -201,7 +194,7 @@ void Moss_SetGamma(Moss_Monitor* monitor, float gamma) {
     if (gamma <= 0.0f) return; // Invalid gamma
 
     // Get device context for the monitor's device name
-    HDC hdc = CreateDCA("DISPLAY", monitor.displayDevice.DeviceName, NULL, NULL);
+    HDC hdc = CreateDCA("DISPLAY", monitor->displayDevice.DeviceName, NULL, NULL);
     if (!hdc) return;
 
     WORD gammaRamp[3][256];
@@ -236,7 +229,7 @@ Moss_Monitor* Moss_MonitorGetSecondary() {
 
 void Moss_MonitorGetPhysicalSize(Moss_Monitor* monitor, int* width_mm, int* height_mm) {
     if (!monitor) return;
-    Moss_GetMonitorPhysicalSize(monitor, width_mm, height_mm);
+    Moss_GetMonitorPhysicalSize(monitor, width_mm, height_mm); // passing pointer to by-value param!
 }
 
 void Moss_MonitorGetContentScale(Moss_Monitor* monitor, float* xscale, float* yscale) {
@@ -274,8 +267,8 @@ static int CountVideoModes(const char* deviceName) {
     return count;
 }
 
-Moss_VideoMode* Moss_GetVideoModes(Moss_Monitor monitor, int* outCount) {
-    int count = CountVideoModes(monitor.displayDevice.DeviceName);
+Moss_VideoMode* Moss_GetVideoModes(Moss_Monitor* monitor, int* outCount) {
+    int count = CountVideoModes(monitor->displayDevice.DeviceName);
     if (outCount) *outCount = count;
 
     if (count == 0) return NULL;
@@ -285,7 +278,7 @@ Moss_VideoMode* Moss_GetVideoModes(Moss_Monitor monitor, int* outCount) {
 
     DEVMODEA devMode = {0};
     devMode.dmSize = sizeof(DEVMODEA);
-    for (int i = 0, j = 0; EnumDisplaySettingsA(monitor.displayDevice.DeviceName, i, &devMode); i++) {
+    for (int i = 0, j = 0; EnumDisplaySettingsA(monitor->displayDevice.DeviceName, i, &devMode); i++) {
         Moss_VideoMode* m = &modes[j++];
         m->width = devMode.dmPelsWidth;
         m->height = devMode.dmPelsHeight;

@@ -83,7 +83,7 @@ struct INPUT_STATE {
 
     // gamepads (XInput)
     GAMEPAD_STATE pads[4]{};
-} INPUT_STATE;
+};
 
 extern INPUT_STATE io;
 extern KeyState* keyboardState;
@@ -269,7 +269,7 @@ struct Moss_GamepadBinding {
         } axis;
 
     } output;
-} Moss_GamepadBinding;
+};
 
 
 #endif // MOSS_PLATFORM_INTERNAL_H

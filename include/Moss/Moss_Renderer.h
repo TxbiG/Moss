@@ -82,6 +82,17 @@
 #include <Moss/Variants/Vector/Vec3.h>
 #include <Moss/Variants/Math/Real.h>
 
+// NOTE: these four were missing — RVec2/RVec3/RMat44/Quat/Mat44/TArray were used
+// below (Camera2D, Camera3D, Decal, and several Moss_RendererDraw*3D signatures)
+// with no declaration anywhere in this header. Point these at your actual paths
+// if they differ.
+#include <Moss/Variants/Vector/RVec2.h>
+#include <Moss/Variants/Vector/RVec3.h>
+#include <Moss/Variants/Matrix/RMat44.h>
+#include <Moss/Variants/Matrix/Mat44.h>
+#include <Moss/Variants/Quat.h>
+#include <Moss/Containers/TArray.h>
+
 /* ======================================================
  * Forward Declerations
  * =================================================== */
@@ -1061,5 +1072,8 @@ MOSS_API id<MTLRenderCommandEncoder>    Moss_MetalGetRenderEncoder(Moss_Renderer
 MOSS_API bool Moss_Metal_CompileMSL(const char* inputPath, const char* outputPath); /* Shader tools */
 MOSS_API bool Moss_Metal_SupportsFamily(uint32_t family); /* Capabilities */
 #endif // MOSS_GRAPHICS_METAL
+
+MOSS_API bool Moss_FrustumContainsAABB(const Frustum* frustum, const Float3* aabb_min, const Float3* aabb_max);
+
 
 #endif // MOSS_RENDERER_H

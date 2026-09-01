@@ -32,7 +32,7 @@ typedef struct Moss_VideoCapture {
 HRESULT STDMETHODCALLTYPE BufferCB(double Time, char* pBuffer, long Len) {
     Moss_VideoCapture* cap;
 
-    EnterCriticalSection(&cap->lock);
+    EnterCriticalSection(cap->lock);
     if (cap->frameBuffer && Len <= cap->frameSize) {
         memcpy(cap->frameBuffer, pBuffer, Len);
         cap->frameReady = true;
@@ -60,42 +60,39 @@ Moss_CameraID Moss_GetCameraID(Moss_Camera *camera) {}
 Moss_Camera* Moss_OpenCamera(Moss_CameraID instance_id, const Moss_CameraSpec *spec) {}
 
 Moss_VideoCapture* Moss_OpenCapture(Moss_CameraID captureID) {
-    Moss_VideoCapture* cap = calloc(1, sizeof(Moss_VideoCapture));
+    Moss_VideoCapture* cap = (Moss_VideoCapture*)calloc(1, sizeof(Moss_VideoCapture));
     if (!cap) { return NULL; }
 
     CoInitializeEx(NULL, COINIT_MULTITHREADED);
 
     // Create Filter Graph
-    HRESULT hr = CoCreateInstance(&CLSID_FilterGraph, NULL, CLSCTX_INPROC_SERVER, &IID_IGraphBuilder, (void**)&cap->graph);
+    HRESULT hr = CoCreateInstance(CLSID_FilterGraph, NULL, CLSCTX_INPROC_SERVER, IID_IGraphBuilder, (void**)&cap->graph);
     if (FAILED(hr)) {return NULL;}
 
     // Capture Graph Builder
-    hr = CoCreateInstance(&CLSID_CaptureGraphBuilder2, NULL, CLSCTX_INPROC_SERVER, &IID_ICaptureGraphBuilder2, (void**)&cap->captureBuilder);
+    hr = CoCreateInstance(CLSID_CaptureGraphBuilder2, NULL, CLSCTX_INPROC_SERVER, IID_ICaptureGraphBuilder2, (void**)&cap->captureBuilder);
     if (FAILED(hr)) {return NULL;}
 
-    cap->captureBuilder->SetFiltergraph(cap->captureBuilder, cap->graph);
+    cap->captureBuilder->SetFiltergraph(cap->graph);
 
     // Get System Device Enumerator
     ICreateDevEnum* devEnum = NULL;
     IEnumMoniker* enumMoniker = NULL;
-    CoCreateInstance(&CLSID_SystemDeviceEnum, NULL, CLSCTX_INPROC_SERVER, &IID_ICreateDevEnum, (void**)&devEnum);
-    devEnum->CreateClassEnumerator(devEnum, &CLSID_VideoInputDeviceCategory, &enumMoniker, 0);
+    CoCreateInstance(CLSID_SystemDeviceEnum, NULL, CLSCTX_INPROC_SERVER, IID_ICreateDevEnum, (void**)&devEnum);;
+    devEnum->CreateClassEnumerator(CLSID_VideoInputDeviceCategory, &enumMoniker, 0);
 
     IMoniker* moniker = NULL;
-    if (enumMoniker->Next(enumMoniker, 1, &moniker, NULL) == S_OK) {
-        moniker->BindToObject(moniker, NULL, NULL, &IID_IBaseFilter, (void**)&cap->videoCaptureFilter);
-        cap->graph->AddFilter(cap->graph, cap->videoCaptureFilter, L"Video Capture");
-
-        cap->captureBuilder->RenderStream(
-            cap->captureBuilder, &PIN_CATEGORY_PREVIEW, &MEDIATYPE_Video,
-            cap->videoCaptureFilter, NULL, NULL);
+    if (enumMoniker->Next(1, &moniker, NULL) == S_OK) {
+        moniker->BindToObject(NULL, NULL, IID_IBaseFilter, (void**)&cap->videoCaptureFilter);
+        cap->graph->AddFilter(cap->videoCaptureFilter, L"Video Capture");
+        cap->captureBuilder->RenderStream(&PIN_CATEGORY_PREVIEW, &MEDIATYPE_Video, cap->videoCaptureFilter, NULL, NULL);
     }
 
-    cap->graph->QueryInterface(cap->graph, &IID_IMediaControl, (void**)&cap->mediaControl);
-    cap->videoCaptureFilter->QueryInterface(cap->videoCaptureFilter, &IID_IAMStreamConfig, (void**)&cap->streamConfig);
-    cap->videoCaptureFilter->QueryInterface(cap->videoCaptureFilter, &IID_IAMVideoProcAmp, (void**)&cap->videoProcAmp);
+    cap->graph->QueryInterface(IID_IMediaControl, (void**)&cap->mediaControl);
+    cap->videoCaptureFilter->QueryInterface(IID_IAMStreamConfig, (void**)&cap->streamConfig);
+    cap->videoCaptureFilter->QueryInterface(IID_IAMVideoProcAmp, (void**)&cap->videoProcAmp);
 
-    cap->mediaControl->Run(cap->mediaControl);
+    cap->mediaControl->Run();
 
     return cap;
 }
@@ -151,26 +148,26 @@ void Moss_VideoCaptureSetSaturation(Moss_VideoCapture* cap, int saturation) {
 }
 
 // Gets
-int Moss_VideoCaptureGetBrightness(Moss_VideoCapture* cap, long value = 0, long flags = 0;) {
+int Moss_VideoCaptureGetBrightness(Moss_VideoCapture* cap, long value = 0, long flags = 0) {
     if (cap && cap->videoProcAmp) {
         cap->videoProcAmp->Get(VideoProcAmp_Brightness, &value, &flags);
     }
     return (int)value;
 }
 
-int Moss_VideoCaptureGetContrast(Moss_VideoCapture* cap, long value = 0, long flags = 0;) {
+int Moss_VideoCaptureGetContrast(Moss_VideoCapture* cap, long value = 0, long flags = 0) {
     if (cap && cap->videoProcAmp) {
         cap->videoProcAmp->Get(VideoProcAmp_Contrast, &value, &flags);
     }
     return (int)value;
 }
-int Moss_VideoCaptureGetHUE(Moss_VideoCapture* cap, long value = 0, long flags = 0;) {
+int Moss_VideoCaptureGetHUE(Moss_VideoCapture* cap, long value = 0, long flags = 0) {
     if (cap && cap->videoProcAmp) {
         cap->videoProcAmp->Get(VideoProcAmp_Hue, &value, &flags);
     }
     return (int)value;
 }
-int Moss_VideoCaptureGetSaturation(Moss_VideoCapture* cap, long value = 0, long flags = 0;) {
+int Moss_VideoCaptureGetSaturation(Moss_VideoCapture* cap, long value = 0, long flags = 0) {
     if (cap && cap->videoProcAmp) {
         cap->videoProcAmp->Get(VideoProcAmp_Saturation, &value, &flags);
     }

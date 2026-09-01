@@ -855,7 +855,7 @@ struct Moss_GPUVertexInputState {
     uint32_t buffer_count = 0;
 };
 
-struct GPUStorageBufferReadWriteBinding {
+struct Moss_GPUStorageBufferReadWriteBinding {
     Moss_GPUBuffer* buffer = nullptr;
     uint64_t offset = 0;
     uint64_t size = 0;
@@ -876,9 +876,9 @@ struct Moss_GPUResourceBinding {
     Moss_ShaderResourceType type = Moss_ShaderResourceType::UNIFORM_BUFFER;
     EShaderStage stage_mask = EShaderStage::NONE;
     Moss_GPUBufferBinding uniform_buffer{};
-    GPUStorageBufferReadWriteBinding storage_buffer{};
+    Moss_GPUStorageBufferReadWriteBinding storage_buffer{};
     Moss_GPUTextureBinding sampled_texture{};
-    GPUStorageBufferReadWriteBinding storage_texture{};
+    Moss_GPUStorageTextureReadWriteBinding storage_texture{};
     Moss_GPUSampler* sampler = nullptr;
     Moss_GPUTextureSamplerBinding texture_sampler{};
 };
@@ -1267,6 +1267,7 @@ MOSS_API void Moss_SetGPUScissor(Moss_GPUCommandBuffer* cmd, const Moss_Rect* sc
 MOSS_API void Moss_SetGPUStencilReference(Moss_GPUCommandBuffer* cmd,uint32_t reference);
 MOSS_API void Moss_SetGPUTextureName(Moss_GPUDevice* device, Moss_GPUTexture* texture, const char* name);
 MOSS_API void Moss_SetGPUViewport(Moss_GPUCommandBuffer* cmd, const Moss_GPUViewport* viewport);
+MOSS_API void Moss_SetGPUScissor(Moss_GPUCommandBuffer* cmd, const Moss_Rect* scissors);
 MOSS_API void Moss_SubmitGPUCommandBuffer(Moss_GPUDevice* device, Moss_GPUCommandBuffer* cmd);
 MOSS_API Moss_GPUFence* Moss_SubmitGPUCommandBufferAndAcquireFence(Moss_GPUDevice* device, Moss_GPUCommandBuffer* cmd);
 MOSS_API void Moss_BindGPUComputePipeline(Moss_GPUCommandBuffer* cmd, Moss_ComputePipelineState* pipeline);
@@ -1318,14 +1319,12 @@ MOSS_API Moss_GPUVertexInputState();
 MOSS_API Moss_GPUViewport();
 */
 
-MOSS_API void Moss_BindGPUComputeStorageBuffers(Moss_GPUCommandBuffer* cmd, uint32_t first_slot, const GPUStorageBufferReadWriteBinding* bindings, uint32_t binding_count);
+MOSS_API void Moss_BindGPUComputeStorageBuffers(Moss_GPUCommandBuffer* cmd, uint32_t first_slot, const Moss_GPUStorageBufferReadWriteBinding* bindings, uint32_t binding_count);
 MOSS_API void Moss_BindGPUComputeStorageTextures( Moss_GPUCommandBuffer* cmd, uint32_t first_slot, const Moss_GPUStorageTextureReadWriteBinding* bindings, uint32_t binding_count);
-MOSS_API void Moss_BindGPUFragmentStorageBuffers(Moss_GPUCommandBuffer* cmd, uint32_t first_slot, const GPUStorageBufferReadWriteBinding* bindings, uint32_t binding_count);
+MOSS_API void Moss_BindGPUFragmentStorageBuffers(Moss_GPUCommandBuffer* cmd, uint32_t first_slot, const Moss_GPUStorageBufferReadWriteBinding* bindings, uint32_t binding_count);
 MOSS_API void Moss_BindGPUFragmentStorageTextures(Moss_GPUCommandBuffer* cmd, uint32_t first_slot,const Moss_GPUStorageTextureReadWriteBinding* bindings, uint32_t binding_count);
-MOSS_API void Moss_BindGPUVertexStorageBuffers(Moss_GPUCommandBuffer* cmd, uint32_t first_slot, const GPUStorageBufferReadWriteBinding* bindings, uint32_t binding_count);
+MOSS_API void Moss_BindGPUVertexStorageBuffers(Moss_GPUCommandBuffer* cmd, uint32_t first_slot, const Moss_GPUStorageBufferReadWriteBinding* bindings, uint32_t binding_count);
 MOSS_API void Moss_BindGPUVertexStorageTextures(Moss_GPUCommandBuffer* cmd, uint32_t first_slot, const Moss_GPUStorageTextureReadWriteBinding* bindings, uint32_t binding_count);
-//MOSS_API Moss_GPUStorageBufferReadWriteBinding();
-//MOSS_API Moss_GPUStorageTextureReadWriteBinding();
 MOSS_API const char* Moss_GetGPUDeviceDriver(Moss_GPUDevice* device);
 MOSS_API const Moss_GPUDeviceProperties* Moss_GetGPUDeviceProperties(Moss_GPUDevice* device);
 MOSS_API void Moss_ReleaseWindowFromGPUDevice(Moss_GPUDevice* device, Moss_Window* window);
@@ -1511,6 +1510,55 @@ MOSS_API Moss_RGTexture* Moss_RGPassWriteTexture(Moss_RGPass* pass, Moss_RGTextu
 MOSS_API int Moss_GPUDeviceSupportsAsyncCompute(Moss_GPUDevice* renderer);
 MOSS_API void Moss_TextureSetResidency(Moss_Texture* texture, EResidencyState state);
 
+// Pipeline
+
+struct Moss_VertexLayoutDesc {
+    const Moss_VertexAttribute* attributes = nullptr;
+    uint32_t attribute_count = 0;
+    uint32_t stride = 0;
+};
+
+struct Moss_PipelineColorBlendAttachmentDesc {
+    bool blend_enable = false;
+
+    EBlendFactor src_color_factor = EBlendFactor::SRC_ALPHA;
+    EBlendFactor dst_color_factor = EBlendFactor::ONE_MINUS_SRC_ALPHA;
+    EBlendOp color_blend_op = EBlendOp::OP_ADD;
+
+    EBlendFactor src_alpha_factor = EBlendFactor::ONE;
+    EBlendFactor dst_alpha_factor = EBlendFactor::ZERO;
+    EBlendOp alpha_blend_op = EBlendOp::OP_ADD;
+
+    uint8_t color_write_mask = 0xF; /* RGBA bits */
+};
+
+struct Moss_PipelineDesc {
+    const char* name = nullptr;
+
+    /* Shader stages making up the pipeline (vertex+fragment, or a single compute stage). */
+    const Moss_PipelineShaderStage* stages = nullptr;
+    uint32_t stage_count = 0;
+
+    Moss_VertexLayoutDesc vertex_layout{};
+
+    ETopology topology = ETopology::TRIANGLE;
+    EFillMode fill_mode = EFillMode::SOLID;
+    ECullMode cull_mode = ECullMode::BACKFACE;
+    EFrontFace front_face = EFrontFace::COUNTER_CLOCKWISE;
+
+    Moss_DepthStencilState depth_stencil{};
+
+    const Moss_PipelineColorBlendAttachmentDesc* color_blend_attachments = nullptr;
+    uint32_t color_blend_attachment_count = 0;
+
+    /* Render target formats this pipeline is compiled against. */
+    const ETextureFormat* color_attachment_formats = nullptr;
+    uint32_t color_attachment_count = 0;
+    ETextureFormat depth_attachment_format = ETextureFormat::UNKNOWN;
+
+    uint32_t sample_count = 1;
+};
+
 // Shaders
 struct Moss_ShaderDesc {
     EShaderStage stage;
@@ -1585,6 +1633,42 @@ MOSS_API void Moss_WindowResizeVK(VkPhysicalDevice physicalDevice, VkDevice devi
 enum class Moss_Result { Success, Error };
 
 MOSS_API void Moss_GPUFatalError(Moss_Result result);
+
+
+
+MOSS_API void Moss_SetGPUViewports(Moss_GPUCommandBuffer* cmd, const Moss_GPUViewport* viewports, uint32_t count);
+MOSS_API void Moss_SetGPUScissors(Moss_GPUCommandBuffer* cmd, const Moss_Rect* scissors, uint32_t count);
+
+
+MOSS_API void Moss_ClearGPUTexture(Moss_GPUCommandBuffer* cmd, Moss_GPUTexture* texture, const float color[4]);
+MOSS_API void Moss_ClearGPUDepthStencilTexture(Moss_GPUCommandBuffer* cmd, Moss_GPUTexture* texture, float depth, uint8_t stencil);
+
+MOSS_API void Moss_DrawGPUIndexedPrimitivesIndirectCount(Moss_GPUCommandBuffer* cmd, Moss_GPUBuffer* indirect_buffer, uint64_t offset, Moss_GPUBuffer* count_buffer, uint64_t count_offset, uint32_t max_draw_count, uint32_t stride);
+MOSS_API void Moss_DrawGPUPrimitivesIndirectCount(Moss_GPUCommandBuffer* cmd, Moss_GPUBuffer* indirect_buffer, uint64_t offset, Moss_GPUBuffer* count_buffer, uint64_t count_offset, uint32_t max_draw_count, uint32_t stride);
+
+
+MOSS_API void Moss_SetGPUDepthBias(Moss_GPUCommandBuffer* cmd, float constant_factor, float clamp, float slope_factor);
+
+
+struct Moss_GPUSemaphore;
+
+MOSS_API Moss_GPUSemaphore* Moss_CreateGPUSemaphore(Moss_GPUDevice* device);
+MOSS_API void Moss_ReleaseGPUSemaphore(Moss_GPUDevice* device, Moss_GPUSemaphore* semaphore);
+MOSS_API void Moss_SignalGPUSemaphoreValue(Moss_GPUDevice* device, Moss_GPUSemaphore* semaphore, uint64_t value);
+MOSS_API bool Moss_WaitGPUSemaphoreValue(Moss_GPUDevice* device, Moss_GPUSemaphore* semaphore, uint64_t value, uint64_t timeout_ns);
+MOSS_API void Moss_SubmitGPUCommandBufferWithSemaphores(Moss_GPUDevice* device, Moss_GPUCommandBuffer* cmd, Moss_GPUSemaphore* const* wait_semaphores, const uint64_t* wait_values, uint32_t wait_count, Moss_GPUSemaphore* const* signal_semaphores, const uint64_t* signal_values, uint32_t signal_count);
+
+
+
+MOSS_API uint32_t Moss_GetGPUBindlessCapacity(Moss_GPUDevice* device, Moss_ShaderResourceType type);
+
+// Vulkan & DX12 spesific
+struct Moss_GPUPipelineCache;
+
+MOSS_API Moss_GPUPipelineCache* Moss_CreateGPUPipelineCache(Moss_GPUDevice* device, const void* initial_data, size_t initial_size);
+MOSS_API size_t Moss_GetGPUPipelineCacheData(Moss_GPUDevice* device, Moss_GPUPipelineCache* cache, void* out_data, size_t out_size);
+MOSS_API void Moss_ReleaseGPUPipelineCache(Moss_GPUDevice* device, Moss_GPUPipelineCache* cache);
+
 
 
 #endif // MOSS_GPU_H

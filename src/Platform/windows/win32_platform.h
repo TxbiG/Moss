@@ -80,8 +80,7 @@ struct Moss_Window {
 };
 
 /*
-typedef struct _libraryWin32
-{
+struct _libraryWin32 {
     HINSTANCE           instance;
     HWND                helperWindowHandle;
     ATOM                helperWindowClass;
@@ -147,7 +146,7 @@ typedef struct _libraryWin32
 */
 
 // Win32-specific per-monitor data
-typedef struct _monitorWin32 {
+struct _monitorWin32 {
     HMONITOR            handle;
     // This size matches the static size of DISPLAY_DEVICE.DeviceName
     WCHAR               adapterName[32];
@@ -159,7 +158,7 @@ typedef struct _monitorWin32 {
 };
 
 // Win32-specific per-cursor data
-typedef struct _cursorWin32 { HCURSOR handle; };
+struct _cursorWin32 { HCURSOR handle; };
 
 
 // Modifiers
@@ -172,9 +171,6 @@ enum class KeyMod : uint8_t {
     NUM_LOCK    = 1 << 5
 };
 
-
-struct Moss_Storage { char root[MAX_PATH]; };
-
 extern int VirtualMouseButtonMap[static_cast<int>(Mouse::COUNT)];
 
 struct _frame {
@@ -186,9 +182,9 @@ extern _frame g_frame;
 
 struct GamepadState {
     bool connected;
-    float axes[JOYSTICK_AXIS_COUNT];
-    uint8_t buttons[GAMEPAD_BUTTON_COUNT];
-    uint8_t buttons_prev[GAMEPAD_BUTTON_COUNT];
+    float axes[static_cast<int>(Moss_GamepadAxis::COUNT)];
+    uint8_t buttons[static_cast<int>(Gamepad::COUNT)];
+    uint8_t buttons_prev[static_cast<int>(Gamepad::COUNT)];
 
     bool is_dualshock;
     bool is_dualsense;

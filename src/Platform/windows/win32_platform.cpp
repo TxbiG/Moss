@@ -10,6 +10,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include <shellapi.h>
 
 #pragma comment(lib, "Shlwapi.lib")
 
@@ -23,9 +24,6 @@ static void moss_storage_fullpath(Moss_Storage *storage, const char *path, char 
     else
         lstrcpyA(out, storage->root);
 }
-
-
-
 
 
 
