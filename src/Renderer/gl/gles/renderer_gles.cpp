@@ -1,4 +1,4 @@
-#include <Moss/Renderer/Renderer_intern.h>
+#include "Renderer/renderer_intern.h"
 
 
 MOSS_API void Moss_GPUFatalError(Moss_Result result);

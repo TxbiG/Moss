@@ -4,11 +4,11 @@
 
 #pragma once
 
-#include <Jolt/Core/StaticArray.h>
-#include <Jolt/Core/Reference.h>
-#include <Jolt/Core/RTTI.h>
-#include <Jolt/Core/NonCopyable.h>
-#include <Jolt/ObjectStream/SerializableAttribute.h>
+#include <Moss/Core/StaticArray.h>
+#include <Moss/Core/Reference.h>
+#include <Moss/Core/RTTI.h>
+#include <Moss/Core/NonCopyable.h>
+#include <Moss/ObjectStream/SerializableAttribute.h>
 
 #ifdef JPH_OBJECT_STREAM
 
@@ -122,7 +122,7 @@ public:
 	JPH_EXPORT void	OSWriteData(IObjectStreamOut &ioStream, const name &inPrimitive);
 
 // This file uses the JPH_DECLARE_PRIMITIVE macro to define all types
-#include <Jolt/ObjectStream/ObjectStreamTypes.h>
+#include <Moss/ObjectStream/ObjectStreamTypes.h>
 
 // Define serialization templates
 template <class T, class A>

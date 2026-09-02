@@ -5,7 +5,7 @@
 #pragma once
 
 #include <Moss/TriangleSplitter/TriangleSplitter.h>
-#include <Moss/Physics/Geometry/AABox.h>
+#include <Moss/Variants/AABB3.h>
 #include <Moss/Core/NonCopyable.h>
 
 MOSS_SUPRESS_WARNINGS_BEGIN

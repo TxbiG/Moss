@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include <Moss/Physics/Body/BodyID.h>
+#include <Moss/Physics/Body/Body.h>
 #include <Moss/Core/NonCopyable.h>
 
 MOSS_NAMESPACE_BEGIN

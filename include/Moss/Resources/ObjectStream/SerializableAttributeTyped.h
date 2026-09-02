@@ -6,9 +6,9 @@
 
 #ifdef JPH_OBJECT_STREAM
 
-#include <Jolt/ObjectStream/SerializableAttribute.h>
-#include <Jolt/ObjectStream/GetPrimitiveTypeOfType.h>
-#include <Jolt/ObjectStream/ObjectStream.h>
+#include <Moss/ObjectStream/SerializableAttribute.h>
+#include <Moss/ObjectStream/GetPrimitiveTypeOfType.h>
+#include <Moss/ObjectStream/ObjectStream.h>
 
 JPH_NAMESPACE_BEGIN
 

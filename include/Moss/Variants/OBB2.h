@@ -1,7 +1,6 @@
 #pragma once
 
 #include <Moss/Geometry/Triangle.h>
-#include <Moss/Geometry/IndexedTriangle.h>
 #include <Moss/Variants/Matrix/Mat44.h>
 
 MOSS_WARNINGS_BEGIN

@@ -17,7 +17,7 @@ MOSS_SUPPRESS_WARNINGS_STD_END
 #endif // MOSS_CONVEX_BUILDER_DUMP_SHAPE
 
 #include <Moss/Physics/Geometry/Indexify.h>
-#include <Moss/Physics/Geometry/AABox.h>
+#include <Moss/Variants/AABB3.h>
 #include <Moss/Physics/Geometry/ClosestPoint.h>
 #include <Moss/Core/StringTools.h>
 #include <Moss/Variants/TSet.h>

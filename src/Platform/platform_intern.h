@@ -179,37 +179,37 @@ struct Moss_Storage {
     uint32_t version;
 
     /* Called when the storage is closed */
-    bool (MOSSCALL *close)(void *userdata);
+    bool (MOSS_CALL *close)(void *userdata);
 
     /* Optional, returns whether the storage is currently ready for access */
-    bool (MOSSCALL *ready)(void *userdata);
+    bool (MOSS_CALL *ready)(void *userdata);
 
     /* Enumerate a directory, optional for write-only storage */
-    bool (MOSSCALL *enumerate)(void *userdata, const char *path, Moss_EnumerateDirectoryCallback callback, void *callback_userdata);
+    bool (MOSS_CALL *enumerate)(void *userdata, const char *path, Moss_EnumerateDirectoryCallback callback, void *callback_userdata);
 
     /* Get path information, optional for write-only storage */
-    bool (MOSSCALL *info)(void *userdata, const char *path, Moss_PathInfo *info);
+    bool (MOSS_CALL *info)(void *userdata, const char *path, Moss_PathInfo *info);
 
     /* Read a file from storage, optional for write-only storage */
-    bool (MOSSCALL *read_file)(void *userdata, const char *path, void *destination, Uint64 length);
+    bool (MOSS_CALL *read_file)(void *userdata, const char *path, void *destination, Uint64 length);
 
     /* Write a file to storage, optional for read-only storage */
-    bool (MOSSCALL *write_file)(void *userdata, const char *path, const void *source, Uint64 length);
+    bool (MOSS_CALL *write_file)(void *userdata, const char *path, const void *source, Uint64 length);
 
     /* Create a directory, optional for read-only storage */
-    bool (MOSSCALL *mkdir)(void *userdata, const char *path);
+    bool (MOSS_CALL *mkdir)(void *userdata, const char *path);
 
     /* Remove a file or empty directory, optional for read-only storage */
-    bool (MOSSCALL *remove)(void *userdata, const char *path);
+    bool (MOSS_CALL *remove)(void *userdata, const char *path);
 
     /* Rename a path, optional for read-only storage */
-    bool (MOSSCALL *rename)(void *userdata, const char *oldpath, const char *newpath);
+    bool (MOSS_CALL *rename)(void *userdata, const char *oldpath, const char *newpath);
 
     /* Copy a file, optional for read-only storage */
-    bool (MOSSCALL *copy)(void *userdata, const char *oldpath, const char *newpath);
+    bool (MOSS_CALL *copy)(void *userdata, const char *oldpath, const char *newpath);
 
     /* Get the space remaining, optional for read-only storage */
-    uint64_t (MOSSCALL *space_remaining)(void *userdata);
+    uint64_t (MOSS_CALL *space_remaining)(void *userdata);
 
 
     void *userdata;

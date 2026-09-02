@@ -605,13 +605,13 @@
 	#error Undefined
 #endif
 
-#ifndef MOSSCALL
+#ifndef MOSS_CALL
 #if defined(MOSS_PLATFORM_WINDOWS) && !defined(__GNUC__)
-#define MOSSCALL __cdecl
+#define MOSS_CALL __cdecl
 #elif defined(MOSS_PLATFORM_WINDOWS) && defined(__GNUC__)
-#define MOSSCALL __attribute__((cdecl))
+#define MOSS_CALL __attribute__((cdecl))
 #else
-#define MOSSCALL
+#define MOSS_CALL
 #endif
 #endif
 
@@ -2019,13 +2019,13 @@ typedef int64 Moss_Time;
 #define MOSS_MAX_TIME MOSS_MAX_SINT64
 #define MOSS_MIN_TIME MOSS_MIN_SINT64
 
-typedef void *(MOSSCALL *MOSS_realloc_func)(void *mem, size_t size);
-typedef void *(MOSSCALL *MOSS_malloc_func)(size_t size);
-typedef void (MOSSCALL *MOSS_free_func)(void *mem);
+typedef void *(MOSS_CALL *MOSS_realloc_func)(void *mem, size_t size);
+typedef void *(MOSS_CALL *MOSS_malloc_func)(size_t size);
+typedef void (MOSS_CALL *MOSS_free_func)(void *mem);
 typedef void (*MOSS_FunctionPointer)(void);
-typedef int (MOSSCALL *MOSS_CompareCallback_r)(void *userdata, const void *a, const void *b);
-typedef int (MOSSCALL *MOSS_CompareCallback)(const void *a, const void *b);
-typedef void *(MOSSCALL *MOSS_calloc_func)(size_t nmemb, size_t size);
+typedef int (MOSS_CALL *MOSS_CompareCallback_r)(void *userdata, const void *a, const void *b);
+typedef int (MOSS_CALL *MOSS_CompareCallback)(const void *a, const void *b);
+typedef void *(MOSS_CALL *MOSS_calloc_func)(size_t nmemb, size_t size);
 
 
 

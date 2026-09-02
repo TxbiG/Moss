@@ -1,10 +1,10 @@
 #pragma once
 
-#include <Jolt/Physics/Character/CharacterBase.h>
-#include <Jolt/Physics/Collision/ObjectLayer.h>
-#include <Jolt/Physics/Collision/TransformedShape.h>
-#include <Jolt/Physics/EActivation.h>
-#include <Jolt/Physics/Body/AllowedDOFs.h>
+#include <Moss/Physics/Character/CharacterBase.h>
+#include <Moss/Physics/Collision/ObjectLayer.h>
+#include <Moss/Physics/Collision/TransformedShape.h>
+#include <Moss/Physics/EActivation.h>
+#include <Moss/Physics/Body/AllowedDOFs.h>
 
 
 MOSS_NAMESPACE_BEGIN

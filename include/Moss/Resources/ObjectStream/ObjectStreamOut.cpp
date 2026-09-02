@@ -2,12 +2,10 @@
 // SPDX-FileCopyrightText: 2021 Jorrit Rouwe
 // SPDX-License-Identifier: MIT
 
-#include <Jolt/Jolt.h>
-
-#include <Jolt/ObjectStream/ObjectStreamOut.h>
-#include <Jolt/ObjectStream/ObjectStreamTextOut.h>
-#include <Jolt/ObjectStream/ObjectStreamBinaryOut.h>
-#include <Jolt/ObjectStream/TypeDeclarations.h>
+#include <Moss/ObjectStream/ObjectStreamOut.h>
+#include <Moss/ObjectStream/ObjectStreamTextOut.h>
+#include <Moss/ObjectStream/ObjectStreamBinaryOut.h>
+#include <Moss/ObjectStream/TypeDeclarations.h>
 
 #ifdef JPH_OBJECT_STREAM
 
@@ -18,7 +16,7 @@ ObjectStreamOut::ObjectStreamOut(ostream &inStream) :
 {
 // Add all primitives to the class set
 #define JPH_DECLARE_PRIMITIVE(name)	mClassSet.insert(JPH_RTTI(name));
-#include <Jolt/ObjectStream/ObjectStreamTypes.h>
+#include <Moss/ObjectStream/ObjectStreamTypes.h>
 }
 
 ObjectStreamOut *ObjectStreamOut::Open(EStreamType inType, ostream &inStream)

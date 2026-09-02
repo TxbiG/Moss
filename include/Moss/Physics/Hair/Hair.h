@@ -11,8 +11,8 @@
 
 #include <Moss/Core/Reference.h>
 #include <Moss/Geometry/AABox.h>
-#include <Moss/Geometry/IndexedTriangle.h>
-#include <Moss/ObjectStream/SerializableObject.h>
+#include <Moss/Geometry/Triangle.h>
+#include <Moss/Resources/ObjectStream/SerializableObject.h>
 
 
 MOSS_NAMESPACE_BEGIN

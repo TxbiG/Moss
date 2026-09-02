@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include <Moss/Physics/Geometry/AABox.h>
+#include <Moss/Variants/AABB3.h>
 
 MOSS_NAMESPACE_BEGIN
 

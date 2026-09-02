@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include <Moss/Physics/Body/BodyPair.h>
+#include <Moss/Physics/Body/Body.h>
 #include <Moss/Physics/Collision/ContactListener.h>
 #include <Moss/Physics/Collision/BroadPhase/BroadPhase.h>
 #include <Moss/Variants/TStaticArray.h>

@@ -7,7 +7,7 @@
 #include <Moss/Renderer/GL/Renderer_GL.h>
 
 #include <string>
-#include <Moss/External/stb_truetype.h>
+#include <Moss/external/stb_truetype.h>
 
 #include <Moss/Core/Reference.h>
 #include <Moss/Variants/Color.h>

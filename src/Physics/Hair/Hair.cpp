@@ -2,16 +2,14 @@
 // SPDX-FileCopyrightText: 2026 Jorrit Rouwe
 // SPDX-License-Identifier: MIT
 
-#include <Jolt/Jolt.h>
-
-#include <Jolt/Physics/Hair/Hair.h>
-#include <Jolt/Physics/Hair/HairShaders.h>
-#include <Jolt/Physics/Collision/Shape/ConvexHullShape.h>
-#include <Jolt/Physics/Collision/Shape/ScaleHelpers.h>
-#include <Jolt/Physics/PhysicsSystem.h>
-#include <Jolt/Core/Profiler.h>
+#include <Moss/Physics/Hair/Hair.h>
+#include <Moss/Physics/Hair/HairShaders.h>
+#include <Moss/Physics/Collision/Shape/ConvexHullShape.h>
+#include <Moss/Physics/Collision/Shape/ScaleHelpers.h>
+#include <Moss/Physics/PhysicsSystem.h>
+#include <Moss/Core/Profiler.h>
 #ifdef JPH_DEBUG_RENDERER
-	#include <Jolt/Renderer/DebugRenderer.h>
+	#include <Moss/Renderer/DebugRenderer.h>
 #endif
 
 JPH_NAMESPACE_BEGIN

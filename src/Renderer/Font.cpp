@@ -8,8 +8,8 @@
 #include <Renderer/Renderer.h>
 #include <Image/Surface.h>
 #include <Utils/ReadData.h>
-#include <Jolt/Core/Profiler.h>
-#include <Jolt/Core/ScopeExit.h>
+#include <Moss/Core/Profiler.h>
+#include <Moss/Core/ScopeExit.h>
 
 JPH_SUPPRESS_WARNINGS_STD_BEGIN
 JPH_CLANG_SUPPRESS_WARNING("-Wreserved-identifier")

@@ -1,5 +1,5 @@
 #define STB_IMAGE_IMPLEMENTATION
-#include <Moss/External/stb_image.h>
+#include <Moss/external/stb_image.h>
 #include <Moss/Renderer/GL/TextureGL.h>
 
 

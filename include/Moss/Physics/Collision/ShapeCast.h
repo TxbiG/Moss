@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include <Moss/Physics/Geometry/AABox.h>
+#include <Moss/Variants/AABB3.h>
 #include <Moss/Physics/Collision/CollideShape.h>
 #include <Moss/Physics/Collision/Shape/Shape.h>
 

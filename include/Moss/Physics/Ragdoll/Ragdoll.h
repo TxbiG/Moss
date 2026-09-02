@@ -3,13 +3,13 @@
 // SPDX-License-Identifier: MIT
 #pragma once
 
-#include <Jolt/Core/Reference.h>
-#include <Jolt/Core/Result.h>
-#include <Jolt/Physics/Body/BodyCreationSettings.h>
-#include <Jolt/Physics/Constraints/TwoBodyConstraint.h>
-#include <Jolt/Skeleton/Skeleton.h>
-#include <Jolt/Skeleton/SkeletonPose.h>
-#include <Jolt/Physics/EActivation.h>
+#include <Moss/Core/Reference.h>
+#include <Moss/Core/Result.h>
+#include <Moss/Physics/Body/BodyCreationSettings.h>
+#include <Moss/Physics/Constraints/TwoBodyConstraint.h>
+#include <Moss/Skeleton/Skeleton.h>
+#include <Moss/Skeleton/SkeletonPose.h>
+#include <Moss/Physics/EActivation.h>
 
 MOSS_NAMESPACE_BEGIN
 

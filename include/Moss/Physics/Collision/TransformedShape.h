@@ -9,7 +9,7 @@
 #include <Moss/Physics/Collision/Shape/Shape.h>
 #include <Moss/Physics/Collision/Shape/SubShapeID.h>
 #include <Moss/Physics/Collision/BackFaceMode.h>
-#include <Moss/Physics/Body/BodyID.h>
+#include <Moss/Physics/Body/Body.h>
 
 MOSS_NAMESPACE_BEGIN
 

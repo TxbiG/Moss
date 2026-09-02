@@ -5,7 +5,7 @@
 #pragma once
 
 #include <Moss/Core/Reference.h>
-#include <Moss/Physics/Body/BodyCreationSettings.h>
+#include <Moss/Physics/Body/Body.h>
 #include <Moss/Physics/SoftBody/SoftBodyCreationSettings.h>
 #include <Moss/Physics/Constraints/TwoBodyConstraint.h>
 

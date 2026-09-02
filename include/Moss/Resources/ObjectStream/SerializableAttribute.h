@@ -26,7 +26,7 @@ enum class EOSDataType
 	#define JPH_DECLARE_PRIMITIVE(name)	T_##name,
 
 	// This file uses the JPH_DECLARE_PRIMITIVE macro to define all types
-	#include <Jolt/ObjectStream/ObjectStreamTypes.h>
+	#include <Moss/ObjectStream/ObjectStreamTypes.h>
 
 	// Error values for read functions
 	Invalid,																		///< Next token on the stream was not a valid data type

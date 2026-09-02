@@ -792,7 +792,7 @@ typedef void (*Moss_WindowResizeCallback)(int width, int height);
 //! @brief Callback for monitor configuration changes (e.g. hotplug events). @param monitorName Name or ID of the monitor that changed. @param connected True if the monitor was connected; false if disconnected.
 typedef void (*Moss_MonitorCallback)(const char* monitorName, bool connected);
 //! @brief X. @param width X. @param X. */
-typedef void (MOSSCALL* Moss_DialogFileCallback)(void* userdata, const char* const* filelist, int filter);
+typedef void (MOSS_CALL* Moss_DialogFileCallback)(void* userdata, const char* const* filelist, int filter);
 //! @brief X. @param width X. @param X. */
 typedef bool (*Moss_DirectoryIterateFn)(const Moss_PathInfo* info, const char* path, void* user_data);
 //! @brief X. @param width X. @param X. */

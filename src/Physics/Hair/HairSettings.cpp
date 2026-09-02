@@ -2,16 +2,14 @@
 // SPDX-FileCopyrightText: 2026 Jorrit Rouwe
 // SPDX-License-Identifier: MIT
 
-#include <Jolt/Jolt.h>
-
-#include <Jolt/Physics/Hair/HairSettings.h>
-#include <Jolt/ObjectStream/TypeDeclarations.h>
-#include <Jolt/Geometry/ClosestPoint.h>
-#include <Jolt/TriangleSplitter/TriangleSplitterBinning.h>
-#include <Jolt/AABBTree/AABBTreeBuilder.h>
-#include <Jolt/Core/QuickSort.h>
-#include <Jolt/Core/StreamIn.h>
-#include <Jolt/Core/StreamOut.h>
+#include <Moss/Physics/Hair/HairSettings.h>
+#include <Moss/ObjectStream/TypeDeclarations.h>
+#include <Moss/Geometry/ClosestPoint.h>
+#include <Moss/TriangleSplitter/TriangleSplitterBinning.h>
+#include <Moss/AABBTree/AABBTreeBuilder.h>
+#include <Moss/Core/QuickSort.h>
+#include <Moss/Core/StreamIn.h>
+#include <Moss/Core/StreamOut.h>
 
 JPH_NAMESPACE_BEGIN
 

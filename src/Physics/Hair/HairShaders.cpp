@@ -2,10 +2,8 @@
 // SPDX-FileCopyrightText: 2026 Jorrit Rouwe
 // SPDX-License-Identifier: MIT
 
-#include <Jolt/Jolt.h>
-
-#include <Jolt/Physics/Hair/HairShaders.h>
-#include <Jolt/Shaders/HairStructs.h>
+#include <Moss/Physics/Hair/HairShaders.h>
+#include <Moss/Shaders/HairStructs.h>
 
 JPH_NAMESPACE_BEGIN
 

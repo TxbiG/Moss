@@ -129,9 +129,9 @@ void Moss_GetMonitorContentScale(Moss_Monitor* monitor, float* xscale, float* ys
     *yscale = dpiY / 96.0f;
 }
 
-void Moss_GetMonitorPosition(Moss_Monitor* monitor, int* x, int* y)
-{
-    MONITORINFO mi = { .cbSize = sizeof(mi) };
+void Moss_GetMonitorPosition(Moss_Monitor* monitor, int* x, int* y) {
+    MONITORINFO mi = {};
+    mi.cbSize = sizeof(mi);
     if (GetMonitorInfo(monitor->handle, &mi)) {
         *x = mi.rcMonitor.left;
         *y = mi.rcMonitor.top;
@@ -252,7 +252,7 @@ void Moss_MonitorSetGammaRamp(Moss_Monitor* monitor, const Moss_GammaRamp* gamma
 }
 
 Moss_GammaRamp* Moss_MonitorGetGammaRamp(Moss_Monitor* monitor) {
-    return monitor ? Moss_GetGammaRamp(*monitor) : nullptr;
+    return monitor ? Moss_GetGammaRamp(monitor) : nullptr;
 }
 
 void Moss_MonitorSetGamma(Moss_Monitor* monitor, float gamma) {
@@ -262,7 +262,8 @@ void Moss_MonitorSetGamma(Moss_Monitor* monitor, float gamma) {
 
 static int CountVideoModes(const char* deviceName) {
     int count = 0;
-    DEVMODEA  dm = { .dmSize = sizeof(DEVMODEA) };
+    DEVMODEA dm = {};
+    dm.dmSize = sizeof(DEVMODEA);
     for (int i = 0; EnumDisplaySettingsA(deviceName, i, &dm); i++) { count++; }
     return count;
 }
@@ -271,7 +272,7 @@ Moss_VideoMode* Moss_GetVideoModes(Moss_Monitor* monitor, int* outCount) {
     int count = CountVideoModes(monitor->displayDevice.DeviceName);
     if (outCount) *outCount = count;
 
-    if (count == 0) return NULL;
+    if (count == 0) { return NULL; }
 
     Moss_VideoMode* modes = (Moss_VideoMode*)malloc(sizeof(Moss_VideoMode) * count);
     if (!modes) return NULL;
@@ -284,18 +285,12 @@ Moss_VideoMode* Moss_GetVideoModes(Moss_Monitor* monitor, int* outCount) {
         m->height = devMode.dmPelsHeight;
         m->refreshRate = devMode.dmDisplayFrequency;
         // Bit depth logic
-        if (devMode.dmBitsPerPel == 16) { 
-            m->redBits = 5; m->greenBits = 6; m->blueBits = 5; 
-        } else if (devMode.dmBitsPerPel == 24 || devMode.dmBitsPerPel == 32) { 
-            m->redBits = m->greenBits = m->blueBits = 8; 
-        } else { 
-            m->redBits = m->greenBits = m->blueBits = devMode.dmBitsPerPel / 3; 
-        }
+        if (devMode.dmBitsPerPel == 16) { m->redBits = 5; m->greenBits = 6; m->blueBits = 5;  } 
+        else if (devMode.dmBitsPerPel == 24 || devMode.dmBitsPerPel == 32) {  m->redBits = m->greenBits = m->blueBits = 8;  } 
+        else {  m->redBits = m->greenBits = m->blueBits = devMode.dmBitsPerPel / 3;  }
     }
 
     return modes;
 }
 
-void Moss_SetMonitorCallback(Moss_MonitorCallback callback) {
-
-}
+void Moss_SetMonitorCallback(Moss_MonitorCallback callback) { g_monitorCallback = callback; }

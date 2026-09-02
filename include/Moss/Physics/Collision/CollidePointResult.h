@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include <Moss/Physics/Body/BodyID.h>
+#include <Moss/Physics/Body/Body.h>
 #include <Moss/Physics/Collision/Shape/SubShapeID.h>
 
 MOSS_NAMESPACE_BEGIN

@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include <Jolt/Core/Reference.h>
+#include <Moss/Core/Reference.h>
 
 /// Simple wrapper around vertex and index buffers
 class RenderPrimitive : public RefTarget<RenderPrimitive>, public RefTargetVirtual

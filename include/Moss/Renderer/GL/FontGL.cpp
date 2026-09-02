@@ -5,7 +5,7 @@
 #include <iostream>
 
 #define STB_TRUETYPE_IMPLEMENTATION
-#include <Moss/External/stb_truetype.h>
+#include <Moss/external/stb_truetype.h>
 
 const char* vertexfont = R"(
 #version 330 core

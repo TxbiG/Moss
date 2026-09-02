@@ -2,12 +2,10 @@
 // SPDX-FileCopyrightText: 2021 Jorrit Rouwe
 // SPDX-License-Identifier: MIT
 
-#include <Jolt/Jolt.h>
-
 #ifdef JPH_OBJECT_STREAM
 
-#include <Jolt/ObjectStream/ObjectStreamTextOut.h>
-#include <Jolt/Core/StringTools.h>
+#include <Moss/ObjectStream/ObjectStreamTextOut.h>
+#include <Moss/Core/StringTools.h>
 
 JPH_NAMESPACE_BEGIN
 

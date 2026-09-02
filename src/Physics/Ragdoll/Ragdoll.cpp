@@ -2,19 +2,17 @@
 // SPDX-FileCopyrightText: 2021 Jorrit Rouwe
 // SPDX-License-Identifier: MIT
 
-#include <Jolt/Jolt.h>
-
-#include <Jolt/Physics/Ragdoll/Ragdoll.h>
-#include <Jolt/Physics/Constraints/SwingTwistConstraint.h>
-#include <Jolt/Physics/Constraints/HingeConstraint.h>
-#include <Jolt/Physics/PhysicsSystem.h>
-#include <Jolt/Physics/Body/BodyLockMulti.h>
-#include <Jolt/Physics/Collision/GroupFilterTable.h>
-#include <Jolt/Physics/Collision/CollisionCollectorImpl.h>
-#include <Jolt/Physics/Collision/CollideShape.h>
-#include <Jolt/Physics/Collision/CollisionDispatch.h>
-#include <Jolt/ObjectStream/TypeDeclarations.h>
-#include <Jolt/Core/StreamUtils.h>
+#include <Moss/Physics/Ragdoll/Ragdoll.h>
+#include <Moss/Physics/Constraints/SwingTwistConstraint.h>
+#include <Moss/Physics/Constraints/HingeConstraint.h>
+#include <Moss/Physics/PhysicsSystem.h>
+#include <Moss/Physics/Body/BodyLockMulti.h>
+#include <Moss/Physics/Collision/GroupFilterTable.h>
+#include <Moss/Physics/Collision/CollisionCollectorImpl.h>
+#include <Moss/Physics/Collision/CollideShape.h>
+#include <Moss/Physics/Collision/CollisionDispatch.h>
+#include <Moss/ObjectStream/TypeDeclarations.h>
+#include <Moss/Core/StreamUtils.h>
 
 JPH_NAMESPACE_BEGIN
 

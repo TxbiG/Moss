@@ -2,16 +2,14 @@
 // SPDX-FileCopyrightText: 2021 Jorrit Rouwe
 // SPDX-License-Identifier: MIT
 
-#include <Jolt/Jolt.h>
-
 #ifdef JPH_OBJECT_STREAM
 
-#include <Jolt/ObjectStream/ObjectStreamIn.h>
-#include <Jolt/Core/Factory.h>
-#include <Jolt/Core/UnorderedSet.h>
-#include <Jolt/ObjectStream/ObjectStreamTextIn.h>
-#include <Jolt/ObjectStream/ObjectStreamBinaryIn.h>
-#include <Jolt/ObjectStream/SerializableObject.h>
+#include <Moss/ObjectStream/ObjectStreamIn.h>
+#include <Moss/Core/Factory.h>
+#include <Moss/Core/UnorderedSet.h>
+#include <Moss/ObjectStream/ObjectStreamTextIn.h>
+#include <Moss/ObjectStream/ObjectStreamBinaryIn.h>
+#include <Moss/ObjectStream/SerializableObject.h>
 
 JPH_NAMESPACE_BEGIN
 

@@ -15,7 +15,7 @@
 #include <Window/ApplicationWindowMacOS.h>
 #include <Utils/Log.h>
 #include <Utils/AssetStream.h>
-#include <Jolt/Core/Profiler.h>
+#include <Moss/Core/Profiler.h>
 
 RendererMTL::~RendererMTL()
 {

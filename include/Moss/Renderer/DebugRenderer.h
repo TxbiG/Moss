@@ -19,7 +19,7 @@
 #include <Moss/Core/NonCopyable.h>
 #include <Moss/Variants/Vector/Float2.h>
 #include <Moss/Physics/Geometry/IndexedTriangle.h>
-#include <Moss/Physics/Geometry/AABox.h>
+#include <Moss/Variants/AABB3.h>
 
 MOSS_SUPRESS_WARNINGS_BEGIN
 

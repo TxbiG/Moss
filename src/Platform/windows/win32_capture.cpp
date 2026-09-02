@@ -32,7 +32,7 @@ typedef struct Moss_VideoCapture {
 HRESULT STDMETHODCALLTYPE BufferCB(double Time, char* pBuffer, long Len) {
     Moss_VideoCapture* cap;
 
-    EnterCriticalSection(cap->lock);
+    EnterCriticalSection(&cap->lock);
     if (cap->frameBuffer && Len <= cap->frameSize) {
         memcpy(cap->frameBuffer, pBuffer, Len);
         cap->frameReady = true;

@@ -463,7 +463,7 @@ private:
 //#define MOSS_ENABLE_DETERMINISM_LOG
 #ifdef MOSS_ENABLE_DETERMINISM_LOG
 
-#include <Moss/Physics/Body/BodyID.h>
+#include <Moss/Physics/Body/Body.h>
 #include <Moss/Physics/Collision/Shape/SubShapeID.h>
 
 MOSS_SUPPRESS_WARNINGS_STD_BEGIN
