@@ -7,6 +7,7 @@
 #include <Moss/Geometry/Triangle.h>
 #include <Moss/Core/NonCopyable.h>
 #include <Moss/Variants/AABB3.h>
+#include <Moss/Variants/AABB2.h>
 
 MOSS_SUPRESS_WARNINGS_BEGIN
 
@@ -75,8 +76,8 @@ protected:
 	/// Helper function to split triangles based on dimension and split value
 	bool						SplitInternal(const Range &inTriangles, uint32 inDimension, float inSplit, Range &outLeft, Range &outRight);
 
-	const VertexList &			mVertices;				// Vertices of the indexed triangles
-	const IndexedTriangleList &	mTriangles;				// Unsorted triangles
+	const VertexList&			mVertices;				// Vertices of the indexed triangles
+	const IndexedTriangleList&	mTriangles;				// Unsorted triangles
 	TArray<Float3>				mCentroids;				// Unsorted centroids of triangles
 	TArray<uint32>					mSortedTriangleIdx;	// Indices to sort triangles
 };

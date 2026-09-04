@@ -57,7 +57,10 @@ Moss_PropertiesID Moss_GetCameraProperties(Moss_Camera* camera) {}
 void Moss_CloseCamera(Moss_Camera *camera) {}
 Moss_CameraID Moss_GetCameraID(Moss_Camera *camera) {}
 //Moss_PropertiesID Moss_GetCameraProperties(Moss_Camera *camera) {}
-Moss_Camera* Moss_OpenCamera(Moss_CameraID instance_id, const Moss_CameraSpec *spec) {}
+Moss_Camera* Moss_OpenCamera(Moss_CameraID instance_id, const Moss_CameraSpec *spec) {
+
+    return nullptr;
+}
 
 Moss_VideoCapture* Moss_OpenCapture(Moss_CameraID captureID) {
     Moss_VideoCapture* cap = (Moss_VideoCapture*)calloc(1, sizeof(Moss_VideoCapture));

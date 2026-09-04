@@ -443,14 +443,6 @@ void setWindowMode(int mode) {}
 /*! @brief Change Window Flags. @param X X. @ingroup window */
 void setWindowFlag(int mode) {}
 
-const wchar_t* convertCharToWchar(const char* str) {
-    static std::wstring wstr;
-    int size_needed = MultiByteToWideChar(CP_UTF8, 0, str, -1, nullptr, 0);
-    wstr.resize(size_needed - 1);
-    MultiByteToWideChar(CP_UTF8, 0, str, -1, &wstr[0], size_needed);
-    return wstr.c_str();
-}
-
 void Moss_SetWindowTitle(Moss_Window* window, const char* title) {
     const wchar_t* tmp_title = convertCharToWchar(title);
     SetWindowTextW(window->handle, tmp_title);

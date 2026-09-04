@@ -2,6 +2,10 @@
 // SPDX-FileCopyrightText: 2024 Jorrit Rouwe
 // SPDX-License-Identifier: MIT
 
+#pragma once
+
+#include <Moss/Moss_stdinc.h>
+
 MOSS_SUPRESS_WARNINGS_BEGIN
 
 BVec16::BVec16(uint8 inB0, uint8 inB1, uint8 inB2, uint8 inB3, uint8 inB4, uint8 inB5, uint8 inB6, uint8 inB7, uint8 inB8, uint8 inB9, uint8 inB10, uint8 inB11, uint8 inB12, uint8 inB13, uint8 inB14, uint8 inB15)
@@ -136,7 +140,7 @@ BVec16 BVec16::And(BVec16Arg inV1, BVec16Arg inV2)
 BVec16 BVec16::Not(BVec16Arg inV1)
 {
 #if defined(MOSS_SIMD_SSE)
-	return sXor(inV1, Replicate(0xff));
+	return Xor(inV1, Replicate(0xff));
 #elif defined(MOSS_SIMD_NEON)
 	return vmvnq_u8(inV1.mValue);
 #else

@@ -2,6 +2,7 @@
 #define MOSS_RENDERER_INTERNAL_H
 
 #include "../renderer_intern.h"
+#include <Moss/external/glad.h>
 
 struct Moss_Renderer {
     Moss_Window* window;

@@ -2,8 +2,9 @@
 
 #include <Moss/Geometry/Triangle.h>
 #include <Moss/Variants/Matrix/Mat44.h>
+#include <Moss/Variants/AABB3.h>
 
-MOSS_WARNINGS_BEGIN
+MOSS_SUPRESS_WARNINGS_BEGIN
 
 class AABB3;
 
@@ -189,4 +190,4 @@ public:
 	RVec3			mHalfExtents; // Half extents (half the size of the edge) of the local space axis aligned box
 };
 
-MOSS_WARNINGS_END
+MOSS_SUPRESS_WARNINGS_END

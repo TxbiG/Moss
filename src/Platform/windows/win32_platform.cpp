@@ -88,6 +88,7 @@ bool Moss_OpenURL(const char* url) {
 }
 
 Moss_Locale* Moss_GetLocale() {
+    static Moss_Locale locale = {};
     WCHAR wbuf[LOCALE_NAME_MAX_LENGTH];
     if (GetUserDefaultLocaleName(wbuf, LOCALE_NAME_MAX_LENGTH) == 0) {
         locale->language = strdup_safe("en");
@@ -116,6 +117,8 @@ Moss_Locale* Moss_GetLocale() {
         locale->country  = strdup_safe("US");
     }
     free(buf);
+
+    return locale;
 }
 
 
@@ -137,9 +140,7 @@ Moss_PowerState Moss_GetPowerInfo(int *seconds, int *percent) {
     if (sps.ACLineStatus == 1)
         return Moss_PowerState::CHARGING;
 
-    return (sps.BatteryLifePercent < 10)
-        ? Moss_PowerState::ON_BATTERY
-        : Moss_PowerState::ON_BATTERY;
+    return (sps.BatteryLifePercent < 10) ? Moss_PowerState::ON_BATTERY : Moss_PowerState::NO_BATTERY;
 }
 
 bool Moss_IsProcessRunningByName(const char* executable_path) {
@@ -229,12 +230,12 @@ bool Moss_GetBasePath(char* out_path, int max_len) { return GetModuleFileNameA(N
 /* ---------------------------------------------------------- */
 /* User folders                                               */
 /* ---------------------------------------------------------- */
-
+// User folders
 bool Moss_GetUserFolder(Moss_UserFolder folder, char* out_path, int max_len) {
     if (!out_path || max_len <= 0)
         return false;
 
-    REFKNOWNFOLDERID kfid;
+    const REFKNOWNFOLDERID* kfid = nullptr;
 
     switch (folder) {
         case Moss_UserFolder::DESKTOP:    kfid = FOLDERID_Desktop; break;
@@ -251,7 +252,7 @@ bool Moss_GetUserFolder(Moss_UserFolder folder, char* out_path, int max_len) {
     }
 
     PWSTR wpath = NULL;
-    if (FAILED(SHGetKnownFolderPath(kfid, 0, NULL, &wpath)))
+    if (FAILED(SHGetKnownFolderPath(*kfid, 0, NULL, &wpath)))
         return false;
 
     int written = WideCharToMultiByte(CP_UTF8, 0, wpath, -1, out_path, max_len, NULL, NULL);
@@ -306,6 +307,18 @@ bool Moss_EnumerateDirectory(const char* path, bool recursive, Moss_DirectoryIte
     return true;
 }
 
+// Directory enumeration
+static Moss_PathInfo moss_path_info_from_find_data(const WIN32_FIND_DATAA* fd) {
+    Moss_PathInfo info = {};
+    if (!fd) return info;
+    info.type = (fd->dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) ? Moss_PathType::DIRECTORY : Moss_PathType::FILE;
+    info.size = ((uint64)fd->nFileSizeHigh << 32) | fd->nFileSizeLow;
+    info.readable = true;
+    info.writable = (fd->dwFileAttributes & FILE_ATTRIBUTE_READONLY) == 0;
+    info.executable = false;
+    return info;
+}
+
 bool Moss_GlobDirectory(const char* pattern, Moss_DirectoryIterateFn callback, void* user_data) {
     if (!pattern || !callback) return false;
     WIN32_FIND_DATAA fd;
@@ -326,17 +339,30 @@ bool Moss_GlobDirectory(const char* pattern, Moss_DirectoryIterateFn callback, v
 /* File dialogs (simple, legacy)                              */
 /* ---------------------------------------------------------- */
 
+// File dialogs (simple, legacy)
+static void Moss_InvokeSinglePathDialogCallback(Moss_DialogFileCallback callback, void* userdata, const char* path) {
+    if (!callback || !path || !path[0]) return;
+    const char* files[2] = { path, nullptr };
+    callback(userdata, files, 0);
+}
+
 void Moss_ShowOpenFileDialog(Moss_DialogFileCallback callback, void *userdata, Moss_Window *window, const char *default_location, bool allow_many) {
-    (void)window;
-    OPENFILENAMEA ofn = { sizeof(ofn) };
+    OPENFILENAMEA ofn;
     char buffer[4096] = {0};
 
-    ofn.lpstrFile = buffer;
-    ofn.nMaxFile  = sizeof(buffer);
+    ZeroMemory(&ofn, sizeof(ofn));
+    ofn.lStructSize = sizeof(ofn);
+    ofn.hwndOwner   = window;
+    ofn.lpstrFile   = buffer;
+    ofn.nMaxFile    = sizeof(buffer);
     ofn.lpstrInitialDir = default_location;
-    ofn.Flags     = OFN_EXPLORER | OFN_FILEMUSTEXIST;
-    if (allow_many)
+    ofn.nFilterIndex = 1;
+    
+    // OFN_EXPLORER is required for modern multi-select behavior
+    ofn.Flags = OFN_EXPLORER | OFN_FILEMUSTEXIST | OFN_PATHMUSTEXIST;
+    if (allow_many) {
         ofn.Flags |= OFN_ALLOWMULTISELECT;
+    }
 
     if (GetOpenFileNameA(&ofn))
         Moss_InvokeSinglePathDialogCallback(callback, userdata, buffer);
@@ -354,6 +380,14 @@ void Moss_ShowSaveFileDialog(Moss_FileDialogType type, Moss_DialogFileCallback c
 
     if (GetSaveFileNameA(&ofn))
         Moss_InvokeSinglePathDialogCallback(callback, userdata, buffer);
+}
+
+// Storange helper
+static void moss_storage_fullpath(Moss_Storage *storage, const char *path, char *out) {
+    if (path && path[0])
+        wsprintfA(out, "%s\\%s", storage->root, path);
+    else
+        lstrcpyA(out, storage->root);
 }
 
 bool Moss_CopyStorageFile(Moss_Storage *storage, const char *oldpath, const char *newpath){
@@ -466,8 +500,8 @@ Moss_Storage* Moss_OpenStorage(const Moss_Storage *iface, void *userdata) {
 }
 Moss_Storage* Moss_OpenTitleStorage(const char *override_path, Moss_PropertiesID props) {
     char path[MAX_PATH];
-    if (override)
-        lstrcpyA(path, override);
+    if (override_path)
+        lstrcpyA(path, override_path);
     else
         GetModuleFileNameA(NULL, path, MAX_PATH);
 
@@ -543,7 +577,6 @@ bool Moss_CloseStorage(Moss_Storage *storage) { free(storage); return true; }
 // Helpers:
 static char* g_clipboardText = nullptr;
 static Moss_CursorMode g_cursorMode = Moss_CursorMode::VISIBLE;
-static Moss_Locale g_mossWinLocale = {};
 
 bool Moss_SetClipboardText(const char* text) {
     if (!OpenClipboard(handle)) return false;
@@ -742,46 +775,6 @@ void Moss_GetWindowContentScale(Moss_Window* window, float* xscale, float* yscal
     if (yscale) *yscale = scale;
 }
 
-// Storange helper
-static void moss_storage_fullpath(Moss_Storage *storage, const char *path, char *out) {
-    if (path && path[0])
-        wsprintfA(out, "%s\\%s", storage->root, path);
-    else
-        lstrcpyA(out, storage->root);
-}
-
-Moss_Locale* Moss_GetLocale() {
-    WCHAR wbuf[LOCALE_NAME_MAX_LENGTH];
-    if (GetUserDefaultLocaleName(wbuf, LOCALE_NAME_MAX_LENGTH) == 0) {
-        g_mossWinLocale.language = strdup_safe("en");
-        g_mossWinLocale.country  = strdup_safe("US");
-        return &g_mossWinLocale;
-    }
-
-    // Convert wide char to UTF-8
-    int size_needed = WideCharToMultiByte(CP_UTF8, 0, wbuf, -1, NULL, 0, NULL, NULL);
-    char* buf = (char*)malloc(size_needed);
-    if (!buf) {
-        g_mossWinLocale.language = strdup_safe("en");
-        g_mossWinLocale.country  = strdup_safe("US");
-        return &g_mossWinLocale;
-    }
-    WideCharToMultiByte(CP_UTF8, 0, wbuf, -1, buf, size_needed, NULL, NULL);
-
-    // Split into lang + country
-    char* dash = strchr(buf, '-');
-    if (dash) {
-        *dash = '\0';
-        g_mossWinLocale.language = strdup_safe(buf);
-        g_mossWinLocale.country  = strdup_safe(dash + 1);
-    } else {
-        g_mossWinLocale.language = strdup_safe(buf);
-        g_mossWinLocale.country  = strdup_safe("US");
-    }
-    free(buf);
-    return &g_mossWinLocale;
-}
-
 Moss_PlatformTheme Moss_GetPlatformTheme(void) {
     return Moss_PlatformTheme::UNKNOWN;
 }
@@ -791,75 +784,6 @@ Moss_PlatformTheme Moss_GetPlatformTheme(void) {
 bool Moss_GetCurrentDirectory(char* out_path, int max_len) { return GetCurrentDirectoryA(max_len, out_path) > 0; }
 
 bool Moss_GetBasePath(char* out_path, int max_len) { return GetModuleFileNameA(NULL, out_path, max_len) > 0; }
-
-
-// User folders
-
-bool Moss_GetUserFolder(Moss_UserFolder folder, char* out_path, int max_len) {
-    if (!out_path || max_len <= 0)
-        return false;
-
-    REFKNOWNFOLDERID kfid;
-
-    switch (folder) {
-        case Moss_UserFolder::DESKTOP:    kfid = FOLDERID_Desktop; break;
-        case Moss_UserFolder::HOME:       kfid = FOLDERID_Profile; break;
-        case Moss_UserFolder::DOCUMENTS:  kfid = FOLDERID_Documents; break;
-        case Moss_UserFolder::APPDATA:    kfid = FOLDERID_RoamingAppData; break;
-        case Moss_UserFolder::PICTURES:   kfid = FOLDERID_Pictures; break;
-        case Moss_UserFolder::MUSIC:      kfid = FOLDERID_Music; break;
-        case Moss_UserFolder::VIDEOS:     kfid = FOLDERID_Videos; break;
-        case Moss_UserFolder::CACHE:      kfid = FOLDERID_InternetCache; break;
-        case Moss_UserFolder::DOWNLOADS:  kfid = FOLDERID_Downloads; break;
-        default:
-            return false;
-    }
-
-    PWSTR wpath = NULL;
-    if (FAILED(SHGetKnownFolderPath(kfid, 0, NULL, &wpath)))
-        return false;
-
-    int written = WideCharToMultiByte(CP_UTF8, 0, wpath, -1, out_path, max_len, NULL, NULL);
-
-    CoTaskMemFree(wpath);
-
-    if (written == 0 || written >= max_len)
-        return false;
-
-    return true;
-}
-
-bool Moss_GetPrefPath(const char* org_name, const char* app_name, char* out_path, int max_len) {
-    if (SHGetFolderPathA(NULL, CSIDL_APPDATA, NULL, 0, out_path) != S_OK)
-        return false;
-
-    PathAppendA(out_path, org_name);
-    CreateDirectoryA(out_path, NULL);
-    PathAppendA(out_path, app_name);
-    CreateDirectoryA(out_path, NULL);
-    return true;
-}
-
-// Directory enumeration
-
-static Moss_PathInfo moss_path_info_from_find_data(const WIN32_FIND_DATAA* fd) {
-    Moss_PathInfo info = {};
-    if (!fd) return info;
-    info.type = (fd->dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) ? Moss_PathType::DIRECTORY : Moss_PathType::FILE;
-    info.size = ((uint64)fd->nFileSizeHigh << 32) | fd->nFileSizeLow;
-    info.readable = true;
-    info.writable = (fd->dwFileAttributes & FILE_ATTRIBUTE_READONLY) == 0;
-    info.executable = false;
-    return info;
-}
-
-// File dialogs (simple, legacy)
-
-static void Moss_InvokeSinglePathDialogCallback(Moss_DialogFileCallback callback, void* userdata, const char* path) {
-    if (!callback || !path || !path[0]) return;
-    const char* files[2] = { path, nullptr };
-    callback(userdata, files, 0);
-}
 
 void Moss_ShowFileDialogWithProperties(Moss_DialogFileCallback callback, void *userdata, Moss_Window *window, const Moss_DialogFileFilter *filters, int nfilters, const char *default_location) {
     (void)filters;

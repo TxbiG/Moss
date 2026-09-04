@@ -300,4 +300,12 @@ void HandleHIDInput(RAWINPUT* raw) {
     }
 }
 
+const wchar_t* convertCharToWchar(const char* str) {
+    static std::wstring wstr;
+    int size_needed = MultiByteToWideChar(CP_UTF8, 0, str, -1, nullptr, 0);
+    wstr.resize(size_needed - 1);
+    MultiByteToWideChar(CP_UTF8, 0, str, -1, &wstr[0], size_needed);
+    return wstr.c_str();
+}
+
 #endif // MOSS_PLATFORM_WIN32_H

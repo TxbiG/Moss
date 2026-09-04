@@ -2,10 +2,9 @@
 
 #include <Moss/Geometry/Triangle.h>
 #include <Moss/Variants/Matrix/Mat44.h>
+#include <Moss/Variants/AABB2.h>
 
-MOSS_WARNINGS_BEGIN
-
-class AABB2;
+MOSS_SUPRESS_WARNINGS_BEGIN
 
 /// Oriented box 2D
 class MOSS_EXPORT_GCC_BUG_WORKAROUND [[nodiscard]] OBB2 {
@@ -189,4 +188,4 @@ public:
 	RVec2			mHalfExtents;		// Half extents (half the size of the edge) of the local space axis aligned box
 };
 
-MOSS_WARNINGS_END
+MOSS_SUPRESS_WARNINGS_END

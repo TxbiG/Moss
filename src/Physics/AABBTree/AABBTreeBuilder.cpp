@@ -3,6 +3,7 @@
 // SPDX-License-Identifier: MIT
 
 #include <Moss/Physics/AABBTree/AABBTreeBuilder.h>
+#include <Moss/TriangleSplitter/TriangleSplitter.h>
 
 MOSS_SUPRESS_WARNINGS_BEGIN
 
