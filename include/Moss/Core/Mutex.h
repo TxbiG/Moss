@@ -4,6 +4,7 @@
 
 #pragma once
 
+#include <Moss/Moss_stdinc.h>
 #include <Moss/Core/Profiler.h>
 #include <Moss/Core/NonCopyable.h>
 

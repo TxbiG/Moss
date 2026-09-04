@@ -42,7 +42,7 @@ struct Moss_Renderer {
     // Fullscreen / debug
     GLuint fullscreenVAO = 0;
 };
-
+/*
 struct Moss_Renderer {
     Moss_Window* window;
 
@@ -120,7 +120,7 @@ struct Moss_Renderer {
     // -------------------------------------------------
     void* backendData; // points to GLES/Vulkan/Metal renderer impl
 };
-
+*/
 struct Moss_GPUBuffer {
     Moss_GPUDevice* device;
 

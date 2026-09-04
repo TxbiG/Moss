@@ -20,6 +20,8 @@ class BodyDrawFilter;
 
 static constexpr uint cBodyTypeCount = 2;
 
+class Body;
+
 enum class EBodyType : uint8 { 
 	Rigid, 
 	Soft 
@@ -171,8 +173,8 @@ public:
 	class Grant {
 	public:
 		inline Grant(EAccess inVelocity, EAccess inPosition) {
-			EAccess &velocity = sVelocityAccess();
-			EAccess &position = sPositionAccess();
+			EAccess &velocity = VelocityAccess();
+			EAccess &position = PositionAccess();
 
 			MOSS_ASSERT(velocity == EAccess::ReadWrite);
 			MOSS_ASSERT(position == EAccess::ReadWrite);
@@ -182,8 +184,8 @@ public:
 		}
 
 		inline ~Grant() {
-			sVelocityAccess() = EAccess::ReadWrite;
-			sPositionAccess() = EAccess::ReadWrite;
+			VelocityAccess() = EAccess::ReadWrite;
+			PositionAccess() = EAccess::ReadWrite;
 		}
 	};
 
@@ -1866,7 +1868,7 @@ public:
 	SoftBodyCreationSettings GetSoftBodyCreationSettings() const;
 
 	// A dummy body that can be used by constraints to attach a constraint to the world instead of another body
-	static BodyFixedToWorld;
+	static Body FixedToWorld;
 
 	//@name THESE FUNCTIONS ARE FOR INTERNAL USE ONLY AND SHOULD NOT BE CALLED BY THE APPLICATION
 

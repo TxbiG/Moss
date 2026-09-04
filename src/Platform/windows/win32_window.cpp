@@ -10,6 +10,15 @@ static bool isRunning = true;
 
 #ifdef MOSS_USE_OPENGL
 
+typedef HGLRC (WINAPI *PFN_wglCreateContext)(HDC hdc);
+typedef BOOL  (WINAPI *PFN_wglDeleteContext)(HGLRC hglrc);
+typedef PROC  (WINAPI *PFN_wglGetProcAddress)(LPCSTR lpszProc);
+typedef HDC   (WINAPI *PFN_wglGetCurrentDC)(void);
+typedef HGLRC (WINAPI *PFN_wglGetCurrentContext)(void);
+typedef BOOL  (WINAPI *PFN_wglMakeCurrent)(HDC hdc, HGLRC hglrc);
+typedef BOOL  (WINAPI *PFN_wglShareLists)(HGLRC hglrc1, HGLRC hglrc2);
+
+
 typedef struct _libraryWGL
 {
     HINSTANCE                           instance;
@@ -72,6 +81,8 @@ static PFNWGLSWAPINTERVALEXTPROC wglSwapIntervalEXT = NULL;
 
 static HDC dc;
 
+static wchar_t g_highSurrogate = 0;
+
 #ifdef MOSS_USE_VULKAN
 #include <vulkan/vulkan.h>
 VkInstance m_instance = VK_NULL_HANDLE;
@@ -95,6 +106,25 @@ static void RegisterRawMouse(HWND hWnd)
     rid.dwFlags     = RIDEV_INPUTSINK; // receive even when not focused
     rid.hwndTarget  = hWnd;
     RegisterRawInputDevices(&rid,1,sizeof(rid));
+}
+
+struct Moss_Pointer {
+    UINT32 id = 0;
+    bool down = false;
+    float x = 0, y = 0;
+    float pressure = 0, tilt_x = 0, tilt_y = 0, rotation = 0;
+};
+
+static std::vector<Moss_Pointer> g_pointers;
+
+Moss_Pointer* FindOrCreatePointer(UINT32 id, POINTER_INPUT_TYPE /*type*/) {
+    for (auto& p : g_pointers) if (p.id == id) return &p;
+    g_pointers.push_back({ id });
+    return &g_pointers.back();
+}
+void RemovePointer(UINT32 id) {
+    g_pointers.erase(std::remove_if(g_pointers.begin(), g_pointers.end(),
+        [id](const Moss_Pointer& p) { return p.id == id; }), g_pointers.end());
 }
 
 static Moss_FramebufferResizeCallback g_framebufferResizeCallback = nullptr;
@@ -745,7 +775,6 @@ void Moss_SetWindowMode(Moss_Window* window, Moss_WindowFlags flags) {
 
 /*
 static std::vector<uint32_t> g_textInput;
-static wchar_t g_highSurrogate = 0;
 
 void Moss_GetMouseWheelDelta(float* x, float* y) {
     if (x) *x = g_mouseWheelX;
