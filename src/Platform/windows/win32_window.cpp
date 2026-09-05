@@ -7,6 +7,7 @@
 HINSTANCE hInstance;
 HWND handle;
 static bool isRunning = true;
+static std::vector<uint32_t> g_textInput;
 
 #ifdef MOSS_USE_OPENGL
 
@@ -248,7 +249,7 @@ static LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM l
                 pointer->tilt_x = pen.tiltX / 90.0f;
                 pointer->tilt_y = pen.tiltY / 90.0f;
                 pointer->rotation = static_cast<float>(pen.rotation);
-                pointer->eraser = (pen.penFlags & PEN_FLAG_ERASER) != 0;
+                //pointer->eraser = (pen.penFlags & PEN_FLAG_ERASER) != 0;
             }
         }
 
@@ -656,85 +657,85 @@ void Moss_SetWindowMode(Moss_Window* window, Moss_WindowFlags flags) {
 
     switch (flags)
     {
-    case Moss_WindowFlags::NOTITLEBAR :
+    case Moss_WindowFlags::NOTITLEBAR: {
         LONG_PTR style = GetWindowLongPtrW(hwnd, GWL_STYLE);
         style &= ~(WS_CAPTION | WS_SYSMENU);
         SetWindowLongPtrW(hwnd, GWL_STYLE, style);
         SetWindowPos(hwnd, nullptr, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_NOACTIVATE | SWP_FRAMECHANGED);
         break;
-    case Moss_WindowFlags::RESIZE_DISABLED :
+    }
+    case Moss_WindowFlags::RESIZE_DISABLED: {
         LONG_PTR style = GetWindowLongPtrW(hwnd, GWL_STYLE);
         style &= ~(WS_THICKFRAME | WS_MAXIMIZEBOX);
         SetWindowLongPtrW(hwnd, GWL_STYLE, style);
         SetWindowPos(hwnd, nullptr, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_NOACTIVATE | SWP_FRAMECHANGED);
         break;
-    case Moss_WindowFlags::TRANSPARENT :
+    }
+    case Moss_WindowFlags::TRANSPARENT: {
         LONG_PTR exStyle = GetWindowLongPtrW(hwnd, GWL_EXSTYLE);
         SetWindowLongPtrW(hwnd, GWL_EXSTYLE, exStyle | WS_EX_LAYERED);
         SetLayeredWindowAttributes(hwnd, 0, 230, LWA_ALPHA);
         break;
-    case Moss_WindowFlags::NO_FOCUS :
-        /* code */
-        break;
-    case Moss_WindowFlags::POPUP :
-        LONG_PTR style = GetWindowLongPtrW(hwnd, GWL_STYLE);
-        style &= ~WS_OVERLAPPEDWINDOW;
-        style |= WS_POPUP;
-        SetWindowLongPtrW(hwnd, GWL_STYLE, style);
-        SetWindowPos(hwnd, nullptr, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_NOACTIVATE | SWP_FRAMECHANGED);
-        break;
-    case Moss_WindowFlags::NO_FOCUS :
+    }
+    case Moss_WindowFlags::NO_FOCUS: {
         LONG_PTR exStyle = GetWindowLongPtrW(hwnd, GWL_EXSTYLE);
         SetWindowLongPtrW(hwnd, GWL_EXSTYLE, exStyle | WS_EX_NOACTIVATE);
         break;
-    case Moss_WindowFlags::POPUP :
+    }
+    case Moss_WindowFlags::POPUP: {
         LONG_PTR style = GetWindowLongPtrW(hwnd, GWL_STYLE);
         style &= ~WS_OVERLAPPEDWINDOW;
         style |= WS_POPUP;
         SetWindowLongPtrW(hwnd, GWL_STYLE, style);
         SetWindowPos(hwnd, nullptr, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_NOACTIVATE | SWP_FRAMECHANGED);
         break;
-    case Moss_WindowFlags::EXTEND_TO_TITLE :
+    }
+    case Moss_WindowFlags::EXTEND_TO_TITLE: {
         MARGINS margins{ -1, -1, -1, -1 };
         DwmExtendFrameIntoClientArea(hwnd, &margins);
         break;
-    case Moss_WindowFlags::MOUSE_PASSTHROUGH :
+    }
+    case Moss_WindowFlags::MOUSE_PASSTHROUGH: {
         LONG_PTR exStyle = GetWindowLongPtrW(hwnd, GWL_EXSTYLE);
         SetWindowLongPtrW(hwnd, GWL_EXSTYLE, exStyle | WS_EX_LAYERED | WS_EX_TRANSPARENT);
         SetLayeredWindowAttributes(hwnd, 0, 255, LWA_ALPHA);
         break;
-    case Moss_WindowFlags::SHARP_CORNERS :
+    }
+    case Moss_WindowFlags::SHARP_CORNERS: {
         DWORD preference = DWMWCP_DONOTROUND;
         DwmSetWindowAttribute(hwnd, DWMWA_WINDOW_CORNER_PREFERENCE, &preference, sizeof(preference));
         break;
-    case Moss_WindowFlags::EXCLUDE_FROM_CAPTURE :
+    }
+    case Moss_WindowFlags::EXCLUDE_FROM_CAPTURE:
         SetWindowDisplayAffinity(hwnd, WDA_EXCLUDEFROMCAPTURE);
         break;
-    case Moss_WindowFlags::HIDDEN :
+    case Moss_WindowFlags::HIDDEN:
         ShowWindow(hwnd, SW_HIDE);
         break;
-    case Moss_WindowFlags::SHOWN :
+    case Moss_WindowFlags::SHOWN:
         ShowWindow(hwnd, SW_SHOW);
         break;
-    case Moss_WindowFlags::BORDERLESS :
+    case Moss_WindowFlags::BORDERLESS: {
         LONG_PTR style = GetWindowLongPtrW(hwnd, GWL_STYLE);
         style &= ~(WS_CAPTION | WS_THICKFRAME | WS_MINIMIZEBOX | WS_MAXIMIZEBOX | WS_SYSMENU);
         SetWindowLongPtrW(hwnd, GWL_STYLE, style);
         SetWindowPos(hwnd, nullptr, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_NOACTIVATE | SWP_FRAMECHANGED);
         break;
-    case Moss_WindowFlags::RESIZABLE :
+    }
+    case Moss_WindowFlags::RESIZABLE: {
         LONG_PTR style = GetWindowLongPtrW(hwnd, GWL_STYLE);
         style |= (WS_THICKFRAME | WS_MAXIMIZEBOX);
         SetWindowLongPtrW(hwnd, GWL_STYLE, style);
         SetWindowPos(hwnd, nullptr, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_NOACTIVATE | SWP_FRAMECHANGED);
         break;
-    case Moss_WindowFlags::MAXIMIZED :
+    }
+    case Moss_WindowFlags::MAXIMIZED:
         ShowWindow(hwnd, SW_MAXIMIZE);
         break;
-    case Moss_WindowFlags::MINIMIZED :
+    case Moss_WindowFlags::MINIMIZED:
         ShowWindow(hwnd, SW_RESTORE);
         break;
-    case Moss_WindowFlags::MOUSE_GRABBED :
+    case Moss_WindowFlags::MOUSE_GRABBED: {
         RECT rect;
         GetClientRect(hwnd, &rect);
         POINT topLeft{ rect.left, rect.top };
@@ -744,16 +745,17 @@ void Moss_SetWindowMode(Moss_Window* window, Moss_WindowFlags flags) {
         RECT screenRect{ topLeft.x, topLeft.y, bottomRight.x, bottomRight.y };
         ClipCursor(&screenRect);
         break;
-    case Moss_WindowFlags::INPUT_FOCUS :
+    }
+    case Moss_WindowFlags::INPUT_FOCUS:
         SetFocus(hwnd);
         break;
-    case Moss_WindowFlags::MOUSE_FOCUS :
+    case Moss_WindowFlags::MOUSE_FOCUS:
         SetCapture(hwnd);
         break;
-    case Moss_WindowFlags::ALWAYS_ON_TOP :
+    case Moss_WindowFlags::ALWAYS_ON_TOP:
         SetWindowPos(hwnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE);
         break;
-    case Moss_WindowFlags::KEYBOARD_GRABBED :
+    case Moss_WindowFlags::KEYBOARD_GRABBED:
         if (g_keyboardHook) {
             UnhookWindowsHookEx(g_keyboardHook);
         }
@@ -765,8 +767,8 @@ void Moss_SetWindowMode(Moss_Window* window, Moss_WindowFlags flags) {
     }
 }
 
+
 /*
-static std::vector<uint32_t> g_textInput;
 
 void Moss_GetMouseWheelDelta(float* x, float* y) {
     if (x) *x = g_mouseWheelX;

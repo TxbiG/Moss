@@ -1,12 +1,15 @@
 #ifndef MOSS_PLATFORM_WIN32_H
 #define MOSS_PLATFORM_WIN32_H
 
-#include "../platform_intern.h"
+#include <Moss/Moss_stdinc.h>    // Defines Uint64, bool types, etc.
+#include <Moss/Moss_Platform.h>  // Defines Moss_GamepadAxis, etc.
 
 #define WIN32_LEAN_AND_MEAN
 #define NOMINMAX
 #include <windows.h>
 #include <sysinfoapi.h>
+
+#include "../platform_intern.h"
 /*
 #include <wctype.h>
 #include <windows.h>
@@ -233,14 +236,14 @@ void ParseDS4(RAWINPUT* raw) {
     pad.is_dualsense = false;
 
     // Sticks [-1, 1]
-    pad.axes[(size_t)Joystick::GAMEPAD_AXIS_LEFT_X]  = (data[1] - 128) / 127.0f;
-    pad.axes[(size_t)Joystick::GAMEPAD_AXIS_LEFT_Y]  = (data[2] - 128) / 127.0f;
-    pad.axes[(size_t)Joystick::GAMEPAD_AXIS_RIGHT_X] = (data[3] - 128) / 127.0f;
-    pad.axes[(size_t)Joystick::GAMEPAD_AXIS_RIGHT_Y] = (data[4] - 128) / 127.0f;
+    pad.axes[(size_t)Moss_GamepadAxis::LEFT_X]  = (data[1] - 128) / 127.0f;
+    pad.axes[(size_t)Moss_GamepadAxis::LEFT_Y]  = (data[2] - 128) / 127.0f;
+    pad.axes[(size_t)Moss_GamepadAxis::RIGHT_X] = (data[3] - 128) / 127.0f;
+    pad.axes[(size_t)Moss_GamepadAxis::RIGHT_Y] = (data[4] - 128) / 127.0f;
 
     // Triggers [0, 1]
-    pad.axes[(size_t)Joystick::GAMEPAD_AXIS_LEFT_TRIGGER]  = data[6] / 255.0f;
-    pad.axes[(size_t)Joystick::GAMEPAD_AXIS_RIGHT_TRIGGER] = data[7] / 255.0f;
+    pad.axes[(size_t)Moss_GamepadAxis::LEFT_TRIGGER]  = data[6] / 255.0f;
+    pad.axes[(size_t)Moss_GamepadAxis::RIGHT_TRIGGER] = data[7] / 255.0f;
 
     uint8_t b = data[5];
 
@@ -266,13 +269,13 @@ void ParseDS5(RAWINPUT* raw) {
     pad.is_dualshock = false;
     pad.is_dualsense = true;
 
-    pad.axes[(size_t)Joystick::GAMEPAD_AXIS_LEFT_X]  = (data[1] - 128) / 127.0f;
-    pad.axes[(size_t)Joystick::GAMEPAD_AXIS_LEFT_Y]  = (data[2] - 128) / 127.0f;
-    pad.axes[(size_t)Joystick::GAMEPAD_AXIS_RIGHT_X] = (data[3] - 128) / 127.0f;
-    pad.axes[(size_t)Joystick::GAMEPAD_AXIS_RIGHT_Y] = (data[4] - 128) / 127.0f;
+    pad.axes[(size_t)Moss_GamepadAxis::LEFT_X]  = (data[1] - 128) / 127.0f;
+    pad.axes[(size_t)Moss_GamepadAxis::LEFT_Y]  = (data[2] - 128) / 127.0f;
+    pad.axes[(size_t)Moss_GamepadAxis::RIGHT_X] = (data[3] - 128) / 127.0f;
+    pad.axes[(size_t)Moss_GamepadAxis::RIGHT_Y] = (data[4] - 128) / 127.0f;
 
-    pad.axes[(size_t)Joystick::GAMEPAD_AXIS_LEFT_TRIGGER]  = data[5] / 255.0f;
-    pad.axes[(size_t)Joystick::GAMEPAD_AXIS_RIGHT_TRIGGER] = data[6] / 255.0f;
+    pad.axes[(size_t)Moss_GamepadAxis::LEFT_TRIGGER]  = data[5] / 255.0f;
+    pad.axes[(size_t)Moss_GamepadAxis::RIGHT_TRIGGER] = data[6] / 255.0f;
 
     uint8_t b = data[8];
 

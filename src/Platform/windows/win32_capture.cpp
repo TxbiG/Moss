@@ -10,6 +10,9 @@
 #include <objbase.h>
 #include <strmif.h>
 
+#pragma comment(lib, "strmiids.lib")
+#pragma comment(lib, "ole32.lib")
+
 typedef struct Moss_VideoCapture {
     IGraphBuilder* graph;
     ICaptureGraphBuilder2* captureBuilder;
@@ -57,9 +60,23 @@ Moss_PropertiesID Moss_GetCameraProperties(Moss_Camera* camera) {}
 void Moss_CloseCamera(Moss_Camera *camera) {}
 Moss_CameraID Moss_GetCameraID(Moss_Camera *camera) {}
 //Moss_PropertiesID Moss_GetCameraProperties(Moss_Camera *camera) {}
-Moss_Camera* Moss_OpenCamera(Moss_CameraID instance_id, const Moss_CameraSpec *spec) {
+Moss_Camera* Moss_OpenCamera(Moss_CameraID id, const Moss_CameraSpec *spec) {
+    // 1. Initialize COM
+    HRESULT hr = CoInitializeEx(NULL, COINIT_APARTMENTTHREADED); // Or COINIT_MULTITHREADED depending on Moss's architecture
+    if (FAILED(hr)) return nullptr;
 
-    return nullptr;
+    // 2. Initialize your Critical Section for thread-safe buffer swapping
+    Moss_Camera* camera = new Moss_Camera();
+    InitializeCriticalSection(&camera->lock);
+
+    // 3. Create the Capture Graph Builder
+    hr = CoCreateInstance(CLSID_CaptureGraphBuilder2, NULL, CLSCTX_INPROC_SERVER, IID_ICaptureGraphBuilder2, (void**)&camera->captureBuilder);
+    if (FAILED(hr)) {
+        // Clean up and return nullptr
+    }
+    
+    // ... continue building graph ...
+    return camera;
 }
 
 Moss_VideoCapture* Moss_OpenCapture(Moss_CameraID captureID) {

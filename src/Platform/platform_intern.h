@@ -1,6 +1,7 @@
 #ifndef MOSS_PLATFORM_INTERNAL_H
 #define MOSS_PLATFORM_INTERNAL_H
 
+#include <Moss/Moss_stdinc.h>
 #include <Moss/Moss_Platform.h>
 
 #ifndef _guarded
@@ -105,7 +106,7 @@ struct Moss_Camera {
 
     // These are, initially, set from camera_driver, but we might swap them out with Zombie versions on disconnect/failure.
     bool (*WaitDevice)(Moss_Camera *device);
-    Moss_CameraFrameResult (*AcquireFrame)(Moss_Camera *device, Moss_Surface *frame, Uint64 *timestampNS, float *rotation);
+    Moss_CameraFrameResult (*AcquireFrame)(Moss_Camera *device, Moss_Surface *frame, uint64_t *timestampNS, float *rotation);
     void (*ReleaseFrame)(Moss_Camera *device, Moss_Surface *frame);
 
     // All supported formats/dimensions for this device.
@@ -130,10 +131,10 @@ struct Moss_Camera {
     int drop_frames;
 
     // Backend timestamp of first acquired frame, so we can keep these meaningful regardless of epoch.
-    Uint64 base_timestamp;
+    uint64_t base_timestamp;
 
     // Moss timestamp of first acquired frame, so we can roughly convert to Moss ticks.
-    Uint64 adjust_timestamp;
+    uint64_t adjust_timestamp;
 
     // Pixel data flows from the driver into these, then gets converted for the app if necessary.
     Moss_Surface *acquire_surface;
@@ -191,10 +192,10 @@ struct Moss_Storage {
     bool (MOSS_CALL *info)(void *userdata, const char *path, Moss_PathInfo *info);
 
     /* Read a file from storage, optional for write-only storage */
-    bool (MOSS_CALL *read_file)(void *userdata, const char *path, void *destination, Uint64 length);
+    bool (MOSS_CALL *read_file)(void *userdata, const char *path, void *destination, uint64_t length);
 
     /* Write a file to storage, optional for read-only storage */
-    bool (MOSS_CALL *write_file)(void *userdata, const char *path, const void *source, Uint64 length);
+    bool (MOSS_CALL *write_file)(void *userdata, const char *path, const void *source, uint64_t length);
 
     /* Create a directory, optional for read-only storage */
     bool (MOSS_CALL *mkdir)(void *userdata, const char *path);
@@ -209,7 +210,7 @@ struct Moss_Storage {
     bool (MOSS_CALL *copy)(void *userdata, const char *oldpath, const char *newpath);
 
     /* Get the space remaining, optional for read-only storage */
-    uint64_t (MOSS_CALL *space_remaining)(void *userdata);
+    uint64_t_t (MOSS_CALL *space_remaining)(void *userdata);
 
 
     void *userdata;
@@ -235,7 +236,7 @@ struct Moss_Gamepad {
     Moss_GamepadBinding *bindings _guarded;
     Moss_GamepadBinding **last_match_axis _guarded;
     uint8_t *last_hat_mask _guarded;
-    uint64_t guide_button_down _guarded;
+    uint64_t_t guide_button_down _guarded;
 
     struct Moss_Gamepad *next _guarded; // pointer to next gamepad we have allocated
 };

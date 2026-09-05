@@ -11,6 +11,9 @@
 #pragma comment(lib, "hid.lib")
 #pragma comment(lib, "setupapi.lib")
 
+
+static float g_trigger_button_threshold = 0.5f;
+
 // Helpers:
 static float Moss_ApplyDeadzone(float value, float deadzone) {
     if (std::fabs(value) <= deadzone) return 0.0f;
@@ -122,16 +125,16 @@ static const Gamepad g_moss_to_gamepad_button[Moss_GamepadButton::COUNT] =
     /* MISC6 */          Gamepad::GAMEPAD_BUTTON_LAST,
 };
 
-static const Joystick g_moss_to_gamepad_axis[Moss_GamepadAxis::COUNT] =
+static const Moss_GamepadAxis g_moss_to_gamepad_axis[Moss_GamepadAxis::COUNT] =
 {
-    /* INVALID */        Joystick::GAMEPAD_AXIS_LEFT_X,
+    /* INVALID */        Moss_GamepadAxis::LEFT_X,
 
-    /* LEFT_X */         Joystick::GAMEPAD_AXIS_LEFT_X,
-    /* LEFT_Y */         Joystick::GAMEPAD_AXIS_LEFT_Y,
-    /* RIGHT_X */        Joystick::GAMEPAD_AXIS_RIGHT_X,
-    /* RIGHT_Y */        Joystick::GAMEPAD_AXIS_RIGHT_Y,
-    /* LEFT_TRIGGER */   Joystick::GAMEPAD_AXIS_LEFT_TRIGGER,
-    /* RIGHT_TRIGGER */  Joystick::GAMEPAD_AXIS_RIGHT_TRIGGER,
+    /* LEFT_X */         Moss_GamepadAxis::LEFT_X,
+    /* LEFT_Y */         Moss_GamepadAxis::LEFT_Y,
+    /* RIGHT_X */        Moss_GamepadAxis::RIGHT_X,
+    /* RIGHT_Y */        Moss_GamepadAxis::RIGHT_Y,
+    /* LEFT_TRIGGER */   Moss_GamepadAxis::LEFT_TRIGGER,
+    /* RIGHT_TRIGGER */  Moss_GamepadAxis::RIGHT_TRIGGER,
 };
 
 struct Moss_GamepadAxisConfig {
@@ -184,14 +187,14 @@ void PollGamepads(INPUT_STATE* io) {
             #undef BTN
 
             // Normalize sticks [-1, 1]
-            pad.axes[static_cast<size_t>(Joystick::GAMEPAD_AXIS_LEFT_X)]  = s.Gamepad.sThumbLX / 32767.0f;
-            pad.axes[static_cast<size_t>(Joystick::GAMEPAD_AXIS_LEFT_Y)]  = s.Gamepad.sThumbLY / 32767.0f;
-            pad.axes[static_cast<size_t>(Joystick::GAMEPAD_AXIS_RIGHT_X)] = s.Gamepad.sThumbRX / 32767.0f;
-            pad.axes[static_cast<size_t>(Joystick::GAMEPAD_AXIS_RIGHT_Y)] = s.Gamepad.sThumbRY / 32767.0f;
+            pad.axes[static_cast<size_t>(Moss_GamepadAxis::LEFT_X)]  = s.Gamepad.sThumbLX / 32767.0f;
+            pad.axes[static_cast<size_t>(Moss_GamepadAxis::LEFT_Y)]  = s.Gamepad.sThumbLY / 32767.0f;
+            pad.axes[static_cast<size_t>(Moss_GamepadAxis::RIGHT_X)] = s.Gamepad.sThumbRX / 32767.0f;
+            pad.axes[static_cast<size_t>(Moss_GamepadAxis::RIGHT_Y)] = s.Gamepad.sThumbRY / 32767.0f;
 
             // Normalize triggers [0, 1]
-            pad.axes[static_cast<size_t>(Joystick::GAMEPAD_AXIS_LEFT_TRIGGER)]  = s.Gamepad.bLeftTrigger  / 255.0f;
-            pad.axes[static_cast<size_t>(Joystick::GAMEPAD_AXIS_RIGHT_TRIGGER)] = s.Gamepad.bRightTrigger / 255.0f;
+            pad.axes[static_cast<size_t>(Moss_GamepadAxis::LEFT_TRIGGER)]  = s.Gamepad.bLeftTrigger  / 255.0f;
+            pad.axes[static_cast<size_t>(Moss_GamepadAxis::RIGHT_TRIGGER)] = s.Gamepad.bRightTrigger / 255.0f;
         } 
         else {
             pad.connected = false;
@@ -244,7 +247,7 @@ void Input_Poll(INPUT_STATE* io)
 inline bool IsPressed(size_t padIndex, Gamepad b) { return io.pads[padIndex].buttons[static_cast<size_t>(b)] != 0; }
 inline bool IsReleased(size_t padIndex, Gamepad b) { return io.pads[padIndex].buttons[static_cast<size_t>(b)] == 0; }
 inline bool IsJustPressed(size_t padIndex, Gamepad b) { return false; }
-inline float GetAxis(size_t padIndex, Joystick a) { return io.pads[padIndex].axes[static_cast<size_t>(a)]; }
+inline float GetAxis(size_t padIndex, Moss_GamepadAxis a) { return io.pads[padIndex].axes[static_cast<size_t>(a)]; }
 ////////////////////////////////////////////////////////////////
 
 
@@ -315,12 +318,12 @@ static void Moss_UpdateSingleGamepad(DWORD index) {
     pad.buttons[static_cast<size_t>(Gamepad::GAMEPAD_BUTTON_DPAD_DOWN)] = (b & XINPUT_GAMEPAD_DPAD_DOWN) != 0;
     pad.buttons[static_cast<size_t>(Gamepad::GAMEPAD_BUTTON_DPAD_LEFT)] = (b & XINPUT_GAMEPAD_DPAD_LEFT) != 0;
 
-    pad.axes[static_cast<size_t>(Joystick::GAMEPAD_AXIS_LEFT_X)] = Moss_NormalizeStick(state.Gamepad.sThumbLX);
-    pad.axes[static_cast<size_t>(Joystick::GAMEPAD_AXIS_LEFT_Y)] = Moss_NormalizeStick(state.Gamepad.sThumbLY);
-    pad.axes[static_cast<size_t>(Joystick::GAMEPAD_AXIS_RIGHT_X)] = Moss_NormalizeStick(state.Gamepad.sThumbRX);
-    pad.axes[static_cast<size_t>(Joystick::GAMEPAD_AXIS_RIGHT_Y)] = Moss_NormalizeStick(state.Gamepad.sThumbRY);
-    pad.axes[static_cast<size_t>(Joystick::GAMEPAD_AXIS_LEFT_TRIGGER)] = state.Gamepad.bLeftTrigger / 255.0f;
-    pad.axes[static_cast<size_t>(Joystick::GAMEPAD_AXIS_RIGHT_TRIGGER)] = state.Gamepad.bRightTrigger / 255.0f;
+    pad.axes[static_cast<size_t>(Moss_GamepadAxis::LEFT_X)] = Moss_NormalizeStick(state.Gamepad.sThumbLX);
+    pad.axes[static_cast<size_t>(Moss_GamepadAxis::LEFT_Y)] = Moss_NormalizeStick(state.Gamepad.sThumbLY);
+    pad.axes[static_cast<size_t>(Moss_GamepadAxis::RIGHT_X)] = Moss_NormalizeStick(state.Gamepad.sThumbRX);
+    pad.axes[static_cast<size_t>(Moss_GamepadAxis::RIGHT_Y)] = Moss_NormalizeStick(state.Gamepad.sThumbRY);
+    pad.axes[static_cast<size_t>(Moss_GamepadAxis::LEFT_TRIGGER)] = state.Gamepad.bLeftTrigger / 255.0f;
+    pad.axes[static_cast<size_t>(Moss_GamepadAxis::RIGHT_TRIGGER)] = state.Gamepad.bRightTrigger / 255.0f;
 }
 
 // Gamepad management
@@ -535,7 +538,6 @@ struct Moss_WinHIDGamepadHandle {
     bool read_pending;
     uint8_t input_report[128];
 };
-static float g_trigger_button_threshold = 0.5f;
 
 static const Gamepad g_moss_to_raw_button[static_cast<size_t>(Moss_GamepadButton::COUNT)] = {
     Gamepad::GAMEPAD_BUTTON_A,
@@ -569,13 +571,13 @@ static const Gamepad g_moss_to_raw_button[static_cast<size_t>(Moss_GamepadButton
     Gamepad::GAMEPAD_BUTTON_LAST
 };
 
-static const Joystick g_moss_to_raw_axis[static_cast<size_t>(Moss_GamepadAxis::COUNT)] = {
-    Joystick::GAMEPAD_AXIS_LEFT_X,
-    Joystick::GAMEPAD_AXIS_LEFT_Y,
-    Joystick::GAMEPAD_AXIS_RIGHT_X,
-    Joystick::GAMEPAD_AXIS_RIGHT_Y,
-    Joystick::GAMEPAD_AXIS_LEFT_TRIGGER,
-    Joystick::GAMEPAD_AXIS_RIGHT_TRIGGER
+static const Moss_GamepadAxis g_moss_to_raw_axis[static_cast<size_t>(Moss_GamepadAxis::COUNT)] = {
+    Moss_GamepadAxis::LEFT_X,
+    Moss_GamepadAxis::LEFT_Y,
+    Moss_GamepadAxis::RIGHT_X,
+    Moss_GamepadAxis::RIGHT_Y,
+    Moss_GamepadAxis::LEFT_TRIGGER,
+    Moss_GamepadAxis::RIGHT_TRIGGER
 };
 
 static Moss_GamepadType Moss_SonyGamepadType(USHORT vendor_id, USHORT product_id) {
@@ -630,10 +632,10 @@ static void Moss_DecodeSonyHIDInput(Moss_Gamepad* gp, const uint8_t* report, DWO
     pad.connected = true;
 
     if (gp->type == Moss_GamepadType::PS4 && report[0] == 0x01 && report_size >= 10) {
-        pad.axes[static_cast<size_t>(Joystick::GAMEPAD_AXIS_LEFT_X)] = Moss_NormalizeByteAxis(report[1]);
-        pad.axes[static_cast<size_t>(Joystick::GAMEPAD_AXIS_LEFT_Y)] = Moss_NormalizeByteAxis(report[2]);
-        pad.axes[static_cast<size_t>(Joystick::GAMEPAD_AXIS_RIGHT_X)] = Moss_NormalizeByteAxis(report[3]);
-        pad.axes[static_cast<size_t>(Joystick::GAMEPAD_AXIS_RIGHT_Y)] = Moss_NormalizeByteAxis(report[4]);
+        pad.axes[static_cast<size_t>(Moss_GamepadAxis::LEFT_X)] = Moss_NormalizeByteAxis(report[1]);
+        pad.axes[static_cast<size_t>(Moss_GamepadAxis::LEFT_Y)] = Moss_NormalizeByteAxis(report[2]);
+        pad.axes[static_cast<size_t>(Moss_GamepadAxis::RIGHT_X)] = Moss_NormalizeByteAxis(report[3]);
+        pad.axes[static_cast<size_t>(Moss_GamepadAxis::RIGHT_Y)] = Moss_NormalizeByteAxis(report[4]);
         const uint8_t b0 = report[5];
         const uint8_t b1 = report[6];
         const uint8_t b2 = report[7];
@@ -649,20 +651,20 @@ static void Moss_DecodeSonyHIDInput(Moss_Gamepad* gp, const uint8_t* report, DWO
         pad.buttons[static_cast<size_t>(Gamepad::GAMEPAD_BUTTON_LEFT_THUMB)] = (b1 & 0x40) != 0;
         pad.buttons[static_cast<size_t>(Gamepad::GAMEPAD_BUTTON_RIGHT_THUMB)] = (b1 & 0x80) != 0;
         pad.buttons[static_cast<size_t>(Gamepad::GAMEPAD_BUTTON_GUIDE)] = (b2 & 0x01) != 0;
-        pad.axes[static_cast<size_t>(Joystick::GAMEPAD_AXIS_LEFT_TRIGGER)] = report[8] / 255.0f;
-        pad.axes[static_cast<size_t>(Joystick::GAMEPAD_AXIS_RIGHT_TRIGGER)] = report[9] / 255.0f;
+        pad.axes[static_cast<size_t>(Moss_GamepadAxis::LEFT_TRIGGER)] = report[8] / 255.0f;
+        pad.axes[static_cast<size_t>(Moss_GamepadAxis::RIGHT_TRIGGER)] = report[9] / 255.0f;
         return;
     }
 
     if (gp->type == Moss_GamepadType::PS5 && (report[0] == 0x01 || report[0] == 0x31)) {
         const int offset = report[0] == 0x31 ? 1 : 0;
         if (report_size < (DWORD)(11 + offset)) return;
-        pad.axes[static_cast<size_t>(Joystick::GAMEPAD_AXIS_LEFT_X)] = Moss_NormalizeByteAxis(report[1 + offset]);
-        pad.axes[static_cast<size_t>(Joystick::GAMEPAD_AXIS_LEFT_Y)] = Moss_NormalizeByteAxis(report[2 + offset]);
-        pad.axes[static_cast<size_t>(Joystick::GAMEPAD_AXIS_RIGHT_X)] = Moss_NormalizeByteAxis(report[3 + offset]);
-        pad.axes[static_cast<size_t>(Joystick::GAMEPAD_AXIS_RIGHT_Y)] = Moss_NormalizeByteAxis(report[4 + offset]);
-        pad.axes[static_cast<size_t>(Joystick::GAMEPAD_AXIS_LEFT_TRIGGER)] = report[5 + offset] / 255.0f;
-        pad.axes[static_cast<size_t>(Joystick::GAMEPAD_AXIS_RIGHT_TRIGGER)] = report[6 + offset] / 255.0f;
+        pad.axes[static_cast<size_t>(Moss_GamepadAxis::LEFT_X)] = Moss_NormalizeByteAxis(report[1 + offset]);
+        pad.axes[static_cast<size_t>(Moss_GamepadAxis::LEFT_Y)] = Moss_NormalizeByteAxis(report[2 + offset]);
+        pad.axes[static_cast<size_t>(Moss_GamepadAxis::RIGHT_X)] = Moss_NormalizeByteAxis(report[3 + offset]);
+        pad.axes[static_cast<size_t>(Moss_GamepadAxis::RIGHT_Y)] = Moss_NormalizeByteAxis(report[4 + offset]);
+        pad.axes[static_cast<size_t>(Moss_GamepadAxis::LEFT_TRIGGER)] = report[5 + offset] / 255.0f;
+        pad.axes[static_cast<size_t>(Moss_GamepadAxis::RIGHT_TRIGGER)] = report[6 + offset] / 255.0f;
         const uint8_t b0 = report[8 + offset];
         const uint8_t b1 = report[9 + offset];
         const uint8_t b2 = report[10 + offset];

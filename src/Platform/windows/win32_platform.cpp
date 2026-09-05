@@ -88,7 +88,7 @@ bool Moss_OpenURL(const char* url) {
 }
 
 Moss_Locale* Moss_GetLocale() {
-    static Moss_Locale locale = {};
+    Moss_Locale* locale = new Moss_Locale();
     WCHAR wbuf[LOCALE_NAME_MAX_LENGTH];
     if (GetUserDefaultLocaleName(wbuf, LOCALE_NAME_MAX_LENGTH) == 0) {
         locale->language = strdup_safe("en");

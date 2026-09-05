@@ -246,30 +246,28 @@ enum class Gamepad {
     COUNT = GAMEPAD_BUTTON_LAST
 };
 
-enum class Moss_Joystick {
-    GAMEPAD_AXIS_LEFT_X,            // Left Stick X Axis
-    GAMEPAD_AXIS_LEFT_Y,            // Left Stick Y Axis
-    GAMEPAD_AXIS_RIGHT_X,           // Right Stick X Axis
-    GAMEPAD_AXIS_RIGHT_Y,           // Right Stick Y Axis
-    GAMEPAD_AXIS_LEFT_TRIGGER,      // Left Trigger
-    GAMEPAD_AXIS_RIGHT_TRIGGER,     // Right Trigger
-    GAMEPAD_AXIS_TOUCHPAD_X,        // (PS4/PS5)
-    GAMEPAD_AXIS_TOUCHPAD_Y,
-    GAMEPAD_AXIS_GYRO_X,
-    GAMEPAD_AXIS_GYRO_Y,
-    GAMEPAD_AXIS_GYRO_Z,
-
-    MOSS_JOY_AXIS_LAST = GAMEPAD_AXIS_GYRO_Z,
-    COUNT = MOSS_JOY_AXIS_LAST
+enum class Moss_GamepadAxis : uint8_t {
+    LEFT_X = 0,        // Left Stick X Axis
+    LEFT_Y,            // Left Stick Y Axis
+    RIGHT_X,           // Right Stick X Axis
+    RIGHT_Y,           // Right Stick Y Axis
+    LEFT_TRIGGER,      // Left Trigger
+    RIGHT_TRIGGER,     // Right Trigger
+    TOUCHPAD_X,        // (PS4/PS5)
+    TOUCHPAD_Y,
+    GYRO_X,
+    GYRO_Y,
+    GYRO_Z,
+    COUNT
 };
 
 // Cursor
 enum class Moss_CursorMode {
     VISIBLE = 0,             //
-    HIDDEN = 0,              //
-    CAPTURED = 0,            //
-    CONFINED = 0,            //
-    CONFINED_HIDDEN = 0,     //
+    HIDDEN = 1,              //
+    CAPTURED = 2,            //
+    CONFINED = 3,            //
+    CONFINED_HIDDEN = 4,     //
 };
 
 enum class Moss_CursorShape {
@@ -881,7 +879,7 @@ MOSS_API void Moss_UpdateGamepads(void); // poll / refresh all gamepads
 MOSS_API bool Moss_IsGamepadButtonPressed(Moss_Gamepad* gp, Moss_GamepadButton button);
 MOSS_API bool Moss_IsGamepadButtonJustPressed(Moss_Gamepad* gp, Moss_GamepadButton button);
 MOSS_API bool Moss_IsGamepadButtonJustReleased(Moss_Gamepad* gp, Moss_GamepadButton button);
-MOSS_API float Moss_GetGamepadAxis(Moss_Gamepad* gp, Moss_Joystick axis);
+MOSS_API float Moss_GetGamepadAxis(Moss_Gamepad* gp, Moss_GamepadAxis axis);
 
 
 void Moss_SetGamepadAxisDeadzone(Moss_GamepadAxis axis, float dz);
@@ -1040,7 +1038,7 @@ MOSS_API Moss_PropertiesID Moss_GetCameraProperties(Moss_Capture* camera);
 MOSS_API void Moss_CloseCamera(Moss_Capture* camera);
 MOSS_API Moss_CameraID Moss_GetCameraID(Moss_Capture* camera);
 MOSS_API Moss_PropertiesID Moss_GetCameraProperties(Moss_Capture* camera);
-MOSS_API Moss_Capture * Moss_OpenCamera(Moss_CameraID instance_id, const Moss_CameraSpec* spec);
+MOSS_API Moss_Capture* Moss_OpenCamera(Moss_CameraID id, const Moss_CameraSpec* spec);
 
 
 MOSS_API bool Moss_CopyFile(const char* src_path, const char* dst_path, bool overwrite);
