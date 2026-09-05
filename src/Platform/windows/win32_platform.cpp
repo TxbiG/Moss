@@ -11,9 +11,10 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <shellapi.h>
+#include <commdlg.h>
 
 #pragma comment(lib, "Shlwapi.lib")
-
+#pragma comment(lib, "comdlg32.lib")
 
 // Helpers:
 
@@ -24,8 +25,6 @@ static void moss_storage_fullpath(Moss_Storage *storage, const char *path, char 
     else
         lstrcpyA(out, storage->root);
 }
-
-
 
 int Moss_GetAvailableCPUCores(void) {
     SYSTEM_INFO sysInfo;
@@ -352,42 +351,73 @@ void Moss_ShowOpenFileDialog(Moss_DialogFileCallback callback, void *userdata, M
 
     ZeroMemory(&ofn, sizeof(ofn));
     ofn.lStructSize = sizeof(ofn);
-    ofn.hwndOwner   = window;
+    
+    // FIX 1: Extract the native HWND handle from your custom window object
+    // (Replace 'hwnd' with whatever field name your Moss_Window struct uses)
+    ofn.hwndOwner   = window ? (HWND)window->hwnd : NULL; 
+    
     ofn.lpstrFile   = buffer;
     ofn.nMaxFile    = sizeof(buffer);
     ofn.lpstrInitialDir = default_location;
     ofn.nFilterIndex = 1;
     
-    // OFN_EXPLORER is required for modern multi-select behavior
     ofn.Flags = OFN_EXPLORER | OFN_FILEMUSTEXIST | OFN_PATHMUSTEXIST;
     if (allow_many) {
         ofn.Flags |= OFN_ALLOWMULTISELECT;
     }
 
-    if (GetOpenFileNameA(&ofn))
-        Moss_InvokeSinglePathDialogCallback(callback, userdata, buffer);
+    if (GetOpenFileNameA(&ofn)) {
+        // FIX 2: Handle multi-selection null-separated strings
+        if (allow_many) {
+            char* ptr = buffer;
+            // The first token is always the directory path
+            std::string directory = ptr; 
+            ptr += directory.length() + 1;
+
+            // If the next byte is also \0, only one file was chosen
+            if (*ptr == '\0') {
+                Moss_InvokeSinglePathDialogCallback(callback, userdata, buffer);
+            } else {
+                // Loop through all selected filenames
+                while (*ptr != '\0') {
+                    std::string full_path = directory + "\\" + ptr;
+                    // Proactively calling a multi-path handler or invoking your callback per file
+                    Moss_InvokeSinglePathDialogCallback(callback, userdata, full_path.c_str());
+                    ptr += strlen(ptr) + 1;
+                }
+            }
+        } else {
+            // Standard single file selection
+            Moss_InvokeSinglePathDialogCallback(callback, userdata, buffer);
+        }
+    }
 }
 
 void Moss_ShowSaveFileDialog(Moss_FileDialogType type, Moss_DialogFileCallback callback, void *userdata, Moss_PropertiesID props) {
     (void)type;
-    (void)props;
-    OPENFILENAMEA ofn = { sizeof(ofn) };
+    (void)props; // If you later map props to default extensions/filters, use them here.
+    
+    OPENFILENAMEA ofn = {};
     char buffer[MAX_PATH] = {0};
 
-    ofn.lpstrFile = buffer;
-    ofn.nMaxFile  = MAX_PATH;
-    ofn.Flags     = OFN_EXPLORER | OFN_OVERWRITEPROMPT;
+    // 1. Core initialization configuration
+    ofn.lStructSize = sizeof(OPENFILENAMEA);
+    ofn.lpstrFile   = buffer;
+    ofn.nMaxFile    = MAX_PATH;
+    
+    // 2. Define standard filters (Modify these patterns based on 'type' or 'props')
+    // Format is: "Description\0*.ext\0All Files\0*.*\0\0"
+    ofn.lpstrFilter  = "All Files (*.*)\0*.*\0";
+    ofn.nFilterIndex = 1;
+    
+    // 3. Recommended save flags 
+    // OFN_PATHMUSTEXIST prevents saving to imaginary folders
+    ofn.Flags = OFN_EXPLORER | OFN_OVERWRITEPROMPT | OFN_PATHMUSTEXIST;
 
-    if (GetSaveFileNameA(&ofn))
+    // 4. Fire the dialog window
+    if (GetSaveFileNameA(&ofn)) {
         Moss_InvokeSinglePathDialogCallback(callback, userdata, buffer);
-}
-
-// Storange helper
-static void moss_storage_fullpath(Moss_Storage *storage, const char *path, char *out) {
-    if (path && path[0])
-        wsprintfA(out, "%s\\%s", storage->root, path);
-    else
-        lstrcpyA(out, storage->root);
+    }
 }
 
 bool Moss_CopyStorageFile(Moss_Storage *storage, const char *oldpath, const char *newpath){
