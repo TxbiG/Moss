@@ -264,7 +264,7 @@ struct Moss_GamepadBinding {
         Moss_GamepadButton button;
 
         struct {
-            Moss_GamepadAxis axis;
+            GamepadAxis axis;
             int axis_min;
             int axis_max;
         } axis;

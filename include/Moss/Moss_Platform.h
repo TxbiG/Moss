@@ -246,7 +246,7 @@ enum class Gamepad {
     COUNT = GAMEPAD_BUTTON_LAST
 };
 
-enum class Moss_GamepadAxis : uint8_t {
+enum class GamepadAxis : uint8_t {
     LEFT_X = 0,        // Left Stick X Axis
     LEFT_Y,            // Left Stick Y Axis
     RIGHT_X,           // Right Stick X Axis
@@ -879,12 +879,12 @@ MOSS_API void Moss_UpdateGamepads(void); // poll / refresh all gamepads
 MOSS_API bool Moss_IsGamepadButtonPressed(Moss_Gamepad* gp, Moss_GamepadButton button);
 MOSS_API bool Moss_IsGamepadButtonJustPressed(Moss_Gamepad* gp, Moss_GamepadButton button);
 MOSS_API bool Moss_IsGamepadButtonJustReleased(Moss_Gamepad* gp, Moss_GamepadButton button);
-MOSS_API float Moss_GetGamepadAxis(Moss_Gamepad* gp, Moss_GamepadAxis axis);
+MOSS_API float Moss_GetGamepadAxis(Moss_Gamepad* gp, GamepadAxis axis);
 
 
-void Moss_SetGamepadAxisDeadzone(Moss_GamepadAxis axis, float dz);
+void Moss_SetGamepadAxisDeadzone(GamepadAxis axis, float dz);
 
-void Moss_SetGamepadAxisInverted(Moss_GamepadAxis axis, bool inverted);
+void Moss_SetGamepadAxisInverted(GamepadAxis axis, bool inverted);
 // Rumble / LED
 MOSS_API bool Moss_RumbleGamepad(Moss_Gamepad* gp, uint16_t low, uint16_t high, uint32_t duration_ms);
 MOSS_API bool Moss_RumbleGamepadTriggers(Moss_Gamepad* gp, uint16_t left, uint16_t right, uint32_t duration_ms);
@@ -905,7 +905,7 @@ MOSS_API bool Moss_SetGamepadMapping(Moss_Gamepad* gp, const char* mapping);
 MOSS_API void Moss_ReloadGamepadMappings(void);
 
 MOSS_API Moss_GamepadButton Moss_InputGetGamepadButton();
-MOSS_API Moss_GamepadAxis Moss_InputGetGamepadAxis();
+MOSS_API GamepadAxis Moss_InputGetGamepadAxis();
 
 MOSS_API Moss_PenDeviceType Moss_GetPenDeviceType(Moss_PenID instance_id);
 MOSS_API const char* Moss_GetTouchDeviceName(Moss_TouchID touchID);
@@ -949,11 +949,11 @@ MOSS_API bool Moss_HapticRumbleSupported(Moss_Haptic* haptic);
 /*! @brief X. @param X X.*/
 MOSS_API bool Moss_InitHapticRumble(Moss_Haptic* joystick);
 /*! @brief X. @param X X.*/
-MOSS_API bool Moss_IsJoystickHaptic(Moss_Joystick);
+MOSS_API bool Moss_IsJoystickHaptic(Moss_GamepadAxis* joystick);
 /*! @brief X. @param X X.*/
 MOSS_API bool Moss_IsMouseHaptic(void);
 /*! @brief X. @param X X.*/
-MOSS_API Moss_Haptic* Moss_OpenHapticFromJoystick(Moss_Joystick* joystick);
+MOSS_API Moss_Haptic* Moss_OpenHapticFromJoystick(Moss_GamepadAxis* joystick);
 /*! @brief X. @param X X.*/
 MOSS_API Moss_Haptic* Moss_OpenHapticFromMouse(void);
 /*! @brief X. @param X X.*/
