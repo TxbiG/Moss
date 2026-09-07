@@ -7,7 +7,7 @@
 #include <Moss/Core/StreamIn.h>
 #include <Moss/Core/StreamOut.h>
 
-MOSS_SUPRESS_WARNINGS_BEGIN
+MOSS_SUPPRESS_WARNINGS_BEGIN
 
 class Body;
 class Constraint;
@@ -132,4 +132,4 @@ private:
 	bool				mIsLastPart = true;
 };
 
-MOSS_SUPRESS_WARNINGS_END
+MOSS_SUPPRESS_WARNINGS_END

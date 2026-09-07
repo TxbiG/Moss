@@ -8,7 +8,7 @@
 
 #include <Moss/Moss_Physics.h>
 
-MOSS_SUPRESS_WARNINGS_BEGIN
+MOSS_SUPPRESS_WARNINGS_BEGIN
 
 
 
@@ -584,16 +584,16 @@ private:
 /// Will log something to the determinism log, usage: MOSS_DET_LOG("label " << value);
 #define MOSS_DET_LOG(...)	DeterminismLog::sLog << __VA_ARGS__ << '\n'
 
-MOSS_SUPRESS_WARNINGS_END
+MOSS_SUPPRESS_WARNINGS_END
 
 #else
 
-MOSS_SUPRESS_WARNINGS_BEGIN
+MOSS_SUPPRESS_WARNINGS_BEGIN
 
 /// By default we log nothing
 #define MOSS_DET_LOG(...)
 
-MOSS_SUPRESS_WARNINGS_END
+MOSS_SUPPRESS_WARNINGS_END
 
 // Create a std::hash/MOSS::Hash for BodyID
 MOSS_MAKE_HASHABLE(BodyID, t.GetIndexAndSequenceNumber())

@@ -6,7 +6,7 @@
 
 #include <Moss/Variants/AABB3.h>
 
-MOSS_NAMESPACE_BEGIN
+MOSS_SUPPRESS_WARNINGS_END
 
 /// Clip inPolygonToClip against the positive halfspace of plane defined by inPlaneOrigin and inPlaneNormal.
 /// inPlaneNormal does not need to be normalized.
@@ -197,4 +197,4 @@ void ClipPolyVsAABox(const VERTEX_ARRAY &inPolygonToClip, const AABox &inAABox, 
 		}
 }
 
-MOSS_NAMESPACE_END
+MOSS_SUPPRESS_WARNINGS_END

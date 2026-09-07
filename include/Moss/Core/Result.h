@@ -4,7 +4,7 @@
 
 #pragma once
 
-MOSS_SUPRESS_WARNINGS_BEGIN
+MOSS_SUPPRESS_WARNINGS_BEGIN
 
 /// Helper class that either contains a valid result or an error
 template <class Type>
@@ -171,4 +171,4 @@ private:
 	EState				mState = EState::Invalid;
 };
 
-MOSS_SUPRESS_WARNINGS_END
+MOSS_SUPPRESS_WARNINGS_END

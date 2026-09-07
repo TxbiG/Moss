@@ -6,7 +6,7 @@
 
 #include <Moss/Physics/Collision/BackFaceMode.h>
 
-MOSS_NAMESPACE_BEGIN
+MOSS_SUPPRESS_WARNINGS_END
 
 /// Structure that holds a single ray cast
 template <class Vec, class Mat, class RayCastType>
@@ -71,4 +71,4 @@ public:
 	bool						mTreatConvexAsSolid			= true;
 };
 
-MOSS_NAMESPACE_END
+MOSS_SUPPRESS_WARNINGS_END

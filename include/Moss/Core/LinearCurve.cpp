@@ -7,7 +7,7 @@
 #include <Moss/Core/StreamOut.h>
 #include <Moss/ObjectStream/TypeDeclarations.h>
 
-MOSS_SUPRESS_WARNINGS_BEGIN
+MOSS_SUPPRESS_WARNINGS_BEGIN
 
 MOSS_IMPLEMENT_SERIALIZABLE_NON_VIRTUAL(LinearCurve::Point)
 {
@@ -46,4 +46,4 @@ void LinearCurve::RestoreBinaryState(StreamIn &inStream)
 	inStream.Read(mPoints);
 }
 
-MOSS_SUPRESS_WARNINGS_END
+MOSS_SUPPRESS_WARNINGS_END

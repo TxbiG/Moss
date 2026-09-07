@@ -4,7 +4,7 @@
 
 #pragma once
 
-MOSS_SUPRESS_WARNINGS_BEGIN
+MOSS_SUPPRESS_WARNINGS_BEGIN
 
 /// Class that holds 2 floats, used as a storage class mainly.
 class [[nodiscard]] Float2 {
@@ -33,4 +33,4 @@ inline Float2 operator-(const Float2 &lhs, const Float2 &rhs) noexcept {
 
 static_assert(std::is_trivially_default_constructible<Float2>() && std::is_trivially_copyable<Float2>(), "Is supposed to be a trivial type!");
 
-MOSS_SUPRESS_WARNINGS_END
+MOSS_SUPPRESS_WARNINGS_END

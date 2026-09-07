@@ -6,7 +6,7 @@
 
 #include <Moss/Renderer/DebugRendererRecorder.h>
 
-MOSS_SUPRESS_WARNINGS_BEGIN
+MOSS_SUPPRESS_WARNINGS_BEGIN
 
 void DebugRendererRecorder::DrawLine(RVec3Arg inFrom, RVec3Arg inTo, ColorArg inColor)
 {
@@ -151,6 +151,6 @@ void DebugRendererRecorder::EndFrame()
 	mCurrentFrame.mGeometries.clear();
 }
 
-MOSS_SUPRESS_WARNINGS_END
+MOSS_SUPPRESS_WARNINGS_END
 
 #endif // MOSS_DEBUG_RENDERER

@@ -23,7 +23,7 @@ MOSS_SUPPRESS_WARNINGS_STD_END
 #include <Moss/Variants/TSet.h>
 
 
-MOSS_SUPRESS_WARNINGS_BEGIN
+MOSS_SUPPRESS_WARNINGS_BEGIN
 
 static MOSS_INLINE const Float3 &sIndexifyGetFloat3(const TriangleList &inTriangles, uint32 inVertexIndex) { return inTriangles[inVertexIndex / 3].mV[inVertexIndex % 3]; }
 
@@ -1991,4 +1991,4 @@ void ConvexHullBuilder2D::DrawState()
 
 #endif // MOSS_DEBUG_RENDERER
 
-MOSS_SUPRESS_WARNINGS_END
+MOSS_SUPPRESS_WARNINGS_END

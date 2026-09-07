@@ -2,7 +2,7 @@
 // SPDX-FileCopyrightText: 2021 Jorrit Rouwe
 // SPDX-License-Identifier: MIT
 
-MOSS_SUPRESS_WARNINGS_BEGIN
+MOSS_SUPPRESS_WARNINGS_BEGIN
 
 UVec4::UVec4(uint32 inX, uint32 inY, uint32 inZ, uint32 inW)
 {
@@ -576,4 +576,4 @@ UVec4 UVec4::ShiftComponents4Minus(int inCount) const
 #endif
 }
 
-MOSS_SUPRESS_WARNINGS_END
+MOSS_SUPPRESS_WARNINGS_END

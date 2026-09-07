@@ -7,7 +7,7 @@
 #include <Moss/Physics/Collision/SimShapeFilter.h>
 #include <Moss/Physics/Body/Body.h>
 
-MOSS_NAMESPACE_BEGIN
+MOSS_SUPPRESS_WARNINGS_END
 
 /// Helper class to forward ShapeFilter calls to a SimShapeFilter
 /// INTERNAL CLASS DO NOT USE!
@@ -78,4 +78,4 @@ private:
 	ShapeFilter				mShapeFilter;
 };
 
-MOSS_NAMESPACE_END
+MOSS_SUPPRESS_WARNINGS_END

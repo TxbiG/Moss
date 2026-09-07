@@ -4,7 +4,7 @@
 
 #pragma once
 
-MOSS_SUPRESS_WARNINGS_BEGIN
+MOSS_SUPPRESS_WARNINGS_BEGIN
 
 class Vec2;
 class Vec3;
@@ -81,4 +81,4 @@ using QuatArg = const Quat;
 using Mat44Arg = const Mat44&;
 using DMat44Arg = const DMat44&;
 
-MOSS_SUPRESS_WARNINGS_END
+MOSS_SUPPRESS_WARNINGS_END

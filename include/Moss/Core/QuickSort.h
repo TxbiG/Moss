@@ -6,7 +6,7 @@
 
 #include <Moss/Core/InsertionSort.h>
 
-MOSS_SUPRESS_WARNINGS_BEGIN
+MOSS_SUPPRESS_WARNINGS_BEGIN
 
 /// Helper function for QuickSort, will move the pivot element to inMiddle.
 template <typename Iterator, typename Compare>
@@ -134,4 +134,4 @@ inline void QuickSort(Iterator inBegin, Iterator inEnd)
 	QuickSort(inBegin, inEnd, compare);
 }
 
-MOSS_SUPRESS_WARNINGS_END
+MOSS_SUPPRESS_WARNINGS_END

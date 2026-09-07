@@ -6,7 +6,7 @@
 
 #include <Moss/Variants/Vector/BVec16.h>
 
-MOSS_SUPRESS_WARNINGS_BEGIN
+MOSS_SUPPRESS_WARNINGS_BEGIN
 
 /// Helper class for implementing an UnorderedSet or UnorderedMap
 /// Based on CppCon 2017: Matt Kulukundis "Designing a Fast, Efficient, Cache-friendly Hash Table, Step by Step"
@@ -869,4 +869,4 @@ private:
 	size_type				mLoadLeft = 0;
 };
 
-MOSS_SUPRESS_WARNINGS_END
+MOSS_SUPPRESS_WARNINGS_END

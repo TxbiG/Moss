@@ -7,7 +7,7 @@
 #include <Moss/Core/JobSystem.h>
 #include <Moss/Core/Semaphore.h>
 
-MOSS_SUPRESS_WARNINGS_BEGIN
+MOSS_SUPPRESS_WARNINGS_BEGIN
 
 /// Implementation of the Barrier class for a JobSystem
 ///
@@ -82,4 +82,4 @@ private:
 	BarrierImpl *			mBarriers = nullptr;							///< List of the actual barriers
 };
 
-MOSS_SUPRESS_WARNINGS_END
+MOSS_SUPPRESS_WARNINGS_END

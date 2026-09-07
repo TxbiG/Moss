@@ -10,7 +10,7 @@
 #include <Moss/Variants/TMap.h>
 #include <Moss/Core/Factory.h>
 
-MOSS_SUPRESS_WARNINGS_BEGIN
+MOSS_SUPPRESS_WARNINGS_BEGIN
 
 namespace StreamUtils {
 
@@ -165,4 +165,4 @@ Result<ArrayType>	RestoreObjectArray(StreamIn &inStream, IDToObjectMap<ValueType
 
 } // StreamUtils
 
-MOSS_SUPRESS_WARNINGS_END
+MOSS_SUPPRESS_WARNINGS_END

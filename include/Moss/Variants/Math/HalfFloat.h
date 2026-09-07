@@ -6,7 +6,7 @@
 
 #include <Moss/Variants/Vector/Vec4.h>
 
-MOSS_SUPRESS_WARNINGS_BEGIN
+MOSS_SUPPRESS_WARNINGS_BEGIN
 
 using HalfFloat = uint16;
 
@@ -200,4 +200,4 @@ MOSS_INLINE Vec4 ToFloat(UVec4Arg inValue)
 
 } // HalfFloatConversion
 
-MOSS_SUPRESS_WARNINGS_END
+MOSS_SUPPRESS_WARNINGS_END

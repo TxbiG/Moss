@@ -6,7 +6,7 @@
 
 #include <Moss/Core/STLAlignedAllocator.h>
 
-MOSS_SUPRESS_WARNINGS_BEGIN
+MOSS_SUPPRESS_WARNINGS_BEGIN
 
 /// Underlying data type for ByteBuffer
 using ByteBufferVector = TArray<uint8, STLAlignedAllocator<uint8, MOSS_CACHE_LINE_SIZE>>;
@@ -71,4 +71,4 @@ public:
 	}
 };
 
-MOSS_SUPRESS_WARNINGS_END
+MOSS_SUPPRESS_WARNINGS_END

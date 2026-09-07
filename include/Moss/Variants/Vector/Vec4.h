@@ -8,7 +8,7 @@
 #include <Moss/Moss_stdinc.h>
 #include <Moss/Variants/Math/MathTypes.h>
 
-MOSS_SUPRESS_WARNINGS_BEGIN
+MOSS_SUPPRESS_WARNINGS_BEGIN
 
 class [[nodiscard]] alignas(MOSS_VECTOR_ALIGNMENT) Vec4
 {
@@ -281,6 +281,6 @@ public:
 
 static_assert(std::is_trivial<Vec4>(), "Is supposed to be a trivial type!");
 
-MOSS_SUPRESS_WARNINGS_END
+MOSS_SUPPRESS_WARNINGS_END
 
 #include "Vec4.inl"

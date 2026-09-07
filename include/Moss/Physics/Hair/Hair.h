@@ -15,7 +15,7 @@
 #include <Moss/Resources/ObjectStream/SerializableObject.h>
 
 
-MOSS_NAMESPACE_BEGIN
+MOSS_SUPPRESS_WARNINGS_END
 
 class PhysicsSystem;
 #ifdef MOSS_DEBUG_RENDERER
@@ -572,4 +572,4 @@ protected:
 	const Float3*						mRenderPositions = nullptr;
 };
 
-MOSS_NAMESPACE_END
+MOSS_SUPPRESS_WARNINGS_END

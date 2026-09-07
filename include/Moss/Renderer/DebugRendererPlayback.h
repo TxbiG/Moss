@@ -10,7 +10,7 @@
 #include <Moss/Core/StreamIn.h>
 #include <Moss/Variants/TMap.h>
 
-MOSS_SUPRESS_WARNINGS_BEGIN
+MOSS_SUPPRESS_WARNINGS_BEGIN
 
 /// Class that can read a recorded stream from DebugRendererRecorder and plays it back trough a DebugRenderer
 class MOSS_DEBUG_RENDERER_EXPORT DebugRendererPlayback
@@ -43,5 +43,5 @@ private:
 	TArray<Frame>						mFrames;
 };
 
-MOSS_SUPRESS_WARNINGS_END
+MOSS_SUPPRESS_WARNINGS_END
 #endif // MOSS_DEBUG_RENDERER

@@ -7,7 +7,7 @@
 #include <Moss/Core/NonCopyable.h>
 #include <Moss/Moss_stdinc.h>
 
-MOSS_SUPRESS_WARNINGS_BEGIN
+MOSS_SUPPRESS_WARNINGS_BEGIN
 
 /// Allocator for a lock free hash map
 class LFHMAllocator : public NonCopyable
@@ -177,6 +177,6 @@ private:
 	uint32					mMaxBuckets = 0;				///< Maximum number of buckets
 };
 
-MOSS_SUPRESS_WARNINGS_END
+MOSS_SUPPRESS_WARNINGS_END
 
 #include "LockFreeHashMap.inl"

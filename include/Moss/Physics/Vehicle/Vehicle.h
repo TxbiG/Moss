@@ -1189,6 +1189,6 @@ using VehicleTracks = VehicleTrack[(int)ETrackSide::Num];
 using VehicleAntiRollBars = TArray<VehicleAntiRollBar>;
 
 
-MOSS_SUPRESS_WARNINGS_END
+MOSS_SUPPRESS_WARNINGS_END
 
 #endif

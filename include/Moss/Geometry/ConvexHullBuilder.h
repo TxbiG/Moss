@@ -14,7 +14,7 @@
 #include <Moss/Variants/TStaticArray.h>
 #include <Moss/Core/NonCopyable.h>
 
-MOSS_NAMESPACE_BEGIN
+MOSS_SUPPRESS_WARNINGS_END
 
 /// A convex hull builder that tries to create hulls as accurately as possible. Used for offline processing.
 class MOSS_EXPORT ConvexHullBuilder : public NonCopyable
@@ -366,4 +366,4 @@ private:
 };
 
 
-MOSS_NAMESPACE_END
+MOSS_SUPPRESS_WARNINGS_END

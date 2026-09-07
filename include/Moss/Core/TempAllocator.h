@@ -6,7 +6,7 @@
 
 #include <Moss/Core/NonCopyable.h>
 
-MOSS_SUPRESS_WARNINGS_BEGIN
+MOSS_SUPPRESS_WARNINGS_BEGIN
 
 /// Allocator for temporary allocations.
 /// This allocator works as a stack: The blocks must always be freed in the reverse order as they are allocated.
@@ -181,4 +181,4 @@ private:
 	TempAllocatorMalloc				mFallbackAllocator;
 };
 
-MOSS_SUPRESS_WARNINGS_END
+MOSS_SUPPRESS_WARNINGS_END

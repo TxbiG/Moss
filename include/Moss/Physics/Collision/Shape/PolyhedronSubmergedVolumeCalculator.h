@@ -9,7 +9,7 @@
 	#include <Moss/Renderer/DebugRenderer.h>
 #endif // MOSS_DEBUG_RENDERER
 
-MOSS_NAMESPACE_BEGIN
+MOSS_SUPPRESS_WARNINGS_END
 
 /// This class calculates the intersection between a fluid surface and a polyhedron and returns the submerged volume and its center of buoyancy
 /// Construct this class and then one by one add all faces of the polyhedron using the AddFace function. After all faces have been added the result
@@ -315,4 +315,4 @@ private:
 #endif
 };
 
-MOSS_NAMESPACE_END
+MOSS_SUPPRESS_WARNINGS_END

@@ -4,7 +4,7 @@
 
 #include <Moss/Variants/Vector/Vec3.h>
 
-MOSS_SUPRESS_WARNINGS_BEGIN
+MOSS_SUPPRESS_WARNINGS_BEGIN
 
 static void sAddVertex(TStaticArray<Vec3, 1026> &ioVertices, Vec3Arg inVertex)
 {
@@ -66,4 +66,4 @@ const TStaticArray<Vec3, 1026> Vec3::sUnitSphere = []() {
 	return verts;
 }();
 
-MOSS_SUPRESS_WARNINGS_END
+MOSS_SUPPRESS_WARNINGS_END

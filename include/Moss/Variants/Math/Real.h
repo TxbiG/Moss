@@ -7,7 +7,7 @@
 #include <Moss/Variants/Vector/DVec3.h>
 #include <Moss/Variants/Matrix/DMat44.h>
 
-MOSS_SUPRESS_WARNINGS_BEGIN
+MOSS_SUPPRESS_WARNINGS_BEGIN
 
 #ifdef MOSS_DOUBLE_PRECISION
 
@@ -39,4 +39,4 @@ namespace literals {
 	constexpr Real operator ""_r (long double inValue) { return Real(inValue); }
 };
 
-MOSS_SUPRESS_WARNINGS_END
+MOSS_SUPPRESS_WARNINGS_END

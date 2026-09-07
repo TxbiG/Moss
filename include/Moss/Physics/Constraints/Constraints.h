@@ -1830,7 +1830,7 @@ private:
 
 
 #ifndef MOSS_PLATFORM_DOXYGEN // Somehow Doxygen gets confused and thinks the parameters to CalculateSpringProperties belong to this macro
-MOSS_MSVC_SUPPRESS_WARNING(4723) // potential divide by 0 - caused by line: outEffectiveMass = 1.0f / inInvEffectiveMass, note that MOSS_SUPRESS_WARNINGS_BEGIN already pushes the warning state
+MOSS_MSVC_SUPPRESS_WARNING(4723) // potential divide by 0 - caused by line: outEffectiveMass = 1.0f / inInvEffectiveMass, note that MOSS_SUPPRESS_WARNINGS_BEGIN already pushes the warning state
 #endif // !MOSS_PLATFORM_DOXYGEN
 
 /// Class used in other constraint parts to calculate the required bias factor in the lagrange multiplier for creating springs

@@ -7,7 +7,7 @@
 #include <Moss/Moss_stdinc.h>
 #include <Moss/Variants/Vector/Double3.h>
 
-MOSS_SUPRESS_WARNINGS_BEGIN
+MOSS_SUPPRESS_WARNINGS_BEGIN
 
 /// 3 component vector of doubles (stored as 4 vectors).
 /// Note that we keep the 4th component the same as the 3rd component to avoid divisions by zero when MOSS_FLOATING_POINT_EXCEPTIONS_ENABLED defined
@@ -286,6 +286,6 @@ public:
 
 static_assert(std::is_trivially_default_constructible<DVec3>() && std::is_trivially_copyable<DVec3>(), "Is supposed to be a trivial type!");
 
-MOSS_SUPRESS_WARNINGS_END
+MOSS_SUPPRESS_WARNINGS_END
 
 #include "DVec3.inl"

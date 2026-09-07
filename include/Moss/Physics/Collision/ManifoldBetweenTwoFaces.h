@@ -7,7 +7,7 @@
 #include <Moss/Physics/Collision/Shape/ConvexShape.h>
 #include <Moss/Physics/Collision/ContactListener.h>
 
-MOSS_NAMESPACE_BEGIN
+MOSS_SUPPRESS_WARNINGS_END
 
 /// Remove contact points if there are > 4 (no more than 4 are needed for a stable solution)
 /// @param inPenetrationAxis is the world space penetration axis (must be normalized)
@@ -41,4 +41,4 @@ MOSS_EXPORT void ManifoldBetweenTwoFaces(Vec3Arg inContactPoint1, Vec3Arg inCont
 #endif
 	);
 
-MOSS_NAMESPACE_END
+MOSS_SUPPRESS_WARNINGS_END

@@ -11,7 +11,7 @@
 	#include <Moss/Renderer/DebugRenderer.h>
 #endif // MOSS_DEBUG_RENDERER
 
-MOSS_NAMESPACE_BEGIN
+MOSS_SUPPRESS_WARNINGS_END
 
 /// Class that constructs a ConvexHullShape
 class MOSS_EXPORT ConvexHullShapeSettings final : public ConvexShapeSettings {
@@ -197,4 +197,4 @@ private:
 #endif // MOSS_DEBUG_RENDERER
 };
 
-MOSS_NAMESPACE_END
+MOSS_SUPPRESS_WARNINGS_END

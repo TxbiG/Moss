@@ -11,7 +11,7 @@
 #include <Moss/Skeleton/SkeletonPose.h>
 #include <Moss/Physics/EActivation.h>
 
-MOSS_NAMESPACE_BEGIN
+MOSS_SUPPRESS_WARNINGS_END
 
 class Ragdoll;
 class PhysicsSystem;
@@ -243,6 +243,6 @@ private:
 	PhysicsSystem* mSystem;
 };
 
-MOSS_NAMESPACE_END
+MOSS_SUPPRESS_WARNINGS_END
 
 #endif // JOLT_RAG_DOLL_H

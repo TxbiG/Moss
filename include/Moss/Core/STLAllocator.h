@@ -4,7 +4,7 @@
 
 #pragma once
 
-MOSS_SUPRESS_WARNINGS_BEGIN
+MOSS_SUPPRESS_WARNINGS_BEGIN
 
 /// Default implementation of AllocatorHasReallocate which tells if an allocator has a reallocate function
 template <class T> struct AllocatorHasReallocate { static constexpr bool sValue = false; };
@@ -107,7 +107,7 @@ template <typename T> using STLAllocator = std::allocator<T>;
 using String = std::basic_string<char, std::char_traits<char>, STLAllocator<char>>;
 using IStringStream = std::basic_istringstream<char, std::char_traits<char>, STLAllocator<char>>;
 
-MOSS_SUPRESS_WARNINGS_END
+MOSS_SUPPRESS_WARNINGS_END
 
 #if (!defined(MOSS_PLATFORM_WINDOWS) || defined(MOSS_COMPILER_MINGW)) && !defined(MOSS_DISABLE_CUSTOM_ALLOCATOR)
 

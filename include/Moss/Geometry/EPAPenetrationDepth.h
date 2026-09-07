@@ -11,7 +11,7 @@
 
 //#define MOSS_EPA_PENETRATION_DEPTH_DEBUG
 
-MOSS_NAMESPACE_BEGIN
+MOSS_SUPPRESS_WARNINGS_END
 
 /// Implementation of Expanding Polytope Algorithm as described in:
 ///
@@ -556,4 +556,4 @@ public:
 	}
 };
 
-MOSS_NAMESPACE_END
+MOSS_SUPPRESS_WARNINGS_END

@@ -8,7 +8,7 @@
 #include <Moss/Core/Profiler.h>
 #include <Moss/Physics/Geometry/OrientedBox.h>
 
-MOSS_SUPRESS_WARNINGS_BEGIN
+MOSS_SUPPRESS_WARNINGS_BEGIN
 
 DebugRenderer *DebugRenderer::sInstance = nullptr;
 
@@ -1100,6 +1100,6 @@ void DebugRenderer::NextFrame()
 	std::swap(mTaperedCylinders, mPrevTaperedCylinders);
 }
 
-MOSS_SUPRESS_WARNINGS_END
+MOSS_SUPPRESS_WARNINGS_END
 
 #endif // MOSS_DEBUG_RENDERER

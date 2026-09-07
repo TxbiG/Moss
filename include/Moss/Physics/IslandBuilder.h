@@ -8,7 +8,7 @@
 #include <Moss/Core/NonCopyable.h>
 #include <Moss/Moss_stdinc.h>
 
-MOSS_SUPRESS_WARNINGS_BEGIN
+MOSS_SUPPRESS_WARNINGS_BEGIN
 
 class TempAllocator;
 
@@ -139,4 +139,4 @@ private:
 #endif
 };
 
-MOSS_SUPRESS_WARNINGS_END
+MOSS_SUPPRESS_WARNINGS_END

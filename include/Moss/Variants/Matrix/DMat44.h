@@ -6,7 +6,7 @@
 
 #include <Moss/Variants/Math/MathTypes.h>
 
-MOSS_SUPRESS_WARNINGS_BEGIN
+MOSS_SUPPRESS_WARNINGS_BEGIN
 
 /// Holds a 4x4 matrix of floats with the last column consisting of doubles
 class [[nodiscard]] alignas(max(MOSS_VECTOR_ALIGNMENT, MOSS_DVECTOR_ALIGNMENT)) DMat44 {
@@ -152,6 +152,6 @@ private:
 
 static_assert(std::is_trivially_default_constructible<DMat44>() && std::is_trivially_copyable<DMat44>(), "Is supposed to be a trivial type!");
 
-MOSS_SUPRESS_WARNINGS_END
+MOSS_SUPPRESS_WARNINGS_END
 
 #include "DMat44.inl"

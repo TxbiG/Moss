@@ -21,7 +21,7 @@ MOSS_SUPPRESS_WARNING_POP
 
 #ifdef MOSS_TRACK_NARROWPHASE_STATS
 
-MOSS_NAMESPACE_BEGIN
+MOSS_SUPPRESS_WARNINGS_END
 
 /// Structure that tracks narrow phase timing information for a particular combination of shapes
 class NarrowPhaseStat
@@ -105,6 +105,6 @@ private:
 	uint64					mStart;
 };
 
-MOSS_NAMESPACE_END
+MOSS_SUPPRESS_WARNINGS_END
 
 #endif // MOSS_TRACK_NARROWPHASE_STATS

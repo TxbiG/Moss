@@ -33,7 +33,7 @@
 	#include <Moss/Renderer/DebugRenderer.h>
 #endif // MOSS_DEBUG_RENDERER
 
-MOSS_SUPRESS_WARNINGS_BEGIN
+MOSS_SUPPRESS_WARNINGS_BEGIN
 
 #ifndef MOSS_DEBUG_RENDERER
 bool PhysicsSystem::DrawMotionQualityLinearCast = false;
@@ -2762,4 +2762,4 @@ void PhysicsSystem::RestoreBodyState(Body &ioBody, StateRecorder &inStream)
 	mBroadPhase->NotifyBodiesAABBChanged(&id, 1);
 }
 
-MOSS_SUPRESS_WARNINGS_END
+MOSS_SUPPRESS_WARNINGS_END

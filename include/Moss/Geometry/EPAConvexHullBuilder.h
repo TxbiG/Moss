@@ -18,7 +18,7 @@
 	#include <Moss/Core/StringTools.h>
 #endif
 
-MOSS_NAMESPACE_BEGIN
+MOSS_SUPPRESS_WARNINGS_END
 
 /// A convex hull builder specifically made for the EPA penetration depth calculation. It trades accuracy for speed and will simply abort of the hull forms defects due to numerical precision problems.
 class EPAConvexHullBuilder : public NonCopyable
@@ -842,4 +842,4 @@ EPAConvexHullBuilder::Triangle::Triangle(int inIdx0, int inIdx1, int inIdx2, con
 
 MOSS_PRECISE_MATH_OFF
 
-MOSS_NAMESPACE_END
+MOSS_SUPPRESS_WARNINGS_END

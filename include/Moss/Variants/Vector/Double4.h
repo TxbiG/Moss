@@ -4,7 +4,7 @@
 
 #pragma once
 
-MOSS_SUPRESS_WARNINGS_BEGIN
+MOSS_SUPPRESS_WARNINGS_BEGIN
 
 /// Class that holds 3 doubles. Used as a storage class. Convert to DVec3 for calculations.
 class [[nodiscard]] Double4
@@ -37,4 +37,4 @@ public:
 
 static_assert(std::is_trivial<Double4>(), "Is supposed to be a trivial type!");
 
-MOSS_SUPRESS_WARNINGS_END
+MOSS_SUPPRESS_WARNINGS_END

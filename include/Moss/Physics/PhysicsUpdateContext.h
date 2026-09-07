@@ -11,7 +11,7 @@
 #include <Moss/Core/JobSystem.h>
 #include <Moss/Core/STLTempAllocator.h>
 
-MOSS_SUPRESS_WARNINGS_BEGIN
+MOSS_SUPPRESS_WARNINGS_BEGIN
 
 class PhysicsSystem;
 class IslandBuilder;
@@ -168,4 +168,4 @@ public:
 	atomic<uint32>			mSoftBodyToCollide { 0 };								// Next soft body to take when running SoftBodyCollide jobs
 };
 
-MOSS_SUPRESS_WARNINGS_END
+MOSS_SUPPRESS_WARNINGS_END

@@ -9,7 +9,7 @@
 #include <Moss/Physics/SoftBody/SoftBodyCreationSettings.h>
 #include <Moss/Physics/Constraints/TwoBodyConstraint.h>
 
-MOSS_SUPRESS_WARNINGS_BEGIN
+MOSS_SUPPRESS_WARNINGS_BEGIN
 
 class PhysicsSystem;
 
@@ -98,4 +98,4 @@ private:
 	TArray<SoftBodyCreationSettings> mSoftBodies;
 };
 
-MOSS_SUPRESS_WARNINGS_END
+MOSS_SUPPRESS_WARNINGS_END

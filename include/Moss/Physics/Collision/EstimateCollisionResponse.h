@@ -6,7 +6,7 @@
 
 #include <Moss/Physics/Collision/ContactListener.h>
 
-MOSS_NAMESPACE_BEGIN
+MOSS_SUPPRESS_WARNINGS_END
 
 /// A structure that contains the estimated contact and friction impulses and the resulting body velocities
 struct CollisionEstimationResult
@@ -44,4 +44,4 @@ struct CollisionEstimationResult
 /// @param inNumIterations Number of iterations to use for the impulse estimation (see PhysicsSettings::mNumVelocitySteps, note you can probably use a lower number for a decent estimate). If you set the number of iterations to 1 then no friction will be calculated.
 MOSS_EXPORT void EstimateCollisionResponse(const Body &inBody1, const Body &inBody2, const ContactManifold &inManifold, CollisionEstimationResult &outResult, float inCombinedFriction, float inCombinedRestitution, float inMinVelocityForRestitution = 1.0f, uint32 inNumIterations = 10);
 
-MOSS_NAMESPACE_END
+MOSS_SUPPRESS_WARNINGS_END

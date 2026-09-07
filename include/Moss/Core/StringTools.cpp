@@ -8,7 +8,7 @@ MOSS_SUPPRESS_WARNINGS_STD_BEGIN
 #include <cstdarg>
 MOSS_SUPPRESS_WARNINGS_STD_END
 
-MOSS_SUPRESS_WARNINGS_BEGIN
+MOSS_SUPPRESS_WARNINGS_BEGIN
 
 String StringFormat(const char *inFMT, ...)
 {
@@ -96,4 +96,4 @@ const char *NibbleToBinary(uint32 inNibble)
 	return nibbles[inNibble & 0xf];
 }
 
-MOSS_SUPRESS_WARNINGS_END
+MOSS_SUPPRESS_WARNINGS_END

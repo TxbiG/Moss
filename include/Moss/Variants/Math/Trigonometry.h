@@ -6,7 +6,7 @@
 
 #include <Moss/Moss_stdinc.h>
 
-MOSS_SUPRESS_WARNINGS_BEGIN
+MOSS_SUPPRESS_WARNINGS_BEGIN
 
 // Note that this file exists because std::sin etc. are not platform independent and will lead to non-deterministic simulation
 
@@ -78,4 +78,4 @@ MOSS_INLINE float ATan2(float inY, float inX)
 	return Vec4::ATan2(Vec4::Replicate(inY), Vec4::Replicate(inX)).GetX();
 }
 
-MOSS_SUPRESS_WARNINGS_END
+MOSS_SUPPRESS_WARNINGS_END

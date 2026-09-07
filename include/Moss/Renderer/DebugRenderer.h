@@ -21,7 +21,7 @@
 #include <Moss/Physics/Geometry/IndexedTriangle.h>
 #include <Moss/Variants/AABB3.h>
 
-MOSS_SUPRESS_WARNINGS_BEGIN
+MOSS_SUPPRESS_WARNINGS_BEGIN
 
 class OrientedBox;
 
@@ -378,5 +378,5 @@ private:
 	TaperedCylinderBatces	mPrevTaperedCylinders;
 };
 
-MOSS_SUPRESS_WARNINGS_END
+MOSS_SUPPRESS_WARNINGS_END
 #endif // MOSS_DEBUG_RENDERER

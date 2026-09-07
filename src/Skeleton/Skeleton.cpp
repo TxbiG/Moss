@@ -8,7 +8,7 @@
 #include <Moss/Core/StreamIn.h>
 #include <Moss/Core/StreamOut.h>
 
-MOSS_NAMESPACE_BEGIN
+MOSS_SUPPRESS_WARNINGS_END
 
 MOSS_IMPLEMENT_SERIALIZABLE_NON_VIRTUAL(Skeleton::Joint)
 {
@@ -535,4 +535,4 @@ SkeletalAnimation::AnimationResult SkeletalAnimation::sRestoreFromBinaryState(St
 	result.Set(animation);
 	return result;
 }
-MOSS_NAMESPACE_END
+MOSS_SUPPRESS_WARNINGS_END

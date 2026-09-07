@@ -6,7 +6,7 @@
 
 #include <Moss/Core/HashTable.h>
 
-MOSS_SUPRESS_WARNINGS_BEGIN
+MOSS_SUPPRESS_WARNINGS_BEGIN
 
 
 /* TMap<> is an UnorderedMap */
@@ -82,4 +82,4 @@ public:
 template <class Key, class Value, class Hash = JPH::Hash<Key>, class KeyEqual = std::equal_to<Key>>
 class TMap;
 
-MOSS_SUPRESS_WARNINGS_END
+MOSS_SUPPRESS_WARNINGS_END

@@ -6,7 +6,7 @@
 
 #include <Moss/Physics/Collision/Shape/Shape.h>
 
-MOSS_NAMESPACE_BEGIN
+MOSS_SUPPRESS_WARNINGS_END
 
 class PhysicsMaterial;
 
@@ -245,4 +245,4 @@ private:
 	bool					mIsInsideOut;
 };
 
-MOSS_NAMESPACE_END
+MOSS_SUPPRESS_WARNINGS_END

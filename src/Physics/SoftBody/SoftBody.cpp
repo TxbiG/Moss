@@ -33,7 +33,7 @@
 #include <Moss/Physics/PhysicsSystem.h>
 #include <Moss/Core/ScopeExit.h>
 
-MOSS_SUPRESS_WARNINGS_BEGIN
+MOSS_SUPPRESS_WARNINGS_BEGIN
 
 MOSS_IMPLEMENT_SERIALIZABLE_NON_VIRTUAL(SoftBodyCreationSettings)
 {
@@ -2921,4 +2921,4 @@ void SoftBodyMotionProperties::RestoreState(StateRecorder &inStream)
 	inStream.Read(mLocalPredictedBounds.mMax);
 }
 
-MOSS_SUPRESS_WARNINGS_END
+MOSS_SUPPRESS_WARNINGS_END

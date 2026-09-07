@@ -13,7 +13,7 @@ MOSS_SUPPRESS_WARNINGS_STD_END
 // Create a std::hash for Vec3
 MOSS_MAKE_HASHABLE(Vec3, t.GetX(), t.GetY(), t.GetZ())
 
-MOSS_SUPRESS_WARNINGS_BEGIN
+MOSS_SUPPRESS_WARNINGS_BEGIN
 
 void Vec3::CheckW() const {
 
@@ -853,4 +853,4 @@ Vec3 Vec3::GetSign() const
 #endif
 }
 
-MOSS_SUPRESS_WARNINGS_END
+MOSS_SUPPRESS_WARNINGS_END

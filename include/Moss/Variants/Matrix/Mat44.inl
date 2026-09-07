@@ -8,7 +8,7 @@
 #include <Moss/Variants/Vector/Vec4.h>
 #include <Moss/Variants/Quat.h>
 
-MOSS_SUPRESS_WARNINGS_BEGIN
+MOSS_SUPPRESS_WARNINGS_BEGIN
 
 #define MOSS_EL(r, c) mCol[c].mF32[r]
 
@@ -986,4 +986,4 @@ Mat44 Mat44::Decompose(Vec3 &outScale) const
 
 #undef MOSS_EL
 
-MOSS_SUPRESS_WARNINGS_END
+MOSS_SUPPRESS_WARNINGS_END

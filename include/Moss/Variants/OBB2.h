@@ -4,7 +4,7 @@
 #include <Moss/Variants/Matrix/Mat33.h>
 #include <Moss/Variants/AABB2.h>
 
-MOSS_SUPRESS_WARNINGS_BEGIN
+MOSS_SUPPRESS_WARNINGS_BEGIN
 
 // Oriented box 2D
 class MOSS_EXPORT_GCC_BUG_WORKAROUND [[nodiscard]] OBB2 {
@@ -84,4 +84,4 @@ public:
 	RVec2			mHalfExtents;		// Half extents (half the size of the edge) of the local space axis aligned box
 };
 
-MOSS_SUPRESS_WARNINGS_END
+MOSS_SUPPRESS_WARNINGS_END

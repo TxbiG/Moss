@@ -4,7 +4,7 @@
 
 #pragma once
 
-MOSS_SUPRESS_WARNINGS_BEGIN
+MOSS_SUPPRESS_WARNINGS_BEGIN
 
 /// Create a formatted text string for debugging purposes.
 /// Note that this function has an internal buffer of 1024 characters, so long strings will be trimmed.
@@ -35,4 +35,4 @@ MOSS_EXPORT String ToLower(const string_view &inString);
 /// Converts the lower 4 bits of inNibble to a string that represents the number in binary format
 MOSS_EXPORT const char *NibbleToBinary(uint32 inNibble);
 
-MOSS_SUPRESS_WARNINGS_END
+MOSS_SUPPRESS_WARNINGS_END

@@ -4,7 +4,7 @@
 
 #include <Moss/Core/JobSystemSingleThreaded.h>
 
-MOSS_SUPRESS_WARNINGS_BEGIN
+MOSS_SUPPRESS_WARNINGS_BEGIN
 
 void JobSystemSingleThreaded::Init(uint32 inMaxJobs)
 {
@@ -60,4 +60,4 @@ void JobSystemSingleThreaded::WaitForJobs(Barrier *inBarrier)
 	// There's nothing to do here, the barrier is just a dummy, we just execute the jobs immediately
 }
 
-MOSS_SUPRESS_WARNINGS_END
+MOSS_SUPPRESS_WARNINGS_END

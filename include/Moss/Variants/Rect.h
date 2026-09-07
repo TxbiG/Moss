@@ -2,7 +2,7 @@
 
 #include <Moss/Moss_stdinc.h>
 
-MOSS_SUPRESS_WARNINGS_BEGIN
+MOSS_SUPPRESS_WARNINGS_BEGIN
 
 struct MOSS_EXPORT_GCC_BUG_WORKAROUND [[nodiscard]] Rect { 
     Rect() = default;
@@ -17,4 +17,4 @@ struct MOSS_EXPORT_GCC_BUG_WORKAROUND [[nodiscard]] Recti {
     int x, y, width, height; 
 };
 
-MOSS_SUPRESS_WARNINGS_END
+MOSS_SUPPRESS_WARNINGS_END

@@ -4,7 +4,7 @@
 
 #pragma once
 
-MOSS_SUPRESS_WARNINGS_BEGIN
+MOSS_SUPPRESS_WARNINGS_BEGIN
 
 /// Class that makes another class non-copyable. Usage: Inherit from NonCopyable.
 class MOSS_EXPORT NonCopyable
@@ -15,4 +15,4 @@ public:
 	void	operator = (const NonCopyable &) = delete;
 };
 
-MOSS_SUPRESS_WARNINGS_END
+MOSS_SUPPRESS_WARNINGS_END

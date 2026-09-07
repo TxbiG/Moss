@@ -8,7 +8,7 @@
 // MMX supports integers (2013) 2xint32 64bit
 // AVX2 supports integers (2013) 8xint32 265bit
 
-MOSS_WARNINGS_BEGIN
+MOSS_SUPPRESS_WARNINGS_BEGIN
 
 /// 3 component vector (stored as 4 vectors).
 /// Note that we keep the 4th component the same as the 3rd component to avoid divisions by zero when MOSS_FLOATING_POINT_EXCEPTIONS_ENABLED defined
@@ -295,6 +295,6 @@ public:
 
 static_assert(std::is_trivial<iVec2>(), "Is supposed to be a trivial type!");
 
-MOSS_WARNINGS_END
+MOSS_SUPPRESS_WARNINGS_END
 
 //#include "iVec2.inl"

@@ -11,7 +11,7 @@
 #include <Moss/Physics/Body/Body.h>
 #include <Moss/Core/NonCopyable.h>
 
-MOSS_NAMESPACE_BEGIN
+MOSS_SUPPRESS_WARNINGS_END
 
 // Shorthand function to ifdef out code if broadphase stats tracking is off
 #ifdef MOSS_TRACK_BROADPHASE_STATS
@@ -307,4 +307,4 @@ private:
 	mutable SharedMutex	mMutex;
 };
 
-MOSS_NAMESPACE_END
+MOSS_SUPPRESS_WARNINGS_END

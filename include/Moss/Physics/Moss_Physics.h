@@ -109,7 +109,7 @@
 #define PHSICS_INVALID_COLLISION_GROUP_ID (~0U)
 #define PHSICS_INVALID_COLLISION_SUBGROUP_ID (~0U)
 
-MOSS_SUPRESS_WARNINGS_BEGIN
+MOSS_SUPPRESS_WARNINGS_BEGIN
 
 static constexpr uint8_t cBodyTypeCount = 2;
 
@@ -4956,7 +4956,7 @@ using IndexedTriangleNoMaterialList = TArray<IndexedTriangleNoMaterial>;
 using IndexedTriangleList = TArray<IndexedTriangle>;
 
 
-MOSS_SUPRESS_WARNINGS_END
+MOSS_SUPPRESS_WARNINGS_END
 
 
 // Create a std::hash for IndexedTriangleNoMaterial and IndexedTriangle

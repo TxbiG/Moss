@@ -4,7 +4,7 @@
 
 #include <Moss/Physics/StateRecorderImpl.h>
 
-MOSS_SUPRESS_WARNINGS_BEGIN
+MOSS_SUPPRESS_WARNINGS_BEGIN
 
 void StateRecorderImpl::WriteBytes(const void *inData, size_t inNumBytes)
 {
@@ -85,4 +85,4 @@ bool StateRecorderImpl::IsEqual(StateRecorderImpl &inReference)
 	return true;
 }
 
-MOSS_SUPRESS_WARNINGS_END
+MOSS_SUPPRESS_WARNINGS_END

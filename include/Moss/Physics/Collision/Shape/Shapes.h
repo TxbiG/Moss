@@ -6,7 +6,7 @@
 
 #include <Moss/Physics/Collision/Shape/ConvexShape.h>
 
-MOSS_NAMESPACE_BEGIN
+MOSS_SUPPRESS_WARNINGS_END
 struct RayCast;
 class RayCastSettings;
 struct ShapeCast;
@@ -3368,4 +3368,4 @@ private:
 	float					mBottomRadius = 0.0f;
 	float					mConvexRadius = 0.0f;
 };
-MOSS_NAMESPACE_END
+MOSS_SUPPRESS_WARNINGS_END

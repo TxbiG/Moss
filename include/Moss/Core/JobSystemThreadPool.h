@@ -12,7 +12,7 @@ MOSS_SUPPRESS_WARNINGS_STD_BEGIN
 #include <thread>
 MOSS_SUPPRESS_WARNINGS_STD_END
 
-MOSS_SUPRESS_WARNINGS_BEGIN
+MOSS_SUPPRESS_WARNINGS_BEGIN
 
 // Things we're using from STL
 using std::thread;
@@ -98,4 +98,4 @@ private:
 	atomic<bool>			mQuit = false;
 };
 
-MOSS_SUPRESS_WARNINGS_END
+MOSS_SUPPRESS_WARNINGS_END

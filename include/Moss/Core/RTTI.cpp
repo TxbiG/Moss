@@ -5,7 +5,7 @@
 #include <Moss/Core/RTTI.h>
 #include <Moss/Core/StringTools.h>
 
-MOSS_SUPRESS_WARNINGS_BEGIN
+MOSS_SUPPRESS_WARNINGS_BEGIN
 
 //////////////////////////////////////////////////////////////////////////////////////////
 // RTTI
@@ -144,4 +144,4 @@ const SerializableAttribute &RTTI::GetAttribute(int inIdx) const
 
 #endif // MOSS_OBJECT_STREAM
 
-MOSS_SUPRESS_WARNINGS_END
+MOSS_SUPPRESS_WARNINGS_END

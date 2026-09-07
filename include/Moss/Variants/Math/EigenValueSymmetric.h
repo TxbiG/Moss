@@ -6,7 +6,7 @@
 
 #include <Moss/Core/FPException.h>
 
-MOSS_SUPRESS_WARNINGS_BEGIN
+MOSS_SUPPRESS_WARNINGS_BEGIN
 
 /// Function to determine the eigen vectors and values of a N x N real symmetric matrix
 /// by Jacobi transformations. This method is most suitable for N < 10.
@@ -174,4 +174,4 @@ bool EigenValueSymmetric(const Matrix &inMatrix, Matrix &outEigVec, Vector &outE
 	return false;
 }
 
-MOSS_SUPRESS_WARNINGS_END
+MOSS_SUPPRESS_WARNINGS_END

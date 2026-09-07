@@ -11,7 +11,7 @@
 #endif // MOSS_DEBUG_RENDERER
 
 
-MOSS_SUPRESS_WARNINGS_BEGIN
+MOSS_SUPPRESS_WARNINGS_BEGIN
 
 duFileIO::~duFileIO()
 {
@@ -2915,4 +2915,4 @@ void duDebugDrawPolyMeshDetail(duDebugDraw* dd, const struct Moss_RecastPolyMesh
 }
 
 
-MOSS_SUPRESS_WARNINGS_END
+MOSS_SUPPRESS_WARNINGS_END

@@ -7,7 +7,7 @@
 #include <Moss/Physics/Body/BodyLockMulti.h>
 #include <Moss/ObjectStream/TypeDeclarations.h>
 
-MOSS_SUPRESS_WARNINGS_BEGIN
+MOSS_SUPPRESS_WARNINGS_BEGIN
 
 MOSS_IMPLEMENT_SERIALIZABLE_NON_VIRTUAL(PhysicsScene)
 {
@@ -256,4 +256,4 @@ void PhysicsScene::FromPhysicsSystem(const PhysicsSystem *inSystem)
 		}
 }
 
-MOSS_SUPRESS_WARNINGS_END
+MOSS_SUPPRESS_WARNINGS_END

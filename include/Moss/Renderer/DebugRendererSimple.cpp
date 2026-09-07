@@ -7,7 +7,7 @@
 
 #include <Moss/Renderer/DebugRendererSimple.h>
 
-MOSS_SUPRESS_WARNINGS_BEGIN
+MOSS_SUPPRESS_WARNINGS_BEGIN
 
 DebugRendererSimple::DebugRendererSimple()
 {
@@ -74,6 +74,6 @@ void DebugRendererSimple::DrawGeometry(RMat44Arg inModelMatrix, const AABox &inW
 	}
 }
 
-MOSS_SUPRESS_WARNINGS_END
+MOSS_SUPPRESS_WARNINGS_END
 
 #endif // MOSS_DEBUG_RENDERER

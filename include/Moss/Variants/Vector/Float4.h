@@ -7,7 +7,7 @@
 #include <Moss/Core/HashCombine.h>
 #include <Moss/Variants/TArray.h>
 
-MOSS_SUPRESS_WARNINGS_BEGIN
+MOSS_SUPPRESS_WARNINGS_BEGIN
 
 /// Class that holds 4 float values. Convert to Vec4 to perform calculations.
 class [[nodiscard]] Float4 {
@@ -32,4 +32,4 @@ public:
 
 static_assert(std::is_trivial<Float4>(), "Is supposed to be a trivial type!");
 
-MOSS_SUPRESS_WARNINGS_END
+MOSS_SUPPRESS_WARNINGS_END

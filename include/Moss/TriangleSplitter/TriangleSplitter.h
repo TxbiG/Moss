@@ -9,7 +9,7 @@
 #include <Moss/Variants/AABB3.h>
 #include <Moss/Variants/AABB2.h>
 
-MOSS_SUPRESS_WARNINGS_BEGIN
+MOSS_SUPPRESS_WARNINGS_BEGIN
 
 /// A class that splits a triangle list into two parts for building a tree
 class MOSS_EXPORT TriangleSplitter : public NonCopyable {
@@ -126,4 +126,4 @@ public:
 	virtual bool Split(const Range &inTriangles, Range &outLeft, Range &outRight) override;
 };
 
-MOSS_SUPRESS_WARNINGS_END
+MOSS_SUPPRESS_WARNINGS_END

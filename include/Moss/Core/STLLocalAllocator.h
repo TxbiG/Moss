@@ -6,7 +6,7 @@
 
 #include <Moss/Core/STLAllocator.h>
 
-MOSS_SUPRESS_WARNINGS_BEGIN
+MOSS_SUPPRESS_WARNINGS_BEGIN
 
 #ifndef MOSS_DISABLE_CUSTOM_ALLOCATOR
 
@@ -167,4 +167,4 @@ template <typename T, size_t N> using STLLocalAllocator = std::allocator<T>;
 
 #endif // !MOSS_DISABLE_CUSTOM_ALLOCATOR
 
-MOSS_SUPRESS_WARNINGS_END
+MOSS_SUPPRESS_WARNINGS_END

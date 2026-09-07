@@ -14,7 +14,7 @@
 	#include <Moss/Renderer/DebugRenderer.h>
 #endif
 
-MOSS_NAMESPACE_BEGIN
+MOSS_SUPPRESS_WARNINGS_END
 
 /// Convex vs convex collision detection
 /// Based on: A Fast and Robust GJK Implementation for Collision Detection of Convex Objects - Gino van den Bergen
@@ -942,4 +942,4 @@ private:
 #endif
 };
 
-MOSS_NAMESPACE_END
+MOSS_SUPPRESS_WARNINGS_END

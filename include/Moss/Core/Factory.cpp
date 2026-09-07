@@ -4,7 +4,7 @@
 
 #include <Moss/Core/Factory.h>
 
-MOSS_SUPRESS_WARNINGS_BEGIN
+MOSS_SUPPRESS_WARNINGS_BEGIN
 
 Factory *Factory::sInstance = nullptr;
 
@@ -87,4 +87,4 @@ TArray<const RTTI *> Factory::GetAllClasses() const
 	return all_classes;
 }
 
-MOSS_SUPRESS_WARNINGS_END
+MOSS_SUPPRESS_WARNINGS_END

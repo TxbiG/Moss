@@ -10,7 +10,7 @@
 #include <Moss/Physics/Collision/ShapeFilter.h>
 #include <Moss/Physics/Collision/NarrowPhaseStats.h>
 
-MOSS_NAMESPACE_BEGIN
+MOSS_SUPPRESS_WARNINGS_END
 
 class CollideShapeSettings;
 
@@ -94,4 +94,4 @@ private:
 	static CastShape		sCastShape[NumSubShapeTypes][NumSubShapeTypes];
 };
 
-MOSS_NAMESPACE_END
+MOSS_SUPPRESS_WARNINGS_END

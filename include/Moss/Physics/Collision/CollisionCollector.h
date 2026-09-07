@@ -4,7 +4,7 @@
 
 #pragma once
 
-MOSS_NAMESPACE_BEGIN
+MOSS_SUPPRESS_WARNINGS_END
 
 class Body;
 class TransformedShape;
@@ -102,4 +102,4 @@ private:
 	const TransformedShape *mContext = nullptr;
 };
 
-MOSS_NAMESPACE_END
+MOSS_SUPPRESS_WARNINGS_END

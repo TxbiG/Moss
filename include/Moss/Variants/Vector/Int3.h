@@ -1,6 +1,6 @@
 #pragma once
 
-MOSS_SUPRESS_WARNINGS_BEGIN
+MOSS_SUPPRESS_WARNINGS_BEGIN
 
 /// Class that holds 3 ints. Used as a storage class. Convert to Vec3 for calculations.
 class [[nodiscard]] Int3
@@ -28,4 +28,4 @@ public:
 
 static_assert(std::is_trivial<Int3>(), "Is supposed to be a trivial type!");
 
-MOSS_SUPRESS_WARNINGS_END
+MOSS_SUPPRESS_WARNINGS_END

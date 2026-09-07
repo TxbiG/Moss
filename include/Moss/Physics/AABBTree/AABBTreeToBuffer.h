@@ -8,7 +8,7 @@
 #include <Moss/Core/ByteBuffer.h>
 #include <Moss/Physics/Geometry/IndexedTriangle.h>
 
-MOSS_SUPRESS_WARNINGS_BEGIN
+MOSS_SUPPRESS_WARNINGS_BEGIN
 
 /// Conversion algorithm that converts an AABB tree to an optimized binary buffer
 template <class TriangleCodec, class NodeCodec>
@@ -257,4 +257,4 @@ private:
 	ByteBuffer mTree;					// Resulting tree structure
 };
 
-MOSS_SUPRESS_WARNINGS_END
+MOSS_SUPPRESS_WARNINGS_END

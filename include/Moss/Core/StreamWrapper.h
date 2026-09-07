@@ -11,7 +11,7 @@ MOSS_SUPPRESS_WARNINGS_STD_BEGIN
 #include <ostream>
 MOSS_SUPPRESS_WARNINGS_STD_END
 
-MOSS_SUPRESS_WARNINGS_BEGIN
+MOSS_SUPPRESS_WARNINGS_BEGIN
 
 /// Wrapper around std::ostream
 class StreamOutWrapper : public StreamOut
@@ -50,4 +50,4 @@ private:
 	istream &			mWrapped;
 };
 
-MOSS_SUPRESS_WARNINGS_END
+MOSS_SUPPRESS_WARNINGS_END

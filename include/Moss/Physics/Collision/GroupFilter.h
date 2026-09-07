@@ -7,7 +7,7 @@
 #include <Moss/Core/Result.h>
 #include <Moss/ObjectStream/SerializableObject.h>
 
-MOSS_NAMESPACE_BEGIN
+MOSS_SUPPRESS_WARNINGS_END
 
 class CollisionGroup;
 class StreamIn;
@@ -38,4 +38,4 @@ protected:
 	virtual void				RestoreBinaryState(StreamIn &inStream);
 };
 
-MOSS_NAMESPACE_END
+MOSS_SUPPRESS_WARNINGS_END

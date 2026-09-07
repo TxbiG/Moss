@@ -7,7 +7,7 @@
 #include <Moss/Physics/Collision/Shape/SubShapeIDPair.h>
 #include <Moss/Variants/TStaticArray.h>
 
-MOSS_NAMESPACE_BEGIN
+MOSS_SUPPRESS_WARNINGS_END
 
 class Body;
 class CollideShapeResult;
@@ -111,4 +111,4 @@ public:
 	virtual void			OnContactRemoved([[maybe_unused]] const SubShapeIDPair &inSubShapePair) { /* Do nothing */ }
 };
 
-MOSS_NAMESPACE_END
+MOSS_SUPPRESS_WARNINGS_END

@@ -7,7 +7,7 @@
 #include <Moss/Variants/Vector/TVec.h>
 #include <Moss/Variants/Math/GaussianElimination.h>
 
-MOSS_SUPRESS_WARNINGS_BEGIN
+MOSS_SUPPRESS_WARNINGS_BEGIN
 
 /// Templatized matrix class
 template <uint32 Rows, uint32 Cols>
@@ -255,4 +255,4 @@ inline bool Matrix<2, 2>::SetInversed(const Matrix<2, 2> &inM)
 
 #endif // !MOSS_PLATFORM_DOXYGEN
 
-MOSS_SUPRESS_WARNINGS_END
+MOSS_SUPPRESS_WARNINGS_END

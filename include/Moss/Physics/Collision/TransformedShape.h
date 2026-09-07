@@ -11,7 +11,7 @@
 #include <Moss/Physics/Collision/BackFaceMode.h>
 #include <Moss/Physics/Body/Body.h>
 
-MOSS_NAMESPACE_BEGIN
+MOSS_SUPPRESS_WARNINGS_END
 
 struct RRayCast;
 struct RShapeCast;
@@ -191,4 +191,4 @@ public:
 static_assert(MOSS_CPU_ADDRESS_BITS != 64 || sizeof(TransformedShape) == MOSS_IF_SINGLE_PRECISION_ELSE(64, 96), "Not properly packed");
 static_assert(alignof(TransformedShape) == MOSS_RVECTOR_ALIGNMENT, "Not properly aligned");
 
-MOSS_NAMESPACE_END
+MOSS_SUPPRESS_WARNINGS_END

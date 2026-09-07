@@ -6,7 +6,7 @@
 
 #include <Moss/Physics/Collision/PhysicsMaterial.h>
 
-MOSS_NAMESPACE_BEGIN
+MOSS_SUPPRESS_WARNINGS_END
 
 /// Sample implementation of PhysicsMaterial that just holds the needed properties directly
 class MOSS_EXPORT PhysicsMaterialSimple : public PhysicsMaterial
@@ -34,4 +34,4 @@ private:
 	Color									mDebugColor = Color::Grey;			// Color of the material, used to render the shapes
 };
 
-MOSS_NAMESPACE_END
+MOSS_SUPPRESS_WARNINGS_END

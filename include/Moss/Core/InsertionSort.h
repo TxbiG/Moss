@@ -4,7 +4,7 @@
 
 #pragma once
 
-MOSS_SUPRESS_WARNINGS_BEGIN
+MOSS_SUPPRESS_WARNINGS_BEGIN
 
 /// Implementation of the insertion sort algorithm.
 template <typename Iterator, typename Compare>
@@ -55,4 +55,4 @@ inline void InsertionSort(Iterator inBegin, Iterator inEnd)
 	InsertionSort(inBegin, inEnd, compare);
 }
 
-MOSS_SUPRESS_WARNINGS_END
+MOSS_SUPPRESS_WARNINGS_END

@@ -3,7 +3,7 @@
 #include <Moss/Variants/Vector/Vec3.h>
 #include <Moss/Variants/Vector/Vec4.h>
 
-MOSS_SUPRESS_WARNINGS_BEGIN
+MOSS_SUPPRESS_WARNINGS_BEGIN
 
 /// Quaternion class, quaternions are 4 dimensional vectors which can describe rotations in 3 dimensional. (space if their length is 1).
 /// They are written as: \f$q = w + x \: i + y \: j + z \: k\f$
@@ -237,6 +237,6 @@ public:
 
 static_assert(std::is_trivial<Quat>(), "Is supposed to be a trivial type!");
 
-MOSS_SUPRESS_WARNINGS_END
+MOSS_SUPPRESS_WARNINGS_END
 
 #include "Quat.inl"

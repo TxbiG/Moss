@@ -5,7 +5,7 @@
 #include <Moss/Physics/AABBTree/AABBTreeBuilder.h>
 #include <Moss/TriangleSplitter/TriangleSplitter.h>
 
-MOSS_SUPRESS_WARNINGS_BEGIN
+MOSS_SUPPRESS_WARNINGS_BEGIN
 
 uint32 AABBTreeBuilder::Node::GetMinDepth(const TArray<Node> &inNodes) const {
 	if (HasChildren()) {
@@ -217,4 +217,4 @@ uint32 AABBTreeBuilder::BuildInternal(const TriangleSplitter::Range &inTriangles
 	return node_index;
 }
 
-MOSS_SUPRESS_WARNINGS_END
+MOSS_SUPPRESS_WARNINGS_END

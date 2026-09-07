@@ -6,7 +6,7 @@
 
 #include <Moss/Variants/Math/MathTypes.h>
 
-MOSS_SUPRESS_WARNINGS_BEGIN
+MOSS_SUPPRESS_WARNINGS_BEGIN
 
 // Remove Lookat and etc
 
@@ -76,6 +76,6 @@ DMat4x3 perspective(fovy, aspect, near, far);
 
 static_assert(is_trivial<DMat44>(), "Is supposed to be a trivial type!");
 
-MOSS_SUPRESS_WARNINGS_END
+MOSS_SUPPRESS_WARNINGS_END
 
 #include "DMat44.inl"

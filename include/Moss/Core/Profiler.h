@@ -15,7 +15,7 @@ MOSS_SUPPRESS_WARNINGS_STD_END
 
 #if defined(MOSS_EXTERNAL_PROFILE)
 
-MOSS_SUPRESS_WARNINGS_BEGIN
+MOSS_SUPPRESS_WARNINGS_BEGIN
 
 #ifdef MOSS_SHARED_LIBRARY
 /// Functions called when a profiler measurement starts or stops, need to be overridden by the user.
@@ -47,7 +47,7 @@ private:
 	uint8							mUserData[64];
 };
 
-MOSS_SUPRESS_WARNINGS_END
+MOSS_SUPPRESS_WARNINGS_END
 
 //////////////////////////////////////////////////////////////////////////////////////////
 // Macros to do the actual profiling
@@ -86,7 +86,7 @@ MOSS_SUPPRESS_WARNING_POP
 
 #elif defined(MOSS_PROFILE_ENABLED)
 
-MOSS_SUPRESS_WARNINGS_BEGIN
+MOSS_SUPPRESS_WARNINGS_BEGIN
 
 class ProfileSample;
 class ProfileThread;
@@ -239,7 +239,7 @@ private:
 	static bool					sOutOfSamplesReported;
 };
 
-MOSS_SUPRESS_WARNINGS_END
+MOSS_SUPPRESS_WARNINGS_END
 
 #include "Profiler.inl"
 
@@ -276,7 +276,7 @@ MOSS_CLANG_SUPPRESS_WARNING("-Wc++98-compat-pedantic")
 /// Dump profiling info
 #define MOSS_PROFILE_DUMP(...)			Profiler::sInstance->Dump(__VA_ARGS__)
 
-MOSS_SUPRESS_WARNINGS_END
+MOSS_SUPPRESS_WARNINGS_END
 
 #else
 
@@ -296,6 +296,6 @@ MOSS_CLANG_SUPPRESS_WARNING("-Wc++98-compat-pedantic")
 #define MOSS_PROFILE_NEXTFRAME()
 #define MOSS_PROFILE_DUMP(...)
 
-MOSS_SUPRESS_WARNINGS_END
+MOSS_SUPPRESS_WARNINGS_END
 
 #endif

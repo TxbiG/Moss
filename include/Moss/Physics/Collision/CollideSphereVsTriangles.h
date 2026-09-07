@@ -8,7 +8,7 @@
 #include <Moss/Physics/Collision/Shape/SubShapeID.h>
 #include <Moss/Physics/Collision/Shape/SphereShape.h>
 
-MOSS_NAMESPACE_BEGIN
+MOSS_SUPPRESS_WARNINGS_END
 
 class CollideShapeSettings;
 
@@ -46,4 +46,4 @@ protected:
 	float							mRadiusPlusMaxSeparationSq;	// (Radius + Max SeparationDistance)^2
 };
 
-MOSS_NAMESPACE_END
+MOSS_SUPPRESS_WARNINGS_END

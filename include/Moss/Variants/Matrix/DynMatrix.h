@@ -4,7 +4,7 @@
 
 #pragma once
 
-MOSS_SUPRESS_WARNINGS_BEGIN
+MOSS_SUPPRESS_WARNINGS_BEGIN
 
 /// Dynamic resizable matrix class
 class [[nodiscard]] DynMatrix
@@ -28,4 +28,4 @@ private:
 	TArray<float>	mElements;
 };
 
-MOSS_SUPRESS_WARNINGS_END
+MOSS_SUPPRESS_WARNINGS_END

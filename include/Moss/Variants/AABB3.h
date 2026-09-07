@@ -8,7 +8,7 @@
 #include <Moss/Variants/Matrix/Mat44.h>
 #include <Moss/Variants/Plane.h>
 
-MOSS_SUPRESS_WARNINGS_BEGIN
+MOSS_SUPPRESS_WARNINGS_BEGIN
 
 // AABB3 (Axis aligned box 3D) is used for 3D Collisions
 class [[nodiscard]] AABB3 {
@@ -257,4 +257,4 @@ inline bool Sphere::Overlaps(const AABox &inOther) const {
 	return inOther.GetSqDistanceTo(GetCenter()) <= Square(mRadius);
 }
 
-MOSS_SUPRESS_WARNINGS_END
+MOSS_SUPPRESS_WARNINGS_END

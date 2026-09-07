@@ -7,7 +7,7 @@
 #include <Moss/Core/RTTI.h>
 #include <Moss/Variants/TMap.h>
 
-MOSS_SUPRESS_WARNINGS_BEGIN
+MOSS_SUPPRESS_WARNINGS_BEGIN
 
 /// This class is responsible for creating instances of classes based on their name or hash and is mainly used for deserialization of saved data.
 class MOSS_EXPORT Factory
@@ -47,4 +47,4 @@ private:
 	ClassHashMap				m_ClassHashMap;			// Map of class hash to type info
 };
 
-MOSS_SUPRESS_WARNINGS_END
+MOSS_SUPPRESS_WARNINGS_END

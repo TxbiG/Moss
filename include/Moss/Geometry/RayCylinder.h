@@ -6,7 +6,7 @@
 
 #include <Moss/Variants/Math/FindRoot.h>
 
-MOSS_NAMESPACE_BEGIN
+MOSS_SUPPRESS_WARNINGS_END
 
 /// Tests a ray starting at inRayOrigin and extending infinitely in inRayDirection
 /// against an infinite cylinder centered along the Y axis
@@ -530,4 +530,4 @@ MOSS_INLINE bool RayAABoxHits(Vec3Arg inOrigin, Vec3Arg inDirection, Vec3Arg inB
 	return !no_intersection.TestAnyXYZTrue();
 }
 
-MOSS_NAMESPACE_END
+MOSS_SUPPRESS_WARNINGS_END

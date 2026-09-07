@@ -15,7 +15,7 @@
 // Create a std::hash for DVec2
 MOSS_MAKE_HASHABLE(DVec2, t.GetX(), t.GetY())
 
-MOSS_SUPRESS_WARNINGS_BEGIN
+MOSS_SUPPRESS_WARNINGS_BEGIN
 
 DVec2::DVec2(const Vec2 inRHS) {
 #if defined(MOSS_SIMD_AVX)
@@ -933,4 +933,4 @@ Vec2 DVec2::ToVec2RoundUp() const
 	return Vec2(DVec2::Select(to_inf, to_zero, DVec2::Less(*this, DVec2::Zero())));
 }
 
-MOSS_SUPRESS_WARNINGS_END
+MOSS_SUPPRESS_WARNINGS_END

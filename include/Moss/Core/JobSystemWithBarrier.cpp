@@ -9,7 +9,7 @@ MOSS_SUPPRESS_WARNINGS_STD_BEGIN
 #include <thread>
 MOSS_SUPPRESS_WARNINGS_STD_END
 
-MOSS_SUPRESS_WARNINGS_BEGIN
+MOSS_SUPPRESS_WARNINGS_BEGIN
 
 JobSystemWithBarrier::BarrierImpl::BarrierImpl()
 {
@@ -225,4 +225,4 @@ void JobSystemWithBarrier::WaitForJobs(Barrier *inBarrier)
 	static_cast<BarrierImpl *>(inBarrier)->Wait();
 }
 
-MOSS_SUPRESS_WARNINGS_END
+MOSS_SUPPRESS_WARNINGS_END

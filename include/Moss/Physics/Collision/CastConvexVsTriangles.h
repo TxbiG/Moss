@@ -7,7 +7,7 @@
 #include <Moss/Physics/Collision/Shape/ConvexShape.h>
 #include <Moss/Physics/Collision/ShapeCast.h>
 
-MOSS_NAMESPACE_BEGIN
+MOSS_SUPPRESS_WARNINGS_END
 
 /// Collision detection helper that casts a convex object vs one or more triangles
 class MOSS_EXPORT CastConvexVsTriangles
@@ -43,4 +43,4 @@ private:
 	float							mScaleSign;							// Sign of the scale, -1 if object is inside out, 1 if not
 };
 
-MOSS_NAMESPACE_END
+MOSS_SUPPRESS_WARNINGS_END

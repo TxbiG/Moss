@@ -7,7 +7,7 @@
 #include <Moss/Core/STLAllocator.h>
 #include <Moss/Moss_stdinc.h>
 
-MOSS_SUPRESS_WARNINGS_BEGIN
+MOSS_SUPPRESS_WARNINGS_BEGIN
 
 /// Implements the FNV-1a hash algorithm
 /// @see https://en.wikipedia.org/wiki/Fowler%E2%80%93Noll%E2%80%93Vo_hash_function
@@ -233,4 +233,4 @@ inline uint64 HashCombineArgs(const FirstValue &inFirstValue, Values... inValues
 	MOSS_SUPPRESS_WARNING_POP								\
 	MOSS_MAKE_STD_HASH(type)
 
-MOSS_SUPRESS_WARNINGS_END
+MOSS_SUPPRESS_WARNINGS_END

@@ -8,7 +8,7 @@
 #include <Moss/Core/Result.h>
 #include <Moss/Core/StreamUtils.h>
 
-MOSS_NAMESPACE_BEGIN
+MOSS_SUPPRESS_WARNINGS_END
 
 class StreamIn;
 class StreamOut;
@@ -344,4 +344,4 @@ private:
 	bool								mIsLooping = true;									///< If this animation loops back to start
 };
 
-MOSS_NAMESPACE_END
+MOSS_SUPPRESS_WARNINGS_END

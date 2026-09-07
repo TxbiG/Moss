@@ -6,7 +6,7 @@
 
 #include <Moss/Core/HashCombine.h>
 
-MOSS_SUPRESS_WARNINGS_BEGIN
+MOSS_SUPPRESS_WARNINGS_BEGIN
 
 /// Simple variable length array backed by a fixed size buffer
 template <class T, uint32 N>
@@ -306,7 +306,7 @@ protected:
 	Storage				mElements[N];
 };
 
-MOSS_SUPRESS_WARNINGS_END
+MOSS_SUPPRESS_WARNINGS_END
 
 MOSS_SUPPRESS_WARNING_PUSH
 MOSS_CLANG_SUPPRESS_WARNING("-Wc++98-compat")
@@ -324,4 +324,4 @@ namespace std
 	};
 }
 
-MOSS_SUPRESS_WARNINGS_END
+MOSS_SUPPRESS_WARNINGS_END

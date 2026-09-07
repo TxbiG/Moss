@@ -26,7 +26,7 @@
 	#include <sys/prctl.h>
 #endif
 
-MOSS_SUPRESS_WARNINGS_BEGIN
+MOSS_SUPPRESS_WARNINGS_BEGIN
 
 void JobSystemThreadPool::Init(uint32 inMaxJobs, uint32 inMaxBarriers, int inNumThreads)
 {
@@ -361,4 +361,4 @@ void JobSystemThreadPool::ThreadMain(int inThreadIndex)
 	MOSS_PROFILE_THREAD_END();
 }
 
-MOSS_SUPRESS_WARNINGS_END
+MOSS_SUPPRESS_WARNINGS_END

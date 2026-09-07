@@ -6,7 +6,7 @@
 
 #include <Moss/Physics/Collision/ObjectLayer.h>
 
-MOSS_NAMESPACE_BEGIN
+MOSS_SUPPRESS_WARNINGS_END
 
 /// Filter class to test if two objects can collide based on their object layer. Used while finding collision pairs.
 /// This implementation uses a table to determine if two layers can collide.
@@ -74,4 +74,4 @@ private:
 	TArray<uint328>	mTable;				// The table of bits that indicates which layers collide
 };
 
-MOSS_NAMESPACE_END
+MOSS_SUPPRESS_WARNINGS_END

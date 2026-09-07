@@ -6,7 +6,7 @@
 
 #include <Moss/Core/NonCopyable.h>
 
-MOSS_SUPRESS_WARNINGS_BEGIN
+MOSS_SUPPRESS_WARNINGS_BEGIN
 
 /// A mutex array protects a number of resources with a limited amount of mutexes.
 /// It uses hashing to find the mutex of a particular object.
@@ -94,5 +94,5 @@ private:
 	uint32					mNumMutexes = 0;
 };
 
-MOSS_SUPRESS_WARNINGS_END
+MOSS_SUPPRESS_WARNINGS_END
 

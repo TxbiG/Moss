@@ -2,7 +2,7 @@
 // SPDX-FileCopyrightText: 2021 Jorrit Rouwe
 // SPDX-License-Identifier: MIT
 
-MOSS_SUPRESS_WARNINGS_BEGIN
+MOSS_SUPPRESS_WARNINGS_BEGIN
 
 //////////////////////////////////////////////////////////////////////////////////////////
 // ProfileThread
@@ -87,4 +87,4 @@ ProfileMeasurement::~ProfileMeasurement()
 	}
 }
 
-MOSS_SUPRESS_WARNINGS_END
+MOSS_SUPPRESS_WARNINGS_END

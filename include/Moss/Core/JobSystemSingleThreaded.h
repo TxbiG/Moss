@@ -7,7 +7,7 @@
 #include <Moss/Core/JobSystem.h>
 #include <Moss/Core/FixedSizeFreeList.h>
 
-MOSS_SUPRESS_WARNINGS_BEGIN
+MOSS_SUPPRESS_WARNINGS_BEGIN
 
 /// Implementation of a JobSystem without threads, runs jobs as soon as they are added
 class MOSS_EXPORT JobSystemSingleThreaded final : public JobSystem
@@ -59,4 +59,4 @@ protected:
 	AvailableJobs			mJobs;
 };
 
-MOSS_SUPRESS_WARNINGS_END
+MOSS_SUPPRESS_WARNINGS_END

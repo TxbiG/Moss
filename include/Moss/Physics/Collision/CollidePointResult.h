@@ -7,7 +7,7 @@
 #include <Moss/Physics/Body/Body.h>
 #include <Moss/Physics/Collision/Shape/SubShapeID.h>
 
-MOSS_NAMESPACE_BEGIN
+MOSS_SUPPRESS_WARNINGS_END
 
 /// Structure that holds the result of colliding a point against a shape
 class CollidePointResult {
@@ -21,4 +21,4 @@ public:
 	SubShapeID		mSubShapeID2;	// Sub shape ID of shape that we collided against
 };
 
-MOSS_NAMESPACE_END
+MOSS_SUPPRESS_WARNINGS_END

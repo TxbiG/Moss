@@ -6,7 +6,7 @@
 
 #include <Moss/Moss_stdinc.h>
 
-MOSS_SUPRESS_WARNINGS_BEGIN
+MOSS_SUPPRESS_WARNINGS_BEGIN
 
 // Forward declares
 template <class T> class Ref;
@@ -213,7 +213,7 @@ private:
 	const T *				mPtr;											///< Pointer to object that we are reference counting
 };
 
-MOSS_SUPRESS_WARNINGS_END
+MOSS_SUPPRESS_WARNINGS_END
 
 MOSS_SUPPRESS_WARNING_PUSH
 MOSS_CLANG_SUPPRESS_WARNING("-Wc++98-compat")
@@ -241,4 +241,4 @@ namespace std
 	};
 };
 
-MOSS_SUPRESS_WARNINGS_END
+MOSS_SUPPRESS_WARNINGS_END

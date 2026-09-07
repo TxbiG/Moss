@@ -7,7 +7,7 @@
 #include <Moss/Physics/Body/Body.h>
 #include <Moss/Core/NonCopyable.h>
 
-MOSS_NAMESPACE_BEGIN
+MOSS_SUPPRESS_WARNINGS_END
 
 class Shape;
 class SubShapeID;
@@ -70,4 +70,4 @@ private:
 	const ShapeFilter &		mFilter;
 };
 
-MOSS_NAMESPACE_END
+MOSS_SUPPRESS_WARNINGS_END

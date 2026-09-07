@@ -4,7 +4,7 @@
 
 #pragma once
 
-MOSS_NAMESPACE_BEGIN
+MOSS_SUPPRESS_WARNINGS_END
 
 class AABB3;
 using AABox = AABB3;
@@ -228,4 +228,4 @@ public:
 using IndexedTriangleNoMaterialList = TArray<IndexedTriangleNoMaterial>;
 using IndexedTriangleList = TArray<IndexedTriangle>;
 
-MOSS_NAMESPACE_END
+MOSS_SUPPRESS_WARNINGS_END

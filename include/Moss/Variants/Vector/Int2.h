@@ -1,6 +1,6 @@
 #pragma once
 
-MOSS_SUPRESS_WARNINGS_BEGIN
+MOSS_SUPPRESS_WARNINGS_BEGIN
 
 /// Class that holds 2 ints, used as a storage class mainly.
 class [[nodiscard]] Int2
@@ -27,4 +27,4 @@ public:
 
 static_assert(std::is_trivial<Int2>(), "Is supposed to be a trivial type!");
 
-MOSS_SUPRESS_WARNINGS_END
+MOSS_SUPPRESS_WARNINGS_END

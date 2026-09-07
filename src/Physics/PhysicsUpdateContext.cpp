@@ -4,7 +4,7 @@
 
 #include <Moss/Physics/PhysicsUpdateContext.h>
 
-MOSS_SUPRESS_WARNINGS_BEGIN
+MOSS_SUPPRESS_WARNINGS_BEGIN
 
 PhysicsUpdateContext::PhysicsUpdateContext(TempAllocator &inTempAllocator) :
 	mTempAllocator(&inTempAllocator),
@@ -18,4 +18,4 @@ PhysicsUpdateContext::~PhysicsUpdateContext()
 	MOSS_ASSERT(mActiveConstraints == nullptr);
 }
 
-MOSS_SUPRESS_WARNINGS_END
+MOSS_SUPPRESS_WARNINGS_END

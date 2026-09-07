@@ -6,7 +6,7 @@
 
 #include <Moss/Core/NonCopyable.h>
 
-MOSS_SUPRESS_WARNINGS_BEGIN
+MOSS_SUPPRESS_WARNINGS_BEGIN
 
 /// Simple binary output stream
 class MOSS_EXPORT StreamOut : public NonCopyable
@@ -94,4 +94,4 @@ public:
 	}
 };
 
-MOSS_SUPRESS_WARNINGS_END
+MOSS_SUPPRESS_WARNINGS_END

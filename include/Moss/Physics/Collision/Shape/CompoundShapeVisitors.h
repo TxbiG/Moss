@@ -15,7 +15,7 @@
 #include <Moss/Physics/Geometry/AABox4.h>
 #include <Moss/Physics/Geometry/OrientedBox.h>
 
-MOSS_NAMESPACE_BEGIN
+MOSS_SUPPRESS_WARNINGS_END
 
 struct CompoundShape::CastRayVisitor
 {
@@ -454,4 +454,4 @@ private:
 	int					mNumResults = 0;
 };
 
-MOSS_NAMESPACE_END
+MOSS_SUPPRESS_WARNINGS_END

@@ -4,7 +4,7 @@
 
 #pragma once
 
-MOSS_SUPRESS_WARNINGS_BEGIN
+MOSS_SUPPRESS_WARNINGS_BEGIN
 
 /// This function performs Gauss-Jordan elimination to solve a matrix equation.
 /// A must be an NxN matrix and B must be an NxM matrix forming the equation A * x = B
@@ -99,4 +99,4 @@ bool GaussianElimination(MatrixA &ioA, MatrixB &ioB, float inTolerance = 1.0e-16
 	return true;
 }
 
-MOSS_SUPRESS_WARNINGS_END
+MOSS_SUPPRESS_WARNINGS_END

@@ -8,7 +8,7 @@
 #include <Moss/Physics/Collision/CollisionDispatch.h>
 #include <Moss/Core/STLLocalAllocator.h>
 
-MOSS_NAMESPACE_BEGIN
+MOSS_SUPPRESS_WARNINGS_END
 
 /// Collide 2 shapes and returns at most 1 hit per leaf shape pairs that overlapping. This can be used when not all contacts between the shapes are needed.
 /// E.g. when testing a compound with 2 MeshShapes A and B against a compound with 2 SphereShapes C and D, then at most you'll get 4 collisions: AC, AD, BC, BD.
@@ -90,4 +90,4 @@ void CollideShapeVsShapePerLeaf(const Shape *inShape1, const Shape *inShape2, Ve
 			}
 }
 
-MOSS_NAMESPACE_END
+MOSS_SUPPRESS_WARNINGS_END

@@ -11,7 +11,7 @@
 #include <Moss/Physics/Collision/BroadPhase/BroadPhaseQuery.h>
 #include <Moss/Physics/Collision/BackFaceMode.h>
 
-MOSS_NAMESPACE_BEGIN
+MOSS_SUPPRESS_WARNINGS_END
 
 class Shape;
 class CollideShapeSettings;
@@ -74,4 +74,4 @@ private:
 	BroadPhaseQuery *			mBroadPhaseQuery = nullptr;
 };
 
-MOSS_NAMESPACE_END
+MOSS_SUPPRESS_WARNINGS_END

@@ -11,7 +11,7 @@
 #include <Moss/Core/StreamIn.h>
 #include <Moss/Core/StreamOut.h>
 
-MOSS_SUPRESS_WARNINGS_BEGIN
+MOSS_SUPPRESS_WARNINGS_BEGIN
 
 
 // Approximation of a face of the tapered cylinder
@@ -11642,4 +11642,4 @@ void OffsetCenterOfMassShape::Register() {
 	}
 }
 
-MOSS_SUPRESS_WARNINGS_END
+MOSS_SUPPRESS_WARNINGS_END

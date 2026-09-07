@@ -12,7 +12,7 @@
 
 //#define MOSS_LARGE_ISLAND_SPLITTER_DEBUG
 
-MOSS_SUPRESS_WARNINGS_BEGIN
+MOSS_SUPPRESS_WARNINGS_BEGIN
 
 LargeIslandSplitter::EStatus LargeIslandSplitter::Splits::FetchNextBatch(uint32 &outConstraintsBegin, uint32 &outConstraintsEnd, uint32 &outContactsBegin, uint32 &outContactsEnd, bool &outFirstIteration)
 {
@@ -577,4 +577,4 @@ void LargeIslandSplitter::Reset(TempAllocator *inTempAllocator)
 	}
 }
 
-MOSS_SUPRESS_WARNINGS_END
+MOSS_SUPPRESS_WARNINGS_END

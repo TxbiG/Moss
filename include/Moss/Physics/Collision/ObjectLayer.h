@@ -6,7 +6,7 @@
 
 #include <Moss/Core/NonCopyable.h>
 
-MOSS_NAMESPACE_BEGIN
+MOSS_SUPPRESS_WARNINGS_END
 
 /// Layer that objects can be in, determines which other objects it can collide with
 #ifndef MOSS_OBJECT_LAYER_BITS
@@ -108,4 +108,4 @@ private:
 	ObjectLayer				mLayer;
 };
 
-MOSS_NAMESPACE_END
+MOSS_SUPPRESS_WARNINGS_END

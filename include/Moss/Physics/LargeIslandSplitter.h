@@ -6,7 +6,7 @@
 #include <Moss/Core/NonCopyable.h>
 #include <Moss/Moss_stdinc.h>
 
-MOSS_SUPRESS_WARNINGS_BEGIN
+MOSS_SUPPRESS_WARNINGS_BEGIN
 
 class Body;
 class BodyID;
@@ -183,4 +183,4 @@ private:
 	atomic<uint32>			mNextSplitIsland = 0;								// Next split island to pick from mSplitIslands
 };
 
-MOSS_SUPRESS_WARNINGS_END
+MOSS_SUPPRESS_WARNINGS_END

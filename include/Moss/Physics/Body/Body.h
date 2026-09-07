@@ -4,7 +4,7 @@
 #include <Moss/Core/Mutex.h>
 #include <Moss/Core/MutexArray.h>
 
-MOSS_NAMESPACE_BEGIN
+MOSS_SUPPRESS_WARNINGS_END
 
 // Classes
 class BodyCreationSettings;
@@ -1995,6 +1995,6 @@ public:
 
 MOSS_API void EstimateCollisionResponse(const Body* body1, const Body* body2, const ContactManifold* manifold, float combinedFriction, float combinedRestitution, float minVelocityForRestitution, uint32_t numIterations, CollisionEstimationResult* result);
 
-MOSS_NAMESPACE_END
+MOSS_SUPPRESS_WARNINGS_END
 
 MOSS_MAKE_HASHABLE(BodyID, t.GetIndexAndSequenceNumber())

@@ -28,7 +28,7 @@
 #include <Moss/Physics/StateRecorder.h>
 
 
-MOSS_SUPRESS_WARNINGS_BEGIN
+MOSS_SUPPRESS_WARNINGS_BEGIN
 
 
 CharacterBase::CharacterBase(const CharacterBaseSettings *inSettings, PhysicsSystem *inSystem) : mSystem(inSystem), mShape(inSettings->mShape), mUp(inSettings->mUp), 
@@ -2198,4 +2198,4 @@ void CharacterVirtual::RestoreState(StateRecorder &inStream) {
 		c.RestoreState(inStream);
 }
 
-MOSS_SUPRESS_WARNINGS_END
+MOSS_SUPPRESS_WARNINGS_END

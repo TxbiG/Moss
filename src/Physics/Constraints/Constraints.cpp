@@ -5,7 +5,7 @@
 #endif // MOSS_DEBUG_RENDERER
 
 
-MOSS_SUPRESS_WARNINGS_BEGIN
+MOSS_SUPPRESS_WARNINGS_BEGIN
 
 #ifndef MOSS_DEBUG_RENDERER
 bool ContactConstraintManager::DrawContactPoint = false;
@@ -6289,4 +6289,4 @@ Ref<ConstraintSettings> SixDOFConstraint::GetConstraintSettings() const
 }
 
 
-MOSS_SUPRESS_WARNINGS_END
+MOSS_SUPPRESS_WARNINGS_END

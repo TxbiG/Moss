@@ -9,7 +9,7 @@
 #include <Moss/Physics/Collision/Shape/SubShapeID.h>
 #include <Moss/Physics/Collision/Shape/ConvexShape.h>
 
-MOSS_NAMESPACE_BEGIN
+MOSS_SUPPRESS_WARNINGS_END
 
 class CollideShapeSettings;
 
@@ -53,4 +53,4 @@ protected:
 	const ConvexShape::Support *	mShape1IncCvxRadius = nullptr;			// Actual support function object including convex radius
 };
 
-MOSS_NAMESPACE_END
+MOSS_SUPPRESS_WARNINGS_END

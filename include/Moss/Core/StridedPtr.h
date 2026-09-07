@@ -4,7 +4,7 @@
 
 #pragma once
 
-MOSS_SUPRESS_WARNINGS_BEGIN
+MOSS_SUPPRESS_WARNINGS_BEGIN
 
 /// A strided pointer behaves exactly like a normal pointer except that the
 /// elements that the pointer points to can be part of a larger structure.
@@ -60,4 +60,4 @@ private:
 	int						mStride = 0;											/// Stride (number of bytes) between elements
 };
 
-MOSS_SUPRESS_WARNINGS_END
+MOSS_SUPPRESS_WARNINGS_END

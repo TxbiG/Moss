@@ -6,7 +6,7 @@
 
 #include <Moss/Physics/Geometry/RayTriangle.h>
 
-MOSS_SUPRESS_WARNINGS_BEGIN
+MOSS_SUPPRESS_WARNINGS_BEGIN
 
 /// Store vertices in 64 bits and indices in 8 bits + 8 bit of flags per triangle like this:
 ///
@@ -549,4 +549,4 @@ public:
 	};
 };
 
-MOSS_SUPRESS_WARNINGS_END
+MOSS_SUPPRESS_WARNINGS_END

@@ -6,7 +6,7 @@
 
 #include <Moss/Renderer/DebugRendererPlayback.h>
 
-MOSS_SUPRESS_WARNINGS_BEGIN
+MOSS_SUPPRESS_WARNINGS_BEGIN
 
 void DebugRendererPlayback::Parse(StreamIn &inStream)
 {
@@ -161,6 +161,6 @@ void DebugRendererPlayback::DrawFrame(uint32 inFrameNumber) const
 		mRenderer.DrawGeometry(geom.mModelMatrix, geom.mModelColor, mGeometries.find(geom.mGeometryID)->second, geom.mCullMode, geom.mCastShadow, geom.mDrawMode);
 }
 
-MOSS_SUPRESS_WARNINGS_END
+MOSS_SUPPRESS_WARNINGS_END
 
 #endif // MOSS_DEBUG_RENDERER

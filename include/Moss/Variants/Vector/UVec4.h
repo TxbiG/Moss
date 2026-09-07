@@ -6,7 +6,7 @@
 
 #include <Moss/Variants/Vector/Vec4.h>
 
-MOSS_SUPRESS_WARNINGS_BEGIN
+MOSS_SUPPRESS_WARNINGS_BEGIN
 
 class [[nodiscard]] alignas(MOSS_VECTOR_ALIGNMENT) UVec4
 {
@@ -215,6 +215,6 @@ public:
 
 static_assert(std::is_trivial<UVec4>(), "Is supposed to be a trivial type!");
 
-MOSS_SUPRESS_WARNINGS_END
+MOSS_SUPPRESS_WARNINGS_END
 
 #include "UVec4.inl"

@@ -2,7 +2,7 @@
 // SPDX-FileCopyrightText: 2021 Jorrit Rouwe
 // SPDX-License-Identifier: MIT
 
-MOSS_SUPRESS_WARNINGS_BEGIN
+MOSS_SUPPRESS_WARNINGS_BEGIN
 
 void JobSystem::Job::AddDependency(int inCount)
 {
@@ -53,4 +53,4 @@ void JobSystem::JobHandle::sRemoveDependencies(const JobHandle *inHandles, uint3
 		job_system->QueueJobs(jobs_to_queue, num_jobs_to_queue);
 }
 
-MOSS_SUPRESS_WARNINGS_END
+MOSS_SUPPRESS_WARNINGS_END

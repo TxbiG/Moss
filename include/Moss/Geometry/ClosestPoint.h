@@ -4,7 +4,7 @@
 
 #pragma once
 
-MOSS_NAMESPACE_BEGIN
+MOSS_SUPPRESS_WARNINGS_END
 
 // Turn off fused multiply add instruction because it makes the equations of the form a * b - c * d inaccurate below
 MOSS_PRECISE_MATH_ON
@@ -495,4 +495,4 @@ namespace ClosestPoint
 
 MOSS_PRECISE_MATH_OFF
 
-MOSS_NAMESPACE_END
+MOSS_SUPPRESS_WARNINGS_END

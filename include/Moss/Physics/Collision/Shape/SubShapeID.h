@@ -4,7 +4,7 @@
 
 #pragma once
 
-MOSS_NAMESPACE_BEGIN
+MOSS_SUPPRESS_WARNINGS_END
 
 /// @brief A sub shape id contains a path to an element (usually a triangle or other primitive type) of a compound shape
 ///
@@ -135,4 +135,4 @@ private:
 	uint32				mCurrentBit = 0;
 };
 
-MOSS_NAMESPACE_END
+MOSS_SUPPRESS_WARNINGS_END

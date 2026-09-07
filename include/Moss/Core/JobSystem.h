@@ -11,7 +11,7 @@
 #include <Moss/Variants/TStaticArray.h>
 #include <Moss/Moss_stdinc.h>
 
-MOSS_SUPRESS_WARNINGS_BEGIN
+MOSS_SUPPRESS_WARNINGS_BEGIN
 
 /// A class that allows units of work (Jobs) to be scheduled across multiple threads.
 /// It allows dependencies between the jobs so that the jobs form a graph.
@@ -306,6 +306,6 @@ private:
 
 using JobHandle = JobSystem::JobHandle;
 
-MOSS_SUPRESS_WARNINGS_END
+MOSS_SUPPRESS_WARNINGS_END
 
 #include "JobSystem.inl"

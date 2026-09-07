@@ -7,7 +7,7 @@
 #include <Moss/Core/HashCombine.h>
 #include <Moss/Variants/TArray.h>
 
-MOSS_SUPRESS_WARNINGS_BEGIN
+MOSS_SUPPRESS_WARNINGS_BEGIN
 
 /// Class that holds 3 floats. Used as a storage class. Convert to Vec3 for calculations.
 class [[nodiscard]] Float3 {
@@ -35,7 +35,7 @@ using VertexList = TArray<Float3>;
 
 static_assert(std::is_trivial<Float3>(), "Is supposed to be a trivial type!");
 
-MOSS_SUPRESS_WARNINGS_END
+MOSS_SUPPRESS_WARNINGS_END
 
 // Create a std::hash for Float3
 MOSS_MAKE_HASHABLE(Float3, t.x, t.y, t.z)

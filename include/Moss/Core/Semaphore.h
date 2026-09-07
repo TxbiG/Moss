@@ -24,7 +24,7 @@ MOSS_SUPPRESS_WARNINGS_STD_BEGIN
 #endif
 MOSS_SUPPRESS_WARNINGS_STD_END
 
-MOSS_SUPRESS_WARNINGS_BEGIN
+MOSS_SUPPRESS_WARNINGS_BEGIN
 
 /// Implements a semaphore
 /// When we switch to C++20 we can use counting_semaphore to unify this
@@ -65,4 +65,4 @@ private:
 #endif
 };
 
-MOSS_SUPRESS_WARNINGS_END
+MOSS_SUPPRESS_WARNINGS_END

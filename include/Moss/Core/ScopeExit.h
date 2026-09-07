@@ -6,7 +6,7 @@
 
 #include <Moss/Core/NonCopyable.h>
 
-MOSS_SUPRESS_WARNINGS_BEGIN
+MOSS_SUPPRESS_WARNINGS_BEGIN
 
 /// Class that calls a function when it goes out of scope
 template <class F>
@@ -46,4 +46,4 @@ private:
 /// Usage: MOSS_SCOPE_EXIT([]{ code to call on scope exit });
 #define MOSS_SCOPE_EXIT(...) ScopeExit MOSS_SCOPE_EXIT_TAG(__LINE__)(__VA_ARGS__)
 
-MOSS_SUPRESS_WARNINGS_END
+MOSS_SUPPRESS_WARNINGS_END

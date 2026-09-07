@@ -6,7 +6,7 @@
 
 #include <Moss/Variants/Matrix/Mat44.h>
 
-MOSS_NAMESPACE_BEGIN
+MOSS_SUPPRESS_WARNINGS_END
 
 /// Helper functions to get the support point for a convex object
 /// Structure that transforms a convex object (supports only uniform scaling)
@@ -185,4 +185,4 @@ struct PolygonConvexSupport
 	const VERTEX_ARRAY &	mVertices;
 };
 
-MOSS_NAMESPACE_END
+MOSS_SUPPRESS_WARNINGS_END

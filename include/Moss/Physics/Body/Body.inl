@@ -4,7 +4,7 @@
 
 #pragma once
 
-MOSS_NAMESPACE_BEGIN
+MOSS_SUPPRESS_WARNINGS_END
 
 RMat44 Body::GetWorldTransform() const
 {
@@ -357,4 +357,4 @@ ECanSleep MotionProperties::AccumulateSleepTime(float inDeltaTime, float inTimeB
 	return mSleepTestTimer >= inTimeBeforeSleep? ECanSleep::CanSleep : ECanSleep::CannotSleep;
 }
 
-MOSS_NAMESPACE_END
+MOSS_SUPPRESS_WARNINGS_END

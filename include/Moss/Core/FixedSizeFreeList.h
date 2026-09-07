@@ -8,7 +8,7 @@
 #include <Moss/Core/Mutex.h>
 #include <Moss/Moss_stdinc.h>
 
-MOSS_SUPRESS_WARNINGS_BEGIN
+MOSS_SUPPRESS_WARNINGS_BEGIN
 
 /// Class that allows lock free creation / destruction of objects (unless a new page of objects needs to be allocated)
 /// It contains a fixed pool of objects and also allows batching up a lot of objects to be destroyed
@@ -117,6 +117,6 @@ public:
 	inline const Object &	Get(uint32 inObjectIndex) const			{ return GetStorage(inObjectIndex).mObject; }
 };
 
-MOSS_SUPRESS_WARNINGS_END
+MOSS_SUPPRESS_WARNINGS_END
 
 #include "FixedSizeFreeList.inl"

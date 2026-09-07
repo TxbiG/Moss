@@ -12,7 +12,7 @@
 #include <Moss/Physics/Body/Body.h>
 #include <Moss/Physics/PhysicsSettings.h>
 
-MOSS_NAMESPACE_BEGIN
+MOSS_SUPPRESS_WARNINGS_END
 
 /// Class that contains all information of two colliding shapes
 class CollideShapeResult
@@ -98,4 +98,4 @@ public:
 	EBackFaceMode mBackFaceMode = EBackFaceMode::IgnoreBackFaces;
 };
 
-MOSS_NAMESPACE_END
+MOSS_SUPPRESS_WARNINGS_END

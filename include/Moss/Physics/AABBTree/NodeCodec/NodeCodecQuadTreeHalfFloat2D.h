@@ -8,7 +8,7 @@
 #include <Moss/Variants/Math/HalfFloat.h>
 #include <Moss/Physics/AABBTree/AABBTreeBuilder.h>
 
-MOSS_SUPRESS_WARNINGS_BEGIN
+MOSS_SUPPRESS_WARNINGS_BEGIN
 
 class NodeCodecQuadTreeHalfFloat
 {
@@ -255,4 +255,4 @@ public:
 	};
 };
 
-MOSS_SUPRESS_WARNINGS_END
+MOSS_SUPPRESS_WARNINGS_END

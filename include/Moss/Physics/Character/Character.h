@@ -7,7 +7,7 @@
 #include <Moss/Physics/Body/AllowedDOFs.h>
 
 
-MOSS_NAMESPACE_BEGIN
+MOSS_SUPPRESS_WARNINGS_END
 
 class MOSS_EXPORT CharacterID {
 public:
@@ -1177,4 +1177,4 @@ public:
 	virtual void			OnBodyDeactivated(const BodyID &inBodyID, uint64 inBodyUserData) = 0;
 };
 
-MOSS_NAMESPACE_END
+MOSS_SUPPRESS_WARNINGS_END

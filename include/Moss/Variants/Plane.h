@@ -4,7 +4,7 @@
 
 #pragma once
 
-MOSS_NAMESPACE_BEGIN
+MOSS_SUPPRESS_WARNINGS_END
 
 /// An infinite plane described by the formula X . Normal + Constant = 0.
 class [[nodiscard]] Plane {
@@ -97,4 +97,4 @@ private:
 	Vec4			mNormalAndConstant;													///< XYZ = normal, W = constant, plane: x . normal + constant = 0
 };
 
-MOSS_NAMESPACE_END
+MOSS_SUPPRESS_WARNINGS_END

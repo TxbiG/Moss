@@ -9,7 +9,7 @@
 #include <Moss/Variants/TStaticArray.h>
 #include <Moss/ObjectStream/SerializableAttribute.h>
 
-MOSS_SUPRESS_WARNINGS_BEGIN
+MOSS_SUPPRESS_WARNINGS_BEGIN
 
 //////////////////////////////////////////////////////////////////////////////////////////
 // RTTI
@@ -388,4 +388,4 @@ inline const DstType *DynamicCast(const RefConst<SrcType> &inObject) { return in
 template <class DstType, class SrcType>
 inline DstType *DynamicCast(const Ref<SrcType> &inObject) { return inObject != nullptr? const_cast<DstType *>(reinterpret_cast<const DstType *>(inObject->CastTo(MOSS_RTTI(DstType)))) : nullptr; }
 
-MOSS_SUPRESS_WARNINGS_END
+MOSS_SUPPRESS_WARNINGS_END

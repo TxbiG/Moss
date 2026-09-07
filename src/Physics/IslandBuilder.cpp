@@ -10,7 +10,7 @@
 #include <Moss/Core/TempAllocator.h>
 #include <Moss/Core/QuickSort.h>
 
-MOSS_SUPRESS_WARNINGS_BEGIN
+MOSS_SUPPRESS_WARNINGS_BEGIN
 
 IslandBuilder::~IslandBuilder()
 {
@@ -479,4 +479,4 @@ void IslandBuilder::ResetIslands(TempAllocator *inTempAllocator)
 	mNumIslands = 0;
 }
 
-MOSS_SUPRESS_WARNINGS_END
+MOSS_SUPPRESS_WARNINGS_END

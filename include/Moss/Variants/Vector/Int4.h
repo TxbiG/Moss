@@ -1,6 +1,6 @@
 #pragma once
 
-MOSS_SUPRESS_WARNINGS_BEGIN
+MOSS_SUPPRESS_WARNINGS_BEGIN
 
 /// Class that holds 4 int values. Convert to Vec4 to perform calculations.
 class [[nodiscard]] Int4
@@ -24,4 +24,4 @@ public:
 
 static_assert(std::is_trivial<Int4>(), "Is supposed to be a trivial type!");
 
-MOSS_SUPRESS_WARNINGS_END
+MOSS_SUPPRESS_WARNINGS_END

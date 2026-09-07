@@ -17,7 +17,7 @@ MOSS_SUPPRESS_WARNINGS_STD_END
 #endif // MOSS_DUMP_BROADPHASE_TREE
 
 
-MOSS_SUPRESS_WARNINGS_BEGIN
+MOSS_SUPPRESS_WARNINGS_BEGIN
 
 static constexpr uint8 sClosestFeatureToActiveEdgesMask[] = {
 	0b000,		// 0b000: Invalid, guarded by an assert
@@ -4392,4 +4392,4 @@ uint32 QuadTree::GetMaxTreeDepth(const NodeID &inNodeID) const
 	return max_depth + 1;
 }
 
-MOSS_SUPRESS_WARNINGS_END
+MOSS_SUPPRESS_WARNINGS_END

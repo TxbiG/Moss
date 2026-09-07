@@ -15,7 +15,7 @@
 // Create a std::hash for iVec2
 MOSS_MAKE_HASHABLE(iVec2, t.GetX(), t.GetY())
 
-MOSS_SUPRESS_WARNINGS_BEGIN
+MOSS_SUPPRESS_WARNINGS_BEGIN
 
 iVec2::iVec2(const Vec4 inRHS) {
 #if defined(MOSS_SIMD_AVX)
@@ -935,4 +935,4 @@ Vec4 iVec2::ToVec4RoundUp() const
 	return Vec4(iVec2::Select(to_inf, to_zero, iVec2::Less(*this, iVec2::Zero())));
 }
 
-MOSS_SUPRESS_WARNINGS_END
+MOSS_SUPPRESS_WARNINGS_END

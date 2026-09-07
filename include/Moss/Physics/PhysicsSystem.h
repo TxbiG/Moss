@@ -12,7 +12,7 @@
 #include <Moss/Physics/LargeIslandSplitter.h>
 #include <Moss/Physics/PhysicsUpdateContext.h>
 
-MOSS_SUPRESS_WARNINGS_BEGIN
+MOSS_SUPPRESS_WARNINGS_BEGIN
 
 class JobSystem;
 class StateRecorder;
@@ -558,4 +558,4 @@ public:
 	virtual void			OnStep(const PhysicsStepListenerContext &inContext) = 0;
 };
 
-MOSS_SUPRESS_WARNINGS_END
+MOSS_SUPPRESS_WARNINGS_END

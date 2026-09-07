@@ -8,7 +8,7 @@
 #include <Moss/Variants/AABB3.h>
 #include <Moss/Core/NonCopyable.h>
 
-MOSS_SUPRESS_WARNINGS_BEGIN
+MOSS_SUPPRESS_WARNINGS_BEGIN
 
 struct AABBTreeBuilderStats {
 	///@name Splitter stats
@@ -112,4 +112,4 @@ private:
 	TArray<IndexedTriangle>	mTriangles;
 };
 
-MOSS_SUPRESS_WARNINGS_END
+MOSS_SUPPRESS_WARNINGS_END

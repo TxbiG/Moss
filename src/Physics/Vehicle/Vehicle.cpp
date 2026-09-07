@@ -17,7 +17,7 @@
 #include <Moss/Physics/Vehicle/VehicleConstraint.h>
 #include <Moss/Physics/Vehicle/VehicleController.h>
 
-MOSS_SUPRESS_WARNINGS_BEGIN
+MOSS_SUPPRESS_WARNINGS_BEGIN
 
 MOSS_IMPLEMENT_SERIALIZABLE_ABSTRACT(VehicleControllerSettings) { MOSS_ADD_BASE_CLASS(VehicleControllerSettings, SerializableObject) }
 
@@ -2870,4 +2870,4 @@ void VehicleCollisionTesterCastCylinder::PredictContactProperties(PhysicsSystem 
 	}
 }
 
-MOSS_SUPRESS_WARNINGS_END
+MOSS_SUPPRESS_WARNINGS_END

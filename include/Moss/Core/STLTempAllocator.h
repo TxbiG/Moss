@@ -6,7 +6,7 @@
 
 #include <Moss/Core/TempAllocator.h>
 
-MOSS_SUPRESS_WARNINGS_BEGIN
+MOSS_SUPPRESS_WARNINGS_BEGIN
 
 /// STL allocator that wraps around TempAllocator
 template <typename T>
@@ -77,4 +77,4 @@ private:
 	TempAllocator &			mAllocator;
 };
 
-MOSS_SUPRESS_WARNINGS_END
+MOSS_SUPPRESS_WARNINGS_END

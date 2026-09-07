@@ -11,7 +11,7 @@
 #include <Moss/Core/Mutex.h>
 #include <Moss/Variants/TMap.h>
 
-MOSS_SUPRESS_WARNINGS_BEGIN
+MOSS_SUPPRESS_WARNINGS_BEGIN
 
 /// Implementation of DebugRenderer that records the API invocations to be played back later
 class MOSS_DEBUG_RENDERER_EXPORT DebugRendererRecorder final : public DebugRenderer
@@ -125,5 +125,5 @@ private:
 	Frame								mCurrentFrame;
 };
 
-MOSS_SUPRESS_WARNINGS_END
+MOSS_SUPPRESS_WARNINGS_END
 #endif // MOSS_DEBUG_RENDERER

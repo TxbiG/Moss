@@ -2,7 +2,7 @@
 
 #include <Moss/Variants/Vector/Vec4.h>
 
-MOSS_SUPRESS_WARNINGS_BEGIN
+MOSS_SUPPRESS_WARNINGS_BEGIN
 
 // AABB2 (Axis aligned box 2D) is used for 2D Collisions
 class [[nodiscard]] AABB2 {
@@ -72,4 +72,4 @@ public:
     Vec4 mBox; // (x, y = min, z, w = max)
 };
 
-MOSS_SUPRESS_WARNINGS_END
+MOSS_SUPPRESS_WARNINGS_END

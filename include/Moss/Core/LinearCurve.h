@@ -7,7 +7,7 @@
 #include <Moss/ObjectStream/SerializableObject.h>
 #include <Moss/Core/QuickSort.h>
 
-MOSS_SUPRESS_WARNINGS_BEGIN
+MOSS_SUPPRESS_WARNINGS_BEGIN
 
 class StreamOut;
 class StreamIn;
@@ -64,4 +64,4 @@ public:
 	Points				mPoints;
 };
 
-MOSS_SUPRESS_WARNINGS_END
+MOSS_SUPPRESS_WARNINGS_END

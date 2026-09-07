@@ -6,7 +6,7 @@
 
 #include <Moss/Variants/Math/MathTypes.h>
 
-MOSS_WARNINGS_BEGIN
+MOSS_SUPPRESS_WARNINGS_BEGIN
 
 /// Holds a 4x4 matrix of floats, but supports also operations on the 3x3 upper left part of the matrix.
 class [[nodiscard]] alignas(MOSS_VECTOR_ALIGNMENT) Mat4x2
@@ -89,4 +89,4 @@ private:
 
 static_assert(std::is_trivial<Mat4x2>(), "Is supposed to be a trivial type!");
 
-MOSS_WARNINGS_END
+MOSS_SUPPRESS_WARNINGS_END

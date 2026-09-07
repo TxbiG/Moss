@@ -6,7 +6,7 @@
 
 #include <Moss/Core/FPControlWord.h>
 
-MOSS_SUPRESS_WARNINGS_BEGIN
+MOSS_SUPPRESS_WARNINGS_BEGIN
 
 #if defined(MOSS_CPU_WASM) || defined(MOSS_CPU_RISCV) || defined(MOSS_CPU_PPC) || defined(MOSS_CPU_LOONGARCH)
 
@@ -40,4 +40,4 @@ class FPFlushDenormals : public FPControlWord<FP_FZ, FP_FZ> { };
 
 #endif
 
-MOSS_SUPRESS_WARNINGS_END
+MOSS_SUPPRESS_WARNINGS_END

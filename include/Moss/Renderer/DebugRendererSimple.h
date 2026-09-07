@@ -8,7 +8,7 @@
 
 #include <Moss/Renderer/DebugRenderer.h>
 
-MOSS_SUPRESS_WARNINGS_BEGIN
+MOSS_SUPPRESS_WARNINGS_BEGIN
 
 /// Inherit from this class to simplify implementing a debug renderer, start with this implementation:
 ///
@@ -83,5 +83,5 @@ private:
 	bool						mCameraPosSet = false;
 };
 
-MOSS_SUPRESS_WARNINGS_END
+MOSS_SUPPRESS_WARNINGS_END
 #endif // MOSS_DEBUG_RENDERER

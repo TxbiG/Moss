@@ -6,7 +6,7 @@
 
 #include <Moss/Physics/Geometry/ClosestPoint.h>
 
-MOSS_NAMESPACE_BEGIN
+MOSS_SUPPRESS_WARNINGS_END
 
 /// An active edge is an edge that either has no neighbouring edge or if the angle between the two connecting faces is too large.
 namespace ActiveEdges
@@ -111,4 +111,4 @@ namespace ActiveEdges
 	}
 }
 
-MOSS_NAMESPACE_END
+MOSS_SUPPRESS_WARNINGS_END

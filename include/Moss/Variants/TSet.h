@@ -8,7 +8,7 @@
 
 /* TSet<> is an UnorderedSet */
 
-MOSS_SUPRESS_WARNINGS_BEGIN
+MOSS_SUPPRESS_WARNINGS_BEGIN
 
 /// Internal helper class to provide context for UnorderedSet
 template <class Key>
@@ -34,4 +34,4 @@ template <class Key, class Hash = Hash<Key>, class KeyEqual = std::equal_to<Key>
 class TSet;
 
 
-MOSS_SUPRESS_WARNINGS_END
+MOSS_SUPPRESS_WARNINGS_END

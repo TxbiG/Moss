@@ -4,7 +4,7 @@
 
 #include <Moss/TriangleSplitter/TriangleSplitter.h>
 
-MOSS_SUPRESS_WARNINGS_BEGIN
+MOSS_SUPPRESS_WARNINGS_BEGIN
 
 TriangleSplitter::TriangleSplitter(const VertexList &inVertices, const IndexedTriangleList &inTriangles) :
 	mVertices(inVertices),
@@ -241,4 +241,4 @@ bool TriangleSplitterBinning::Split(const Range &inTriangles, Range &outLeft, Ra
 }
 
 
-MOSS_SUPRESS_WARNINGS_END
+MOSS_SUPPRESS_WARNINGS_END

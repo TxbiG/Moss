@@ -8,7 +8,7 @@
 #include <Moss/Physics/Collision/Shape/SubShapeID.h>
 #include <Moss/Core/HashCombine.h>
 
-MOSS_NAMESPACE_BEGIN
+MOSS_SUPPRESS_WARNINGS_END
 
 /// A pair of bodies and their sub shape ID's. Can be used as a key in a map to find a contact point.
 class SubShapeIDPair {
@@ -59,6 +59,6 @@ private:
 static_assert(sizeof(SubShapeIDPair) == 16, "Unexpected size");
 static_assert(alignof(SubShapeIDPair) == 4, "Assuming 4 byte aligned");
 
-MOSS_NAMESPACE_END
+MOSS_SUPPRESS_WARNINGS_END
 
 MOSS_MAKE_STD_HASH(SubShapeIDPair)

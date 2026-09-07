@@ -12,7 +12,7 @@
 #include <Moss/Variants/Vector/UVec4.h>
 #include <Moss/Variants/Vector/Vec4.h>
 
-MOSS_SUPRESS_WARNINGS_BEGIN
+MOSS_SUPPRESS_WARNINGS_BEGIN
 
 /// 3 component vector (stored as 4 vectors).
 /// Note that we keep the 4th component the same as the 3rd component to avoid divisions by zero when MOSS_FLOATING_POINT_EXCEPTIONS_ENABLED defined
@@ -302,6 +302,6 @@ public:
 
 static_assert(std::is_trivial<Vec2>(), "Is supposed to be a trivial type!");
 
-MOSS_SUPRESS_WARNINGS_END
+MOSS_SUPPRESS_WARNINGS_END
 
 #include "Vec2.inl"

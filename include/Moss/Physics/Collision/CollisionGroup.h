@@ -7,7 +7,7 @@
 #include <Moss/Physics/Collision/GroupFilter.h>
 #include <Moss/ObjectStream/SerializableObject.h>
 
-MOSS_NAMESPACE_BEGIN
+MOSS_SUPPRESS_WARNINGS_END
 
 class StreamIn;
 class StreamOut;
@@ -94,4 +94,4 @@ private:
 	SubGroupID				mSubGroupID = cInvalidSubGroup;
 };
 
-MOSS_NAMESPACE_END
+MOSS_SUPPRESS_WARNINGS_END

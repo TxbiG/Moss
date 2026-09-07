@@ -4,7 +4,7 @@
 
 #include <Moss/Variants/Color.h>
 
-MOSS_SUPRESS_WARNINGS_BEGIN
+MOSS_SUPPRESS_WARNINGS_BEGIN
 
 // Predefined colors
 const Color Color::Black(0, 0, 0);
@@ -33,4 +33,4 @@ Color Color::GetDistinctColor(int inIndex)
 	return Colors[inIndex % (sizeof(sColors) / sizeof(uint32))];
 }
 
-MOSS_SUPRESS_WARNINGS_END
+MOSS_SUPPRESS_WARNINGS_END

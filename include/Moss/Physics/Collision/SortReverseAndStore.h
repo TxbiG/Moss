@@ -4,7 +4,7 @@
 
 #pragma once
 
-MOSS_NAMESPACE_BEGIN
+MOSS_SUPPRESS_WARNINGS_END
 
 /// This function will sort values from high to low and only keep the ones that are less than inMaxValue
 /// @param inValues Values to be sorted
@@ -45,4 +45,4 @@ MOSS_INLINE int CountAndSortTrues(UVec4Arg inValue, UVec4 &ioIdentifiers)
 	return inValue.CountTrues();
 }
 
-MOSS_NAMESPACE_END
+MOSS_SUPPRESS_WARNINGS_END

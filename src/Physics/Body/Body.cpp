@@ -33,7 +33,7 @@
 #include <Moss/Core/StreamIn.h>
 #include <Moss/Core/StreamOut.h>
 
-MOSS_SUPRESS_WARNINGS_BEGIN
+MOSS_SUPPRESS_WARNINGS_BEGIN
 
 MOSS_IMPLEMENT_SERIALIZABLE_NON_VIRTUAL(MassProperties) {
 	MOSS_ADD_ATTRIBUTE(MassProperties, mMass)
@@ -3063,4 +3063,4 @@ void BodyInterface::InvalidateContactCache(const BodyID &inBodyID)
 		mBodyManager->InvalidateContactCacheForBody(lock.GetBody());
 }
 
-MOSS_SUPRESS_WARNINGS_END
+MOSS_SUPPRESS_WARNINGS_END

@@ -6,7 +6,7 @@
 
 #include <Moss/Physics/StateRecorder.h>
 
-MOSS_SUPRESS_WARNINGS_BEGIN
+MOSS_SUPPRESS_WARNINGS_BEGIN
 
 /// Implementation of the StateRecorder class that uses a stringstream as underlying store and that implements checking if the state doesn't change upon reading
 class MOSS_EXPORT StateRecorderImpl final : public StateRecorder
@@ -47,4 +47,4 @@ private:
 	std::stringstream	mStream;
 };
 
-MOSS_SUPRESS_WARNINGS_END
+MOSS_SUPPRESS_WARNINGS_END

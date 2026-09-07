@@ -6,11 +6,10 @@
 
 #include <Moss/Variants/Math/MathTypes.h>
 
-MOSS_WARNINGS_BEGIN
+MOSS_SUPPRESS_WARNINGS_BEGIN
 
 /// Holds a 4x4 matrix of floats, but supports also operations on the 3x3 upper left part of the matrix.
-class [[nodiscard]] alignas(MOSS_VECTOR_ALIGNMENT) Mat33
-{
+class [[nodiscard]] alignas(MOSS_VECTOR_ALIGNMENT) Mat33 {
 public:
 	MOSS_OVERRIDE_NEW_DELETE
 
@@ -37,8 +36,7 @@ public:
 	static MOSS_INLINE Mat33	NaN()  { return Mat33(Vec3::NaN(), Vec3::NaN(), Vec3::NaN()); }
 
 
-	bool Mat33::operator == (const Mat33 inM2) const
-	{
+	bool Mat33::operator == (const Mat33 inM2) const {
 		return UVec4::And(
 			UVec4::And(Vec4::Equals(mCol[0], inM2.mCol[0]), Vec4::Equals(mCol[1], inM2.mCol[1])),
 			UVec4::And(Vec4::Equals(mCol[2], inM2.mCol[2]), Vec4::Equals(mCol[3], inM2.mCol[3]))).TestAllTrue();
@@ -119,4 +117,4 @@ private:
 
 static_assert(std::is_trivial<Mat33>(), "Is supposed to be a trivial type!");
 
-MOSS_WARNINGS_END
+MOSS_SUPPRESS_WARNINGS_END

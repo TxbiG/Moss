@@ -6,7 +6,7 @@
 #include <Moss/Variants/Vector/Vec3.h>
 #include <Moss/Variants/Vector/UVec4.h>
 
-MOSS_SUPRESS_WARNINGS_BEGIN
+MOSS_SUPPRESS_WARNINGS_BEGIN
 
 // Constructor
 Vec4::Vec4(const Vec3 inRHS) : mValue(inRHS.mValue) { }
@@ -971,4 +971,4 @@ Vec4 Vec4::ATan2(const Vec4 inY, const Vec4 inX)
 	return atan;
 }
 
-MOSS_SUPRESS_WARNINGS_END
+MOSS_SUPPRESS_WARNINGS_END

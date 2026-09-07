@@ -4,7 +4,7 @@
 
 #pragma once
 
-MOSS_SUPRESS_WARNINGS_BEGIN
+MOSS_SUPPRESS_WARNINGS_BEGIN
 
 /// Push a new element into a binary max-heap.
 /// [inBegin, inEnd - 1) must be a a valid heap. Element inEnd - 1 will be inserted into the heap. The heap will be [inBegin, inEnd) after this call.
@@ -93,4 +93,4 @@ void BinaryHeapPop(Iterator inBegin, Iterator inEnd, Pred inPred)
 	}
 }
 
-MOSS_SUPRESS_WARNINGS_END
+MOSS_SUPPRESS_WARNINGS_END

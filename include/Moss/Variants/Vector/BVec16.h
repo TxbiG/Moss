@@ -8,7 +8,7 @@
 
 using BVec16Arg = const BVec16;
 
-MOSS_SUPRESS_WARNINGS_BEGIN
+MOSS_SUPPRESS_WARNINGS_BEGIN
 
 /// A vector consisting of 16 bytes
 class [[nodiscard]] alignas(MOSS_VECTOR_ALIGNMENT) BVec16
@@ -99,6 +99,6 @@ public:
 
 static_assert(std::is_trivial<BVec16>(), "Is supposed to be a trivial type!");
 
-MOSS_SUPRESS_WARNINGS_END
+MOSS_SUPPRESS_WARNINGS_END
 
 #include "BVec16.inl"

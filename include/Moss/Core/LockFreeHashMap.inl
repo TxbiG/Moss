@@ -4,7 +4,7 @@
 
 #pragma once
 
-MOSS_SUPRESS_WARNINGS_BEGIN
+MOSS_SUPPRESS_WARNINGS_BEGIN
 
 ///////////////////////////////////////////////////////////////////////////////////
 // LFHMAllocator
@@ -348,4 +348,4 @@ void LockFreeHashMap<Key, Value>::TraceStats() const
 
 #endif
 
-MOSS_SUPRESS_WARNINGS_END
+MOSS_SUPPRESS_WARNINGS_END
