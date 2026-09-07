@@ -22,7 +22,6 @@ public:
 	/// Constructor
 								Mat33() = default; // Intentionally not initialized for performance reasons
 	MOSS_INLINE					Mat33(const Vec3 inC1, const Vec3 inC2, const Vec3 inC3);
-	MOSS_INLINE					Mat33(const Vec3 inC1, const Vec3 inC2, const Vec3 inC3);
 								Mat33(const Mat33 &inM2) = default;
 	MOSS_INLINE					Mat33(Type inC1, Type inC2, Type inC3, Type inC4);
 
@@ -71,7 +70,7 @@ public:
 	}
 
 	/// Per element subtraction of matrix
-	MOSS_INLINE Mat4x2			operator - (const Mat4x3  inM) const {
+	MOSS_INLINE Mat33			operator - (const Mat33  inM) const {
 		Mat33 result;
 		for (int i = 0; i < 3; ++i) { result.mCol[i] = mCol[i] - inM.mCol[i]; }
 		return result;

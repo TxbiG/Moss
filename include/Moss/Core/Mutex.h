@@ -16,6 +16,9 @@ MOSS_SUPPRESS_WARNINGS_STD_END
 
 MOSS_SUPPRESS_WARNINGS_BEGIN
 
+#undef lock
+#undef unlock
+
 // Things we're using from STL
 using std::mutex;
 using std::shared_mutex;
@@ -211,7 +214,7 @@ public:
 	}
 
 private:
-	MOSS_IF_ENABLE_ASSERTS(thread::id mLockedThreadID;)
+	MOSS_IF_ENABLE_ASSERTS(thread::id mLockedThreadID);
 };
 
 #else

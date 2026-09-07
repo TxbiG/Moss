@@ -1,5 +1,19 @@
-#include "win32_platform.h"
 #include <wingdi.h>
+#include <dwmapi.h>
+
+#ifdef MOSS_USE_VULKAN
+#include <vulkan/vulkan.h>
+VkInstance m_instance = VK_NULL_HANDLE;
+VkSurfaceKHR m_surface = VK_NULL_HANDLE;
+#endif
+#ifdef MOSS_USE_DIRECTX
+#include <d3d11.h>
+ID3D11Device* device;
+ID3D11DeviceContext* context;
+IDXGISwapChain* swapChain;
+#endif
+
+#include "win32_platform.h"
 
 // TODO: convert YUYV (Linux) or RGB32 (Windows) into consistent format (like RGB24)
 // Video capture frames report their native pixel layout through Moss_VideoCaptureFrame::format.
@@ -8,7 +22,9 @@ HINSTANCE hInstance;
 HWND handle;
 static bool isRunning = true;
 static std::vector<uint32_t> g_textInput;
-
+tatic HHOOK g_keyboardHook = NULL;
+static HWND g_keyboardGrabWindow = NULL;
+LRESULT CALLBACK KeyboardGrabProc(int nCode, WPARAM wParam, LPARAM lParam);
 #ifdef MOSS_USE_OPENGL
 
 typedef HGLRC (WINAPI *PFN_wglCreateContext)(HDC hdc);
@@ -18,7 +34,7 @@ typedef HDC   (WINAPI *PFN_wglGetCurrentDC)(void);
 typedef HGLRC (WINAPI *PFN_wglGetCurrentContext)(void);
 typedef BOOL  (WINAPI *PFN_wglMakeCurrent)(HDC hdc, HGLRC hglrc);
 typedef BOOL  (WINAPI *PFN_wglShareLists)(HGLRC hglrc1, HGLRC hglrc2);
-
+typedef BOOL (WINAPI * PFNWGLSWAPINTERVALEXTPROC) (int interval);
 
 typedef struct _libraryWGL
 {
@@ -83,18 +99,6 @@ static PFNWGLSWAPINTERVALEXTPROC wglSwapIntervalEXT = NULL;
 static HDC dc;
 
 static wchar_t g_highSurrogate = 0;
-
-#ifdef MOSS_USE_VULKAN
-#include <vulkan/vulkan.h>
-VkInstance m_instance = VK_NULL_HANDLE;
-VkSurfaceKHR m_surface = VK_NULL_HANDLE;
-#endif
-#ifdef MOSS_USE_DIRECTX
-#include <d3d11.h>
-ID3D11Device* device;
-ID3D11DeviceContext* context;
-IDXGISwapChain* swapChain;
-#endif
 
 RECT rect;
 
@@ -197,6 +201,7 @@ static LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM l
         return 0;
     case WM_MOUSEHWHEEL:
         g_mouseWheelX += static_cast<short>(HIWORD(wParam)) / static_cast<float>(WHEEL_DELTA);
+        g_frame.wheel += (short)HIWORD(wParam) / (float)WHEEL_DELTA;
         return 0;
     case WM_INPUT: {
         UINT dwSize = 0;
@@ -208,19 +213,30 @@ static LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM l
             if (raw->header.dwType == RIM_TYPEHID) { HandleHIDInput(raw); } }
         break;
     }
-
-    case WM_MOUSEWHEEL:
-        g_frame.wheel += (short)HIWORD(wParam) / (float)WHEEL_DELTA;
-        return 0;
     case WM_INPUT: {
         UINT size = 0;
         GetRawInputData(reinterpret_cast<HRAWINPUT>(lParam), RID_INPUT, nullptr, &size, sizeof(RAWINPUTHEADER));
-        std::vector<uint8_t> data(size);
-        if (size != 0 && GetRawInputData(reinterpret_cast<HRAWINPUT>(lParam), RID_INPUT, data.data(), &size, sizeof(RAWINPUTHEADER)) == size) {
-            RAWINPUT* raw = reinterpret_cast<RAWINPUT*>(data.data());
+        
+        if (size == 0) return 0;
+
+        // OPTIMISATION: Use a fast stack buffer instead of allocating a std::vector every mouse tick
+        alignas(RAWINPUT) uint8_t stackBuffer[512]; 
+        uint8_t* dataPtr = stackBuffer;
+        std::vector<uint8_t> heapBuffer;
+
+        // Fallback to heap only if a rare, huge custom HID descriptor arrives
+        if (size > sizeof(stackBuffer)) {
+            heapBuffer.resize(size);
+            dataPtr = heapBuffer.data();
+        }
+
+        if (GetRawInputData(reinterpret_cast<HRAWINPUT>(lParam), RID_INPUT, dataPtr, &size, sizeof(RAWINPUTHEADER)) == size) {
+            RAWINPUT* raw = reinterpret_cast<RAWINPUT*>(dataPtr);
+            
             if (raw->header.dwType == RIM_TYPEHID) {
                 HandleHIDInput(raw);
-            } else if (raw->header.dwType == RIM_TYPEMOUSE) {
+            } 
+            else if (raw->header.dwType == RIM_TYPEMOUSE) {
                 g_frame.mx += raw->data.mouse.lLastX;
                 g_frame.my += raw->data.mouse.lLastY;
             }
@@ -496,11 +512,7 @@ void Moss_SetWindowSizeLimits(Moss_Window* window, int minWidth, int minHeight, 
 
 */
 
-
-void Moss_WindowMode(Moss_WindowFlag );
-
 void Moss_SwapBuffers() { SwapBuffers(dc); }
-
 
 int Moss_GetWindowWidth() { return g_width; }
 int Moss_GetWindowHeight() { return g_height; }

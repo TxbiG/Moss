@@ -70,7 +70,7 @@ Moss_Camera* Moss_OpenCamera(Moss_CameraID id, const Moss_CameraSpec *spec) {
     InitializeCriticalSection(&camera->lock);
 
     // 3. Create the Capture Graph Builder
-    hr = CoCreateInstance(CLSID_CaptureGraphBuilder2, NULL, CLSCTX_INPROC_SERVER, IID_ICaptureGraphBuilder2, (void**)&camera->captureBuilder);
+    hr = CoCreateInstance(CLSID_CaptureEngineBuilder, NULL, CLSCTX_INPROC_SERVER, IID_ICaptureGraphBuilder2, IID_PPV_ARGS(&camera->captureBuilder));
     if (FAILED(hr)) {
         // Clean up and return nullptr
     }
@@ -90,7 +90,7 @@ Moss_VideoCapture* Moss_OpenCapture(Moss_CameraID captureID) {
     if (FAILED(hr)) {return NULL;}
 
     // Capture Graph Builder
-    hr = CoCreateInstance(CLSID_CaptureGraphBuilder2, NULL, CLSCTX_INPROC_SERVER, IID_ICaptureGraphBuilder2, (void**)&cap->captureBuilder);
+    hr = CoCreateInstance(CLSID_CaptureEngineBuilder, NULL, CLSCTX_INPROC_SERVER, IID_ICaptureGraphBuilder2, (void**)&cap->captureBuilder);
     if (FAILED(hr)) {return NULL;}
 
     cap->captureBuilder->SetFiltergraph(cap->graph);
