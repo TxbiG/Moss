@@ -224,4 +224,8 @@ public:
 	uint32			mUserData = 0;				// User data that can be used for anything by the application, e.g. for tracking the original index of the triangle
 };
 
+
+using IndexedTriangleNoMaterialList = TArray<IndexedTriangleNoMaterial>;
+using IndexedTriangleList = TArray<IndexedTriangle>;
+
 MOSS_NAMESPACE_END

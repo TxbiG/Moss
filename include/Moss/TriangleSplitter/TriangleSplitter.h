@@ -20,31 +20,28 @@ public:
 	/// Virtual destructor
 	virtual						~TriangleSplitter() = default;
 
-	struct Stats
-	{
-		const char *			mSplitterName = nullptr;
-		int						mLeafSize = 0;
+	struct Stats {
+		const char*			mSplitterName = nullptr;
+		int					mLeafSize = 0;
 	};
 
 	/// Get stats of splitter
 	virtual void				GetStats(Stats &outStats) const = 0;
 
 	/// Helper struct to indicate triangle range before and after the split
-	struct Range
-	{
+	struct Range {
 		/// Constructor
-								Range() = default;
-								Range(uint32 inBegin, uint32 inEnd) : mBegin(inBegin), mEnd(inEnd) { }
+		Range() = default;
+		Range(uint32 inBegin, uint32 inEnd) : mBegin(inBegin), mEnd(inEnd) { }
 
 		/// Get number of triangles in range
-		uint32					Count() const
-		{
+		uint32 Count() const {
 			return mEnd - mBegin;
 		}
 
 		/// Start and end index (end = 1 beyond end)
-		uint32					mBegin;
-		uint32					mEnd;
+		uint32	mBegin;
+		uint32	mEnd;
 	};
 
 	/// Range of triangles to start with
@@ -58,23 +55,17 @@ public:
 	/// @param outLeft On return this will contain the ranges for the left subpart. mSortedTriangleIdx may have been shuffled.
 	/// @param outRight On return this will contain the ranges for the right subpart. mSortedTriangleIdx may have been shuffled.
 	/// @return Returns true when a split was found
-	virtual bool				Split(const Range &inTriangles, Range &outLeft, Range &outRight) = 0;
+	virtual bool Split(const Range &inTriangles, Range &outLeft, Range &outRight) = 0;
 
 	/// Get the list of vertices
-	const VertexList &			GetVertices() const
-	{
-		return mVertices;
-	}
+	const VertexList& GetVertices() const { return mVertices; }
 
 	/// Get triangle by index
-	const IndexedTriangle &		GetTriangle(uint32 inIdx) const
-	{
-		return mTriangles[mSortedTriangleIdx[inIdx]];
-	}
+	const IndexedTriangle& GetTriangle(uint32 inIdx) const { return mTriangles[mSortedTriangleIdx[inIdx]]; }
 
 protected:
 	/// Helper function to split triangles based on dimension and split value
-	bool						SplitInternal(const Range &inTriangles, uint32 inDimension, float inSplit, Range &outLeft, Range &outRight);
+	bool SplitInternal(const Range &inTriangles, uint32 inDimension, float inSplit, Range &outLeft, Range &outRight);
 
 	const VertexList&			mVertices;				// Vertices of the indexed triangles
 	const IndexedTriangleList&	mTriangles;				// Unsorted triangles
@@ -86,20 +77,16 @@ protected:
 
 
 /// Binning splitter approach taken from: Realtime Ray Tracing on GPU with BVH-based Packet Traversal by Johannes Gunther et al.
-class MOSS_EXPORT TriangleSplitterBinning : public TriangleSplitter
-{
+class MOSS_EXPORT TriangleSplitterBinning : public TriangleSplitter {
 public:
 	/// Constructor
 							TriangleSplitterBinning(const VertexList &inVertices, const IndexedTriangleList &inTriangles, uint32 inMinNumBins = 8, uint32 inMaxNumBins = 128, uint32 inNumTrianglesPerBin = 6);
 
 	// See TriangleSplitter::GetStats
-	virtual void			GetStats(Stats &outStats) const override
-	{
-		outStats.mSplitterName = "TriangleSplitterBinning";
-	}
+	virtual void GetStats(Stats &outStats) const override { outStats.mSplitterName = "TriangleSplitterBinning"; }
 
 	// See TriangleSplitter::Split
-	virtual bool			Split(const Range &inTriangles, Range &outLeft, Range &outRight) override;
+	virtual bool Split(const Range &inTriangles, Range &outLeft, Range &outRight) override;
 
 private:
 	// Configuration
@@ -107,8 +94,7 @@ private:
 	const uint32				mMaxNumBins;
 	const uint32				mNumTrianglesPerBin;
 
-	struct Bin
-	{
+	struct Bin {
 		// Properties of this bin
 		AABox				mBounds;
 		float				mMinCentroid;
@@ -128,20 +114,16 @@ private:
 
 
 /// Splitter using mean of axis with biggest centroid deviation
-class MOSS_EXPORT TriangleSplitterMean : public TriangleSplitter
-{
+class MOSS_EXPORT TriangleSplitterMean : public TriangleSplitter {
 public:
 	/// Constructor
-							TriangleSplitterMean(const VertexList &inVertices, const IndexedTriangleList &inTriangles);
+	TriangleSplitterMean(const VertexList &inVertices, const IndexedTriangleList &inTriangles);
 
 	// See TriangleSplitter::GetStats
-	virtual void			GetStats(Stats &outStats) const override
-	{
-		outStats.mSplitterName = "TriangleSplitterMean";
-	}
+	virtual void GetStats(Stats &outStats) const override { outStats.mSplitterName = "TriangleSplitterMean"; }
 
 	// See TriangleSplitter::Split
-	virtual bool			Split(const Range &inTriangles, Range &outLeft, Range &outRight) override;
+	virtual bool Split(const Range &inTriangles, Range &outLeft, Range &outRight) override;
 };
 
 MOSS_SUPRESS_WARNINGS_END

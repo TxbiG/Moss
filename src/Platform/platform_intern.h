@@ -60,7 +60,7 @@ enum class Moss_GamepadType {
 struct GAMEPAD_STATE {
     bool connected = false;
     bool buttons[static_cast<size_t>(Gamepad::COUNT)] = {};
-    float axes[static_cast<int>(Joystick::COUNT)] = {};
+    float axes[static_cast<int>(GamepadAxis::COUNT)] = {};
 };
 
 struct KeyState {
@@ -210,7 +210,7 @@ struct Moss_Storage {
     bool (MOSS_CALL *copy)(void *userdata, const char *oldpath, const char *newpath);
 
     /* Get the space remaining, optional for read-only storage */
-    uint64_t_t (MOSS_CALL *space_remaining)(void *userdata);
+    uint64_t (MOSS_CALL *space_remaining)(void *userdata);
 
 
     void *userdata;
@@ -226,7 +226,7 @@ struct Moss_Gamepad {
     Moss_Joystick *joystick _guarded; // underlying joystick device
     int ref_count _guarded;
     */
-    Moss_Joystick *joystick _guarded; // underlying joystick device
+    Moss_GamepadAxis *joystick _guarded; // underlying joystick device
     int ref_count _guarded;
 
     const char *name _guarded;
@@ -236,7 +236,7 @@ struct Moss_Gamepad {
     Moss_GamepadBinding *bindings _guarded;
     Moss_GamepadBinding **last_match_axis _guarded;
     uint8_t *last_hat_mask _guarded;
-    uint64_t_t guide_button_down _guarded;
+    uint64_t guide_button_down _guarded;
 
     struct Moss_Gamepad *next _guarded; // pointer to next gamepad we have allocated
 };

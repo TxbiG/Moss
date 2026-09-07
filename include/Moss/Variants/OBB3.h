@@ -14,11 +14,11 @@ public:
 	MOSS_OVERRIDE_NEW_DELETE
 
 	/// Constructor
-	OrientedBox() = default;
-	OrientedBox(Mat44Arg inOrientation, RVec3 inHalfExtents) : mOrientation(inOrientation), mHalfExtents(inHalfExtents) { }
+	OBB3() = default;
+	OBB3(Mat44Arg inOrientation, RVec3 inHalfExtents) : mOrientation(inOrientation), mHalfExtents(inHalfExtents) { }
 
 	/// Construct from axis aligned box and transform. Only works for rotation/translation matrix (no scaling / shearing).
-	OrientedBox(Mat44Arg inOrientation, const AABB3& inBox)	: OrientedBox(inOrientation.PreTranslated(inBox.GetCenter()), inBox.GetExtent()) { }
+	OBB3(Mat44Arg inOrientation, const AABB3& inBox)	: OBB3(inOrientation.PreTranslated(inBox.GetCenter()), inBox.GetExtent()) { }
 
 	/// Test if oriented box overlaps with axis aligned box each other
 	bool Overlaps(const AABB3& inBox, float inEpsilon = 1.0e-6f) const {
