@@ -130,7 +130,7 @@ public:
 		MOSS_ASSERT(mLockedThreadID != std::this_thread::get_id());
 		if (MutexBase::try_lock())
 		{
-			MOSS_IF_ENABLE_ASSERTS(mLockedThreadID = std::this_thread::get_id();)
+			MOSS_IF_ENABLE_ASSERTS(mLockedThreadID = std::this_thread::get_id());
 			return true;
 		}
 		return false;
@@ -142,14 +142,14 @@ public:
 		{
 			MOSS_PROFILE("Lock", 0xff00ffff);
 			MutexBase::lock();
-			MOSS_IF_ENABLE_ASSERTS(mLockedThreadID = std::this_thread::get_id();)
+			MOSS_IF_ENABLE_ASSERTS(mLockedThreadID = std::this_thread::get_id());
 		}
 	}
 
 	inline void		unlock()
 	{
 		MOSS_ASSERT(mLockedThreadID == std::this_thread::get_id());
-		MOSS_IF_ENABLE_ASSERTS(mLockedThreadID = thread::id();)
+		MOSS_IF_ENABLE_ASSERTS(mLockedThreadID = thread::id());
 		MutexBase::unlock();
 	}
 
@@ -174,7 +174,7 @@ public:
 		MOSS_ASSERT(mLockedThreadID != std::this_thread::get_id());
 		if (SharedMutexBase::try_lock())
 		{
-			MOSS_IF_ENABLE_ASSERTS(mLockedThreadID = std::this_thread::get_id();)
+			MOSS_IF_ENABLE_ASSERTS(mLockedThreadID = std::this_thread::get_id());
 			return true;
 		}
 		return false;
@@ -186,14 +186,14 @@ public:
 		{
 			MOSS_PROFILE("WLock", 0xff00ffff);
 			SharedMutexBase::lock();
-			MOSS_IF_ENABLE_ASSERTS(mLockedThreadID = std::this_thread::get_id();)
+			MOSS_IF_ENABLE_ASSERTS(mLockedThreadID = std::this_thread::get_id());
 		}
 	}
 
 	inline void		unlock()
 	{
 		MOSS_ASSERT(mLockedThreadID == std::this_thread::get_id());
-		MOSS_IF_ENABLE_ASSERTS(mLockedThreadID = thread::id();)
+		MOSS_IF_ENABLE_ASSERTS(mLockedThreadID = thread::id());
 		SharedMutexBase::unlock();
 	}
 

@@ -35,12 +35,14 @@ public:
 	static MOSS_INLINE Mat33	NaN()  { return Mat33(Vec3::NaN(), Vec3::NaN(), Vec3::NaN()); }
 
 
-	bool Mat33::operator == (const Mat33 inM2) const {
-		return UVec4::And(
-			UVec4::And(Vec4::Equals(mCol[0], inM2.mCol[0]), Vec4::Equals(mCol[1], inM2.mCol[1])),
-			UVec4::And(Vec4::Equals(mCol[2], inM2.mCol[2]), Vec4::Equals(mCol[3], inM2.mCol[3]))).TestAllTrue();
+	bool operator == (const Mat33 &inM2) const {
+		for (int i = 0; i < 3; ++i) {
+			if (!(mCol[i] == inM2.mCol[i])) {
+				return false;
+			}
+		}
+		return true;
 	}
-
 	/// Multiply matrix with float
 	MOSS_INLINE Mat33			operator * (float inV) const {
 		Mat33 result;

@@ -771,30 +771,29 @@ struct Moss_PathInfo {
     bool readable, writable, executable;
 };
 
-
 // =================================================
 //                 Callback Type Definitions
 // =================================================
 //! @brief Callback for framebuffer resize events. @param width  New framebuffer width, in pixels. @param height New framebuffer height, in pixels.
-typedef void (*Moss_FramebufferResizeCallback)(int width, int height);
+using Moss_FramebufferResizeCallback = void (*)(int width, int height);
 //! @brief Callback for logical window size changes. @param width  New window width, in screen coordinates. @param height New window height, in screen coordinates.
-typedef void (*Moss_WindowSizeCallback)(int width, int height);
-//! @brief Callback for window position changes on screen. @param xpos New X coordinate of the window’s top-left corner. @param ypos New Y coordinate of the window’s top-left corner.
-typedef void (*Moss_WindowPositionCallback)(int xpos, int ypos);
+using Moss_WindowSizeCallback = void (*)(int width, int height);
+//! @brief Callback for window position changes on screen. @param xpos New X coordinate of the window's top-left corner. @param ypos New Y coordinate of the window's top-left corner.
+using Moss_WindowPositionCallback = void (*)(int xpos, int ypos);
 //! @brief Callback for window focus events. @param focused True if the window gained focus; false if it lost focus.
-typedef void (*Moss_WindowFocusCallback)(bool focused);
+using Moss_WindowFocusCallback = void (*)(bool focused);
 //! @brief Callback for content scale changes (e.g., HiDPI scaling). @param xscale X-axis content scale factor. @param yscale Y-axis content scale factor.
-typedef void (*Moss_WindowContentScaleCallback)(float xscale, float yscale);
+using Moss_WindowContentScaleCallback = void (*)(float xscale, float yscale);
 //! @brief Callback for general window resize notifications (platform-driven). @param width  New window width in pixels. @param height New window height in pixels.
-typedef void (*Moss_WindowResizeCallback)(int width, int height);
+using Moss_WindowResizeCallback = void (*)(int width, int height);
 //! @brief Callback for monitor configuration changes (e.g. hotplug events). @param monitorName Name or ID of the monitor that changed. @param connected True if the monitor was connected; false if disconnected.
-typedef void (*Moss_MonitorCallback)(const char* monitorName, bool connected);
-//! @brief X. @param width X. @param X. */
-typedef void (MOSS_CALL* Moss_DialogFileCallback)(void* userdata, const char* const* filelist, int filter);
-//! @brief X. @param width X. @param X. */
-typedef bool (*Moss_DirectoryIterateFn)(const Moss_PathInfo* info, const char* path, void* user_data);
-//! @brief X. @param width X. @param X. */
-typedef bool (*Moss_EnumerateDirectoryCallback)(const Moss_PathInfo* info, const char* path, void* user_data);
+using Moss_MonitorCallback = void (*)(const char* monitorName, bool connected);
+//! @brief Callback invoked with the user's selection from a file dialog. @param userdata User data pointer passed through from the dialog call. @param filelist Null-terminated array of selected file paths. @param filter Index of the file filter that was active when the dialog closed.
+using Moss_DialogFileCallback = void (MOSS_CALL*)(void* userdata, const char* const* filelist, int filter);
+//! @brief Callback invoked once per entry while iterating a directory. @param info Metadata for the current path entry. @param path Full path of the current entry. @param user_data User data pointer passed through from the iterate call.
+using Moss_DirectoryIterateFn = bool (*)(const Moss_PathInfo* info, const char* path, void* user_data);
+//! @brief Callback invoked once per entry while enumerating a directory. @param info Metadata for the current path entry. @param path Full path of the current entry. @param user_data User data pointer passed through from the enumerate call.
+using Moss_EnumerateDirectoryCallback = bool (*)(const Moss_PathInfo* info, const char* path, void* user_data);
 
 /*! @brief Initialization of Moss. Must be called before anything else. @param X X. @ingroup Moss */
 //MOSS_API bool Moss_Init();
@@ -807,9 +806,7 @@ typedef bool (*Moss_EnumerateDirectoryCallback)(const Moss_PathInfo* info, const
 MOSS_API Moss_Window* Moss_CreateWindow(const char* title, int width, int height, Moss_Monitor* monitor, Moss_Window* share);
 /*! @brief Destorys the window. @param Moss_Window* window. @ingroup window */
 MOSS_API void Moss_TerminateWindow(Moss_Window* window);
-/*! @brief Creates a window popup. @param title popup window title. @param message message inside the popup 
-    @param flags Popup window flags. e.g. | AbortEntryIgnore | CancelTryContinue | Help | Ok | OkCancel | RetryCancel | YesNo | YesNoCancel |. 
-    @param Moss_Window* window. @ingroup window */
+/*! @brief Creates a window popup. @param title popup window title. @param message message inside the popup @param flags Popup window flags. e.g. | ABORT_ENTRY_IGNORE | CANCEL_TRY_CONTINUE | HELP | OK | OK_CANCEL | RETRY_CANCEL | YES_NO | YES_NO_CANCEL.  @param Moss_Window* window. @ingroup window */
 MOSS_API bool Moss_CreateMessageBox(const char* title, const char* message, Moss_MessageBoxFlags flags, Moss_Window* window);
 /*! @brief Used in while loop if window should close. @param X X. @ingroup window */
 MOSS_API bool Moss_ShouldWindowClose(Moss_Window* window);
@@ -1038,7 +1035,7 @@ MOSS_API Moss_PropertiesID Moss_GetCameraProperties(Moss_Capture* camera);
 MOSS_API void Moss_CloseCamera(Moss_Capture* camera);
 MOSS_API Moss_CameraID Moss_GetCameraID(Moss_Capture* camera);
 MOSS_API Moss_PropertiesID Moss_GetCameraProperties(Moss_Capture* camera);
-MOSS_API Moss_Capture* Moss_OpenCamera(Moss_CameraID id, const Moss_CameraSpec* spec);
+MOSS_API Moss_Capture* Moss_OpenCapture(Moss_CameraID id, const Moss_CameraSpec* spec);
 
 
 MOSS_API bool Moss_CopyFile(const char* src_path, const char* dst_path, bool overwrite);

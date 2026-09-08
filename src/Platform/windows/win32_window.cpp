@@ -22,7 +22,7 @@ HINSTANCE hInstance;
 HWND handle;
 static bool isRunning = true;
 static std::vector<uint32_t> g_textInput;
-tatic HHOOK g_keyboardHook = NULL;
+static HHOOK g_keyboardHook = NULL;
 static HWND g_keyboardGrabWindow = NULL;
 LRESULT CALLBACK KeyboardGrabProc(int nCode, WPARAM wParam, LPARAM lParam);
 #ifdef MOSS_USE_OPENGL
@@ -203,16 +203,6 @@ static LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM l
         g_mouseWheelX += static_cast<short>(HIWORD(wParam)) / static_cast<float>(WHEEL_DELTA);
         g_frame.wheel += (short)HIWORD(wParam) / (float)WHEEL_DELTA;
         return 0;
-    case WM_INPUT: {
-        UINT dwSize = 0;
-        GetRawInputData((HRAWINPUT)lParam, RID_INPUT, nullptr, &dwSize, sizeof(RAWINPUTHEADER));
-
-        std::vector<uint8_t> lpb(dwSize);
-        if (GetRawInputData((HRAWINPUT)lParam, RID_INPUT, lpb.data(), &dwSize, sizeof(RAWINPUTHEADER)) == dwSize) {
-            RAWINPUT* raw = (RAWINPUT*)lpb.data();
-            if (raw->header.dwType == RIM_TYPEHID) { HandleHIDInput(raw); } }
-        break;
-    }
     case WM_INPUT: {
         UINT size = 0;
         GetRawInputData(reinterpret_cast<HRAWINPUT>(lParam), RID_INPUT, nullptr, &size, sizeof(RAWINPUTHEADER));
@@ -652,15 +642,12 @@ int Moss_GetPhysicalDevicePresentationSupport(Moss_Window* window, VkPhysicalDev
 //===============================
 /*          Callbacks          */
 //===============================
-
-void Moss_SetFramebufferReSizeCallback(FramebufferResizeCallback callback) { g_framebufferResizeCallback = callback; }
-void Moss_SetWindowResizeCallback(void (*callback)(int width, int height)) { windowResizeCallback = callback; }
-void Moss_SetWindowContentScaleCallback(Moss_Window* window, int width, int height) { if (windowContentScaleCallback) { windowContentScaleCallback(width, height); } }
-void Moss_SetWindowPositionCallback(Moss_Window* window, int x, int y) { if (windowPositionCallback) { windowPositionCallback(x, y); } }
-void Moss_SetWindowFocusCallback(Moss_Window* window) { if (windowFocusCallback) { windowFocusCallback(true); } }
-void Moss_SetWindowSizeCallback(void (*callback)(int width, int height)) { windowSizeCallback = callback; }
-
-
+void Moss_SetFramebufferReSizeCallback(Moss_FramebufferResizeCallback callback) { g_framebufferResizeCallback = callback; }
+void Moss_SetWindowResizeCallback(Moss_WindowResizeCallback callback) { g_windowResizeCallback = callback; }
+void Moss_SetWindowContentScaleCallback(Moss_WindowContentScaleCallback callback) { g_windowContentScaleCallback = callback; }
+void Moss_SetWindowPositionCallback(Moss_WindowPositionCallback callback) { g_windowPositionCallback = callback; }
+void Moss_SetWindowFocusCallback(Moss_WindowFocusCallback callback) { g_windowFocusCallback = callback; }
+void Moss_SetWindowSizeCallback(Moss_WindowSizeCallback callback) { g_windowSizeCallback = callback; }
 
 void Moss_SetWindowMode(Moss_Window* window, Moss_WindowFlags flags) {
     if (!window || !window->handle) return;

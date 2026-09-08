@@ -140,12 +140,11 @@ void Moss_GetMonitorPosition(Moss_Monitor* monitor, int* x, int* y) {
 
 const char* Moss_GetMonitorName(Moss_Monitor* monitor) { return monitor->monitorInfo.szDevice; }
 
-Moss_GammaRamp* Moss_GetGammaRamp(Moss_Monitor* monitor)
-{
-    Moss_GammaRamp* outRamp = (Moss_GammaRamp*)malloc(sizeof(Moss_GammaRamp));
+Moss_GammaRamp* Moss_GetGammaRamp(Moss_Monitor* monitor) {
+    Moss_GammaRamp* outRamp = new Moss_GammaRamp();
     if (!outRamp) return NULL;  // allocation failed
 
-    HDC hdc = CreateDC(NULL, monitor->monitorInfo.szDevice, NULL, NULL);
+    HDC hdc = CreateDCA(NULL, monitor->monitorInfo.szDevice, NULL, NULL);
     if (!hdc) {
         free(outRamp);
         return NULL;

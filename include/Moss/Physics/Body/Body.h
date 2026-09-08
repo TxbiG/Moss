@@ -18,21 +18,21 @@ class BodyDrawFilter;
 #endif // MOSS_DEBUG_RENDERER
 
 
-static constexpr uint cBodyTypeCount = 2;
+static constexpr uint32_t cBodyTypeCount = 2;
 
 class Body;
 
-enum class EBodyType : uint8 { 
+enum class EBodyType : uint8_t { 
 	Rigid, 
 	Soft 
 };
-enum class EMotionType : uint8 { 
+enum class EMotionType : uint8_t { 
 	Static, 
 	Kinematic, 
 	Dynamic 
 };
 
-enum class EAllowedDOFs : uint8 {
+enum class EAllowedDOFs : uint8_t {
 	None				= 0b000000,									// No degrees of freedom are allowed. Note that this is not valid and will crash. Use a static body instead.
 	All					= 0b111111,									// All degrees of freedom are allowed
 	TranslationX		= 0b000001,									// Body can move in world space X axis
@@ -44,7 +44,7 @@ enum class EAllowedDOFs : uint8 {
 	Plane2D				= TranslationX | TranslationY | RotationZ,	// Body can only move in X and Y axis and rotate around Z axis
 };
 
-enum class EOverrideMassProperties : uint8 {
+enum class EOverrideMassProperties : uint8_t {
 	CalculateMassAndInertia,			// Tells the system to calculate the mass and inertia based on density
 	CalculateInertia,					// Tells the system to take the mass from mMassPropertiesOverride and to calculate the inertia based on density of the shapes and to scale it to the provided mass
 	MassAndInertiaProvided				// Tells the system to take the mass and inertia from mMassPropertiesOverride
@@ -55,7 +55,7 @@ enum class ECanSleep {
 	CanSleep = 1,																			//< Object can go to sleep
 };
 
-enum class EMotionQuality : uint8
+enum class EMotionQuality : uint8_t
 {
 	// Update the body in discrete steps. Body will tunnel through thin objects if its velocity is high enough.
 	// This is the cheapest way of simulating a body.
@@ -89,16 +89,16 @@ enum class ESoftBodyConstraintColor
 
 
 // Bitwise OR operator for EAllowedDOFs
-constexpr EAllowedDOFs operator | (EAllowedDOFs inLHS, EAllowedDOFs inRHS) { return EAllowedDOFs(uint8(inLHS) | uint8(inRHS)); }
+constexpr EAllowedDOFs operator | (EAllowedDOFs inLHS, EAllowedDOFs inRHS) { return EAllowedDOFs(uint8_t(inLHS) | uint8_t(inRHS)); }
 
 // Bitwise AND operator for EAllowedDOFs
-constexpr EAllowedDOFs operator & (EAllowedDOFs inLHS, EAllowedDOFs inRHS) { return EAllowedDOFs(uint8(inLHS) & uint8(inRHS)); }
+constexpr EAllowedDOFs operator & (EAllowedDOFs inLHS, EAllowedDOFs inRHS) { return EAllowedDOFs(uint8_t(inLHS) & uint8_t(inRHS)); }
 
 // Bitwise XOR operator for EAllowedDOFs
-constexpr EAllowedDOFs operator ^ (EAllowedDOFs inLHS, EAllowedDOFs inRHS) { return EAllowedDOFs(uint8(inLHS) ^ uint8(inRHS)); }
+constexpr EAllowedDOFs operator ^ (EAllowedDOFs inLHS, EAllowedDOFs inRHS) { return EAllowedDOFs(uint8_t(inLHS) ^ uint8_t(inRHS)); }
 
 // Bitwise NOT operator for EAllowedDOFs
-constexpr EAllowedDOFs operator ~ (EAllowedDOFs inAllowedDOFs) { return EAllowedDOFs(~uint8(inAllowedDOFs)); }
+constexpr EAllowedDOFs operator ~ (EAllowedDOFs inAllowedDOFs) { return EAllowedDOFs(~uint8_t(inAllowedDOFs)); }
 
 // Bitwise OR assignment operator for EAllowedDOFs
 constexpr EAllowedDOFs & operator |= (EAllowedDOFs &ioLHS, EAllowedDOFs inRHS) { ioLHS = ioLHS | inRHS; return ioLHS; }
@@ -115,32 +115,32 @@ class BodyID {
 public:
 	MOSS_OVERRIDE_NEW_DELETE
 
-	static constexpr uint32	cInvalidBodyID = 0xffffffff;	// The value for an invalid body ID
-	static constexpr uint32	cBroadPhaseBit = 0x80000000;	// This bit is used by the broadphase
-	static constexpr uint32	cMaxBodyIndex = 0x7fffff;		// Maximum value for body index (also the maximum amount of bodies supported - 1)
-	static constexpr uint8	cMaxSequenceNumber = 0xff;		// Maximum value for the sequence number
-	static constexpr uint	cSequenceNumberShift = 23;		// Number of bits to shift to get the sequence number
+	static constexpr uint32_t	cInvalidBodyID = 0xffffffff;	// The value for an invalid body ID
+	static constexpr uint32_t	cBroadPhaseBit = 0x80000000;	// This bit is used by the broadphase
+	static constexpr uint32_t	cMaxBodyIndex = 0x7fffff;		// Maximum value for body index (also the maximum amount of bodies supported - 1)
+	static constexpr uint8_t	cMaxSequenceNumber = 0xff;		// Maximum value for the sequence number
+	static constexpr uint32_t cSequenceNumberShift = 23;		// Number of bits to shift to get the sequence number
 
 	// Construct invalid body ID
 	BodyID() : mID(cInvalidBodyID) { }
 
-	// Construct from index and sequence number combined in a single uint32 (use with care!)
-	explicit BodyID(uint32 inID) : mID(inID) { MOSS_ASSERT((inID & cBroadPhaseBit) == 0 || inID == cInvalidBodyID); } // Check bit used by broadphase
+	// Construct from index and sequence number combined in a single uint32_t (use with care!)
+	explicit BodyID(uint32_t inID) : mID(inID) { MOSS_ASSERT((inID & cBroadPhaseBit) == 0 || inID == cInvalidBodyID); } // Check bit used by broadphase
 
 	// Construct from index and sequence number
-	explicit BodyID(uint32 inID, uint8 inSequenceNumber) : mID((uint32(inSequenceNumber) << cSequenceNumberShift) | inID) { MOSS_ASSERT(inID <= cMaxBodyIndex); } // Should not overlap with broadphase bit or sequence number
+	explicit BodyID(uint32_t inID, uint8_t inSequenceNumber) : mID((uint32_t(inSequenceNumber) << cSequenceNumberShift) | inID) { MOSS_ASSERT(inID <= cMaxBodyIndex); } // Should not overlap with broadphase bit or sequence number
 
 	// Get index in body array
-	inline uint32 GetIndex() const { return mID & cMaxBodyIndex; }
+	inline uint32_t GetIndex() const { return mID & cMaxBodyIndex; }
 
 	// Get sequence number of body.
 	// The sequence number can be used to check if a body ID with the same body index has been reused by another body.
 	// It is mainly used in multi threaded situations where a body is removed and its body index is immediately reused by a body created from another thread.
 	// Functions querying the broadphase can (after acquiring a body lock) detect that the body has been removed (we assume that this won't happen more than 128 times in a row).
-	inline uint8 GetSequenceNumber() const { return uint8(mID >> cSequenceNumberShift); }
+	inline uint8_t GetSequenceNumber() const { return uint8_t(mID >> cSequenceNumberShift); }
 
-	// Returns the index and sequence number combined in an uint32
-	inline uint32 GetIndexAndSequenceNumber() const { return mID; }
+	// Returns the index and sequence number combined in an uint32_t
+	inline uint32_t GetIndexAndSequenceNumber() const { return mID; }
 
 	// Check if the ID is valid
 	inline bool IsInvalid() const { return mID == cInvalidBodyID; }
@@ -157,13 +157,13 @@ public:
 	inline bool operator > (const BodyID &inRHS) const { return mID > inRHS.mID; }
 
 private:
-	uint32					mID;
+	uint32_t					mID;
 };
 
 class MOSS_EXPORT BodyAccess {
 public:
 	// Access rules, used to detect race conditions during simulation
-	enum class EAccess : uint8 {
+	enum class EAccess : uint8_t {
 		None		= 0,
 		Read		= 1,
 		ReadWrite	= 3,
@@ -191,7 +191,7 @@ public:
 
 	// Check if we have permission
 	static inline bool CheckRights(EAccess inRights, EAccess inDesiredRights) {
-		return (uint8(inRights) & uint8(inDesiredRights)) == uint8(inDesiredRights);
+		return (uint8_t(inRights) & uint8_t(inDesiredRights)) == uint8_t(inDesiredRights);
 	}
 
 	// Access to read/write velocities
@@ -407,8 +407,8 @@ public:
 	float					mMaxLinearVelocity = 500.0f;									///< Maximum linear velocity that this body can reach (m/s)
 	float					mMaxAngularVelocity = 0.25f * MOSS_PI * 60.0f;					///< Maximum angular velocity that this body can reach (rad/s)
 	float					mGravityFactor = 1.0f;											///< Value to multiply gravity with for this body
-	uint					mNumVelocityStepsOverride = 0;									///< Used only when this body is dynamic and colliding. Override for the number of solver velocity iterations to run, 0 means use the default in PhysicsSettings::mNumVelocitySteps. The number of iterations to use is the max of all contacts and constraints in the island.
-	uint					mNumPositionStepsOverride = 0;									///< Used only when this body is dynamic and colliding. Override for the number of solver position iterations to run, 0 means use the default in PhysicsSettings::mNumPositionSteps. The number of iterations to use is the max of all contacts and constraints in the island.
+	uint32_t					mNumVelocityStepsOverride = 0;									///< Used only when this body is dynamic and colliding. Override for the number of solver velocity iterations to run, 0 means use the default in PhysicsSettings::mNumVelocitySteps. The number of iterations to use is the max of all contacts and constraints in the island.
+	uint32_t					mNumPositionStepsOverride = 0;									///< Used only when this body is dynamic and colliding. Override for the number of solver position iterations to run, 0 means use the default in PhysicsSettings::mNumPositionSteps. The number of iterations to use is the max of all contacts and constraints in the island.
 
 	///@name Mass properties of the body (by default calculated by the shape)
 	EOverrideMassProperties	mOverrideMassProperties = EOverrideMassProperties::CalculateMassAndInertia; ///< Determines how mMassPropertiesOverride will be used
@@ -692,29 +692,29 @@ public:
 	~BodyManager();
 
 	// Initialize the manager
-	void	Init(uint32 inMaxBodies, uint32 inNumBodyMutexes, const BroadPhaseLayerInterface &inLayerInterface);
+	void	Init(uint32_t inMaxBodies, uint32_t inNumBodyMutexes, const BroadPhaseLayerInterface &inLayerInterface);
 
 	// Gets the current amount of bodies that are in the body manager
-	uint32	GetNumBodies() const;
+	uint32_t	GetNumBodies() const;
 
 	// Gets the max bodies that we can support
-	uint32	GetMaxBodies() const						{ return uint32(mBodies.capacity()); }
+	uint32_t	GetMaxBodies() const						{ return uint32_t(mBodies.capacity()); }
 
 	// Helper struct that counts the number of bodies of each type
 	struct BodyStats {
-		uint32	mNumBodies					= 0;	// Total number of bodies in the body manager
-		uint32	mMaxBodies					= 0;	// Max allowed number of bodies in the body manager (as configured in Init(...))
+		uint32_t	mNumBodies					= 0;	// Total number of bodies in the body manager
+		uint32_t	mMaxBodies					= 0;	// Max allowed number of bodies in the body manager (as configured in Init(...))
 
-		uint32	mNumBodiesStatic			= 0;	// Number of static bodies
+		uint32_t	mNumBodiesStatic			= 0;	// Number of static bodies
 
-		uint32	mNumBodiesDynamic			= 0;	// Number of dynamic bodies
-		uint32	mNumActiveBodiesDynamic		= 0;	// Number of dynamic bodies that are currently active
+		uint32_t	mNumBodiesDynamic			= 0;	// Number of dynamic bodies
+		uint32_t	mNumActiveBodiesDynamic		= 0;	// Number of dynamic bodies that are currently active
 
-		uint32	mNumBodiesKinematic			= 0;	// Number of kinematic bodies
-		uint32	mNumActiveBodiesKinematic	= 0;	// Number of kinematic bodies that are currently active
+		uint32_t	mNumBodiesKinematic			= 0;	// Number of kinematic bodies
+		uint32_t	mNumActiveBodiesKinematic	= 0;	// Number of kinematic bodies that are currently active
 
-		uint32	mNumSoftBodies				= 0;	// Number of soft bodies
-		uint32	mNumActiveSoftBodies		= 0;	// Number of soft bodies that are currently active
+		uint32_t	mNumSoftBodies				= 0;	// Number of soft bodies
+		uint32_t	mNumActiveSoftBodies		= 0;	// Number of soft bodies that are currently active
 	};
 
 	// Get stats about the bodies in the body manager (slow, iterates through all bodies)
@@ -759,10 +759,10 @@ public:
 	const BodyID *					GetActiveBodiesUnsafe(EBodyType inType) const { return mActiveBodies[int(inType)]; }
 
 	// Get the number of active bodies.
-	uint32							GetNumActiveBodies(EBodyType inType) const	{ return mNumActiveBodies[int(inType)].load(memory_order_acquire); }
+	uint32_t							GetNumActiveBodies(EBodyType inType) const	{ return mNumActiveBodies[int(inType)].load(memory_order_acquire); }
 
 	// Get the number of active bodies that are using continuous collision detection
-	uint32							GetNumActiveCCDBodies() const				{ return mNumActiveCCDBodies; }
+	uint32_t							GetNumActiveCCDBodies() const				{ return mNumActiveCCDBodies; }
 
 	// Listener that is notified whenever a body is activated/deactivated
 	void							SetBodyActivationListener(BodyActivationListener *inListener);
@@ -789,7 +789,7 @@ public:
 	// Access a body, will return a nullptr if the body ID is no longer valid (not protected by lock)
 	const Body *					TryGetBody(const BodyID &inID) const
 	{
-		uint32 idx = inID.GetIndex();
+		uint32_t idx = inID.GetIndex();
 		if (idx >= mBodies.size())
 			return nullptr;
 
@@ -803,7 +803,7 @@ public:
 	// Access a body, will return a nullptr if the body ID is no longer valid (not protected by lock)
 	Body *							TryGetBody(const BodyID &inID)
 	{
-		uint32 idx = inID.GetIndex();
+		uint32_t idx = inID.GetIndex();
 		if (idx >= mBodies.size())
 			return nullptr;
 
@@ -930,9 +930,9 @@ public:
 private:
 	// Increment and get the sequence number of the body
 #ifdef MOSS_COMPILER_CLANG
-	__attribute__((no_sanitize("implicit-conversion"))) // We intentionally overflow the uint8 sequence number
+	__attribute__((no_sanitize("implicit-conversion"))) // We intentionally overflow the uint8_t sequence number
 #endif
-	inline uint8					GetNextSequenceNumber(int inBodyIndex)		{ return ++mBodySequenceNumbers[inBodyIndex]; }
+	inline uint8_t					GetNextSequenceNumber(int inBodyIndex)		{ return ++mBodySequenceNumbers[inBodyIndex]; }
 
 	// Add a single body to mActiveBodies, note doesn't lock the active body mutex!
 	inline void						AddBodyToActiveBodies(Body &ioBody);
@@ -955,7 +955,7 @@ private:
 	BodyVector						mBodies;
 
 	// Current number of allocated bodies
-	uint32							mNumBodies = 0;
+	uint32_t							mNumBodies = 0;
 
 	// Indicates that there are no more freed body IDs
 	static constexpr uintptr_t		cBodyIDFreeListEnd = ~uintptr_t(0);
@@ -964,7 +964,7 @@ private:
 	static constexpr uintptr_t		cIsFreedBody = uintptr_t(1);
 
 	// Amount of bits to shift to get an index to the next freed body
-	static constexpr uint32			cFreedBodyIndexShift = 1;
+	static constexpr uint32_t			cFreedBodyIndexShift = 1;
 
 	// Index of first entry in mBodies that is unused
 	uintptr_t						mBodyIDFreeListStart = cBodyIDFreeListEnd;
@@ -977,7 +977,7 @@ private:
 	mutable BodyMutexes				mBodyMutexes;
 
 	// List of next sequence number for a body ID
-	TArray<uint8>					mBodySequenceNumbers;
+	TArray<uint8_t>					mBodySequenceNumbers;
 
 	// Mutex that protects the mActiveBodies array
 	mutable Mutex					mActiveBodiesMutex;
@@ -986,10 +986,10 @@ private:
 	BodyID *						mActiveBodies[cBodyTypeCount] = { };
 
 	// How many bodies there are in the list of active bodies
-	atomic<uint32>					mNumActiveBodies[cBodyTypeCount] = { };
+	atomic<uint32_t>					mNumActiveBodies[cBodyTypeCount] = { };
 
 	// How many of the active bodies have continuous collision detection enabled
-	uint32							mNumActiveCCDBodies = 0;
+	uint32_t							mNumActiveCCDBodies = 0;
 
 	// Mutex that protects the mBodiesCacheInvalid array
 	mutable Mutex					mBodiesCacheInvalidMutex;
@@ -1149,7 +1149,7 @@ public:
 	void Clear() { mBodyIDs.clear(); }
 
 	// Reserve space for inSize body ID's
-	void Reserve(uint inSize) { mBodyIDs.reserve(inSize); }
+	void Reserve(uint32_t inSize) { mBodyIDs.reserve(inSize); }
 
 	// Add a body to be ignored
 	void IgnoreBody(const BodyID &inBodyID) { mBodyIDs.push_back(inBodyID); }
@@ -1455,8 +1455,8 @@ public:
 
 	// Returns a vector where the linear components that are not allowed by mAllowedDOFs are set to 0 and the rest to 0xffffffff
 	MOSS_INLINE UVec4 GetLinearDOFsMask() const {
-		UVec4 mask(uint32(EAllowedDOFs::TranslationX), uint32(EAllowedDOFs::TranslationY), uint32(EAllowedDOFs::TranslationZ), 0);
-		return UVec4::Equals(UVec4::And(UVec4::Replicate(uint32(mAllowedDOFs)), mask), mask);
+		UVec4 mask(uint32_t(EAllowedDOFs::TranslationX), uint32_t(EAllowedDOFs::TranslationY), uint32_t(EAllowedDOFs::TranslationZ), 0);
+		return UVec4::Equals(UVec4::And(UVec4::Replicate(uint32_t(mAllowedDOFs)), mask), mask);
 	}
 
 	// Takes a translation vector inV and returns a vector where the components that are not allowed by mAllowedDOFs are set to 0
@@ -1466,8 +1466,8 @@ public:
 
 	// Returns a vector where the angular components that are not allowed by mAllowedDOFs are set to 0 and the rest to 0xffffffff
 	MOSS_INLINE UVec4 GetAngularDOFsMask() const {
-		UVec4 mask(uint32(EAllowedDOFs::RotationX), uint32(EAllowedDOFs::RotationY), uint32(EAllowedDOFs::RotationZ), 0);
-		return UVec4::Equals(UVec4::And(UVec4::Replicate(uint32(mAllowedDOFs)), mask), mask);
+		UVec4 mask(uint32_t(EAllowedDOFs::RotationX), uint32_t(EAllowedDOFs::RotationY), uint32_t(EAllowedDOFs::RotationZ), 0);
+		return UVec4::Equals(UVec4::And(UVec4::Replicate(uint32_t(mAllowedDOFs)), mask), mask);
 	}
 
 	// Takes an angular velocity / torque vector inV and returns a vector where the components that are not allowed by mAllowedDOFs are set to 0
@@ -1476,12 +1476,12 @@ public:
 	}
 
 	// Used only when this body is dynamic and colliding. Override for the number of solver velocity iterations to run, 0 means use the default in PhysicsSettings::mNumVelocitySteps. The number of iterations to use is the max of all contacts and constraints in the island.
-	void SetNumVelocityStepsOverride(uint32 inN) { MOSS_ASSERT(inN < 256); mNumVelocityStepsOverride = uint8(inN); }
-	uint32 GetNumVelocityStepsOverride() const { return mNumVelocityStepsOverride; }
+	void SetNumVelocityStepsOverride(uint32_t inN) { MOSS_ASSERT(inN < 256); mNumVelocityStepsOverride = uint8_t(inN); }
+	uint32_t GetNumVelocityStepsOverride() const { return mNumVelocityStepsOverride; }
 
 	// Used only when this body is dynamic and colliding. Override for the number of solver position iterations to run, 0 means use the default in PhysicsSettings::mNumPositionSteps. The number of iterations to use is the max of all contacts and constraints in the island.
-	void SetNumPositionStepsOverride(uint32 inN) { MOSS_ASSERT(inN < 256); mNumPositionStepsOverride = uint8(inN); }
-	uint32 GetNumPositionStepsOverride() const { return mNumPositionStepsOverride; }
+	void SetNumPositionStepsOverride(uint32_t inN) { MOSS_ASSERT(inN < 256); mNumPositionStepsOverride = uint8_t(inN); }
+	uint32_t GetNumPositionStepsOverride() const { return mNumPositionStepsOverride; }
 
 	//////////////////
 	// FUNCTIONS BELOW THIS LINE ARE FOR INTERNAL USE ONLY
@@ -1500,11 +1500,11 @@ public:
 	inline void ApplyForceTorqueAndDragInternal(QuatArg inBodyRotation, Vec3Arg inGravity, float inDeltaTime);
 
 	// Access to the island index
-	uint32 GetIslandIndexInternal() const { return mIslandIndex; }
-	void SetIslandIndexInternal(uint32 inIndex) { mIslandIndex = inIndex; }
+	uint32_t GetIslandIndexInternal() const { return mIslandIndex; }
+	void SetIslandIndexInternal(uint32_t inIndex) { mIslandIndex = inIndex; }
 
 	// Access to the index in the active bodies array
-	uint32 GetIndexInActiveBodiesInternal() const { return mIndexInActiveBodies; }
+	uint32_t GetIndexInActiveBodiesInternal() const { return mIndexInActiveBodies; }
 
 #ifdef MOSS_DOUBLE_PRECISION
 	inline DVec3 GetSleepTestOffset() const { return DVec3::LoadDouble3Unsafe(mSleepTestOffset); }
@@ -1525,7 +1525,7 @@ public:
 	// Restoring state for replay
 	void RestoreState(StateRecorder &inStream);
 
-	static constexpr uint32	cInactiveIndex = uint32(-1);									// Constant indicating that body is not active
+	static constexpr uint32_t	cInactiveIndex = uint32_t(-1);									// Constant indicating that body is not active
 
 private:
 	friend class BodyManager;
@@ -1548,15 +1548,15 @@ private:
 	float					mMaxLinearVelocity;						// Maximum linear velocity that this body can reach (m/s)
 	float					mMaxAngularVelocity;					// Maximum angular velocity that this body can reach (rad/s)
 	float					mGravityFactor;							// Factor to multiply gravity with
-	uint32					mIndexInActiveBodies = cInactiveIndex;	// If the body is active, this is the index in the active body list or cInactiveIndex if it is not active (note that there are 2 lists, one for rigid and one for soft bodies)
-	uint32					mIslandIndex = cInactiveIndex;			// Index of the island that this body is part of, when the body has not yet been updated or is not active this is cInactiveIndex
+	uint32_t					mIndexInActiveBodies = cInactiveIndex;	// If the body is active, this is the index in the active body list or cInactiveIndex if it is not active (note that there are 2 lists, one for rigid and one for soft bodies)
+	uint32_t					mIslandIndex = cInactiveIndex;			// Index of the island that this body is part of, when the body has not yet been updated or is not active this is cInactiveIndex
 
 	// 1 byte aligned
 	EMotionQuality			mMotionQuality;							// Motion quality, or how well it detects collisions when it has a high velocity
 	bool					mAllowSleeping;							// If this body can go to sleep
 	EAllowedDOFs			mAllowedDOFs = EAllowedDOFs::All;		// Allowed degrees of freedom for this body
-	uint8					mNumVelocityStepsOverride = 0;			// Used only when this body is dynamic and colliding. Override for the number of solver velocity iterations to run, 0 means use the default in PhysicsSettings::mNumVelocitySteps. The number of iterations to use is the max of all contacts and constraints in the island.
-	uint8					mNumPositionStepsOverride = 0;			// Used only when this body is dynamic and colliding. Override for the number of solver position iterations to run, 0 means use the default in PhysicsSettings::mNumPositionSteps. The number of iterations to use is the max of all contacts and constraints in the island.
+	uint8_t					mNumVelocityStepsOverride = 0;			// Used only when this body is dynamic and colliding. Override for the number of solver velocity iterations to run, 0 means use the default in PhysicsSettings::mNumVelocitySteps. The number of iterations to use is the max of all contacts and constraints in the island.
+	uint8_t					mNumPositionStepsOverride = 0;			// Used only when this body is dynamic and colliding. Override for the number of solver position iterations to run, 0 means use the default in PhysicsSettings::mNumPositionSteps. The number of iterations to use is the max of all contacts and constraints in the island.
 
 	// 3rd cache line (least frequently used)
 	// 4 byte aligned (or 8 byte if running in double precision)
@@ -1613,45 +1613,45 @@ public:
 	// These sensors will only detect collisions with active Dynamic or Kinematic bodies. As soon as a body go to sleep, the contact point with the sensor will be lost.
 	// If you make a sensor Dynamic or Kinematic and activate them, the sensor will be able to detect collisions with sleeping bodies too. An active sensor will never go to sleep automatically.
 	// When you make a Dynamic or Kinematic sensor, make sure it is in an ObjectLayer that does not collide with Static bodies or other sensors to avoid extra overhead in the broad phase.
-	inline void				SetIsSensor(bool inIsSensor)									{ MOSS_ASSERT(IsRigidBody()); if (inIsSensor) mFlags.fetch_or(uint8(EFlags::IsSensor), memory_order_relaxed); else mFlags.fetch_and(uint8(~uint8(EFlags::IsSensor)), memory_order_relaxed); }
+	inline void				SetIsSensor(bool inIsSensor)									{ MOSS_ASSERT(IsRigidBody()); if (inIsSensor) mFlags.fetch_or(uint8_t(EFlags::IsSensor), memory_order_relaxed); else mFlags.fetch_and(uint8_t(~uint8_t(EFlags::IsSensor)), memory_order_relaxed); }
 
 	// Check if this body is a sensor.
-	inline bool				IsSensor() const												{ return (mFlags.load(memory_order_relaxed) & uint8(EFlags::IsSensor)) != 0; }
+	inline bool				IsSensor() const												{ return (mFlags.load(memory_order_relaxed) & uint8_t(EFlags::IsSensor)) != 0; }
 
 	// If kinematic objects can generate contact points against other kinematic or static objects.
 	// Note that turning this on can be CPU intensive as much more collision detection work will be done without any effect on the simulation (kinematic objects are not affected by other kinematic/static objects).
 	// This can be used to make sensors detect static objects. Note that the sensor must be kinematic and active for it to detect static objects.
-	inline void				SetCollideKinematicVsNonDynamic(bool inCollide)					{ MOSS_ASSERT(IsRigidBody()); if (inCollide) mFlags.fetch_or(uint8(EFlags::CollideKinematicVsNonDynamic), memory_order_relaxed); else mFlags.fetch_and(uint8(~uint8(EFlags::CollideKinematicVsNonDynamic)), memory_order_relaxed); }
+	inline void				SetCollideKinematicVsNonDynamic(bool inCollide)					{ MOSS_ASSERT(IsRigidBody()); if (inCollide) mFlags.fetch_or(uint8_t(EFlags::CollideKinematicVsNonDynamic), memory_order_relaxed); else mFlags.fetch_and(uint8_t(~uint8_t(EFlags::CollideKinematicVsNonDynamic)), memory_order_relaxed); }
 
 	// Check if kinematic objects can generate contact points against other kinematic or static objects.
-	inline bool				GetCollideKinematicVsNonDynamic() const							{ return (mFlags.load(memory_order_relaxed) & uint8(EFlags::CollideKinematicVsNonDynamic)) != 0; }
+	inline bool				GetCollideKinematicVsNonDynamic() const							{ return (mFlags.load(memory_order_relaxed) & uint8_t(EFlags::CollideKinematicVsNonDynamic)) != 0; }
 
 	// If PhysicsSettings::mUseManifoldReduction is true, this allows turning off manifold reduction for this specific body.
 	// Manifold reduction by default will combine contacts with similar normals that come from different SubShapeIDs (e.g. different triangles in a mesh shape or different compound shapes).
 	// If the application requires tracking exactly which SubShapeIDs are in contact, you can turn off manifold reduction. Note that this comes at a performance cost.
 	// Consider using BodyInterface::SetUseManifoldReduction if the body could already be in contact with other bodies to ensure that the contact cache is invalidated and you get the correct contact callbacks.
-	inline void				SetUseManifoldReduction(bool inUseReduction)					{ MOSS_ASSERT(IsRigidBody()); if (inUseReduction) mFlags.fetch_or(uint8(EFlags::UseManifoldReduction), memory_order_relaxed); else mFlags.fetch_and(uint8(~uint8(EFlags::UseManifoldReduction)), memory_order_relaxed); }
+	inline void				SetUseManifoldReduction(bool inUseReduction)					{ MOSS_ASSERT(IsRigidBody()); if (inUseReduction) mFlags.fetch_or(uint8_t(EFlags::UseManifoldReduction), memory_order_relaxed); else mFlags.fetch_and(uint8_t(~uint8_t(EFlags::UseManifoldReduction)), memory_order_relaxed); }
 
 	// Check if this body can use manifold reduction.
-	inline bool				GetUseManifoldReduction() const									{ return (mFlags.load(memory_order_relaxed) & uint8(EFlags::UseManifoldReduction)) != 0; }
+	inline bool				GetUseManifoldReduction() const									{ return (mFlags.load(memory_order_relaxed) & uint8_t(EFlags::UseManifoldReduction)) != 0; }
 
 	// Checks if the combination of this body and inBody2 should use manifold reduction
-	inline bool				GetUseManifoldReductionWithBody(const Body &inBody2) const		{ return ((mFlags.load(memory_order_relaxed) & inBody2.mFlags.load(memory_order_relaxed)) & uint8(EFlags::UseManifoldReduction)) != 0; }
+	inline bool				GetUseManifoldReductionWithBody(const Body &inBody2) const		{ return ((mFlags.load(memory_order_relaxed) & inBody2.mFlags.load(memory_order_relaxed)) & uint8_t(EFlags::UseManifoldReduction)) != 0; }
 
 	// Set to indicate that the gyroscopic force should be applied to this body (aka Dzhanibekov effect, see https://en.wikipedia.org/wiki/Tennis_racket_theorem)
-	inline void				SetApplyGyroscopicForce(bool inApply)							{ MOSS_ASSERT(IsRigidBody()); if (inApply) mFlags.fetch_or(uint8(EFlags::ApplyGyroscopicForce), memory_order_relaxed); else mFlags.fetch_and(uint8(~uint8(EFlags::ApplyGyroscopicForce)), memory_order_relaxed); }
+	inline void				SetApplyGyroscopicForce(bool inApply)							{ MOSS_ASSERT(IsRigidBody()); if (inApply) mFlags.fetch_or(uint8_t(EFlags::ApplyGyroscopicForce), memory_order_relaxed); else mFlags.fetch_and(uint8_t(~uint8_t(EFlags::ApplyGyroscopicForce)), memory_order_relaxed); }
 
 	// Check if the gyroscopic force is being applied for this body
-	inline bool				GetApplyGyroscopicForce() const									{ return (mFlags.load(memory_order_relaxed) & uint8(EFlags::ApplyGyroscopicForce)) != 0; }
+	inline bool				GetApplyGyroscopicForce() const									{ return (mFlags.load(memory_order_relaxed) & uint8_t(EFlags::ApplyGyroscopicForce)) != 0; }
 
 	// Set to indicate that extra effort should be made to try to remove ghost contacts (collisions with internal edges of a mesh). This is more expensive but makes bodies move smoother over a mesh with convex edges.
-	inline void				SetEnhancedInternalEdgeRemoval(bool inApply)					{ MOSS_ASSERT(IsRigidBody()); if (inApply) mFlags.fetch_or(uint8(EFlags::EnhancedInternalEdgeRemoval), memory_order_relaxed); else mFlags.fetch_and(uint8(~uint8(EFlags::EnhancedInternalEdgeRemoval)), memory_order_relaxed); }
+	inline void				SetEnhancedInternalEdgeRemoval(bool inApply)					{ MOSS_ASSERT(IsRigidBody()); if (inApply) mFlags.fetch_or(uint8_t(EFlags::EnhancedInternalEdgeRemoval), memory_order_relaxed); else mFlags.fetch_and(uint8_t(~uint8_t(EFlags::EnhancedInternalEdgeRemoval)), memory_order_relaxed); }
 
 	// Check if enhanced internal edge removal is turned on
-	inline bool				GetEnhancedInternalEdgeRemoval() const							{ return (mFlags.load(memory_order_relaxed) & uint8(EFlags::EnhancedInternalEdgeRemoval)) != 0; }
+	inline bool				GetEnhancedInternalEdgeRemoval() const							{ return (mFlags.load(memory_order_relaxed) & uint8_t(EFlags::EnhancedInternalEdgeRemoval)) != 0; }
 
 	// Checks if the combination of this body and inBody2 should use enhanced internal edge removal
-	inline bool				GetEnhancedInternalEdgeRemovalWithBody(const Body &inBody2) const { return ((mFlags.load(memory_order_relaxed) | inBody2.mFlags.load(memory_order_relaxed)) & uint8(EFlags::EnhancedInternalEdgeRemoval)) != 0; }
+	inline bool				GetEnhancedInternalEdgeRemovalWithBody(const Body &inBody2) const { return ((mFlags.load(memory_order_relaxed) | inBody2.mFlags.load(memory_order_relaxed)) & uint8_t(EFlags::EnhancedInternalEdgeRemoval)) != 0; }
 
 	// Get the bodies motion type.
 	inline EMotionType		GetMotionType() const											{ return mMotionType; }
@@ -1795,10 +1795,10 @@ public:
 	bool					ApplyBuoyancyImpulse(float inTotalVolume, float inSubmergedVolume, Vec3Arg inRelativeCenterOfBuoyancy, float inBuoyancy, float inLinearDrag, float inAngularDrag, Vec3Arg inFluidVelocity, Vec3Arg inGravity, float inDeltaTime);
 
 	// Check if this body has been added to the physics system
-	inline bool				IsInBroadPhase() const											{ return (mFlags.load(memory_order_relaxed) & uint8(EFlags::IsInBroadPhase)) != 0; }
+	inline bool				IsInBroadPhase() const											{ return (mFlags.load(memory_order_relaxed) & uint8_t(EFlags::IsInBroadPhase)) != 0; }
 
 	// Check if this body has been changed in such a way that the collision cache should be considered invalid for any body interacting with this body
-	inline bool				IsCollisionCacheInvalid() const									{ return (mFlags.load(memory_order_relaxed) & uint8(EFlags::InvalidateContactCache)) != 0; }
+	inline bool				IsCollisionCacheInvalid() const									{ return (mFlags.load(memory_order_relaxed) & uint8_t(EFlags::InvalidateContactCache)) != 0; }
 
 	// Get the shape of this body
 	inline const Shape *	GetShape() const												{ return mShape; }
@@ -1885,13 +1885,13 @@ public:
 	inline void				SubRotationStep(Vec3Arg inAngularVelocityTimesDeltaTime);
 
 	// Flag if body is in the broadphase (should only be called by the BroadPhase)
-	inline void				SetInBroadPhaseInternal(bool inInBroadPhase)					{ if (inInBroadPhase) mFlags.fetch_or(uint8(EFlags::IsInBroadPhase), memory_order_relaxed); else mFlags.fetch_and(uint8(~uint8(EFlags::IsInBroadPhase)), memory_order_relaxed); }
+	inline void				SetInBroadPhaseInternal(bool inInBroadPhase)					{ if (inInBroadPhase) mFlags.fetch_or(uint8_t(EFlags::IsInBroadPhase), memory_order_relaxed); else mFlags.fetch_and(uint8_t(~uint8_t(EFlags::IsInBroadPhase)), memory_order_relaxed); }
 
 	// Invalidate the contact cache (should only be called by the BodyManager), will be reset the next simulation step. Returns true if the contact cache was still valid.
-	inline bool				InvalidateContactCacheInternal()								{ return (mFlags.fetch_or(uint8(EFlags::InvalidateContactCache), memory_order_relaxed) & uint8(EFlags::InvalidateContactCache)) == 0; }
+	inline bool				InvalidateContactCacheInternal()								{ return (mFlags.fetch_or(uint8_t(EFlags::InvalidateContactCache), memory_order_relaxed) & uint8_t(EFlags::InvalidateContactCache)) == 0; }
 
 	// Reset the collision cache invalid flag (should only be called by the BodyManager).
-	inline void				ValidateContactCacheInternal()									{ MOSS_IF_ENABLE_ASSERTS(uint8 old_val = ) mFlags.fetch_and(uint8(~uint8(EFlags::InvalidateContactCache)), memory_order_relaxed); MOSS_ASSERT((old_val & uint8(EFlags::InvalidateContactCache)) != 0); }
+	inline void				ValidateContactCacheInternal()									{ MOSS_IF_ENABLE_ASSERTS(uint8_t old_val = ) mFlags.fetch_and(uint8_t(~uint8_t(EFlags::InvalidateContactCache)), memory_order_relaxed); MOSS_ASSERT((old_val & uint8_t(EFlags::InvalidateContactCache)) != 0); }
 
 	// Updates world space bounding box (should only be called by the PhysicsSystem)
 	void					CalculateWorldSpaceBoundsInternal();
@@ -1915,7 +1915,7 @@ public:
 	// This means that changes to mIndexInActiveBodies must be visible to the thread, so TSANs report must be a false positive. We suppress the warning here.
 	MOSS_TSAN_NO_SANITIZE
 	// Access to the index in the BodyManager::mActiveBodies list
-	uint32					GetIndexInActiveBodiesInternal() const							{ return mMotionProperties != nullptr? mMotionProperties->mIndexInActiveBodies : cInactiveIndex; }
+	uint32_t					GetIndexInActiveBodiesInternal() const							{ return mMotionProperties != nullptr? mMotionProperties->mIndexInActiveBodies : cInactiveIndex; }
 
 	// Update eligibility for sleeping
 	ECanSleep				UpdateSleepStateInternal(float inDeltaTime, float inMaxMovement, float inTimeBeforeSleep);
@@ -1927,7 +1927,7 @@ public:
 	void					RestoreState(StateRecorder &inStream);
 
 
-	static constexpr uint32	cInactiveIndex = MotionProperties::cInactiveIndex;		// Constant indicating that body is not active
+	static constexpr uint32_t	cInactiveIndex = MotionProperties::cInactiveIndex;		// Constant indicating that body is not active
 
 private:
 	friend class BodyManager;
@@ -1942,7 +1942,7 @@ private:
 
 	inline void GetSleepTestPoints(RVec3 *outPoints) const;		// Determine points to test for checking if body is sleeping: COM, COM + largest bounding box axis, COM + second largest bounding box axis
 
-	enum class EFlags : uint8
+	enum class EFlags : uint8_t
 	{
 		IsSensor						= 1 << 0,											// If this object is a sensor. A sensor will receive collision callbacks, but will not cause any collision responses and can be used as a trigger volume.
 		CollideKinematicVsNonDynamic	= 1 << 1,											// If kinematic objects can generate contact points against other kinematic or static objects.
@@ -1976,7 +1976,7 @@ private:
 	EBodyType				mBodyType;														// Type of body (rigid or soft)
 	BroadPhaseLayer			mBroadPhaseLayer;												// The broad phase layer this body belongs to
 	EMotionType				mMotionType;													// Type of motion (static, dynamic or kinematic)
-	atomic<uint8>			mFlags = 0;														// See EFlags for possible flags
+	atomic<uint8_t>			mFlags = 0;														// See EFlags for possible flags
 
 	// 122 bytes up to here (64-bit mode, single precision, 16-bit ObjectLayer)
 };

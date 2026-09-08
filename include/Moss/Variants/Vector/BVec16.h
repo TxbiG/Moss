@@ -42,7 +42,7 @@ public:
 	MOSS_INLINE bool				operator != (BVec16Arg inV2) const					{ return !(*this == inV2); }
 
 	/// Vector with all zeros
-	static MOSS_INLINE BVec16	sZero();
+	static MOSS_INLINE BVec16	Zero();
 
 	/// Replicate int inV across all components
 	static MOSS_INLINE BVec16	Replicate(uint8 inV);

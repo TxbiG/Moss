@@ -69,7 +69,7 @@ bool Moss_InitHapticRumble(Moss_Haptic* joystick) {
     
 }
 
-bool Moss_IsJoystickHaptic(Moss_Joystick) {
+bool Moss_IsJoystickHaptic(Moss_GamepadAxis) {
     
 }
 
@@ -77,7 +77,7 @@ bool Moss_IsMouseHaptic(void) {
     
 }
 
-Moss_Haptic* Moss_OpenHapticFromJoystick(Moss_Joystick* joystick) {
+Moss_Haptic* Moss_OpenHapticFromJoystick(Moss_GamepadAxis* joystick) {
     
 }
 

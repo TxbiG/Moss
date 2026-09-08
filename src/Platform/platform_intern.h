@@ -1,6 +1,9 @@
 #ifndef MOSS_PLATFORM_INTERNAL_H
 #define MOSS_PLATFORM_INTERNAL_H
 
+#include <atomic>
+#include <cstdint>
+
 #include <Moss/Moss_stdinc.h>
 #include <Moss/Moss_Platform.h>
 
@@ -26,7 +29,10 @@ enum class Moss_GamepadBindingType {
 #if defined(MOSS_PLATFORM_WINDOWS)
 #define NOMINMAX
 #define WIN32_LEAN_AND_MEAN
-#include <Windows.h>
+#include <windows.h>
+#include <mfapi.h>     // If using Media Foundation types
+#include <mfidl.h>     // If using Media Foundation interfaces
+#include <shlwapi.h>
 #endif // MOSS_PLATFORM_WINDOWS
 
 enum class Moss_GamepadBackend {
@@ -89,11 +95,11 @@ struct INPUT_STATE {
 extern INPUT_STATE io;
 extern KeyState* keyboardState;
 
-
+using AcquireFrameFunc = Moss_CameraFrameResult(*)(Moss_Camera *device, Moss_Surface *frame, uint64_t *timestampNS, float *rotation);
 
 struct Moss_Camera {
     // A mutex for locking
-    Moss_Mutex *lock;
+    Mutex *lock;
 
     // Human-readable device name.
     char *name;
@@ -106,7 +112,7 @@ struct Moss_Camera {
 
     // These are, initially, set from camera_driver, but we might swap them out with Zombie versions on disconnect/failure.
     bool (*WaitDevice)(Moss_Camera *device);
-    Moss_CameraFrameResult (*AcquireFrame)(Moss_Camera *device, Moss_Surface *frame, uint64_t *timestampNS, float *rotation);
+    AcquireFrameFunc AcquireFrame;
     void (*ReleaseFrame)(Moss_Camera *device, Moss_Surface *frame);
 
     // All supported formats/dimensions for this device.

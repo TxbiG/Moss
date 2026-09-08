@@ -125,8 +125,7 @@ static const Gamepad g_moss_to_gamepad_button[Moss_GamepadButton::COUNT] =
     /* MISC6 */          Gamepad::GAMEPAD_BUTTON_LAST,
 };
 
-static const GamepadAxis g_moss_to_gamepad_axis[GamepadAxis::COUNT] =
-{
+static const GamepadAxis g_moss_to_gamepad_axis[GamepadAxis::COUNT] = {
     /* INVALID */        GamepadAxis::LEFT_X,
 
     /* LEFT_X */         GamepadAxis::LEFT_X,
@@ -234,39 +233,26 @@ void Input_Poll(INPUT_STATE* state) {
     Moss_UpdateGamepads();
 }
 
-void Input_Poll(INPUT_STATE* io)
-{
-    for (int i = 0; i < static_cast<int>(Keyboard::COUNT); i++) {
-        io->keys_prev[i] = io->keys[i];
-    }
-    PollGamepads(io);
-}
-
 
 ////////////////////////////////////////////////////////////////
 inline bool IsPressed(size_t padIndex, Gamepad b) { return io.pads[padIndex].buttons[static_cast<size_t>(b)] != 0; }
 inline bool IsReleased(size_t padIndex, Gamepad b) { return io.pads[padIndex].buttons[static_cast<size_t>(b)] == 0; }
-inline bool IsJustPressed(size_t padIndex, Gamepad b) { return false; }
+inline bool IsJustPressed(size_t padIndex, Gamepad b) { size_t i = static_cast<size_t>(b); return io.pads[padIndex].buttons[i] && !io.pads[padIndex].buttons_prev[i]; }
 inline float GetAxis(size_t padIndex, GamepadAxis a) { return io.pads[padIndex].axes[static_cast<size_t>(a)]; }
 ////////////////////////////////////////////////////////////////
 
 
-bool Moss_IsKeyPressed(Moss_Keyboard key) { return io.keys[static_cast<size_t>(k)] != 0; }
-bool Moss_IsReleased(Moss_Keyboard k) { return io.keys[static_cast<size_t>(k)] == 0; }
-bool Moss_IsKeyJustPressed(Moss_Keyboard key) { return io.keys[static_cast<size_t>(k)] && !io.keys_prev[static_cast<size_t>(k)]; }
-bool Moss_IsKeyJustReleased(Moss_Keyboard key)  { size_t i = static_cast<size_t>(k); return !io.keys[i] && io.keys_prev[i]; }
-Moss_Keyboard Moss_InputGetKey() { size_t i = static_cast<size_t>(k); return !io.keys[i]; }
+bool Moss_IsKeyPressed(Keyboard key) { return io.keys[static_cast<size_t>(key)] != 0; }
+bool Moss_IsReleased(Keyboard key) { return io.keys[static_cast<size_t>(key)] == 0; }
+bool Moss_IsKeyJustPressed(Keyboard key) { return io.keys[static_cast<size_t>(key)] && !io.keys_prev[static_cast<size_t>(key)]; }
+bool Moss_IsKeyJustReleased(Keyboard key) { size_t i = static_cast<size_t>(key); return !io.keys[i] && io.keys_prev[i]; }
+Keyboard Moss_InputGetKey() { for (int i = 0; i < static_cast<int>(Keyboard::COUNT); ++i) if (io.keys[i]) return static_cast<Moss_Keyboard>(i); return Moss_Keyboard::COUNT; }
 
-
-//bool Moss_IsKeyJustPressed(Moss_Keyboard key) { return io.keys[static_cast<size_t>(key)] && !io.keys_prev[static_cast<size_t>(key)]; }
-//bool Moss_IsKeyJustReleased(Moss_Keyboard key) { return !io.keys[static_cast<size_t>(key)] && io.keys_prev[static_cast<size_t>(key)]; }
-Moss_Keyboard Moss_InputGetKey() { for (int i = 0; i < static_cast<int>(Keyboard::COUNT); ++i) if (io.keys[i]) return static_cast<Moss_Keyboard>(i); return Moss_Keyboard::COUNT; }
-
-bool Moss_IsMousePressed(Moss_MouseButton button) { return io.mouse_buttons[static_cast<size_t>(button)] != 0; }
-bool Moss_IsMouseReleased(Moss_MouseButton button) { return io.mouse_buttons[static_cast<size_t>(button)] == 0; }
-bool Moss_IsMouseJustPressed(Moss_MouseButton button) { size_t i = static_cast<size_t>(button); return io.mouse_buttons[i] && !io.mouse_buttons_prev[i]; }
-bool Moss_IsMouseJustReleased(Moss_MouseButton button) { size_t i = static_cast<size_t>(button); return !io.mouse_buttons[i] && io.mouse_buttons_prev[i]; }
-Moss_MouseButton Moss_InputGetMouseButton() { for (int i = 0; i < static_cast<int>(Mouse::COUNT); ++i) if (io.mouse_buttons[i]) return static_cast<Moss_MouseButton>(i); return Moss_MouseButton::COUNT; }
+bool Moss_IsMousePressed(Mouse button) { return io.mouse_buttons[static_cast<size_t>(button)] != 0; }
+bool Moss_IsMouseReleased(Mouse button) { return io.mouse_buttons[static_cast<size_t>(button)] == 0; }
+bool Moss_IsMouseJustPressed(Mouse button) { size_t i = static_cast<size_t>(button); return io.mouse_buttons[i] && !io.mouse_buttons_prev[i]; }
+bool Moss_IsMouseJustReleased(Mouse button) { size_t i = static_cast<size_t>(button); return !io.mouse_buttons[i] && io.mouse_buttons_prev[i]; }
+Mouse Moss_InputGetMouseButton() { for (int i = 0; i < static_cast<int>(Mouse::COUNT); ++i) if (io.mouse_buttons[i]) return static_cast<Mouse>(i); return Mouse::COUNT; }
 
 void Moss_GetMousePosition(int* x, int* y) { if (x) *x = io.mouse_x; if (y) *y = io.mouse_y; }
 void Moss_SetMousePosition(int x, int y) { POINT p = { x, y }; if (handle) ClientToScreen(handle, &p); SetCursorPos(p.x, p.y); }

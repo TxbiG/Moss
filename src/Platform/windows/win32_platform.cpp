@@ -1,5 +1,7 @@
 #include "win32_platform.h"
 
+#include <string>
+
 #define WIN32_LEAN_AND_MEAN
 #define NOMINMAX
 #include <windows.h>
@@ -234,20 +236,19 @@ bool Moss_GetUserFolder(Moss_UserFolder folder, char* out_path, int max_len) {
     if (!out_path || max_len <= 0)
         return false;
 
-    const REFKNOWNFOLDERID* kfid = nullptr;
+    const KNOWNFOLDERID* kfid = nullptr;
 
     switch (folder) {
-        case Moss_UserFolder::DESKTOP:    kfid = FOLDERID_Desktop; break;
-        case Moss_UserFolder::HOME:       kfid = FOLDERID_Profile; break;
-        case Moss_UserFolder::DOCUMENTS:  kfid = FOLDERID_Documents; break;
-        case Moss_UserFolder::APPDATA:    kfid = FOLDERID_RoamingAppData; break;
-        case Moss_UserFolder::PICTURES:   kfid = FOLDERID_Pictures; break;
-        case Moss_UserFolder::MUSIC:      kfid = FOLDERID_Music; break;
-        case Moss_UserFolder::VIDEOS:     kfid = FOLDERID_Videos; break;
-        case Moss_UserFolder::CACHE:      kfid = FOLDERID_InternetCache; break;
-        case Moss_UserFolder::DOWNLOADS:  kfid = FOLDERID_Downloads; break;
-        default:
-            return false;
+        case Moss_UserFolder::DESKTOP:    kfid = &FOLDERID_Desktop; break;
+        case Moss_UserFolder::HOME:       kfid = &FOLDERID_Profile; break;
+        case Moss_UserFolder::DOCUMENTS:  kfid = &FOLDERID_Documents; break;
+        case Moss_UserFolder::APPDATA:    kfid = &FOLDERID_RoamingAppData; break;
+        case Moss_UserFolder::PICTURES:   kfid = &FOLDERID_Pictures; break;
+        case Moss_UserFolder::MUSIC:      kfid = &FOLDERID_Music; break;
+        case Moss_UserFolder::VIDEOS:     kfid = &FOLDERID_Videos; break;
+        case Moss_UserFolder::CACHE:      kfid = &FOLDERID_InternetCache; break;
+        case Moss_UserFolder::DOWNLOADS:  kfid = &FOLDERID_Downloads; break;
+        default: return false;
     }
 
     PWSTR wpath = NULL;
@@ -352,9 +353,7 @@ void Moss_ShowOpenFileDialog(Moss_DialogFileCallback callback, void *userdata, M
     ZeroMemory(&ofn, sizeof(ofn));
     ofn.lStructSize = sizeof(ofn);
     
-    // FIX 1: Extract the native HWND handle from your custom window object
-    // (Replace 'hwnd' with whatever field name your Moss_Window struct uses)
-    ofn.hwndOwner   = window ? (HWND)window->hwnd : NULL; 
+    ofn.hwndOwner = window ? window->handle : NULL;
     
     ofn.lpstrFile   = buffer;
     ofn.nMaxFile    = sizeof(buffer);

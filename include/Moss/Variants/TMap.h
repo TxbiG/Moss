@@ -77,9 +77,4 @@ public:
 	}
 };
 
-// Forward declaration of UnorderedMap (defined in UnorderedMap.h).
-// This is provided because compiling UnorderedMap.h can be expensive due to its use of templates.
-template <class Key, class Value, class Hash = JPH::Hash<Key>, class KeyEqual = std::equal_to<Key>>
-class TMap;
-
 MOSS_SUPPRESS_WARNINGS_END
