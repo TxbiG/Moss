@@ -196,7 +196,25 @@ target_include_directories(Moss PUBLIC $<BUILD_INTERFACE:${MOSS_ROOT}> $<BUILD_I
 
 
 # Link thirdparties
-target_include_directories(Moss PRIVATE ${REPO_ROOT}/external)
+set(MOSS_EXTERNAL_DIR ${REPO_ROOT}/external)
+
+file(GLOB MOSS_EXTERNAL_SUBDIRS RELATIVE ${MOSS_EXTERNAL_DIR} ${MOSS_EXTERNAL_DIR}/*)
+
+foreach(SUBDIR ${MOSS_EXTERNAL_SUBDIRS})
+    set(SUBDIR_PATH ${MOSS_EXTERNAL_DIR}/${SUBDIR})
+    if(IS_DIRECTORY ${SUBDIR_PATH})
+        if(EXISTS ${SUBDIR_PATH}/CMakeLists.txt)
+            message(STATUS "external/${SUBDIR}: has CMakeLists.txt, adding as subdirectory")
+            add_subdirectory(${SUBDIR_PATH})
+        elseif(EXISTS ${SUBDIR_PATH}/include)
+            message(STATUS "external/${SUBDIR}: header-only, adding include dir")
+            target_include_directories(Moss PRIVATE ${SUBDIR_PATH}/include)
+        else()
+            message(STATUS "external/${SUBDIR}: no CMakeLists.txt or include/ found, skipping (handle manually if needed)")
+        endif()
+    endif()
+endforeach()
+
 if(WIN32)
     target_link_libraries(Moss PRIVATE user32 gdi32)
 elseif(APPLE)
