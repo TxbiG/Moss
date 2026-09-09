@@ -450,7 +450,7 @@ bool Moss_EnumerateStorageDirectory(Moss_Storage *storage, const char *path, Mos
             continue;
 
         Moss_PathInfo info = moss_path_info_from_find_data(&fd);
-        if (!callback(userdata, fd.cFileName, &info)) break;
+        if (!callback(&info, fd.cFileName, user_data)) break;
     } while (FindNextFileA(h, &fd));
 
     FindClose(h);

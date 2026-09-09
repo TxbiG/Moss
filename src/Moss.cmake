@@ -194,6 +194,9 @@ endif()
 
 target_include_directories(Moss PUBLIC $<BUILD_INTERFACE:${MOSS_ROOT}> $<BUILD_INTERFACE:${MOSS_PUBLIC_INCLUDE_DIR}> $<INSTALL_INTERFACE:include>)
 
+
+# Link thirdparties
+target_include_directories(Moss PRIVATE ${REPO_ROOT}/external)
 if(WIN32)
     target_link_libraries(Moss PRIVATE user32 gdi32)
 elseif(APPLE)
