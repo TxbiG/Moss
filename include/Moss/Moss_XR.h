@@ -307,17 +307,11 @@ struct MossXR_Capabilities {
     bool depthLayers;
 };
 
-struct MossXR_InitInfo {
-    ERendererBackend renderer;
-    void* graphicsDevice;
-    void* graphicsContext;
-};
-
 /* ======================================================
  * Instance
  * =================================================== */
 /*! @brief X */
-MOSS_API bool Moss_XR_Initialize(const MossXR_InitInfo* info);
+MOSS_API bool Moss_XR_Initialize(Moss_Renderer* renderer);
 /*! @brief X */
 MOSS_API void Moss_XR_Shutdown(void);
 

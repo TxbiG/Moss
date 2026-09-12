@@ -1394,7 +1394,7 @@ template <typename T>
 MOSS_INLINE constexpr T Clamp(T inV, T inMin, T inMax) { return min(max(inV, inMin), inMax); }
 
 template <typename T>
-MOSS_INLINE constexpr T Lerp(T inV, T inMin, T inMax) { return ((a) + (t) * ((b) - (a))) }
+MOSS_INLINE constexpr T Lerp(T value, T inMin, T inMax) {  return ((inMin) + (value) * ((inMax) - (inMin))); }
 
 template<class T> inline void Swap(T& a, T& b) { T t = a; a = b; b = t; }
 

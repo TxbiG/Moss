@@ -1,9 +1,7 @@
 // Moss_XR.cpp
-#include <Moss/Moss_XR.h>
+
 #include "XR/xr_intern.h"
 
-#include <openxr/openxr.h>
-#include <openxr/openxr_platform.h>
 
 #include <vector>
 #include <cstring>

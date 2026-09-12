@@ -2,8 +2,8 @@
 
 #include <Moss/Moss_XR.h>
 
-#include <openxr/openxr.h>
-#include <openxr/openxr_platform.h>
+#include <Moss/external/openxr/openxr.h>
+#include <Moss/externalopenxr/openxr_platform.h>
 
 #include <vector>
 #include <unordered_map>

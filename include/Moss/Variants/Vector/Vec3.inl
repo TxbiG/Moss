@@ -338,7 +338,7 @@ Vec3 Vec3::Random(Rand &inRandom)
 	std::uniform_real_distribution<float> zero_to_one(0.0f, 1.0f);
 	float theta = MOSS_PI * zero_to_one(inRandom);
 	float phi = 2.0f * MOSS_PI * zero_to_one(inRandom);
-	return sUnitSpherical(theta, phi);
+	return UnitSpherical(theta, phi);
 }
 
 bool Vec3::operator == (const Vec3 inV2) const

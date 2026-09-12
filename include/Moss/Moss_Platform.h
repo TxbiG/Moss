@@ -775,25 +775,25 @@ struct Moss_PathInfo {
 //                 Callback Type Definitions
 // =================================================
 //! @brief Callback for framebuffer resize events. @param width  New framebuffer width, in pixels. @param height New framebuffer height, in pixels.
-using Moss_FramebufferResizeCallback = void (*)(int width, int height);
+typedef void (*Moss_FramebufferResizeCallback)(int width, int height);
 //! @brief Callback for logical window size changes. @param width  New window width, in screen coordinates. @param height New window height, in screen coordinates.
-using Moss_WindowSizeCallback = void (*)(int width, int height);
+typedef void (*Moss_WindowSizeCallback)(int width, int height);
 //! @brief Callback for window position changes on screen. @param xpos New X coordinate of the window's top-left corner. @param ypos New Y coordinate of the window's top-left corner.
-using Moss_WindowPositionCallback = void (*)(int xpos, int ypos);
+typedef void (*Moss_WindowPositionCallback)(int xpos, int ypos);
 //! @brief Callback for window focus events. @param focused True if the window gained focus; false if it lost focus.
-using Moss_WindowFocusCallback = void (*)(bool focused);
+typedef void (*Moss_WindowFocusCallback)(bool focused);
 //! @brief Callback for content scale changes (e.g., HiDPI scaling). @param xscale X-axis content scale factor. @param yscale Y-axis content scale factor.
-using Moss_WindowContentScaleCallback = void (*)(float xscale, float yscale);
+typedef void (*Moss_WindowContentScaleCallback)(float xscale, float yscale);
 //! @brief Callback for general window resize notifications (platform-driven). @param width  New window width in pixels. @param height New window height in pixels.
-using Moss_WindowResizeCallback = void (*)(int width, int height);
+typedef void (*Moss_WindowResizeCallback)(int width, int height);
 //! @brief Callback for monitor configuration changes (e.g. hotplug events). @param monitorName Name or ID of the monitor that changed. @param connected True if the monitor was connected; false if disconnected.
-using Moss_MonitorCallback = void (*)(const char* monitorName, bool connected);
+typedef void (*Moss_MonitorCallback)(const char* monitorName, bool connected);
 //! @brief Callback invoked with the user's selection from a file dialog. @param userdata User data pointer passed through from the dialog call. @param filelist Null-terminated array of selected file paths. @param filter Index of the file filter that was active when the dialog closed.
-using Moss_DialogFileCallback = void (MOSS_CALL*)(void* userdata, const char* const* filelist, int filter);
+typedef void (MOSS_CALL* Moss_DialogFileCallback)(void* userdata, const char* const* filelist, int filter);
 //! @brief Callback invoked once per entry while iterating a directory. @param info Metadata for the current path entry. @param path Full path of the current entry. @param user_data User data pointer passed through from the iterate call.
-using Moss_DirectoryIterateFn = bool (*)(const Moss_PathInfo* info, const char* path, void* user_data);
+typedef bool (*Moss_DirectoryIterateFn)(const Moss_PathInfo* info, const char* path, void* user_data);
 //! @brief Callback invoked once per entry while enumerating a directory. @param info Metadata for the current path entry. @param path Full path of the current entry. @param user_data User data pointer passed through from the enumerate call.
-using Moss_EnumerateDirectoryCallback = bool (*)(const Moss_PathInfo* info, const char* path, void* user_data);
+typedef bool (*Moss_EnumerateDirectoryCallback)(const Moss_PathInfo* info, const char* path, void* user_data);
 
 /*! @brief Initialization of Moss. Must be called before anything else. @param X X. @ingroup Moss */
 //MOSS_API bool Moss_Init();
@@ -1066,7 +1066,25 @@ MOSS_API void Moss_ShowOpenFileDialog(Moss_DialogFileCallback callback, void* us
 MOSS_API void Moss_ShowSaveFileDialog(Moss_FileDialogType type, Moss_DialogFileCallback callback, void* userdata, Moss_PropertiesID props);
 
 
-enum Moss_GlobFlags;
+enum class Moss_GlobFlags : uint32_t {
+    None              = 0,
+    
+    // Core search configurations
+    Recursive         = 1 << 0,  // Search child directories recursively (often triggered by '**')
+    CaseInsensitive   = 1 << 1,  // Ignore matching casing ('*.png' matches 'IMAGE.PNG')
+    
+    // Filter controls
+    FilesOnly         = 1 << 2,  // Only return file paths, omit directory names
+    DirectoriesOnly   = 1 << 3,  // Only return directory names, omit file paths
+    IncludeHidden     = 1 << 4,  // Include system/hidden objects (e.g., '.DS_Store', '.git')
+    
+    // Safety & Validation
+    FollowSymlinks    = 1 << 5,  // Resolve and traverse symbolic links
+    FailOnError       = 1 << 6   // Instantly halt search/return null if access permissions fail
+};
+
+inline Moss_GlobFlags operator|(Moss_GlobFlags a, Moss_GlobFlags b) { return static_cast<Moss_GlobFlags>(static_cast<unsigned int>(a) | static_cast<unsigned int>(b)); }
+inline Moss_GlobFlags operator&(Moss_GlobFlags a, Moss_GlobFlags b) { return static_cast<Moss_GlobFlags>(static_cast<unsigned int>(a) & static_cast<unsigned int>(b)); }
 
 MOSS_API bool Moss_CloseStorage(Moss_Storage* storage);
 MOSS_API bool Moss_CopyStorageFile(Moss_Storage* storage, const char *oldpath, const char* newpath);

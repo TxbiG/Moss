@@ -1,4 +1,6 @@
+
 #include "renderer_gl.h"
+
 
 // Compatibility
 
@@ -26,6 +28,47 @@ void RendererGL::Initialize(ApplicationWindow* inWindow) override {
 		glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 }
 
+// Mobile
+bool Moss_CreateRenderer(Moss_Renderer* renderer, Moss_Window* window) {
+    renderer->window = window;
+
+    // 1. Create OpenGL ES context (platform-specific)
+    if (!CreateGLESContext(window)) {
+        return false;
+    }
+
+    // 2. Make context current
+    MakeContextCurrent(window);
+
+    // 3. Query device info
+    renderer->deviceInfo.vendor   = (const char*)glGetString(GL_VENDOR);
+    renderer->deviceInfo.renderer = (const char*)glGetString(GL_RENDERER);
+    renderer->deviceInfo.version  = (const char*)glGetString(GL_VERSION);
+
+    // 4. Setup default GL state
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+    glDisable(GL_CULL_FACE);
+    glDisable(GL_DEPTH_TEST);
+
+    // 5. Create persistent resources
+    CreateDefaultShaders(renderer);
+    CreateDefaultBuffers(renderer);
+    CreateDefaultTextures(renderer);
+
+    return true;
+}
+
+
+void Moss_TerminateRenderer(Moss_Renderer* renderer) {
+    DestroyShaders(renderer);
+    DestroyBuffers(renderer);
+    DestroyTextures(renderer);
+
+    DestroyGLESContext(renderer->window);
+}
+
 bool RendererGL::BeginFrame(const CameraState& inCamera, float inWorldScale) override {
 	mInFrame = true;
 	mCameraState = inCamera;
@@ -40,6 +83,25 @@ bool RendererGL::BeginFrame(const CameraState& inCamera, float inWorldScale) ove
 	glViewport(0, 0, mWindow->GetWidth(), mWindow->GetHeight());
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+	/*
+	Moss_WindowGetFramebufferSize(r->window, &width, &height);
+
+    glViewport(0, 0, renderer->window->width, renderer->window->height);
+
+    glBindFramebuffer(GL_FRAMEBUFFER, 0); // Default framebuffer
+
+    glClearColor(renderer->clearColor.r, renderer->clearColor.g, renderer->clearColor.b, renderer->clearColor.a);
+
+    GLbitfield clearMask = GL_COLOR_BUFFER_BIT;
+
+    if (r->enableDepthTest) {
+        glEnable(GL_DEPTH_TEST);
+        clearMask |= GL_DEPTH_BUFFER_BIT;
+    }
+
+    glClear(clearMask);
+	*/
+
 	return true;
 }
 
@@ -51,6 +113,9 @@ void RendererGL::EndFrame() override {
 	mInFrame = false;
 
 	mWindow->SwapBuffers(); // Assuming this wraps glfwSwapBuffers or similar
+
+	glFlush(); // optional
+    SwapBuffers(renderer->window); // eglSwapBuffers / CAEAGLLayer / Android
 }
 
 void RendererGL::SetProjectionMode() override {

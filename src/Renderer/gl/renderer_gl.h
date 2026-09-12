@@ -1,8 +1,14 @@
 #ifndef MOSS_RENDERER_INTERNAL_H
 #define MOSS_RENDERER_INTERNAL_H
 
+
+#ifdef MOSS_GRAPHICS_OPENGL
+#include <Moss/external/glad/gl/glad.h>
+#elif MOSS_GRAPHICS_OPENGLES
+#include <Moss/external/glad/gles/glad.h>
+#endif
 #include "../renderer_intern.h"
-#include <Moss/external/glad.h>
+
 
 struct Moss_Renderer {
     Moss_Window* window;
@@ -247,4 +253,104 @@ struct Moss_GPUCommandBuffer {
     Moss_GPUDevice* device;
     bool recording;
 };
+
+
+
+/*
+struct Moss_Renderer {
+    Moss_Window* window;
+
+    // -------------------------------------------------
+    // Renderer identity
+    // -------------------------------------------------
+    RendererType rendererType;        // Mobile
+    GraphicsBackend backend;          // GLES / Vulkan / Metal
+    uint32_t frameIndex;
+    uint32_t framesInFlight;
+
+    // -------------------------------------------------
+    // Resolution & scaling
+    // -------------------------------------------------
+    uint32_t outputWidth;
+    uint32_t outputHeight;
+
+    uint32_t internalWidth;           // For upscaling
+    uint32_t internalHeight;
+
+    // -------------------------------------------------
+    // Anti-aliasing / Upscaling
+    // -------------------------------------------------
+    AntiAliasing aaMode;
+    bool enableFSR1;
+    float fsrSharpness;
+
+    // History index (used by TAA / FSR2 later)
+    uint32_t historyIndex;
+
+    // -------------------------------------------------
+    // Render targets (API-agnostic)
+    // -------------------------------------------------
+    Moss_Framebuffer* mainFramebuffer;        // Scene render target
+    Moss_Framebuffer* resolveFramebuffer;     // MSAA resolve
+    Moss_Framebuffer* fsrFramebuffer;         // FSR intermediate
+
+    Moss_TextureView* mainColor;
+    Moss_TextureView* mainDepth;
+    Moss_TextureView* motionVectors;          // optional
+    Moss_TextureView* historyColor[2];        // ping-pong
+
+    // -------------------------------------------------
+    // Pipelines
+    // -------------------------------------------------
+    Moss_PipelineState* fullscreenPipeline;   // blit / post
+    Moss_PipelineState* fsrEASUPipeline;
+    Moss_PipelineState* fsrRCASPipeline;
+
+    // -------------------------------------------------
+    // Resource binding
+    // -------------------------------------------------
+    Moss_ResourceSet* globalSet;     // camera, time, frame data
+    Moss_ResourceSet* materialSet;   // per-material bindings
+
+    // -------------------------------------------------
+    // Post-processing
+    // -------------------------------------------------
+    PostProcessingPipeline postPipeline;
+
+    // -------------------------------------------------
+    // Render graph (optional but recommended)
+    // -------------------------------------------------
+    Moss_RenderGraph* renderGraph;
+
+    // -------------------------------------------------
+    // Render state defaults
+    // -------------------------------------------------
+    bool enableDepthTest;
+    bool enableAlphaBlending;
+    bool enableCullFace;
+
+    // -------------------------------------------------
+    // Backend
+    // -------------------------------------------------
+    EGLContext context;
+    EGLSurface surface;
+
+    GLuint defaultVAO;
+
+    struct {
+        GLuint fbo;
+        GLuint color;
+        GLuint depth;
+    } main;
+
+    struct {
+        GLuint fbo;
+        GLuint color;
+    } fsr;
+
+    GLuint fsrEASUProgram;
+    GLuint fsrRCASProgram;
+};
+
+*/
 #endif // MOSS_RENDERER_INTERNAL_H

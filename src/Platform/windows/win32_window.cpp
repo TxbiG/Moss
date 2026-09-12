@@ -1,5 +1,4 @@
-#include <wingdi.h>
-#include <dwmapi.h>
+
 
 #ifdef MOSS_USE_VULKAN
 #include <vulkan/vulkan.h>
@@ -13,8 +12,6 @@ ID3D11DeviceContext* context;
 IDXGISwapChain* swapChain;
 #endif
 
-#include "win32_platform.h"
-
 // TODO: convert YUYV (Linux) or RGB32 (Windows) into consistent format (like RGB24)
 // Video capture frames report their native pixel layout through Moss_VideoCaptureFrame::format.
 
@@ -26,7 +23,8 @@ static HHOOK g_keyboardHook = NULL;
 static HWND g_keyboardGrabWindow = NULL;
 LRESULT CALLBACK KeyboardGrabProc(int nCode, WPARAM wParam, LPARAM lParam);
 #ifdef MOSS_USE_OPENGL
-
+#include <Moss/external/glad/gl/glad.h>
+#include <GL/gl.h>
 typedef HGLRC (WINAPI *PFN_wglCreateContext)(HDC hdc);
 typedef BOOL  (WINAPI *PFN_wglDeleteContext)(HGLRC hglrc);
 typedef PROC  (WINAPI *PFN_wglGetProcAddress)(LPCSTR lpszProc);
@@ -36,8 +34,7 @@ typedef BOOL  (WINAPI *PFN_wglMakeCurrent)(HDC hdc, HGLRC hglrc);
 typedef BOOL  (WINAPI *PFN_wglShareLists)(HGLRC hglrc1, HGLRC hglrc2);
 typedef BOOL (WINAPI * PFNWGLSWAPINTERVALEXTPROC) (int interval);
 
-typedef struct _libraryWGL
-{
+typedef struct _libraryWGL {
     HINSTANCE                           instance;
     PFN_wglCreateContext                CreateContext;
     PFN_wglDeleteContext                DeleteContext;
@@ -64,7 +61,7 @@ typedef struct _libraryWGL
     bool                            ARB_create_context_robustness;
     bool                            ARB_create_context_no_error;
     bool                            ARB_context_flush_control;
-} _libraryWGL;
+};
 
 #define WGL_DRAW_TO_WINDOW_ARB           0x2001
 #define WGL_SUPPORT_OPENGL_ARB           0x2010
@@ -93,8 +90,17 @@ typedef BOOL (WINAPI *PFNWGLCHOOSEPIXELFORMATARBPROC)(HDC hdc, const int *piAttr
 #ifndef PFNWGLSWAPINTERVALEXTPROC
 typedef BOOL (APIENTRY *PFNWGLSWAPINTERVALEXTPROC)(int interval);
 static PFNWGLSWAPINTERVALEXTPROC wglSwapIntervalEXT = NULL;
-
 #endif // PFNWGLSWAPINTERVALEXTPROC
+
+
+#define WIN32_LEAN_AND_MEAN
+#define NOMINMAX
+#include <windows.h>
+
+#include <wingdi.h>
+#include <dwmapi.h>
+
+#include "win32_platform.h"
 
 static HDC dc;
 

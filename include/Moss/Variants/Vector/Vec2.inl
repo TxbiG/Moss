@@ -110,7 +110,7 @@ Vec2 Vec2::Zero()
 #if defined(MOSS_SIMD_SSE)
 	return _mm_setzero_ps();
 #elif defined(MOSS_SIMD_NEON)
-	return vdupq_n_f32(0);
+	return vdup_n_f32(0);
 #else
 	return Vec2(0, 0);
 #endif
@@ -121,7 +121,7 @@ Vec2 Vec2::Replicate(float inV)
 #if defined(MOSS_SIMD_SSE)
 	return _mm_set1_ps(inV);
 #elif defined(MOSS_SIMD_NEON)
-	return vdupq_n_f32(inV);
+	return vdup_n_f32(inV);
 #else
 	return Vec2(inV, inV);
 #endif
@@ -391,7 +391,7 @@ Vec2 Vec2::operator / (float inV2) const
 #if defined(MOSS_SIMD_SSE)
 	return _mm_div_ps(mValue, _mm_set1_ps(inV2));
 #elif defined(MOSS_SIMD_NEON)
-	return vdivq_f32(mValue, vdupq_n_f32(inV2));
+	return vdivq_f32(mValue, vdup_n_f32(inV2));
 #else
 	return Vec2(mF32[0] / inV2, mF32[1] / inV2, mF32[2] / inV2);
 #endif
@@ -434,7 +434,7 @@ Vec2 &Vec2::operator /= (float inV2)
 #if defined(MOSS_SIMD_SSE)
 	mValue = _mm_div_ps(mValue, _mm_set1_ps(inV2));
 #elif defined(MOSS_SIMD_NEON)
-	mValue = vdivq_f32(mValue, vdupq_n_f32(inV2));
+	mValue = vdivq_f32(mValue, vdup_n_f32(inV2));
 #else
 	for (int i = 0; i < 3; ++i)
 		mF32[i] /= inV2;
@@ -478,7 +478,7 @@ Vec2 Vec2::operator - () const
 	return _mm_sub_ps(_mm_setzero_ps(), mValue);
 #elif defined(MOSS_SIMD_NEON)
 	#ifdef MOSS_CROSS_PLATFORM_DETERMINISTIC
-		return vsubq_f32(vdupq_n_f32(0), mValue);
+		return vsubq_f32(vdup_n_f32(0), mValue);
 	#else
 		return vnegq_f32(mValue);
 	#endif
@@ -612,9 +612,9 @@ Vec2 Vec2::DotV(const Vec2 inV2) const
 #if defined(MOSS_SIMD_SSE4_1)
 	return _mm_dp_ps(mValue, inV2.mValue, 0x7f);
 #elif defined(MOSS_SIMD_NEON)
-	float32x4_t mul = vmulq_f32(mValue, inV2.mValue);
+	float32x2_t mul = vmulq_f32(mValue, inV2.mValue);
 	mul = vsetq_lane_f32(0, mul, 3);
-	return vdupq_n_f32(vaddvq_f32(mul));
+	return vdup_n_f32(vaddvq_f32(mul));
 #else
 	float dot = 0.0f;
 	for (int i = 0; i < 3; i++)
@@ -628,9 +628,9 @@ Vec4 Vec2::DotV4(const Vec2 inV2) const
 #if defined(MOSS_SIMD_SSE4_1)
 	return _mm_dp_ps(mValue, inV2.mValue, 0x7f);
 #elif defined(MOSS_SIMD_NEON)
-	float32x4_t mul = vmulq_f32(mValue, inV2.mValue);
+	float32x2_t mul = vmulq_f32(mValue, inV2.mValue);
 	mul = vsetq_lane_f32(0, mul, 3);
-	return vdupq_n_f32(vaddvq_f32(mul));
+	return vdup_n_f32(vaddvq_f32(mul));
 #else
 	float dot = 0.0f;
 	for (int i = 0; i < 3; i++)
@@ -644,7 +644,7 @@ float Vec2::Dot(const Vec2 inV2) const
 #if defined(MOSS_SIMD_SSE4_1)
 	return _mm_cvtss_f32(_mm_dp_ps(mValue, inV2.mValue, 0x7f));
 #elif defined(MOSS_SIMD_NEON)
-	float32x4_t mul = vmulq_f32(mValue, inV2.mValue);
+	float32x2_t mul = vmulq_f32(mValue, inV2.mValue);
 	mul = vsetq_lane_f32(0, mul, 3);
 	return vaddvq_f32(mul);
 #else
@@ -660,7 +660,7 @@ float Vec2::LengthSq() const
 #if defined(MOSS_SIMD_SSE4_1)
 	return _mm_cvtss_f32(_mm_dp_ps(mValue, mValue, 0x7f));
 #elif defined(MOSS_SIMD_NEON)
-	float32x4_t mul = vmulq_f32(mValue, mValue);
+	float32x2_t mul = vmulq_f32(mValue, mValue);
 	mul = vsetq_lane_f32(0, mul, 3);
 	return vaddvq_f32(mul);
 #else
@@ -676,7 +676,7 @@ float Vec2::Length() const
 #if defined(MOSS_SIMD_SSE4_1)
 	return _mm_cvtss_f32(_mm_sqrt_ss(_mm_dp_ps(mValue, mValue, 0x7f)));
 #elif defined(MOSS_SIMD_NEON)
-	float32x4_t mul = vmulq_f32(mValue, mValue);
+	float32x2_t mul = vmulq_f32(mValue, mValue);
 	mul = vsetq_lane_f32(0, mul, 3);
 	float32x2_t sum = vdup_n_f32(vaddvq_f32(mul));
 	return vget_lane_f32(vsqrt_f32(sum), 0);
@@ -701,9 +701,9 @@ Vec2 Vec2::Normalized() const
 #if defined(MOSS_SIMD_SSE4_1)
 	return _mm_div_ps(mValue, _mm_sqrt_ps(_mm_dp_ps(mValue, mValue, 0x7f)));
 #elif defined(MOSS_SIMD_NEON)
-	float32x4_t mul = vmulq_f32(mValue, mValue);
+	float32x2_t mul = vmulq_f32(mValue, mValue);
 	mul = vsetq_lane_f32(0, mul, 3);
-	float32x4_t sum = vdupq_n_f32(vaddvq_f32(mul));
+	float32x2_t sum = vdup_n_f32(vaddvq_f32(mul));
 	return vdivq_f32(mValue, vsqrtq_f32(sum));
 #else
 	return *this / Length();
@@ -724,11 +724,11 @@ Vec2 Vec2::NormalizedOr(const Vec2 inZeroValue) const
 	return _mm_blendv_ps(_mm_div_ps(mValue, _mm_sqrt_ps(len_sq)), inZeroValue.mValue, is_zero);
 #endif // MOSS_FLOATING_POINT_EXCEPTIONS_ENABLED
 #elif defined(MOSS_SIMD_NEON)
-	float32x4_t mul = vmulq_f32(mValue, mValue);
+	float32x2_t mul = vmulq_f32(mValue, mValue);
 	mul = vsetq_lane_f32(0, mul, 3);
-	float32x4_t sum = vdupq_n_f32(vaddvq_f32(mul));
-	float32x4_t len = vsqrtq_f32(sum);
-	uint32x4_t is_zero = vceqq_f32(len, vdupq_n_f32(0));
+	float32x2_t sum = vdup_n_f32(vaddvq_f32(mul));
+	float32x2_t len = vsqrtq_f32(sum);
+	uint32x4_t is_zero = vceqq_f32(len, vdup_n_f32(0));
 	return vbslq_f32(is_zero, inZeroValue.mValue, vdivq_f32(mValue, len));
 #else
 	float len_sq = LengthSq();
@@ -845,8 +845,8 @@ Vec2 Vec2::GetSign() const
 	Type one = _mm_set1_ps(1.0f);
 	return _mm_or_ps(_mm_and_ps(mValue, minus_one), one);
 #elif defined(MOSS_SIMD_NEON)
-	Type minus_one = vdupq_n_f32(-1.0f);
-	Type one = vdupq_n_f32(1.0f);
+	Type minus_one = vdup_n_f32(-1.0f);
+	Type one = vdup_n_f32(1.0f);
 	return vreinterpretq_f32_u32(vorrq_u32(vandq_u32(vreinterpretq_u32_f32(mValue), vreinterpretq_u32_f32(minus_one)), vreinterpretq_u32_f32(one)));
 #else
 	return Vec2(std::signbit(mF32[0])? -1.0f : 1.0f, std::signbit(mF32[1])? -1.0f : 1.0f);
