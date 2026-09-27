@@ -21,7 +21,8 @@ public:
 
 	/* 			Operators		*/
 	Float3&	operator = (const Float3 &inRHS) = default;
-	//float	operator [] (int inCoordinate) const { MOSS_ASSERT(inCoordinate < 3); return *(&x + inCoordinate); }
+	MOSS_INLINE float &operator[](int inCoordinate) { MOSS_ASSERT(inCoordinate >= 0 && inCoordinate < 3); return (&x)[inCoordinate]; }
+	MOSS_INLINE float operator[](int inCoordinate) const { MOSS_ASSERT(inCoordinate >= 0 && inCoordinate < 3); return (&x)[inCoordinate]; }
 	bool	operator == (const Float3 &inRHS) const { return x == inRHS.x && y == inRHS.y && z == inRHS.z; }
 	bool	operator != (const Float3 &inRHS) const { return x != inRHS.x || y != inRHS.y || z != inRHS.z; }
 	inline Float3 operator-() const { return Float3{-x, -y, -z}; }

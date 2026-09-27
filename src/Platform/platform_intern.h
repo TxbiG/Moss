@@ -224,27 +224,24 @@ struct Moss_Storage {
 };
 
 struct Moss_Gamepad {
-    /*
-    uint32_t index;
-    Moss_GamepadBackend backend;
-    bool connected;
-    void* backend_handle;
-    Moss_Joystick *joystick _guarded; // underlying joystick device
-    int ref_count _guarded;
-    */
-    Moss_GamepadAxis *joystick _guarded; // underlying joystick device
-    int ref_count _guarded;
+    uint32_t index = 0;
+    Moss_GamepadBackend backend = Moss_GamepadBackend::UNKNOWN;
+    bool connected = false;
+    void* backend_handle = nullptr;
 
-    const char *name _guarded;
-    Moss_GamepadType type _guarded;
-    GamepadMapping_t *mapping _guarded;
-    int num_bindings _guarded;
-    Moss_GamepadBinding *bindings _guarded;
-    Moss_GamepadBinding **last_match_axis _guarded;
-    uint8_t *last_hat_mask _guarded;
-    uint64_t guide_button_down _guarded;
+    int ref_count = 0;
 
-    struct Moss_Gamepad *next _guarded; // pointer to next gamepad we have allocated
+    const char* name = nullptr;
+    Moss_GamepadType type = Moss_GamepadType::UNKNOWN;
+
+    GamepadMapping_t* mapping = nullptr;
+    int num_bindings = 0;
+    Moss_GamepadBinding* bindings = nullptr;
+    Moss_GamepadBinding** last_match_axis = nullptr;
+    uint8_t* last_hat_mask = nullptr;
+    uint64_t guide_button_down = 0;
+
+    Moss_Gamepad* next = nullptr;
 };
 
 struct Moss_GamepadBinding {

@@ -37,7 +37,7 @@ Comprehensive documentation is available in the [`docs/`](./docs) directory:
 * Platform backend architecture
 * Performance guidelines
 
-- [API cheatsheet](docs/API_Cheatsheet.md)
+- [API cheatsheet](docs/Cheatsheet.md.md)
 - [Roadmap](docs/roadmap.md)
 
 
@@ -57,10 +57,10 @@ Comprehensive documentation is available in the [`docs/`](./docs) directory:
 - [C - CMoss](https://github.com/TxbiG/CMoss)
 - [C# - MossSharp](https://github.com/TxbiG/MossSharp)
 - [Rust - MossRS](https://github.com/TxbiG/CMoss)
-- [Java - JavaMoss](https://github.com/TxbiG/CMoss)
-- [JavaScript - MossScript](https://github.com/TxbiG/CMoss)
-- [Lua - LuaMoss](https://github.com/TxbiG/CMoss)
-- [Python - PyMoss](https://github.com/TxbiG/CMoss)
+- [Java - JavaMoss](https://github.com/TxbiG/JavaMoss)
+- [JavaScript - MossJS](https://github.com/TxbiG/MossJS)
+- [Lua - LuaMoss](https://github.com/TxbiG/LuaMoss)
+- [Python - PyMoss](https://github.com/TxbiG/PyMoss)
 
 ## Compiling
 - CMake 3.20 or newer.

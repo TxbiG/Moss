@@ -47,7 +47,7 @@ public:
 	MOSS_INLINE Mat33			operator * (float inV) const {
 		Mat33 result;
 		for (int c = 0; c < 3; ++c) { result.mCol[c] = mCol[c] * inV; }
-		return result
+		return result;
 	}
 	friend MOSS_INLINE Mat33	operator * (float inV, const Mat33  inM)					{ return inM * inV; }
 

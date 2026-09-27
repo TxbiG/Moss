@@ -1,4 +1,10 @@
 
+#define WIN32_LEAN_AND_MEAN
+#define NOMINMAX
+#include <windows.h>
+
+#include <wingdi.h>
+#include <dwmapi.h>
 
 #ifdef MOSS_USE_VULKAN
 #include <vulkan/vulkan.h>
@@ -91,14 +97,6 @@ typedef BOOL (WINAPI *PFNWGLCHOOSEPIXELFORMATARBPROC)(HDC hdc, const int *piAttr
 typedef BOOL (APIENTRY *PFNWGLSWAPINTERVALEXTPROC)(int interval);
 static PFNWGLSWAPINTERVALEXTPROC wglSwapIntervalEXT = NULL;
 #endif // PFNWGLSWAPINTERVALEXTPROC
-
-
-#define WIN32_LEAN_AND_MEAN
-#define NOMINMAX
-#include <windows.h>
-
-#include <wingdi.h>
-#include <dwmapi.h>
 
 #include "win32_platform.h"
 

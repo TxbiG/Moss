@@ -296,7 +296,17 @@ bool Moss_EnumerateDirectory(const char* path, bool recursive, Moss_DirectoryIte
         char full[MAX_PATH];
         wsprintfA(full, "%s\\%s", path, fd.cFileName);
 
-        callback(full, user_data);
+        Moss_PathInfo info = {};
+        info.type = (fd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) ? Moss_PathType::DIRECTORY : Moss_PathType::FILE;
+
+        info.size = ((uint64_t)fd.nFileSizeHigh << 32) | fd.nFileSizeLow;
+
+        info.readable = true;
+        info.writable = (fd.dwFileAttributes & FILE_ATTRIBUTE_READONLY) == 0;
+        info.executable = false;
+
+        if (!callback(&info, full, user_data))
+            break;
 
         if (recursive && (fd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY))
             Moss_EnumerateDirectory(full, true, callback, user_data);

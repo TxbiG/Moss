@@ -28,6 +28,26 @@ void Moss_SetTriggerButtonThreshold(float threshold) { g_trigger_button_threshol
 static bool Moss_TriggerPressed(float value) { return value >= g_trigger_button_threshold; }
 /////////////////////////////////////
 
+
+static Moss_Gamepad g_gamepads[XUSER_MAX_COUNT] = {};
+static char g_hid_paths[XUSER_MAX_COUNT][512] = {};
+
+struct Moss_WinHIDGamepadHandle
+{
+    HANDLE device = INVALID_HANDLE_VALUE;
+    OVERLAPPED read_overlapped = {};
+    bool read_pending = false;
+    uint8_t input_report[128] = {};
+};
+
+static bool Moss_HIDPathAlreadyOpen(const char* path);
+static void Moss_UpdateHIDGamepad(Moss_Gamepad* gp);
+static void Moss_CloseWinHIDHandle(Moss_Gamepad* gp);
+static int Moss_FindFreeHIDSlot();
+static Moss_GamepadType Moss_SonyGamepadType(USHORT vendor_id, USHORT product_id);
+
+
+///////////////////////////////
 _frame g_frame {};
 INPUT_STATE io;
 
@@ -87,42 +107,48 @@ const uint16_t VirtualKeyMap[static_cast<int>(Keyboard::COUNT)] = {
 };
 static const uint8_t g_vk_mouse[Mouse::COUNT] = { VK_LBUTTON, VK_RBUTTON, VK_MBUTTON, VK_XBUTTON1, VK_XBUTTON2, 0,0,0 };
 
+static const GamepadAxis g_moss_to_raw_axis[static_cast<size_t>(GamepadAxis::COUNT)] = {
+    GamepadAxis::LEFT_X,
+    GamepadAxis::LEFT_Y,
+    GamepadAxis::RIGHT_X,
+    GamepadAxis::RIGHT_Y,
+    GamepadAxis::LEFT_TRIGGER,
+    GamepadAxis::RIGHT_TRIGGER,
+    GamepadAxis::TOUCHPAD_X,
+    GamepadAxis::TOUCHPAD_Y,
+    GamepadAxis::GYRO_X,
+    GamepadAxis::GYRO_Y,
+    GamepadAxis::GYRO_Z
+};
 
-static const Gamepad g_moss_to_gamepad_button[Moss_GamepadButton::COUNT] =
-{
-    /* INVALID */        Gamepad::GAMEPAD_BUTTON_LAST,
+static const Gamepad g_moss_to_raw_button[static_cast<size_t>(Moss_GamepadButton::COUNT)] = {
+    Gamepad::GAMEPAD_BUTTON_A,              // SOUTH
+    Gamepad::GAMEPAD_BUTTON_B,              // EAST
+    Gamepad::GAMEPAD_BUTTON_X,              // WEST
+    Gamepad::GAMEPAD_BUTTON_Y,              // NORTH
+    Gamepad::GAMEPAD_BUTTON_BACK,
+    Gamepad::GAMEPAD_BUTTON_GUIDE,
+    Gamepad::GAMEPAD_BUTTON_START,
+    Gamepad::GAMEPAD_BUTTON_LEFT_THUMB,
+    Gamepad::GAMEPAD_BUTTON_RIGHT_THUMB,
+    Gamepad::GAMEPAD_BUTTON_LEFT_BUMPER,
+    Gamepad::GAMEPAD_BUTTON_RIGHT_BUMPER,
+    Gamepad::GAMEPAD_BUTTON_DPAD_UP,
+    Gamepad::GAMEPAD_BUTTON_DPAD_DOWN,
+    Gamepad::GAMEPAD_BUTTON_DPAD_LEFT,
+    Gamepad::GAMEPAD_BUTTON_DPAD_RIGHT,
 
-    /* SOUTH */          Gamepad::GAMEPAD_BUTTON_A,
-    /* EAST */           Gamepad::GAMEPAD_BUTTON_B,
-    /* WEST */           Gamepad::GAMEPAD_BUTTON_X,
-    /* NORTH */          Gamepad::GAMEPAD_BUTTON_Y,
-
-    /* BACK */           Gamepad::GAMEPAD_BUTTON_BACK,
-    /* GUIDE */          Gamepad::GAMEPAD_BUTTON_GUIDE,
-    /* START */          Gamepad::GAMEPAD_BUTTON_START,
-
-    /* LEFT_STICK */     Gamepad::GAMEPAD_BUTTON_LEFT_THUMB,
-    /* RIGHT_STICK */    Gamepad::GAMEPAD_BUTTON_RIGHT_THUMB,
-
-    /* LEFT_SHOULDER */  Gamepad::GAMEPAD_BUTTON_LEFT_BUMPER,
-    /* RIGHT_SHOULDER */ Gamepad::GAMEPAD_BUTTON_RIGHT_BUMPER,
-
-    /* DPAD_UP */        Gamepad::GAMEPAD_BUTTON_DPAD_UP,
-    /* DPAD_DOWN */      Gamepad::GAMEPAD_BUTTON_DPAD_DOWN,
-    /* DPAD_LEFT */      Gamepad::GAMEPAD_BUTTON_DPAD_LEFT,
-    /* DPAD_RIGHT */     Gamepad::GAMEPAD_BUTTON_DPAD_RIGHT,
-
-    /* MISC1 */          Gamepad::GAMEPAD_BUTTON_LAST, // Share (not in XInput)
-    /* RIGHT_PADDLE1 */  Gamepad::GAMEPAD_BUTTON_LAST,
-    /* LEFT_PADDLE1 */   Gamepad::GAMEPAD_BUTTON_LAST,
-    /* RIGHT_PADDLE2 */  Gamepad::GAMEPAD_BUTTON_LAST,
-    /* LEFT_PADDLE2 */   Gamepad::GAMEPAD_BUTTON_LAST,
-    /* TOUCHPAD */       Gamepad::GAMEPAD_BUTTON_LAST,
-    /* MISC2 */          Gamepad::GAMEPAD_BUTTON_LAST,
-    /* MISC3 */          Gamepad::GAMEPAD_BUTTON_LAST,
-    /* MISC4 */          Gamepad::GAMEPAD_BUTTON_LAST,
-    /* MISC5 */          Gamepad::GAMEPAD_BUTTON_LAST,
-    /* MISC6 */          Gamepad::GAMEPAD_BUTTON_LAST,
+    Gamepad::GAMEPAD_BUTTON_LAST, // MISC1
+    Gamepad::GAMEPAD_BUTTON_LAST, // RIGHT_PADDLE1
+    Gamepad::GAMEPAD_BUTTON_LAST, // LEFT_PADDLE1
+    Gamepad::GAMEPAD_BUTTON_LAST, // RIGHT_PADDLE2
+    Gamepad::GAMEPAD_BUTTON_LAST, // LEFT_PADDLE2
+    Gamepad::GAMEPAD_BUTTON_LAST, // TOUCHPAD
+    Gamepad::GAMEPAD_BUTTON_LAST, // MISC2
+    Gamepad::GAMEPAD_BUTTON_LAST, // MISC3
+    Gamepad::GAMEPAD_BUTTON_LAST, // MISC4
+    Gamepad::GAMEPAD_BUTTON_LAST, // MISC5
+    Gamepad::GAMEPAD_BUTTON_LAST  // MISC6
 };
 
 static const GamepadAxis g_moss_to_gamepad_axis[GamepadAxis::COUNT] = {
@@ -134,11 +160,6 @@ static const GamepadAxis g_moss_to_gamepad_axis[GamepadAxis::COUNT] = {
     /* RIGHT_Y */        GamepadAxis::RIGHT_Y,
     /* LEFT_TRIGGER */   GamepadAxis::LEFT_TRIGGER,
     /* RIGHT_TRIGGER */  GamepadAxis::RIGHT_TRIGGER,
-};
-
-struct GamepadAxisConfig {
-    float deadzone;
-    bool invert;
 };
 
 static GamepadAxisConfig g_axis_config[static_cast<size_t>(GamepadAxis::COUNT)] = {
@@ -555,15 +576,6 @@ static const Gamepad g_moss_to_raw_button[static_cast<size_t>(Moss_GamepadButton
     Gamepad::GAMEPAD_BUTTON_LAST,
     Gamepad::GAMEPAD_BUTTON_LAST,
     Gamepad::GAMEPAD_BUTTON_LAST
-};
-
-static const GamepadAxis g_moss_to_raw_axis[static_cast<size_t>(GamepadAxis::COUNT)] = {
-    GamepadAxis::LEFT_X,
-    GamepadAxis::LEFT_Y,
-    GamepadAxis::RIGHT_X,
-    GamepadAxis::RIGHT_Y,
-    GamepadAxis::LEFT_TRIGGER,
-    GamepadAxis::RIGHT_TRIGGER
 };
 
 static Moss_GamepadType Moss_SonyGamepadType(USHORT vendor_id, USHORT product_id) {

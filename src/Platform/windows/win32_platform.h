@@ -184,13 +184,14 @@ struct _frame {
 extern _frame g_frame;
 
 struct GamepadState {
-    bool connected;
-    float axes[static_cast<int>(GamepadAxis::COUNT)];
-    uint8_t buttons[static_cast<int>(Gamepad::COUNT)];
-    uint8_t buttons_prev[static_cast<int>(Gamepad::COUNT)];
+    bool connected = false;
 
-    bool is_dualshock;
-    bool is_dualsense;
+    float axes[static_cast<size_t>(GamepadAxis::COUNT)] = {};
+    uint8_t buttons[static_cast<size_t>(Gamepad::COUNT)] = {};
+    uint8_t buttons_prev[static_cast<size_t>(Gamepad::COUNT)] = {};
+
+    bool is_dualshock = false;
+    bool is_dualsense = false;
 };
 
 struct GamepadAxisConfig {

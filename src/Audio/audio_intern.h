@@ -1,6 +1,8 @@
 #pragma once
 
 #include <Moss/Moss_Audio.h>
+#include <Moss/Moss_Physics.h>
+
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
@@ -69,24 +71,24 @@ struct AudioEffect{
     AudioEffect* next;
 };
 
-struct Wav::Wav_t {
-    // Metadata
-    uint32 riffChunkId;
-    uint32 riffChunkSize;
-    uint32 format;
-    uint32 formatChunkId;
-    uint32 formatChunkSize;
-    uint16 audioFormat;
-    uint16 numChannels;
-    uint32 sampleRate;
-    uint32 byteRate;
-    uint16 blockAlign;
-    uint16 bitsPerSample;
-    uint8 dataChunkId[4];
-    uint32 dataChunkSize;
+
+struct Wav {
+    uint32 riffChunkId = 0;
+    uint32 riffChunkSize = 0;
+    uint32 format = 0;
+    uint32 formatChunkId = 0;
+    uint32 formatChunkSize = 0;
+    uint16 audioFormat = 0;
+    uint16 numChannels = 0;
+    uint32 sampleRate = 0;
+    uint32 byteRate = 0;
+    uint16 blockAlign = 0;
+    uint16 bitsPerSample = 0;
+    uint8 dataChunkId[4] = {};
+    uint32 dataChunkSize = 0;
 
     // Raw PCM data
-    char* dataBegin;
+    char* dataBegin = nullptr;
 };
 
 
@@ -389,12 +391,13 @@ static void AudioEffectProcess_Highpass(float* samples, uint32_t frames, uint32_
 
 
 // --- Echo / Delay ---
-typedef struct {
+struct DelayState{
     float* buffer;
     uint32_t writePos;
     uint32_t size;
     float feedback;
-} DelayState;
+    float mix = 0.5f;
+};
 
 static void AudioEffectProcess_Delay(float* samples, uint32_t frames, uint32_t channels, void* userdata) {
     DelayState* state = (DelayState*)userdata;
@@ -433,7 +436,7 @@ static void AudioEffectProcess_Chorus(float* samples, uint32_t frames, uint32_t 
     for (uint32_t i = 0; i < frames * channels; i++) {
         samples[i] *= sinf(state->phase);
         state->phase += state->depth;
-        if (state->phase > 2.0f * M_PI) state->phase -= 2.0f * M_PI;
+        if (state->phase > 2.0f * MOSS_PI) state->phase -= 2.0f * MOSS_PI;
     }
 }
 
@@ -682,7 +685,7 @@ static void* AudioEffect_AllocateState(AudioEffectType type) {
 static AudioEffectProcess AudioEffect_GetProcess(AudioEffectType type) {
     switch(type) {
         case AudioEffectType::LOWPASS:     return AudioEffectProcess_Lowpass;
-        case AudioEffectType::HIGHTPASS:   return AudioEffectProcess_Highpass;
+        case AudioEffectType::HIGHPASS:   return AudioEffectProcess_Highpass;
         case AudioEffectType::NORMALIZE:   return AudioEffectProcess_Normalize;
         case AudioEffectType::DISTORTION:  return AudioEffectProcess_Distortion;
         case AudioEffectType::CHORUS:      return AudioEffectProcess_Chorus;
@@ -916,6 +919,12 @@ void CastMultiBounceRays2D(const SoundSource2D& src, const Listener2D& listener,
 
 
 /*! */
+bool CastAudioRay(const PhysicsSystem& physics, const Vec3& from, const Vec3& to, RayCastResult& outHit) {
+    RRayCast ray(from, to - from);
+    return physics.GetNarrowPhaseQuery().CastRay(ray, outHit);
+}
+
+/*! */
 void CastReflectionRays(const PhysicsSystem& physics, const SoundSource3D& src, const Listener3D& listener, std::vector<ReflectionHit>& outReflections) {
     RayCastResult hit;
     if (!CastAudioRay(physics, src.position, listener.position, hit)) return;
@@ -1066,12 +1075,6 @@ struct SoundSource3D {
     float baseVolume;
 };
 
-struct AudioResult
-{
-    float left;
-    float right;
-};
-
 struct ReflectionHit {
     Vec3 position;
     Vec3 direction;
@@ -1161,11 +1164,6 @@ float ComputeDoppler(const Vec3& srcVel, const Vec3& listenerVel, const SoundSou
     return std::clamp((speedOfSound + vls) / (speedOfSound + vss), 0.5f, 2.0f);
 }
 
-/*! */
-bool CastAudioRay(const PhysicsSystem& physics, const Vec3& from, const Vec3& to, RayCastResult& outHit) {
-    RRayCast ray(from, to - from);
-    return physics.GetNarrowPhaseQuery().CastRay(ray, outHit);
-}
 /*! */
 float ComputeOcclusion(const PhysicsSystem& physics, const SoundSource3D& src, const Listener3D& listener) {
     RayCastResult hit;

@@ -103,8 +103,10 @@ Building a Physics Engine with C++ and Simulating Machines - https://youtu.be/Tt
 #include <Moss/Variants/Vector/Vec2.h>
 #include <Moss/Variants/Vector/Vec3.h>
 #include <Moss/Variants/Vector/Vec4.h>
-#include <Moss/Variants/Matrix/Mat.h>
-
+#include <Moss/Variants/Matrix/Mat22.h>
+#include <Moss/Variants/Matrix/Mat33.h>
+#include <Moss/Variants/Matrix/Mat44.h>
+#include <Moss/Variants/Matrix/TMatrix.h>
 
 #define PHSICS_INVALID_COLLISION_GROUP_ID (~0U)
 #define PHSICS_INVALID_COLLISION_SUBGROUP_ID (~0U)
@@ -115,11 +117,11 @@ static constexpr uint8_t cBodyTypeCount = 2;
 
 class BodyID;
 class CharacterID;
-using uint32_t = SubShapeID;
-using uint32_t = ObjectLayer;
-using uint8_t = BroadPhaseLayer;
-using uint32_t = CollisionGroupID;
-using uint32_t = CollisionSubGroupID;
+using SubShapeID = uint32_t;
+using ObjectLayer = uint32_t;
+using BroadPhaseLayer = uint8_t;
+using CollisionGroupID = uint32_t;
+using CollisionSubGroupID = uint32_t;
 
 /* Forward declarations */
 typedef struct BroadPhaseLayerInterface				BroadPhaseLayerInterface;

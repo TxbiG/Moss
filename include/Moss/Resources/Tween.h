@@ -79,9 +79,9 @@ private:
 
     // Easings
     inline float Linear(float t) { return t; }
-    inline float SineEaseIn(float t) { return 1 - std::cos((t * M_PI) / 2); }
-    inline float SineEaseOut(float t) { return std::sin((t * M_PI) / 2); }
-    inline float SineEaseInOut(float t) { return -(std::cos(M_PI * t) - 1) / 2; }
+    inline float SineEaseIn(float t) { return 1 - std::cos((t * MOSS_PI) / 2); }
+    inline float SineEaseOut(float t) { return std::sin((t * MOSS_PI) / 2); }
+    inline float SineEaseInOut(float t) { return -(std::cos(MOSS_PI * t) - 1) / 2; }
 
     inline float QuadEaseIn(float t) { return t * t; }
     inline float QuadEaseOut(float t) { return t * (2 - t); }

@@ -511,7 +511,7 @@ Mesh* Moss_CreateCylinder()
     // Top circle
     vertices.insert(vertices.end(), {0.0f, height / 2.0f, 0.0f}); // Center
     for (int i = 0; i < segments; ++i) {
-        float theta = i * 2 * M_PI / segments;
+        float theta = i * 2 * MOSS_PI / segments;
         float x = radius * cos(theta);
         float z = radius * sin(theta);
         vertices.insert(vertices.end(), {x, height / 2.0f, z});
@@ -520,7 +520,7 @@ Mesh* Moss_CreateCylinder()
     // Bottom circle
     vertices.insert(vertices.end(), {0.0f, -height / 2.0f, 0.0f}); // Center
     for (int i = 0; i < segments; ++i) {
-        float theta = i * 2 * M_PI / segments;
+        float theta = i * 2 * MOSS_PI / segments;
         float x = radius * cos(theta);
         float z = radius * sin(theta);
         vertices.insert(vertices.end(), {x, -height / 2.0f, z});
@@ -564,12 +564,12 @@ Mesh Moss_CreateCapsule()
 
     // Top hemisphere
     for (int i = 0; i <= segments; ++i) {
-        float phi = M_PI / 2 - (i * M_PI / segments); // From pi/2 to 0
+        float phi = MOSS_PI / 2 - (i * MOSS_PI / segments); // From pi/2 to 0
         float y = radius * sin(phi);
         float r = radius * cos(phi);
 
         for (int j = 0; j <= segments; ++j) {
-            float theta = j * 2 * M_PI / segments;
+            float theta = j * 2 * MOSS_PI / segments;
             float x = r * cos(theta);
             float z = r * sin(theta);
 
@@ -582,7 +582,7 @@ Mesh Moss_CreateCapsule()
         float y = height / 2.0f - (i * height);
 
         for (int j = 0; j <= segments; ++j) {
-            float theta = j * 2 * M_PI / segments;
+            float theta = j * 2 * MOSS_PI / segments;
             float x = radius * cos(theta);
             float z = radius * sin(theta);
 
@@ -592,12 +592,12 @@ Mesh Moss_CreateCapsule()
 
     // Bottom hemisphere
     for (int i = 0; i <= segments; ++i) {
-        float phi = M_PI - (i * M_PI / segments); // From pi to pi/2
+        float phi = MOSS_PI - (i * MOSS_PI / segments); // From pi to pi/2
         float y = radius * sin(phi);
         float r = radius * cos(phi);
 
         for (int j = 0; j <= segments; ++j) {
-            float theta = j * 2 * M_PI / segments;
+            float theta = j * 2 * MOSS_PI / segments;
             float x = r * cos(theta);
             float z = r * sin(theta);
 

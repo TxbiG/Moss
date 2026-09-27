@@ -58,9 +58,13 @@ option(USE_TZCNT "Enable TZCNT" ON)
 option(USE_F16C "Enable F16C" ON)
 option(USE_FMADD "Enable FMADD" ON)
 
+
+option(MOSS_BUILD_WEBASSEMBLY "Build Moss for WebAssembly using Emscripten" OFF)
+
 # Enable SIMD for the WASM build. Note that this is currently off by default since not all browsers support this.
 # See: https://caniuse.com/?search=WebAssembly%20SIMD (Safari got support in March 2023 and was the last major browser to get support).
 option(USE_WASM_SIMD "Enable SIMD for WASM" OFF)
+
 
 # Enable 64 bit WASM instead of the default 32 bit WASM. Note that this currently requires special commandline flags in browsers and nodejs to enable.
 # E.g. use 'node --experimental-wasm-memory64 UnitTests.js' to run the unit tests in nodejs in 64 bit.
@@ -92,16 +96,16 @@ option(PROFILER_IN_DISTRIBUTION "Enable the profiler in all builds" OFF)
 # Ability to use the external profiler using CMake config. Defines preprocessor JPH_EXTERNAL_PROFILE.
 # Use external profiler set using ProfileStartMeasurement and ProfileEndMeasurement to profile.
 # Option is available only when profiling is enabled using PROFILER_IN_DEBUG_AND_RELEASE or PROFILER_IN_DISTRIBUTION.
-option(JPH_USE_EXTERNAL_PROFILE "Use external profiler when profiling is enabled" OFF)
+option(MOSS_USE_EXTERNAL_PROFILE "Use external profiler when profiling is enabled" OFF)
 
 # Setting this option will force the library to use malloc/free instead of allowing the user to override the memory allocator
-option(DISABLE_CUSTOM_ALLOCATOR "Disable support for a custom memory allocator" OFF)
+option(MOSS_DISABLE_CUSTOM_ALLOCATOR "Disable support for a custom memory allocator" OFF)
 
 # Setting this option will force the library to use the STL vector instead of the custom Array class
 option(USE_STD_VECTOR "Use std::vector instead of own Array class" OFF)
 
 # Setting this option will compile the ObjectStream class and RTTI attribute information
-option(ENABLE_OBJECT_STREAM "Compile the ObjectStream class and RTTI attribute information" ON)
+option(MOSS_ENABLE_OBJECT_STREAM "Compile the ObjectStream class and RTTI attribute information" ON)
 
 # Enable installation
 option(ENABLE_INSTALL "Generate installation target"  ON)
@@ -113,7 +117,7 @@ include(CMakeDependentOption)
 cmake_dependent_option(USE_STATIC_MSVC_RUNTIME_LIBRARY "Use the static MSVC runtime library" ON "MSVC;NOT WINDOWS_STORE" OFF)
 
 # Enable Vulkan instead of DirectX
-cmake_dependent_option(JPH_ENABLE_VULKAN "Enable Vulkan" ON "LINUX" OFF)
+cmake_dependent_option(USE_VULKAN "Enable Vulkan" ON "LINUX" OFF)
 
 option(ENABLE_DEBUG "Enable Debug" OFF)
 option(USE_WAYLAND "Use Wayland instead of X11 on Unix" OFF)
@@ -123,15 +127,23 @@ option(USE_WAYLAND "Use Wayland instead of X11 on Unix" OFF)
 set(Vulkan_INCLUDE_DIRS "C:/VulkanSDK/1.4.321.1/Include" CACHE PATH "Vulkan SDK include path")
 set(Vulkan_LIBRARIES "C:/VulkanSDK/1.4.321.1/Lib/vulkan-1.lib" CACHE FILEPATH "Vulkan SDK .lib file")
 
-if(WIN32)
-    option(USE_OPENGL "Enable OpenGL" ON)
+if(EMSCRIPTEN)
+    set(MOSS_USE_OPENGL OFF CACHE BOOL "Enable OpenGL" FORCE)
+    set(USE_VULKAN OFF CACHE BOOL "Enable Vulkan" FORCE)
+    set(USE_DIRECTX12 OFF CACHE BOOL "Enable DirectX 12" FORCE)
+    set(USE_METAL OFF CACHE BOOL "Enable Metal" FORCE)
+
+	# Moss is being built as a platform-independent WASM core.
+    # Browser functionality is provided by MossJS.
+elseif(WIN32)
+    option(MOSS_USE_OPENGL "Enable OpenGL" ON)
     option(USE_VULKAN "Enable Vulkan" OFF)
     option(USE_DIRECTX12 "Enable DirectX 12" OFF)
-elseif (UNIX AND NOT APPLE)
-    option(USE_OPENGL "Enable OpenGL" OFF)
+elseif(UNIX AND NOT APPLE)
+    option(MOSS_USE_OPENGL "Enable OpenGL" OFF)
     option(USE_VULKAN "Enable Vulkan" ON)
-elseif (APPLE)
-    option(USE_OPENGL "Enable OpenGL" OFF)
+elseif(APPLE)
+    option(MOSS_USE_OPENGL "Enable OpenGL" OFF)
     option(USE_METAL "Enable Metal" ON)
 endif()
 
@@ -288,10 +300,18 @@ else()
 	endif()
 
 	# Set compiler flags for various configurations
-	if (OVERRIDE_CXX_FLAGS)
-		set(CMAKE_CXX_FLAGS_DEBUG "")
-		set(CMAKE_CXX_FLAGS_RELEASE "-O3")
-	endif()
+	if(EMSCRIPTEN)
+		if(OVERRIDE_CXX_FLAGS)
+			set(CMAKE_CXX_FLAGS_DEBUG "-g")
+			set(CMAKE_CXX_FLAGS_RELEASE "-O3")
+		endif()
+	else()
+		if(OVERRIDE_CXX_FLAGS)
+			set(CMAKE_CXX_FLAGS_DEBUG "")
+			set(CMAKE_CXX_FLAGS_RELEASE "-O3")
+		endif()
+
+endif()
 	set(CMAKE_CXX_FLAGS_DISTRIBUTION "${CMAKE_CXX_FLAGS_RELEASE}")
 	set(CMAKE_CXX_FLAGS_RELEASEASAN "-fsanitize=address")
 	set(CMAKE_CXX_FLAGS_RELEASEUBSAN "-fsanitize=undefined,implicit-conversion,float-divide-by-zero,local-bounds -fno-sanitize-recover=all")
@@ -328,17 +348,39 @@ function(SET_INTERPROCEDURAL_OPTIMIZATION)
 endfunction()
 
 
-if (MOSS_USE_OPENGL)
-    message(STATUS "Configuring OpenGL support")
-    # find_package(OpenGL REQUIRED) or custom OpenGL setup
+# WebAssembly / Emscripten
+if(MOSS_BUILD_WEBASSEMBLY)
+
+    if(NOT EMSCRIPTEN)
+        message(FATAL_ERROR "MOSS_BUILD_WEBASSEMBLY requires the Emscripten toolchain. " "Configure with: emcmake cmake -S . -B build-wasm")
+    endif()
+
+    add_compile_definitions(MOSS_PLATFORM_WASM)
+
+    # WebAssembly does not use native x86 CPU instruction sets.
+    set(USE_SSE4_1 OFF CACHE BOOL "Enable SSE4.1" FORCE)
+    set(USE_SSE4_2 OFF CACHE BOOL "Enable SSE4.2" FORCE)
+    set(USE_AVX OFF CACHE BOOL "Enable AVX" FORCE)
+    set(USE_AVX2 OFF CACHE BOOL "Enable AVX2" FORCE)
+    set(USE_AVX512 OFF CACHE BOOL "Enable AVX512" FORCE)
+    set(USE_LZCNT OFF CACHE BOOL "Enable LZCNT" FORCE)
+    set(USE_TZCNT OFF CACHE BOOL "Enable TZCNT" FORCE)
+    set(USE_F16C OFF CACHE BOOL "Enable F16C" FORCE)
+    set(USE_FMADD OFF CACHE BOOL "Enable FMADD" FORCE)
 endif()
 
-if (MOSS_USE_VULKAN)
+
+if (MOSS_USE_OPENGL AND NOT EMSCRIPTEN)
+    message(STATUS "Configuring OpenGL support")
+	# find_package(OpenGL REQUIRED) or custom OpenGL setup
+endif()
+
+if (MOSS_USE_VULKAN AND NOT EMSCRIPTEN)
     message(STATUS "Configuring Vulkan support")
     find_package(Vulkan REQUIRED)
 endif()
 
-if (MOSS_USE_METAL)
+if (MOSS_USE_METAL AND NOT EMSCRIPTEN)
     message(STATUS "Configuring Metal support")
     # Apple-specific setup (e.g. link Metal.framework)
     set(CMAKE_OSX_SYSROOT macosx)
@@ -347,14 +389,16 @@ if (MOSS_USE_METAL)
     set(EXTRA_LIBS ${EXTRA_LIBS} ${METAL_FRAMEWORK} ${METALKIT_FRAMEWORK})
 endif()
 
-if (MOSS_USE_DIRECTX12)
+if (MOSS_USE_DIRECTX12 AND NOT EMSCRIPTEN)
     message(STATUS "Configuring DirectX 12 support")
     # DX12 typically requires linking against d3d12.lib and dxgi.lib
     set(EXTRA_LIBS ${EXTRA_LIBS} d3d12 dxgi)
 endif()
 
-SET_INTERPROCEDURAL_OPTIMIZATION()
 
+if(NOT EMSCRIPTEN)
+    SET_INTERPROCEDURAL_OPTIMIZATION()
+endif()
 # Set repository root
 set(REPO_ROOT ${CMAKE_CURRENT_SOURCE_DIR})
 

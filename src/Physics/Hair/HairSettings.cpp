@@ -2,7 +2,7 @@
 // SPDX-FileCopyrightText: 2026 Jorrit Rouwe
 // SPDX-License-Identifier: MIT
 
-#include <Moss/Physics/Hair/HairSettings.h>
+#include <Moss/Physics/Hair/Hair.h>
 #include <Moss/ObjectStream/TypeDeclarations.h>
 #include <Moss/Geometry/ClosestPoint.h>
 #include <Moss/TriangleSplitter/TriangleSplitterBinning.h>

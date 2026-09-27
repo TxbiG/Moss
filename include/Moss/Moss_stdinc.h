@@ -665,7 +665,7 @@ MOSS_SUPPRESS_WARNINGS_STD_BEGIN
 #endif
 
 // SIMD includes
-#if defined(MOSS_SIMD_SSEEEE)
+#if defined(MOSS_SIMD_SSEE)
 #include <immintrin.h>
 #elif defined(MOSS_SIMD_NEON)
 	#ifdef MOSS_COMPILER_MSVC

@@ -51,24 +51,33 @@ file(GLOB_RECURSE MOSS_HEADER_FILES CONFIGURE_DEPENDS
 file(GLOB_RECURSE MOSS_SRC_FILES CONFIGURE_DEPENDS
 	"${MOSS_ROOT}/Physics/*.cpp"
 	"${MOSS_ROOT}/TriangleSplitter/*.cpp"
-	"${MOSS_ROOT}/XR/*.cpp"
+	#"${MOSS_ROOT}/Navigation/*.cpp"
 )
 
-# Generic audio backend (non-platform-specific). Non-recursive glob so it
-# doesn't reach into Audio/xaudio, Audio/linux, Audio/macos.
-file(GLOB MOSS_AUDIO_GENERIC_FILES CONFIGURE_DEPENDS
-	"${MOSS_ROOT}/Audio/*.cpp"
-)
-list(APPEND MOSS_SRC_FILES ${MOSS_AUDIO_GENERIC_FILES})
+# OpenXR is a native platform/runtime integration.
+# WebXR is implemented by MossJS.
+if(NOT EMSCRIPTEN)
+    file(GLOB_RECURSE MOSS_XR_FILES CONFIGURE_DEPENDS
+        "${MOSS_ROOT}/XR/*.cpp"
+    )
+    list(APPEND MOSS_SRC_FILES ${MOSS_XR_FILES})
 
-# Files that exist on disk but should stay out of the build (mirrors what
-# was previously commented out). Add to this list instead of re-commenting
-# entries in a hand-written file list.
-set(MOSS_EXCLUDED_SRC_FILES
-	"${MOSS_ROOT}/Renderer/GL/PipelineStateGL.h"
-	"${MOSS_ROOT}/Renderer/GL/PipelineStateGL.cpp"
-)
 
+	# Generic audio backend (non-platform-specific). Non-recursive glob so it
+	# doesn't reach into Audio/xaudio, Audio/linux, Audio/macos.
+	file(GLOB MOSS_AUDIO_GENERIC_FILES CONFIGURE_DEPENDS
+		"${MOSS_ROOT}/Audio/*.cpp"
+	)
+	list(APPEND MOSS_SRC_FILES ${MOSS_AUDIO_GENERIC_FILES})
+
+	# Files that exist on disk but should stay out of the build (mirrors what
+	# was previously commented out). Add to this list instead of re-commenting
+	# entries in a hand-written file list.
+	set(MOSS_EXCLUDED_SRC_FILES
+		"${MOSS_ROOT}/Renderer/GL/PipelineStateGL.h"
+		"${MOSS_ROOT}/Renderer/GL/PipelineStateGL.cpp"
+	)
+endif()
 # Platform-specific sources
 if(WIN32)
 	file(GLOB_RECURSE MOSS_PLATFORM_FILES CONFIGURE_DEPENDS
@@ -83,16 +92,19 @@ if(WIN32)
 		${MOSS_PLATFORM_FILES}
 		${MOSS_AUDIO_PLATFORM_FILES}
 	)
+elseif(EMSCRIPTEN)
+	# Browser-specific platform/audio implementation lives in MossJS.
+    # Moss itself only builds its platform-independent/core code here.
 elseif(UNIX AND NOT APPLE) # catches Linux/FreeBSD
 	if(USE_WAYLAND)
 		file(GLOB_RECURSE MOSS_PLATFORM_FILES CONFIGURE_DEPENDS
 			"${MOSS_ROOT}/Platform/linux/wl_*.h"
-			"${MOSS_ROOT}/Platform/linux/wl_*.c"
+			"${MOSS_ROOT}/Platform/linux/wl_*.cpp"
 		)
 	else()
 		file(GLOB_RECURSE MOSS_PLATFORM_FILES CONFIGURE_DEPENDS
 			"${MOSS_ROOT}/Platform/linux/x11_*.h"
-			"${MOSS_ROOT}/Platform/linux/x11_*.c"
+			"${MOSS_ROOT}/Platform/linux/x11_*.cpp"
 		)
 	endif()
 
@@ -126,7 +138,11 @@ elseif(APPLE)
 endif()
 
 # Renderer backend sources (mutually exclusive - only one of these is built)
-if(USE_OPENGL)
+if(EMSCRIPTEN)
+
+    # Rendering is implemented by MossJS.
+    # Do not compile native renderer backends.
+elseif(MOSS_USE_OPENGL)
 	file(GLOB_RECURSE MOSS_RENDERER_FILES CONFIGURE_DEPENDS
 		"${MOSS_ROOT}/Renderer/GL/*.h"
 		"${MOSS_ROOT}/Renderer/GL/*.cpp"
@@ -198,7 +214,9 @@ target_include_directories(Moss PUBLIC $<BUILD_INTERFACE:${MOSS_ROOT}> $<BUILD_I
 # Link thirdparties
 set(MOSS_EXTERNAL_DIR ${REPO_ROOT}/external)
 
-file(GLOB MOSS_EXTERNAL_SUBDIRS RELATIVE ${MOSS_EXTERNAL_DIR} ${MOSS_EXTERNAL_DIR}/*)
+if(NOT EMSCRIPTEN)
+	file(GLOB MOSS_EXTERNAL_SUBDIRS RELATIVE ${MOSS_EXTERNAL_DIR} ${MOSS_EXTERNAL_DIR}/*)
+endif()
 
 foreach(SUBDIR ${MOSS_EXTERNAL_SUBDIRS})
     set(SUBDIR_PATH ${MOSS_EXTERNAL_DIR}/${SUBDIR})
@@ -220,11 +238,13 @@ if(WIN32)
 elseif(APPLE)
     find_library(COCOA_LIBRARY Cocoa)
     target_link_libraries(Moss PRIVATE ${COCOA_LIBRARY})
-elseif(UNIX)
+elseif(UNIX AND NOT EMSCRIPTEN)
     target_link_libraries(Moss PRIVATE X11 GL pthread)
+elseif(EMSCRIPTEN)
+    # Browser platform functionality is provided by MossJS.
 endif()
 
-if(USE_OPENGL OR USE_OPENGLES)
+if((MOSS_USE_OPENGL OR USE_OPENGLES) AND NOT EMSCRIPTEN)
     if(USE_OPENGLES)
         target_compile_definitions(Moss PUBLIC MOSS_USE_OPENGLES)
     else()
@@ -280,7 +300,7 @@ if(USE_OPENGL OR USE_OPENGLES)
 	endif()
 endif()
 
-if(USE_VULKAN)
+if(USE_VULKAN AND NOT EMSCRIPTEN)
 	find_package(Vulkan REQUIRED)
 	target_compile_definitions(Moss PUBLIC MOSS_USE_VULKAN)
 	target_include_directories(Moss PUBLIC ${Vulkan_INCLUDE_DIRS})
@@ -342,12 +362,14 @@ if(USE_METAL AND APPLE)
 	target_compile_options(Moss PRIVATE "$<$<COMPILE_LANGUAGE:OBJCXX>:-fobjc-arc>")
 endif()
 
-if (CMAKE_GENERATOR STREQUAL "Ninja Multi-Config" AND MSVC)
-	# The Ninja Multi-Config generator errors out when selectively disabling precompiled headers for certain configurations.
-	# See: https://github.com/jrouwe/JoltPhysics/issues/1211
-	target_precompile_headers(Moss PRIVATE "${MOSS_ROOT_INCLUDE}/Moss.h")
-else()
-	target_precompile_headers(Moss PRIVATE "$<$<NOT:$<CONFIG:ReleaseCoverage>>:${MOSS_ROOT_INCLUDE}/Moss.h>")
+if(NOT EMSCRIPTEN)
+	if (CMAKE_GENERATOR STREQUAL "Ninja Multi-Config" AND MSVC)
+		# The Ninja Multi-Config generator errors out when selectively disabling precompiled headers for certain configurations.
+		# See: https://github.com/jrouwe/JoltPhysics/issues/1211
+		target_precompile_headers(Moss PRIVATE "${MOSS_ROOT_INCLUDE}/Moss.h")
+	else()
+		target_precompile_headers(Moss PRIVATE "$<$<NOT:$<CONFIG:ReleaseCoverage>>:${MOSS_ROOT_INCLUDE}/Moss.h>")
+	endif()
 endif()
 
 # Set the debug/non-debug build flags
@@ -364,7 +386,7 @@ endif()
 
 
 # Setting the disable custom allocator flag
-if (DISABLE_CUSTOM_ALLOCATOR)
+if (MOSS_DISABLE_CUSTOM_ALLOCATOR)
 	target_compile_definitions(Moss PUBLIC MOSS_DISABLE_CUSTOM_ALLOCATOR)
 endif()
 
@@ -413,7 +435,7 @@ endif()
 if (MOSS_USE_EXTERNAL_PROFILE)
 	set(MOSS_PROFILE_DEFINE MOSS_EXTERNAL_PROFILE)
 else()
-	set(MOSS_PROFILE_DEFINE MOSSH_PROFILE_ENABLED)
+	set(MOSS_PROFILE_DEFINE MOSS_PROFILE_ENABLED)
 endif()
 if (PROFILER_IN_DISTRIBUTION)
 	target_compile_definitions(Moss PUBLIC "${MOSS_PROFILE_DEFINE}")
@@ -476,7 +498,11 @@ else()
 		# ARM64 uses no special commandline flags
 	elseif (EMSCRIPTEN)
 		if (USE_WASM_SIMD)
-			# Jolt currently doesn't implement the WASM specific SIMD intrinsics so uses the SSE 4.2 intrinsics
+			# Enable WebAssembly SIMD.
+        	#
+        	# Moss currently uses SSE4.2 intrinsics in parts of its SIMD
+        	# implementation. Emscripten translates these to WebAssembly SIMD
+        	# when -msimd128 is enabled.
 			# See: https://emscripten.org/docs/porting/simd.html#webassembly-simd-intrinsics
 			# Note that this does not require the browser to actually support SSE 4.2 it merely means that it can translate those instructions to WASM SIMD instructions
 			target_compile_options(Moss PUBLIC -msimd128 -msse4.2)

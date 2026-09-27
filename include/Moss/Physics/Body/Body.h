@@ -3,6 +3,16 @@
 #include <Moss/Core/HashCombine.h>
 #include <Moss/Core/Mutex.h>
 #include <Moss/Core/MutexArray.h>
+#include <Moss/Core/Reference.h>
+#include <Moss/Core/Result.h>
+#include <Moss/Core/StreamIn.h>
+#include <Moss/Core/StreamOut.h>
+#include <Moss/Core/StreamUtils.h>
+
+#include <Moss/Physics/Collision/CollisionGroup.h>
+#include <Moss/Physics/Collision/ObjectLayer.h>
+#include <Moss/Physics/Collision/PhysicsMaterial.h>
+#include <Moss/Physics/Collision/Shape/Shape.h>
 
 MOSS_SUPPRESS_WARNINGS_END
 
@@ -377,10 +387,10 @@ public:
 	/// Restore body creation settings, its shape, materials and group filter. Pass in an empty map in ioShapeMap / ioMaterialMap / ioGroupFilterMap or reuse the same map while reading multiple shapes from the same stream in order to restore duplicates.
 	static BCSResult		sRestoreWithChildren(StreamIn &inStream, IDToShapeMap &ioShapeMap, IDToMaterialMap &ioMaterialMap, IDToGroupFilterMap &ioGroupFilterMap);
 
-	RVec3					mPosition = RVec3::sZero();										///< Position of the body (not of the center of mass)
-	Quat					mRotation = Quat::sIdentity();									///< Rotation of the body
-	Vec3					mLinearVelocity = Vec3::sZero();								///< World space linear velocity of the center of mass (m/s)
-	Vec3					mAngularVelocity = Vec3::sZero();								///< World space angular velocity (rad/s)
+	RVec3					mPosition = RVec3::Zero();										///< Position of the body (not of the center of mass)
+	Quat					mRotation = Quat::Identity();									///< Rotation of the body
+	Vec3					mLinearVelocity = Vec3::Zero();								///< World space linear velocity of the center of mass (m/s)
+	Vec3					mAngularVelocity = Vec3::Zero();								///< World space angular velocity (rad/s)
 
 	/// User data value (can be used by application)
 	uint64					mUserData = 0;
@@ -1322,7 +1332,7 @@ public:
 	float mMass = 0.0f;
 
 	// Inertia tensor of the shape (kg m^2)
-	Mat44 mInertia = Mat44::sZero();
+	Mat44 mInertia = Mat44::Zero();
 };
 
 

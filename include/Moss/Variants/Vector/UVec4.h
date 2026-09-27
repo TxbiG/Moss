@@ -206,6 +206,16 @@ public:
 		return inStream;
 	}
 
+	MOSS_INLINE uint32 operator[](int inCoordinate) const {
+    	MOSS_ASSERT(inCoordinate >= 0 && inCoordinate < 4);
+		switch (inCoordinate) {
+			case 0: return GetX();
+			case 1: return GetY();
+			case 2: return GetZ();
+			default: return GetW();
+		}
+	}
+
 	union
 	{
 		Type					mValue;
