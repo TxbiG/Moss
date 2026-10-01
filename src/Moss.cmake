@@ -211,9 +211,8 @@ endif()
 target_include_directories(Moss PUBLIC $<BUILD_INTERFACE:${MOSS_ROOT}> $<BUILD_INTERFACE:${MOSS_PUBLIC_INCLUDE_DIR}> $<INSTALL_INTERFACE:include>)
 
 
-set(MOSS_GLAD_DIR"${CMAKE_SOURCE_DIR}/external/glad")
-target_include_directories(Moss PRIVATE "${MOSS_GLAD_DIR}/include" )
-target_sources(Moss PRIVATE "${MOSS_GLAD_DIR}/src/gl.c")
+set(MOSS_GLAD_DIR" ${CMAKE_SOURCE_DIR}/external/glad")
+target_include_directories(Moss PRIVATE "${MOSS_GLAD_DIR}/include")
 
 # Link thirdparties
 set(MOSS_EXTERNAL_DIR ${REPO_ROOT}/external)
