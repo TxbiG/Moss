@@ -179,12 +179,6 @@ add_library(Moss ${MOSS_SRC_FILES})
 add_library(Moss::Moss ALIAS Moss)
 
 
-
-if((MOSS_RENDERER_OPENGL OR MOSS_BUILD_OPENGL) NOT EMSCRIPTEN)
-set(MOSS_GLAD_DIR" ${CMAKE_SOURCE_DIR}/external/glad")
-target_include_directories(Moss PRIVATE "${MOSS_GLAD_DIR}/include")
-endif()
-
 if (BUILD_SHARED_LIBS)
 	# Set default visibility to hidden
 	set(CMAKE_CXX_VISIBILITY_PRESET hidden)
@@ -217,20 +211,25 @@ endif()
 
 target_include_directories(Moss PUBLIC $<BUILD_INTERFACE:${MOSS_ROOT}> $<BUILD_INTERFACE:${MOSS_PUBLIC_INCLUDE_DIR}> $<INSTALL_INTERFACE:include>)
 
-foreach(SUBDIR ${MOSS_EXTERNAL_SUBDIRS})
-    set(SUBDIR_PATH ${MOSS_EXTERNAL_DIR}/${SUBDIR})
-    if(IS_DIRECTORY ${SUBDIR_PATH})
-        if(EXISTS ${SUBDIR_PATH}/CMakeLists.txt)
-            message(STATUS "external/${SUBDIR}: has CMakeLists.txt, adding as subdirectory")
-            add_subdirectory(${SUBDIR_PATH})
-        elseif(EXISTS ${SUBDIR_PATH}/include)
-            message(STATUS "external/${SUBDIR}: header-only, adding include dir")
-            target_include_directories(Moss PRIVATE ${SUBDIR_PATH}/include)
-        else()
-            message(STATUS "external/${SUBDIR}: no CMakeLists.txt or include/ found, skipping (handle manually if needed)")
-        endif()
+set(MOSS_EXTERNAL_DIR
+    "${REPO_ROOT}/external"
+    CACHE PATH "Moss external dependencies"
+)
+
+if((MOSS_USE_OPENGL OR USE_OPENGLES) AND NOT EMSCRIPTEN AND EXISTS "${MOSS_EXTERNAL_DIR}/glad")
+    set(MOSS_GLAD_DIR "${MOSS_EXTERNAL_DIR}/glad")
+    file(GLOB_RECURSE MOSS_GLAD_SOURCES CONFIGURE_DEPENDS "${MOSS_GLAD_DIR}/src/*.c" "${MOSS_GLAD_DIR}/src/*.cpp")
+
+    if(MOSS_GLAD_SOURCES)
+        add_library(Moss_GLAD STATIC ${MOSS_GLAD_SOURCES})
+        add_library(Moss::GLAD ALIAS Moss_GLAD)
+        target_include_directories(Moss_GLAD PUBLIC "${MOSS_GLAD_DIR}/include")
+        target_link_libraries(Moss PRIVATE Moss::GLAD)
+    else()
+        target_include_directories(Moss PRIVATE "${MOSS_GLAD_DIR}/include")
+
     endif()
-endforeach()
+endif()
 
 if(WIN32)
     target_link_libraries(Moss PRIVATE user32 gdi32)
@@ -238,7 +237,8 @@ elseif(APPLE)
     find_library(COCOA_LIBRARY Cocoa)
     target_link_libraries(Moss PRIVATE ${COCOA_LIBRARY})
 elseif(UNIX AND NOT EMSCRIPTEN)
-    target_link_libraries(Moss PRIVATE X11 GL pthread)
+	find_package(Threads REQUIRED)
+    target_link_libraries(Moss PRIVATE Threads::Threads)
 elseif(EMSCRIPTEN)
     # Browser platform functionality is provided by MossJS.
 endif()
