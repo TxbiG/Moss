@@ -5,7 +5,6 @@
 #pragma once
 
 #include <Moss/Variants/Math/MathTypes.h>
-
 MOSS_SUPPRESS_WARNINGS_BEGIN
 
 /// Holds a 4x4 matrix of floats, but supports also operations on the 3x3 upper left part of the matrix.
@@ -19,13 +18,13 @@ public:
     Mat22() = default;
 
     MOSS_INLINE Mat22(float m00, float m01, float m10, float m11) : m(m00, m01, m10, m11) {}
-    MOSS_INLINE Mat22(const Vec2 &c0, const Vec2 &c1) : m(c0.x, c1.x, c0.y, c1.y) {}
+    MOSS_INLINE Mat22(const Vec2 &c0, const Vec2 &c1) : m(c0.GetX(), c1.GetX(), c0.GetY(), c1.GetY()) {}
 
     static MOSS_INLINE Mat22 sZero() { return Mat22(0.0f, 0.0f, 0.0f, 0.0f); }
 
     static MOSS_INLINE Mat22 Identity() { return Mat22(1.0f, 0.0f, 0.0f, 1.0f); }
 
-    static MOSS_INLINE Mat22 sNaN() { return Mat22(JPH_NAN, JPH_NAN, JPH_NAN, JPH_NAN); }
+    static MOSS_INLINE Mat22 sNaN() { return Mat22(MOSS_NAN, MOSS_NAN, MOSS_NAN, MOSS_NAN); }
 
     MOSS_INLINE float Determinant() const { return m.GetX() * m.GetW() - m.GetY() * m.GetZ();}
 
@@ -39,7 +38,7 @@ public:
     }
 
     MOSS_INLINE Vec2 operator * (const Vec2 &v) const {
-        Vec4 xy(v.x, v.y, v.x, v.y);
+        Vec4 xy(v.GetX(), v.GetY(), v.GetX(), v.GetY());
         Vec4 r = m * xy;
 
         return Vec2(r.GetX() + r.GetY(), r.GetZ() + r.GetW());

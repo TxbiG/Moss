@@ -118,11 +118,7 @@ typedef struct {
 } MicSourceData;
 
 
-uint32_t mic_read(
-    Moss_AudioSource* src,
-    float* out,
-    uint32_t frames
-) {
+uint32_t mic_read(Moss_AudioSource* src, float* out, uint32_t frames) {
     MicSourceData* data = (MicSourceData*)src->userdata;
 
     uint32_t available =
@@ -149,14 +145,7 @@ void mic_callback(void* user, const void* input, size_t bytes) {
     }
 }
 
-struct AudioStream2D::AudioStream2D_t {
-    AudioStream stream;
-    Vec2 position;
-    Vec3 velocity;
-    float maxDistance;
-};
-
-struct AudioStream2D::AudioStream2D_t {
+struct AudioStream2D_t {
     AudioStream stream;
     Vec2 position;
     Vec3 velocity;
@@ -190,7 +179,7 @@ struct RayAudioListener3D : public AudioListener3D {
 typedef void (*Moss_MicrophoneCallback)(void* user_data, const void* data, size_t size);
 
 Microphone* Moss_CreateMicrophone(Moss_MicrophoneCallback callback, void* user_data);
-void Moss_RemoveMicrophone(Microphone* mic);
+void Moss_RemoveMicrophone(Moss_Microphone* mic);
 
 
 void Audio_MixChannel(ChannelID id, float* buffer, uint32_t frames, uint32_t channels) {
@@ -198,7 +187,7 @@ void Audio_MixChannel(ChannelID id, float* buffer, uint32_t frames, uint32_t cha
     if (!ch || ch->muted) return;
 
     // 1. Effects
-    for (AudioEffect::AudioEffect_t* fx = ch->effects; fx; fx = fx->next)
+    for (AudioEffect_t* fx = ch->effects; fx; fx = fx->next)
         fx->process(buffer, frames, channels, fx->state);
 
     // 2. Volume

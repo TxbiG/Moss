@@ -29,7 +29,7 @@ static HHOOK g_keyboardHook = NULL;
 static HWND g_keyboardGrabWindow = NULL;
 LRESULT CALLBACK KeyboardGrabProc(int nCode, WPARAM wParam, LPARAM lParam);
 #ifdef MOSS_USE_OPENGL
-#include <Moss/external/glad/gl/glad.h>
+#include <glad/gl/glad.h>
 #include <GL/gl.h>
 typedef HGLRC (WINAPI *PFN_wglCreateContext)(HDC hdc);
 typedef BOOL  (WINAPI *PFN_wglDeleteContext)(HGLRC hglrc);

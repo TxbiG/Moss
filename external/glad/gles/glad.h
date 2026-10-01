@@ -1629,7 +1629,7 @@ GLAPI PFNGLGETINTERNALFORMATIVPROC glad_glGetInternalformativ;
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <glad/glad.h>
+#include <glad/gl/glad.h>
 
 struct gladGLversionStruct GLVersion = { 0, 0 };
 

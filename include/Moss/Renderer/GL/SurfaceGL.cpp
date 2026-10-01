@@ -1,5 +1,5 @@
 #include <Moss/Renderer/GL/SurfaceGL.h>
-#include <Moss/Renderer/GL/glad.h>
+#include <glad/gl/glad.h>
 
 // Vertex shader for color-only surface (uses uniform color)
 const char* vertexShaderSourceColor = R"(

@@ -95,9 +95,9 @@ struct INPUT_STATE {
 extern INPUT_STATE io;
 extern KeyState* keyboardState;
 
-using AcquireFrameFunc = Moss_CameraFrameResult(*)(Moss_Camera *device, Moss_Surface *frame, uint64_t *timestampNS, float *rotation);
+using AcquireFrameFunc = Moss_CameraFrameResult(*)(Moss_Capture *device, Moss_Surface *frame, uint64_t *timestampNS, float *rotation);
 
-struct Moss_Camera {
+struct Moss_Capture {
     // A mutex for locking
     Mutex *lock;
 
@@ -111,9 +111,9 @@ struct Moss_Camera {
     Moss_AtomicInt refcount;
 
     // These are, initially, set from camera_driver, but we might swap them out with Zombie versions on disconnect/failure.
-    bool (*WaitDevice)(Moss_Camera *device);
+    bool (*WaitDevice)(Moss_Capture *device);
     AcquireFrameFunc AcquireFrame;
-    void (*ReleaseFrame)(Moss_Camera *device, Moss_Surface *frame);
+    void (*ReleaseFrame)(Moss_Capture *device, Moss_Surface *frame);
 
     // All supported formats/dimensions for this device.
     Moss_CameraSpec *all_specs;

@@ -1,5 +1,5 @@
 #define GLAD_IMPLEMENTATION
-#include <Moss/Renderer/GL/glad.h>  // Leave this here
+#include <glad/gl/glad.h>  // Leave this here
 
 #ifdef MOSS_PLATFORM_WINDOWS
 #include <Moss/Platform/Windows/win32_platform.h>

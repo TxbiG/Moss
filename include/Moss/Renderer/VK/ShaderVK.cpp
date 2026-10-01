@@ -1,5 +1,5 @@
 #include <Moss/Renderer/Shader.h>
-#include <Moss/Renderer/gl/glad.h>
+#include <glad/gl/glad.h>
 
 #include <string>
 #include <fstream>

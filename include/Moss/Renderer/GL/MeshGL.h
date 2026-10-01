@@ -3,7 +3,7 @@
 
 #include <Moss/Moss_stdinc.h>
 #include <Moss/Renderer/GL/Renderer_GL.h>
-#include <Moss/Renderer/GL/glad.h>
+#include <glad/gl/glad.h>
 #include <vector>
 #include <memory>
 

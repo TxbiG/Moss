@@ -15,7 +15,7 @@
 
 #include <memory>
 
-#include <Moss/Renderer/GL/glad.h>
+#include <glad/gl/glad.h>
 
 #include <Moss/Moss_stdinc.h>
 #include <Moss/Moss_Platform.h>

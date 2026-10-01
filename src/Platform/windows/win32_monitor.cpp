@@ -138,30 +138,45 @@ void Moss_GetMonitorPosition(Moss_Monitor* monitor, int* x, int* y) {
     }
 }
 
-const char* Moss_GetMonitorName(Moss_Monitor* monitor) { return monitor->monitorInfo.szDevice; }
+const char* Moss_GetMonitorName(Moss_Monitor* monitor) { return monitor->displayDevice.DeviceName; }
 
 Moss_GammaRamp* Moss_GetGammaRamp(Moss_Monitor* monitor) {
-    Moss_GammaRamp* outRamp = new Moss_GammaRamp();
-    if (!outRamp) return NULL;  // allocation failed
+    if (!monitor) { return NULL; }
 
-    HDC hdc = CreateDCA(NULL, monitor->monitorInfo.szDevice, NULL, NULL);
-    if (!hdc) {
-        free(outRamp);
-        return NULL;
-    }
+    Moss_GammaRamp* outRamp = new (std::nothrow) Moss_GammaRamp{};
+    if (!outRamp) { return NULL; }
 
-    WORD tempRamp[3 * 256];
+    HDC hdc = CreateDCA(NULL, monitor->displayDevice.DeviceName, NULL, NULL);
+    if (!hdc) { delete outRamp; return NULL; }
+
+    WORD tempRamp[3 * 256]{};
+
     if (!GetDeviceGammaRamp(hdc, tempRamp)) {
-        free(outRamp);
         DeleteDC(hdc);
+        delete outRamp;
         return NULL;
     }
 
     outRamp->size = 256;
-    for (int i = 0; i < 256; i++) {
-        outRamp->red[i] = tempRamp[i];
-        outRamp->green[i] = tempRamp[256 + i];
-        outRamp->blue[i] = tempRamp[512 + i];
+
+    outRamp->red   = new (std::nothrow) uint8_t[outRamp->size];
+    outRamp->green = new (std::nothrow) uint8_t[outRamp->size];
+    outRamp->blue  = new (std::nothrow) uint8_t[outRamp->size];
+
+    if (!outRamp->red || !outRamp->green || !outRamp->blue) {
+        delete[] outRamp->red;
+        delete[] outRamp->green;
+        delete[] outRamp->blue;
+        delete outRamp;
+        DeleteDC(hdc);
+        return NULL;
+    }
+
+    for (uint32_t i = 0; i < outRamp->size; ++i) {
+        // Convert Windows' 16-bit gamma values to Moss' 8-bit range.
+        outRamp->red[i]   = static_cast<uint8_t>(tempRamp[i] >> 8);
+        outRamp->green[i] = static_cast<uint8_t>(tempRamp[256 + i] >> 8);
+        outRamp->blue[i]  = static_cast<uint8_t>(tempRamp[512 + i] >> 8);
     }
 
     DeleteDC(hdc);
@@ -169,51 +184,45 @@ Moss_GammaRamp* Moss_GetGammaRamp(Moss_Monitor* monitor) {
 }
 
 void Moss_SetGammaRamp(Moss_Monitor* monitor, const Moss_GammaRamp* gammaRamp) {
-    if (!gammaRamp || gammaRamp->size != 256U) {
-        return; // Invalid input
-    }
+    if (!monitor || !gammaRamp) { return; }
+    if (gammaRamp->size != 256U) { return; }
+    if (!gammaRamp->red || !gammaRamp->green || !gammaRamp->blue) { return; }
 
-    HDC hdc = CreateDCA("DISPLAY", monitor->monitorInfo.szDevice, NULL, NULL);
-    if (!hdc) return;
+    HDC hdc = CreateDCA("DISPLAY", monitor->displayDevice.DeviceName, NULL, NULL);
 
-    WORD ramp[3 * 256]; // Windows expects RGB WORD arrays packed together
+    if (!hdc) { return; }
 
-    for (int i = 0; i < 256; ++i) {
-        ramp[i]         = gammaRamp->red[i];
-        ramp[256 + i]   = gammaRamp->green[i];
-        ramp[512 + i]   = gammaRamp->blue[i];
+    WORD ramp[3][256]{};
+
+    for (uint32_t i = 0; i < 256; ++i) {
+        ramp[0][i] = static_cast<WORD>(gammaRamp->red[i]) * 257;
+        ramp[1][i] = static_cast<WORD>(gammaRamp->green[i]) * 257;
+        ramp[2][i] = static_cast<WORD>(gammaRamp->blue[i]) * 257;
     }
 
     SetDeviceGammaRamp(hdc, ramp);
-
     DeleteDC(hdc);
 }
 
 void Moss_SetGamma(Moss_Monitor* monitor, float gamma) {
-    if (gamma <= 0.0f) return; // Invalid gamma
-
-    // Get device context for the monitor's device name
+    if (!monitor || gamma <= 0.0f) {  return; }
     HDC hdc = CreateDCA("DISPLAY", monitor->displayDevice.DeviceName, NULL, NULL);
-    if (!hdc) return;
+    if (!hdc)
+        return;
 
-    WORD gammaRamp[3][256];
+    WORD gammaRamp[3][256]{};
 
-    // Fill the gamma ramp
-    for (int i = 0; i < 256; i++) {
-        // Normalize i to [0,1]
-        float normalized = i / 255.0f;
-        // Apply gamma correction
-        int val = (int)(powf(normalized, 1.0f / gamma) * 65535.0f + 0.5f);
+    for (int i = 0; i < 256; ++i) {
+        const float normalized = static_cast<float>(i) / 255.0f;
+        const float corrected = powf(normalized, 1.0f / gamma);
+        const int value = static_cast<int>(corrected * 65535.0f + 0.5f);
+        const WORD rampValue = static_cast<WORD>(value < 0 ? 0 : value > 65535 ? 65535 : value);
 
-        if (val > 65535) val = 65535;
-        if (val < 0) val = 0;
-
-        gammaRamp[0][i] = (WORD)val; // Red
-        gammaRamp[1][i] = (WORD)val; // Green
-        gammaRamp[2][i] = (WORD)val; // Blue
+        gammaRamp[0][i] = rampValue;
+        gammaRamp[1][i] = rampValue;
+        gammaRamp[2][i] = rampValue;
     }
 
-    // Set the gamma ramp
     SetDeviceGammaRamp(hdc, gammaRamp);
 
     DeleteDC(hdc);

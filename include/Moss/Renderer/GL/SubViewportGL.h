@@ -1,7 +1,7 @@
 #ifndef MOSS_SUBVIEWPORT_GL_H
 #define MOSS_SUBVIEWPORT_GL_H
 
-#include <Moss/Renderer/GL/glad.h>
+#include <glad/gl/glad.h>
 #include <Moss/Renderer/Camera2.h>
 #include <Moss/Renderer/Camera3.h>
 

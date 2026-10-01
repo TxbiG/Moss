@@ -3,7 +3,7 @@
 
 
 #include <Moss/Renderer/Shader.h>
-#include <Moss/Renderer/GL/glad.h>
+#include <glad/gl/glad.h>
 
 #include <Moss/Variants/Vector/Float2.h>
 #include <Moss/Variants/Vector/Float3.h>

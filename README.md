@@ -56,7 +56,7 @@ Comprehensive documentation is available in the [`docs/`](./docs) directory:
 # Bindings
 - [C - CMoss](https://github.com/TxbiG/CMoss)
 - [C# - MossSharp](https://github.com/TxbiG/MossSharp)
-- [Rust - MossRS](https://github.com/TxbiG/CMoss)
+- [Rust - MossRS](https://github.com/TxbiG/MossRS)
 - [Java - JavaMoss](https://github.com/TxbiG/JavaMoss)
 - [JavaScript - MossJS](https://github.com/TxbiG/MossJS)
 - [Lua - LuaMoss](https://github.com/TxbiG/LuaMoss)

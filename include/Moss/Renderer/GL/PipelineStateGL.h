@@ -3,7 +3,7 @@
 
 #include <vector>
 #include <Moss/Renderer/PipelineState.h>
-#include <Moss/Renderer/GL/glad.h>
+#include <glad/gl/glad.h>
 #include <Moss/Renderer/GL/ShaderGL.h>
 
 struct Moss_Renderer;

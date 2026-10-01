@@ -519,8 +519,9 @@ struct Moss_CameraSpec {
     int framerate_denominator;  // Frame rate demoninator ((num / denom) == FPS, (denom / num) == duration in seconds)
 };
 
-struct Moss_GammaRamp { 
-    uint8_t* size, red, green, blue; 
+struct Moss_GammaRamp {
+    uint32_t size;
+    uint8_t* red, green, blue; 
 };
 
 struct Moss_VideoMode { 

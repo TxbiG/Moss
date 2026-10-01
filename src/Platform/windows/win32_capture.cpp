@@ -7,7 +7,8 @@
 #define NOMINMAX
 #include <windows.h>
 #include <dshow.h>
-#include <objbase.h>
+#include <strmif.h>
+#include <uuids.h>
 #include <strmif.h>
 
 #pragma comment(lib, "strmiids.lib")
@@ -15,7 +16,7 @@
 
 struct Moss_Capture {
     IGraphBuilder* graph;
-    CLSID_CaptureGraphBuilder2* captureBuilder;
+    CLSID_CaptureGraphBuilder2* captureBuilder = nullptr;
     IMediaControl* mediaControl;
     IBaseFilter* videoCaptureFilter;
     IAMStreamConfig* streamConfig;
@@ -72,7 +73,7 @@ Moss_Capture* Moss_OpenCapture(Moss_CameraID captureID, const Moss_CameraSpec *s
     if (FAILED(hr)) {return NULL;}
 
     // Capture Graph Builder
-    hr = CoCreateInstance(CLSID_CaptureEngineBuilder, NULL, CLSCTX_INPROC_SERVER, IID_ICaptureGraphBuilder2, (void**)&cap->captureBuilder);
+    hr = CoCreateInstance(CLSID_CaptureGraphBuilder2, NULL, CLSCTX_INPROC_SERVER, IID_ICaptureGraphBuilder2, (void**)&cap->captureBuilder);
     if (FAILED(hr)) {return NULL;}
 
     cap->captureBuilder->SetFiltergraph(cap->graph);
