@@ -178,6 +178,13 @@ list(REMOVE_DUPLICATES MOSS_SRC_FILES)
 add_library(Moss ${MOSS_SRC_FILES})
 add_library(Moss::Moss ALIAS Moss)
 
+
+
+if(MOSS_RENDERER_OPENGL OR MOSS_BUILD_OPENGL)
+set(MOSS_GLAD_DIR" ${CMAKE_SOURCE_DIR}/external/")
+target_include_directories(Moss PRIVATE "${MOSS_GLAD_DIR}/glad")
+endif()
+
 if (BUILD_SHARED_LIBS)
 	# Set default visibility to hidden
 	set(CMAKE_CXX_VISIBILITY_PRESET hidden)
@@ -211,11 +218,6 @@ endif()
 target_include_directories(Moss PUBLIC $<BUILD_INTERFACE:${MOSS_ROOT}> $<BUILD_INTERFACE:${MOSS_PUBLIC_INCLUDE_DIR}> $<INSTALL_INTERFACE:include>)
 
 
-set(MOSS_GLAD_DIR" ${CMAKE_SOURCE_DIR}/external/glad")
-target_include_directories(Moss PRIVATE "${MOSS_GLAD_DIR}/include")
-
-# Link thirdparties
-set(MOSS_EXTERNAL_DIR ${REPO_ROOT}/external)
 
 if(NOT EMSCRIPTEN)
 	file(GLOB MOSS_EXTERNAL_SUBDIRS RELATIVE ${MOSS_EXTERNAL_DIR} ${MOSS_EXTERNAL_DIR}/*)

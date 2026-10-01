@@ -3,9 +3,9 @@
 
 
 #ifdef MOSS_GRAPHICS_OPENGL
-#include <glad/gl/glad.h>
+#include <gl/glad.h>
 #elif MOSS_GRAPHICS_OPENGLES
-#include <glad/gles/glad.h>
+#include <gles/glad.h>
 #endif
 #include "../renderer_intern.h"
 
