@@ -216,18 +216,27 @@ set(MOSS_EXTERNAL_DIR
     CACHE PATH "Moss external dependencies"
 )
 
+# Glad
 if((MOSS_USE_OPENGL OR USE_OPENGLES) AND NOT EMSCRIPTEN AND EXISTS "${MOSS_EXTERNAL_DIR}/glad")
     set(MOSS_GLAD_DIR "${MOSS_EXTERNAL_DIR}/glad")
-    file(GLOB_RECURSE MOSS_GLAD_SOURCES CONFIGURE_DEPENDS "${MOSS_GLAD_DIR}/src/*.c" "${MOSS_GLAD_DIR}/src/*.cpp")
+    target_include_directories(Moss PRIVATE "${MOSS_GLAD_DIR}")
+endif()
 
-    if(MOSS_GLAD_SOURCES)
-        add_library(Moss_GLAD STATIC ${MOSS_GLAD_SOURCES})
-        add_library(Moss::GLAD ALIAS Moss_GLAD)
-        target_include_directories(Moss_GLAD PUBLIC "${MOSS_GLAD_DIR}/include")
-        target_link_libraries(Moss PRIVATE Moss::GLAD)
-    else()
-        target_include_directories(Moss PRIVATE "${MOSS_GLAD_DIR}/include")
+# OpenXR
+if(MOSS_USE_OPENXR AND NOT EMSCRIPTEN AND EXISTS "${MOSS_EXTERNAL_DIR}/openxr")
+    set(MOSS_OPENXR_DIR "${MOSS_EXTERNAL_DIR}/openxr")
 
+    if(EXISTS "${MOSS_OPENXR_DIR}/include/openxr/openxr.h")
+        set(MOSS_OPENXR_INCLUDE_DIR "${MOSS_OPENXR_DIR}/include")
+    elseif(EXISTS "${MOSS_OPENXR_DIR}/openxr/openxr.h")
+        set(MOSS_OPENXR_INCLUDE_DIR "${MOSS_OPENXR_DIR}")
+    endif()
+
+    if(MOSS_OPENXR_INCLUDE_DIR)
+        target_include_directories(Moss
+            PRIVATE
+                "${MOSS_OPENXR_INCLUDE_DIR}"
+        )
     endif()
 endif()
 

@@ -151,15 +151,19 @@ static const Gamepad g_moss_to_raw_button[static_cast<size_t>(Moss_GamepadButton
     Gamepad::GAMEPAD_BUTTON_LAST  // MISC6
 };
 
-static const GamepadAxis g_moss_to_gamepad_axis[GamepadAxis::COUNT] = {
-    /* INVALID */        GamepadAxis::LEFT_X,
 
-    /* LEFT_X */         GamepadAxis::LEFT_X,
-    /* LEFT_Y */         GamepadAxis::LEFT_Y,
-    /* RIGHT_X */        GamepadAxis::RIGHT_X,
-    /* RIGHT_Y */        GamepadAxis::RIGHT_Y,
-    /* LEFT_TRIGGER */   GamepadAxis::LEFT_TRIGGER,
-    /* RIGHT_TRIGGER */  GamepadAxis::RIGHT_TRIGGER,
+static const GamepadAxis g_moss_to_gamepad_axis[ static_cast<size_t>(GamepadAxis::COUNT)] = {
+    GamepadAxis::LEFT_X,
+    GamepadAxis::LEFT_Y,
+    GamepadAxis::RIGHT_X,
+    GamepadAxis::RIGHT_Y,
+    GamepadAxis::LEFT_TRIGGER,
+    GamepadAxis::RIGHT_TRIGGER,
+    GamepadAxis::TOUCHPAD_X,
+    GamepadAxis::TOUCHPAD_Y,
+    GamepadAxis::GYRO_X,
+    GamepadAxis::GYRO_Y,
+    GamepadAxis::GYRO_Z
 };
 
 static GamepadAxisConfig g_axis_config[static_cast<size_t>(GamepadAxis::COUNT)] = {
@@ -267,8 +271,7 @@ bool Moss_IsKeyPressed(Keyboard key) { return io.keys[static_cast<size_t>(key)] 
 bool Moss_IsReleased(Keyboard key) { return io.keys[static_cast<size_t>(key)] == 0; }
 bool Moss_IsKeyJustPressed(Keyboard key) { return io.keys[static_cast<size_t>(key)] && !io.keys_prev[static_cast<size_t>(key)]; }
 bool Moss_IsKeyJustReleased(Keyboard key) { size_t i = static_cast<size_t>(key); return !io.keys[i] && io.keys_prev[i]; }
-Keyboard Moss_InputGetKey() { for (int i = 0; i < static_cast<int>(Keyboard::COUNT); ++i) if (io.keys[i]) return static_cast<Moss_Keyboard>(i); return Moss_Keyboard::COUNT; }
-
+Keyboard Moss_InputGetKey() { for (int i = 0; i < static_cast<int>(Keyboard::COUNT); ++i) { if (io.keys[i]) return static_cast<Keyboard>(i); } return Keyboard::COUNT; }
 bool Moss_IsMousePressed(Mouse button) { return io.mouse_buttons[static_cast<size_t>(button)] != 0; }
 bool Moss_IsMouseReleased(Mouse button) { return io.mouse_buttons[static_cast<size_t>(button)] == 0; }
 bool Moss_IsMouseJustPressed(Mouse button) { size_t i = static_cast<size_t>(button); return io.mouse_buttons[i] && !io.mouse_buttons_prev[i]; }
@@ -458,9 +461,8 @@ float Moss_GetGamepadAxis(Moss_Gamepad* gp, GamepadAxis axis) {
     return g_axis_config[i].invert ? -value : value;
 }
 
-void Moss_SetGamepadAxisDeadzone(GamepadAxis axis, float dz) { g_axis_config[(size_t)axis].deadzone = dz; }
-void Moss_SetGamepadAxisInverted(GamepadAxis axis, bool inverted) { g_axis_config[(size_t)axis].invert = inverted; }
-
+void Moss_SetGamepadAxisDeadzone(GamepadAxis axis, float dz) { if (static_cast<int>(axis) >= 0) g_axis_config[static_cast<size_t>(axis)].deadzone = dz; }
+void Moss_SetGamepadAxisInverted(GamepadAxis axis, bool inverted) { if (static_cast<int>(axis) >= 0) g_axis_config[static_cast<size_t>(axis)].invert = inverted; }
 
 // Rumble / LED
 bool Moss_RumbleGamepad(Moss_Gamepad* gp, uint16_t low, uint16_t high, uint32_t duration_ms) {
@@ -487,8 +489,6 @@ bool Moss_GamepadRumble(Moss_Gamepad* gp, float low_frequency, float high_freque
 bool Moss_RumbleGamepadTriggers(Moss_Gamepad* gp, uint16_t left, uint16_t right, uint32_t duration_ms) { (void)duration_ms; if (!gp || gp->backend != Moss_GamepadBackend::HID || !gp->backend_handle || gp->type != Moss_GamepadType::PS5) return false; uint8_t report[64]; size_t report_size = Moss_BuildDS5OutputReport(report, sizeof(report), 0, 0, 0, 0, 255, (uint8_t)(left >> 8), (uint8_t)(right >> 8)); return Moss_SendHIDReport(gp, report, report_size); }
 bool Moss_SetGamepadLED(Moss_Gamepad* gp, uint8_t r, uint8_t g, uint8_t b) { if (!gp || gp->backend != Moss_GamepadBackend::HID || !gp->backend_handle) return false; uint8_t report[64]; if (gp->type == Moss_GamepadType::PS4) { size_t report_size = Moss_BuildDS4OutputReport(report, sizeof(report), 0, 0, r, g, b); return Moss_SendHIDReport(gp, report, report_size); } if (gp->type == Moss_GamepadType::PS5) { size_t report_size = Moss_BuildDS5OutputReport(report, sizeof(report), 0, 0, r, g, b, 0, 0); return Moss_SendHIDReport(gp, report, report_size); } return false; }
 
-void Moss_SetGamepadAxisDeadzone(GamepadAxis axis, float dz) { if (static_cast<int>(axis) >= 0) g_axis_config[static_cast<size_t>(axis)].deadzone = dz; }
-void Moss_SetGamepadAxisInverted(GamepadAxis axis, bool inverted) { if (static_cast<int>(axis) >= 0) g_axis_config[static_cast<size_t>(axis)].invert = inverted; }
 
 // Metadata
 const char* Moss_GetGamepadName(Moss_Gamepad* gp) { return gp && gp->name ? gp->name : "Unknown Gamepad"; }

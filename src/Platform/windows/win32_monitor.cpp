@@ -188,7 +188,7 @@ void Moss_SetGammaRamp(Moss_Monitor* monitor, const Moss_GammaRamp* gammaRamp) {
     if (gammaRamp->size != 256U) { return; }
     if (!gammaRamp->red || !gammaRamp->green || !gammaRamp->blue) { return; }
 
-    HDC hdc = CreateDCA("DISPLAY", monitor->displayDevice.DeviceName, NULL, NULL);
+    HDC hdc = CreateDCA(NULL, monitor->displayDevice.DeviceName, NULL, NULL);
 
     if (!hdc) { return; }
 
@@ -200,13 +200,15 @@ void Moss_SetGammaRamp(Moss_Monitor* monitor, const Moss_GammaRamp* gammaRamp) {
         ramp[2][i] = static_cast<WORD>(gammaRamp->blue[i]) * 257;
     }
 
-    SetDeviceGammaRamp(hdc, ramp);
+    const BOOL result = SetDeviceGammaRamp(hdc, ramp);
+
     DeleteDC(hdc);
+    if (!result) { return; }
 }
 
 void Moss_SetGamma(Moss_Monitor* monitor, float gamma) {
     if (!monitor || gamma <= 0.0f) {  return; }
-    HDC hdc = CreateDCA("DISPLAY", monitor->displayDevice.DeviceName, NULL, NULL);
+    HDC hdc = CreateDCA(NULL, monitor->displayDevice.DeviceName, NULL, NULL);
     if (!hdc)
         return;
 

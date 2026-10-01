@@ -33,6 +33,91 @@ struct Moss_Capture {
 };
 
 
+/*
+struct Moss_Capture {
+    // A mutex for locking
+    Mutex *lock;
+
+    // Human-readable device name.
+    char *name;
+
+    // Position of camera (front-facing, back-facing, etc).
+    Moss_CameraPosition position;
+
+    // When refcount hits zero, we destroy the device object.
+    Moss_AtomicInt refcount;
+
+    // These are, initially, set from camera_driver, but we might swap them out with Zombie versions on disconnect/failure.
+    bool (*WaitDevice)(Moss_Capture *device);
+    AcquireFrameFunc AcquireFrame;
+    void (*ReleaseFrame)(Moss_Capture *device, Moss_Surface *frame);
+
+    // All supported formats/dimensions for this device.
+    Moss_CameraSpec *all_specs;
+
+    // Elements in all_specs.
+    int num_specs;
+
+    // The device's actual specification that the camera is outputting, before conversion.
+    Moss_CameraSpec actual_spec;
+
+    // The device's current camera specification, after conversions.
+    Moss_CameraSpec spec;
+
+    // Unique value assigned at creation time.
+    Moss_CameraID instance_id;
+
+    // Driver-specific hardware data on how to open device (`hidden` is driver-specific data _when opened_).
+    void *handle;
+
+    // Dropping the first frame(s) after open seems to help timing on some platforms.
+    int drop_frames;
+
+    // Backend timestamp of first acquired frame, so we can keep these meaningful regardless of epoch.
+    uint64_t base_timestamp;
+
+    // Moss timestamp of first acquired frame, so we can roughly convert to Moss ticks.
+    uint64_t adjust_timestamp;
+
+    // Pixel data flows from the driver into these, then gets converted for the app if necessary.
+    Moss_Surface *acquire_surface;
+
+    // acquire_surface converts or scales to this surface before landing in output_surfaces, if necessary.
+    Moss_Surface *conversion_surface;
+
+    // A queue of surfaces that buffer converted/scaled frames of video until the app claims them.
+    SurfaceList output_surfaces[8];
+    SurfaceList filled_output_surfaces;        // this is FIFO
+    SurfaceList empty_output_surfaces;         // this is LIFO
+    SurfaceList app_held_output_surfaces;
+
+    // A fake video frame we allocate if the camera fails/disconnects.
+    uint8_t *zombie_pixels;
+
+    // non-zero if acquire_surface needs to be scaled for final output.
+    int needs_scaling;  // -1: downscale, 0: no scaling, 1: upscale
+
+    // true if acquire_surface needs to be converted for final output.
+    bool needs_conversion;
+
+    // Current state flags
+    Moss_AtomicInt shutdown;
+    Moss_AtomicInt zombie;
+
+    // A thread to feed the camera device
+    Moss_Thread *thread;
+
+    // Optional properties.
+    Moss_PropertiesID props;
+
+    // Current state of user permission check.
+    Moss_CameraPermissionState permission;
+
+    // Data private to this driver, used when device is opened and running.
+    struct Moss_PrivateCameraData *hidden;
+};
+*/
+
 HRESULT STDMETHODCALLTYPE BufferCB(double Time, char* pBuffer, long Len) {
     Moss_Capture* cap;
 
@@ -62,40 +147,148 @@ void Moss_CloseCamera(Moss_Capture *camera) {}
 Moss_CameraID Moss_GetCameraID(Moss_Capture *camera) {}
 //Moss_PropertiesID Moss_GetCameraProperties(Moss_Capture *camera) {}
 
-Moss_Capture* Moss_OpenCapture(Moss_CameraID captureID, const Moss_CameraSpec *spec) {
-    Moss_Capture* cap = (Moss_Capture*)calloc(1, sizeof(Moss_Capture));
+Moss_Capture* Moss_OpenCapture(Moss_CameraID captureID, const Moss_CameraSpec* spec) {
+    (void)captureID;
+    (void)spec;
+
+    Moss_Capture* cap = static_cast<Moss_Capture*>(calloc(1, sizeof(Moss_Capture)));
     if (!cap) { return NULL; }
 
-    CoInitializeEx(NULL, COINIT_MULTITHREADED);
+    HRESULT hr = CoInitializeEx(NULL, COINIT_MULTITHREADED);
 
-    // Create Filter Graph
-    HRESULT hr = CoCreateInstance(CLSID_FilterGraph, NULL, CLSCTX_INPROC_SERVER, IID_IGraphBuilder, (void**)&cap->graph);
-    if (FAILED(hr)) {return NULL;}
+    if (FAILED(hr) && hr != RPC_E_CHANGED_MODE) { free(cap); return NULL; }
 
-    // Capture Graph Builder
-    hr = CoCreateInstance(CLSID_CaptureGraphBuilder2, NULL, CLSCTX_INPROC_SERVER, IID_ICaptureGraphBuilder2, (void**)&cap->captureBuilder);
-    if (FAILED(hr)) {return NULL;}
+    // Create Filter Graph.
+    hr = CoCreateInstance(CLSID_FilterGraph, NULL, CLSCTX_INPROC_SERVER, IID_PPV_ARGS(&cap->graph));
 
-    cap->captureBuilder->SetFiltergraph(cap->graph);
+    if (FAILED(hr) || !cap->graph) { free(cap); return NULL; }
 
-    // Get System Device Enumerator
-    ICreateDevEnum* devEnum = NULL;
-    IEnumMoniker* enumMoniker = NULL;
-    CoCreateInstance(CLSID_SystemDeviceEnum, NULL, CLSCTX_INPROC_SERVER, IID_ICreateDevEnum, (void**)&devEnum);;
-    devEnum->CreateClassEnumerator(CLSID_VideoInputDeviceCategory, &enumMoniker, 0);
+    // Create Capture Graph Builder.
+    hr = CoCreateInstance(CLSID_CaptureGraphBuilder2, NULL, CLSCTX_INPROC_SERVER, IID_PPV_ARGS(&cap->captureBuilder));
 
-    IMoniker* moniker = NULL;
-    if (enumMoniker->Next(1, &moniker, NULL) == S_OK) {
-        moniker->BindToObject(NULL, NULL, IID_IBaseFilter, (void**)&cap->videoCaptureFilter);
-        cap->graph->AddFilter(cap->videoCaptureFilter, L"Video Capture");
-        cap->captureBuilder->RenderStream(&PIN_CATEGORY_PREVIEW, &MEDIATYPE_Video, cap->videoCaptureFilter, NULL, NULL);
+    if (FAILED(hr) || !cap->captureBuilder) {
+        cap->graph->Release();
+        free(cap);
+        return NULL;
     }
 
-    cap->graph->QueryInterface(IID_IMediaControl, (void**)&cap->mediaControl);
-    cap->videoCaptureFilter->QueryInterface(IID_IAMStreamConfig, (void**)&cap->streamConfig);
-    cap->videoCaptureFilter->QueryInterface(IID_IAMVideoProcAmp, (void**)&cap->videoProcAmp);
+    // Connect the Capture Graph Builder to the Filter Graph.
+    hr = cap->captureBuilder->SetFiltergraph(cap->graph);
 
-    cap->mediaControl->Run();
+    if (FAILED(hr)) {
+        cap->captureBuilder->Release();
+        cap->graph->Release();
+        free(cap);
+        return NULL;
+    }
+
+    // Create System Device Enumerator.
+    ICreateDevEnum* devEnum = NULL;
+
+    hr = CoCreateInstance(CLSID_SystemDeviceEnum, NULL, CLSCTX_INPROC_SERVER, IID_PPV_ARGS(&devEnum));
+
+    if (FAILED(hr) || !devEnum) {
+        cap->captureBuilder->Release();
+        cap->graph->Release();
+        free(cap);
+        return NULL;
+    }
+
+    // Enumerate video capture devices.
+    IEnumMoniker* enumMoniker = NULL;
+
+    hr = devEnum->CreateClassEnumerator(CLSID_VideoInputDeviceCategory, &enumMoniker, 0);
+
+    if (FAILED(hr) || !enumMoniker) {
+        devEnum->Release();
+        cap->captureBuilder->Release();
+        cap->graph->Release();
+        free(cap);
+        return NULL;
+    }
+
+    // Get the first camera.
+    IMoniker* moniker = NULL;
+
+    hr = enumMoniker->Next(1, &moniker, NULL);
+
+    if (hr != S_OK || !moniker) {
+        enumMoniker->Release();
+        devEnum->Release();
+        cap->captureBuilder->Release();
+        cap->graph->Release();
+        free(cap);
+        return NULL;
+    }
+
+    // Convert the moniker into a capture filter.
+    hr = moniker->BindToObject(NULL, NULL, IID_PPV_ARGS(&cap->videoCaptureFilter));
+
+    moniker->Release();
+    enumMoniker->Release();
+    devEnum->Release();
+
+    if (FAILED(hr) || !cap->videoCaptureFilter) {
+        cap->captureBuilder->Release();
+        cap->graph->Release();
+        free(cap);
+        return NULL;
+    }
+
+    // Add the camera to the graph.
+    hr = cap->graph->AddFilter(cap->videoCaptureFilter, L"Video Capture");
+
+    if (FAILED(hr)) {
+        cap->videoCaptureFilter->Release();
+        cap->captureBuilder->Release();
+        cap->graph->Release();
+        free(cap);
+        return NULL;
+    }
+
+    // Render the camera preview stream.
+    hr = cap->captureBuilder->RenderStream(&PIN_CATEGORY_PREVIEW, &MEDIATYPE_Video, cap->videoCaptureFilter, NULL, NULL);
+
+    if (FAILED(hr)) {
+        cap->videoCaptureFilter->Release();
+        cap->captureBuilder->Release();
+        cap->graph->Release();
+        free(cap);
+        return NULL;
+    }
+
+    // Get media control.
+    hr = cap->graph->QueryInterface(IID_PPV_ARGS(&cap->mediaControl));
+
+    if (FAILED(hr) || !cap->mediaControl) {
+        cap->videoCaptureFilter->Release();
+        cap->captureBuilder->Release();
+        cap->graph->Release();
+        free(cap);
+        return NULL;
+    }
+
+    // Get stream configuration.
+    cap->videoCaptureFilter->QueryInterface(IID_PPV_ARGS(&cap->streamConfig));
+
+    // Get video processing controls.
+    cap->videoCaptureFilter->QueryInterface(IID_PPV_ARGS(&cap->videoProcAmp));
+
+    // Start capture.
+    hr = cap->mediaControl->Run();
+
+    if (FAILED(hr)) {
+        if (cap->videoProcAmp) { cap->videoProcAmp->Release(); }
+
+        if (cap->streamConfig) { cap->streamConfig->Release(); }
+
+        cap->mediaControl->Release();
+        cap->videoCaptureFilter->Release();
+        cap->captureBuilder->Release();
+        cap->graph->Release();
+        free(cap);
+        return NULL;
+    }
 
     return cap;
 }
