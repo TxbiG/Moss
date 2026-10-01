@@ -180,9 +180,9 @@ add_library(Moss::Moss ALIAS Moss)
 
 
 
-if(MOSS_RENDERER_OPENGL OR MOSS_BUILD_OPENGL)
-set(MOSS_GLAD_DIR" ${CMAKE_SOURCE_DIR}/external/")
-target_include_directories(Moss PRIVATE "${MOSS_GLAD_DIR}/glad")
+if((MOSS_RENDERER_OPENGL OR MOSS_BUILD_OPENGL) NOT EMSCRIPTEN)
+set(MOSS_GLAD_DIR" ${CMAKE_SOURCE_DIR}/external/glad")
+target_include_directories(Moss PRIVATE "${MOSS_GLAD_DIR}/include")
 endif()
 
 if (BUILD_SHARED_LIBS)
@@ -216,12 +216,6 @@ endif()
 
 
 target_include_directories(Moss PUBLIC $<BUILD_INTERFACE:${MOSS_ROOT}> $<BUILD_INTERFACE:${MOSS_PUBLIC_INCLUDE_DIR}> $<INSTALL_INTERFACE:include>)
-
-
-
-if(NOT EMSCRIPTEN)
-	file(GLOB MOSS_EXTERNAL_SUBDIRS RELATIVE ${MOSS_EXTERNAL_DIR} ${MOSS_EXTERNAL_DIR}/*)
-endif()
 
 foreach(SUBDIR ${MOSS_EXTERNAL_SUBDIRS})
     set(SUBDIR_PATH ${MOSS_EXTERNAL_DIR}/${SUBDIR})
