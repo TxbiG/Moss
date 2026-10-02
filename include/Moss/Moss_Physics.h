@@ -111,7 +111,7 @@ Building a Physics Engine with C++ and Simulating Machines - https://youtu.be/Tt
 
 #include <Moss/Geometry/Triangle.h>
 
-#include <Moss/Body/Body.h>
+#include <Moss/Physics/Body/Body.h>
 
 #define PHSICS_INVALID_COLLISION_GROUP_ID (~0U)
 #define PHSICS_INVALID_COLLISION_SUBGROUP_ID (~0U)
