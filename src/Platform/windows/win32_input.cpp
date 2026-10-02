@@ -194,15 +194,6 @@ static void Moss_UpdateHIDGamepad(Moss_Gamepad* gp) {
         }
     }
 }
-static void Moss_CloseWinHIDHandle(Moss_Gamepad* gp) {
-    Moss_WinHIDGamepadHandle* hid = Moss_WinHIDHandle(gp);
-    if (!hid) return;
-    if (hid->read_pending) CancelIo(hid->device);
-    if (hid->read_overlapped.hEvent) CloseHandle(hid->read_overlapped.hEvent);
-    if (hid->device && hid->device != INVALID_HANDLE_VALUE) CloseHandle(hid->device);
-    std::free(hid);
-    gp->backend_handle = nullptr;
-}
 
 static Moss_GamepadType Moss_SonyGamepadType(USHORT vendor_id, USHORT product_id) {
     if (vendor_id != 0x054C) return Moss_GamepadType::UNKNOWN;

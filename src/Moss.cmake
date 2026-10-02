@@ -15,6 +15,37 @@ set(MOSS_ROOT_INCLUDE ${REPO_ROOT}/include/Moss) # matches the repo's include/Mo
 # for globbing and the precompiled header path).
 set(MOSS_PUBLIC_INCLUDE_DIR ${REPO_ROOT}/include)
 
+
+
+set(MOSS_EXTERNAL_DIR
+    "${REPO_ROOT}/external"
+    CACHE PATH "Moss external dependencies"
+)
+
+# Glad
+if((MOSS_USE_OPENGL OR USE_OPENGLES) AND NOT EMSCRIPTEN AND EXISTS "${MOSS_EXTERNAL_DIR}/glad")
+    set(MOSS_GLAD_DIR "${MOSS_EXTERNAL_DIR}/glad")
+    target_include_directories(Moss PRIVATE "${MOSS_GLAD_DIR}")
+endif()
+
+# OpenXR
+if(MOSS_USE_OPENXR AND NOT EMSCRIPTEN AND EXISTS "${MOSS_EXTERNAL_DIR}/openxr")
+    set(MOSS_OPENXR_DIR "${MOSS_EXTERNAL_DIR}/openxr")
+
+    if(EXISTS "${MOSS_OPENXR_DIR}/include/openxr/openxr.h")
+        set(MOSS_OPENXR_INCLUDE_DIR "${MOSS_OPENXR_DIR}/include")
+    elseif(EXISTS "${MOSS_OPENXR_DIR}/openxr/openxr.h")
+        set(MOSS_OPENXR_INCLUDE_DIR "${MOSS_OPENXR_DIR}")
+    endif()
+
+    if(MOSS_OPENXR_INCLUDE_DIR)
+        target_include_directories(Moss
+            PRIVATE
+                "${MOSS_OPENXR_INCLUDE_DIR}"
+        )
+    endif()
+endif()
+
 # -----------------------------------------------------------------------------
 # File discovery
 #
@@ -210,35 +241,6 @@ endif()
 
 
 target_include_directories(Moss PUBLIC $<BUILD_INTERFACE:${MOSS_ROOT}> $<BUILD_INTERFACE:${MOSS_PUBLIC_INCLUDE_DIR}> $<INSTALL_INTERFACE:include>)
-
-set(MOSS_EXTERNAL_DIR
-    "${REPO_ROOT}/external"
-    CACHE PATH "Moss external dependencies"
-)
-
-# Glad
-if((MOSS_USE_OPENGL OR USE_OPENGLES) AND NOT EMSCRIPTEN AND EXISTS "${MOSS_EXTERNAL_DIR}/glad")
-    set(MOSS_GLAD_DIR "${MOSS_EXTERNAL_DIR}/glad")
-    target_include_directories(Moss PRIVATE "${MOSS_GLAD_DIR}")
-endif()
-
-# OpenXR
-if(MOSS_USE_OPENXR AND NOT EMSCRIPTEN AND EXISTS "${MOSS_EXTERNAL_DIR}/openxr")
-    set(MOSS_OPENXR_DIR "${MOSS_EXTERNAL_DIR}/openxr")
-
-    if(EXISTS "${MOSS_OPENXR_DIR}/include/openxr/openxr.h")
-        set(MOSS_OPENXR_INCLUDE_DIR "${MOSS_OPENXR_DIR}/include")
-    elseif(EXISTS "${MOSS_OPENXR_DIR}/openxr/openxr.h")
-        set(MOSS_OPENXR_INCLUDE_DIR "${MOSS_OPENXR_DIR}")
-    endif()
-
-    if(MOSS_OPENXR_INCLUDE_DIR)
-        target_include_directories(Moss
-            PRIVATE
-                "${MOSS_OPENXR_INCLUDE_DIR}"
-        )
-    endif()
-endif()
 
 if(WIN32)
     target_link_libraries(Moss PRIVATE user32 gdi32)
