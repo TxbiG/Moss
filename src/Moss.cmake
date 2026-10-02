@@ -17,16 +17,7 @@ set(MOSS_PUBLIC_INCLUDE_DIR ${REPO_ROOT}/include)
 
 
 
-set(MOSS_EXTERNAL_DIR
-    "${REPO_ROOT}/external"
-    CACHE PATH "Moss external dependencies"
-)
-
-# Glad
-if((MOSS_USE_OPENGL OR USE_OPENGLES) AND NOT EMSCRIPTEN AND EXISTS "${MOSS_EXTERNAL_DIR}/glad")
-    set(MOSS_GLAD_DIR "${MOSS_EXTERNAL_DIR}/glad")
-    target_include_directories(Moss PRIVATE "${MOSS_GLAD_DIR}")
-endif()
+set(MOSS_EXTERNAL_DIR "${REPO_ROOT}/external" CACHE PATH "Moss external dependencies")
 
 # OpenXR
 set(MOSS_OPENXR_INCLUDE_DIR "")
