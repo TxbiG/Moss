@@ -108,6 +108,11 @@ Building a Physics Engine with C++ and Simulating Machines - https://youtu.be/Tt
 #include <Moss/Variants/Matrix/Mat44.h>
 #include <Moss/Variants/Matrix/TMatrix.h>
 
+
+#include <Moss/Geometry/Triangle.h>
+
+#include <Moss/Body/Body.h>
+
 #define PHSICS_INVALID_COLLISION_GROUP_ID (~0U)
 #define PHSICS_INVALID_COLLISION_SUBGROUP_ID (~0U)
 
@@ -355,7 +360,7 @@ enum class ESoftBodyConstraintColor {
 	ConstraintOrder,			// Draw constraints in the same group in the same color, non-parallel group will be red, and order within each group will be indicated with gradient
 };
 
-enum class EBodyManager_ShapeColor {
+enum class EBodyManagerShapeColor {
 	InstanceColor,				// Random color per instance
 	ShapeTypeColor,				// Convex = green, scaled = yellow, compound = orange, mesh = red
 	MotionTypeColor,			// Static = grey, keyframed = green, dynamic = random color per instance
@@ -388,124 +393,6 @@ struct SoftBodyContactSettings {
 	bool							mIsSensor;							// If the contact should be treated as a sensor vs body contact (no collision response)
 };
 
-class Triangle {
-public:
-	MOSS_OVERRIDE_NEW_DELETE
-
-	// Constructor
-	Triangle() = default;
-	Triangle(const Float3 &inV1, const Float3 &inV2, const Float3 &inV3, uint32 inMaterialIndex = 0, uint32 inUserData = 0) : mV { inV1, inV2, inV3 }, mMaterialIndex(inMaterialIndex), mUserData(inUserData) { }
-	Triangle(Vec3Arg inV1, Vec3Arg inV2, Vec3Arg inV3, uint32 inMaterialIndex = 0, uint32 inUserData = 0) : mMaterialIndex(inMaterialIndex), mUserData(inUserData) { inV1.StoreFloat3(&mV[0]); inV2.StoreFloat3(&mV[1]); inV3.StoreFloat3(&mV[2]); }
-
-	// Get center of triangle
-	Vec3 GetCentroid() const { return (Vec3::LoadFloat3Unsafe(mV[0]) + Vec3::LoadFloat3Unsafe(mV[1]) + Vec3::LoadFloat3Unsafe(mV[2])) * (1.0f / 3.0f); }
-
-	// Vertices
-	Float3			mV[3];
-	uint32			mMaterialIndex = 0;			// Follows mV[3] so that we can read mV as 4 vectors
-	uint32			mUserData = 0;				// User data that can be used for anything by the application, e.g. for tracking the original index of the triangle
-};
-
-class IndexedTriangleNoMaterial
-{
-public:
-	MOSS_OVERRIDE_NEW_DELETE
-
-	// Constructor
-	IndexedTriangleNoMaterial() = default;
-	constexpr IndexedTriangleNoMaterial(uint32 inI1, uint32 inI2, uint32 inI3) : mIdx { inI1, inI2, inI3 } { }
-
-	// Check if two triangles are identical
-	bool operator == (const IndexedTriangleNoMaterial &inRHS) const {
-		return mIdx[0] == inRHS.mIdx[0] && mIdx[1] == inRHS.mIdx[1] && mIdx[2] == inRHS.mIdx[2];
-	}
-
-	// Check if two triangles are equivalent (using the same vertices)
-	bool IsEquivalent(const IndexedTriangleNoMaterial &inRHS) const {
-		return (mIdx[0] == inRHS.mIdx[0] && mIdx[1] == inRHS.mIdx[1] && mIdx[2] == inRHS.mIdx[2])
-			|| (mIdx[0] == inRHS.mIdx[1] && mIdx[1] == inRHS.mIdx[2] && mIdx[2] == inRHS.mIdx[0])
-			|| (mIdx[0] == inRHS.mIdx[2] && mIdx[1] == inRHS.mIdx[0] && mIdx[2] == inRHS.mIdx[1]);
-	}
-
-	// Check if two triangles are opposite (using the same vertices but in opposing order)
-	bool IsOpposite(const IndexedTriangleNoMaterial &inRHS) const {
-		return (mIdx[0] == inRHS.mIdx[0] && mIdx[1] == inRHS.mIdx[2] && mIdx[2] == inRHS.mIdx[1])
-			|| (mIdx[0] == inRHS.mIdx[1] && mIdx[1] == inRHS.mIdx[0] && mIdx[2] == inRHS.mIdx[2])
-			|| (mIdx[0] == inRHS.mIdx[2] && mIdx[1] == inRHS.mIdx[1] && mIdx[2] == inRHS.mIdx[0]);
-	}
-
-	// Check if triangle is degenerate
-	bool IsDegenerate(const VertexList &inVertices) const {
-		Vec3 v0(inVertices[mIdx[0]]);
-		Vec3 v1(inVertices[mIdx[1]]);
-		Vec3 v2(inVertices[mIdx[2]]);
-
-		return (v1 - v0).Cross(v2 - v0).IsNearZero();
-	}
-
-	// Rotate the vertices so that the second vertex becomes first etc. This does not change the represented triangle.
-	void Rotate() {
-		uint32 tmp = mIdx[0];
-		mIdx[0] = mIdx[1];
-		mIdx[1] = mIdx[2];
-		mIdx[2] = tmp;
-	}
-
-	// Get center of triangle
-	Vec3 GetCentroid(const VertexList &inVertices) const {
-		return (Vec3(inVertices[mIdx[0]]) + Vec3(inVertices[mIdx[1]]) + Vec3(inVertices[mIdx[2]])) / 3.0f;
-	}
-
-	// Get the hash value of this structure
-	uint64 GetHash() const {
-		static_assert(sizeof(IndexedTriangleNoMaterial) == 3 * sizeof(uint32), "Class should have no padding");
-		return HashBytes(this, sizeof(IndexedTriangleNoMaterial));
-	}
-
-	uint32			mIdx[3];
-};
-
-// Triangle with 32-bit indices and material index
-class IndexedTriangle : public IndexedTriangleNoMaterial {
-public:
-	using IndexedTriangleNoMaterial::IndexedTriangleNoMaterial;
-
-	// Constructor
-	constexpr		IndexedTriangle(uint32 inI1, uint32 inI2, uint32 inI3, uint32 inMaterialIndex, uint32 inUserData = 0) : IndexedTriangleNoMaterial(inI1, inI2, inI3), mMaterialIndex(inMaterialIndex), mUserData(inUserData) { }
-
-	// Check if two triangles are identical
-	bool operator == (const IndexedTriangle &inRHS) const {
-		return mMaterialIndex == inRHS.mMaterialIndex && mUserData == inRHS.mUserData && IndexedTriangleNoMaterial::operator==(inRHS);
-	}
-
-	// Rotate the vertices so that the lowest vertex becomes the first. This does not change the represented triangle.
-	IndexedTriangle	GetLowestIndexFirst() const {
-		if (mIdx[0] < mIdx[1]) {
-			if (mIdx[0] < mIdx[2])
-				return IndexedTriangle(mIdx[0], mIdx[1], mIdx[2], mMaterialIndex, mUserData); // 0 is smallest
-			else
-				return IndexedTriangle(mIdx[2], mIdx[0], mIdx[1], mMaterialIndex, mUserData); // 2 is smallest
-		}
-		else {
-			if (mIdx[1] < mIdx[2])
-				return IndexedTriangle(mIdx[1], mIdx[2], mIdx[0], mMaterialIndex, mUserData); // 1 is smallest
-			else
-				return IndexedTriangle(mIdx[2], mIdx[0], mIdx[1], mMaterialIndex, mUserData); // 2 is smallest
-		}
-	}
-
-	// Get the hash value of this structure
-	uint64			GetHash() const
-	{
-		static_assert(sizeof(IndexedTriangle) == 5 * sizeof(uint32), "Class should have no padding");
-		return HashBytes(this, sizeof(IndexedTriangle));
-	}
-
-	uint32			mMaterialIndex = 0;
-	uint32			mUserData = 0;				// User data that can be used for anything by the application, e.g. for tracking the original index of the triangle
-};
-
-
 typedef struct ContactSettings {
 	float				combinedFriction;
 	float				combinedRestitution;
@@ -523,7 +410,7 @@ typedef struct CollideSettingsBase {
 	EActiveEdgeMode			activeEdgeMode/* = ActiveEdgeMode_CollideOnlyWithActive*/;
 
 	// If colliding faces should be collected or only the collision point
-	CollectFacesMode		collectFacesMode/* = NoFaces*/;
+	ECollectFacesMode		collectFacesMode/* = NoFaces*/;
 
 	// If objects are closer than this distance, they are considered to be colliding (used for GJK) (unit: meter)
 	float						collisionTolerance/* = DEFAULT_COLLISION_TOLERANCE*/;
@@ -579,7 +466,7 @@ public:
 	SpringSettings() = default;
 	SpringSettings(const SpringSettings &) = default;
 	SpringSettings& operator = (const SpringSettings &) = default;
-	SpringSettings(ESpringMode inMode, float inFrequencyOrStiffness, float inDamping) : mMode(inMode), mFrequency(inFrequencyOrStiffness), mDamping(inDamping) { }
+	SpringSettings(ESpringMode inMode, float inFrequencyOrStiffness, float inDamping) : mode(inMode), frequency(inFrequencyOrStiffness), damping(inDamping) { }
 
 	// Saves the contents of the spring settings in binary form to inStream.
 	void SaveBinaryState(StreamOut &inStream) const;
@@ -672,7 +559,7 @@ typedef struct DrawSettings {
 	bool						drawGetSupportingFace;				// Draw the faces that were found colliding during collision detection
 	bool						drawShape;							// Draw the shapes of all bodies
 	bool						drawShapeWireframe;					// When mDrawShape is true and this is true, the shapes will be drawn in wireframe instead of solid.
-	BodyManager_ShapeColor	drawShapeColor;                     // Coloring scheme to use for shapes
+	EBodyManagerShapeColor	drawShapeColor;                     // Coloring scheme to use for shapes
 	bool						drawBoundingBox;					// Draw a bounding box per body
 	bool						drawCenterOfMassTransform;			// Draw the center of mass for each body
 	bool						drawWorldTransform;					// Draw the world transform (which may differ from its center of mass) of each body
@@ -687,7 +574,7 @@ typedef struct DrawSettings {
 	bool						drawSoftBodySkinConstraints;		// Draw the skin constraints of soft bodies
 	bool						drawSoftBodyLRAConstraints;	        // Draw the LRA constraints of soft bodies
 	bool						drawSoftBodyPredictedBounds;		// Draw the predicted bounds of soft bodies
-	SoftBodyConstraintColor	drawSoftBodyConstraintColor;        // Coloring scheme to use for soft body constraints
+	ESoftBodyConstraintColor	drawSoftBodyConstraintColor;        // Coloring scheme to use for soft body constraints
 } DrawSettings;
 
 typedef struct SupportingFace {
@@ -758,6 +645,15 @@ typedef struct ExtendedUpdateSettings {
 	Vec3	walkStairsStepDownExtra;
 } ExtendedUpdateSettings;
 
+
+
+typedef void(MOSS_CALL* TraceFunc)(const char* message);
+typedef bool(MOSS_CALL* AssertFailureFunc)(const char* expression, const char* message, const char* file, uint32_t line);
+
+typedef void JobFunction(void* arg);
+typedef void QueueJobCallback(void* context, JobFunction* job, void* arg);
+typedef void QueueJobsCallback(void* context, JobFunction* job, void** args, uint32_t count);
+
 typedef struct JobSystemThreadPoolConfig {
 	uint32_t maxJobs;
 	uint32_t maxBarriers;
@@ -778,13 +674,6 @@ typedef struct PhysicsStepListenerContext {
 	bool				isLastStep;
 	PhysicsSystem*		physicsSystem;
 } PhysicsStepListenerContext;
-
-typedef void(MOSS_CALL* TraceFunc)(const char* message);
-typedef bool(MOSS_CALL* AssertFailureFunc)(const char* expression, const char* message, const char* file, uint32_t line);
-
-typedef void JobFunction(void* arg);
-typedef void QueueJobCallback(void* context, JobFunction* job, void* arg);
-typedef void QueueJobsCallback(void* context, JobFunction* job, void** args, uint32_t count);
 
 
 

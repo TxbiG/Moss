@@ -178,7 +178,7 @@ struct RayAudioListener3D : public AudioListener3D {
 
 typedef void (*Moss_MicrophoneCallback)(void* user_data, const void* data, size_t size);
 
-Microphone* Moss_CreateMicrophone(Moss_MicrophoneCallback callback, void* user_data);
+Moss_Microphone* Moss_CreateMicrophone(Moss_MicrophoneCallback callback, void* user_data);
 void Moss_RemoveMicrophone(Moss_Microphone* mic);
 
 
@@ -1049,7 +1049,7 @@ inline AudioResult Compute2DAudioWithReflections(const SoundSource2D& src, const
 // ============================================
 // RayListener3D
 // ============================================
-struct Triangle {
+struct AudioTriangle {
     Vec3 a, b, c;
 };
 
@@ -1089,7 +1089,7 @@ inline float ClampElevation(float el) { return std::clamp(el, -45.0f, 90.0f); }
 /*! */
 inline int Quantize(float angle, int step) { return int(std::round(angle / step) * step); }
 /*! */
-bool RayIntersectsTriangle(const Vec3& rayOrigin, const Vec3& rayDir, const Triangle& tri, float& outT) {
+bool RayIntersectsTriangle(const Vec3& rayOrigin, const Vec3& rayDir, const AudioTriangle& tri, float& outT) {
     constexpr float EPS = 1e-6f;
     Vec3 edge1 = tri.b - tri.a;
     Vec3 edge2 = tri.c - tri.a;
@@ -1112,7 +1112,7 @@ bool RayIntersectsTriangle(const Vec3& rayOrigin, const Vec3& rayDir, const Tria
     return false;
 }
 /*! */
-bool IsOccluded(const SoundSource3D& src, const Listener3D& listener, const std::vector<Triangle>& world) {
+bool IsOccluded(const SoundSource3D& src, const Listener3D& listener, const std::vector<AudioTriangle>& world) {
     Vec3 toListener = listener.position - src.position;
     float maxDist = toListener.Length();
     if (maxDist < 0.001f) return false;
@@ -1121,7 +1121,7 @@ bool IsOccluded(const SoundSource3D& src, const Listener3D& listener, const std:
     constexpr float RayBias = 0.01f;
     Vec3 origin = src.position + dir * RayBias;
 
-    for (const Triangle& tri : world) {
+    for (const AudioTriangle& tri : world) {
         float t;
         if (RayIntersectsTriangle(origin, dir, tri, t)) {
             if (t > RayBias && t < maxDist - RayBias) return true;

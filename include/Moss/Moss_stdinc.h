@@ -638,6 +638,15 @@
 // Stack allocation
 #define MOSS_STACK_ALLOC(n)		alloca(n)
 
+#if defined(NAN)
+    #define MOSS_NAN NAN
+#elif defined(INFINITY)
+    /* Fallback: infinity divided by infinity yields NaN */
+    #define MOSS_NAN (0.0 / 0.0)
+#else
+    /* Ultimate fallback bitwise/constant approach if needed */
+    #define MOSS_NAN (0.0 / 0.0)
+#endif
 
 //////////////////////////////////////////////////////////////////////////
 
