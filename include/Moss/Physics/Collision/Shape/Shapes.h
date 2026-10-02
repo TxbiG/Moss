@@ -9,6 +9,7 @@
 MOSS_SUPPRESS_WARNINGS_END
 struct RayCast;
 class RayCastSettings;
+class ConvexShape;
 struct ShapeCast;
 class ShapeCastSettings;
 class RayCastResult;
