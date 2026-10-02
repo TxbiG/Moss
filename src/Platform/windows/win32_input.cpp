@@ -560,7 +560,7 @@ bool Moss_GetGamepadTouchpadFinger(Moss_Gamepad* gp, int pad, int finger, bool* 
 const char* Moss_GetGamepadMapping(Moss_Gamepad* gp) { (void)gp; return "xinput"; }
 bool Moss_SetGamepadMapping(Moss_Gamepad* gp, const char* mapping) { (void)gp; (void)mapping; return false; }
 void Moss_ReloadGamepadMappings(void) {}
-Moss_GamepadButton Moss_InputGetGamepadButton() { return Moss_GamepadButton::LEFT_X; }
+Moss_GamepadButton Moss_InputGetGamepadButton() { return Moss_GamepadButton::LEFT_STICK; }
 GamepadAxis Moss_InputGetGamepadAxis() { return GamepadAxis::LEFT_X; }
 
 // Pen and Fingers
