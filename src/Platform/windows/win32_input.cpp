@@ -14,6 +14,10 @@
 
 static float g_trigger_button_threshold = 0.5f;
 
+static Moss_Gamepad g_gamepads[XUSER_MAX_COUNT] = {};
+static char g_hid_paths[XUSER_MAX_COUNT][512] = {};
+
+
 // Helpers:
 static float Moss_ApplyDeadzone(float value, float deadzone) {
     if (std::fabs(value) <= deadzone) return 0.0f;
@@ -48,10 +52,10 @@ size_t Moss_BuildDS5OutputReport(uint8_t* report, size_t size, uint8_t rumble_hi
 }
 
 struct Moss_WinHIDGamepadHandle {
-    HANDLE device;
-    OVERLAPPED read_overlapped;
-    bool read_pending;
-    uint8_t input_report[128];
+    HANDLE device = INVALID_HANDLE_VALUE;
+    OVERLAPPED read_overlapped = {};
+    bool read_pending = false;
+    uint8_t input_report[128] = {};
 };
 
 static Moss_WinHIDGamepadHandle* Moss_WinHIDHandle(Moss_Gamepad* gp) { return gp ? (Moss_WinHIDGamepadHandle*)gp->backend_handle : nullptr; }
@@ -73,18 +77,6 @@ static void Moss_DisconnectHIDGamepad(Moss_Gamepad* gp) {
     gp->connected = false;
 }
 /////////////////////////////////////
-
-
-static Moss_Gamepad g_gamepads[XUSER_MAX_COUNT] = {};
-static char g_hid_paths[XUSER_MAX_COUNT][512] = {};
-
-struct Moss_WinHIDGamepadHandle
-{
-    HANDLE device = INVALID_HANDLE_VALUE;
-    OVERLAPPED read_overlapped = {};
-    bool read_pending = false;
-    uint8_t input_report[128] = {};
-};
 
 static bool Moss_HIDPathAlreadyOpen(const char* path) {
     if (!path) return false;
@@ -162,7 +154,7 @@ static void Moss_DecodeSonyHIDInput(Moss_Gamepad* gp, const uint8_t* report, DWO
 static void Moss_UpdateHIDGamepad(Moss_Gamepad* gp) {
     Moss_WinHIDGamepadHandle* hid = Moss_WinHIDHandle(gp);
     if (!gp || !hid || !hid->device || hid->device == INVALID_HANDLE_VALUE) return;
-
+ 
     if (hid->read_pending) {
         DWORD bytes = 0;
         if (GetOverlappedResult(hid->device, &hid->read_overlapped, &bytes, FALSE)) {
@@ -173,7 +165,7 @@ static void Moss_UpdateHIDGamepad(Moss_Gamepad* gp) {
             return;
         }
     }
-
+ 
     if (!hid->read_pending) {
         DWORD bytes = 0;
         std::memset(hid->input_report, 0, sizeof(hid->input_report));
@@ -606,8 +598,6 @@ bool Moss_GamepadConnected(Moss_Gamepad* gp) { if (!gp || gp->index >= XUSER_MAX
 // Button & axis
 bool Moss_IsGamepadButtonPressed(Moss_Gamepad* gp, Moss_GamepadButton button) {
     if (!gp || !gp->connected || static_cast<int>(button) < 0) return false;
-    if (button == Moss_GamepadButton::LEFT_TRIGGER) return Moss_TriggerPressed(Moss_GetGamepadAxis(gp, GamepadAxis::LEFT_TRIGGER));
-    if (button == Moss_GamepadButton::RIGHT_TRIGGER) return Moss_TriggerPressed(Moss_GetGamepadAxis(gp, GamepadAxis::RIGHT_TRIGGER));
     const Gamepad raw = g_moss_to_raw_button[static_cast<size_t>(button)];
     if (raw == Gamepad::GAMEPAD_BUTTON_LAST) return false;
     return io.pads[gp->index].buttons[static_cast<size_t>(raw)] != 0;

@@ -675,11 +675,6 @@ void Moss_SetWindowMode(Moss_Window* window, Moss_WindowFlags flags) {
  
     const HWND hwnd = window->handle;
 
-    void Moss_SetWindowMode(Moss_Window* window, Moss_WindowFlags flags) {
-    if (!window || !window->handle) return;
- 
-    const HWND hwnd = window->handle;
-
     // Use sequential IF conditions instead of SWITCH to handle bitmasks natively
     if (flags == Moss_WindowFlags::NOTITLEBAR) {
         LONG_PTR style = GetWindowLongPtrW(hwnd, GWL_STYLE);
