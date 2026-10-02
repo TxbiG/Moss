@@ -9,8 +9,7 @@
 MOSS_SUPPRESS_WARNINGS_END
 
 /// Sample implementation of PhysicsMaterial that just holds the needed properties directly
-class MOSS_EXPORT PhysicsMaterialSimple : public PhysicsMaterial
-{
+class MOSS_EXPORT PhysicsMaterialSimple : public PhysicsMaterial {
 	MOSS_DECLARE_SERIALIZABLE_VIRTUAL(MOSS_EXPORT, PhysicsMaterialSimple)
 
 public:
