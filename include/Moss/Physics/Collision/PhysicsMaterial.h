@@ -19,10 +19,8 @@ class StreamOut;
 /// to decide which sound or particle effects to play.
 ///
 /// If you inherit from this material, don't forget to create a suitable default material in sDefault
-class MOSS_EXPORT PhysicsMaterial : public SerializableObject, public RefTarget<PhysicsMaterial>
-{
-	MOSS_DECLARE_SERIALIZABLE_VIRTUAL(JPH_EXPORT, PhysicsMaterial)
-
+class MOSS_EXPORT PhysicsMaterial : public SerializableObject, public RefTarget<PhysicsMaterial> {
+	MOSS_DECLARE_SERIALIZABLE_VIRTUAL(MOSS_EXPORT, PhysicsMaterial)
 public:
 	/// Constructor
 											PhysicsMaterial() = default;
@@ -32,8 +30,8 @@ public:
 	static RefConst<PhysicsMaterial>		sDefault;
 
 	// Properties
-	virtual const char *					GetDebugName() const			{ return "Unknown"; }
-	virtual Color							GetDebugColor() const			{ return Color::sGrey; }
+	virtual const char*					GetDebugName() const			{ return "Unknown"; }
+	virtual Color						GetDebugColor() const			{ return Color::Grey; }
 
 	/// Saves the contents of the material in binary form to inStream.
 	virtual void							SaveBinaryState(StreamOut &inStream) const;
@@ -52,6 +50,6 @@ protected:
 	virtual void							RestoreBinaryState(StreamIn &inStream);
 };
 
-using PhysicsMaterialList = Array<RefConst<PhysicsMaterial>>;
+using PhysicsMaterialList = TArray<RefConst<PhysicsMaterial>>;
 
 MOSS_SUPPRESS_WARNINGS_END
