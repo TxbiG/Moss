@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include <Moss/Core/StaticArray.h>
+#include <Moss/Variants/TStaticArray.h>
 #include <Moss/Core/Reference.h>
 #include <Moss/Core/RTTI.h>
 #include <Moss/Core/NonCopyable.h>
