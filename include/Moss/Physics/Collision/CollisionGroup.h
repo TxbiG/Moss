@@ -5,7 +5,7 @@
 #pragma once
 
 #include <Moss/Physics/Collision/GroupFilter.h>
-#include <Moss/ObjectStream/SerializableObject.h>
+#include <Moss/Resources/ObjectStream/SerializableObject.h>
 
 MOSS_SUPPRESS_WARNINGS_END
 

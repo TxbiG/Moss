@@ -7,8 +7,8 @@
 #ifdef JPH_OBJECT_STREAM
 
 #include <Moss/Resources/ObjectStream/SerializableAttribute.h>
-#include <Moss/ObjectStream/GetPrimitiveTypeOfType.h>
-#include <Moss/ObjectStream/ObjectStream.h>
+#include <Moss/Resources/ObjectStream/GetPrimitiveTypeOfType.h>
+#include <Moss/Resources/ObjectStream/ObjectStream.h>
 
 JPH_NAMESPACE_BEGIN
 

@@ -2,7 +2,7 @@
 // SPDX-FileCopyrightText: 2021 Jorrit Rouwe
 // SPDX-License-Identifier: MIT
 
-#include <Moss/ObjectStream/ObjectStream.h>
+#include <Moss/Resources/ObjectStream/ObjectStream.h>
 
 #ifdef JPH_OBJECT_STREAM
 
@@ -29,7 +29,7 @@ JPH_NAMESPACE_BEGIN
 	}
 
 // This file uses the JPH_DECLARE_PRIMITIVE macro to define all types
-#include <Moss/ObjectStream/ObjectStreamTypes.h>
+#include <Moss/Resources/ObjectStream/ObjectStreamTypes.h>
 
 JPH_NAMESPACE_END
 

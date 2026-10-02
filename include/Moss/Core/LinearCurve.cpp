@@ -5,7 +5,7 @@
 #include <Moss/Core/LinearCurve.h>
 #include <Moss/Core/StreamIn.h>
 #include <Moss/Core/StreamOut.h>
-#include <Moss/ObjectStream/TypeDeclarations.h>
+#include <Moss/Resources/ObjectStream/TypeDeclarations.h>
 
 MOSS_SUPPRESS_WARNINGS_BEGIN
 

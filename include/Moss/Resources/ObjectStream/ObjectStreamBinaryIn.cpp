@@ -4,7 +4,7 @@
 
 #ifdef JPH_OBJECT_STREAM
 
-#include <Moss/ObjectStream/ObjectStreamBinaryIn.h>
+#include <Moss/Resources/ObjectStream/ObjectStreamBinaryIn.h>
 
 JPH_NAMESPACE_BEGIN
 

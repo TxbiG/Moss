@@ -4,7 +4,7 @@
 
 #ifdef JPH_OBJECT_STREAM
 
-#include <Moss/ObjectStream/ObjectStreamTextOut.h>
+#include <Moss/Resources/ObjectStream/ObjectStreamTextOut.h>
 #include <Moss/Core/StringTools.h>
 
 JPH_NAMESPACE_BEGIN

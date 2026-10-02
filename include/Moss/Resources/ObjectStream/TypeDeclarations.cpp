@@ -2,7 +2,7 @@
 // SPDX-FileCopyrightText: 2021 Jorrit Rouwe
 // SPDX-License-Identifier: MIT
 
-#include <Moss/ObjectStream/TypeDeclarations.h>
+#include <Moss/Resources/ObjectStream/TypeDeclarations.h>
 
 JPH_NAMESPACE_BEGIN
 

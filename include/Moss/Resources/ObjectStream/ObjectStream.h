@@ -122,7 +122,7 @@ public:
 	JPH_EXPORT void	OSWriteData(IObjectStreamOut &ioStream, const name &inPrimitive);
 
 // This file uses the JPH_DECLARE_PRIMITIVE macro to define all types
-#include <Moss/ObjectStream/ObjectStreamTypes.h>
+#include <Moss/Resources/ObjectStream/ObjectStreamTypes.h>
 
 // Define serialization templates
 template <class T, class A>

@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include <Moss/ObjectStream/SerializableObject.h>
+#include <Moss/Resources/ObjectStream/SerializableObject.h>
 #include <Moss/Core/QuickSort.h>
 
 MOSS_SUPPRESS_WARNINGS_BEGIN

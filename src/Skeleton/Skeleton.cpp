@@ -4,7 +4,7 @@
 
 
 #include <Moss/Skeleton/Skeleton.h>
-#include <Moss/ObjectStream/TypeDeclarations.h>
+#include <Moss/Resources/ObjectStream/TypeDeclarations.h>
 #include <Moss/Core/StreamIn.h>
 #include <Moss/Core/StreamOut.h>
 

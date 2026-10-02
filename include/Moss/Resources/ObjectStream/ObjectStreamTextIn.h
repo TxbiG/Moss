@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include <Moss/ObjectStream/ObjectStreamIn.h>
+#include <Moss/Resources/ObjectStream/ObjectStreamIn.h>
 
 #ifdef JPH_OBJECT_STREAM
 

@@ -4,12 +4,12 @@
 
 #ifdef JPH_OBJECT_STREAM
 
-#include <Moss/ObjectStream/ObjectStreamIn.h>
+#include <Moss/Resources/ObjectStream/ObjectStreamIn.h>
 #include <Moss/Core/Factory.h>
 #include <Moss/Core/UnorderedSet.h>
-#include <Moss/ObjectStream/ObjectStreamTextIn.h>
-#include <Moss/ObjectStream/ObjectStreamBinaryIn.h>
-#include <Moss/ObjectStream/SerializableObject.h>
+#include <Moss/Resources/ObjectStream/ObjectStreamTextIn.h>
+#include <Moss/Resources/ObjectStream/ObjectStreamBinaryIn.h>
+#include <Moss/Resources/ObjectStream/SerializableObject.h>
 
 JPH_NAMESPACE_BEGIN
 

@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include <Moss/ObjectStream/ObjectStream.h>
+#include <Moss/Resources/ObjectStream/ObjectStream.h>
 #include <Moss/Core/Reference.h>
 #include <Moss/Core/RTTI.h>
 #include <Moss/Core/UnorderedMap.h>
