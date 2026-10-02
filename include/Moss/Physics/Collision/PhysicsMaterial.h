@@ -5,7 +5,7 @@
 #pragma once
 
 #include <Moss/Core/Reference.h>
-#include <Moss/Core/Color.h>
+#include <Moss/Variants/Color.h>
 #include <Moss/Core/Result.h>
 #include <Moss/Resources/ObjectStream/SerializableObject.h>
 
