@@ -4,8 +4,6 @@
 
 #pragma once
 
-#include <Moss/Physics/Collision/Shape/ConvexShape.h>
-
 MOSS_SUPPRESS_WARNINGS_END
 struct RayCast;
 class RayCastSettings;
