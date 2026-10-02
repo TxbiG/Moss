@@ -553,7 +553,6 @@ Moss_PowerState Moss_GetGamepadPowerInfo(Moss_Gamepad* gp, int* percent) {
 }
 
 
-
 int Moss_GetNumGamepadTouchpads(Moss_Gamepad* gp) { (void)gp; return 0; }
 int Moss_GetNumGamepadTouchpadFingers(Moss_Gamepad* gp) { (void)gp; return 0; }
 bool Moss_GetGamepadTouchpadFinger(Moss_Gamepad* gp, int pad, int finger, bool* down, float* x, float* y, float* pressure) { (void)gp; (void)pad; (void)finger; if (down) *down = false; if (x) *x = 0.0f; if (y) *y = 0.0f; if (pressure) *pressure = 0.0f; return false; }
@@ -561,8 +560,8 @@ bool Moss_GetGamepadTouchpadFinger(Moss_Gamepad* gp, int pad, int finger, bool* 
 const char* Moss_GetGamepadMapping(Moss_Gamepad* gp) { (void)gp; return "xinput"; }
 bool Moss_SetGamepadMapping(Moss_Gamepad* gp, const char* mapping) { (void)gp; (void)mapping; return false; }
 void Moss_ReloadGamepadMappings(void) {}
-Moss_GamepadButton Moss_InputGetGamepadButton() { return Moss_GamepadButton::INVALID; }
-GamepadAxis Moss_InputGetGamepadAxis() { return GamepadAxis::INVALID; }
+Moss_GamepadButton Moss_InputGetGamepadButton() { return Moss_GamepadButton::LEFT_X; }
+GamepadAxis Moss_InputGetGamepadAxis() { return GamepadAxis::LEFT_X; }
 
 // Pen and Fingers
 Moss_PenDeviceType Moss_GetPenDeviceType(Moss_PenID instance_id) { (void)instance_id; return Moss_PenDeviceType::UNKNOWN; }

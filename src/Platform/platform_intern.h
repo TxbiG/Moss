@@ -1,15 +1,18 @@
 #ifndef MOSS_PLATFORM_INTERNAL_H
 #define MOSS_PLATFORM_INTERNAL_H
 
+// 1. Forward-declare structures so line 105 knows they exist
+struct Moss_Capture;
+struct Moss_Surface;
+struct Moss_Window;
+struct Moss_Monitor;
+struct Moss_Image;
+
 #include <atomic>
 #include <cstdint>
 
 #include <Moss/Moss_stdinc.h>
 #include <Moss/Moss_Platform.h>
-
-#ifndef _guarded
-#define _guarded
-#endif
 
 struct SurfaceList {
     Moss_Surface* surface = nullptr;
@@ -102,7 +105,7 @@ struct INPUT_STATE {
 extern INPUT_STATE io;
 extern KeyState* keyboardState;
 
-typedef void (*Moss_CaptureFrameResult*)(Moss_Capture *device, Moss_Surface *frame, uint64_t *timestampNS, float *rotation);
+typedef void (*Moss_CaptureFrameResult)(Moss_Capture *device, Moss_Surface *frame, uint64_t *timestampNS, float *rotation);
 
 
 struct Moss_Storage {

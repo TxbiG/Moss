@@ -675,114 +675,105 @@ void Moss_SetWindowMode(Moss_Window* window, Moss_WindowFlags flags) {
  
     const HWND hwnd = window->handle;
 
-    switch (flags) {
-        case Moss_WindowFlags::NOTITLEBAR: {
-            LONG_PTR style = GetWindowLongPtrW(hwnd, GWL_STYLE);
-            style &= ~(WS_CAPTION | WS_SYSMENU);
-            SetWindowLongPtrW(hwnd, GWL_STYLE, style);
-            SetWindowPos(hwnd, nullptr, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_NOACTIVATE | SWP_FRAMECHANGED);
-            break;
-        };
-        case Moss_WindowFlags::RESIZE_DISABLED: {
-            LONG_PTR style = GetWindowLongPtrW(hwnd, GWL_STYLE);
-            style &= ~(WS_THICKFRAME | WS_MAXIMIZEBOX);
-            SetWindowLongPtrW(hwnd, GWL_STYLE, style);
-            SetWindowPos(hwnd, nullptr, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_NOACTIVATE | SWP_FRAMECHANGED);
-            break;
-        };
-        case Moss_WindowFlags::WINDOW_TRANSPARENT: {
-            LONG_PTR exStyle = GetWindowLongPtrW(hwnd, GWL_EXSTYLE);
-            SetWindowLongPtrW(hwnd, GWL_EXSTYLE, exStyle | WS_EX_LAYERED);
-            SetLayeredWindowAttributes(hwnd, 0, 230, LWA_ALPHA);
-            break;
+    void Moss_SetWindowMode(Moss_Window* window, Moss_WindowFlags flags) {
+    if (!window || !window->handle) return;
+ 
+    const HWND hwnd = window->handle;
+
+    // Use sequential IF conditions instead of SWITCH to handle bitmasks natively
+    if (flags == Moss_WindowFlags::NOTITLEBAR) {
+        LONG_PTR style = GetWindowLongPtrW(hwnd, GWL_STYLE);
+        style &= ~(WS_CAPTION | WS_SYSMENU);
+        SetWindowLongPtrW(hwnd, GWL_STYLE, style);
+        SetWindowPos(hwnd, nullptr, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_NOACTIVATE | SWP_FRAMECHANGED);
+    }
+    if (flags == Moss_WindowFlags::RESIZE_DISABLED) {
+        LONG_PTR style = GetWindowLongPtrW(hwnd, GWL_STYLE);
+        style &= ~(WS_THICKFRAME | WS_MAXIMIZEBOX);
+        SetWindowLongPtrW(hwnd, GWL_STYLE, style);
+        SetWindowPos(hwnd, nullptr, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_NOACTIVATE | SWP_FRAMECHANGED);
+    }
+    if (flags == Moss_WindowFlags::TRANSPARENT) {
+        LONG_PTR exStyle = GetWindowLongPtrW(hwnd, GWL_EXSTYLE);
+        SetWindowLongPtrW(hwnd, GWL_EXSTYLE, exStyle | WS_EX_LAYERED);
+        SetLayeredWindowAttributes(hwnd, 0, 230, LWA_ALPHA);
+    }
+    if (flags == Moss_WindowFlags::NO_FOCUS) {
+        LONG_PTR exStyle = GetWindowLongPtrW(hwnd, GWL_EXSTYLE);
+        SetWindowLongPtrW(hwnd, GWL_EXSTYLE, exStyle | WS_EX_NOACTIVATE);
+    }
+    if (flags == Moss_WindowFlags::POPUP) {
+        LONG_PTR style = GetWindowLongPtrW(hwnd, GWL_STYLE);
+        style &= ~WS_OVERLAPPEDWINDOW;
+        style |= WS_POPUP;
+        SetWindowLongPtrW(hwnd, GWL_STYLE, style);
+        SetWindowPos(hwnd, nullptr, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_NOACTIVATE | SWP_FRAMECHANGED);
+    }
+    if (flags == Moss_WindowFlags::EXTEND_TO_TITLE) {
+        MARGINS margins{ -1, -1, -1, -1 };
+        DwmExtendFrameIntoClientArea(hwnd, &margins);
+    }
+    if (flags == Moss_WindowFlags::MOUSE_PASSTHROUGH) {
+        LONG_PTR exStyle = GetWindowLongPtrW(hwnd, GWL_EXSTYLE);
+        SetWindowLongPtrW(hwnd, GWL_EXSTYLE, exStyle | WS_EX_LAYERED | WS_EX_TRANSPARENT);
+        SetLayeredWindowAttributes(hwnd, 0, 255, LWA_ALPHA);
+    }
+    if (flags == Moss_WindowFlags::SHARP_CORNERS) {
+        DWORD preference = DWMWCP_DONOTROUND;
+        DwmSetWindowAttribute(hwnd, DWMWA_WINDOW_CORNER_PREFERENCE, &preference, sizeof(preference));
+    }
+    if (flags == Moss_WindowFlags::EXCLUDE_FROM_CAPTURE) {
+        SetWindowDisplayAffinity(hwnd, WDA_EXCLUDEFROMCAPTURE);
+    }
+    if (flags == Moss_WindowFlags::HIDDEN) {
+        ShowWindow(hwnd, SW_HIDE);
+    }
+    if (flags == Moss_WindowFlags::SHOWN) {
+        ShowWindow(hwnd, SW_SHOW);
+    }
+    if (flags == Moss_WindowFlags::BORDERLESS) {
+        LONG_PTR style = GetWindowLongPtrW(hwnd, GWL_STYLE);
+        style &= ~(WS_CAPTION | WS_THICKFRAME | WS_MINIMIZEBOX | WS_MAXIMIZEBOX | WS_SYSMENU);
+        SetWindowLongPtrW(hwnd, GWL_STYLE, style);
+        SetWindowPos(hwnd, nullptr, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_NOACTIVATE | SWP_FRAMECHANGED);
+    }
+    if (flags == Moss_WindowFlags::RESIZABLE) {
+        LONG_PTR style = GetWindowLongPtrW(hwnd, GWL_STYLE);
+        style |= (WS_THICKFRAME | WS_MAXIMIZEBOX);
+        SetWindowLongPtrW(hwnd, GWL_STYLE, style);
+        SetWindowPos(hwnd, nullptr, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_NOACTIVATE | SWP_FRAMECHANGED);
+    }
+    if (flags == Moss_WindowFlags::MAXIMIZED) {
+        ShowWindow(hwnd, SW_MAXIMIZE);
+    }
+    if (flags == Moss_WindowFlags::MINIMIZED) {
+        ShowWindow(hwnd, SW_RESTORE);
+    }
+    if (flags == Moss_WindowFlags::MOUSE_GRABBED) {
+        RECT rect;
+        GetClientRect(hwnd, &rect);
+        POINT topLeft{ rect.left, rect.top };
+        POINT bottomRight{ rect.right, rect.bottom };
+        ClientToScreen(hwnd, &topLeft);
+        ClientToScreen(hwnd, &bottomRight);
+        RECT screenRect{ topLeft.x, topLeft.y, bottomRight.x, bottomRight.y };
+        ClipCursor(&screenRect);
+    }
+    if (flags == Moss_WindowFlags::INPUT_FOCUS) {
+        SetFocus(hwnd);
+    }
+    if (flags == Moss_WindowFlags::MOUSE_FOCUS) {
+        SetCapture(hwnd);
+    }
+    if (flags == Moss_WindowFlags::ALWAYS_ON_TOP) {
+        SetWindowPos(hwnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE);
+    }
+    if (flags == Moss_WindowFlags::KEYBOARD_GRABBED) {
+        if (g_keyboardHook) {
+            UnhookWindowsHookEx(g_keyboardHook);
         }
-        case Moss_WindowFlags::NO_FOCUS: {
-            LONG_PTR exStyle = GetWindowLongPtrW(hwnd, GWL_EXSTYLE);
-            SetWindowLongPtrW(hwnd, GWL_EXSTYLE, exStyle | WS_EX_NOACTIVATE);
-            break;
-        }
-        case Moss_WindowFlags::POPUP: {
-            LONG_PTR style = GetWindowLongPtrW(hwnd, GWL_STYLE);
-            style &= ~WS_OVERLAPPEDWINDOW;
-            style |= WS_POPUP;
-            SetWindowLongPtrW(hwnd, GWL_STYLE, style);
-            SetWindowPos(hwnd, nullptr, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_NOACTIVATE | SWP_FRAMECHANGED);
-            break;
-        }
-        case Moss_WindowFlags::EXTEND_TO_TITLE: {
-            MARGINS margins{ -1, -1, -1, -1 };
-            DwmExtendFrameIntoClientArea(hwnd, &margins);
-            break;
-        }
-        case Moss_WindowFlags::MOUSE_PASSTHROUGH: {
-            LONG_PTR exStyle = GetWindowLongPtrW(hwnd, GWL_EXSTYLE);
-            SetWindowLongPtrW(hwnd, GWL_EXSTYLE, exStyle | WS_EX_LAYERED | WS_EX_TRANSPARENT);
-            SetLayeredWindowAttributes(hwnd, 0, 255, LWA_ALPHA);
-            break;
-        }
-        case Moss_WindowFlags::SHARP_CORNERS: {
-            DWORD preference = DWMWCP_DONOTROUND;
-            DwmSetWindowAttribute(hwnd, DWMWA_WINDOW_CORNER_PREFERENCE, &preference, sizeof(preference));
-            break;
-        }
-        case Moss_WindowFlags::EXCLUDE_FROM_CAPTURE:
-            SetWindowDisplayAffinity(hwnd, WDA_EXCLUDEFROMCAPTURE);
-            break;
-        case Moss_WindowFlags::HIDDEN:
-            ShowWindow(hwnd, SW_HIDE);
-            break;
-        case Moss_WindowFlags::SHOWN:
-            ShowWindow(hwnd, SW_SHOW);
-            break;
-        case Moss_WindowFlags::BORDERLESS: {
-            LONG_PTR style = GetWindowLongPtrW(hwnd, GWL_STYLE);
-            style &= ~(WS_CAPTION | WS_THICKFRAME | WS_MINIMIZEBOX | WS_MAXIMIZEBOX | WS_SYSMENU);
-            SetWindowLongPtrW(hwnd, GWL_STYLE, style);
-            SetWindowPos(hwnd, nullptr, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_NOACTIVATE | SWP_FRAMECHANGED);
-            break;
-        }
-        case Moss_WindowFlags::RESIZABLE: {
-            LONG_PTR style = GetWindowLongPtrW(hwnd, GWL_STYLE);
-            style |= (WS_THICKFRAME | WS_MAXIMIZEBOX);
-            SetWindowLongPtrW(hwnd, GWL_STYLE, style);
-            SetWindowPos(hwnd, nullptr, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_NOACTIVATE | SWP_FRAMECHANGED);
-            break;
-        }
-        case Moss_WindowFlags::MAXIMIZED:
-            ShowWindow(hwnd, SW_MAXIMIZE);
-            break;
-        case Moss_WindowFlags::MINIMIZED:
-            ShowWindow(hwnd, SW_RESTORE);
-            break;
-        case Moss_WindowFlags::MOUSE_GRABBED: {
-            RECT rect;
-            GetClientRect(hwnd, &rect);
-            POINT topLeft{ rect.left, rect.top };
-            POINT bottomRight{ rect.right, rect.bottom };
-            ClientToScreen(hwnd, &topLeft);
-            ClientToScreen(hwnd, &bottomRight);
-            RECT screenRect{ topLeft.x, topLeft.y, bottomRight.x, bottomRight.y };
-            ClipCursor(&screenRect);
-            break;
-        }
-        case Moss_WindowFlags::INPUT_FOCUS:
-            SetFocus(hwnd);
-            break;
-        case Moss_WindowFlags::MOUSE_FOCUS:
-            SetCapture(hwnd);
-            break;
-        case Moss_WindowFlags::ALWAYS_ON_TOP:
-            SetWindowPos(hwnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE);
-            break;
-        case Moss_WindowFlags::KEYBOARD_GRABBED:
-            if (g_keyboardHook) {
-                UnhookWindowsHookEx(g_keyboardHook);
-            }
-            g_keyboardGrabWindow = hwnd;
-            g_keyboardHook = SetWindowsHookExW(WH_KEYBOARD_LL, KeyboardGrabProc, GetModuleHandleW(nullptr), 0);
-            break;
-        default:
-            break;
+        g_keyboardGrabWindow = hwnd;
+        g_keyboardHook = SetWindowsHookExW(WH_KEYBOARD_LL, KeyboardGrabProc, GetModuleHandleW(nullptr), 0);
     }
 }
 
