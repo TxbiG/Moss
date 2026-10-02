@@ -74,10 +74,10 @@ file(GLOB_RECURSE MOSS_SRC_FILES CONFIGURE_DEPENDS
 # OpenXR is a native platform/runtime integration.
 # WebXR is implemented by MossJS.
 if(NOT EMSCRIPTEN)
-    file(GLOB_RECURSE MOSS_XR_FILES CONFIGURE_DEPENDS
-        "${MOSS_ROOT}/XR/*.cpp"
-    )
-    list(APPEND MOSS_SRC_FILES ${MOSS_XR_FILES})
+    if(MOSS_OPENXR_INCLUDE_DIR)
+        file(GLOB_RECURSE MOSS_XR_FILES CONFIGURE_DEPENDS "${MOSS_ROOT}/XR/*.cpp")
+        list(APPEND MOSS_SRC_FILES ${MOSS_XR_FILES})
+    endif()
 
 
 	# Generic audio backend (non-platform-specific). Non-recursive glob so it

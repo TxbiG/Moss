@@ -57,6 +57,7 @@ option(USE_LZCNT "Enable LZCNT" ON)
 option(USE_TZCNT "Enable TZCNT" ON)
 option(USE_F16C "Enable F16C" ON)
 option(USE_FMADD "Enable FMADD" ON)
+option(MOSS_USE_OPENXR "Enable XR" ON)
 
 
 option(MOSS_BUILD_WEBASSEMBLY "Build Moss for WebAssembly using Emscripten" OFF)
