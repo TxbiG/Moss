@@ -7,7 +7,7 @@
 #include <Moss/Moss_stdinc.h>
 #include <Moss/Core/Reference.h>
 #include <Moss/Variants/TStaticArray.h>
-#include <Moss/ObjectStream/SerializableAttribute.h>
+#include <Moss/Resources/ObjectStream/SerializableAttribute.h>
 
 MOSS_SUPPRESS_WARNINGS_BEGIN
 

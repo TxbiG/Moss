@@ -2,7 +2,7 @@
 // SPDX-FileCopyrightText: 2021 Jorrit Rouwe
 // SPDX-License-Identifier: MIT
 
-#include <Moss/Physics/physics_intern.h>
+//#include <Moss/Physics/physics_intern.h>
 
 #ifndef MOSS_DEBUG_RENDERER
 	#include <Moss/Moss_Renderer.h>

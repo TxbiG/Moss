@@ -6,7 +6,7 @@
 
 #ifdef JPH_OBJECT_STREAM
 
-#include <Moss/ObjectStream/SerializableAttribute.h>
+#include <Moss/Resources/ObjectStream/SerializableAttribute.h>
 #include <Moss/ObjectStream/GetPrimitiveTypeOfType.h>
 #include <Moss/ObjectStream/ObjectStream.h>
 

@@ -8,7 +8,7 @@
 #include <Moss/Core/Reference.h>
 #include <Moss/Core/RTTI.h>
 #include <Moss/Core/NonCopyable.h>
-#include <Moss/ObjectStream/SerializableAttribute.h>
+#include <Moss/Resources/ObjectStream/SerializableAttribute.h>
 
 #ifdef JPH_OBJECT_STREAM
 
