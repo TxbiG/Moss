@@ -688,7 +688,7 @@ void Moss_SetWindowMode(Moss_Window* window, Moss_WindowFlags flags) {
         SetWindowLongPtrW(hwnd, GWL_STYLE, style);
         SetWindowPos(hwnd, nullptr, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_NOACTIVATE | SWP_FRAMECHANGED);
     }
-    if (flags == Moss_WindowFlags::TRANSPARENT) {
+    if (flags == Moss_WindowFlags::WINDOW_TRANSPARENT) {
         LONG_PTR exStyle = GetWindowLongPtrW(hwnd, GWL_EXSTYLE);
         SetWindowLongPtrW(hwnd, GWL_EXSTYLE, exStyle | WS_EX_LAYERED);
         SetLayeredWindowAttributes(hwnd, 0, 230, LWA_ALPHA);

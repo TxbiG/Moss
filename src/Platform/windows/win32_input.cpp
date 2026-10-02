@@ -67,6 +67,21 @@ bool Moss_SendHIDReport(Moss_Gamepad* gp, const uint8_t* report, size_t size) {
     return WriteFile(hid->device, report, (DWORD)size, &bytes_written, nullptr) != FALSE;
 }
 
+static void Moss_CloseWinHIDHandle(Moss_Gamepad* gp) {
+    Moss_WinHIDGamepadHandle* hid = Moss_WinHIDHandle(gp);
+    if (!hid) return;
+    if (hid->read_pending) CancelIo(hid->device);
+    if (hid->read_overlapped.hEvent) CloseHandle(hid->read_overlapped.hEvent);
+    if (hid->device && hid->device != INVALID_HANDLE_VALUE) CloseHandle(hid->device);
+    std::free(hid);
+    gp->backend_handle = nullptr;
+}
+static int Moss_FindFreeHIDSlot(void) {
+    for (DWORD i = 0; i < XUSER_MAX_COUNT; ++i) {
+        if (!g_gamepads[i].connected && !io.pads[i].connected) return (int)i;
+    }
+    return -1;
+}
 static void Moss_DisconnectHIDGamepad(Moss_Gamepad* gp) {
     if (!gp) return;
     Moss_CloseWinHIDHandle(gp);
@@ -187,12 +202,6 @@ static void Moss_CloseWinHIDHandle(Moss_Gamepad* gp) {
     if (hid->device && hid->device != INVALID_HANDLE_VALUE) CloseHandle(hid->device);
     std::free(hid);
     gp->backend_handle = nullptr;
-}
-static int Moss_FindFreeHIDSlot(void) {
-    for (DWORD i = 0; i < XUSER_MAX_COUNT; ++i) {
-        if (!g_gamepads[i].connected && !io.pads[i].connected) return (int)i;
-    }
-    return -1;
 }
 
 static Moss_GamepadType Moss_SonyGamepadType(USHORT vendor_id, USHORT product_id) {
