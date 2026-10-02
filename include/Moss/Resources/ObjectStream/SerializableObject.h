@@ -6,7 +6,7 @@
 
 #include <Moss/Resources/ObjectStream/ObjectStream.h>
 
-MOSS_NAMESPACE_BEGIN
+MOSS_SUPPRESS_WARNINGS_END
 
 //////////////////////////////////////////////////////////////////////////////////////////
 // Helper macros
@@ -152,10 +152,8 @@ public:																												\
 /// Classes must be derived from SerializableObject if you want to be able to save pointers or
 /// reference counting pointers to objects of this or derived classes. The type will automatically
 /// be determined during serialization and upon deserialization it will be restored correctly.
-class MOSS_EXPORT SerializableObject
-{
+class MOSS_EXPORT SerializableObject {
 	MOSS_DECLARE_SERIALIZABLE_ABSTRACT_BASE(MOSS_EXPORT, SerializableObject)
-
 public:
 	/// Destructor
 	virtual						~SerializableObject() = default;
@@ -167,4 +165,4 @@ protected:
 	SerializableObject &		operator = (const SerializableObject &) = default;
 };
 
-MOSS_NAMESPACE_END
+MOSS_SUPPRESS_WARNINGS_END

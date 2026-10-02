@@ -7,7 +7,7 @@
 #include <Moss/Resources/ObjectStream/ObjectStreamBinaryOut.h>
 #include <Moss/Core/StringTools.h>
 
-MOSS_NAMESPACE_BEGIN
+MOSS_SUPPRESS_WARNINGS_END
 
 ObjectStreamBinaryOut::ObjectStreamBinaryOut(ostream &inStream) :
 	ObjectStreamOut(inStream)
@@ -157,7 +157,7 @@ void ObjectStreamBinaryOut::WritePrimitiveData(const DMat44 &inPrimitive)
 	WritePrimitiveData(inPrimitive.GetTranslation());
 }
 
-MOSS_NAMESPACE_END
+MOSS_SUPPRESS_WARNINGS_END
 
 #endif // MOSS_OBJECT_STREAM
 

@@ -8,7 +8,7 @@
 
 #ifdef MOSS_OBJECT_STREAM
 
-MOSS_NAMESPACE_BEGIN
+MOSS_SUPPRESS_WARNINGS_END
 
 /// Implementation of ObjectStream binary output stream.
 class MOSS_EXPORT ObjectStreamBinaryOut : public ObjectStreamOut
@@ -52,6 +52,6 @@ private:
 	uint32						mNextStringID = 0x80000000;
 };
 
-MOSS_NAMESPACE_END
+MOSS_SUPPRESS_WARNINGS_END
 
 #endif // MOSS_OBJECT_STREAM

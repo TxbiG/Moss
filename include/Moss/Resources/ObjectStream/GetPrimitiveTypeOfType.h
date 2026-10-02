@@ -6,7 +6,7 @@
 
 #include <Moss/Core/RTTI.h>
 
-MOSS_NAMESPACE_BEGIN
+MOSS_SUPPRESS_WARNINGS_END
 
 /// Helper functions to get the underlying RTTI type of a type (so e.g. Array<sometype> will return sometype)
 template <class T>
@@ -51,4 +51,4 @@ const RTTI *GetPrimitiveTypeOfType(T (*)[N])
 	return GetPrimitiveTypeOfType((T *)nullptr);
 }
 
-MOSS_NAMESPACE_END
+MOSS_SUPPRESS_WARNINGS_END

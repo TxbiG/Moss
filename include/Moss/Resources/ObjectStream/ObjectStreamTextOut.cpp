@@ -7,7 +7,7 @@
 #include <Moss/Resources/ObjectStream/ObjectStreamTextOut.h>
 #include <Moss/Core/StringTools.h>
 
-MOSS_NAMESPACE_BEGIN
+MOSS_SUPPRESS_WARNINGS_END
 
 ObjectStreamTextOut::ObjectStreamTextOut(ostream &inStream) :
 	ObjectStreamOut(inStream)
@@ -248,6 +248,6 @@ void ObjectStreamTextOut::WriteWord(const string_view &inWord)
 	mStream << inWord;
 }
 
-MOSS_NAMESPACE_END
+MOSS_SUPPRESS_WARNINGS_END
 
 #endif // MOSS_OBJECT_STREAM

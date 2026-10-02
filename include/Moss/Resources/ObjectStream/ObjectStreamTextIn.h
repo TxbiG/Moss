@@ -8,7 +8,7 @@
 
 #ifdef MOSS_OBJECT_STREAM
 
-MOSS_NAMESPACE_BEGIN
+MOSS_SUPPRESS_WARNINGS_END
 
 /// Implementation of ObjectStream text input stream.
 class MOSS_EXPORT ObjectStreamTextIn : public ObjectStreamIn
@@ -50,6 +50,6 @@ private:
 	bool						ReadWord(String &outWord);
 };
 
-MOSS_NAMESPACE_END
+MOSS_SUPPRESS_WARNINGS_END
 
 #endif // MOSS_OBJECT_STREAM

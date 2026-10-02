@@ -6,7 +6,7 @@
 
 #include <Moss/Resources/ObjectStream/ObjectStreamTextIn.h>
 
-MOSS_NAMESPACE_BEGIN
+MOSS_SUPPRESS_WARNINGS_END
 
 ObjectStreamTextIn::ObjectStreamTextIn(istream &inStream) :
 	ObjectStreamIn(inStream)
@@ -411,6 +411,6 @@ bool ObjectStreamTextIn::ReadWord(String &outWord)
 	return !outWord.empty();
 }
 
-MOSS_NAMESPACE_END
+MOSS_SUPPRESS_WARNINGS_END
 
 #endif // MOSS_OBJECT_STREAM

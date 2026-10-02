@@ -6,7 +6,7 @@
 
 #include <Moss/Resources/ObjectStream/ObjectStreamBinaryIn.h>
 
-MOSS_NAMESPACE_BEGIN
+MOSS_SUPPRESS_WARNINGS_END
 
 ObjectStreamBinaryIn::ObjectStreamBinaryIn(istream &inStream) :
 	ObjectStreamIn(inStream)
@@ -245,6 +245,6 @@ bool ObjectStreamBinaryIn::ReadPrimitiveData(DMat44 &outPrimitive)
 	return true;
 }
 
-MOSS_NAMESPACE_END
+MOSS_SUPPRESS_WARNINGS_END
 
 #endif // MOSS_OBJECT_STREAM

@@ -12,7 +12,7 @@
 
 #ifdef MOSS_OBJECT_STREAM
 
-MOSS_NAMESPACE_BEGIN
+MOSS_SUPPRESS_WARNINGS_END
 
 /// Base class for object stream input and output streams.
 class MOSS_EXPORT ObjectStream : public NonCopyable
@@ -332,6 +332,6 @@ void OSWriteData(IObjectStreamOut &ioStream, const RefConst<T> &inRef)
 		ioStream.WritePointerData(nullptr, nullptr);
 }
 
-MOSS_NAMESPACE_END
+MOSS_SUPPRESS_WARNINGS_END
 
 #endif // MOSS_OBJECT_STREAM

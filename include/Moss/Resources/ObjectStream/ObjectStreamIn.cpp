@@ -11,7 +11,7 @@
 #include <Moss/Resources/ObjectStream/ObjectStreamBinaryIn.h>
 #include <Moss/Resources/ObjectStream/SerializableObject.h>
 
-MOSS_NAMESPACE_BEGIN
+MOSS_SUPPRESS_WARNINGS_END
 
 ObjectStreamIn::ObjectStreamIn(istream &inStream) :
 	mStream(inStream)
@@ -628,6 +628,6 @@ bool ObjectStreamIn::SkipAttributeData(int inArrayDepth, EOSDataType inDataType,
 	return continue_reading;
 }
 
-MOSS_NAMESPACE_END
+MOSS_SUPPRESS_WARNINGS_END
 
 #endif // MOSS_OBJECT_STREAM

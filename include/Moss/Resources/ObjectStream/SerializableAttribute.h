@@ -6,7 +6,7 @@
 
 #ifdef MOSS_OBJECT_STREAM
 
-MOSS_NAMESPACE_BEGIN
+MOSS_SUPPRESS_WARNINGS_END
 
 class RTTI;
 class IObjectStreamIn;
@@ -106,6 +106,6 @@ private:
 	pWriteDataType				mWriteDataType;
 };
 
-MOSS_NAMESPACE_END
+MOSS_SUPPRESS_WARNINGS_END
 
 #endif // MOSS_OBJECT_STREAM

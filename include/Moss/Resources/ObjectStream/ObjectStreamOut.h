@@ -15,7 +15,7 @@ MOSS_SUPPRESS_WARNINGS_STD_END
 
 #ifdef MOSS_OBJECT_STREAM
 
-MOSS_NAMESPACE_BEGIN
+MOSS_SUPPRESS_WARNINGS_END
 
 /// ObjectStreamOut contains all logic for writing an object to disk. It is the base
 /// class for the text and binary output streams (ObjectStreamTextOut and ObjectStreamBinaryOut).
@@ -96,6 +96,6 @@ private:
 	ClassQueue					mClassQueue;												///< List of classes waiting to be written
 };
 
-MOSS_NAMESPACE_END
+MOSS_SUPPRESS_WARNINGS_END
 
 #endif // MOSS_OBJECT_STREAM

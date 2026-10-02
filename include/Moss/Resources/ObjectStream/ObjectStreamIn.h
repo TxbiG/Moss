@@ -15,7 +15,7 @@ MOSS_SUPPRESS_WARNINGS_STD_END
 
 #ifdef MOSS_OBJECT_STREAM
 
-MOSS_NAMESPACE_BEGIN
+MOSS_SUPPRESS_WARNINGS_END
 
 /// ObjectStreamIn contains all logic for reading an object from disk. It is the base
 /// class for the text and binary input streams (ObjectStreamTextIn and ObjectStreamBinaryIn).
@@ -143,6 +143,6 @@ private:
 	Array<Link>					mUnresolvedLinks;										///< All pointers (links) are resolved after reading the entire file, e.g. when all object exist
 };
 
-MOSS_NAMESPACE_END
+MOSS_SUPPRESS_WARNINGS_END
 
 #endif // MOSS_OBJECT_STREAM

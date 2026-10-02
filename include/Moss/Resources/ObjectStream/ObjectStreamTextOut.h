@@ -8,7 +8,7 @@
 
 #ifdef MOSS_OBJECT_STREAM
 
-MOSS_NAMESPACE_BEGIN
+MOSS_SUPPRESS_WARNINGS_END
 
 /// Implementation of ObjectStream text output stream.
 class MOSS_EXPORT ObjectStreamTextOut : public ObjectStreamOut
@@ -57,6 +57,6 @@ private:
 	int							mIndentation = 0;
 };
 
-MOSS_NAMESPACE_END
+MOSS_SUPPRESS_WARNINGS_END
 
 #endif // MOSS_OBJECT_STREAM

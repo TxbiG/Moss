@@ -9,7 +9,7 @@
 
 #ifdef MOSS_OBJECT_STREAM
 
-MOSS_NAMESPACE_BEGIN
+MOSS_SUPPRESS_WARNINGS_END
 
 ObjectStreamOut::ObjectStreamOut(ostream &inStream) :
 	mStream(inStream)
@@ -159,6 +159,6 @@ void ObjectStreamOut::WritePointerData(const RTTI *inRTTI, const void *inPointer
 	WriteIdentifier(identifier);
 }
 
-MOSS_NAMESPACE_END
+MOSS_SUPPRESS_WARNINGS_END
 
 #endif // MOSS_OBJECT_STREAM

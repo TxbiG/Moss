@@ -10,7 +10,7 @@
 #include <Moss/Geometry/Triangle.h>
 #include <Moss/Geometry/IndexedTriangle.h>
 
-MOSS_NAMESPACE_BEGIN
+MOSS_SUPPRESS_WARNINGS_END
 
 MOSS_DECLARE_RTTI_OUTSIDE_CLASS(MOSS_EXPORT, uint8);
 MOSS_DECLARE_RTTI_OUTSIDE_CLASS(MOSS_EXPORT, uint16);
@@ -38,7 +38,7 @@ MOSS_DECLARE_SERIALIZABLE_OUTSIDE_CLASS(MOSS_EXPORT, IndexedTriangleNoMaterial);
 MOSS_DECLARE_SERIALIZABLE_OUTSIDE_CLASS(MOSS_EXPORT, IndexedTriangle);
 MOSS_DECLARE_SERIALIZABLE_OUTSIDE_CLASS(MOSS_EXPORT, Plane);
 
-MOSS_NAMESPACE_END
+MOSS_SUPPRESS_WARNINGS_END
 
 // These need to be added after all types have been registered or else clang under linux will not find GetRTTIOfType for the type
 #include <Moss/Resources/ObjectStream/SerializableAttributeTyped.h>

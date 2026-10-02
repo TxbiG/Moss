@@ -6,7 +6,7 @@
 
 #ifdef MOSS_OBJECT_STREAM
 
-MOSS_NAMESPACE_BEGIN
+MOSS_SUPPRESS_WARNINGS_END
 
 // Define macro to declare functions for a specific primitive type
 #define MOSS_DECLARE_PRIMITIVE(name)																\
@@ -31,6 +31,6 @@ MOSS_NAMESPACE_BEGIN
 // This file uses the MOSS_DECLARE_PRIMITIVE macro to define all types
 #include <Moss/Resources/ObjectStream/ObjectStreamTypes.h>
 
-MOSS_NAMESPACE_END
+MOSS_SUPPRESS_WARNINGS_END
 
 #endif // MOSS_OBJECT_STREAM
