@@ -267,7 +267,7 @@ void Input_Poll(INPUT_STATE* state) {
 ////////////////////////////////////////////////////////////////
 inline bool IsPressed(size_t padIndex, Gamepad b) { return io.pads[padIndex].buttons[static_cast<size_t>(b)] != 0; }
 inline bool IsReleased(size_t padIndex, Gamepad b) { return io.pads[padIndex].buttons[static_cast<size_t>(b)] == 0; }
-inline bool IsJustPressed(size_t padIndex, Gamepad b) { size_t i = static_cast<size_t>(b); return io.pads[padIndex].buttons[i] && !io.pads[padIndex].buttons_prev[i]; }
+inline bool IsJustPressed(size_t padIndex, Gamepad b) { size_t i = static_cast<size_t>(b); return io.pads[padIndex].buttons[i] && !io.pads[padIndex].keys_prev[i]; }
 inline float GetAxis(size_t padIndex, GamepadAxis a) { return io.pads[padIndex].axes[static_cast<size_t>(a)]; }
 ////////////////////////////////////////////////////////////////
 

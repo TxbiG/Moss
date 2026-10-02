@@ -53,7 +53,8 @@ typedef const char *(WINAPI *PFNWGLGETEXTENSIONSSTRINGARBPROC)(HDC hdc);
 #ifndef PFNWGLCREATECONTEXTATTRIBSARBPROC
 typedef HGLRC (WINAPI *PFNWGLCREATECONTEXTATTRIBSARBPROC)( HDC hdc, HGLRC hShareContext, const int *attribList);
 #endif
-typedef struct _libraryWGL {
+
+struct _libraryWGL {
     HINSTANCE                           instance;
     PFN_wglCreateContext                CreateContext;
     PFN_wglDeleteContext                DeleteContext;

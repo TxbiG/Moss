@@ -1,6 +1,6 @@
 #pragma once
 
-#include </openxr/openxr.h>
+#include <openxr/openxr.h>
 #include <openxr_platform.h>
 
 #include <vector>

@@ -100,7 +100,8 @@ struct INPUT_STATE {
 extern INPUT_STATE io;
 extern KeyState* keyboardState;
 
-using AcquireFrameFunc = Moss_CaptureFrameResult(*)(Moss_Capture *device, Moss_Surface *frame, uint64_t *timestampNS, float *rotation);
+typedef void (*Moss_CaptureFrameResult*)(Moss_Capture *device, Moss_Surface *frame, uint64_t *timestampNS, float *rotation);
+
 
 struct Moss_Storage {
     /* The version of this interface */

@@ -16,7 +16,7 @@
 
 struct Moss_Capture {
     IGraphBuilder* graph;
-    CLSID_CaptureGraphBuilder2* captureBuilder = nullptr;
+    ICaptureGraphBuilder2* captureBuilder = nullptr;
     IMediaControl* mediaControl;
     IBaseFilter* videoCaptureFilter;
     IAMStreamConfig* streamConfig;
