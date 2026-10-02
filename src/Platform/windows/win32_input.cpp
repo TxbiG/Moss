@@ -152,7 +152,7 @@ static const Gamepad g_moss_to_raw_button[static_cast<size_t>(Moss_GamepadButton
 };
 
 
-static const GamepadAxis g_moss_to_gamepad_axis[ static_cast<size_t>(GamepadAxis::COUNT)] = {
+static const GamepadAxis g_moss_to_gamepad_axis[static_cast<size_t>(GamepadAxis::COUNT)] = {
     GamepadAxis::LEFT_X,
     GamepadAxis::LEFT_Y,
     GamepadAxis::RIGHT_X,
@@ -173,6 +173,11 @@ static GamepadAxisConfig g_axis_config[static_cast<size_t>(GamepadAxis::COUNT)] 
     /* RIGHT_Y */       { 0.15f, true  },
     /* LEFT_TRIGGER */  { 0.05f, false },
     /* RIGHT_TRIGGER */ { 0.05f, false },
+    { 0.0f,  false },
+    { 0.0f,  false },
+    { 0.0f,  false },
+    { 0.0f,  false },
+    { 0.0f,  false }
 };
 
 /*-------------------  RawInput registration  --------------------*/
@@ -461,8 +466,17 @@ float Moss_GetGamepadAxis(Moss_Gamepad* gp, GamepadAxis axis) {
     return g_axis_config[i].invert ? -value : value;
 }
 
-void Moss_SetGamepadAxisDeadzone(GamepadAxis axis, float dz) { if (static_cast<int>(axis) >= 0) g_axis_config[static_cast<size_t>(axis)].deadzone = dz; }
-void Moss_SetGamepadAxisInverted(GamepadAxis axis, bool inverted) { if (static_cast<int>(axis) >= 0) g_axis_config[static_cast<size_t>(axis)].invert = inverted; }
+void Moss_SetGamepadAxisDeadzone(GamepadAxis axis, float dz) {
+    const size_t index = static_cast<size_t>(axis);
+    if (index >= static_cast<size_t>(GamepadAxis::COUNT)) { return; }
+    g_axis_config[index].deadzone = dz;
+}
+
+void Moss_SetGamepadAxisInverted(GamepadAxis axis, bool inverted) {
+    const size_t index = static_cast<size_t>(axis);
+    if (index >= static_cast<size_t>(GamepadAxis::COUNT)) { return; }
+    g_axis_config[index].invert = inverted;
+}
 
 // Rumble / LED
 bool Moss_RumbleGamepad(Moss_Gamepad* gp, uint16_t low, uint16_t high, uint32_t duration_ms) {
@@ -498,11 +512,11 @@ Moss_PowerState Moss_GetGamepadPowerInfo(Moss_Gamepad* gp, int* percent) {
     if (percent) *percent = -1;
 
     if (!gp || gp->backend != MOSS_GAMEPAD_BACKEND_XINPUT)
-        return MOSS_POWERSTATE_UNKNOWN;
+        return Moss_PowerState::UNKNOWN;
 
     XINPUT_BATTERY_INFORMATION bat;
-    if (XInputGetBatteryInformation(gp->index, XINPUT_BATTERY_DEVTYPE_GAMEPAD, &bat) != ERROR_SUCCESS)
-        return MOSS_POWERSTATE_UNKNOWN;
+    if (XInputGetBatteryInformation(gp->index, BATTERY_DEVTYPE_GAMEPAD, &bat) != ERROR_SUCCESS)
+        return Moss_PowerState::UNKNOWN;
 
     if (percent) {
         static const int map[] = { 0, 25, 50, 75, 100 };

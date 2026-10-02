@@ -65,9 +65,9 @@ typedef struct _libraryNS {
     id                  keyUpMonitor;
     id                  nibObjects;
 
-    char                keynames[Moss_Keyboard::MOSS_LAST_KEY + 1][17];
+    char                keynames[Keyboard::MOSS_LAST_KEY + 1][17];
     short int           keycodes[256];
-    short int           scancodes[Moss_Keyboard::MOSS_LAST_KEY + 1];
+    short int           scancodes[Keyboard::MOSS_LAST_KEY + 1];
     char*               clipboardString;
     CGPoint             cascadePoint;
     // Where to place the cursor when re-enabled

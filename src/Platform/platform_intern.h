@@ -67,7 +67,12 @@ struct GAMEPAD_STATE {
     bool connected = false;
     bool buttons[static_cast<size_t>(Gamepad::COUNT)] = {};
     float axes[static_cast<int>(GamepadAxis::COUNT)] = {};
+
+    bool is_dualshock = false;
+    bool is_dualsense = false;
 };
+
+using GamepadState = GAMEPAD_STATE;
 
 struct KeyState {
     bool pressed;
@@ -95,7 +100,7 @@ struct INPUT_STATE {
 extern INPUT_STATE io;
 extern KeyState* keyboardState;
 
-using AcquireFrameFunc = Moss_CameraFrameResult(*)(Moss_Capture *device, Moss_Surface *frame, uint64_t *timestampNS, float *rotation);
+using AcquireFrameFunc = Moss_CaptureFrameResult(*)(Moss_Capture *device, Moss_Surface *frame, uint64_t *timestampNS, float *rotation);
 
 struct Moss_Storage {
     /* The version of this interface */

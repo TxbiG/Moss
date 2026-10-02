@@ -92,8 +92,8 @@ struct _libraryWin32 {
     int                 acquiredMonitorCount;
     char*               clipboardString;
     short int           keycodes[512];
-    short int           scancodes[Moss_Keyboard::MOSS_LAST_KEY + 1];
-    char                keynames[Moss_Keyboard::MOSS_LAST_KEY + 1][5];
+    short int           scancodes[Keyboard::MOSS_LAST_KEY + 1];
+    char                keynames[Keyboard::MOSS_LAST_KEY + 1][5];
     // Where to place the cursor when re-enabled
     double              restoreCursorPosX, restoreCursorPosY;
     // The window whose disabled cursor mode is active
@@ -182,17 +182,6 @@ struct _frame {
 };
 
 extern _frame g_frame;
-
-struct GamepadState {
-    bool connected = false;
-
-    float axes[static_cast<size_t>(GamepadAxis::COUNT)] = {};
-    uint8_t buttons[static_cast<size_t>(Gamepad::COUNT)] = {};
-    uint8_t buttons_prev[static_cast<size_t>(Gamepad::COUNT)] = {};
-
-    bool is_dualshock = false;
-    bool is_dualsense = false;
-};
 
 struct GamepadAxisConfig {
     float deadzone;     // e.g. 0.15f

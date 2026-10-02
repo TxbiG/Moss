@@ -38,8 +38,21 @@ typedef HDC   (WINAPI *PFN_wglGetCurrentDC)(void);
 typedef HGLRC (WINAPI *PFN_wglGetCurrentContext)(void);
 typedef BOOL  (WINAPI *PFN_wglMakeCurrent)(HDC hdc, HGLRC hglrc);
 typedef BOOL  (WINAPI *PFN_wglShareLists)(HGLRC hglrc1, HGLRC hglrc2);
+#ifndef PFNWGLSWAPINTERVALEXTPROC
 typedef BOOL (WINAPI * PFNWGLSWAPINTERVALEXTPROC) (int interval);
-
+#endif
+#ifndef PFNWGLGETPIXELFORMATATTRIBIVARBPROC
+typedef BOOL (WINAPI *PFNWGLGETPIXELFORMATATTRIBIVARBPROC)(HDC hdc, int iPixelFormat, int iLayerPlane, UINT nAttributes, const int *piAttributes, int *piValues);
+#endif
+#ifndef PFNWGLGETEXTENSIONSSTRINGEXTPROC
+typedef const char *(WINAPI *PFNWGLGETEXTENSIONSSTRINGEXTPROC)(void);
+#endif
+#ifndef PFNWGLGETEXTENSIONSSTRINGARBPROC
+typedef const char *(WINAPI *PFNWGLGETEXTENSIONSSTRINGARBPROC)(HDC hdc);
+#endif
+#ifndef PFNWGLCREATECONTEXTATTRIBSARBPROC
+typedef HGLRC (WINAPI *PFNWGLCREATECONTEXTATTRIBSARBPROC)( HDC hdc, HGLRC hShareContext, const int *attribList);
+#endif
 typedef struct _libraryWGL {
     HINSTANCE                           instance;
     PFN_wglCreateContext                CreateContext;
@@ -55,12 +68,15 @@ typedef struct _libraryWGL {
     PFNWGLGETEXTENSIONSSTRINGEXTPROC    GetExtensionsStringEXT;
     PFNWGLGETEXTENSIONSSTRINGARBPROC    GetExtensionsStringARB;
     PFNWGLCREATECONTEXTATTRIBSARBPROC   CreateContextAttribsARB;
+
     bool                            EXT_swap_control;
     bool                            EXT_colorspace;
+
     bool                            ARB_multisample;
     bool                            ARB_framebuffer_sRGB;
     bool                            EXT_framebuffer_sRGB;
     bool                            ARB_pixel_format;
+    
     bool                            ARB_create_context;
     bool                            ARB_create_context_profile;
     bool                            EXT_create_context_es2_profile;

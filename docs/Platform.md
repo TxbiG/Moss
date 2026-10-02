@@ -121,12 +121,12 @@ MOSS_API void Moss_MonitorSetGamma(Moss_Monitor monitor, float gamma);
 MOSS_API bool Moss_IsKeyPressed(Moss_Key key);
 MOSS_API bool Moss_IsKeyJustPressed(Moss_Key key);
 MOSS_API bool Moss_IsKeyJustReleased(Moss_Key key);
-MOSS_API Moss_Keyboard Moss_InputGetKey();
+MOSS_API Keyboard Moss_InputGetKey();
 
 MOSS_API bool Moss_IsMousePressed(Moss_MouseButton button);
 MOSS_API bool Moss_IsMouseJustPressed(Moss_MouseButton button);
 MOSS_API bool Moss_IsMouseJustReleased(Moss_MouseButton button);
-MOSS_API Moss_Keyboard Moss_InputGetMouse();
+MOSS_API Keyboard Moss_InputGetMouse();
 MOSS_API void Moss_GetMousePosition(int* x, int* y);
 MOSS_API void Moss_SetMousePosition(int x, int y);
 MOSS_API void Moss_SetMouseVisible(bool visible);

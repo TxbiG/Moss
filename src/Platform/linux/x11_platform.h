@@ -64,9 +64,9 @@ typedef struct libraryX11 {
 
     // Clipboard and keyboard mappings
     char*           clipboardString;
-    char            keynames[Moss_Keyboard::MOSS_LAST_KEY + 1][5];
+    char            keynames[Keyboard::MOSS_LAST_KEY + 1][5];
     short int       keycodes[256];
-    short int       scancodes[Moss_Keyboard::MOSS_LAST_KEY + 1];
+    short int       scancodes[Keyboard::MOSS_LAST_KEY + 1];
 
     // Restore cursor pos (for raw mouse)
     double          restoreCursorPosX, restoreCursorPosY;

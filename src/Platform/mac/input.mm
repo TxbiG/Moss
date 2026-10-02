@@ -104,11 +104,11 @@ void Moss_UpdateInputStates() {
     previousGamepad = currentGamepad;
 }
 
-bool Moss_IsKeyPressed(Moss_Keyboard key) { (void)key; return false; }
-bool Moss_IsReleased(Moss_Keyboard key) { (void)key; return true; }
-bool Moss_IsKeyJustPressed(Moss_Keyboard key) { (void)key; return false; }
-bool Moss_IsKeyJustReleased(Moss_Keyboard key) { (void)key; return false; }
-Moss_Keyboard Moss_InputGetKey() { return Moss_Keyboard::COUNT; }
+bool Moss_IsKeyPressed(Keyboard key) { (void)key; return false; }
+bool Moss_IsReleased(Keyboard key) { (void)key; return true; }
+bool Moss_IsKeyJustPressed(Keyboard key) { (void)key; return false; }
+bool Moss_IsKeyJustReleased(Keyboard key) { (void)key; return false; }
+Keyboard Moss_InputGetKey() { return Keyboard::COUNT; }
 
 bool Moss_IsMousePressed(Moss_MouseButton button) { (void)button; return false; }
 bool Moss_IsMouseReleased(Moss_MouseButton button) { (void)button; return true; }

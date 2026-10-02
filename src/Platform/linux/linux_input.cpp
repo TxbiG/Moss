@@ -201,11 +201,11 @@ static void Moss_ReadLinuxGamepad(Moss_Gamepad* gp) {
     }
 }
 
-bool Moss_IsKeyPressed(Moss_Keyboard key) { return io.keys[static_cast<size_t>(key)] != 0; }
-bool Moss_IsReleased(Moss_Keyboard key) { return io.keys[static_cast<size_t>(key)] == 0; }
-bool Moss_IsKeyJustPressed(Moss_Keyboard key) { size_t i = static_cast<size_t>(key); return io.keys[i] && !io.keys_prev[i]; }
-bool Moss_IsKeyJustReleased(Moss_Keyboard key) { size_t i = static_cast<size_t>(key); return !io.keys[i] && io.keys_prev[i]; }
-Moss_Keyboard Moss_InputGetKey() { return Moss_Keyboard::COUNT; }
+bool Moss_IsKeyPressed(Keyboard key) { return io.keys[static_cast<size_t>(key)] != 0; }
+bool Moss_IsReleased(Keyboard key) { return io.keys[static_cast<size_t>(key)] == 0; }
+bool Moss_IsKeyJustPressed(Keyboard key) { size_t i = static_cast<size_t>(key); return io.keys[i] && !io.keys_prev[i]; }
+bool Moss_IsKeyJustReleased(Keyboard key) { size_t i = static_cast<size_t>(key); return !io.keys[i] && io.keys_prev[i]; }
+Keyboard Moss_InputGetKey() { return Keyboard::COUNT; }
 
 inline bool IsPressed(size_t padIndex, Gamepad b) { return io.pads[padIndex].buttons[static_cast<size_t>(b)] != 0; }
 inline bool IsReleased(size_t padIndex, Gamepad b) { return io.pads[padIndex].buttons[static_cast<size_t>(b)] == 0; }

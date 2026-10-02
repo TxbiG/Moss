@@ -521,7 +521,9 @@ struct Moss_CameraSpec {
 
 struct Moss_GammaRamp {
     uint32_t size;
-    uint8_t* red, green, blue; 
+    uint8_t* red; 
+    uint8_t* green; 
+    uint8_t* blue; 
 };
 
 struct Moss_VideoMode { 
@@ -947,11 +949,11 @@ MOSS_API bool Moss_HapticRumbleSupported(Moss_Haptic* haptic);
 /*! @brief X. @param X X.*/
 MOSS_API bool Moss_InitHapticRumble(Moss_Haptic* joystick);
 /*! @brief X. @param X X.*/
-MOSS_API bool Moss_IsJoystickHaptic(Moss_GamepadAxis* joystick);
+MOSS_API bool Moss_IsJoystickHaptic(Moss_Gamepad* joystick);
 /*! @brief X. @param X X.*/
 MOSS_API bool Moss_IsMouseHaptic(void);
 /*! @brief X. @param X X.*/
-MOSS_API Moss_Haptic* Moss_OpenHapticFromJoystick(Moss_GamepadAxis* joystick);
+MOSS_API Moss_Haptic* Moss_OpenHapticFromJoystick(Moss_Gamepad* joystick);
 /*! @brief X. @param X X.*/
 MOSS_API Moss_Haptic* Moss_OpenHapticFromMouse(void);
 /*! @brief X. @param X X.*/

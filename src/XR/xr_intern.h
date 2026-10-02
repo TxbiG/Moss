@@ -1,13 +1,13 @@
 #pragma once
 
-#include <Moss/Moss_XR.h>
-
-#include <Moss/external/openxr/openxr.h>
-#include <Moss/externalopenxr/openxr_platform.h>
+#include </openxr/openxr.h>
+#include <openxr_platform.h>
 
 #include <vector>
 #include <unordered_map>
 #include <string>
+
+#include <Moss/Moss_XR.h>
 
 
 struct MossXR_Capabilities {
