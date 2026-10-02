@@ -47,11 +47,30 @@ size_t Moss_BuildDS5OutputReport(uint8_t* report, size_t size, uint8_t rumble_hi
     return 48;
 }
 
+struct Moss_WinHIDGamepadHandle {
+    HANDLE device;
+    OVERLAPPED read_overlapped;
+    bool read_pending;
+    uint8_t input_report[128];
+};
+
+static Moss_WinHIDGamepadHandle* Moss_WinHIDHandle(Moss_Gamepad* gp) { return gp ? (Moss_WinHIDGamepadHandle*)gp->backend_handle : nullptr; }
+
 bool Moss_SendHIDReport(Moss_Gamepad* gp, const uint8_t* report, size_t size) {
     if (!gp || !gp->backend_handle) return false;
     auto* hid = (Moss_WinHIDGamepadHandle*)gp->backend_handle;
     DWORD bytes_written = 0;
     return WriteFile(hid->device, report, (DWORD)size, &bytes_written, nullptr) != FALSE;
+}
+
+static void Moss_DisconnectHIDGamepad(Moss_Gamepad* gp) {
+    if (!gp) return;
+    Moss_CloseWinHIDHandle(gp);
+    io.pads[gp->index].connected = false;
+    std::memset(io.pads[gp->index].buttons, 0, sizeof(io.pads[gp->index].buttons));
+    std::memset(io.pads[gp->index].axes, 0, sizeof(io.pads[gp->index].axes));
+    g_hid_paths[gp->index][0] = '\0';
+    gp->connected = false;
 }
 /////////////////////////////////////
 
@@ -67,11 +86,136 @@ struct Moss_WinHIDGamepadHandle
     uint8_t input_report[128] = {};
 };
 
-static bool Moss_HIDPathAlreadyOpen(const char* path);
-static void Moss_UpdateHIDGamepad(Moss_Gamepad* gp);
-static void Moss_CloseWinHIDHandle(Moss_Gamepad* gp);
-static int Moss_FindFreeHIDSlot();
-static Moss_GamepadType Moss_SonyGamepadType(USHORT vendor_id, USHORT product_id);
+static bool Moss_HIDPathAlreadyOpen(const char* path) {
+    if (!path) return false;
+    for (DWORD i = 0; i < XUSER_MAX_COUNT; ++i) { if (g_hid_paths[i][0] && strcmp(g_hid_paths[i], path) == 0) return true; }
+    return false;
+}
+
+static float Moss_NormalizeByteAxis(uint8_t value) { return ((float)value - 128.0f) / 127.0f; }
+
+static void Moss_DecodeSonyHat(GamepadState& pad, uint8_t hat) {
+    pad.buttons[static_cast<size_t>(Gamepad::GAMEPAD_BUTTON_DPAD_UP)] = hat == 0 || hat == 1 || hat == 7;
+    pad.buttons[static_cast<size_t>(Gamepad::GAMEPAD_BUTTON_DPAD_RIGHT)] = hat == 1 || hat == 2 || hat == 3;
+    pad.buttons[static_cast<size_t>(Gamepad::GAMEPAD_BUTTON_DPAD_DOWN)] = hat == 3 || hat == 4 || hat == 5;
+    pad.buttons[static_cast<size_t>(Gamepad::GAMEPAD_BUTTON_DPAD_LEFT)] = hat == 5 || hat == 6 || hat == 7;
+}
+
+static void Moss_DecodeSonyHIDInput(Moss_Gamepad* gp, const uint8_t* report, DWORD report_size) {
+    if (!gp || !report || report_size < 10) return;
+    GamepadState& pad = io.pads[gp->index];
+    std::memcpy(pad.buttons_prev, pad.buttons, sizeof(pad.buttons));
+    pad.connected = true;
+
+    if (gp->type == Moss_GamepadType::PS4 && report[0] == 0x01 && report_size >= 10) {
+        pad.axes[static_cast<size_t>(GamepadAxis::LEFT_X)] = Moss_NormalizeByteAxis(report[1]);
+        pad.axes[static_cast<size_t>(GamepadAxis::LEFT_Y)] = Moss_NormalizeByteAxis(report[2]);
+        pad.axes[static_cast<size_t>(GamepadAxis::RIGHT_X)] = Moss_NormalizeByteAxis(report[3]);
+        pad.axes[static_cast<size_t>(GamepadAxis::RIGHT_Y)] = Moss_NormalizeByteAxis(report[4]);
+        const uint8_t b0 = report[5];
+        const uint8_t b1 = report[6];
+        const uint8_t b2 = report[7];
+        Moss_DecodeSonyHat(pad, b0 & 0x0F);
+        pad.buttons[static_cast<size_t>(Gamepad::GAMEPAD_BUTTON_X)] = (b0 & 0x10) != 0;
+        pad.buttons[static_cast<size_t>(Gamepad::GAMEPAD_BUTTON_A)] = (b0 & 0x20) != 0;
+        pad.buttons[static_cast<size_t>(Gamepad::GAMEPAD_BUTTON_B)] = (b0 & 0x40) != 0;
+        pad.buttons[static_cast<size_t>(Gamepad::GAMEPAD_BUTTON_Y)] = (b0 & 0x80) != 0;
+        pad.buttons[static_cast<size_t>(Gamepad::GAMEPAD_BUTTON_LEFT_BUMPER)] = (b1 & 0x01) != 0;
+        pad.buttons[static_cast<size_t>(Gamepad::GAMEPAD_BUTTON_RIGHT_BUMPER)] = (b1 & 0x02) != 0;
+        pad.buttons[static_cast<size_t>(Gamepad::GAMEPAD_BUTTON_BACK)] = (b1 & 0x10) != 0;
+        pad.buttons[static_cast<size_t>(Gamepad::GAMEPAD_BUTTON_START)] = (b1 & 0x20) != 0;
+        pad.buttons[static_cast<size_t>(Gamepad::GAMEPAD_BUTTON_LEFT_THUMB)] = (b1 & 0x40) != 0;
+        pad.buttons[static_cast<size_t>(Gamepad::GAMEPAD_BUTTON_RIGHT_THUMB)] = (b1 & 0x80) != 0;
+        pad.buttons[static_cast<size_t>(Gamepad::GAMEPAD_BUTTON_GUIDE)] = (b2 & 0x01) != 0;
+        pad.axes[static_cast<size_t>(GamepadAxis::LEFT_TRIGGER)] = report[8] / 255.0f;
+        pad.axes[static_cast<size_t>(GamepadAxis::RIGHT_TRIGGER)] = report[9] / 255.0f;
+        return;
+    }
+
+    if (gp->type == Moss_GamepadType::PS5 && (report[0] == 0x01 || report[0] == 0x31)) {
+        const int offset = report[0] == 0x31 ? 1 : 0;
+        if (report_size < (DWORD)(11 + offset)) return;
+        pad.axes[static_cast<size_t>(GamepadAxis::LEFT_X)] = Moss_NormalizeByteAxis(report[1 + offset]);
+        pad.axes[static_cast<size_t>(GamepadAxis::LEFT_Y)] = Moss_NormalizeByteAxis(report[2 + offset]);
+        pad.axes[static_cast<size_t>(GamepadAxis::RIGHT_X)] = Moss_NormalizeByteAxis(report[3 + offset]);
+        pad.axes[static_cast<size_t>(GamepadAxis::RIGHT_Y)] = Moss_NormalizeByteAxis(report[4 + offset]);
+        pad.axes[static_cast<size_t>(GamepadAxis::LEFT_TRIGGER)] = report[5 + offset] / 255.0f;
+        pad.axes[static_cast<size_t>(GamepadAxis::RIGHT_TRIGGER)] = report[6 + offset] / 255.0f;
+        const uint8_t b0 = report[8 + offset];
+        const uint8_t b1 = report[9 + offset];
+        const uint8_t b2 = report[10 + offset];
+        Moss_DecodeSonyHat(pad, b0 & 0x0F);
+        pad.buttons[static_cast<size_t>(Gamepad::GAMEPAD_BUTTON_X)] = (b0 & 0x10) != 0;
+        pad.buttons[static_cast<size_t>(Gamepad::GAMEPAD_BUTTON_A)] = (b0 & 0x20) != 0;
+        pad.buttons[static_cast<size_t>(Gamepad::GAMEPAD_BUTTON_B)] = (b0 & 0x40) != 0;
+        pad.buttons[static_cast<size_t>(Gamepad::GAMEPAD_BUTTON_Y)] = (b0 & 0x80) != 0;
+        pad.buttons[static_cast<size_t>(Gamepad::GAMEPAD_BUTTON_LEFT_BUMPER)] = (b1 & 0x01) != 0;
+        pad.buttons[static_cast<size_t>(Gamepad::GAMEPAD_BUTTON_RIGHT_BUMPER)] = (b1 & 0x02) != 0;
+        pad.buttons[static_cast<size_t>(Gamepad::GAMEPAD_BUTTON_BACK)] = (b1 & 0x10) != 0;
+        pad.buttons[static_cast<size_t>(Gamepad::GAMEPAD_BUTTON_START)] = (b1 & 0x20) != 0;
+        pad.buttons[static_cast<size_t>(Gamepad::GAMEPAD_BUTTON_LEFT_THUMB)] = (b1 & 0x40) != 0;
+        pad.buttons[static_cast<size_t>(Gamepad::GAMEPAD_BUTTON_RIGHT_THUMB)] = (b1 & 0x80) != 0;
+        pad.buttons[static_cast<size_t>(Gamepad::GAMEPAD_BUTTON_GUIDE)] = (b2 & 0x01) != 0;
+    }
+}
+
+static void Moss_UpdateHIDGamepad(Moss_Gamepad* gp) {
+    Moss_WinHIDGamepadHandle* hid = Moss_WinHIDHandle(gp);
+    if (!gp || !hid || !hid->device || hid->device == INVALID_HANDLE_VALUE) return;
+
+    if (hid->read_pending) {
+        DWORD bytes = 0;
+        if (GetOverlappedResult(hid->device, &hid->read_overlapped, &bytes, FALSE)) {
+            hid->read_pending = false;
+            Moss_DecodeSonyHIDInput(gp, hid->input_report, bytes);
+        } else if (GetLastError() != ERROR_IO_INCOMPLETE) {
+            Moss_DisconnectHIDGamepad(gp);
+            return;
+        }
+    }
+
+    if (!hid->read_pending) {
+        DWORD bytes = 0;
+        std::memset(hid->input_report, 0, sizeof(hid->input_report));
+        ResetEvent(hid->read_overlapped.hEvent);
+        if (ReadFile(hid->device, hid->input_report, sizeof(hid->input_report), &bytes, &hid->read_overlapped)) {
+            Moss_DecodeSonyHIDInput(gp, hid->input_report, bytes);
+        } else if (GetLastError() == ERROR_IO_PENDING) {
+            hid->read_pending = true;
+        } else {
+            Moss_DisconnectHIDGamepad(gp);
+        }
+    }
+}
+static void Moss_CloseWinHIDHandle(Moss_Gamepad* gp) {
+    Moss_WinHIDGamepadHandle* hid = Moss_WinHIDHandle(gp);
+    if (!hid) return;
+    if (hid->read_pending) CancelIo(hid->device);
+    if (hid->read_overlapped.hEvent) CloseHandle(hid->read_overlapped.hEvent);
+    if (hid->device && hid->device != INVALID_HANDLE_VALUE) CloseHandle(hid->device);
+    std::free(hid);
+    gp->backend_handle = nullptr;
+}
+static int Moss_FindFreeHIDSlot(void) {
+    for (DWORD i = 0; i < XUSER_MAX_COUNT; ++i) {
+        if (!g_gamepads[i].connected && !io.pads[i].connected) return (int)i;
+    }
+    return -1;
+}
+
+static Moss_GamepadType Moss_SonyGamepadType(USHORT vendor_id, USHORT product_id) {
+    if (vendor_id != 0x054C) return Moss_GamepadType::UNKNOWN;
+    switch (product_id) {
+    case 0x05C4:
+    case 0x09CC:
+        return Moss_GamepadType::PS4;
+    case 0x0CE6:
+        return Moss_GamepadType::PS5;
+    default:
+        return Moss_GamepadType::UNKNOWN;
+    }
+}
+
 
 
 ///////////////////////////////
@@ -564,206 +708,8 @@ Moss_GamepadButton Moss_InputGetGamepadButton() { return Moss_GamepadButton::LEF
 GamepadAxis Moss_InputGetGamepadAxis() { return GamepadAxis::LEFT_X; }
 
 // Pen and Fingers
-Moss_PenDeviceType Moss_GetPenDeviceType(Moss_PenID instance_id) { (void)instance_id; return Moss_PenDeviceType::UNKNOWN; }
+Moss_PenDeviceType Moss_GetPenDeviceType(Moss_PenID instance_id) { (void)instance_id; return Moss_PenDeviceType::INVALID; }
 const char* Moss_GetTouchDeviceName(Moss_TouchID touchID) { (void)touchID; return "Windows Touch Device"; }
 Moss_TouchID* Moss_GetTouchDevices(int* count) { static Moss_TouchID ids[1] = { 0 }; if (count) *count = 1; return ids; }
-Moss_TouchDeviceType Moss_GetTouchDeviceType(Moss_TouchID touchID) { (void)touchID; return Moss_TouchDeviceType::UNKNOWN; }
+Moss_TouchDeviceType Moss_GetTouchDeviceType(Moss_TouchID touchID) { (void)touchID; return Moss_TouchDeviceType::INVALID; }
 Moss_Finger** Moss_GetTouchFingers(Moss_TouchID touchID, int* count) { (void)touchID; if (count) *count = 0; return nullptr; }
-
-
-/*
-INPUT_STATE io;
-KeyState g_keyboardState[static_cast<size_t>(Keyboard::COUNT)] = {};
-KeyState* keyboardState = g_keyboardState;
-
-static Moss_Gamepad g_gamepads[XUSER_MAX_COUNT] = {};
-static char g_hid_paths[XUSER_MAX_COUNT][512] = {};
-
-struct Moss_WinHIDGamepadHandle {
-    HANDLE device;
-    OVERLAPPED read_overlapped;
-    bool read_pending;
-    uint8_t input_report[128];
-};
-
-static const Gamepad g_moss_to_raw_button[static_cast<size_t>(Moss_GamepadButton::COUNT)] = {
-    Gamepad::GAMEPAD_BUTTON_A,
-    Gamepad::GAMEPAD_BUTTON_B,
-    Gamepad::GAMEPAD_BUTTON_X,
-    Gamepad::GAMEPAD_BUTTON_Y,
-    Gamepad::GAMEPAD_BUTTON_BACK,
-    Gamepad::GAMEPAD_BUTTON_GUIDE,
-    Gamepad::GAMEPAD_BUTTON_START,
-    Gamepad::GAMEPAD_BUTTON_LEFT_THUMB,
-    Gamepad::GAMEPAD_BUTTON_RIGHT_THUMB,
-    Gamepad::GAMEPAD_BUTTON_LEFT_BUMPER,
-    Gamepad::GAMEPAD_BUTTON_RIGHT_BUMPER,
-    Gamepad::GAMEPAD_BUTTON_DPAD_UP,
-    Gamepad::GAMEPAD_BUTTON_DPAD_DOWN,
-    Gamepad::GAMEPAD_BUTTON_DPAD_LEFT,
-    Gamepad::GAMEPAD_BUTTON_DPAD_RIGHT,
-    Gamepad::GAMEPAD_BUTTON_LAST,
-    Gamepad::GAMEPAD_BUTTON_LAST,
-    Gamepad::GAMEPAD_BUTTON_LAST,
-    Gamepad::GAMEPAD_BUTTON_LAST,
-    Gamepad::GAMEPAD_BUTTON_LAST,
-    Gamepad::GAMEPAD_BUTTON_LAST,
-    Gamepad::GAMEPAD_BUTTON_LAST,
-    Gamepad::GAMEPAD_BUTTON_LAST,
-    Gamepad::GAMEPAD_BUTTON_LAST,
-    Gamepad::GAMEPAD_BUTTON_LAST,
-    Gamepad::GAMEPAD_BUTTON_LAST,
-    Gamepad::GAMEPAD_BUTTON_LAST,
-    Gamepad::GAMEPAD_BUTTON_LAST,
-    Gamepad::GAMEPAD_BUTTON_LAST
-};
-
-static Moss_GamepadType Moss_SonyGamepadType(USHORT vendor_id, USHORT product_id) {
-    if (vendor_id != 0x054C) return Moss_GamepadType::UNKNOWN;
-    switch (product_id) {
-    case 0x05C4:
-    case 0x09CC:
-        return Moss_GamepadType::PS4;
-    case 0x0CE6:
-        return Moss_GamepadType::PS5;
-    default:
-        return Moss_GamepadType::UNKNOWN;
-    }
-}
-
-static int Moss_FindFreeHIDSlot(void) {
-    for (DWORD i = 0; i < XUSER_MAX_COUNT; ++i) {
-        if (!g_gamepads[i].connected && !io.pads[i].connected) return (int)i;
-    }
-    return -1;
-}
-
-static Moss_WinHIDGamepadHandle* Moss_WinHIDHandle(Moss_Gamepad* gp) {
-    return gp ? (Moss_WinHIDGamepadHandle*)gp->backend_handle : nullptr;
-}
-
-static void Moss_CloseWinHIDHandle(Moss_Gamepad* gp) {
-    Moss_WinHIDGamepadHandle* hid = Moss_WinHIDHandle(gp);
-    if (!hid) return;
-    if (hid->read_pending) CancelIo(hid->device);
-    if (hid->read_overlapped.hEvent) CloseHandle(hid->read_overlapped.hEvent);
-    if (hid->device && hid->device != INVALID_HANDLE_VALUE) CloseHandle(hid->device);
-    std::free(hid);
-    gp->backend_handle = nullptr;
-}
-
-static float Moss_NormalizeByteAxis(uint8_t value) {
-    return ((float)value - 128.0f) / 127.0f;
-}
-
-static void Moss_DecodeSonyHat(GamepadState& pad, uint8_t hat) {
-    pad.buttons[static_cast<size_t>(Gamepad::GAMEPAD_BUTTON_DPAD_UP)] = hat == 0 || hat == 1 || hat == 7;
-    pad.buttons[static_cast<size_t>(Gamepad::GAMEPAD_BUTTON_DPAD_RIGHT)] = hat == 1 || hat == 2 || hat == 3;
-    pad.buttons[static_cast<size_t>(Gamepad::GAMEPAD_BUTTON_DPAD_DOWN)] = hat == 3 || hat == 4 || hat == 5;
-    pad.buttons[static_cast<size_t>(Gamepad::GAMEPAD_BUTTON_DPAD_LEFT)] = hat == 5 || hat == 6 || hat == 7;
-}
-
-static void Moss_DecodeSonyHIDInput(Moss_Gamepad* gp, const uint8_t* report, DWORD report_size) {
-    if (!gp || !report || report_size < 10) return;
-    GamepadState& pad = io.pads[gp->index];
-    std::memcpy(pad.buttons_prev, pad.buttons, sizeof(pad.buttons));
-    pad.connected = true;
-
-    if (gp->type == Moss_GamepadType::PS4 && report[0] == 0x01 && report_size >= 10) {
-        pad.axes[static_cast<size_t>(GamepadAxis::LEFT_X)] = Moss_NormalizeByteAxis(report[1]);
-        pad.axes[static_cast<size_t>(GamepadAxis::LEFT_Y)] = Moss_NormalizeByteAxis(report[2]);
-        pad.axes[static_cast<size_t>(GamepadAxis::RIGHT_X)] = Moss_NormalizeByteAxis(report[3]);
-        pad.axes[static_cast<size_t>(GamepadAxis::RIGHT_Y)] = Moss_NormalizeByteAxis(report[4]);
-        const uint8_t b0 = report[5];
-        const uint8_t b1 = report[6];
-        const uint8_t b2 = report[7];
-        Moss_DecodeSonyHat(pad, b0 & 0x0F);
-        pad.buttons[static_cast<size_t>(Gamepad::GAMEPAD_BUTTON_X)] = (b0 & 0x10) != 0;
-        pad.buttons[static_cast<size_t>(Gamepad::GAMEPAD_BUTTON_A)] = (b0 & 0x20) != 0;
-        pad.buttons[static_cast<size_t>(Gamepad::GAMEPAD_BUTTON_B)] = (b0 & 0x40) != 0;
-        pad.buttons[static_cast<size_t>(Gamepad::GAMEPAD_BUTTON_Y)] = (b0 & 0x80) != 0;
-        pad.buttons[static_cast<size_t>(Gamepad::GAMEPAD_BUTTON_LEFT_BUMPER)] = (b1 & 0x01) != 0;
-        pad.buttons[static_cast<size_t>(Gamepad::GAMEPAD_BUTTON_RIGHT_BUMPER)] = (b1 & 0x02) != 0;
-        pad.buttons[static_cast<size_t>(Gamepad::GAMEPAD_BUTTON_BACK)] = (b1 & 0x10) != 0;
-        pad.buttons[static_cast<size_t>(Gamepad::GAMEPAD_BUTTON_START)] = (b1 & 0x20) != 0;
-        pad.buttons[static_cast<size_t>(Gamepad::GAMEPAD_BUTTON_LEFT_THUMB)] = (b1 & 0x40) != 0;
-        pad.buttons[static_cast<size_t>(Gamepad::GAMEPAD_BUTTON_RIGHT_THUMB)] = (b1 & 0x80) != 0;
-        pad.buttons[static_cast<size_t>(Gamepad::GAMEPAD_BUTTON_GUIDE)] = (b2 & 0x01) != 0;
-        pad.axes[static_cast<size_t>(GamepadAxis::LEFT_TRIGGER)] = report[8] / 255.0f;
-        pad.axes[static_cast<size_t>(GamepadAxis::RIGHT_TRIGGER)] = report[9] / 255.0f;
-        return;
-    }
-
-    if (gp->type == Moss_GamepadType::PS5 && (report[0] == 0x01 || report[0] == 0x31)) {
-        const int offset = report[0] == 0x31 ? 1 : 0;
-        if (report_size < (DWORD)(11 + offset)) return;
-        pad.axes[static_cast<size_t>(GamepadAxis::LEFT_X)] = Moss_NormalizeByteAxis(report[1 + offset]);
-        pad.axes[static_cast<size_t>(GamepadAxis::LEFT_Y)] = Moss_NormalizeByteAxis(report[2 + offset]);
-        pad.axes[static_cast<size_t>(GamepadAxis::RIGHT_X)] = Moss_NormalizeByteAxis(report[3 + offset]);
-        pad.axes[static_cast<size_t>(GamepadAxis::RIGHT_Y)] = Moss_NormalizeByteAxis(report[4 + offset]);
-        pad.axes[static_cast<size_t>(GamepadAxis::LEFT_TRIGGER)] = report[5 + offset] / 255.0f;
-        pad.axes[static_cast<size_t>(GamepadAxis::RIGHT_TRIGGER)] = report[6 + offset] / 255.0f;
-        const uint8_t b0 = report[8 + offset];
-        const uint8_t b1 = report[9 + offset];
-        const uint8_t b2 = report[10 + offset];
-        Moss_DecodeSonyHat(pad, b0 & 0x0F);
-        pad.buttons[static_cast<size_t>(Gamepad::GAMEPAD_BUTTON_X)] = (b0 & 0x10) != 0;
-        pad.buttons[static_cast<size_t>(Gamepad::GAMEPAD_BUTTON_A)] = (b0 & 0x20) != 0;
-        pad.buttons[static_cast<size_t>(Gamepad::GAMEPAD_BUTTON_B)] = (b0 & 0x40) != 0;
-        pad.buttons[static_cast<size_t>(Gamepad::GAMEPAD_BUTTON_Y)] = (b0 & 0x80) != 0;
-        pad.buttons[static_cast<size_t>(Gamepad::GAMEPAD_BUTTON_LEFT_BUMPER)] = (b1 & 0x01) != 0;
-        pad.buttons[static_cast<size_t>(Gamepad::GAMEPAD_BUTTON_RIGHT_BUMPER)] = (b1 & 0x02) != 0;
-        pad.buttons[static_cast<size_t>(Gamepad::GAMEPAD_BUTTON_BACK)] = (b1 & 0x10) != 0;
-        pad.buttons[static_cast<size_t>(Gamepad::GAMEPAD_BUTTON_START)] = (b1 & 0x20) != 0;
-        pad.buttons[static_cast<size_t>(Gamepad::GAMEPAD_BUTTON_LEFT_THUMB)] = (b1 & 0x40) != 0;
-        pad.buttons[static_cast<size_t>(Gamepad::GAMEPAD_BUTTON_RIGHT_THUMB)] = (b1 & 0x80) != 0;
-        pad.buttons[static_cast<size_t>(Gamepad::GAMEPAD_BUTTON_GUIDE)] = (b2 & 0x01) != 0;
-    }
-}
-
-static void Moss_DisconnectHIDGamepad(Moss_Gamepad* gp) {
-    if (!gp) return;
-    Moss_CloseWinHIDHandle(gp);
-    io.pads[gp->index].connected = false;
-    std::memset(io.pads[gp->index].buttons, 0, sizeof(io.pads[gp->index].buttons));
-    std::memset(io.pads[gp->index].axes, 0, sizeof(io.pads[gp->index].axes));
-    g_hid_paths[gp->index][0] = '\0';
-    gp->connected = false;
-}
-
-static void Moss_UpdateHIDGamepad(Moss_Gamepad* gp) {
-    Moss_WinHIDGamepadHandle* hid = Moss_WinHIDHandle(gp);
-    if (!gp || !hid || !hid->device || hid->device == INVALID_HANDLE_VALUE) return;
-
-    if (hid->read_pending) {
-        DWORD bytes = 0;
-        if (GetOverlappedResult(hid->device, &hid->read_overlapped, &bytes, FALSE)) {
-            hid->read_pending = false;
-            Moss_DecodeSonyHIDInput(gp, hid->input_report, bytes);
-        } else if (GetLastError() != ERROR_IO_INCOMPLETE) {
-            Moss_DisconnectHIDGamepad(gp);
-            return;
-        }
-    }
-
-    if (!hid->read_pending) {
-        DWORD bytes = 0;
-        std::memset(hid->input_report, 0, sizeof(hid->input_report));
-        ResetEvent(hid->read_overlapped.hEvent);
-        if (ReadFile(hid->device, hid->input_report, sizeof(hid->input_report), &bytes, &hid->read_overlapped)) {
-            Moss_DecodeSonyHIDInput(gp, hid->input_report, bytes);
-        } else if (GetLastError() == ERROR_IO_PENDING) {
-            hid->read_pending = true;
-        } else {
-            Moss_DisconnectHIDGamepad(gp);
-        }
-    }
-}
-static bool Moss_HIDPathAlreadyOpen(const char* path) {
-    if (!path) return false;
-    for (DWORD i = 0; i < XUSER_MAX_COUNT; ++i) {
-        if (g_hid_paths[i][0] && strcmp(g_hid_paths[i], path) == 0) return true;
-    }
-    return false;
-}
-*/
