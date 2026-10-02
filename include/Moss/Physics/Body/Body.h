@@ -12,7 +12,7 @@
 #include <Moss/Physics/Collision/CollisionGroup.h>
 #include <Moss/Physics/Collision/ObjectLayer.h>
 #include <Moss/Physics/Collision/PhysicsMaterial.h>
-#include <Moss/Physics/Collision/Shape/Shape.h>
+#include <Moss/Physics/Collision/Shape/Shapes.h>
 
 MOSS_SUPPRESS_WARNINGS_END
 
