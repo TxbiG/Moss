@@ -373,7 +373,7 @@ enum class Moss_WindowFlags {
     NOTITLEBAR = 0x00000001,        // no window decoration
     RESIZE_DISABLED = 0,
     ALWAYS_ON_TOP = 20,
-    TRANSPARENT = 3,
+    WINDOW_TRANSPARENT = 3,
     NO_FOCUS = 4,
     POPUP = 5,
     EXTEND_TO_TITLE = 6,

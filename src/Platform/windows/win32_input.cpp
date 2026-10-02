@@ -26,6 +26,33 @@ static float Moss_NormalizeStick(SHORT value) {
 static bool TriggerPressed(float value) { return value >= g_trigger_button_threshold; }
 void Moss_SetTriggerButtonThreshold(float threshold) { g_trigger_button_threshold = threshold; }
 static bool Moss_TriggerPressed(float value) { return value >= g_trigger_button_threshold; }
+
+// Missing HID Report Implementation Stubs
+size_t Moss_BuildDS4OutputReport(uint8_t* report, size_t size, uint8_t rumble_high, uint8_t rumble_low, uint8_t r, uint8_t g, uint8_t b) {
+    if (size < 11) return 0;
+    report[0] = 0x05; // Standard USB report ID
+    report[1] = 0xFF; 
+    report[4] = rumble_low;
+    report[5] = rumble_high;
+    report[6] = r; report[7] = g; report[8] = b;
+    return 11;
+}
+
+size_t Moss_BuildDS5OutputReport(uint8_t* report, size_t size, uint8_t rumble_high, uint8_t rumble_low, uint8_t r, uint8_t g, uint8_t b, uint8_t trigger_l, uint8_t trigger_r) {
+    if (size < 48) return 0;
+    report[0] = 0x02; // Standard report ID
+    report[1] = 0xFF;
+    report[2] = rumble_low;
+    report[3] = rumble_high;
+    return 48;
+}
+
+bool Moss_SendHIDReport(Moss_Gamepad* gp, const uint8_t* report, size_t size) {
+    if (!gp || !gp->backend_handle) return false;
+    auto* hid = (Moss_WinHIDGamepadHandle*)gp->backend_handle;
+    DWORD bytes_written = 0;
+    return WriteFile(hid->device, report, (DWORD)size, &bytes_written, nullptr) != FALSE;
+}
 /////////////////////////////////////
 
 

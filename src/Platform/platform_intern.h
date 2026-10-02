@@ -66,7 +66,9 @@ enum class Moss_GamepadType {
 struct GAMEPAD_STATE {
     bool connected = false;
     bool buttons[static_cast<size_t>(Gamepad::COUNT)] = {};
+    bool buttons_prev[static_cast<size_t>(Gamepad::COUNT)] = {}; // Added missing array
     float axes[static_cast<int>(GamepadAxis::COUNT)] = {};
+    bool keys_prev[static_cast<size_t>(Gamepad::COUNT)] = {};    // Added missing array
 
     bool is_dualshock = false;
     bool is_dualsense = false;
