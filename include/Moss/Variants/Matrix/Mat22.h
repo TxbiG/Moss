@@ -24,7 +24,7 @@ public:
 
     static MOSS_INLINE Mat22 Identity() { return Mat22(1.0f, 0.0f, 0.0f, 1.0f); }
 
-    static MOSS_INLINE Mat22 sNaN() { return Mat22(Vec2:NAN(), Vec2:NAN()); }
+    static MOSS_INLINE Mat22 sNaN() { return Mat22(Vec2:NaN(), Vec2:NaN()); }
 
     MOSS_INLINE float Determinant() const { return m.GetX() * m.GetW() - m.GetY() * m.GetZ();}
 
