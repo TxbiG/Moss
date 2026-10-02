@@ -33,7 +33,7 @@ TextureVK::TextureVK(RendererVK *inRenderer, const Surface *inSurface) :
 	case ESurfaceFormat::A8R8G8B8:		vk_format = VK_FORMAT_B8G8R8A8_UNORM;			break;
 	case ESurfaceFormat::A8B8G8R8:		vk_format = VK_FORMAT_B8G8R8A8_UNORM;			format = ESurfaceFormat::A8R8G8B8; break;
 	case ESurfaceFormat::Invalid:
-	default:							JPH_ASSERT(false);								break;
+	default:							MOSS_ASSERT(false);								break;
 	}
 
 	// Blit the surface to another temporary surface if the format changed

@@ -35,7 +35,7 @@ TextureDX12::TextureDX12(RendererDX12 *inRenderer, const Surface *inSurface) :
 	case ESurfaceFormat::A8R8G8B8:		desc.Format = DXGI_FORMAT_B8G8R8A8_UNORM;	break;
 	case ESurfaceFormat::A8B8G8R8:		desc.Format = DXGI_FORMAT_B8G8R8A8_UNORM;	format = ESurfaceFormat::A8R8G8B8;	break;
 	case ESurfaceFormat::Invalid:
-	default:							JPH_ASSERT(false);							break;
+	default:							MOSS_ASSERT(false);							break;
 	}
 	desc.Width = mWidth;
 	desc.Height = mHeight;
@@ -63,7 +63,7 @@ TextureDX12::TextureDX12(RendererDX12 *inRenderer, const Surface *inSurface) :
 	heap_properties.CreationNodeMask = 1;
 	heap_properties.VisibleNodeMask = 1;
 	FatalErrorIfFailed(inRenderer->GetDevice()->CreateCommittedResource(&heap_properties, D3D12_HEAP_FLAG_NONE, &desc, D3D12_RESOURCE_STATE_COPY_DEST, nullptr, IID_PPV_ARGS(&mTexture)));
-	JPH_IF_DEBUG(mTexture->SetName(L"Texture");)
+	MOSS_IF_DEBUG(mTexture->SetName(L"Texture");)
 
 	// Determine required size of data to copy
 	D3D12_PLACED_SUBRESOURCE_FOOTPRINT footprint;
@@ -73,7 +73,7 @@ TextureDX12::TextureDX12(RendererDX12 *inRenderer, const Surface *inSurface) :
 
 	// Create the GPU upload buffer
 	ComPtr<ID3D12Resource> upload_resource = mRenderer->CreateD3DResourceOnUploadHeap(required_size);
-	JPH_IF_DEBUG(upload_resource->SetName(L"Texture Upload");)
+	MOSS_IF_DEBUG(upload_resource->SetName(L"Texture Upload");)
 
 	// Copy data to upload texture
 	surface->Lock(ESurfaceLockMode::Read);
@@ -156,7 +156,7 @@ TextureDX12::TextureDX12(RendererDX12 *inRenderer, int inWidth, int inHeight) :
 	depth_stencil_desc.Flags = D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL;
 
 	FatalErrorIfFailed(inRenderer->GetDevice()->CreateCommittedResource(&heap_properties, D3D12_HEAP_FLAG_NONE, &depth_stencil_desc, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE, &clear_value, IID_PPV_ARGS(&mTexture)));
-	JPH_IF_DEBUG(mTexture->SetName(L"Render Target Texture");)
+	MOSS_IF_DEBUG(mTexture->SetName(L"Render Target Texture");)
 
 	// Create DSV for the texture
 	mDSV = inRenderer->GetDSVHeap().Allocate();

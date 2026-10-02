@@ -1116,7 +1116,7 @@ public:
 
 
 
-class JPH_EXPORT BodyAccess {
+class MOSS_EXPORT BodyAccess {
 public:
 	/// Access rules, used to detect race conditions during simulation
 	enum class EAccess : uint8 {
@@ -1132,8 +1132,8 @@ public:
 			EAccess &velocity = sVelocityAccess();
 			EAccess &position = sPositionAccess();
 
-			JPH_ASSERT(velocity == EAccess::ReadWrite);
-			JPH_ASSERT(position == EAccess::ReadWrite);
+			MOSS_ASSERT(velocity == EAccess::ReadWrite);
+			MOSS_ASSERT(position == EAccess::ReadWrite);
 
 			velocity = inVelocity;
 			position = inPosition;

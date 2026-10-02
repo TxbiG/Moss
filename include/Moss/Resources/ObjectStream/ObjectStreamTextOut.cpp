@@ -2,12 +2,12 @@
 // SPDX-FileCopyrightText: 2021 Jorrit Rouwe
 // SPDX-License-Identifier: MIT
 
-#ifdef JPH_OBJECT_STREAM
+#ifdef MOSS_OBJECT_STREAM
 
 #include <Moss/Resources/ObjectStream/ObjectStreamTextOut.h>
 #include <Moss/Core/StringTools.h>
 
-JPH_NAMESPACE_BEGIN
+MOSS_NAMESPACE_BEGIN
 
 ObjectStreamTextOut::ObjectStreamTextOut(ostream &inStream) :
 	ObjectStreamOut(inStream)
@@ -44,7 +44,7 @@ void ObjectStreamTextOut::WriteDataType(EOSDataType inType)
 	case EOSDataType::T_Mat44:		WriteWord("mat44");			break;
 	case EOSDataType::T_DMat44:		WriteWord("dmat44");		break;
 	case EOSDataType::Invalid:
-	default:						JPH_ASSERT(false);			break;
+	default:						MOSS_ASSERT(false);			break;
 	}
 }
 
@@ -248,6 +248,6 @@ void ObjectStreamTextOut::WriteWord(const string_view &inWord)
 	mStream << inWord;
 }
 
-JPH_NAMESPACE_END
+MOSS_NAMESPACE_END
 
-#endif // JPH_OBJECT_STREAM
+#endif // MOSS_OBJECT_STREAM

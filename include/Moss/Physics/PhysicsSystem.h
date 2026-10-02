@@ -428,7 +428,7 @@ private:
 	// Tries to spawn a new FindCollisions job if max concurrency hasn't been reached yet
 	void						TrySpawnJobFindCollisions(PhysicsUpdateContext::Step *ioStep) const;
 
-#ifdef JPH_TRACK_SIMULATION_STATS
+#ifdef MOSS_TRACK_SIMULATION_STATS
 	/// Gather stats from the islands and distribute them over the bodies
 	void						GatherIslandStats();
 #endif

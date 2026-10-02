@@ -4,12 +4,12 @@
 
 #pragma once
 
-#ifdef JPH_OBJECT_STREAM
+#ifdef MOSS_OBJECT_STREAM
 
 #include <Moss/Resources/ObjectStream/SerializableAttribute.h>
 #include <Moss/Resources/ObjectStream/ObjectStream.h>
 
-JPH_NAMESPACE_BEGIN
+MOSS_NAMESPACE_BEGIN
 
 //////////////////////////////////////////////////////////////////////////////////////////
 // Macros to add properties to be serialized
@@ -48,19 +48,19 @@ inline void AddSerializableAttributeEnum(RTTI &inRTTI, uint32 inOffset, const ch
 		}));
 }
 
-// JPH_ADD_ENUM_ATTRIBUTE_WITH_ALIAS
-#define JPH_ADD_ENUM_ATTRIBUTE_WITH_ALIAS(class_name, member_name, alias_name) \
+// MOSS_ADD_ENUM_ATTRIBUTE_WITH_ALIAS
+#define MOSS_ADD_ENUM_ATTRIBUTE_WITH_ALIAS(class_name, member_name, alias_name) \
 	AddSerializableAttributeEnum<decltype(class_name::member_name)>(inRTTI, offsetof(class_name, member_name), alias_name);
 
-// JPH_ADD_ENUM_ATTRIBUTE
-#define JPH_ADD_ENUM_ATTRIBUTE(class_name, member_name) \
-	JPH_ADD_ENUM_ATTRIBUTE_WITH_ALIAS(class_name, member_name, #member_name);
+// MOSS_ADD_ENUM_ATTRIBUTE
+#define MOSS_ADD_ENUM_ATTRIBUTE(class_name, member_name) \
+	MOSS_ADD_ENUM_ATTRIBUTE_WITH_ALIAS(class_name, member_name, #member_name);
 
-JPH_NAMESPACE_END
+MOSS_NAMESPACE_END
 
 #else
 
-#define JPH_ADD_ENUM_ATTRIBUTE_WITH_ALIAS(...)
-#define JPH_ADD_ENUM_ATTRIBUTE(...)
+#define MOSS_ADD_ENUM_ATTRIBUTE_WITH_ALIAS(...)
+#define MOSS_ADD_ENUM_ATTRIBUTE(...)
 
-#endif // JPH_OBJECT_STREAM
+#endif // MOSS_OBJECT_STREAM

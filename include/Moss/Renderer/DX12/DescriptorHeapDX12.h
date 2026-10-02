@@ -38,7 +38,7 @@ public:
 	/// Allocate and return a new handle
 	D3D12_CPU_DESCRIPTOR_HANDLE			Allocate()
 	{
-		JPH_ASSERT(!mFreeList.empty());
+		MOSS_ASSERT(!mFreeList.empty());
 
 		D3D12_CPU_DESCRIPTOR_HANDLE handle = mHeap->GetCPUDescriptorHandleForHeapStart();
 
@@ -60,7 +60,7 @@ public:
 	/// Convert from a CPU to a GPU handle
 	D3D12_GPU_DESCRIPTOR_HANDLE			ConvertToGPUHandle(D3D12_CPU_DESCRIPTOR_HANDLE inHandle)
 	{
-		JPH_ASSERT(mGPUOffset != -1);
+		MOSS_ASSERT(mGPUOffset != -1);
 		return { UINT64(inHandle.ptr) + mGPUOffset };
 	}
 

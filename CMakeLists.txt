@@ -9,7 +9,7 @@ option(DOUBLE_PRECISION "Use double precision math" OFF)
 option(GENERATE_DEBUG_SYMBOLS "Generate debug symbols" ON)
 
 # Which type of debug symbols to generate, e.g. using source-map when compiling with emscripten makes compilation a lot faster
-set(JPH_DEBUG_SYMBOL_FORMAT "" CACHE STRING "Which type of debug symbols to generate")
+set(MOSS_DEBUG_SYMBOL_FORMAT "" CACHE STRING "Which type of debug symbols to generate")
 
 # When turning this option on, the library will override the default CMAKE_CXX_FLAGS_DEBUG/RELEASE values, otherwise they will use the platform defaults
 option(OVERRIDE_CXX_FLAGS "Override CMAKE_CXX_FLAGS_DEBUG/RELEASE" ON)
@@ -94,7 +94,7 @@ option(PROFILER_IN_DEBUG_AND_RELEASE "Enable the profiler in Debug and Release b
 # Note that enabling this reduces the performance of the library.
 option(PROFILER_IN_DISTRIBUTION "Enable the profiler in all builds" OFF)
 
-# Ability to use the external profiler using CMake config. Defines preprocessor JPH_EXTERNAL_PROFILE.
+# Ability to use the external profiler using CMake config. Defines preprocessor MOSS_EXTERNAL_PROFILE.
 # Use external profiler set using ProfileStartMeasurement and ProfileEndMeasurement to profile.
 # Option is available only when profiling is enabled using PROFILER_IN_DEBUG_AND_RELEASE or PROFILER_IN_DISTRIBUTION.
 option(MOSS_USE_EXTERNAL_PROFILE "Use external profiler when profiling is enabled" OFF)
@@ -250,7 +250,7 @@ else()
 
 	# Optionally generate debug symbols
 	if (GENERATE_DEBUG_SYMBOLS)
-		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g${JPH_DEBUG_SYMBOL_FORMAT}")
+		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g${MOSS_DEBUG_SYMBOL_FORMAT}")
 	endif()
 
 	if (NOT CPP_RTTI_ENABLED)
@@ -272,7 +272,7 @@ else()
 	if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
 		# Also disable -Wstringop-overflow or it will generate false positives that can't be disabled from code when link-time optimizations are enabled
 		# Also disable -Wno-psabi to avoid messages of the form note: parameter passing for argument of type '...' changed in GCC 7.1
-		# Also turn off automatic fused multiply add contractions, there doesn't seem to be a way to do this selectively through the macro JPH_PRECISE_MATH_OFF
+		# Also turn off automatic fused multiply add contractions, there doesn't seem to be a way to do this selectively through the macro MOSS_PRECISE_MATH_OFF
 		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-stringop-overflow -Wno-psabi -ffp-contract=off")
 	else()
 		# Do not use -ffast-math since it cannot be turned off in a single compilation unit under clang, see Core.h

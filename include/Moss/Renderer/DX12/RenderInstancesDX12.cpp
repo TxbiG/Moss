@@ -31,7 +31,7 @@ void RenderInstancesDX12::CreateBuffer(int inNumInstances, int inInstanceSize)
 
 		// Create buffer
 		mInstanceBuffer = mRenderer->CreateD3DResourceOnUploadHeap(mInstanceBufferSize);
-		JPH_IF_DEBUG(mInstanceBuffer->SetName(L"Instance Buffer");)
+		MOSS_IF_DEBUG(mInstanceBuffer->SetName(L"Instance Buffer");)
 	}
 
 	// Update parameters

@@ -116,17 +116,17 @@ Surface::Surface(int inWidth, int inHeight, ESurfaceFormat inFormat) :
 
 Surface::~Surface()
 {
-	JPH_ASSERT(!IsLocked());
-	JPH_ASSERT(mData == nullptr);
-	JPH_ASSERT(mStride == 0);
-	JPH_ASSERT(mLength == 0);
+	MOSS_ASSERT(!IsLocked());
+	MOSS_ASSERT(mData == nullptr);
+	MOSS_ASSERT(mStride == 0);
+	MOSS_ASSERT(mLength == 0);
 }
 
 void Surface::Lock(ESurfaceLockMode inMode) const
 {
 	// Check if this resource can be locked
-	JPH_ASSERT(!IsLocked());
-	JPH_ASSERT((uint32(inMode) & uint32(ESurfaceLockMode::ReadWrite)) != 0);
+	MOSS_ASSERT(!IsLocked());
+	MOSS_ASSERT((uint32(inMode) & uint32(ESurfaceLockMode::ReadWrite)) != 0);
 
 	// Store mode
 	mLockMode = inMode;
@@ -135,15 +135,15 @@ void Surface::Lock(ESurfaceLockMode inMode) const
 	HardwareLock();
 
 	// Check that data and stride were filled in
-	JPH_ASSERT(mData != nullptr);
-	JPH_ASSERT(mStride > 0);
-	JPH_ASSERT(mLength > 0);
+	MOSS_ASSERT(mData != nullptr);
+	MOSS_ASSERT(mStride > 0);
+	MOSS_ASSERT(mLength > 0);
 }
 
 void Surface::UnLock() const
 {
 	// Check if this resource was locked
-	JPH_ASSERT(IsLocked());
+	MOSS_ASSERT(IsLocked());
 
 	// Unlock the hardware resource
 	HardwareUnLock();
@@ -197,7 +197,7 @@ SoftwareSurface::SoftwareSurface(int inWidth, int inHeight, ESurfaceFormat inFor
 	mPixelLength = mPixelStride * inHeight;
 
 	// Allocate pixel data
-	JPH_ASSERT(mPixelLength > 0);
+	MOSS_ASSERT(mPixelLength > 0);
 	mPixelData = new uint8 [mPixelLength];
 }
 

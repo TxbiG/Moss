@@ -2,11 +2,11 @@
 // SPDX-FileCopyrightText: 2021 Jorrit Rouwe
 // SPDX-License-Identifier: MIT
 
-#ifdef JPH_OBJECT_STREAM
+#ifdef MOSS_OBJECT_STREAM
 
 #include <Moss/Resources/ObjectStream/ObjectStreamTextIn.h>
 
-JPH_NAMESPACE_BEGIN
+MOSS_NAMESPACE_BEGIN
 
 ObjectStreamTextIn::ObjectStreamTextIn(istream &inStream) :
 	ObjectStreamIn(inStream)
@@ -411,6 +411,6 @@ bool ObjectStreamTextIn::ReadWord(String &outWord)
 	return !outWord.empty();
 }
 
-JPH_NAMESPACE_END
+MOSS_NAMESPACE_END
 
-#endif // JPH_OBJECT_STREAM
+#endif // MOSS_OBJECT_STREAM

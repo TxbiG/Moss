@@ -7,15 +7,15 @@
 #include <Moss/Resources/ObjectStream/ObjectStreamBinaryOut.h>
 #include <Moss/Resources/ObjectStream/TypeDeclarations.h>
 
-#ifdef JPH_OBJECT_STREAM
+#ifdef MOSS_OBJECT_STREAM
 
-JPH_NAMESPACE_BEGIN
+MOSS_NAMESPACE_BEGIN
 
 ObjectStreamOut::ObjectStreamOut(ostream &inStream) :
 	mStream(inStream)
 {
 // Add all primitives to the class set
-#define JPH_DECLARE_PRIMITIVE(name)	mClassSet.insert(JPH_RTTI(name));
+#define MOSS_DECLARE_PRIMITIVE(name)	mClassSet.insert(MOSS_RTTI(name));
 #include <Moss/Resources/ObjectStream/ObjectStreamTypes.h>
 }
 
@@ -25,7 +25,7 @@ ObjectStreamOut *ObjectStreamOut::Open(EStreamType inType, ostream &inStream)
 	{
 	case EStreamType::Text:		return new ObjectStreamTextOut(inStream);
 	case EStreamType::Binary:	return new ObjectStreamBinaryOut(inStream);
-	default:					JPH_ASSERT(false);
+	default:					MOSS_ASSERT(false);
 	}
 	return nullptr;
 }
@@ -50,7 +50,7 @@ void ObjectStreamOut::WriteObject(const void *inObject)
 {
 	// Find object identifier
 	IdentifierMap::iterator i = mIdentifierMap.find(inObject);
-	JPH_ASSERT(i != mIdentifierMap.end());
+	MOSS_ASSERT(i != mIdentifierMap.end());
 
 	// Write class description and associated descriptions
 	QueueRTTI(i->second.mRTTI);
@@ -114,7 +114,7 @@ void ObjectStreamOut::WriteRTTI(const RTTI *inRTTI)
 
 void ObjectStreamOut::WriteClassData(const RTTI *inRTTI, const void *inInstance)
 {
-	JPH_ASSERT(inInstance);
+	MOSS_ASSERT(inInstance);
 
 	// Write attributes
 	HintIndentUp();
@@ -159,6 +159,6 @@ void ObjectStreamOut::WritePointerData(const RTTI *inRTTI, const void *inPointer
 	WriteIdentifier(identifier);
 }
 
-JPH_NAMESPACE_END
+MOSS_NAMESPACE_END
 
-#endif // JPH_OBJECT_STREAM
+#endif // MOSS_OBJECT_STREAM

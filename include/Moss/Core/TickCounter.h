@@ -45,7 +45,7 @@ MOSS_INLINE uint64 GetProcessorTickCount() {
 		__rdtime_t l = __rdtimel_w();
 		return ((uint64)h.value << 32) + l.value;
 	#endif
-#elif defined(JPH_CPU_ARM) || defined(JPH_CPU_RISCV) || defined(JPH_CPU_WASM) || defined(JPH_CPU_PPC)
+#elif defined(MOSS_CPU_ARM) || defined(MOSS_CPU_RISCV) || defined(MOSS_CPU_WASM) || defined(MOSS_CPU_PPC)
 	return 0; // Not supported
 #else
 	#error Undefined

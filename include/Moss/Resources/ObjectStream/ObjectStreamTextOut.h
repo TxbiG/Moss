@@ -6,15 +6,15 @@
 
 #include <Moss/Resources/ObjectStream/ObjectStreamOut.h>
 
-#ifdef JPH_OBJECT_STREAM
+#ifdef MOSS_OBJECT_STREAM
 
-JPH_NAMESPACE_BEGIN
+MOSS_NAMESPACE_BEGIN
 
 /// Implementation of ObjectStream text output stream.
-class JPH_EXPORT ObjectStreamTextOut : public ObjectStreamOut
+class MOSS_EXPORT ObjectStreamTextOut : public ObjectStreamOut
 {
 public:
-	JPH_OVERRIDE_NEW_DELETE
+	MOSS_OVERRIDE_NEW_DELETE
 
 	/// Constructor and destructor
 	explicit					ObjectStreamTextOut(ostream &inStream);
@@ -57,6 +57,6 @@ private:
 	int							mIndentation = 0;
 };
 
-JPH_NAMESPACE_END
+MOSS_NAMESPACE_END
 
-#endif // JPH_OBJECT_STREAM
+#endif // MOSS_OBJECT_STREAM

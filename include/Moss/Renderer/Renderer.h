@@ -64,15 +64,15 @@ public:
 	virtual Texture *				GetShadowMap() const = 0;
 
 	/// Get the camera state / frustum (only valid between BeginFrame() / EndFrame())
-	const CameraState &				GetCameraState() const				{ JPH_ASSERT(mInFrame); return mCameraState; }
-	const Frustum &					GetCameraFrustum() const			{ JPH_ASSERT(mInFrame); return mCameraFrustum; }
+	const CameraState &				GetCameraState() const				{ MOSS_ASSERT(mInFrame); return mCameraState; }
+	const Frustum &					GetCameraFrustum() const			{ MOSS_ASSERT(mInFrame); return mCameraFrustum; }
 
 	/// Offset relative to which the world is rendered, helps avoiding rendering artifacts at big distances
 	RVec3							GetBaseOffset() const				{ return mBaseOffset; }
 	void							SetBaseOffset(RVec3 inOffset)		{ mBaseOffset = inOffset; }
 
 	/// Get the light frustum (only valid between BeginFrame() / EndFrame())
-	const Frustum &					GetLightFrustum() const				{ JPH_ASSERT(mInFrame); return mLightFrustum; }
+	const Frustum &					GetLightFrustum() const				{ MOSS_ASSERT(mInFrame); return mLightFrustum; }
 
 	/// How many frames our pipeline is
 	inline static const uint32		cFrameCount = 2;
@@ -81,7 +81,7 @@ public:
 	inline static const uint32		cShadowMapSize = 4096;
 
 	/// Which frame is currently rendering (to keep track of which buffers are free to overwrite)
-	uint32							GetCurrentFrameIndex() const		{ JPH_ASSERT(mInFrame); return mFrameIndex; }
+	uint32							GetCurrentFrameIndex() const		{ MOSS_ASSERT(mInFrame); return mFrameIndex; }
 
 	/// Get the window we're rendering to
 	ApplicationWindow *				GetWindow() const					{ return mWindow; }

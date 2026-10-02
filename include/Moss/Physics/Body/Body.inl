@@ -196,10 +196,10 @@ void Body::ResetSleepTimer()
 
 void MotionProperties::MoveKinematic(Vec3Arg inDeltaPosition, QuatArg inDeltaRotation, float inDeltaTime)
 {
-	JPH_ASSERT(BodyAccess::sCheckRights(BodyAccess::sVelocityAccess(), BodyAccess::EAccess::ReadWrite));
-	JPH_ASSERT(BodyAccess::sCheckRights(BodyAccess::sPositionAccess(), BodyAccess::EAccess::Read));
-	JPH_ASSERT(mCachedBodyType == EBodyType::RigidBody);
-	JPH_ASSERT(mCachedMotionType != EMotionType::Static);
+	MOSS_ASSERT(BodyAccess::sCheckRights(BodyAccess::sVelocityAccess(), BodyAccess::EAccess::ReadWrite));
+	MOSS_ASSERT(BodyAccess::sCheckRights(BodyAccess::sPositionAccess(), BodyAccess::EAccess::Read));
+	MOSS_ASSERT(mCachedBodyType == EBodyType::RigidBody);
+	MOSS_ASSERT(mCachedMotionType != EMotionType::Static);
 
 	// Calculate required linear velocity
 	mLinearVelocity = LockTranslation(inDeltaPosition / inDeltaTime);

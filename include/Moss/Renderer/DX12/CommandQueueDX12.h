@@ -62,7 +62,7 @@ public:
 	/// Execute accumulated command list
 	void								Execute()
 	{
-		JPH_ASSERT(!mIsExecuting);
+		MOSS_ASSERT(!mIsExecuting);
 
 		// Close the command list
 		FatalErrorIfFailed(mCommandList->Close());

@@ -9,17 +9,17 @@
 #include <Moss/Core/RTTI.h>
 #include <Moss/Core/UnorderedMap.h>
 
-JPH_SUPPRESS_WARNINGS_STD_BEGIN
+MOSS_SUPPRESS_WARNINGS_STD_BEGIN
 #include <fstream>
-JPH_SUPPRESS_WARNINGS_STD_END
+MOSS_SUPPRESS_WARNINGS_STD_END
 
-#ifdef JPH_OBJECT_STREAM
+#ifdef MOSS_OBJECT_STREAM
 
-JPH_NAMESPACE_BEGIN
+MOSS_NAMESPACE_BEGIN
 
 /// ObjectStreamIn contains all logic for reading an object from disk. It is the base
 /// class for the text and binary input streams (ObjectStreamTextIn and ObjectStreamBinaryIn).
-class JPH_EXPORT ObjectStreamIn : public IObjectStreamIn
+class MOSS_EXPORT ObjectStreamIn : public IObjectStreamIn
 {
 private:
 	struct ClassDescription;
@@ -35,7 +35,7 @@ public:
 		if (stream)
 		{
 			// Read the object
-			outObject = (T *)stream->Read(JPH_RTTI(T));
+			outObject = (T *)stream->Read(MOSS_RTTI(T));
 			result = (outObject != nullptr);
 			delete stream;
 		}
@@ -143,6 +143,6 @@ private:
 	Array<Link>					mUnresolvedLinks;										///< All pointers (links) are resolved after reading the entire file, e.g. when all object exist
 };
 
-JPH_NAMESPACE_END
+MOSS_NAMESPACE_END
 
-#endif // JPH_OBJECT_STREAM
+#endif // MOSS_OBJECT_STREAM

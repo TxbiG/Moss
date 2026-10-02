@@ -33,7 +33,7 @@ TextureMTL::TextureMTL(RendererMTL *inRenderer, const Surface *inSurface) :
 	case ESurfaceFormat::X4R4G4B4:		mt_format = MTLPixelFormatB5G6R5Unorm;			format = ESurfaceFormat::R5G6B5; break;
 	case ESurfaceFormat::A1R5G5B5:		mt_format = MTLPixelFormatA1BGR5Unorm;			break;
 	case ESurfaceFormat::Invalid:
-	default:							JPH_ASSERT(false);								break;
+	default:							MOSS_ASSERT(false);								break;
 	}
 
 	// Blit the surface to another temporary surface if the format changed

@@ -6,15 +6,15 @@
 
 #include <Moss/Resources/ObjectStream/ObjectStreamIn.h>
 
-#ifdef JPH_OBJECT_STREAM
+#ifdef MOSS_OBJECT_STREAM
 
-JPH_NAMESPACE_BEGIN
+MOSS_NAMESPACE_BEGIN
 
 /// Implementation of ObjectStream binary input stream.
-class JPH_EXPORT ObjectStreamBinaryIn : public ObjectStreamIn
+class MOSS_EXPORT ObjectStreamBinaryIn : public ObjectStreamIn
 {
 public:
-	JPH_OVERRIDE_NEW_DELETE
+	MOSS_OVERRIDE_NEW_DELETE
 
 	/// Constructor
 	explicit					ObjectStreamBinaryIn(istream &inStream);
@@ -52,6 +52,6 @@ private:
 	uint32						mNextStringID = 0x80000000;
 };
 
-JPH_NAMESPACE_END
+MOSS_NAMESPACE_END
 
-#endif // JPH_OBJECT_STREAM
+#endif // MOSS_OBJECT_STREAM

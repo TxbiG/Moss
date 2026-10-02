@@ -9,17 +9,17 @@
 #include <Moss/Core/UnorderedMap.h>
 #include <Moss/Core/UnorderedSet.h>
 
-JPH_SUPPRESS_WARNINGS_STD_BEGIN
+MOSS_SUPPRESS_WARNINGS_STD_BEGIN
 #include <fstream>
-JPH_SUPPRESS_WARNINGS_STD_END
+MOSS_SUPPRESS_WARNINGS_STD_END
 
-#ifdef JPH_OBJECT_STREAM
+#ifdef MOSS_OBJECT_STREAM
 
-JPH_NAMESPACE_BEGIN
+MOSS_NAMESPACE_BEGIN
 
 /// ObjectStreamOut contains all logic for writing an object to disk. It is the base
 /// class for the text and binary output streams (ObjectStreamTextOut and ObjectStreamBinaryOut).
-class JPH_EXPORT ObjectStreamOut : public IObjectStreamOut
+class MOSS_EXPORT ObjectStreamOut : public IObjectStreamOut
 {
 private:
 	struct ObjectInfo;
@@ -96,6 +96,6 @@ private:
 	ClassQueue					mClassQueue;												///< List of classes waiting to be written
 };
 
-JPH_NAMESPACE_END
+MOSS_NAMESPACE_END
 
-#endif // JPH_OBJECT_STREAM
+#endif // MOSS_OBJECT_STREAM

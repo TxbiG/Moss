@@ -137,14 +137,14 @@ public:
 	inline bool					IsLockedForReadWrite() const										{ return IsLockedForRead() && IsLockedForWrite(); }
 
 	/// Access to the image data
-	inline const uint8 *		GetData() const														{ JPH_ASSERT(IsLockedForRead()); return mData; }
-	inline uint8 *				GetData()															{ JPH_ASSERT(IsLockedForWrite()); return mData; }
-	inline int					GetStride() const													{ JPH_ASSERT(IsLocked()); return mStride; }
-	inline int					GetLength() const													{ JPH_ASSERT(IsLocked()); return mLength; }
+	inline const uint8 *		GetData() const														{ MOSS_ASSERT(IsLockedForRead()); return mData; }
+	inline uint8 *				GetData()															{ MOSS_ASSERT(IsLockedForWrite()); return mData; }
+	inline int					GetStride() const													{ MOSS_ASSERT(IsLocked()); return mStride; }
+	inline int					GetLength() const													{ MOSS_ASSERT(IsLocked()); return mLength; }
 
 	/// Get start of a specific scanline
-	inline const uint8 *		GetScanLine(int inScanLine) const									{ JPH_ASSERT(inScanLine >= 0 && inScanLine < GetHeight()); return GetData() + inScanLine * GetStride(); }
-	inline uint8 *				GetScanLine(int inScanLine)											{ JPH_ASSERT(inScanLine >= 0 && inScanLine < GetHeight()); return GetData() + inScanLine * GetStride(); }
+	inline const uint8 *		GetScanLine(int inScanLine) const									{ MOSS_ASSERT(inScanLine >= 0 && inScanLine < GetHeight()); return GetData() + inScanLine * GetStride(); }
+	inline uint8 *				GetScanLine(int inScanLine)											{ MOSS_ASSERT(inScanLine >= 0 && inScanLine < GetHeight()); return GetData() + inScanLine * GetStride(); }
 
 protected:
 	/// These functions must be overridden by the hardware buffer

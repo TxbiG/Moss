@@ -6,15 +6,15 @@
 
 #include <Moss/Resources/ObjectStream/ObjectStreamIn.h>
 
-#ifdef JPH_OBJECT_STREAM
+#ifdef MOSS_OBJECT_STREAM
 
-JPH_NAMESPACE_BEGIN
+MOSS_NAMESPACE_BEGIN
 
 /// Implementation of ObjectStream text input stream.
-class JPH_EXPORT ObjectStreamTextIn : public ObjectStreamIn
+class MOSS_EXPORT ObjectStreamTextIn : public ObjectStreamIn
 {
 public:
-	JPH_OVERRIDE_NEW_DELETE
+	MOSS_OVERRIDE_NEW_DELETE
 
 	/// Constructor
 	explicit					ObjectStreamTextIn(istream &inStream);
@@ -50,6 +50,6 @@ private:
 	bool						ReadWord(String &outWord);
 };
 
-JPH_NAMESPACE_END
+MOSS_NAMESPACE_END
 
-#endif // JPH_OBJECT_STREAM
+#endif // MOSS_OBJECT_STREAM

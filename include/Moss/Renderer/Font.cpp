@@ -11,16 +11,16 @@
 #include <Moss/Core/Profiler.h>
 #include <Moss/Core/ScopeExit.h>
 
-JPH_SUPPRESS_WARNINGS_STD_BEGIN
-JPH_CLANG_SUPPRESS_WARNING("-Wreserved-identifier")
-JPH_CLANG_SUPPRESS_WARNING("-Wzero-as-null-pointer-constant")
-JPH_CLANG_SUPPRESS_WARNING("-Wcast-qual")
-JPH_CLANG_SUPPRESS_WARNING("-Wimplicit-fallthrough")
-JPH_CLANG_SUPPRESS_WARNING("-Wcomma")
-JPH_CLANG_SUPPRESS_WARNING("-Wdouble-promotion")
+MOSS_SUPPRESS_WARNINGS_STD_BEGIN
+MOSS_CLANG_SUPPRESS_WARNING("-Wreserved-identifier")
+MOSS_CLANG_SUPPRESS_WARNING("-Wzero-as-null-pointer-constant")
+MOSS_CLANG_SUPPRESS_WARNING("-Wcast-qual")
+MOSS_CLANG_SUPPRESS_WARNING("-Wimplicit-fallthrough")
+MOSS_CLANG_SUPPRESS_WARNING("-Wcomma")
+MOSS_CLANG_SUPPRESS_WARNING("-Wdouble-promotion")
 #define STB_TRUETYPE_IMPLEMENTATION
 #include <External/stb_truetype.h>
-JPH_SUPPRESS_WARNINGS_STD_END
+MOSS_SUPPRESS_WARNINGS_STD_END
 
 Font::Font(Renderer *inRenderer) :
 	mRenderer(inRenderer)
@@ -68,7 +68,7 @@ try_again:;
 
 		int w, h, xoff, yoff;
 		unsigned char *bitmap = stbtt_GetCodepointBitmap(&font, 0, scale, c, &w, &h, &xoff, &yoff);
-		JPH_SCOPE_EXIT([bitmap]{ STBTT_free(bitmap, nullptr); });
+		MOSS_SCOPE_EXIT([bitmap]{ STBTT_free(bitmap, nullptr); });
 		yoff = baseline + yoff;
 
 		// Check if there is room on this line
@@ -99,9 +99,9 @@ try_again:;
 		}
 
 		// Get location of character in font surface
-		JPH_ASSERT(x >= 0 && x <= 0xffff);
-		JPH_ASSERT(y >= 0 && y <= 0xffff);
-		JPH_ASSERT(w <= 0xff);
+		MOSS_ASSERT(x >= 0 && x <= 0xffff);
+		MOSS_ASSERT(y >= 0 && y <= 0xffff);
+		MOSS_ASSERT(w <= 0xff);
 		mStartU[idx] = uint16(x);
 		mStartV[idx] = uint16(y);
 		mWidth[idx] = uint8(w + 1);
@@ -313,8 +313,8 @@ bool Font::CreateString(Mat44Arg inTransform, const string_view &inText, ColorAr
 	}
 
 	// Check that we completely filled the output buffer
-	JPH_ASSERT(vtx == (uint32)vtx_size);
-	JPH_ASSERT(idx == idx_start + idx_size);
+	MOSS_ASSERT(vtx == (uint32)vtx_size);
+	MOSS_ASSERT(idx == idx_start + idx_size);
 
 	// Unlock buffers
 	ioPrimitive.UnlockVertexBuffer();

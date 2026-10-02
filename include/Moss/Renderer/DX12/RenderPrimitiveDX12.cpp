@@ -56,7 +56,7 @@ void RenderPrimitiveDX12::CreateVertexBuffer(int inNumVtx, int inVtxSize, const 
 		mVtxBufferInUploadHeap = true;
 	}
 
-	JPH_IF_DEBUG(mVtxBuffer->SetName(L"Vertex Buffer");)
+	MOSS_IF_DEBUG(mVtxBuffer->SetName(L"Vertex Buffer");)
 }
 
 void *RenderPrimitiveDX12::LockVertexBuffer()
@@ -91,7 +91,7 @@ void RenderPrimitiveDX12::CreateIndexBuffer(int inNumIdx, const uint32 *inData)
 		mIdxBufferInUploadHeap = true;
 	}
 
-	JPH_IF_DEBUG(mIdxBuffer->SetName(L"Index Buffer");)
+	MOSS_IF_DEBUG(mIdxBuffer->SetName(L"Index Buffer");)
 }
 
 uint32 *RenderPrimitiveDX12::LockIndexBuffer()

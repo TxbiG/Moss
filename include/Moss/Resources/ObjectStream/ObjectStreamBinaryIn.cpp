@@ -2,11 +2,11 @@
 // SPDX-FileCopyrightText: 2021 Jorrit Rouwe
 // SPDX-License-Identifier: MIT
 
-#ifdef JPH_OBJECT_STREAM
+#ifdef MOSS_OBJECT_STREAM
 
 #include <Moss/Resources/ObjectStream/ObjectStreamBinaryIn.h>
 
-JPH_NAMESPACE_BEGIN
+MOSS_NAMESPACE_BEGIN
 
 ObjectStreamBinaryIn::ObjectStreamBinaryIn(istream &inStream) :
 	ObjectStreamIn(inStream)
@@ -142,7 +142,7 @@ bool ObjectStreamBinaryIn::ReadPrimitiveData(String &outPrimitive)
 	}
 
 	// Read the string
-	char *data = (char *)JPH_STACK_ALLOC(len + 1);
+	char *data = (char *)MOSS_STACK_ALLOC(len + 1);
 	mStream.read(data, len);
 	if (mStream.fail()) return false;
 	data[len] = 0;
@@ -245,6 +245,6 @@ bool ObjectStreamBinaryIn::ReadPrimitiveData(DMat44 &outPrimitive)
 	return true;
 }
 
-JPH_NAMESPACE_END
+MOSS_NAMESPACE_END
 
-#endif // JPH_OBJECT_STREAM
+#endif // MOSS_OBJECT_STREAM

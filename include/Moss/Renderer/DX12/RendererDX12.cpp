@@ -120,7 +120,7 @@ void RendererDX12::Initialize(ApplicationWindow *inWindow)
 {
 	Renderer::Initialize(inWindow);
 
-#if defined(JPH_DEBUG)
+#if defined(MOSS_DEBUG)
 	// Enable the D3D12 debug layer
 	ComPtr<ID3D12Debug> debug_controller;
 	if (SUCCEEDED(D3D12GetDebugInterface(IID_PPV_ARGS(&debug_controller))))
@@ -176,7 +176,7 @@ void RendererDX12::Initialize(ApplicationWindow *inWindow)
 	// Check if we managed to obtain a device
 	FatalErrorIfFailed(result);
 
-#ifdef JPH_DEBUG
+#ifdef MOSS_DEBUG
 	// Enable breaking on errors
 	ComPtr<ID3D12InfoQueue> info_queue;
 	if (SUCCEEDED(mDevice.As(&info_queue)))
@@ -196,7 +196,7 @@ void RendererDX12::Initialize(ApplicationWindow *inWindow)
 		filter.DenyList.pIDList = hide;
 		info_queue->AddStorageFilterEntries( &filter );
 	}
-#endif // JPH_DEBUG
+#endif // MOSS_DEBUG
 
 	// Disable full screen transitions
 	FatalErrorIfFailed(mDXGIFactory->MakeWindowAssociation(static_cast<ApplicationWindowWin *>(mWindow)->GetWindowHandle(), DXGI_MWA_NO_ALT_ENTER));
@@ -365,7 +365,7 @@ void RendererDX12::OnWindowResize()
 
 bool RendererDX12::BeginFrame(const CameraState &inCamera, float inWorldScale)
 {
-	JPH_PROFILE_FUNCTION();
+	MOSS_PROFILE_FUNCTION();
 
 	Renderer::BeginFrame(inCamera, inWorldScale);
 
@@ -426,7 +426,7 @@ bool RendererDX12::BeginFrame(const CameraState &inCamera, float inWorldScale)
 
 void RendererDX12::EndShadowPass()
 {
-	JPH_PROFILE_FUNCTION();
+	MOSS_PROFILE_FUNCTION();
 
 	// Finish drawing the shadow pass
 	mShadowMap->SetAsRenderTarget(false);
@@ -445,7 +445,7 @@ void RendererDX12::EndShadowPass()
 
 void RendererDX12::EndFrame()
 {
-	JPH_PROFILE_FUNCTION();
+	MOSS_PROFILE_FUNCTION();
 
 	Renderer::EndFrame();
 
@@ -498,14 +498,14 @@ void RendererDX12::EndFrame()
 
 void RendererDX12::SetProjectionMode()
 {
-	JPH_ASSERT(mInFrame);
+	MOSS_ASSERT(mInFrame);
 
 	mVertexShaderConstantBufferProjection[mFrameIndex]->Bind(0);
 }
 
 void RendererDX12::SetOrthoMode()
 {
-	JPH_ASSERT(mInFrame);
+	MOSS_ASSERT(mInFrame);
 
 	mVertexShaderConstantBufferOrtho[mFrameIndex]->Bind(0);
 }
@@ -518,7 +518,7 @@ Ref<Texture> RendererDX12::CreateTexture(const Surface *inSurface)
 Ref<VertexShader> RendererDX12::CreateVertexShader(const char *inName)
 {
 	UINT flags = D3DCOMPILE_ENABLE_STRICTNESS;
-#ifdef JPH_DEBUG
+#ifdef MOSS_DEBUG
 	flags |= D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION;
 #endif
 
@@ -558,7 +558,7 @@ Ref<VertexShader> RendererDX12::CreateVertexShader(const char *inName)
 Ref<PixelShader> RendererDX12::CreatePixelShader(const char *inName)
 {
 	UINT flags = D3DCOMPILE_ENABLE_STRICTNESS;
-#ifdef JPH_DEBUG
+#ifdef MOSS_DEBUG
 	flags |= D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION;
 #endif
 
@@ -711,7 +711,7 @@ void RendererDX12::RecycleD3DObject(ID3D12Object *inResource)
 		mDelayReleased[mFrameIndex].push_back(inResource);
 }
 
-#ifndef JPH_ENABLE_VULKAN
+#ifndef MOSS_ENABLE_VULKAN
 Renderer *Renderer::sCreate()
 {
 	return new RendererDX12;

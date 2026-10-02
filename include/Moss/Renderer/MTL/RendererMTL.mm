@@ -54,7 +54,7 @@ void RendererMTL::Initialize(ApplicationWindow *inWindow)
 
 bool RendererMTL::BeginFrame(const CameraState &inCamera, float inWorldScale)
 {
-	JPH_PROFILE_FUNCTION();
+	MOSS_PROFILE_FUNCTION();
 
 	Renderer::BeginFrame(inCamera, inWorldScale);
 
@@ -111,7 +111,7 @@ void RendererMTL::EndShadowPass()
 
 void RendererMTL::EndFrame()
 {
-	JPH_PROFILE_FUNCTION();
+	MOSS_PROFILE_FUNCTION();
 
 	// Finish the encoder
 	[mRenderEncoder endEncoding];
@@ -128,14 +128,14 @@ void RendererMTL::EndFrame()
 
 void RendererMTL::SetProjectionMode()
 {
-	JPH_ASSERT(mInFrame);
+	MOSS_ASSERT(mInFrame);
 
 	[mRenderEncoder setVertexBytes: &mVSBuffer length: sizeof(mVSBuffer) atIndex: 2];
 }
 
 void RendererMTL::SetOrthoMode()
 {
-	JPH_ASSERT(mInFrame);
+	MOSS_ASSERT(mInFrame);
 
 	[mRenderEncoder setVertexBytes: &mVSBufferOrtho length: sizeof(mVSBufferOrtho) atIndex: 2];
 }
@@ -176,7 +176,7 @@ RenderInstances *RendererMTL::CreateRenderInstances()
 	return new RenderInstancesMTL(this);
 }
 
-#ifndef JPH_ENABLE_VULKAN
+#ifndef MOSS_ENABLE_VULKAN
 Renderer *Renderer::sCreate()
 {
 	return new RendererMTL;

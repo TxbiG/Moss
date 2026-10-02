@@ -10,12 +10,12 @@
 #include <Moss/Core/NonCopyable.h>
 #include <Moss/Resources/ObjectStream/SerializableAttribute.h>
 
-#ifdef JPH_OBJECT_STREAM
+#ifdef MOSS_OBJECT_STREAM
 
-JPH_NAMESPACE_BEGIN
+MOSS_NAMESPACE_BEGIN
 
 /// Base class for object stream input and output streams.
-class JPH_EXPORT ObjectStream : public NonCopyable
+class MOSS_EXPORT ObjectStream : public NonCopyable
 {
 public:
 	/// Stream type
@@ -38,7 +38,7 @@ protected:
 };
 
 /// Interface class for reading from an object stream
-class JPH_EXPORT IObjectStreamIn : public ObjectStream
+class MOSS_EXPORT IObjectStreamIn : public ObjectStream
 {
 public:
 	///@name Input type specific operations
@@ -74,7 +74,7 @@ public:
 };
 
 /// Interface class for writing to an object stream
-class JPH_EXPORT IObjectStreamOut : public ObjectStream
+class MOSS_EXPORT IObjectStreamOut : public ObjectStream
 {
 public:
 	///@name Output type specific operations
@@ -115,13 +115,13 @@ public:
 };
 
 // Define macro to declare functions for a specific primitive type
-#define JPH_DECLARE_PRIMITIVE(name)																			\
-	JPH_EXPORT bool	OSIsType(name *, int inArrayDepth, EOSDataType inDataType, const char *inClassName);	\
-	JPH_EXPORT bool	OSReadData(IObjectStreamIn &ioStream, name &outPrimitive);								\
-	JPH_EXPORT void	OSWriteDataType(IObjectStreamOut &ioStream, name *);									\
-	JPH_EXPORT void	OSWriteData(IObjectStreamOut &ioStream, const name &inPrimitive);
+#define MOSS_DECLARE_PRIMITIVE(name)																			\
+	MOSS_EXPORT bool	OSIsType(name *, int inArrayDepth, EOSDataType inDataType, const char *inClassName);	\
+	MOSS_EXPORT bool	OSReadData(IObjectStreamIn &ioStream, name &outPrimitive);								\
+	MOSS_EXPORT void	OSWriteDataType(IObjectStreamOut &ioStream, name *);									\
+	MOSS_EXPORT void	OSWriteData(IObjectStreamOut &ioStream, const name &inPrimitive);
 
-// This file uses the JPH_DECLARE_PRIMITIVE macro to define all types
+// This file uses the MOSS_DECLARE_PRIMITIVE macro to define all types
 #include <Moss/Resources/ObjectStream/ObjectStreamTypes.h>
 
 // Define serialization templates
@@ -226,13 +226,13 @@ bool OSReadData(IObjectStreamIn &ioStream, T (&inArray)[N])
 template <class T>
 bool OSReadData(IObjectStreamIn &ioStream, Ref<T> &inRef)
 {
-	return ioStream.ReadPointerData(JPH_RTTI(T), inRef.InternalGetPointer(), T::sInternalGetRefCountOffset());
+	return ioStream.ReadPointerData(MOSS_RTTI(T), inRef.InternalGetPointer(), T::sInternalGetRefCountOffset());
 }
 
 template <class T>
 bool OSReadData(IObjectStreamIn &ioStream, RefConst<T> &inRef)
 {
-	return ioStream.ReadPointerData(JPH_RTTI(T), inRef.InternalGetPointer(), T::sInternalGetRefCountOffset());
+	return ioStream.ReadPointerData(MOSS_RTTI(T), inRef.InternalGetPointer(), T::sInternalGetRefCountOffset());
 }
 
 // Define serialization templates for dynamic arrays
@@ -332,6 +332,6 @@ void OSWriteData(IObjectStreamOut &ioStream, const RefConst<T> &inRef)
 		ioStream.WritePointerData(nullptr, nullptr);
 }
 
-JPH_NAMESPACE_END
+MOSS_NAMESPACE_END
 
-#endif // JPH_OBJECT_STREAM
+#endif // MOSS_OBJECT_STREAM

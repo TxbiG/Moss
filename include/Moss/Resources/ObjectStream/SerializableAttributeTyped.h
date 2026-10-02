@@ -4,13 +4,13 @@
 
 #pragma once
 
-#ifdef JPH_OBJECT_STREAM
+#ifdef MOSS_OBJECT_STREAM
 
 #include <Moss/Resources/ObjectStream/SerializableAttribute.h>
 #include <Moss/Resources/ObjectStream/GetPrimitiveTypeOfType.h>
 #include <Moss/Resources/ObjectStream/ObjectStream.h>
 
-JPH_NAMESPACE_BEGIN
+MOSS_NAMESPACE_BEGIN
 
 //////////////////////////////////////////////////////////////////////////////////////////
 // Macros to add properties to be serialized
@@ -42,19 +42,19 @@ inline void AddSerializableAttributeTyped(RTTI &inRTTI, uint32 inOffset, const c
 		}));
 }
 
-// JPH_ADD_ATTRIBUTE
-#define JPH_ADD_ATTRIBUTE_WITH_ALIAS(class_name, member_name, alias_name) \
+// MOSS_ADD_ATTRIBUTE
+#define MOSS_ADD_ATTRIBUTE_WITH_ALIAS(class_name, member_name, alias_name) \
 	AddSerializableAttributeTyped<decltype(class_name::member_name)>(inRTTI, offsetof(class_name, member_name), alias_name);
 
-// JPH_ADD_ATTRIBUTE
-#define JPH_ADD_ATTRIBUTE(class_name, member_name) \
-	JPH_ADD_ATTRIBUTE_WITH_ALIAS(class_name, member_name, #member_name)
+// MOSS_ADD_ATTRIBUTE
+#define MOSS_ADD_ATTRIBUTE(class_name, member_name) \
+	MOSS_ADD_ATTRIBUTE_WITH_ALIAS(class_name, member_name, #member_name)
 
-JPH_NAMESPACE_END
+MOSS_NAMESPACE_END
 
 #else
 
-#define JPH_ADD_ATTRIBUTE_WITH_ALIAS(...)
-#define JPH_ADD_ATTRIBUTE(...)
+#define MOSS_ADD_ATTRIBUTE_WITH_ALIAS(...)
+#define MOSS_ADD_ATTRIBUTE(...)
 
-#endif // JPH_OBJECT_STREAM
+#endif // MOSS_OBJECT_STREAM

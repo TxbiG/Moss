@@ -4,9 +4,9 @@
 
 #pragma once
 
-#ifdef JPH_OBJECT_STREAM
+#ifdef MOSS_OBJECT_STREAM
 
-JPH_NAMESPACE_BEGIN
+MOSS_NAMESPACE_BEGIN
 
 class RTTI;
 class IObjectStreamIn;
@@ -23,9 +23,9 @@ enum class EOSDataType
 	Array,																			///< Used in attribute declaration, indicates that this is an array of objects
 
 	// Basic types (primitives)
-	#define JPH_DECLARE_PRIMITIVE(name)	T_##name,
+	#define MOSS_DECLARE_PRIMITIVE(name)	T_##name,
 
-	// This file uses the JPH_DECLARE_PRIMITIVE macro to define all types
+	// This file uses the MOSS_DECLARE_PRIMITIVE macro to define all types
 	#include <Moss/Resources/ObjectStream/ObjectStreamTypes.h>
 
 	// Error values for read functions
@@ -106,6 +106,6 @@ private:
 	pWriteDataType				mWriteDataType;
 };
 
-JPH_NAMESPACE_END
+MOSS_NAMESPACE_END
 
-#endif // JPH_OBJECT_STREAM
+#endif // MOSS_OBJECT_STREAM

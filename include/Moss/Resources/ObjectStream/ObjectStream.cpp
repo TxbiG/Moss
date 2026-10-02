@@ -4,12 +4,12 @@
 
 #include <Moss/Resources/ObjectStream/ObjectStream.h>
 
-#ifdef JPH_OBJECT_STREAM
+#ifdef MOSS_OBJECT_STREAM
 
-JPH_NAMESPACE_BEGIN
+MOSS_NAMESPACE_BEGIN
 
 // Define macro to declare functions for a specific primitive type
-#define JPH_DECLARE_PRIMITIVE(name)																\
+#define MOSS_DECLARE_PRIMITIVE(name)																\
 	bool	OSIsType(name *, int inArrayDepth, EOSDataType inDataType, const char *inClassName) \
 	{																							\
 		return inArrayDepth == 0 && inDataType == EOSDataType::T_##name;						\
@@ -28,9 +28,9 @@ JPH_NAMESPACE_BEGIN
 		ioStream.WritePrimitiveData(inPrimitive);												\
 	}
 
-// This file uses the JPH_DECLARE_PRIMITIVE macro to define all types
+// This file uses the MOSS_DECLARE_PRIMITIVE macro to define all types
 #include <Moss/Resources/ObjectStream/ObjectStreamTypes.h>
 
-JPH_NAMESPACE_END
+MOSS_NAMESPACE_END
 
-#endif // JPH_OBJECT_STREAM
+#endif // MOSS_OBJECT_STREAM

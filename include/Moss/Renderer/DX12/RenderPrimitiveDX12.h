@@ -11,7 +11,7 @@
 class RenderPrimitiveDX12 : public RenderPrimitive
 {
 public:
-	JPH_OVERRIDE_NEW_DELETE
+	MOSS_OVERRIDE_NEW_DELETE
 
 	/// Constructor
 							RenderPrimitiveDX12(RendererDX12 *inRenderer, PipelineState::ETopology inType)	: mRenderer(inRenderer), mType(inType) { }

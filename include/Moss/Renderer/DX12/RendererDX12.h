@@ -59,7 +59,7 @@ public:
 	/// Access to the most important DirectX structures
 	ID3D12Device *					GetDevice()							{ return mDevice.Get(); }
 	ID3D12RootSignature *			GetRootSignature()					{ return mRootSignature.Get(); }
-	ID3D12GraphicsCommandList *		GetCommandList()					{ JPH_ASSERT(mInFrame); return mCommandList.Get(); }
+	ID3D12GraphicsCommandList *		GetCommandList()					{ MOSS_ASSERT(mInFrame); return mCommandList.Get(); }
 	CommandQueueDX12 &				GetUploadQueue()					{ return mUploadQueue; }
 	DescriptorHeapDX12 &			GetDSVHeap()						{ return mDSVHeap; }
 	DescriptorHeapDX12 &			GetSRVHeap()						{ return mSRVHeap; }
