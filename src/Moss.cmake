@@ -29,20 +29,15 @@ if((MOSS_USE_OPENGL OR USE_OPENGLES) AND NOT EMSCRIPTEN AND EXISTS "${MOSS_EXTER
 endif()
 
 # OpenXR
-if(MOSS_USE_OPENXR AND NOT EMSCRIPTEN AND EXISTS "${MOSS_EXTERNAL_DIR}/openxr")
+set(MOSS_OPENXR_INCLUDE_DIR "")
+if(MOSS_USE_OPENXR AND NOT EMSCRIPTEN)
     set(MOSS_OPENXR_DIR "${MOSS_EXTERNAL_DIR}/openxr")
-
     if(EXISTS "${MOSS_OPENXR_DIR}/include/openxr/openxr.h")
         set(MOSS_OPENXR_INCLUDE_DIR "${MOSS_OPENXR_DIR}/include")
     elseif(EXISTS "${MOSS_OPENXR_DIR}/openxr/openxr.h")
         set(MOSS_OPENXR_INCLUDE_DIR "${MOSS_OPENXR_DIR}")
-    endif()
-
-    if(MOSS_OPENXR_INCLUDE_DIR)
-        target_include_directories(Moss
-            PRIVATE
-                "${MOSS_OPENXR_INCLUDE_DIR}"
-        )
+    else()
+        message(WARNING "MOSS_USE_OPENXR is ON but openxr/openxr.h was not found under ${MOSS_OPENXR_DIR} " "(is the submodule checked out?). Building WITHOUT OpenXR.")
     endif()
 endif()
 
@@ -241,6 +236,25 @@ endif()
 
 
 target_include_directories(Moss PUBLIC $<BUILD_INTERFACE:${MOSS_ROOT}> $<BUILD_INTERFACE:${MOSS_PUBLIC_INCLUDE_DIR}> $<INSTALL_INTERFACE:include>)
+
+# Glad
+if((MOSS_USE_OPENGL OR USE_OPENGLES) AND NOT EMSCRIPTEN AND EXISTS "${MOSS_EXTERNAL_DIR}/glad")
+    set(MOSS_GLAD_DIR "${MOSS_EXTERNAL_DIR}/glad")
+    target_include_directories(Moss PRIVATE "${MOSS_GLAD_DIR}")
+endif()
+ 
+# OpenXR (detected near the top of this file)
+if(MOSS_OPENXR_INCLUDE_DIR)
+    target_include_directories(Moss PRIVATE "${MOSS_OPENXR_INCLUDE_DIR}")
+    target_compile_definitions(Moss PUBLIC MOSS_USE_OPENXR)
+    # The XR code calls into the OpenXR loader, so it must be linked too. If you
+    # build the Khronos SDK from source, something like:
+    #   add_subdirectory("${MOSS_EXTERNAL_DIR}/openxr" openxr EXCLUDE_FROM_ALL)
+    #   target_link_libraries(Moss PRIVATE OpenXR::openxr_loader)
+    if(TARGET OpenXR::openxr_loader)
+        target_link_libraries(Moss PRIVATE OpenXR::openxr_loader)
+    endif()
+endif()
 
 if(WIN32)
     target_link_libraries(Moss PRIVATE user32 gdi32)
