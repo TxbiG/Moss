@@ -4,9 +4,7 @@
 
 #pragma once
 
-#include <Moss/Physics/Body/BodyFilter.h>
-#include <Moss/Physics/Body/BodyLock.h>
-#include <Moss/Physics/Body/BodyLockInterface.h>
+#include <Moss/Physics/Body/Body.h>
 #include <Moss/Physics/Collision/ShapeFilter.h>
 #include <Moss/Physics/Collision/BroadPhase/BroadPhaseQuery.h>
 #include <Moss/Physics/Collision/BackFaceMode.h>

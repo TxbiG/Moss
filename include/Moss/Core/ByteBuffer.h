@@ -4,19 +4,10 @@
 
 #pragma once
 
+#include <Moss/Moss_stdinc.h>
 #include <Moss/Core/STLAlignedAllocator.h>
 
 MOSS_SUPPRESS_WARNINGS_BEGIN
-
-/// Align inV up to the next inAlignment bytes
-template <typename T>
-inline T AlignUp(T inV, uint64 inAlignment) {
-	MOSS_ASSERT(IsPowerOf2(inAlignment));
-	return T((uint64(inV) + inAlignment - 1) & ~(inAlignment - 1));
-}
-
-template <typename T>
-constexpr bool IsPowerOf2(T inV) { return inV > 0 && (inV & (inV - 1)) == 0; }
 
 /// Underlying data type for ByteBuffer
 using ByteBufferVector = TArray<uint8, STLAlignedAllocator<uint8_t, MOSS_CACHE_LINE_SIZE>>;
