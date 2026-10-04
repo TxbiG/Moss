@@ -7,18 +7,23 @@
 #include <signal.h>
 #include <stdint.h>
 
+#define Font X11Font
 #include <X11/Xlib.h>
+#include <X11/Xutil.h>
+#undef Font
 #include <X11/keysym.h>
 #include <X11/Xatom.h>
 #include <X11/Xresource.h>
 #include <X11/Xcursor/Xcursor.h>
 
-//#include <X11/extensions/Xrandr.h>      // The XRandR extension provides mode setting and gamma control
+#include <X11/extensions/Xrandr.h>      // The XRandR extension provides mode setting and gamma control
 #include <X11/XKBlib.h>                 // The Xkb extension provides improved keyboard support
-//#include <X11/extensions/Xinerama.h>    // The Xinerama extension provides legacy monitor indices
 #include <X11/extensions/XInput2.h>     // The XInput extension provides raw mouse motion input
 #include <X11/extensions/shape.h>       // The Shape extension provides custom window shapes
 
+#if defined(MOSS_GRAPHICS_OPENGL)
+#include <GL/glx.h>
+#endif // MOSS_GRAPHICS_OPENGL
 
 // X11-specific per-window data
 struct Moss_Window {

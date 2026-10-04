@@ -1,12 +1,15 @@
 #include "x11_platform.h"
 
+#include <linux/joystick.h>
 #include <X11/cursorfont.h>
 #include <X11/Xmd.h>
 #include <poll.h>
 
 
+#define Font X11Font
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
+#undef Font
 
 #include <string.h>
 #include <stdio.h>
