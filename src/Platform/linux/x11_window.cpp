@@ -34,6 +34,8 @@ static Moss_WindowFocusCallback g_windowFocusCallback = NULL;
 static Moss_WindowContentScaleCallback g_windowContentScaleCallback = NULL;
 static Moss_WindowResizeCallback g_windowResizeCallback = NULL;
 
+static Moss_InputState io{};
+static int pads_fd[4] = { -1, -1, -1, -1 };
 
 Moss_Window* Moss_CreateWindow(const char* title, int width, int height, Moss_Monitor* monitor, Moss_Window* share) {
     Moss_Window* window = (Moss_Window*)calloc(1, sizeof(Moss_Window));
@@ -94,10 +96,9 @@ Moss_Window* Moss_CreateWindow(const char* title, int width, int height, Moss_Mo
         None
     };
 
-    window->glxContext = x11.glx.CreateContextAttribsARB(dpy, fbc[0],
-        share ? share->glxContext : NULL, True, contextAttribs);
+    window->glxContext = x11.glx.CreateContextAttribsARB(dpy, fbc[0], share ? share->glxContext : NULL, True, contextAttribs);
 
-    if (!window->glxContext) return NULL;
+    if (!window->glxContext) { return NULL; }
 
     x11.glx.MakeCurrent(dpy, window->glxWindow, window->glxContext);
 
@@ -121,7 +122,7 @@ void Moss_TerminateWindow(Moss_Window* window) {
     }
 
     if (window->glxWindow) {
-        glXDestroyWindow(window->display, window->glxWindow);
+        glXDestroyWindow(x11.display, window->glxWindow);
         window->glxWindow = 0;
     }
 #endif // MOSS_GRAPHICS_OPENGL
@@ -129,7 +130,7 @@ void Moss_TerminateWindow(Moss_Window* window) {
     if (window->handle) {
         XDestroyWindow(x11.display, window->handle);
         window->handle = 0;
-    }
+    } 
 
     XFlush(x11.display);
     free(window);
@@ -175,9 +176,9 @@ void Moss_PollEvents(void) {
     memcpy(io.mouse_buttons_prev, io.mouse_buttons, sizeof(io.mouse_buttons));
 
 
-    while (XPending(display)) {
+    while (XPending(x11.display)) {
         XEvent e;
-        XNextEvent(display, &e);
+        XNextEvent(x11.display, &e);
 
         switch (e.type) {
 
@@ -441,7 +442,7 @@ void Moss_SetWindowContentScaleCallback(Moss_WindowContentScaleCallback callback
 #ifdef MOSS_GRAPHICS_OPENGL
 void Moss_MakeContextCurrent(Moss_Window* window) {
     if (!window) { glXMakeCurrent(x11.display, None, NULL); return; }
-    glXMakeCurrent(window->display, window->glxWindow, window->glxContext);
+    glXMakeCurrent(x11.display, window->glxWindow, window->glxContext);
 }
 
 void Moss_SwapBuffers(Moss_Window* window) { x11.glx.SwapBuffers(x11.display, window->glxWindow); }
@@ -490,7 +491,6 @@ void* Moss_GetProcAddress(const char* procname) {
 // Forward declarations for global Vulkan loader
 static void* vulkanLib = nullptr;
 static PFN_vkGetInstanceProcAddr g_vkGetInstanceProcAddr = nullptr;
-
 g_vkGetInstanceProcAddr = (PFN_vkGetInstanceProcAddr)dlsym(vulkanLib, "vkGetInstanceProcAddr");
 
 void Moss_InitVulkanLoader(PFN_vkGetInstanceProcAddr loader) { if (loader) g_vkGetInstanceProcAddr = loader; }

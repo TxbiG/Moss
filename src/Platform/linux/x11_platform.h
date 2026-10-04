@@ -58,7 +58,7 @@ struct Moss_Window {
 };
 
 
-typedef struct libraryX11 {
+struct libraryX11 {
     Display*        display;
     int             screen;
     Window          root;

@@ -1,5 +1,5 @@
 // coreaudio_speaker.cpp
-#include "audio_intern.h"
+#include "coreaudio_audio.h"
 
 #include <AudioToolbox/AudioToolbox.h>
 #include <CoreAudio/CoreAudio.h>

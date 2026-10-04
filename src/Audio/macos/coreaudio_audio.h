@@ -3,7 +3,7 @@
 
 
 
-#include <Moss/Audio/audio_intern.h>
+#include "../audio_intern.h"
 
 #include <AudioToolbox/AudioToolbox.h>
 #include <CoreAudio/CoreAudio.h>
