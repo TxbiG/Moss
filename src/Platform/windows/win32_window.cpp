@@ -27,7 +27,24 @@ static bool isRunning = true;
 static std::vector<uint32_t> g_textInput;
 static HHOOK g_keyboardHook = NULL;
 static HWND g_keyboardGrabWindow = NULL;
-LRESULT CALLBACK KeyboardGrabProc(int nCode, WPARAM wParam, LPARAM lParam);
+LRESULT CALLBACK KeyboardGrabProc(int nCode, WPARAM wParam, LPARAM lParam) {
+    // 1. Mandatory Windows Hook rule: If nCode is less than 0, 
+    // you MUST pass it to CallNextHookEx immediately without processing.
+    if (nCode < 0) {
+        return CallNextHookEx(nullptr, nCode, wParam, lParam);
+    }
+
+    // 2. Optional: Extract input data if you need to process it
+    // If it's a Low-Level hook (WH_KEYBOARD_LL), lParam points to a KBDLLHOOKSTRUCT
+    // KBDLLHOOKSTRUCT* kbStruct = (KBDLLHOOKSTRUCT*)lParam;
+    
+    // 3. Process your custom logic here (e.g., handling shortcut keys,Alt+Tab blocking)
+
+    // 4. Return to the OS. 
+    // Returning CallNextHookEx allows the keystroke to be passed to the next application.
+    // (If you want to completely block/steal a key, you would return 1 instead).
+    return CallNextHookEx(nullptr, nCode, wParam, lParam);
+}
 #ifdef MOSS_USE_OPENGL
 #include <gl/glad.h>
 #include <GL/gl.h>
@@ -527,40 +544,6 @@ void Moss_SwapBuffers() { SwapBuffers(dc); }
 
 int Moss_GetWindowWidth() { return g_width; }
 int Moss_GetWindowHeight() { return g_height; }
-
-int Moss_GetAvailableCPUCores(void) {
-    SYSTEM_INFO sysinfo;
-    GetSystemInfo(&sysinfo);
-    return (int)sysinfo.dwNumberOfProcessors;
-}
-
-int Moss_GetCPUCacheLineSize(void) {
-    DWORD bufferSize = 0;
-    GetLogicalProcessorInformation(NULL, &bufferSize);
-
-    SYSTEM_LOGICAL_PROCESSOR_INFORMATION* buffer =
-        (SYSTEM_LOGICAL_PROCESSOR_INFORMATION*)malloc(bufferSize);
-
-    if (!GetLogicalProcessorInformation(buffer, &bufferSize)) {
-        free(buffer);
-        return -1;
-    }
-
-    int lineSize = 0;
-    DWORD count = bufferSize / sizeof(SYSTEM_LOGICAL_PROCESSOR_INFORMATION);
-
-    for (DWORD i = 0; i < count; i++) {
-        if (buffer[i].Relationship == RelationCache &&
-            buffer[i].Cache.Level == 1) {
-            lineSize = buffer[i].Cache.LineSize;
-            break;
-        }
-    }
-
-    free(buffer);
-    return lineSize;  // in bytes
-}
-
 
 void Moss_SwapBuffersInterval(int interval) {
 #ifdef MOSS_USE_OPENGL

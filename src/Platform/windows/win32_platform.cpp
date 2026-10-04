@@ -1,5 +1,3 @@
-#include "win32_platform.h"
-
 #include <string>
 
 #define WIN32_LEAN_AND_MEAN
@@ -17,6 +15,9 @@
 
 #pragma comment(lib, "Shlwapi.lib")
 #pragma comment(lib, "comdlg32.lib")
+
+
+#include "win32_platform.h"
 
 // Helpers:
 
