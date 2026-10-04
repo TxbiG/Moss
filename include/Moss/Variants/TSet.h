@@ -25,13 +25,4 @@ public:
 template <class Key, class Hash = Hash<Key>, class KeyEqual = std::equal_to<Key>>
 class TSet : public HashTable<Key, Key, TSetDetail<Key>, Hash, KeyEqual> { };
 
-
-
-
-// Forward declaration of UnorderedSet (defined in UnorderedSet.h).
-// This is provided because compiling UnorderedSet.h can be expensive due to its use of templates.
-template <class Key, class Hash = Hash<Key>, class KeyEqual = std::equal_to<Key>>
-class TSet;
-
-
 MOSS_SUPPRESS_WARNINGS_END

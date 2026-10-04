@@ -39,8 +39,7 @@ public:
 	}
 
 	/// Destructor, frees the block
-	virtual	~TempAllocatorImpl() override
-	{
+	virtual	~TempAllocatorImpl() override {
 		MOSS_ASSERT(mTop == 0);
 		AlignedFree(mBase);
 	}

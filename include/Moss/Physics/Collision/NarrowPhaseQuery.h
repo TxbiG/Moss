@@ -6,7 +6,7 @@
 
 #include <Moss/Physics/Body/Body.h>
 #include <Moss/Physics/Collision/ShapeFilter.h>
-#include <Moss/Physics/Collision/BroadPhase/BroadPhaseQuery.h>
+#include <Moss/Physics/Collision/BroadPhase/BroadPhase.h>
 #include <Moss/Physics/Collision/BackFaceMode.h>
 
 MOSS_SUPPRESS_WARNINGS_END

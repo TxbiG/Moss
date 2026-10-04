@@ -11,6 +11,7 @@ MOSS_SUPPRESS_WARNINGS_END
 
 class Shape;
 class SubShapeID;
+class BodyID;
 
 /// Filter class
 class ShapeFilter : public NonCopyable {
