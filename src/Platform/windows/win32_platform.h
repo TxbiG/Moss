@@ -195,112 +195,13 @@ MOSS_API void Input_Poll(INPUT_STATE* io_state);
 
 
 
-static char* strdup_safe(const char* s) {
-    if (!s) return NULL;
-    size_t len = strlen(s);
-    char* r = (char*)malloc(len + 1);
-    if (r) memcpy(r, s, len + 1);
-    return r;
-}
+static char* strdup_safe(const char* s);
 
-void RegisterRawInput(HWND hwnd) {
-    RAWINPUTDEVICE rid[1];
-    rid[0].usUsagePage = 0x01;   // Generic Desktop Controls
-    rid[0].usUsage     = 0x05;   // Game Pad
-    rid[0].dwFlags     = RIDEV_INPUTSINK; 
-    rid[0].hwndTarget  = hwnd;
+void RegisterRawInput(HWND hwnd);
 
-    if (!RegisterRawInputDevices(rid, 1, sizeof(rid[0]))) {
-        MOSS_ERROR(hwnd, "Failed to register RawInput for gamepads");
-    }
-}
+void ParseDS4(RAWINPUT* raw);
+void ParseDS5(RAWINPUT* raw);
 
-void ParseDS4(RAWINPUT* raw) {
-    const uint8_t* data = raw->data.hid.bRawData;
-    size_t len = raw->data.hid.dwSizeHid;
-
-    GamepadState& pad = io.pads[0]; // TODO: pick correct slot
-    pad.connected = true;
-
-    pad.is_dualshock = true;
-    pad.is_dualsense = false;
-
-    // Sticks [-1, 1]
-    pad.axes[(size_t)GamepadAxis::LEFT_X]  = (data[1] - 128) / 127.0f;
-    pad.axes[(size_t)GamepadAxis::LEFT_Y]  = (data[2] - 128) / 127.0f;
-    pad.axes[(size_t)GamepadAxis::RIGHT_X] = (data[3] - 128) / 127.0f;
-    pad.axes[(size_t)GamepadAxis::RIGHT_Y] = (data[4] - 128) / 127.0f;
-
-    // Triggers [0, 1]
-    pad.axes[(size_t)GamepadAxis::LEFT_TRIGGER]  = data[6] / 255.0f;
-    pad.axes[(size_t)GamepadAxis::RIGHT_TRIGGER] = data[7] / 255.0f;
-
-    uint8_t b = data[5];
-
-    pad.buttons[(size_t)Gamepad::GAMEPAD_BUTTON_CROSS]    = (b & 0x20) != 0;
-    pad.buttons[(size_t)Gamepad::GAMEPAD_BUTTON_CIRCLE]   = (b & 0x40) != 0;
-    pad.buttons[(size_t)Gamepad::GAMEPAD_BUTTON_SQUARE]   = (b & 0x10) != 0;
-    pad.buttons[(size_t)Gamepad::GAMEPAD_BUTTON_TRIANGLE] = (b & 0x80) != 0;
-    pad.buttons[(size_t)Gamepad::GAMEPAD_BUTTON_DPAD_UP]    = (b & 0x01) != 0;
-    pad.buttons[(size_t)Gamepad::GAMEPAD_BUTTON_DPAD_DOWN]  = (b & 0x02) != 0;
-    pad.buttons[(size_t)Gamepad::GAMEPAD_BUTTON_DPAD_LEFT]  = (b & 0x04) != 0;
-    pad.buttons[(size_t)Gamepad::GAMEPAD_BUTTON_DPAD_RIGHT] = (b & 0x08) != 0;
-
-    // Add shoulders/thumbs from other bytes (check full DS4 spec)
-}
-
-void ParseDS5(RAWINPUT* raw) {
-    const uint8_t* data = raw->data.hid.bRawData;
-    size_t len = raw->data.hid.dwSizeHid;
-
-    GamepadState& pad = io.pads[1];
-    pad.connected = true;
-
-    pad.is_dualshock = false;
-    pad.is_dualsense = true;
-
-    pad.axes[(size_t)GamepadAxis::LEFT_X]  = (data[1] - 128) / 127.0f;
-    pad.axes[(size_t)GamepadAxis::LEFT_Y]  = (data[2] - 128) / 127.0f;
-    pad.axes[(size_t)GamepadAxis::RIGHT_X] = (data[3] - 128) / 127.0f;
-    pad.axes[(size_t)GamepadAxis::RIGHT_Y] = (data[4] - 128) / 127.0f;
-
-    pad.axes[(size_t)GamepadAxis::LEFT_TRIGGER]  = data[5] / 255.0f;
-    pad.axes[(size_t)GamepadAxis::RIGHT_TRIGGER] = data[6] / 255.0f;
-
-    uint8_t b = data[8];
-
-    pad.buttons[(size_t)Gamepad::GAMEPAD_BUTTON_CROSS]    = (b & 0x20) != 0;
-    pad.buttons[(size_t)Gamepad::GAMEPAD_BUTTON_CIRCLE]   = (b & 0x40) != 0;
-    pad.buttons[(size_t)Gamepad::GAMEPAD_BUTTON_SQUARE]   = (b & 0x10) != 0;
-    pad.buttons[(size_t)Gamepad::GAMEPAD_BUTTON_TRIANGLE] = (b & 0x80) != 0;
-    pad.buttons[(size_t)Gamepad::GAMEPAD_BUTTON_DPAD_UP]    = (b & 0x01) != 0;
-    pad.buttons[(size_t)Gamepad::GAMEPAD_BUTTON_DPAD_DOWN]  = (b & 0x02) != 0;
-    pad.buttons[(size_t)Gamepad::GAMEPAD_BUTTON_DPAD_LEFT]  = (b & 0x04) != 0;
-    pad.buttons[(size_t)Gamepad::GAMEPAD_BUTTON_DPAD_RIGHT] = (b & 0x08) != 0;
-}
-
-void HandleHIDInput(RAWINPUT* raw) {
-    RID_DEVICE_INFO rdi;
-    UINT size = sizeof(rdi);
-    GetRawInputDeviceInfo(raw->header.hDevice, RIDI_DEVICEINFO, &rdi, &size);
-
-    if (rdi.hid.dwVendorId == SONY_PS) { // Sony
-        if (rdi.hid.dwProductId == SONY_PS_DUALSHOCK_PID) {
-            ParseDS4(raw);
-        } else if (rdi.hid.dwProductId == SONY_PS_DUALSENSE_PID) {
-            ParseDS5(raw);
-        }
-    }
-}
-
-static wchar_t* convertCharToWchar(const char* str) {
-    if (!str) return nullptr;
-    int wlen = MultiByteToWideChar(CP_UTF8, 0, str, -1, NULL, 0);
-    if (wlen <= 0) return nullptr;
-    wchar_t* wstr = (wchar_t*)malloc(wlen * sizeof(wchar_t));
-    if (!wstr) return nullptr;
-    MultiByteToWideChar(CP_UTF8, 0, str, -1, wstr, wlen);
-    return wstr;
-}
-
+void HandleHIDInput(RAWINPUT* raw);
+static wchar_t* convertCharToWchar(const char* str);
 #endif // MOSS_PLATFORM_WIN32_H

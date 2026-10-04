@@ -249,6 +249,7 @@ endif()
 
 if(WIN32)
     target_link_libraries(Moss PRIVATE user32 gdi32)
+	target_link_libraries(Moss PRIVATE dwmapi.lib xinput.lib)
 elseif(APPLE)
     find_library(COCOA_LIBRARY Cocoa)
     target_link_libraries(Moss PRIVATE ${COCOA_LIBRARY})
