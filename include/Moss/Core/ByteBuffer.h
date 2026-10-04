@@ -8,16 +8,24 @@
 
 MOSS_SUPPRESS_WARNINGS_BEGIN
 
+/// Align inV up to the next inAlignment bytes
+template <typename T>
+inline T AlignUp(T inV, uint64 inAlignment) {
+	MOSS_ASSERT(IsPowerOf2(inAlignment));
+	return T((uint64(inV) + inAlignment - 1) & ~(inAlignment - 1));
+}
+
+template <typename T>
+constexpr bool IsPowerOf2(T inV) { return inV > 0 && (inV & (inV - 1)) == 0; }
+
 /// Underlying data type for ByteBuffer
-using ByteBufferVector = TArray<uint8, STLAlignedAllocator<uint8, MOSS_CACHE_LINE_SIZE>>;
+using ByteBufferVector = TArray<uint8, STLAlignedAllocator<uint8_t, MOSS_CACHE_LINE_SIZE>>;
 
 /// Simple byte buffer, aligned to a cache line
-class ByteBuffer : public ByteBufferVector
-{
+class ByteBuffer : public ByteBufferVector {
 public:
 	/// Align the size to a multiple of inSize, returns the length after alignment
-	size_t			Align(size_t inSize)
-	{
+	size_t Align(size_t inSize) {
 		// Assert power of 2
 		MOSS_ASSERT(IsPowerOf2(inSize));
 
@@ -30,8 +38,7 @@ public:
 
 	/// Allocate block of data of inSize elements and return the pointer
 	template <class Type>
-	Type *			Allocate(size_t inSize = 1)
-	{
+	Type *			Allocate(size_t inSize = 1) {
 		// Reserve space
 		size_t s = size();
 		resize(s + inSize * sizeof(Type));

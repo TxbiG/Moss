@@ -12,8 +12,7 @@ MOSS_SUPPRESS_WARNINGS_BEGIN
 /// This allocator works as a stack: The blocks must always be freed in the reverse order as they are allocated.
 /// Note that allocations and frees can take place from different threads, but the order is guaranteed though
 /// job dependencies, so it is not needed to use any form of locking.
-class MOSS_EXPORT TempAllocator : public NonCopyable
-{
+class MOSS_EXPORT TempAllocator : public NonCopyable {
 public:
 	MOSS_OVERRIDE_NEW_DELETE
 
@@ -28,8 +27,7 @@ public:
 };
 
 /// Default implementation of the temp allocator that allocates a large block through malloc upfront
-class MOSS_EXPORT TempAllocatorImpl final : public TempAllocator
-{
+class MOSS_EXPORT TempAllocatorImpl final : public TempAllocator {
 public:
 	MOSS_OVERRIDE_NEW_DELETE
 
@@ -41,7 +39,7 @@ public:
 	}
 
 	/// Destructor, frees the block
-	virtual							~TempAllocatorImpl() override
+	virtual	~TempAllocatorImpl() override
 	{
 		MOSS_ASSERT(mTop == 0);
 		AlignedFree(mBase);

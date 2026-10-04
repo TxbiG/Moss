@@ -7,9 +7,8 @@
 MOSS_SUPPRESS_WARNINGS_BEGIN
 
 /// STL allocator that takes care that memory is aligned to N bytes
-template <typename T, size_t N>
-class STLAlignedAllocator
-{
+template<typename T, size_t N>
+class STLAlignedAllocator {
 public:
 	using value_type = T;
 

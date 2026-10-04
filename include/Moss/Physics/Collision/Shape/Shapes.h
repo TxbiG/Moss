@@ -4,7 +4,7 @@
 
 #pragma once
 
-include <Moss/Moss_stdinc.h>
+#include <Moss/Moss_stdinc.h>
 #include <Moss/Core/NonCopyable.h>
 #include <Moss/Core/Reference.h>
 #include <Moss/Core/Result.h>
@@ -21,7 +21,7 @@ include <Moss/Moss_stdinc.h>
 #include <Moss/Physics/Collision/PhysicsMaterial.h>
 #include <Moss/Physics/Collision/Shape/SubShapeID.h>
 #include <Moss/Physics/Collision/ShapeFilter.h>
-#include <Moss/Physics/PhysicsSettings.h>
+#include <Moss/Physics/PhysicsSystem.h>
 
 MOSS_SUPPRESS_WARNINGS_BEGIN
 
