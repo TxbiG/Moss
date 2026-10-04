@@ -12,7 +12,7 @@
 MOSS_SUPPRESS_WARNINGS_BEGIN
 
 /// A class that splits a triangle list into two parts for building a tree
-class MOSS_EXPORT TriangleSplitter : public NonCopyable {
+class MOSS_API TriangleSplitter : public NonCopyable {
 public:
 	/// Constructor
 	TriangleSplitter(const VertexList &inVertices, const IndexedTriangleList &inTriangles);
@@ -77,7 +77,7 @@ protected:
 
 
 /// Binning splitter approach taken from: Realtime Ray Tracing on GPU with BVH-based Packet Traversal by Johannes Gunther et al.
-class MOSS_EXPORT TriangleSplitterBinning : public TriangleSplitter {
+class MOSS_API TriangleSplitterBinning : public TriangleSplitter {
 public:
 	/// Constructor
 							TriangleSplitterBinning(const VertexList &inVertices, const IndexedTriangleList &inTriangles, uint32 inMinNumBins = 8, uint32 inMaxNumBins = 128, uint32 inNumTrianglesPerBin = 6);
@@ -114,7 +114,7 @@ private:
 
 
 /// Splitter using mean of axis with biggest centroid deviation
-class MOSS_EXPORT TriangleSplitterMean : public TriangleSplitter {
+class MOSS_API TriangleSplitterMean : public TriangleSplitter {
 public:
 	/// Constructor
 	TriangleSplitterMean(const VertexList &inVertices, const IndexedTriangleList &inTriangles);

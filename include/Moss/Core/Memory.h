@@ -25,14 +25,14 @@ using AlignedAllocateFunction = void *(*)(size_t inSize, size_t inAlignment);
 using AlignedFreeFunction = void (*)(void *inBlock);
 
 // User defined allocation / free functions
-MOSS_EXPORT extern AllocateFunction Allocate;
-MOSS_EXPORT extern ReallocateFunction Reallocate;
-MOSS_EXPORT extern FreeFunction Free;
-MOSS_EXPORT extern AlignedAllocateFunction AlignedAllocate;
-MOSS_EXPORT extern AlignedFreeFunction AlignedFree;
+MOSS_API extern AllocateFunction Allocate;
+MOSS_API extern ReallocateFunction Reallocate;
+MOSS_API extern FreeFunction Free;
+MOSS_API extern AlignedAllocateFunction AlignedAllocate;
+MOSS_API extern AlignedFreeFunction AlignedFree;
 
 /// Register platform default allocation / free functions
-MOSS_EXPORT void RegisterDefaultAllocator();
+MOSS_API void RegisterDefaultAllocator();
 
 // 32-bit MinGW g++ doesn't call the correct overload for the new operator when a type is 16 bytes aligned.
 // It uses the non-aligned version, which on 32 bit platforms usually returns an 8 byte aligned block.
@@ -69,11 +69,11 @@ MOSS_EXPORT void RegisterDefaultAllocator();
 #else
 
 // Directly define the allocation functions
-MOSS_EXPORT void *Allocate(size_t inSize);
-MOSS_EXPORT void *Reallocate(void *inBlock, size_t inOldSize, size_t inNewSize);
-MOSS_EXPORT void Free(void *inBlock);
-MOSS_EXPORT void *AlignedAllocate(size_t inSize, size_t inAlignment);
-MOSS_EXPORT void AlignedFree(void *inBlock);
+MOSS_API void *Allocate(size_t inSize);
+MOSS_API void *Reallocate(void *inBlock, size_t inOldSize, size_t inNewSize);
+MOSS_API void Free(void *inBlock);
+MOSS_API void *AlignedAllocate(size_t inSize, size_t inAlignment);
+MOSS_API void AlignedFree(void *inBlock);
 
 // Don't implement allocator registering
 inline void RegisterDefaultAllocator() { }

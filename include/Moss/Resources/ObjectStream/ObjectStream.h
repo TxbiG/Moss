@@ -15,7 +15,7 @@
 MOSS_SUPPRESS_WARNINGS_END
 
 /// Base class for object stream input and output streams.
-class MOSS_EXPORT ObjectStream : public NonCopyable
+class MOSS_API ObjectStream : public NonCopyable
 {
 public:
 	/// Stream type
@@ -38,7 +38,7 @@ protected:
 };
 
 /// Interface class for reading from an object stream
-class MOSS_EXPORT IObjectStreamIn : public ObjectStream
+class MOSS_API IObjectStreamIn : public ObjectStream
 {
 public:
 	///@name Input type specific operations
@@ -74,7 +74,7 @@ public:
 };
 
 /// Interface class for writing to an object stream
-class MOSS_EXPORT IObjectStreamOut : public ObjectStream
+class MOSS_API IObjectStreamOut : public ObjectStream
 {
 public:
 	///@name Output type specific operations
@@ -116,10 +116,10 @@ public:
 
 // Define macro to declare functions for a specific primitive type
 #define MOSS_DECLARE_PRIMITIVE(name)																			\
-	MOSS_EXPORT bool	OSIsType(name *, int inArrayDepth, EOSDataType inDataType, const char *inClassName);	\
-	MOSS_EXPORT bool	OSReadData(IObjectStreamIn &ioStream, name &outPrimitive);								\
-	MOSS_EXPORT void	OSWriteDataType(IObjectStreamOut &ioStream, name *);									\
-	MOSS_EXPORT void	OSWriteData(IObjectStreamOut &ioStream, const name &inPrimitive);
+	MOSS_API bool	OSIsType(name *, int inArrayDepth, EOSDataType inDataType, const char *inClassName);	\
+	MOSS_API bool	OSReadData(IObjectStreamIn &ioStream, name &outPrimitive);								\
+	MOSS_API void	OSWriteDataType(IObjectStreamOut &ioStream, name *);									\
+	MOSS_API void	OSWriteData(IObjectStreamOut &ioStream, const name &inPrimitive);
 
 // This file uses the MOSS_DECLARE_PRIMITIVE macro to define all types
 #include <Moss/Resources/ObjectStream/ObjectStreamTypes.h>

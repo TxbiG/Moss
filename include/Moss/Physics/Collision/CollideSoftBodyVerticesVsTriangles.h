@@ -10,7 +10,7 @@
 MOSS_SUPPRESS_WARNINGS_END
 
 /// Collision detection helper that collides soft body vertices vs triangles
-class MOSS_EXPORT CollideSoftBodyVerticesVsTriangles
+class MOSS_API CollideSoftBodyVerticesVsTriangles
 {
 public:
 						CollideSoftBodyVerticesVsTriangles(Mat44Arg inCenterOfMassTransform, Vec3Arg inScale) :

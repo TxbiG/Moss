@@ -120,7 +120,6 @@ constexpr EAllowedDOFs & operator &= (EAllowedDOFs &ioLHS, EAllowedDOFs inRHS) {
 constexpr EAllowedDOFs & operator ^= (EAllowedDOFs &ioLHS, EAllowedDOFs inRHS) { ioLHS = ioLHS ^ inRHS; return ioLHS; }
 
 
-
 class BodyID {
 public:
 	MOSS_OVERRIDE_NEW_DELETE
@@ -170,7 +169,7 @@ private:
 	uint32_t					mID;
 };
 
-class MOSS_EXPORT BodyAccess {
+class MOSS_API BodyAccess {
 public:
 	// Access rules, used to detect race conditions during simulation
 	enum class EAccess : uint8_t {
@@ -333,9 +332,9 @@ class BodyDrawFilter;
 
 
 /// Settings for constructing a rigid body
-class MOSS_EXPORT BodyCreationSettings
+class MOSS_API BodyCreationSettings
 {
-	MOSS_DECLARE_SERIALIZABLE_NON_VIRTUAL(MOSS_EXPORT, BodyCreationSettings)
+	MOSS_DECLARE_SERIALIZABLE_NON_VIRTUAL(MOSS_API, BodyCreationSettings)
 
 public:
 	/// Constructor
@@ -454,7 +453,7 @@ using BodyIDVector = TArray<BodyID>;
 
 
 /* BodyInterface */
-class MOSS_EXPORT BodyInterface : public NonCopyable {
+class MOSS_API BodyInterface : public NonCopyable {
 public:
 	// Initialize the interface (should only be called by PhysicsSystem)
 	void Init(BodyLockInterface &inBodyLockInterface, BodyManager &inBodyManager, BroadPhase &inBroadPhase) { mBodyLockInterface = &inBodyLockInterface; mBodyManager = &inBodyManager; mBroadPhase = &inBroadPhase; }
@@ -694,7 +693,7 @@ private:
 };
 
 // Class that contains all bodies
-class MOSS_EXPORT BodyManager : public NonCopyable {
+class MOSS_API BodyManager : public NonCopyable {
 public:
 	MOSS_OVERRIDE_NEW_DELETE
 
@@ -1122,7 +1121,7 @@ public:
 
 
 // Class function to filter out bodies, returns true if test should collide with body
-class MOSS_EXPORT BodyFilter : public NonCopyable {
+class MOSS_API BodyFilter : public NonCopyable {
 public:
 	// Destructor
 	virtual ~BodyFilter() = default;
@@ -1139,7 +1138,7 @@ public:
 };
 
 // A simple body filter implementation that ignores a single, specified body
-class MOSS_EXPORT IgnoreSingleBodyFilter : public BodyFilter
+class MOSS_API IgnoreSingleBodyFilter : public BodyFilter
 {
 public:
 	// Constructor, pass the body you want to ignore
@@ -1153,7 +1152,7 @@ private:
 };
 
 // A simple body filter implementation that ignores multiple, specified bodies
-class MOSS_EXPORT IgnoreMultipleBodiesFilter : public BodyFilter {
+class MOSS_API IgnoreMultipleBodiesFilter : public BodyFilter {
 public:
 	// Remove all bodies from the filter
 	void Clear() { mBodyIDs.clear(); }
@@ -1172,7 +1171,7 @@ private:
 };
 
 // Ignores a single body and chains the filter to another filter
-class MOSS_EXPORT IgnoreSingleBodyFilterChained : public BodyFilter {
+class MOSS_API IgnoreSingleBodyFilterChained : public BodyFilter {
 public:
 	// Constructor
 	explicit IgnoreSingleBodyFilterChained(const BodyID inBodyID, const BodyFilter &inFilter) : mBodyID(inBodyID), mFilter(inFilter) { }
@@ -1191,7 +1190,7 @@ private:
 
 #ifndef MOSS_DEBUG_RENDERER
 // Class function to filter out bodies for debug rendering, returns true if body should be rendered
-class MOSS_EXPORT BodyDrawFilter : public NonCopyable {
+class MOSS_API BodyDrawFilter : public NonCopyable {
 public:
 	// Destructor
 	virtual ~BodyDrawFilter() = default;
@@ -1289,8 +1288,8 @@ class BodyLockMultiRead : public BodyLockMultiBase<false, const Body> { using Bo
 // Specialization that locks multiple bodies for writing to. @see BodyLockMultiRead for usage patterns.
 class BodyLockMultiWrite : public BodyLockMultiBase<true, Body> { using BodyLockMultiBase::BodyLockMultiBase; };
 
-class MOSS_EXPORT MassProperties {
-	MOSS_DECLARE_SERIALIZABLE_NON_VIRTUAL(MOSS_EXPORT, MassProperties)
+class MOSS_API MassProperties {
+	MOSS_DECLARE_SERIALIZABLE_NON_VIRTUAL(MOSS_API, MassProperties)
 public:
 	// Test if two MassProperties are equal
 	bool operator == (const MassProperties &inRHS) const { return mMass == inRHS.mMass && mInertia == inRHS.mInertia; }
@@ -1340,7 +1339,7 @@ public:
 // MotionProperties
 //--------------------------------------------------------------------------------------------------
 // The Body class only keeps track of state for static bodies, the MotionProperties class keeps the additional state needed for a moving Body. It has a 1-on-1 relationship with the body.
-class MOSS_EXPORT MotionProperties {
+class MOSS_API MotionProperties {
 public:
 	MOSS_OVERRIDE_NEW_DELETE
 
@@ -1585,7 +1584,7 @@ private:
 //--------------------------------------------------------------------------------------------------
 // Body
 //--------------------------------------------------------------------------------------------------
-class MOSS_EXPORT_GCC_BUG_WORKAROUND alignas(max(MOSS_VECTOR_ALIGNMENT, MOSS_RVECTOR_ALIGNMENT)) Body : public NonCopyable {
+class MOSS_API_GCC_BUG_WORKAROUND alignas(max(MOSS_VECTOR_ALIGNMENT, MOSS_RVECTOR_ALIGNMENT)) Body : public NonCopyable {
 public:
 	MOSS_OVERRIDE_NEW_DELETE
 

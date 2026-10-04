@@ -26,7 +26,7 @@ using BodyPairCollector = CollisionCollector<BodyPair, CollisionCollectorTraitsC
 
 struct RayCast;
 class BroadPhaseCastResult;
-class AABox;
+class AABB3;
 class OrientedBox;
 struct AABoxCast;
 
@@ -37,7 +37,7 @@ using CollideShapeBodyCollector = CollisionCollector<BodyID, CollisionCollectorT
 
 /// Interface to the broadphase that can perform collision queries. These queries will only test the bounding box of the body to quickly determine a potential set of colliding bodies.
 /// The shapes of the bodies are not tested, if you want this then you should use the NarrowPhaseQuery interface.
-class MOSS_EXPORT BroadPhaseQuery : public NonCopyable
+class MOSS_API BroadPhaseQuery : public NonCopyable
 {
 public:
 	/// Virtual destructor
@@ -47,7 +47,7 @@ public:
 	virtual void		CastRay(const RayCast &inRay, RayCastBodyCollector &ioCollector, const BroadPhaseLayerFilter &inBroadPhaseLayerFilter = { }, const ObjectLayerFilter &inObjectLayerFilter = { }) const = 0;
 
 	/// Get bodies intersecting with inBox and any hits to ioCollector
-	virtual void		CollideAABox(const AABox &inBox, CollideShapeBodyCollector &ioCollector, const BroadPhaseLayerFilter &inBroadPhaseLayerFilter = { }, const ObjectLayerFilter &inObjectLayerFilter = { }) const = 0;
+	virtual void		CollideAABox(const AABB3 &inBox, CollideShapeBodyCollector &ioCollector, const BroadPhaseLayerFilter &inBroadPhaseLayerFilter = { }, const ObjectLayerFilter &inObjectLayerFilter = { }) const = 0;
 
 	/// Get bodies intersecting with a sphere and any hits to ioCollector
 	virtual void		CollideSphere(Vec3Arg inCenter, float inRadius, CollideShapeBodyCollector &ioCollector, const BroadPhaseLayerFilter &inBroadPhaseLayerFilter = { }, const ObjectLayerFilter &inObjectLayerFilter = { }) const = 0;
@@ -104,7 +104,7 @@ private:
 static constexpr BroadPhaseLayer cBroadPhaseLayerInvalid(0xff);
 
 /// Interface that the application should implement to allow mapping object layers to broadphase layers
-class MOSS_EXPORT BroadPhaseLayerInterface : public NonCopyable
+class MOSS_API BroadPhaseLayerInterface : public NonCopyable
 {
 public:
 	/// Destructor
@@ -123,7 +123,7 @@ public:
 };
 
 /// Class to test if an object can collide with a broadphase layer. Used while finding collision pairs.
-class MOSS_EXPORT ObjectVsBroadPhaseLayerFilter : public NonCopyable
+class MOSS_API ObjectVsBroadPhaseLayerFilter : public NonCopyable
 {
 public:
 	/// Destructor
@@ -137,7 +137,7 @@ public:
 };
 
 /// Filter class for broadphase layers
-class MOSS_EXPORT BroadPhaseLayerFilter : public NonCopyable
+class MOSS_API BroadPhaseLayerFilter : public NonCopyable
 {
 public:
 	/// Destructor
@@ -151,7 +151,7 @@ public:
 };
 
 /// Default filter class that uses the pair filter in combination with a specified layer to filter layers
-class MOSS_EXPORT DefaultBroadPhaseLayerFilter : public BroadPhaseLayerFilter
+class MOSS_API DefaultBroadPhaseLayerFilter : public BroadPhaseLayerFilter
 {
 public:
 	/// Constructor
@@ -173,7 +173,7 @@ private:
 };
 
 /// Allows objects from a specific broad phase layer only
-class MOSS_EXPORT SpecifiedBroadPhaseLayerFilter : public BroadPhaseLayerFilter
+class MOSS_API SpecifiedBroadPhaseLayerFilter : public BroadPhaseLayerFilter
 {
 public:
 	/// Constructor
@@ -193,7 +193,7 @@ private:
 };
 
 /// Used to do coarse collision detection operations to quickly prune out bodies that will not collide.
-class MOSS_EXPORT BroadPhase : public BroadPhaseQuery
+class MOSS_API BroadPhase : public BroadPhaseQuery
 {
 public:
 	/// Initialize the broadphase.
@@ -267,7 +267,7 @@ public:
 	virtual void		CastAABoxNoLock(const AABoxCast &inBox, CastShapeBodyCollector &ioCollector, const BroadPhaseLayerFilter &inBroadPhaseLayerFilter, const ObjectLayerFilter &inObjectLayerFilter) const = 0;
 
 	/// Get the bounding box of all objects in the broadphase
-	virtual AABox		GetBounds() const = 0;
+	virtual AABB3		GetBounds() const = 0;
 
 #ifdef MOSS_TRACK_BROADPHASE_STATS
 	/// Trace the collected broadphase stats in CSV form.
@@ -281,7 +281,7 @@ protected:
 };
 
 
-class MOSS_EXPORT BroadPhaseBruteForce final : public BroadPhase
+class MOSS_API BroadPhaseBruteForce final : public BroadPhase
 {
 public:
 	MOSS_OVERRIDE_NEW_DELETE
@@ -292,14 +292,14 @@ public:
 	virtual void		NotifyBodiesAABBChanged(BodyID *ioBodies, int inNumber, bool inTakeLock) override;
 	virtual void		NotifyBodiesLayerChanged(BodyID *ioBodies, int inNumber) override;
 	virtual void		CastRay(const RayCast &inRay, RayCastBodyCollector &ioCollector, const BroadPhaseLayerFilter &inBroadPhaseLayerFilter, const ObjectLayerFilter &inObjectLayerFilter) const override;
-	virtual void		CollideAABox(const AABox &inBox, CollideShapeBodyCollector &ioCollector, const BroadPhaseLayerFilter &inBroadPhaseLayerFilter, const ObjectLayerFilter &inObjectLayerFilter) const override;
+	virtual void		CollideAABox(const AABB3 &inBox, CollideShapeBodyCollector &ioCollector, const BroadPhaseLayerFilter &inBroadPhaseLayerFilter, const ObjectLayerFilter &inObjectLayerFilter) const override;
 	virtual void		CollideSphere(Vec3Arg inCenter, float inRadius, CollideShapeBodyCollector &ioCollector, const BroadPhaseLayerFilter &inBroadPhaseLayerFilter, const ObjectLayerFilter &inObjectLayerFilter) const override;
 	virtual void		CollidePoint(Vec3Arg inPoint, CollideShapeBodyCollector &ioCollector, const BroadPhaseLayerFilter &inBroadPhaseLayerFilter, const ObjectLayerFilter &inObjectLayerFilter) const override;
 	virtual void		CollideOrientedBox(const OrientedBox &inBox, CollideShapeBodyCollector &ioCollector, const BroadPhaseLayerFilter &inBroadPhaseLayerFilter, const ObjectLayerFilter &inObjectLayerFilter) const override;
 	virtual void		CastAABoxNoLock(const AABoxCast &inBox, CastShapeBodyCollector &ioCollector, const BroadPhaseLayerFilter &inBroadPhaseLayerFilter, const ObjectLayerFilter &inObjectLayerFilter) const override;
 	virtual void		CastAABox(const AABoxCast &inBox, CastShapeBodyCollector &ioCollector, const BroadPhaseLayerFilter &inBroadPhaseLayerFilter, const ObjectLayerFilter &inObjectLayerFilter) const override;
 	virtual void		FindCollidingPairs(BodyID *ioActiveBodies, int inNumActiveBodies, float inSpeculativeContactDistance, const ObjectVsBroadPhaseLayerFilter &inObjectVsBroadPhaseLayerFilter, const ObjectLayerPairFilter &inObjectLayerPairFilter, BodyPairCollector &ioPairCollector) const override;
-	virtual AABox		GetBounds() const override;
+	virtual AABB3		GetBounds() const override;
 
 private:
 	TArray<BodyID>		mBodyIDs;

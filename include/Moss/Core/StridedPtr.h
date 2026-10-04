@@ -10,7 +10,7 @@ MOSS_SUPPRESS_WARNINGS_BEGIN
 /// elements that the pointer points to can be part of a larger structure.
 /// The stride gives the number of bytes from one element to the next.
 template <class T>
-class MOSS_EXPORT StridedPtr
+class MOSS_API StridedPtr
 {
 public:
 	using value_type = T;

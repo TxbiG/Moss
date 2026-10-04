@@ -66,7 +66,7 @@ MOSS_SUPPRESS_WARNINGS_BEGIN
 /// to wait for these in this function after the barrier is finished waiting.
 ///
 /// An example implementation is JobSystemThreadPool. If you don't want to write the Barrier class you can also inherit from JobSystemWithBarrier.
-class MOSS_EXPORT JobSystem : public NonCopyable
+class MOSS_API JobSystem : public NonCopyable
 {
 protected:
 	class Job;

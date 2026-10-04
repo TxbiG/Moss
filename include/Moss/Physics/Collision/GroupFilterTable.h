@@ -32,8 +32,8 @@ MOSS_SUPPRESS_WARNINGS_END
 /// * '.' is a bit we don't need to store because the table is symmetric, we take care that group 2 > group 1 by swapping sub group 1 and sub group 2 if needed.
 ///
 /// The total number of bits we need to store is (N * (N - 1)) / 2
-class MOSS_EXPORT GroupFilterTable final : public GroupFilter {
-	MOSS_DECLARE_SERIALIZABLE_VIRTUAL(MOSS_EXPORT, GroupFilterTable)
+class MOSS_API GroupFilterTable final : public GroupFilter {
+	MOSS_DECLARE_SERIALIZABLE_VIRTUAL(MOSS_API, GroupFilterTable)
 
 private:
 	using GroupID = CollisionGroup::GroupID;

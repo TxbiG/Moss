@@ -119,7 +119,7 @@ MOSS_SUPPRESS_WARNINGS_BEGIN
 ///		B *b = DynamicCast<B>(a);
 ///
 /// does the correct cast
-class MOSS_EXPORT RTTI
+class MOSS_API RTTI
 {
 public:
 	/// Function to create an object

@@ -9,7 +9,7 @@
 
 #ifndef MOSS_DEBUG_RENDERER_EXPORT
 	// By default export the debug renderer
-	#define MOSS_DEBUG_RENDERER_EXPORT MOSS_EXPORT
+	#define MOSS_DEBUG_RENDERER_EXPORT MOSS_API
 #endif // !MOSS_DEBUG_RENDERER_EXPORT
 
 #include <Moss/Variants/Color.h>

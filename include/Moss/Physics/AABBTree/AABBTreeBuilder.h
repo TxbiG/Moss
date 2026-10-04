@@ -31,7 +31,7 @@ struct AABBTreeBuilderStats {
 };
 
 /// Helper class to build an AABB tree
-class MOSS_EXPORT AABBTreeBuilder {
+class MOSS_API AABBTreeBuilder {
 public:
 	/// A node in the tree, contains the AABox for the tree and any child nodes or triangles
 	class Node {

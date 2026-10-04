@@ -104,7 +104,7 @@ public:
 	static MOSS_INLINE iVec4	UnitSpherical(float inTheta, float inPhi);
 
 	/// A set of vectors uniformly spanning the surface of a unit sphere, usable for debug purposes
-	MOSS_EXPORT static const TStaticArray<iVec4, 1026> sUnitSphere;
+	MOSS_API static const TStaticArray<iVec4, 1026> sUnitSphere;
 
 	/// Get random unit vector
 	template <class Random>

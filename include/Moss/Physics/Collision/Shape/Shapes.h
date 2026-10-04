@@ -152,8 +152,8 @@ static_assert(std::size(sSubShapeTypeNames) == NumSubShapeTypes);
 /// in a form that is optimized for collision detection. After this, the ShapeSettings object is no longer needed
 /// and can be destroyed. Each shape class has a derived class of the ShapeSettings object to store shape specific
 /// data.
-class MOSS_EXPORT ShapeSettings : public SerializableObject, public RefTarget<ShapeSettings> {
-	MOSS_DECLARE_SERIALIZABLE_ABSTRACT(MOSS_EXPORT, ShapeSettings)
+class MOSS_API ShapeSettings : public SerializableObject, public RefTarget<ShapeSettings> {
+	MOSS_DECLARE_SERIALIZABLE_ABSTRACT(MOSS_API, ShapeSettings)
 public:
 	using ShapeResult = Result<Ref<Shape>>;
 
@@ -172,7 +172,7 @@ protected:
 };
 
 /// Function table for functions on shapes
-class MOSS_EXPORT ShapeFunctions
+class MOSS_API ShapeFunctions
 {
 public:
 	/// Construct a shape
@@ -189,7 +189,7 @@ private:
 };
 
 /// Base class for all shapes (collision volume of a body). Defines a virtual interface for collision detection.
-class MOSS_EXPORT Shape : public RefTarget<Shape>, public NonCopyable
+class MOSS_API Shape : public RefTarget<Shape>, public NonCopyable
 {
 public:
 	MOSS_OVERRIDE_NEW_DELETE
@@ -472,8 +472,8 @@ private:
 
 
 /// Class that constructs a CapsuleShape
-class MOSS_EXPORT CapsuleShapeSettings final : public ConvexShapeSettings {
-	MOSS_DECLARE_SERIALIZABLE_VIRTUAL(MOSS_EXPORT, CapsuleShapeSettings)
+class MOSS_API CapsuleShapeSettings final : public ConvexShapeSettings {
+	MOSS_DECLARE_SERIALIZABLE_VIRTUAL(MOSS_API, CapsuleShapeSettings)
 public:
 	/// Default constructor for deserialization
 	CapsuleShapeSettings() = default;
@@ -490,7 +490,7 @@ public:
 };
 
 /// A capsule, implemented as a line segment with convex radius
-class MOSS_EXPORT CapsuleShape final : public ConvexShape
+class MOSS_API CapsuleShape final : public ConvexShape
 {
 public:
 	MOSS_OVERRIDE_NEW_DELETE
@@ -604,9 +604,9 @@ private:
 
 
 /// Class that constructs a CylinderShape
-class MOSS_EXPORT CylinderShapeSettings final : public ConvexShapeSettings
+class MOSS_API CylinderShapeSettings final : public ConvexShapeSettings
 {
-	MOSS_DECLARE_SERIALIZABLE_VIRTUAL(MOSS_EXPORT, CylinderShapeSettings)
+	MOSS_DECLARE_SERIALIZABLE_VIRTUAL(MOSS_API, CylinderShapeSettings)
 
 public:
 	/// Default constructor for deserialization
@@ -625,7 +625,7 @@ public:
 };
 
 /// A cylinder
-class MOSS_EXPORT CylinderShape final : public ConvexShape
+class MOSS_API CylinderShape final : public ConvexShape
 {
 public:
 	MOSS_OVERRIDE_NEW_DELETE
@@ -718,9 +718,9 @@ private:
 };
 
 // Class that constructs a PlaneShape
-class MOSS_EXPORT PlaneShapeSettings final : public ShapeSettings
+class MOSS_API PlaneShapeSettings final : public ShapeSettings
 {
-	MOSS_DECLARE_SERIALIZABLE_VIRTUAL(MOSS_EXPORT, PlaneShapeSettings)
+	MOSS_DECLARE_SERIALIZABLE_VIRTUAL(MOSS_API, PlaneShapeSettings)
 
 public:
 	/// Default constructor for deserialization
@@ -744,7 +744,7 @@ public:
 /// A plane shape. The negative half space is considered solid. Planes cannot be dynamic objects, only static or kinematic.
 /// The plane is considered an infinite shape, but testing collision outside of its bounding box (defined by the half-extent parameter) will not return a collision result.
 /// At the edge of the bounding box collision with the plane will be inconsistent. If you need something of a well defined size, a box shape may be better.
-class MOSS_EXPORT PlaneShape final : public Shape
+class MOSS_API PlaneShape final : public Shape
 {
 public:
 	MOSS_OVERRIDE_NEW_DELETE
@@ -850,8 +850,8 @@ private:
 };
 
 // Class that constructs an OffsetCenterOfMassShape
-class MOSS_EXPORT OffsetCenterOfMassShapeSettings final : public DecoratedShapeSettings {
-	MOSS_DECLARE_SERIALIZABLE_VIRTUAL(MOSS_EXPORT, OffsetCenterOfMassShapeSettings)
+class MOSS_API OffsetCenterOfMassShapeSettings final : public DecoratedShapeSettings {
+	MOSS_DECLARE_SERIALIZABLE_VIRTUAL(MOSS_API, OffsetCenterOfMassShapeSettings)
 public:
 	/// Constructor
 									OffsetCenterOfMassShapeSettings() = default;
@@ -869,9 +869,9 @@ public:
 };
 
 // Class that constructs a DecoratedShape
-class MOSS_EXPORT DecoratedShapeSettings : public ShapeSettings
+class MOSS_API DecoratedShapeSettings : public ShapeSettings
 {
-	MOSS_DECLARE_SERIALIZABLE_VIRTUAL(MOSS_EXPORT, DecoratedShapeSettings)
+	MOSS_DECLARE_SERIALIZABLE_VIRTUAL(MOSS_API, DecoratedShapeSettings)
 
 public:
 	/// Default constructor for deserialization
@@ -886,7 +886,7 @@ public:
 };
 
 /// Base class for shapes that decorate another shape with extra functionality (e.g. scale, translation etc.)
-class MOSS_EXPORT DecoratedShape : public Shape
+class MOSS_API DecoratedShape : public Shape
 {
 public:
 	MOSS_OVERRIDE_NEW_DELETE
@@ -938,7 +938,7 @@ protected:
 };
 
 /// This shape will shift the center of mass of a child shape, it can e.g. be used to lower the center of mass of an unstable object like a boat to make it stable
-class MOSS_EXPORT OffsetCenterOfMassShape final : public DecoratedShape
+class MOSS_API OffsetCenterOfMassShape final : public DecoratedShape
 {
 public:
 	MOSS_OVERRIDE_NEW_DELETE
@@ -1064,9 +1064,9 @@ namespace HeightFieldShapeConstants
 
 
 /// Class that constructs a HeightFieldShape
-class MOSS_EXPORT HeightFieldShapeSettings final : public ShapeSettings
+class MOSS_API HeightFieldShapeSettings final : public ShapeSettings
 {
-	MOSS_DECLARE_SERIALIZABLE_VIRTUAL(MOSS_EXPORT, HeightFieldShapeSettings)
+	MOSS_DECLARE_SERIALIZABLE_VIRTUAL(MOSS_API, HeightFieldShapeSettings)
 
 public:
 	/// Default constructor for deserialization
@@ -1140,7 +1140,7 @@ public:
 /// Note: If you're using HeightFieldShape and are querying data while modifying the shape you'll have a race condition.
 /// In this case it is best to create a new HeightFieldShape using the Clone function. You replace the shape on a body using BodyInterface::SetShape.
 /// If a query is still working on the old shape, it will have taken a reference and keep the old shape alive until the query finishes.
-class MOSS_EXPORT HeightFieldShape final : public Shape
+class MOSS_API HeightFieldShape final : public Shape
 {
 public:
 	MOSS_OVERRIDE_NEW_DELETE
@@ -1407,9 +1407,9 @@ private:
 
 
 // Class that constructs a MutableCompoundShape.
-class MOSS_EXPORT MutableCompoundShapeSettings final : public CompoundShapeSettings
+class MOSS_API MutableCompoundShapeSettings final : public CompoundShapeSettings
 {
-	MOSS_DECLARE_SERIALIZABLE_VIRTUAL(MOSS_EXPORT, MutableCompoundShapeSettings)
+	MOSS_DECLARE_SERIALIZABLE_VIRTUAL(MOSS_API, MutableCompoundShapeSettings)
 
 public:
 	// See: ShapeSettings
@@ -1425,7 +1425,7 @@ public:
 /// If a query is still working on the old shape, it will have taken a reference and keep the old shape alive until the query finishes.
 ///
 /// When you modify a MutableCompoundShape, beware that the SubShapeIDs of all other shapes can change. So be careful when storing SubShapeIDs.
-class MOSS_EXPORT MutableCompoundShape final : public CompoundShape
+class MOSS_API MutableCompoundShape final : public CompoundShape
 {
 public:
 	MOSS_OVERRIDE_NEW_DELETE
@@ -1572,9 +1572,9 @@ private:
 
 
 // Class that constructs a MeshShape
-class MOSS_EXPORT MeshShapeSettings final : public ShapeSettings
+class MOSS_API MeshShapeSettings final : public ShapeSettings
 {
-	MOSS_DECLARE_SERIALIZABLE_VIRTUAL(MOSS_EXPORT, MeshShapeSettings)
+	MOSS_DECLARE_SERIALIZABLE_VIRTUAL(MOSS_API, MeshShapeSettings)
 
 public:
 	/// Default constructor for deserialization
@@ -1634,7 +1634,7 @@ public:
 /// A mesh shape, consisting of triangles. Mesh shapes are mostly used for static geometry.
 /// They can be used by dynamic or kinematic objects but only if they don't collide with other mesh or heightfield shapes as those collisions are currently not supported.
 /// Note that if you make a mesh shape a dynamic or kinematic object, you need to provide a mass yourself as mesh shapes don't need to form a closed hull so don't have a well defined volume from which the mass can be calculated.
-class MOSS_EXPORT MeshShape final : public Shape
+class MOSS_API MeshShape final : public Shape
 {
 public:
 	MOSS_OVERRIDE_NEW_DELETE
@@ -1780,9 +1780,9 @@ private:
 
 
 /// Class that constructs a ConvexShape (abstract)
-class MOSS_EXPORT ConvexShapeSettings : public ShapeSettings
+class MOSS_API ConvexShapeSettings : public ShapeSettings
 {
-	MOSS_DECLARE_SERIALIZABLE_ABSTRACT(MOSS_EXPORT, ConvexShapeSettings)
+	MOSS_DECLARE_SERIALIZABLE_ABSTRACT(MOSS_API, ConvexShapeSettings)
 
 public:
 	/// Constructor
@@ -1798,7 +1798,7 @@ public:
 };
 
 /// Base class for all convex shapes. Defines a virtual interface.
-class MOSS_EXPORT ConvexShape : public Shape
+class MOSS_API ConvexShape : public Shape
 {
 public:
 	MOSS_OVERRIDE_NEW_DELETE
@@ -1915,9 +1915,9 @@ private:
 
 
 // Class that constructs a StaticCompoundShape. Note that if you only want a compound of 1 shape, use a RotatedTranslatedShape instead.
-class MOSS_EXPORT StaticCompoundShapeSettings final : public CompoundShapeSettings
+class MOSS_API StaticCompoundShapeSettings final : public CompoundShapeSettings
 {
-	MOSS_DECLARE_SERIALIZABLE_VIRTUAL(MOSS_EXPORT, StaticCompoundShapeSettings)
+	MOSS_DECLARE_SERIALIZABLE_VIRTUAL(MOSS_API, StaticCompoundShapeSettings)
 
 public:
 	// See: ShapeSettings
@@ -1930,7 +1930,7 @@ public:
 /// A compound shape, sub shapes can be rotated and translated.
 /// Sub shapes cannot be modified once the shape is constructed.
 /// Shifts all child objects so that they're centered around the center of mass.
-class MOSS_EXPORT StaticCompoundShape final : public CompoundShape
+class MOSS_API StaticCompoundShape final : public CompoundShape
 {
 public:
 	MOSS_OVERRIDE_NEW_DELETE
@@ -2038,9 +2038,9 @@ private:
 };
 
 // Class that constructs an EmptyShape
-class MOSS_EXPORT EmptyShapeSettings final : public ShapeSettings
+class MOSS_API EmptyShapeSettings final : public ShapeSettings
 {
-	MOSS_DECLARE_SERIALIZABLE_VIRTUAL(MOSS_EXPORT, EmptyShapeSettings)
+	MOSS_DECLARE_SERIALIZABLE_VIRTUAL(MOSS_API, EmptyShapeSettings)
 
 public:
 							EmptyShapeSettings() = default;
@@ -2059,7 +2059,7 @@ public:
 ///
 /// Note that, if possible, you should also put your body in an ObjectLayer that doesn't collide with anything.
 /// This ensures that collisions will be filtered out at broad phase level instead of at narrow phase level, this is more efficient.
-class MOSS_EXPORT EmptyShape final : public Shape
+class MOSS_API EmptyShape final : public Shape
 {
 public:
 	// Constructor
@@ -2101,9 +2101,9 @@ private:
 };
 
 // Class that constructs a BoxShape
-class MOSS_EXPORT BoxShapeSettings final : public ConvexShapeSettings
+class MOSS_API BoxShapeSettings final : public ConvexShapeSettings
 {
-	MOSS_DECLARE_SERIALIZABLE_VIRTUAL(MOSS_EXPORT, BoxShapeSettings)
+	MOSS_DECLARE_SERIALIZABLE_VIRTUAL(MOSS_API, BoxShapeSettings)
 
 public:
 	/// Default constructor for deserialization
@@ -2121,7 +2121,7 @@ public:
 };
 
 /// A box, centered around the origin
-class MOSS_EXPORT BoxShape final : public ConvexShape
+class MOSS_API BoxShape final : public ConvexShape
 {
 public:
 	MOSS_OVERRIDE_NEW_DELETE
@@ -2205,9 +2205,9 @@ private:
 
 
 // Base class settings to construct a compound shape
-class MOSS_EXPORT CompoundShapeSettings : public ShapeSettings
+class MOSS_API CompoundShapeSettings : public ShapeSettings
 {
-	MOSS_DECLARE_SERIALIZABLE_ABSTRACT(MOSS_EXPORT, CompoundShapeSettings)
+	MOSS_DECLARE_SERIALIZABLE_ABSTRACT(MOSS_API, CompoundShapeSettings)
 
 public:
 	/// Constructor. Use AddShape to add the parts.
@@ -2221,7 +2221,7 @@ public:
 
 	struct SubShapeSettings
 	{
-		MOSS_DECLARE_SERIALIZABLE_NON_VIRTUAL(MOSS_EXPORT, SubShapeSettings)
+		MOSS_DECLARE_SERIALIZABLE_NON_VIRTUAL(MOSS_API, SubShapeSettings)
 
 		RefConst<ShapeSettings>		mShape;													// Sub shape (either this or mShapePtr needs to be filled up)
 		RefConst<Shape>				mShapePtr;												// Sub shape (either this or mShape needs to be filled up)
@@ -2240,7 +2240,7 @@ public:
 };
 
 /// Base class for a compound shape
-class MOSS_EXPORT CompoundShape : public Shape
+class MOSS_API CompoundShape : public Shape
 {
 public:
 	MOSS_OVERRIDE_NEW_DELETE
@@ -2543,9 +2543,9 @@ private:
 };
 
 // Class that constructs a RotatedTranslatedShape
-class MOSS_EXPORT RotatedTranslatedShapeSettings final : public DecoratedShapeSettings
+class MOSS_API RotatedTranslatedShapeSettings final : public DecoratedShapeSettings
 {
-	MOSS_DECLARE_SERIALIZABLE_VIRTUAL(MOSS_EXPORT, RotatedTranslatedShapeSettings)
+	MOSS_DECLARE_SERIALIZABLE_VIRTUAL(MOSS_API, RotatedTranslatedShapeSettings)
 
 public:
 	/// Constructor
@@ -2566,7 +2566,7 @@ public:
 
 /// A rotated translated shape will rotate and translate a child shape.
 /// Shifts the child object so that it is centered around the center of mass.
-class MOSS_EXPORT RotatedTranslatedShape final : public DecoratedShape
+class MOSS_API RotatedTranslatedShape final : public DecoratedShape
 {
 public:
 	MOSS_OVERRIDE_NEW_DELETE
@@ -2762,9 +2762,9 @@ namespace ScaleHelpers
 }
 
 // Class that constructs a ScaledShape
-class MOSS_EXPORT ScaledShapeSettings final : public DecoratedShapeSettings
+class MOSS_API ScaledShapeSettings final : public DecoratedShapeSettings
 {
-	MOSS_DECLARE_SERIALIZABLE_VIRTUAL(MOSS_EXPORT, ScaledShapeSettings)
+	MOSS_DECLARE_SERIALIZABLE_VIRTUAL(MOSS_API, ScaledShapeSettings)
 
 public:
 	/// Default constructor for deserialization
@@ -2783,7 +2783,7 @@ public:
 };
 
 /// A shape that scales a child shape in local space of that shape. The scale can be non-uniform and can even turn it inside out when one or three components of the scale are negative.
-class MOSS_EXPORT ScaledShape final : public DecoratedShape
+class MOSS_API ScaledShape final : public DecoratedShape
 {
 public:
 	MOSS_OVERRIDE_NEW_DELETE
@@ -2893,9 +2893,9 @@ private:
 
 
 // Class that constructs a SphereShape
-class MOSS_EXPORT SphereShapeSettings final : public ConvexShapeSettings
+class MOSS_API SphereShapeSettings final : public ConvexShapeSettings
 {
-	MOSS_DECLARE_SERIALIZABLE_VIRTUAL(MOSS_EXPORT, SphereShapeSettings)
+	MOSS_DECLARE_SERIALIZABLE_VIRTUAL(MOSS_API, SphereShapeSettings)
 
 public:
 	/// Default constructor for deserialization
@@ -2912,7 +2912,7 @@ public:
 
 /// A sphere, centered around the origin.
 /// Note that it is implemented as a point with convex radius.
-class MOSS_EXPORT SphereShape final : public ConvexShape
+class MOSS_API SphereShape final : public ConvexShape
 {
 public:
 	MOSS_OVERRIDE_NEW_DELETE
@@ -3007,9 +3007,9 @@ private:
 };
 
 // Class that constructs a TriangleShape
-class MOSS_EXPORT TriangleShapeSettings final : public ConvexShapeSettings
+class MOSS_API TriangleShapeSettings final : public ConvexShapeSettings
 {
-	MOSS_DECLARE_SERIALIZABLE_VIRTUAL(MOSS_EXPORT, TriangleShapeSettings)
+	MOSS_DECLARE_SERIALIZABLE_VIRTUAL(MOSS_API, TriangleShapeSettings)
 
 public:
 	/// Default constructor for deserialization
@@ -3029,7 +3029,7 @@ public:
 };
 
 /// A single triangle, not the most efficient way of creating a world filled with triangles but can be used as a query shape for example.
-class MOSS_EXPORT TriangleShape final : public ConvexShape
+class MOSS_API TriangleShape final : public ConvexShape
 {
 public:
 	MOSS_OVERRIDE_NEW_DELETE
@@ -3140,9 +3140,9 @@ private:
 
 
 /// Class that constructs a TaperedCapsuleShape
-class MOSS_EXPORT TaperedCapsuleShapeSettings final : public ConvexShapeSettings
+class MOSS_API TaperedCapsuleShapeSettings final : public ConvexShapeSettings
 {
-	MOSS_DECLARE_SERIALIZABLE_VIRTUAL(MOSS_EXPORT, TaperedCapsuleShapeSettings)
+	MOSS_DECLARE_SERIALIZABLE_VIRTUAL(MOSS_API, TaperedCapsuleShapeSettings)
 
 public:
 	/// Default constructor for deserialization
@@ -3166,7 +3166,7 @@ public:
 };
 
 /// A capsule with different top and bottom radii
-class MOSS_EXPORT TaperedCapsuleShape final : public ConvexShape
+class MOSS_API TaperedCapsuleShape final : public ConvexShape
 {
 public:
 	MOSS_OVERRIDE_NEW_DELETE
@@ -3264,9 +3264,9 @@ private:
 
 
 /// Class that constructs a TaperedCylinderShape
-class MOSS_EXPORT TaperedCylinderShapeSettings final : public ConvexShapeSettings
+class MOSS_API TaperedCylinderShapeSettings final : public ConvexShapeSettings
 {
-	MOSS_DECLARE_SERIALIZABLE_VIRTUAL(MOSS_EXPORT, TaperedCylinderShapeSettings)
+	MOSS_DECLARE_SERIALIZABLE_VIRTUAL(MOSS_API, TaperedCylinderShapeSettings)
 
 public:
 	/// Default constructor for deserialization
@@ -3285,7 +3285,7 @@ public:
 };
 
 /// A cylinder with different top and bottom radii
-class MOSS_EXPORT TaperedCylinderShape final : public ConvexShape
+class MOSS_API TaperedCylinderShape final : public ConvexShape
 {
 public:
 	MOSS_OVERRIDE_NEW_DELETE

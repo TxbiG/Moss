@@ -10,7 +10,7 @@
 MOSS_SUPPRESS_WARNINGS_END
 
 /// Collision detection helper that casts a convex object vs one or more triangles
-class MOSS_EXPORT CastConvexVsTriangles
+class MOSS_API CastConvexVsTriangles
 {
 public:
 	/// Constructor

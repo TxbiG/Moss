@@ -9,7 +9,7 @@
 
 MOSS_SUPPRESS_WARNINGS_END
 
-class MOSS_EXPORT CharacterID {
+class MOSS_API CharacterID {
 public:
 	MOSS_OVERRIDE_NEW_DELETE
 
@@ -299,7 +299,7 @@ protected:
 // This object usually represents the player or a humanoid AI. It uses a single rigid body,
 // usually with a capsule shape to simulate movement and collision for the character.
 // The character is a keyframed object, the application controls it by setting the velocity.
-class MOSS_EXPORT Character : public CharacterBase
+class MOSS_API Character : public CharacterBase
 {
 public:
 	MOSS_OVERRIDE_NEW_DELETE
@@ -1046,7 +1046,7 @@ public:
 
 
 /// Uniquely identifies a contact between a character and another body or character
-class MOSS_EXPORT CharacterContactKey
+class MOSS_API CharacterContactKey
 {
 public:
 	/// Constructor
@@ -1090,7 +1090,7 @@ public:
 };
 
 /// Encapsulates a collision contact between a character and another rigid body / character
-class MOSS_EXPORT CharacterContact : public CharacterContactKey
+class MOSS_API CharacterContact : public CharacterContactKey
 {
 public:
 	// Saving / restoring state for replay
@@ -1116,7 +1116,7 @@ public:
 
 
 
-class MOSS_EXPORT BodyAccess {
+class MOSS_API BodyAccess {
 public:
 	/// Access rules, used to detect race conditions during simulation
 	enum class EAccess : uint8 {

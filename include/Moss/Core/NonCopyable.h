@@ -7,7 +7,7 @@
 MOSS_SUPPRESS_WARNINGS_BEGIN
 
 /// Class that makes another class non-copyable. Usage: Inherit from NonCopyable.
-class MOSS_EXPORT NonCopyable
+class MOSS_API NonCopyable
 {
 public:
 			NonCopyable() = default;

@@ -10,7 +10,7 @@
 MOSS_SUPPRESS_WARNINGS_BEGIN
 
 /// Implementation of a JobSystem without threads, runs jobs as soon as they are added
-class MOSS_EXPORT JobSystemSingleThreaded final : public JobSystem
+class MOSS_API JobSystemSingleThreaded final : public JobSystem
 {
 public:
 	MOSS_OVERRIDE_NEW_DELETE

@@ -84,7 +84,7 @@ protected:
 };
 
 /// Pure virtual version of RefTarget
-class MOSS_EXPORT RefTargetVirtual
+class MOSS_API RefTargetVirtual
 {
 public:
 	/// Virtual destructor

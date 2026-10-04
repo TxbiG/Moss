@@ -17,7 +17,7 @@ MOSS_SUPPRESS_WARNINGS_END
 /// Internal tree structure in broadphase, is essentially a quad AABB tree.
 /// Tree is lockless (except for UpdatePrepare/Finalize() function), modifying objects in the tree will widen the aabbs of parent nodes to make the node fit.
 /// During the UpdatePrepare/Finalize() call the tree is rebuilt to achieve a tight fit again.
-class MOSS_EXPORT QuadTree : public NonCopyable
+class MOSS_API QuadTree : public NonCopyable
 {
 public:
 	MOSS_OVERRIDE_NEW_DELETE
@@ -389,7 +389,7 @@ private:
 
 
 // Fast SIMD based quad tree BroadPhase that is multithreading aware and tries to do a minimal amount of locking.
-class MOSS_EXPORT BroadPhaseQuadTree final : public BroadPhase
+class MOSS_API BroadPhaseQuadTree final : public BroadPhase
 {
 public:
 	MOSS_OVERRIDE_NEW_DELETE

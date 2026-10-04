@@ -175,7 +175,7 @@ struct PhysicsSettings {
 /// The main class for the physics system. It contains all rigid bodies and simulates them.
 ///
 /// The main simulation is performed by the Update() call on multiple threads (if the JobSystem is configured to use them). Please refer to the general architecture overview in the Docs folder for more information.
-class MOSS_EXPORT PhysicsSystem : public NonCopyable {
+class MOSS_API PhysicsSystem : public NonCopyable {
 public:
 	MOSS_OVERRIDE_NEW_DELETE
 
@@ -535,7 +535,7 @@ private:
 };
 
 
-class MOSS_EXPORT PhysicsStepListenerContext {
+class MOSS_API PhysicsStepListenerContext {
 public:
 	float					mDeltaTime;								///< Delta time of the current step
 	bool					mIsFirstStep;							///< True if this is the first step
@@ -544,7 +544,7 @@ public:
 };
 
 /// A listener class that receives a callback before every physics simulation step
-class MOSS_EXPORT PhysicsStepListener {
+class MOSS_API PhysicsStepListener {
 public:
 	/// Ensure virtual destructor
 	virtual					~PhysicsStepListener() = default;

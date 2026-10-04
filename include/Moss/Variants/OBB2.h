@@ -7,7 +7,7 @@
 MOSS_SUPPRESS_WARNINGS_BEGIN
 
 // Oriented box 2D
-class MOSS_EXPORT_GCC_BUG_WORKAROUND [[nodiscard]] OBB2 {
+class MOSS_API_GCC_BUG_WORKAROUND [[nodiscard]] OBB2 {
 public:
 	MOSS_OVERRIDE_NEW_DELETE
 

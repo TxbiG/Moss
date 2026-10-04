@@ -783,7 +783,7 @@ private:
 };
 
 /// Implementation of DebugRenderer that records the API invocations to be played back later
-class MOSS_EXPORT DebugRendererRecorder final : public DebugRenderer {
+class MOSS_API DebugRendererRecorder final : public DebugRenderer {
 public:
 	MOSS_OVERRIDE_NEW_DELETE
 

@@ -19,7 +19,7 @@ MOSS_SUPPRESS_WARNINGS_END
 
 /// ObjectStreamOut contains all logic for writing an object to disk. It is the base
 /// class for the text and binary output streams (ObjectStreamTextOut and ObjectStreamBinaryOut).
-class MOSS_EXPORT ObjectStreamOut : public IObjectStreamOut
+class MOSS_API ObjectStreamOut : public IObjectStreamOut
 {
 private:
 	struct ObjectInfo;

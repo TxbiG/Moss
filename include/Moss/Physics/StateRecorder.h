@@ -74,7 +74,7 @@ constexpr EStateRecorderState & operator ^= (EStateRecorderState &ioLHS, EStateR
 }
 
 /// User callbacks that allow determining which parts of the simulation should be saved by a StateRecorder
-class MOSS_EXPORT StateRecorderFilter
+class MOSS_API StateRecorderFilter
 {
 public:
 	/// Destructor
@@ -105,7 +105,7 @@ public:
 /// Class that records the state of a physics system. Can be used to check if the simulation is deterministic by putting the recorder in validation mode.
 /// Can be used to restore the state to an earlier point in time. Note that only the state that is modified by the simulation is saved, configuration settings
 /// like body friction or restitution, motion quality etc. are not saved and need to be saved by the user if desired.
-class MOSS_EXPORT StateRecorder : public StreamIn, public StreamOut
+class MOSS_API StateRecorder : public StreamIn, public StreamOut
 {
 public:
 	/// Constructor

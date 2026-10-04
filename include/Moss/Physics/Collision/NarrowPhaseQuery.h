@@ -17,7 +17,7 @@ class RayCastResult;
 
 /// Class that provides an interface for doing precise collision detection against the broad and then the narrow phase.
 /// Unlike a BroadPhaseQuery, the NarrowPhaseQuery will test against shapes and will return collision information against triangles, spheres etc.
-class MOSS_EXPORT NarrowPhaseQuery : public NonCopyable
+class MOSS_API NarrowPhaseQuery : public NonCopyable
 {
 public:
 	/// Initialize the interface (should only be called by PhysicsSystem)

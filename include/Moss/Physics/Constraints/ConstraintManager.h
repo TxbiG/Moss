@@ -77,7 +77,7 @@ public:
 	}
 };
 
-class MOSS_EXPORT ContactConstraintManager : public NonCopyable
+class MOSS_API ContactConstraintManager : public NonCopyable
 {
 public:
 	MOSS_OVERRIDE_NEW_DELETE

@@ -22,8 +22,8 @@ MOSS_SUPPRESS_WARNINGS_BEGIN
 using ProfileStartMeasurementFunction = void (*)(const char *inName, uint32 inColor, uint8 *ioUserData);
 using ProfileEndMeasurementFunction = void (*)(uint8 *ioUserData);
 
-MOSS_EXPORT extern ProfileStartMeasurementFunction ProfileStartMeasurement;
-MOSS_EXPORT extern ProfileEndMeasurementFunction ProfileEndMeasurement;
+MOSS_API extern ProfileStartMeasurementFunction ProfileStartMeasurement;
+MOSS_API extern ProfileEndMeasurementFunction ProfileEndMeasurement;
 #endif // MOSS_SHARED_LIBRARY
 
 /// Create this class on the stack to start sampling timing information of a particular scope.
@@ -92,7 +92,7 @@ class ProfileSample;
 class ProfileThread;
 
 /// Singleton class for managing profiling information
-class MOSS_EXPORT Profiler : public NonCopyable
+class MOSS_API Profiler : public NonCopyable
 {
 public:
 	MOSS_OVERRIDE_NEW_DELETE
@@ -183,7 +183,7 @@ private:
 };
 
 // Class that contains the information of a single scoped measurement
-class alignas(16) MOSS_EXPORT_GCC_BUG_WORKAROUND ProfileSample : public NonCopyable
+class alignas(16) MOSS_API_GCC_BUG_WORKAROUND ProfileSample : public NonCopyable
 {
 public:
 	MOSS_OVERRIDE_NEW_DELETE
@@ -213,8 +213,8 @@ public:
 	uint32						mCurrentSample = 0;													///< Next position to write a sample to
 
 #ifdef MOSS_SHARED_LIBRARY
-	MOSS_EXPORT static void		sSetInstance(ProfileThread *inInstance);
-	MOSS_EXPORT static ProfileThread *sGetInstance();
+	MOSS_API static void		sSetInstance(ProfileThread *inInstance);
+	MOSS_API static ProfileThread *sGetInstance();
 #else
 	static inline void			sSetInstance(ProfileThread *inInstance)								{ sInstance = inInstance; }
 	static inline ProfileThread *sGetInstance()														{ return sInstance; }
@@ -225,7 +225,7 @@ private:
 };
 
 /// Create this class on the stack to start sampling timing information of a particular scope
-class MOSS_EXPORT ProfileMeasurement : public NonCopyable
+class MOSS_API ProfileMeasurement : public NonCopyable
 {
 public:
 	/// Constructor

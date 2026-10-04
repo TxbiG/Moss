@@ -9,7 +9,7 @@
 MOSS_SUPPRESS_WARNINGS_BEGIN
 
 /// Simple binary input stream
-class MOSS_EXPORT StreamIn : public NonCopyable
+class MOSS_API StreamIn : public NonCopyable
 {
 public:
 	/// Virtual destructor

@@ -9,7 +9,7 @@
 MOSS_SUPPRESS_WARNINGS_BEGIN
 
 /// Implementation of the StateRecorder class that uses a stringstream as underlying store and that implements checking if the state doesn't change upon reading
-class MOSS_EXPORT StateRecorderImpl final : public StateRecorder
+class MOSS_API StateRecorderImpl final : public StateRecorder
 {
 public:
 	/// Constructor

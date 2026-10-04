@@ -17,7 +17,7 @@
 MOSS_SUPPRESS_WARNINGS_END
 
 /// A convex hull builder that tries to create hulls as accurately as possible. Used for offline processing.
-class MOSS_EXPORT ConvexHullBuilder : public NonCopyable
+class MOSS_API ConvexHullBuilder : public NonCopyable
 {
 public:
 	// Forward declare
@@ -276,7 +276,7 @@ private:
 
 
 // A convex hull builder that tries to create 2D hulls as accurately as possible. Used for offline processing.
-class MOSS_EXPORT ConvexHullBuilder2D : public NonCopyable {
+class MOSS_API ConvexHullBuilder2D : public NonCopyable {
 public:
 	using Positions = TArray<Vec3>;
 	using Edges = TArray<int>;

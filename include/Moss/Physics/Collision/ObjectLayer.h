@@ -24,7 +24,7 @@ MOSS_SUPPRESS_WARNINGS_END
 static constexpr ObjectLayer cObjectLayerInvalid = ObjectLayer(~ObjectLayer(0U));
 
 /// Filter class for object layers
-class MOSS_EXPORT ObjectLayerFilter : public NonCopyable
+class MOSS_API ObjectLayerFilter : public NonCopyable
 {
 public:
 	/// Destructor
@@ -46,7 +46,7 @@ public:
 };
 
 /// Filter class to test if two objects can collide based on their object layer. Used while finding collision pairs.
-class MOSS_EXPORT ObjectLayerPairFilter : public NonCopyable
+class MOSS_API ObjectLayerPairFilter : public NonCopyable
 {
 public:
 	/// Destructor
@@ -60,7 +60,7 @@ public:
 };
 
 /// Default filter class that uses the pair filter in combination with a specified layer to filter layers
-class MOSS_EXPORT DefaultObjectLayerFilter : public ObjectLayerFilter
+class MOSS_API DefaultObjectLayerFilter : public ObjectLayerFilter
 {
 public:
 	/// Constructor
@@ -89,7 +89,7 @@ private:
 };
 
 /// Allows objects from a specific layer only
-class MOSS_EXPORT SpecifiedObjectLayerFilter : public ObjectLayerFilter
+class MOSS_API SpecifiedObjectLayerFilter : public ObjectLayerFilter
 {
 public:
 	/// Constructor

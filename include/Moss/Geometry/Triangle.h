@@ -33,7 +33,7 @@ public:
 	inline bool	Overlaps(const Sphere &inB) const { return (Vec3::LoadFloat3Unsafe(mCenter) - Vec3::LoadFloat3Unsafe(inB.mCenter)).LengthSq() <= Square(mRadius + inB.mRadius); }
 
 	/// Check if this sphere overlaps with a box
-	bool Overlaps(const AABox &inOther) const;
+	bool Overlaps(const AABB3 &inOther) const;
 
 	/// Create the minimal sphere that encapsulates this sphere and inPoint
 	inline void EncapsulatePoint(Vec3Arg inPoint) {
@@ -103,7 +103,7 @@ public:
 	}
 
 	/// Calculate the morton code for inVector, given that all vectors lie in inVectorBounds
-	static uint32 sGetMortonCode(Vec3Arg inVector, const AABox& inVectorBounds);
+	static uint32 sGetMortonCode(Vec3Arg inVector, const AABB3& inVectorBounds);
 };
 
 

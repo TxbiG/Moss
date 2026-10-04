@@ -19,7 +19,7 @@ MOSS_SUPPRESS_WARNINGS_END
 
 /// ObjectStreamIn contains all logic for reading an object from disk. It is the base
 /// class for the text and binary input streams (ObjectStreamTextIn and ObjectStreamBinaryIn).
-class MOSS_EXPORT ObjectStreamIn : public IObjectStreamIn
+class MOSS_API ObjectStreamIn : public IObjectStreamIn
 {
 private:
 	struct ClassDescription;

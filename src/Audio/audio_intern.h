@@ -1,8 +1,5 @@
 #pragma once
 
-#include <Moss/Moss_Audio.h>
-#include <Moss/Moss_Physics.h>
-
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
@@ -10,6 +7,10 @@
 #include <mutex>
 #include <fstream>
 #include <string>
+
+#include <Moss/Moss_Audio.h>
+#include <Moss/Moss_Physics.h>
+
 
 #define SOUND_SPEED 2043.0f
 

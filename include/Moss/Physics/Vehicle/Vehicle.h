@@ -31,9 +31,9 @@ public:
 ///
 /// The properties in this constraint are largely based on "Car Physics for Games" by Marco Monster.
 /// See: https://www.asawicki.info/Mirror/Car%20Physics%20for%20Games/Car%20Physics%20for%20Games.html
-class MOSS_EXPORT VehicleConstraintSettings : public ConstraintSettings
+class MOSS_API VehicleConstraintSettings : public ConstraintSettings
 {
-	MOSS_DECLARE_SERIALIZABLE_VIRTUAL(MOSS_EXPORT, VehicleConstraintSettings)
+	MOSS_DECLARE_SERIALIZABLE_VIRTUAL(MOSS_API, VehicleConstraintSettings)
 
 public:
 	/// Saves the contents of the constraint settings in binary form to inStream.
@@ -90,9 +90,9 @@ public:
 };
 
 /// Base class for wheel settings, each VehicleController can implement a derived class of this
-class MOSS_EXPORT WheelSettings : public SerializableObject, public RefTarget<WheelSettings>
+class MOSS_API WheelSettings : public SerializableObject, public RefTarget<WheelSettings>
 {
-	MOSS_DECLARE_SERIALIZABLE_VIRTUAL(MOSS_EXPORT, WheelSettings)
+	MOSS_DECLARE_SERIALIZABLE_VIRTUAL(MOSS_API, WheelSettings)
 
 public:
 	/// Saves the contents in binary form to inStream.
@@ -117,9 +117,9 @@ public:
 };
 
 
-class MOSS_EXPORT WheelSettingsWV : public WheelSettings
+class MOSS_API WheelSettingsWV : public WheelSettings
 {
-	MOSS_DECLARE_SERIALIZABLE_VIRTUAL(MOSS_EXPORT, WheelSettingsWV)
+	MOSS_DECLARE_SERIALIZABLE_VIRTUAL(MOSS_API, WheelSettingsWV)
 
 public:
 	/// Constructor
@@ -138,9 +138,9 @@ public:
 	float						mMaxHandBrakeTorque = 4000.0f;				///< How much torque (Nm) the hand brake can apply to this wheel (usually only applied to the rear wheels)
 };
 
-class MOSS_EXPORT WheelSettingsTV : public WheelSettings
+class MOSS_API WheelSettingsTV : public WheelSettings
 {
-	MOSS_DECLARE_SERIALIZABLE_VIRTUAL(MOSS_EXPORT, WheelSettingsTV)
+	MOSS_DECLARE_SERIALIZABLE_VIRTUAL(MOSS_API, WheelSettingsTV)
 
 public:
 	// See: WheelSettings
@@ -478,8 +478,8 @@ public:
 };
 
 /// Configuration for the transmission of a vehicle (gear box)
-class MOSS_EXPORT VehicleTransmissionSettings {
-	MOSS_DECLARE_SERIALIZABLE_NON_VIRTUAL(MOSS_EXPORT, VehicleTransmissionSettings)
+class MOSS_API VehicleTransmissionSettings {
+	MOSS_DECLARE_SERIALIZABLE_NON_VIRTUAL(MOSS_API, VehicleTransmissionSettings)
 
 public:
 	/// Saves the contents in binary form to inStream.
@@ -500,7 +500,7 @@ public:
 };
 
 // Runtime data for transmission
-class MOSS_EXPORT VehicleTransmission : public VehicleTransmissionSettings
+class MOSS_API VehicleTransmission : public VehicleTransmissionSettings
 {
 public:
 	/// Set input from driver regarding the transmission (only relevant when transmission is set to manual mode)
@@ -626,7 +626,7 @@ private:
 };
 
 /// Collision tester that tests collision using a sphere cast
-class MOSS_EXPORT VehicleCollisionTesterCastSphere : public VehicleCollisionTester
+class MOSS_API VehicleCollisionTesterCastSphere : public VehicleCollisionTester
 {
 public:
 	MOSS_OVERRIDE_NEW_DELETE
@@ -649,7 +649,7 @@ private:
 };
 
 /// Collision tester that tests collision using a cylinder shape
-class MOSS_EXPORT VehicleCollisionTesterCastCylinder : public VehicleCollisionTester
+class MOSS_API VehicleCollisionTesterCastCylinder : public VehicleCollisionTester
 {
 public:
 	MOSS_OVERRIDE_NEW_DELETE
@@ -671,9 +671,9 @@ private:
 ///
 /// The properties in this controller are largely based on "Car Physics for Games" by Marco Monster.
 /// See: https://www.asawicki.info/Mirror/Car%20Physics%20for%20Games/Car%20Physics%20for%20Games.html
-class MOSS_EXPORT WheeledVehicleControllerSettings : public VehicleControllerSettings
+class MOSS_API WheeledVehicleControllerSettings : public VehicleControllerSettings
 {
-	MOSS_DECLARE_SERIALIZABLE_VIRTUAL(MOSS_EXPORT, WheeledVehicleControllerSettings)
+	MOSS_DECLARE_SERIALIZABLE_VIRTUAL(MOSS_API, WheeledVehicleControllerSettings)
 
 public:
 	// See: VehicleControllerSettings
@@ -688,8 +688,8 @@ public:
 };
 
 
-class MOSS_EXPORT MotorcycleControllerSettings : public WheeledVehicleControllerSettings {
-	MOSS_DECLARE_SERIALIZABLE_VIRTUAL(MOSS_EXPORT, MotorcycleControllerSettings)
+class MOSS_API MotorcycleControllerSettings : public WheeledVehicleControllerSettings {
+	MOSS_DECLARE_SERIALIZABLE_VIRTUAL(MOSS_API, MotorcycleControllerSettings)
 
 public:
 	// See: VehicleControllerSettings
@@ -718,9 +718,9 @@ public:
 };
 
 /// Generic properties for tank tracks
-class MOSS_EXPORT VehicleTrackSettings
+class MOSS_API VehicleTrackSettings
 {
-	MOSS_DECLARE_SERIALIZABLE_NON_VIRTUAL(MOSS_EXPORT, VehicleTrackSettings)
+	MOSS_DECLARE_SERIALIZABLE_NON_VIRTUAL(MOSS_API, VehicleTrackSettings)
 
 public:
 	/// Saves the contents in binary form to inStream.
@@ -738,9 +738,9 @@ public:
 };
 
 /// Generic properties for a vehicle engine
-class MOSS_EXPORT VehicleEngineSettings
+class MOSS_API VehicleEngineSettings
 {
-	MOSS_DECLARE_SERIALIZABLE_NON_VIRTUAL(MOSS_EXPORT, VehicleEngineSettings)
+	MOSS_DECLARE_SERIALIZABLE_NON_VIRTUAL(MOSS_API, VehicleEngineSettings)
 
 public:
 	/// Constructor
@@ -764,9 +764,9 @@ public:
 ///
 /// Default settings are based around what I could find about the M1 Abrams tank.
 /// Note to avoid issues with very heavy objects vs very light objects the mass of the tank should be a lot lower (say 10x) than that of a real tank. That means that the engine/brake torque is also 10x less.
-class MOSS_EXPORT TrackedVehicleControllerSettings : public VehicleControllerSettings
+class MOSS_API TrackedVehicleControllerSettings : public VehicleControllerSettings
 {
-	MOSS_DECLARE_SERIALIZABLE_VIRTUAL(MOSS_EXPORT, TrackedVehicleControllerSettings)
+	MOSS_DECLARE_SERIALIZABLE_VIRTUAL(MOSS_API, TrackedVehicleControllerSettings)
 
 public:
 	// Constructor
@@ -782,9 +782,9 @@ public:
 	VehicleTrackSettings		mTracks[(int)ETrackSide::Num];				///< List of tracks and their properties
 };
 
-class MOSS_EXPORT VehicleDifferentialSettings
+class MOSS_API VehicleDifferentialSettings
 {
-	MOSS_DECLARE_SERIALIZABLE_NON_VIRTUAL(MOSS_EXPORT, VehicleDifferentialSettings)
+	MOSS_DECLARE_SERIALIZABLE_NON_VIRTUAL(MOSS_API, VehicleDifferentialSettings)
 
 public:
 	/// Saves the contents in binary form to inStream.
@@ -809,7 +809,7 @@ public:
 };
 
 
-class MOSS_EXPORT VehicleTrack : public VehicleTrackSettings
+class MOSS_API VehicleTrack : public VehicleTrackSettings
 {
 public:
 	/// Saving state for replay
@@ -863,7 +863,7 @@ protected:
 };
 
 
-class MOSS_EXPORT VehicleEngine : public VehicleEngineSettings
+class MOSS_API VehicleEngine : public VehicleEngineSettings
 {
 public:
 	/// Multiply an angular velocity (rad/s) with this value to get rounds per minute (RPM)
@@ -1000,8 +1000,8 @@ protected:
 #endif // MOSS_DEBUG_RENDERER
 };
 
-class MOSS_EXPORT VehicleAntiRollBar {
-	MOSS_DECLARE_SERIALIZABLE_NON_VIRTUAL(MOSS_EXPORT, VehicleAntiRollBar)
+class MOSS_API VehicleAntiRollBar {
+	MOSS_DECLARE_SERIALIZABLE_NON_VIRTUAL(MOSS_API, VehicleAntiRollBar)
 
 public:
 	/// Saves the contents in binary form to inStream.

@@ -13,7 +13,7 @@ MOSS_SUPPRESS_WARNINGS_END
 class CollideShapeSettings;
 
 /// Collision detection helper that collides a sphere vs one or more triangles
-class MOSS_EXPORT CollideSphereVsTriangles {
+class MOSS_API CollideSphereVsTriangles {
 public:
 	/// Constructor
 	/// @param inShape1 The sphere to collide against triangles

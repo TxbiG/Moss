@@ -14,8 +14,8 @@ MOSS_SUPPRESS_WARNINGS_BEGIN
 class PhysicsSystem;
 
 /// Contains the creation settings of a set of bodies
-class MOSS_EXPORT PhysicsScene : public RefTarget<PhysicsScene> {
-	MOSS_DECLARE_SERIALIZABLE_NON_VIRTUAL(MOSS_EXPORT, PhysicsScene)
+class MOSS_API PhysicsScene : public RefTarget<PhysicsScene> {
+	MOSS_DECLARE_SERIALIZABLE_NON_VIRTUAL(MOSS_API, PhysicsScene)
 public:
 	/// Add a body to the scene
 	void AddBody(const BodyCreationSettings &inBody);
@@ -41,7 +41,7 @@ public:
 
 	/// A constraint and how it is connected to the bodies in the scene
 	class ConnectedConstraint {
-		MOSS_DECLARE_SERIALIZABLE_NON_VIRTUAL(MOSS_EXPORT, ConnectedConstraint)
+		MOSS_DECLARE_SERIALIZABLE_NON_VIRTUAL(MOSS_API, ConnectedConstraint)
 
 	public:
 		ConnectedConstraint() = default;

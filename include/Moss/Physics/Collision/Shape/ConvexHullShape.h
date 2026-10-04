@@ -14,8 +14,8 @@
 MOSS_SUPPRESS_WARNINGS_END
 
 /// Class that constructs a ConvexHullShape
-class MOSS_EXPORT ConvexHullShapeSettings final : public ConvexShapeSettings {
-	MOSS_DECLARE_SERIALIZABLE_VIRTUAL(MOSS_EXPORT, ConvexHullShapeSettings)
+class MOSS_API ConvexHullShapeSettings final : public ConvexShapeSettings {
+	MOSS_DECLARE_SERIALIZABLE_VIRTUAL(MOSS_API, ConvexHullShapeSettings)
 
 public:
 	/// Default constructor for deserialization
@@ -36,7 +36,7 @@ public:
 };
 
 /// A convex hull
-class MOSS_EXPORT ConvexHullShape final : public ConvexShape {
+class MOSS_API ConvexHullShape final : public ConvexShape {
 public:
 	MOSS_OVERRIDE_NEW_DELETE
 

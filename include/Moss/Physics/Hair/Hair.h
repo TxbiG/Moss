@@ -27,7 +27,7 @@ class StreamIn;
 
 
 /// This class loads the shaders used by the hair system. This can be shared among all hair instances.
-class MOSS_EXPORT HairShaders : public RefTarget<HairShaders> {
+class MOSS_API HairShaders : public RefTarget<HairShaders> {
 public:
 	/// Loads all shaders
 	/// Note that if you want to run the sim on CPU you need call HairRegisterShaders first.
@@ -51,35 +51,35 @@ public:
 };
 
 /// This class defines the setup of a hair groom, it can be shared between multiple hair instances
-class MOSS_EXPORT HairSettings : public RefTarget<HairSettings> {
-	MOSS_DECLARE_SERIALIZABLE_NON_VIRTUAL(MOSS_EXPORT, HairSettings)
+class MOSS_API HairSettings : public RefTarget<HairSettings> {
+	MOSS_DECLARE_SERIALIZABLE_NON_VIRTUAL(MOSS_API, HairSettings)
 public:
 	/// How much a vertex is influenced by a joint
-	struct MOSS_EXPORT SkinWeight : public MOSS_HairSkinWeight { MOSS_DECLARE_SERIALIZABLE_NON_VIRTUAL(MOSS_EXPORT, SkinWeight) };
+	struct MOSS_API SkinWeight : public MOSS_HairSkinWeight { MOSS_DECLARE_SERIALIZABLE_NON_VIRTUAL(MOSS_API, SkinWeight) };
 
 	/// Information about where a hair strand is attached to the scalp mesh
-	struct MOSS_EXPORT SkinPoint : public MOSS_HairSkinPoint { MOSS_DECLARE_SERIALIZABLE_NON_VIRTUAL(MOSS_EXPORT, SkinPoint) };
+	struct MOSS_API SkinPoint : public MOSS_HairSkinPoint { MOSS_DECLARE_SERIALIZABLE_NON_VIRTUAL(MOSS_API, SkinPoint) };
 
 	static constexpr uint32 cNoInfluence = ~uint32(0);
 
 	/// Describes how a render vertex is influenced by a simulated vertex
-	struct MOSS_EXPORT SVertexInfluence : public MOSS_HairSVertexInfluence {
-		MOSS_DECLARE_SERIALIZABLE_NON_VIRTUAL(MOSS_EXPORT, SVertexInfluence)
+	struct MOSS_API SVertexInfluence : public MOSS_HairSVertexInfluence {
+		MOSS_DECLARE_SERIALIZABLE_NON_VIRTUAL(MOSS_API, SVertexInfluence)
 
 		inline			SVertexInfluence()							{ mVertexIndex = cNoInfluence; mRelativePosition = MOSS_float3(0, 0, 0); mWeight = 0.0f; }
 	};
 
 	/// A render vertex
-	struct MOSS_EXPORT RVertex {
-		MOSS_DECLARE_SERIALIZABLE_NON_VIRTUAL(MOSS_EXPORT, RVertex)
+	struct MOSS_API RVertex {
+		MOSS_DECLARE_SERIALIZABLE_NON_VIRTUAL(MOSS_API, RVertex)
 
 		Float3			mPosition { 0, 0, 0 };						// Initial position of the vertex
 		SVertexInfluence mInfluences[cHairNumSVertexInfluences];	// Attach to X simulated vertices (computed during Init)
 	};
 
 	/// A simulated vertex in a hair strand
-	struct MOSS_EXPORT SVertex {
-		MOSS_DECLARE_SERIALIZABLE_NON_VIRTUAL(MOSS_EXPORT, SVertex)
+	struct MOSS_API SVertex {
+		MOSS_DECLARE_SERIALIZABLE_NON_VIRTUAL(MOSS_API, SVertex)
 
 		/// Constructor
 						SVertex() = default;
@@ -94,8 +94,8 @@ public:
 	};
 
 	/// A hair render strand
-	struct MOSS_EXPORT RStrand {
-		MOSS_DECLARE_SERIALIZABLE_NON_VIRTUAL(MOSS_EXPORT, RStrand)
+	struct MOSS_API RStrand {
+		MOSS_DECLARE_SERIALIZABLE_NON_VIRTUAL(MOSS_API, RStrand)
 
 		/// Constructor
 		RStrand() = default;
@@ -115,9 +115,9 @@ public:
 	};
 
 	/// A hair simulation strand
-	struct MOSS_EXPORT SStrand : public RStrand
+	struct MOSS_API SStrand : public RStrand
 	{
-		MOSS_DECLARE_SERIALIZABLE_NON_VIRTUAL(MOSS_EXPORT, SStrand)
+		MOSS_DECLARE_SERIALIZABLE_NON_VIRTUAL(MOSS_API, SStrand)
 
 						SStrand() = default;
 						SStrand(uint32 inStartVtx, uint32 inEndVtx, uint32 inMaterialIndex) : RStrand(inStartVtx, inEndVtx), mMaterialIndex(inMaterialIndex) { }
@@ -126,8 +126,8 @@ public:
 	};
 
 	/// Gradient along a hair strand of a value, e.g. compliance, friction, etc.
-	class MOSS_EXPORT Gradient {
-		MOSS_DECLARE_SERIALIZABLE_NON_VIRTUAL(MOSS_EXPORT, Gradient)
+	class MOSS_API Gradient {
+		MOSS_DECLARE_SERIALIZABLE_NON_VIRTUAL(MOSS_API, Gradient)
 
 	public:
 						Gradient() = default;
@@ -186,8 +186,8 @@ public:
 	};
 
 	/// The material determines the simulation parameters for a hair strand
-	struct MOSS_EXPORT HairMaterial {
-		MOSS_DECLARE_SERIALIZABLE_NON_VIRTUAL(MOSS_EXPORT, Material)
+	struct MOSS_API HairMaterial {
+		MOSS_DECLARE_SERIALIZABLE_NON_VIRTUAL(MOSS_API, Material)
 
 		/// Returns if this material needs a density/velocity grid
 		bool			NeedsGrid() const							{ return mGridVelocityFactor.mMin != 0.0f || mGridVelocityFactor.mMax != 0.0f || mGridDensityForceFactor != 0.0f; }
@@ -380,7 +380,7 @@ public:
 /// - It is wasteful of memory (e.g. stores everything both on CPU and GPU)
 /// - Only supports a single neutral pose to drive towards
 /// - It could use further optimizations
-class MOSS_EXPORT Hair : public NonCopyable
+class MOSS_API Hair : public NonCopyable
 {
 public:
 	/// Constructor / destructor

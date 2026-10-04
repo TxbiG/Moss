@@ -14,9 +14,9 @@ class StreamIn;
 class StreamOut;
 
 /// Resource that contains the joint hierarchy for a skeleton
-class MOSS_EXPORT Skeleton : public RefTarget<Skeleton>
+class MOSS_API Skeleton : public RefTarget<Skeleton>
 {
-	MOSS_DECLARE_SERIALIZABLE_NON_VIRTUAL(MOSS_EXPORT, Skeleton)
+	MOSS_DECLARE_SERIALIZABLE_NON_VIRTUAL(MOSS_API, Skeleton)
 
 public:
 	using SkeletonResult = Result<Ref<Skeleton>>;
@@ -24,7 +24,7 @@ public:
 	/// Declare internal structure for a joint
 	class Joint
 	{
-		MOSS_DECLARE_SERIALIZABLE_NON_VIRTUAL(MOSS_EXPORT, Joint)
+		MOSS_DECLARE_SERIALIZABLE_NON_VIRTUAL(MOSS_API, Joint)
 
 	public:
 							Joint() = default;
@@ -71,7 +71,7 @@ private:
 
 
 // Class that is able to map a low detail (ragdoll) skeleton to a high detail (animation) skeleton and vice versa
-class MOSS_EXPORT SkeletonMapper : public RefTarget<SkeletonMapper>
+class MOSS_API SkeletonMapper : public RefTarget<SkeletonMapper>
 {
 public:
 	/// A joint that maps 1-on-1 to a joint in the other skeleton
@@ -204,7 +204,7 @@ private:
 };
 
 // Instance of a skeleton, contains the pose the current skeleton is in
-class MOSS_EXPORT SkeletonPose
+class MOSS_API SkeletonPose
 {
 public:
 	MOSS_OVERRIDE_NEW_DELETE
@@ -270,15 +270,15 @@ private:
 };
 
 // Resource for a skinned animation
-class MOSS_EXPORT SkeletalAnimation : public RefTarget<SkeletalAnimation>
+class MOSS_API SkeletalAnimation : public RefTarget<SkeletalAnimation>
 {
-	MOSS_DECLARE_SERIALIZABLE_NON_VIRTUAL(MOSS_EXPORT, SkeletalAnimation)
+	MOSS_DECLARE_SERIALIZABLE_NON_VIRTUAL(MOSS_API, SkeletalAnimation)
 
 public:
 	/// Contains the current state of a joint, a local space transformation relative to its parent joint
 	class JointState
 	{
-		MOSS_DECLARE_SERIALIZABLE_NON_VIRTUAL(MOSS_EXPORT, JointState)
+		MOSS_DECLARE_SERIALIZABLE_NON_VIRTUAL(MOSS_API, JointState)
 
 	public:
 		/// Convert from a local space matrix
@@ -294,7 +294,7 @@ public:
 	/// Contains the state of a single joint at a particular time
 	class Keyframe : public JointState
 	{
-		MOSS_DECLARE_SERIALIZABLE_NON_VIRTUAL(MOSS_EXPORT, Keyframe)
+		MOSS_DECLARE_SERIALIZABLE_NON_VIRTUAL(MOSS_API, Keyframe)
 
 	public:
 		float							mTime = 0.0f;										///< Time of keyframe in seconds
@@ -305,7 +305,7 @@ public:
 	/// Contains the animation for a single joint
 	class AnimatedJoint
 	{
-		MOSS_DECLARE_SERIALIZABLE_NON_VIRTUAL(MOSS_EXPORT, AnimatedJoint)
+		MOSS_DECLARE_SERIALIZABLE_NON_VIRTUAL(MOSS_API, AnimatedJoint)
 
 	public:
 		String							mJointName;											///< Name of the joint

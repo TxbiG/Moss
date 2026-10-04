@@ -9,7 +9,7 @@
 MOSS_SUPPRESS_WARNINGS_END
 
 /// Collision detection helper that casts a sphere vs one or more triangles
-class MOSS_EXPORT CastSphereVsTriangles
+class MOSS_API CastSphereVsTriangles
 {
 public:
 	/// Constructor

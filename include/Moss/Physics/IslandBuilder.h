@@ -13,7 +13,7 @@ MOSS_SUPPRESS_WARNINGS_BEGIN
 class TempAllocator;
 
 // Keeps track of connected bodies and builds islands for multithreaded velocity/position update
-class MOSS_EXPORT IslandBuilder : public NonCopyable
+class MOSS_API IslandBuilder : public NonCopyable
 {
 public:
 	// Destructor

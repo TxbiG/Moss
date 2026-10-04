@@ -122,8 +122,8 @@
  * #define MOSS_LIKELY(x)    __builtin_expect((x), 1)
  * #define MOSS_UNLIKELY(x)  __builtin_expect((x), 0)
  *
- * #define MOSS_EXPORT       extern "C" __declspec(dllexport)
- * #define MOSS_EXPORT       extern "C" __declspec(dllimport)
+ * #define MOSS_API       extern "C" __declspec(dllexport)
+ * #define MOSS_API       extern "C" __declspec(dllimport)
  * ```
  *
  * ---
@@ -275,6 +275,8 @@
 
 	#if defined(__AVX512F__) && defined(__AVX512VL__) && defined(__AVX512DQ__) && !defined(MOSS_SIMD_AVX512)
 		#define MOSS_SIMD_AVX512
+		#undef MOSS_DVECTOR_ALIGNMENT
+		#define MOSS_DVECTOR_ALIGNMENT 64 // Optimize double-precision vectors for AVX-512 ZMM registers
 	#endif
 	#if (defined(__AVX2__) || defined(MOSS_SIMD_AVX512)) && !defined(MOSS_SIMD_AVX2)
 		#define MOSS_SIMD_AVX2
@@ -318,22 +320,42 @@
 		#define MOSS_SIMD_NEON
 		#define MOSS_VECTOR_ALIGNMENT 16
 		#define MOSS_DVECTOR_ALIGNMENT 32
+		#if defined(__ARM_FEATURE_FMA) && !defined(MOSS_CROSS_PLATFORM_DETERMINISTIC)
+			#define MOSS_USE_FMADD
+		#endif
+		#if defined(__ARM_FEATURE_SVE)
+			#define MOSS_SIMD_SVE
+		#endif
 	#else
 		#define MOSS_CPU_ADDRESS_BITS 32
 		#define MOSS_VECTOR_ALIGNMENT 8 // 32-bit ARM does not support aligning on the stack on 16 byte boundaries
 		#define MOSS_DVECTOR_ALIGNMENT 8
-	#endif
+		#if defined(__ARM_NEON)
+			#define MOSS_SIMD_NEON
+		#endif
+	#endif // __aarch64__ || _M_ARM64
 #elif defined(__riscv)
 	// RISC-V CPU architecture
 	#define MOSS_CPU_RISCV
 	#if __riscv_xlen == 64
 		#define MOSS_CPU_ADDRESS_BITS 64
-		#define MOSS_VECTOR_ALIGNMENT 16
-		#define MOSS_DVECTOR_ALIGNMENT 32
 	#else
 		#define MOSS_CPU_ADDRESS_BITS 32
+	#endif
+
+	// RISC-V Vector (RVV) Standard Detection
+	#if defined(__riscv_vector) || defined(__riscv_v_intrinsic)
+		#define MOSS_SIMD_RISCV_VECTOR
+		#define MOSS_VECTOR_ALIGNMENT 32   // Align high for VLA structures
+		#define MOSS_DVECTOR_ALIGNMENT 64
+	#else
 		#define MOSS_VECTOR_ALIGNMENT 16
-		#define MOSS_DVECTOR_ALIGNMENT 8
+		#define MOSS_DVECTOR_ALIGNMENT 32
+	#endif
+
+	// Fused Multiply-Add is built inherently into standard single/double float extensions (F/D)
+	#if (defined(__riscv_flen) && __riscv_flen >= 32) && !defined(MOSS_CROSS_PLATFORM_DETERMINISTIC)
+		#define MOSS_USE_FMADD
 	#endif
 #elif defined(__wasm_simd128__)
 	#define MOSS_PLATFORM_WASM
@@ -350,8 +372,9 @@
 		#define MOSS_SIMD_SSE
 		#define MOSS_SIMD_SSE4_1
 		#define MOSS_SIMD_SSE4_2
+		#define MOSS_SIMD_WASM128
 	#endif
-#elif (defined(__powerpc__) || defined(__powerpc64__))
+#elif (defined(__powerpc__) || defined(__powerpc64__) || defined(__ppc64__))
 	// PowerPC CPU architecture
 	#define MOSS_CPU_PPC
 	#if defined(__powerpc64__)
@@ -362,8 +385,21 @@
 	#ifdef _BIG_ENDIAN
 		#define MOSS_CPU_BIG_ENDIAN
 	#endif
-	#define MOSS_VECTOR_ALIGNMENT 16
-	#define MOSS_DVECTOR_ALIGNMENT 8
+
+	// Map PowerPC Vector Engine tiers
+	#if defined(__VSX__)
+		#define MOSS_SIMD_VSX
+		#define MOSS_SIMD_ALTIVEC
+		#define MOSS_VECTOR_ALIGNMENT 16
+		#define MOSS_DVECTOR_ALIGNMENT 32
+		#ifndef MOSS_CROSS_PLATFORM_DETERMINISTIC
+			#define MOSS_USE_FMADD // VSX introduces hardware float FMA
+		#endif
+	#elif defined(__ALTIVEC__)
+		#define MOSS_SIMD_ALTIVEC
+		#define MOSS_VECTOR_ALIGNMENT 16
+		#define MOSS_DVECTOR_ALIGNMENT 16
+	#endif
 #elif defined(__loongarch__)
 	// LoongArch CPU architecture
 	#define MOSS_CPU_LOONGARCH
@@ -372,8 +408,22 @@
 	#else
 		#define MOSS_CPU_ADDRESS_BITS 32
 	#endif
-	#define MOSS_VECTOR_ALIGNMENT 16
-	#define MOSS_DVECTOR_ALIGNMENT 8
+
+	// Map Loongson Vector Extensions
+	#if defined(__loongarch_asx)
+		#define MOSS_SIMD_LASX
+		#define MOSS_SIMD_LSX
+		#define MOSS_VECTOR_ALIGNMENT 32 // 256-bit alignment for LASX
+		#define MOSS_DVECTOR_ALIGNMENT 32
+	#elif defined(__loongarch_sx)
+		#define MOSS_SIMD_LSX
+		#define MOSS_VECTOR_ALIGNMENT 16 // 128-bit alignment for LSX
+		#define MOSS_DVECTOR_ALIGNMENT 16
+	#endif
+	#if (defined(__loongarch_sx) || defined(__loongarch_asx)) && !defined(MOSS_CROSS_PLATFORM_DETERMINISTIC)
+		#define MOSS_USE_FMADD
+	#endif
+
 #elif defined(__e2k__)
 	// E2K CPU architecture (MCST Elbrus 2000)
 	#define MOSS_CPU_E2K
@@ -394,35 +444,33 @@
 	#ifdef MOSS_BUILD_SHARED_LIBRARY
 		// While building the shared library, we must export these symbols
 		#if defined(MOSS_PLATFORM_WINDOWS) && !defined(MOSS_COMPILER_MINGW)
-			#define MOSS_EXPORT __declspec(dllexport)
+			#define MOSS_API __declspec(dllexport)
 		#else
-			#define MOSS_EXPORT __attribute__ ((visibility ("default")))
+			#define MOSS_API __attribute__ ((visibility ("default")))
 			#if defined(MOSS_COMPILER_GCC)
 				// Prevents an issue with GCC attribute parsing (see https://gcc.gnu.org/bugzilla/show_bug.cgi?id=69585)
-				#define MOSS_EXPORT_GCC_BUG_WORKAROUND [[gnu::visibility("default")]]
+				#define MOSS_API_GCC_BUG_WORKAROUND [[gnu::visibility("default")]]
 			#endif
 		#endif
 	#else
 		// When linking against Moss, we must import these symbols
 		#if defined(MOSS_PLATFORM_WINDOWS) && !defined(MOSS_COMPILER_MINGW)
-			#define MOSS_EXPORT __declspec(dllimport)
+			#define MOSS_API __declspec(dllimport)
 		#else
-			#define MOSS_EXPORT __attribute__ ((visibility ("default")))
+			#define MOSS_API __attribute__ ((visibility ("default")))
 			#if defined(MOSS_COMPILER_GCC)
 				// Prevents an issue with GCC attribute parsing (see https://gcc.gnu.org/bugzilla/show_bug.cgi?id=69585)
-				#define MOSS_EXPORT_GCC_BUG_WORKAROUND [[gnu::visibility("default")]]
+				#define MOSS_API_GCC_BUG_WORKAROUND [[gnu::visibility("default")]]
 			#endif
 		#endif
 	#endif
 #else
 	// If the define is not set, we use static linking and symbols don't need to be imported or exported
-	#define MOSS_EXPORT
+	#define MOSS_API
 #endif
 
-#define MOSS_API MOSS_EXPORT
-
-#ifndef MOSS_EXPORT_GCC_BUG_WORKAROUND
-	#define MOSS_EXPORT_GCC_BUG_WORKAROUND MOSS_EXPORT
+#ifndef MOSS_API_GCC_BUG_WORKAROUND
+	#define MOSS_API_GCC_BUG_WORKAROUND MOSS_API
 #endif
 
 // Macro used by the RTTI macros to not export a function
@@ -430,6 +478,20 @@
 
 /////////////////////////////////////////////////////////////////////////
 
+// Unified C++17 alignment decorators
+#if defined(__cplusplus) && __cplusplus >= 201703L
+    #define MOSS_ALIGNAS(x) alignas(x)
+#elif defined(MOSS_COMPILER_MSVC)
+    #define MOSS_ALIGNAS(x) __declspec(align(x))
+#elif defined(MOSS_COMPILER_GCC) || defined(MOSS_COMPILER_CLANG)
+    #define MOSS_ALIGNAS(x) __attribute__((aligned(x)))
+#else
+    #define MOSS_ALIGNAS(x)
+#endif
+
+// Visual hooks for structural declarations
+#define MOSS_ALIGN_VECTOR  MOSS_ALIGNAS(MOSS_VECTOR_ALIGNMENT)
+#define MOSS_ALIGN_DVECTOR MOSS_ALIGNAS(MOSS_DVECTOR_ALIGNMENT)
 
 // Pragmas to store / restore the warning state and to disable individual warnings
 #ifdef MOSS_COMPILER_CLANG
@@ -785,14 +847,14 @@ using AlignedAllocateFunction = void *(*)(size_t inSize, size_t inAlignment);
 using AlignedFreeFunction = void (*)(void *inBlock);
 
 // User defined allocation / free functions
-MOSS_EXPORT extern AllocateFunction Allocate;
-MOSS_EXPORT extern ReallocateFunction Reallocate;
-MOSS_EXPORT extern FreeFunction Free;
-MOSS_EXPORT extern AlignedAllocateFunction AlignedAllocate;
-MOSS_EXPORT extern AlignedFreeFunction AlignedFree;
+MOSS_API extern AllocateFunction Allocate;
+MOSS_API extern ReallocateFunction Reallocate;
+MOSS_API extern FreeFunction Free;
+MOSS_API extern AlignedAllocateFunction AlignedAllocate;
+MOSS_API extern AlignedFreeFunction AlignedFree;
 
 // Register platform default allocation / free functions
-MOSS_EXPORT void RegisterDefaultAllocator();
+MOSS_API void RegisterDefaultAllocator();
 
 // Macro to override the new and delete functions
 #define MOSS_OVERRIDE_NEW_DELETE 																																		\
@@ -811,11 +873,11 @@ MOSS_EXPORT void RegisterDefaultAllocator();
 
 #else
 // Directly define the allocation functions
-MOSS_EXPORT void *Allocate(size_t inSize);
-MOSS_EXPORT void *Reallocate(void *inBlock, size_t inOldSize, size_t inNewSize);
-MOSS_EXPORT void Free(void *inBlock);
-MOSS_EXPORT void *AlignedAllocate(size_t inSize, size_t inAlignment);
-MOSS_EXPORT void AlignedFree(void *inBlock);
+MOSS_API void *Allocate(size_t inSize);
+MOSS_API void *Reallocate(void *inBlock, size_t inOldSize, size_t inNewSize);
+MOSS_API void Free(void *inBlock);
+MOSS_API void *AlignedAllocate(size_t inSize, size_t inAlignment);
+MOSS_API void AlignedFree(void *inBlock);
 
 // Don't implement allocator registering
 inline void RegisterDefaultAllocator() { }

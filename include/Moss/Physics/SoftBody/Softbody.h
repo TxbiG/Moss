@@ -207,7 +207,7 @@ private:
 	const TArray<CollidingSensor>&	mCollidingSensors;
 };
 
-class MOSS_EXPORT SoftBodyMotionProperties : public MotionProperties {
+class MOSS_API SoftBodyMotionProperties : public MotionProperties {
 public:
 	using Vertex = SoftBodyVertex;
 	using Edge = SoftBodySharedSettings::Edge;
@@ -481,8 +481,8 @@ private:
 	bool								mSkinStatePreviousPositionValid = false;	// True if the skinning was updated in the last update so that the previous position of the skin state is valid
 };
 
-class MOSS_EXPORT SoftBodySharedSettings : public RefTarget<SoftBodySharedSettings> {
-	MOSS_DECLARE_SERIALIZABLE_NON_VIRTUAL(MOSS_EXPORT, SoftBodySharedSettings)
+class MOSS_API SoftBodySharedSettings : public RefTarget<SoftBodySharedSettings> {
+	MOSS_DECLARE_SERIALIZABLE_NON_VIRTUAL(MOSS_API, SoftBodySharedSettings)
 public:
 	// Which type of bend constraint should be created
 	enum class EBendType {
@@ -501,7 +501,7 @@ public:
 	// Per vertex attributes used during the CreateConstraints function.
 	// For an edge or shear constraint, the compliance is averaged between the two attached vertices.
 	// For a bend constraint, the compliance is averaged between the two vertices on the shared edge.
-	struct MOSS_EXPORT VertexAttributes {
+	struct MOSS_API VertexAttributes {
 		// Constructor
 		VertexAttributes() = default;
 		VertexAttributes(float inCompliance, float inShearCompliance, float inBendCompliance, ELRAType inLRAType = ELRAType::None, float inLRAMaxDistanceMultiplier = 1.0f) : mCompliance(inCompliance), mShearCompliance(inShearCompliance), mBendCompliance(inBendCompliance), mLRAType(inLRAType), mLRAMaxDistanceMultiplier(inLRAMaxDistanceMultiplier) { }
@@ -581,8 +581,8 @@ public:
 	static Ref<SoftBodySharedSettings> sCreateCube(uint32 inGridSize, float inGridSpacing);
 
 	// A vertex is a particle, the data in this structure is only used during creation of the soft body and not during simulation
-	struct MOSS_EXPORT Vertex {
-		MOSS_DECLARE_SERIALIZABLE_NON_VIRTUAL(MOSS_EXPORT, Vertex)
+	struct MOSS_API Vertex {
+		MOSS_DECLARE_SERIALIZABLE_NON_VIRTUAL(MOSS_API, Vertex)
 
 		// Constructor
 						Vertex() = default;
@@ -594,8 +594,8 @@ public:
 	};
 
 	// A face defines the surface of the body
-	struct MOSS_EXPORT Face {
-		MOSS_DECLARE_SERIALIZABLE_NON_VIRTUAL(MOSS_EXPORT, Face)
+	struct MOSS_API Face {
+		MOSS_DECLARE_SERIALIZABLE_NON_VIRTUAL(MOSS_API, Face)
 
 		// Constructor
 						Face() = default;
@@ -609,8 +609,8 @@ public:
 	};
 
 	// An edge keeps two vertices at a constant distance using a spring: |x1 - x2| = rest length
-	struct MOSS_EXPORT Edge {
-		MOSS_DECLARE_SERIALIZABLE_NON_VIRTUAL(MOSS_EXPORT, Edge)
+	struct MOSS_API Edge {
+		MOSS_DECLARE_SERIALIZABLE_NON_VIRTUAL(MOSS_API, Edge)
 
 		// Constructor
 		Edge() = default;
@@ -642,8 +642,8 @@ public:
 	 * - "Strain Based Dynamics" - Matthias Muller et al.
 	 * - "Simulation of Clothing with Folds and Wrinkles" - R. Bridson et al.
 	 */
-	struct MOSS_EXPORT DihedralBend {
-		MOSS_DECLARE_SERIALIZABLE_NON_VIRTUAL(MOSS_EXPORT, DihedralBend)
+	struct MOSS_API DihedralBend {
+		MOSS_DECLARE_SERIALIZABLE_NON_VIRTUAL(MOSS_API, DihedralBend)
 
 		// Constructor
 		DihedralBend() = default;
@@ -658,8 +658,8 @@ public:
 	};
 
 	// Volume constraint, keeps the volume of a tetrahedron constant
-	struct MOSS_EXPORT Volume {
-		MOSS_DECLARE_SERIALIZABLE_NON_VIRTUAL(MOSS_EXPORT, Volume)
+	struct MOSS_API Volume {
+		MOSS_DECLARE_SERIALIZABLE_NON_VIRTUAL(MOSS_API, Volume)
 
 		// Constructor
 		Volume() = default;
@@ -674,8 +674,8 @@ public:
 	};
 
 	// An inverse bind matrix take a skinned vertex from its bind pose into joint local space
-	class MOSS_EXPORT InvBind {
-		MOSS_DECLARE_SERIALIZABLE_NON_VIRTUAL(MOSS_EXPORT, InvBind)
+	class MOSS_API InvBind {
+		MOSS_DECLARE_SERIALIZABLE_NON_VIRTUAL(MOSS_API, InvBind)
 
 	public:
 		// Constructor
@@ -687,8 +687,8 @@ public:
 	};
 
 	// A joint and its skin weight
-	class MOSS_EXPORT SkinWeight {
-		MOSS_DECLARE_SERIALIZABLE_NON_VIRTUAL(MOSS_EXPORT, SkinWeight)
+	class MOSS_API SkinWeight {
+		MOSS_DECLARE_SERIALIZABLE_NON_VIRTUAL(MOSS_API, SkinWeight)
 	public:
 		// Constructor
 		SkinWeight() = default;
@@ -699,8 +699,8 @@ public:
 	};
 
 	// A constraint that skins a vertex to joints and limits the distance that the simulated vertex can travel from this vertex
-	class MOSS_EXPORT Skinned {
-		MOSS_DECLARE_SERIALIZABLE_NON_VIRTUAL(MOSS_EXPORT, Skinned)
+	class MOSS_API Skinned {
+		MOSS_DECLARE_SERIALIZABLE_NON_VIRTUAL(MOSS_API, Skinned)
 	public:
 		// Constructor
 		Skinned() = default;
@@ -732,8 +732,8 @@ public:
 
 	// A long range attachment constraint, this is a constraint that sets a max distance between a kinematic vertex and a dynamic vertex
 	// See: "Long Range Attachments - A Method to Simulate Inextensible Clothing in Computer Games", Tae-Yong Kim, Nuttapong Chentanez and Matthias Mueller-Fischer
-	class MOSS_EXPORT LRA {
-		MOSS_DECLARE_SERIALIZABLE_NON_VIRTUAL(MOSS_EXPORT, LRA)
+	class MOSS_API LRA {
+		MOSS_DECLARE_SERIALIZABLE_NON_VIRTUAL(MOSS_API, LRA)
 
 	public:
 		// Constructor
@@ -754,8 +754,8 @@ public:
 	/// this then the orientation is likely to rotate around the rod axis with constant velocity.
 	/// Based on "Position and Orientation Based Cosserat Rods" - Kugelstadt and Schoemer - SIGGRAPH 2016
 	/// See: https://www.researchgate.net/publication/325597548_Position_and_Orientation_Based_Cosserat_Rods
-	struct MOSS_EXPORT RodStretchShear {
-		MOSS_DECLARE_SERIALIZABLE_NON_VIRTUAL(MOSS_EXPORT, RodStretchShear)
+	struct MOSS_API RodStretchShear {
+		MOSS_DECLARE_SERIALIZABLE_NON_VIRTUAL(MOSS_API, RodStretchShear)
 
 		/// Constructor
 		RodStretchShear() = default;
@@ -772,8 +772,8 @@ public:
 	};
 
 	/// A constraint that connects two Cosserat rods and limits bend and twist between the rods.
-	struct MOSS_EXPORT RodBendTwist {
-		MOSS_DECLARE_SERIALIZABLE_NON_VIRTUAL(MOSS_EXPORT, RodBendTwist)
+	struct MOSS_API RodBendTwist {
+		MOSS_DECLARE_SERIALIZABLE_NON_VIRTUAL(MOSS_API, RodBendTwist)
 
 		/// Constructor
 		RodBendTwist() = default;
@@ -826,7 +826,7 @@ private:
 };
 
 class MOSS_API SoftBodyCreationSettings {
-	MOSS_DECLARE_SERIALIZABLE_NON_VIRTUAL(MOSS_EXPORT, SoftBodyCreationSettings)
+	MOSS_DECLARE_SERIALIZABLE_NON_VIRTUAL(MOSS_API, SoftBodyCreationSettings)
 public:
 	// Constructor
 	SoftBodyCreationSettings() = default;
@@ -978,7 +978,7 @@ private:
 };
 
 /// Shape used exclusively for soft bodies. Adds the ability to perform collision checks against soft bodies.
-class MOSS_EXPORT SoftBodyShape final : public Shape
+class MOSS_API SoftBodyShape final : public Shape
 {
 public:
 	MOSS_OVERRIDE_NEW_DELETE

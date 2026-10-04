@@ -10,7 +10,7 @@
 MOSS_SUPPRESS_WARNINGS_BEGIN
 
 /// This class is responsible for creating instances of classes based on their name or hash and is mainly used for deserialization of saved data.
-class MOSS_EXPORT Factory
+class MOSS_API Factory
 {
 public:
 	MOSS_OVERRIDE_NEW_DELETE

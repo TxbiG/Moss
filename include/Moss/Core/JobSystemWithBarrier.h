@@ -20,7 +20,7 @@ MOSS_SUPPRESS_WARNINGS_BEGIN
 /// * JobSystem::QueueJob/QueueJobs
 ///
 /// See instructions in JobSystem for more information on how to implement these.
-class MOSS_EXPORT JobSystemWithBarrier : public JobSystem
+class MOSS_API JobSystemWithBarrier : public JobSystem
 {
 public:
 	MOSS_OVERRIDE_NEW_DELETE

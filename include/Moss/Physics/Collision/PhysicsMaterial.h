@@ -19,8 +19,8 @@ class StreamOut;
 /// to decide which sound or particle effects to play.
 ///
 /// If you inherit from this material, don't forget to create a suitable default material in Default
-class MOSS_EXPORT PhysicsMaterial : public SerializableObject, public RefTarget<PhysicsMaterial> {
-	MOSS_DECLARE_SERIALIZABLE_VIRTUAL(MOSS_EXPORT, PhysicsMaterial)
+class MOSS_API PhysicsMaterial : public SerializableObject, public RefTarget<PhysicsMaterial> {
+	MOSS_DECLARE_SERIALIZABLE_VIRTUAL(MOSS_API, PhysicsMaterial)
 public:
 	/// Constructor
 											PhysicsMaterial() = default;

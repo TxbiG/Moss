@@ -16,9 +16,9 @@ class StreamOut;
 /// - Both don't have a group filter
 /// - The first group filter says that the objects can collide
 /// - Or if there's no filter for the first object, the second group filter says the objects can collide
-class MOSS_EXPORT CollisionGroup
+class MOSS_API CollisionGroup
 {
-	MOSS_DECLARE_SERIALIZABLE_NON_VIRTUAL(MOSS_EXPORT, CollisionGroup)
+	MOSS_DECLARE_SERIALIZABLE_NON_VIRTUAL(MOSS_API, CollisionGroup)
 
 public:
 	using GroupID			= uint32;

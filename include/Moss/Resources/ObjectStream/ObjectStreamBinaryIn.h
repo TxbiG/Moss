@@ -11,7 +11,7 @@
 MOSS_SUPPRESS_WARNINGS_END
 
 /// Implementation of ObjectStream binary input stream.
-class MOSS_EXPORT ObjectStreamBinaryIn : public ObjectStreamIn
+class MOSS_API ObjectStreamBinaryIn : public ObjectStreamIn
 {
 public:
 	MOSS_OVERRIDE_NEW_DELETE

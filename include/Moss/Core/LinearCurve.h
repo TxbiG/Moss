@@ -13,15 +13,15 @@ class StreamOut;
 class StreamIn;
 
 // A set of points (x, y) that form a linear curve
-class MOSS_EXPORT LinearCurve
+class MOSS_API LinearCurve
 {
-	MOSS_DECLARE_SERIALIZABLE_NON_VIRTUAL(MOSS_EXPORT, LinearCurve)
+	MOSS_DECLARE_SERIALIZABLE_NON_VIRTUAL(MOSS_API, LinearCurve)
 
 public:
 	/// A point on the curve
 	class Point
 	{
-		MOSS_DECLARE_SERIALIZABLE_NON_VIRTUAL(MOSS_EXPORT, Point)
+		MOSS_DECLARE_SERIALIZABLE_NON_VIRTUAL(MOSS_API, Point)
 
 	public:
 		float			mX = 0.0f;

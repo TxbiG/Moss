@@ -14,9 +14,9 @@ class StreamIn;
 class StreamOut;
 
 /// Abstract class that checks if two CollisionGroups collide
-class MOSS_EXPORT GroupFilter : public SerializableObject, public RefTarget<GroupFilter>
+class MOSS_API GroupFilter : public SerializableObject, public RefTarget<GroupFilter>
 {
-	MOSS_DECLARE_SERIALIZABLE_ABSTRACT(MOSS_EXPORT, GroupFilter)
+	MOSS_DECLARE_SERIALIZABLE_ABSTRACT(MOSS_API, GroupFilter)
 
 public:
 	/// Virtual destructor

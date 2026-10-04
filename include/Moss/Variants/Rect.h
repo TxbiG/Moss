@@ -4,13 +4,13 @@
 
 MOSS_SUPPRESS_WARNINGS_BEGIN
 
-struct MOSS_EXPORT_GCC_BUG_WORKAROUND [[nodiscard]] Rect { 
+struct MOSS_API_GCC_BUG_WORKAROUND [[nodiscard]] Rect { 
     Rect() = default;
     Rect(float x, float y, float width, float height) : x(x), y(y), width(width), height(height) {}
 
     float x, y, width, height; 
 };
-struct MOSS_EXPORT_GCC_BUG_WORKAROUND [[nodiscard]] Recti { 
+struct MOSS_API_GCC_BUG_WORKAROUND [[nodiscard]] Recti { 
     Recti() = default;
     Recti(int x, int y, int width, int height) : x(x), y(y), width(width), height(height) {}
 

@@ -13,7 +13,7 @@ class Color;
 using ColorArg = Color;
 
 /// Class that holds an RGBA color with 8-bits per component
-class MOSS_EXPORT_GCC_BUG_WORKAROUND [[nodiscard]] Color {
+class MOSS_API_GCC_BUG_WORKAROUND [[nodiscard]] Color {
 public:
 	/// Constructors
 	Color() = default; // uninitialized for perf

@@ -2918,7 +2918,7 @@ private:
 };
 
 /// Base class for all physics constraints. A constraint removes one or more degrees of freedom for a rigid body.
-class MOSS_EXPORT Constraint : public RefTarget<Constraint>, public NonCopyable
+class MOSS_API Constraint : public RefTarget<Constraint>, public NonCopyable
 {
 public:
 	MOSS_OVERRIDE_NEW_DELETE
@@ -3054,8 +3054,8 @@ private:
 	uint64						mUserData;
 };
 
-class MOSS_EXPORT TwoBodyConstraintSettings : public ConstraintSettings {
-	MOSS_DECLARE_SERIALIZABLE_ABSTRACT(MOSS_EXPORT, TwoBodyConstraintSettings)
+class MOSS_API TwoBodyConstraintSettings : public ConstraintSettings {
+	MOSS_DECLARE_SERIALIZABLE_ABSTRACT(MOSS_API, TwoBodyConstraintSettings)
 public:
 	/// Create an instance of this constraint
 	/// You can use Body::sFixedToWorld for inBody1 if you want to attach inBody2 to the world
@@ -3063,9 +3063,9 @@ public:
 };
 
 // Fixed constraint settings, used to create a fixed constraint
-class MOSS_EXPORT FixedConstraintSettings final : public TwoBodyConstraintSettings
+class MOSS_API FixedConstraintSettings final : public TwoBodyConstraintSettings
 {
-	MOSS_DECLARE_SERIALIZABLE_VIRTUAL(MOSS_EXPORT, FixedConstraintSettings)
+	MOSS_DECLARE_SERIALIZABLE_VIRTUAL(MOSS_API, FixedConstraintSettings)
 
 public:
 	// See: ConstraintSettings::SaveBinaryState
@@ -3097,7 +3097,7 @@ protected:
 
 /// A fixed constraint welds two bodies together removing all degrees of freedom between them.
 /// This variant uses Euler angles for the rotation constraint.
-class MOSS_EXPORT FixedConstraint final : public TwoBodyConstraint
+class MOSS_API FixedConstraint final : public TwoBodyConstraint
 {
 public:
 	MOSS_OVERRIDE_NEW_DELETE
@@ -3145,9 +3145,9 @@ private:
 	PointConstraintPart			mPointConstraintPart;
 };
 
-class MOSS_EXPORT DistanceConstraintSettings final : public TwoBodyConstraintSettings
+class MOSS_API DistanceConstraintSettings final : public TwoBodyConstraintSettings
 {
-	MOSS_DECLARE_SERIALIZABLE_VIRTUAL(MOSS_EXPORT, DistanceConstraintSettings)
+	MOSS_DECLARE_SERIALIZABLE_VIRTUAL(MOSS_API, DistanceConstraintSettings)
 
 public:
 	// See: ConstraintSettings::SaveBinaryState
@@ -3180,9 +3180,9 @@ protected:
 };
 
 
-class MOSS_EXPORT DistanceConstraintSettings final : public TwoBodyConstraintSettings
+class MOSS_API DistanceConstraintSettings final : public TwoBodyConstraintSettings
 {
-	MOSS_DECLARE_SERIALIZABLE_VIRTUAL(MOSS_EXPORT, DistanceConstraintSettings)
+	MOSS_DECLARE_SERIALIZABLE_VIRTUAL(MOSS_API, DistanceConstraintSettings)
 
 public:
 	// See: ConstraintSettings::SaveBinaryState
@@ -3214,7 +3214,7 @@ protected:
 	virtual void				RestoreBinaryState(StreamIn& inStream) override;
 };
 /// This constraint is a stiff spring that holds 2 points at a fixed distance from each other
-class MOSS_EXPORT DistanceConstraint final : public TwoBodyConstraint
+class MOSS_API DistanceConstraint final : public TwoBodyConstraint
 {
 public:
 	MOSS_OVERRIDE_NEW_DELETE
@@ -3287,9 +3287,9 @@ private:
 };
 
 /// Point constraint settings, used to create a point constraint
-class MOSS_EXPORT PointConstraintSettings final : public TwoBodyConstraintSettings
+class MOSS_API PointConstraintSettings final : public TwoBodyConstraintSettings
 {
-	MOSS_DECLARE_SERIALIZABLE_VIRTUAL(MOSS_EXPORT, PointConstraintSettings)
+	MOSS_DECLARE_SERIALIZABLE_VIRTUAL(MOSS_API, PointConstraintSettings)
 
 public:
 	// See: ConstraintSettings::SaveBinaryState
@@ -3314,7 +3314,7 @@ protected:
 };
 
 /// A point constraint constrains 2 bodies on a single point (removing 3 degrees of freedom)
-class MOSS_EXPORT PointConstraint final : public TwoBodyConstraint
+class MOSS_API PointConstraint final : public TwoBodyConstraint
 {
 public:
 	MOSS_OVERRIDE_NEW_DELETE
@@ -3368,9 +3368,9 @@ private:
 	PointConstraintPart			mPointConstraintPart;
 };
 
-class MOSS_EXPORT HingeConstraintSettings final : public TwoBodyConstraintSettings
+class MOSS_API HingeConstraintSettings final : public TwoBodyConstraintSettings
 {
-	MOSS_DECLARE_SERIALIZABLE_VIRTUAL(MOSS_EXPORT, HingeConstraintSettings)
+	MOSS_DECLARE_SERIALIZABLE_VIRTUAL(MOSS_API, HingeConstraintSettings)
 
 public:
 	// See: ConstraintSettings::SaveBinaryState
@@ -3417,7 +3417,7 @@ protected:
 };
 
 /// A hinge constraint constrains 2 bodies on a single point and allows only a single axis of rotation
-class MOSS_EXPORT HingeConstraint final : public TwoBodyConstraint
+class MOSS_API HingeConstraint final : public TwoBodyConstraint
 {
 public:
 	MOSS_OVERRIDE_NEW_DELETE
@@ -3552,9 +3552,9 @@ private:
 	AngleConstraintPart			mMotorConstraintPart;
 };
 
-class MOSS_EXPORT SliderConstraintSettings final : public TwoBodyConstraintSettings
+class MOSS_API SliderConstraintSettings final : public TwoBodyConstraintSettings
 {
-	MOSS_DECLARE_SERIALIZABLE_VIRTUAL(MOSS_EXPORT, SliderConstraintSettings)
+	MOSS_DECLARE_SERIALIZABLE_VIRTUAL(MOSS_API, SliderConstraintSettings)
 
 public:
 	// See: ConstraintSettings::SaveBinaryState
@@ -3603,7 +3603,7 @@ protected:
 };
 
 /// A slider constraint allows movement in only 1 axis (and no rotation). Also known as a prismatic constraint.
-class MOSS_EXPORT SliderConstraint final : public TwoBodyConstraint
+class MOSS_API SliderConstraint final : public TwoBodyConstraint
 {
 public:
 	MOSS_OVERRIDE_NEW_DELETE
@@ -3735,9 +3735,9 @@ private:
 };
 
 // Cone constraint settings, used to create a cone constraint
-class MOSS_EXPORT ConeConstraintSettings final : public TwoBodyConstraintSettings
+class MOSS_API ConeConstraintSettings final : public TwoBodyConstraintSettings
 {
-	MOSS_DECLARE_SERIALIZABLE_VIRTUAL(MOSS_EXPORT, ConeConstraintSettings)
+	MOSS_DECLARE_SERIALIZABLE_VIRTUAL(MOSS_API, ConeConstraintSettings)
 
 public:
 	// See: ConstraintSettings::SaveBinaryState
@@ -3790,7 +3790,7 @@ protected:
 /// Where J is the Jacobian.
 ///
 /// Note that this is the exact same equation as used in AngleConstraintPart if we use t2 x t1 as the world space axis
-class MOSS_EXPORT ConeConstraint final : public TwoBodyConstraint
+class MOSS_API ConeConstraint final : public TwoBodyConstraint
 {
 public:
 	MOSS_OVERRIDE_NEW_DELETE
@@ -3859,9 +3859,9 @@ private:
 ///
 /// This image describes the limit settings:
 /// @image html Docs/SwingTwistConstraint.png
-class MOSS_EXPORT SwingTwistConstraintSettings final : public TwoBodyConstraintSettings
+class MOSS_API SwingTwistConstraintSettings final : public TwoBodyConstraintSettings
 {
-	MOSS_DECLARE_SERIALIZABLE_VIRTUAL(MOSS_EXPORT, SwingTwistConstraintSettings)
+	MOSS_DECLARE_SERIALIZABLE_VIRTUAL(MOSS_API, SwingTwistConstraintSettings)
 
 public:
 	// See: ConstraintSettings::SaveBinaryState
@@ -3909,7 +3909,7 @@ protected:
 /// A swing twist constraint is a specialized constraint for humanoid ragdolls that allows limited rotation only
 ///
 /// @see SwingTwistConstraintSettings for a description of the limits
-class MOSS_EXPORT SwingTwistConstraint final : public TwoBodyConstraint
+class MOSS_API SwingTwistConstraint final : public TwoBodyConstraint
 {
 public:
 	MOSS_OVERRIDE_NEW_DELETE
@@ -4036,9 +4036,9 @@ private:
 	AngleConstraintPart			mMotorConstraintPart[3];
 };
 
-class MOSS_EXPORT SixDOFConstraintSettings final : public TwoBodyConstraintSettings
+class MOSS_API SixDOFConstraintSettings final : public TwoBodyConstraintSettings
 {
-	MOSS_DECLARE_SERIALIZABLE_VIRTUAL(MOSS_EXPORT, SixDOFConstraintSettings)
+	MOSS_DECLARE_SERIALIZABLE_VIRTUAL(MOSS_API, SixDOFConstraintSettings)
 
 public:
 	/// Constraint is split up into translation/rotation around X, Y and Z axis.
@@ -4123,7 +4123,7 @@ protected:
 };
 
 /// 6 Degree Of Freedom Constraint. Allows control over each of the 6 degrees of freedom.
-class MOSS_EXPORT SixDOFConstraint final : public TwoBodyConstraint
+class MOSS_API SixDOFConstraint final : public TwoBodyConstraint
 {
 public:
 	MOSS_OVERRIDE_NEW_DELETE
@@ -4307,9 +4307,9 @@ private:
 	AngleConstraintPart			mMotorRotationConstraintPart[3];
 };
 
-class MOSS_EXPORT GearConstraintSettings final : public TwoBodyConstraintSettings
+class MOSS_API GearConstraintSettings final : public TwoBodyConstraintSettings
 {
-	MOSS_DECLARE_SERIALIZABLE_VIRTUAL(MOSS_EXPORT, GearConstraintSettings)
+	MOSS_DECLARE_SERIALIZABLE_VIRTUAL(MOSS_API, GearConstraintSettings)
 
 public:
 	// See: ConstraintSettings::SaveBinaryState
@@ -4346,7 +4346,7 @@ protected:
 
 /// A gear constraint constrains the rotation of body1 to the rotation of body 2 using a gear.
 /// Note that this constraint needs to be used in conjunction with a two hinge constraints.
-class MOSS_EXPORT GearConstraint final : public TwoBodyConstraint {
+class MOSS_API GearConstraint final : public TwoBodyConstraint {
 public:
 	MOSS_OVERRIDE_NEW_DELETE
 
@@ -4412,7 +4412,7 @@ private:
 
 /* TwoBodyConstraint */
 // Base class for all constraints that involve 2 bodies. Body1 is usually considered the parent, Body2 the child.
-class MOSS_EXPORT TwoBodyConstraint : public Constraint
+class MOSS_API TwoBodyConstraint : public Constraint
 {
 public:
 	MOSS_OVERRIDE_NEW_DELETE
@@ -4461,9 +4461,9 @@ protected:
 /// * The path is continuous so doesn't contain any sharp corners
 ///
 /// The reason for all this is that the constraint acts like a slider constraint with the sliding axis being the tangent vector (the assumption here is that delta time will be small enough so that the path is linear for that delta time).
-class MOSS_EXPORT PathConstraintSettings final : public TwoBodyConstraintSettings
+class MOSS_API PathConstraintSettings final : public TwoBodyConstraintSettings
 {
-	MOSS_DECLARE_SERIALIZABLE_VIRTUAL(MOSS_EXPORT, PathConstraintSettings)
+	MOSS_DECLARE_SERIALIZABLE_VIRTUAL(MOSS_API, PathConstraintSettings)
 
 public:
 	// See: ConstraintSettings::SaveBinaryState
@@ -4499,7 +4499,7 @@ protected:
 };
 
 /// Path constraint, used to constrain the degrees of freedom between two bodies to a path
-class MOSS_EXPORT PathConstraint final : public TwoBodyConstraint
+class MOSS_API PathConstraint final : public TwoBodyConstraint
 {
 public:
 	MOSS_OVERRIDE_NEW_DELETE
@@ -4619,9 +4619,9 @@ private:
 
 
 // The path for a path constraint. It allows attaching two bodies to each other while giving the second body the freedom to move along a path relative to the first.
-class MOSS_EXPORT PathConstraintPath : public SerializableObject, public RefTarget<PathConstraintPath>
+class MOSS_API PathConstraintPath : public SerializableObject, public RefTarget<PathConstraintPath>
 {
-	MOSS_DECLARE_SERIALIZABLE_ABSTRACT(MOSS_EXPORT, PathConstraintPath)
+	MOSS_DECLARE_SERIALIZABLE_ABSTRACT(MOSS_API, PathConstraintPath)
 
 public:
 	using PathResult = Result<Ref<PathConstraintPath>>;
@@ -4673,9 +4673,9 @@ private:
 
 
 // Fixed constraint settings, used to create a fixed constraint
-class MOSS_EXPORT FixedConstraintSettings final : public TwoBodyConstraintSettings
+class MOSS_API FixedConstraintSettings final : public TwoBodyConstraintSettings
 {
-	MOSS_DECLARE_SERIALIZABLE_VIRTUAL(MOSS_EXPORT, FixedConstraintSettings)
+	MOSS_DECLARE_SERIALIZABLE_VIRTUAL(MOSS_API, FixedConstraintSettings)
 
 public:
 	// See: ConstraintSettings::SaveBinaryState
@@ -4707,7 +4707,7 @@ protected:
 
 /// A fixed constraint welds two bodies together removing all degrees of freedom between them.
 /// This variant uses Euler angles for the rotation constraint.
-class MOSS_EXPORT FixedConstraint final : public TwoBodyConstraint
+class MOSS_API FixedConstraint final : public TwoBodyConstraint
 {
 public:
 	MOSS_OVERRIDE_NEW_DELETE
@@ -4758,9 +4758,9 @@ private:
 
 
 // A path that follows a Hermite spline
-class MOSS_EXPORT PathConstraintPathHermite final : public PathConstraintPath
+class MOSS_API PathConstraintPathHermite final : public PathConstraintPath
 {
-	MOSS_DECLARE_SERIALIZABLE_VIRTUAL(MOSS_EXPORT, PathConstraintPathHermite)
+	MOSS_DECLARE_SERIALIZABLE_VIRTUAL(MOSS_API, PathConstraintPathHermite)
 
 public:
 	// See PathConstraintPath::GetPathMaxFraction
@@ -4780,7 +4780,7 @@ public:
 
 	struct Point
 	{
-		MOSS_DECLARE_SERIALIZABLE_NON_VIRTUAL(MOSS_EXPORT, Point)
+		MOSS_DECLARE_SERIALIZABLE_NON_VIRTUAL(MOSS_API, Point)
 
 		Vec3			mPosition;															// Position on the path
 		Vec3			mTangent;															// Tangent of the path, does not need to be normalized (in the direction of the path)
@@ -4810,9 +4810,9 @@ private:
 /// Length2 = |BodyPoint2 - FixedPoint2|
 /// The constraint keeps the two line segments constrained so that
 /// MinDistance <= Length1 + Ratio * Length2 <= MaxDistance
-class MOSS_EXPORT PulleyConstraintSettings final : public TwoBodyConstraintSettings
+class MOSS_API PulleyConstraintSettings final : public TwoBodyConstraintSettings
 {
-	MOSS_DECLARE_SERIALIZABLE_VIRTUAL(MOSS_EXPORT, PulleyConstraintSettings)
+	MOSS_DECLARE_SERIALIZABLE_VIRTUAL(MOSS_API, PulleyConstraintSettings)
 
 public:
 	// See: ConstraintSettings::SaveBinaryState
@@ -4851,7 +4851,7 @@ protected:
 };
 
 /// A pulley constraint.
-class MOSS_EXPORT PulleyConstraint final : public TwoBodyConstraint
+class MOSS_API PulleyConstraint final : public TwoBodyConstraint
 {
 public:
 	MOSS_OVERRIDE_NEW_DELETE
@@ -4931,9 +4931,9 @@ private:
 
 
 // Rack and pinion constraint (slider & gear) settings
-class MOSS_EXPORT RackAndPinionConstraintSettings final : public TwoBodyConstraintSettings
+class MOSS_API RackAndPinionConstraintSettings final : public TwoBodyConstraintSettings
 {
-	MOSS_DECLARE_SERIALIZABLE_VIRTUAL(MOSS_EXPORT, RackAndPinionConstraintSettings)
+	MOSS_DECLARE_SERIALIZABLE_VIRTUAL(MOSS_API, RackAndPinionConstraintSettings)
 
 public:
 	// See: ConstraintSettings::SaveBinaryState
@@ -4972,7 +4972,7 @@ protected:
 
 /// A rack and pinion constraint constrains the rotation of body1 to the translation of body 2.
 /// Note that this constraint needs to be used in conjunction with a hinge constraint for body 1 and a slider constraint for body 2.
-class MOSS_EXPORT RackAndPinionConstraint final : public TwoBodyConstraint
+class MOSS_API RackAndPinionConstraint final : public TwoBodyConstraint
 {
 public:
 	MOSS_OVERRIDE_NEW_DELETE

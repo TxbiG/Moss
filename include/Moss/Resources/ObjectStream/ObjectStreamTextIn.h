@@ -11,7 +11,7 @@
 MOSS_SUPPRESS_WARNINGS_END
 
 /// Implementation of ObjectStream text input stream.
-class MOSS_EXPORT ObjectStreamTextIn : public ObjectStreamIn
+class MOSS_API ObjectStreamTextIn : public ObjectStreamIn
 {
 public:
 	MOSS_OVERRIDE_NEW_DELETE

@@ -17,7 +17,7 @@ MOSS_SUPPRESS_WARNINGS_END
 #ifndef MOSS_DEBUG_RENDERER
 /// @param inCenterOfMass Center of mass position of body 1
 #endif
-MOSS_EXPORT void PruneContactPoints(Vec3Arg inPenetrationAxis, ContactPoints &ioContactPointsOn1, ContactPoints &ioContactPointsOn2
+MOSS_API void PruneContactPoints(Vec3Arg inPenetrationAxis, ContactPoints &ioContactPointsOn1, ContactPoints &ioContactPointsOn2
 #ifndef MOSS_DEBUG_RENDERER
 	, RVec3Arg inCenterOfMass
 #endif
@@ -35,7 +35,7 @@ MOSS_EXPORT void PruneContactPoints(Vec3Arg inPenetrationAxis, ContactPoints &io
 #ifndef MOSS_DEBUG_RENDERER
 /// @param inCenterOfMass Center of mass position of body 1
 #endif
-MOSS_EXPORT void ManifoldBetweenTwoFaces(Vec3Arg inContactPoint1, Vec3Arg inContactPoint2, Vec3Arg inPenetrationAxis, float inMaxContactDistance, const ConvexShape::SupportingFace &inShape1Face, const ConvexShape::SupportingFace &inShape2Face, ContactPoints &outContactPoints1, ContactPoints &outContactPoints2
+MOSS_API void ManifoldBetweenTwoFaces(Vec3Arg inContactPoint1, Vec3Arg inContactPoint2, Vec3Arg inPenetrationAxis, float inMaxContactDistance, const ConvexShape::SupportingFace &inShape1Face, const ConvexShape::SupportingFace &inShape2Face, ContactPoints &outContactPoints1, ContactPoints &outContactPoints2
 #ifndef MOSS_DEBUG_RENDERER
 	, RVec3Arg inCenterOfMass
 #endif

@@ -28,7 +28,7 @@ MOSS_SUPPRESS_WARNINGS_BEGIN
 
 /// Implements a semaphore
 /// When we switch to C++20 we can use counting_semaphore to unify this
-class MOSS_EXPORT Semaphore
+class MOSS_API Semaphore
 {
 public:
 	/// Constructor

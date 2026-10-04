@@ -17,8 +17,8 @@ class Ragdoll;
 class PhysicsSystem;
 
 /// Contains the structure of a ragdoll
-class MOSS_EXPORT RagdollSettings : public RefTarget<RagdollSettings> {
-	MOSS_DECLARE_SERIALIZABLE_NON_VIRTUAL(MOSS_EXPORT, RagdollSettings)
+class MOSS_API RagdollSettings : public RefTarget<RagdollSettings> {
+	MOSS_DECLARE_SERIALIZABLE_NON_VIRTUAL(MOSS_API, RagdollSettings)
 
 public:
 	/// Stabilize the constraints of the ragdoll
@@ -86,7 +86,7 @@ public:
 
 	/// A single rigid body sub part of the ragdoll
 	class Part : public BodyCreationSettings {
-		MOSS_DECLARE_SERIALIZABLE_NON_VIRTUAL(MOSS_EXPORT, Part)
+		MOSS_DECLARE_SERIALIZABLE_NON_VIRTUAL(MOSS_API, Part)
 
 	public:
 		Ref<TwoBodyConstraintSettings>	mToParent;
@@ -97,7 +97,7 @@ public:
 
 	/// A constraint that connects two bodies in a ragdoll (for non parent child related constraints)
 	class AdditionalConstraint {
-		MOSS_DECLARE_SERIALIZABLE_NON_VIRTUAL(MOSS_EXPORT, AdditionalConstraint)
+		MOSS_DECLARE_SERIALIZABLE_NON_VIRTUAL(MOSS_API, AdditionalConstraint)
 
 	public:
 		/// Constructors
@@ -129,7 +129,7 @@ private:
 };
 
 /// Runtime ragdoll information
-class MOSS_EXPORT Ragdoll : public RefTarget<Ragdoll>, public NonCopyable {
+class MOSS_API Ragdoll : public RefTarget<Ragdoll>, public NonCopyable {
 public:
 	MOSS_OVERRIDE_NEW_DELETE
 

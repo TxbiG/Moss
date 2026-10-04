@@ -8,7 +8,7 @@ MOSS_SUPPRESS_WARNINGS_BEGIN
 
 /// Create a formatted text string for debugging purposes.
 /// Note that this function has an internal buffer of 1024 characters, so long strings will be trimmed.
-MOSS_EXPORT String StringFormat(const char *inFMT, ...);
+MOSS_API String StringFormat(const char *inFMT, ...);
 
 /// Convert type to string
 template<typename T>
@@ -21,18 +21,18 @@ String ConvertToString(const T &inValue)
 }
 
 /// Replace substring with other string
-MOSS_EXPORT void StringReplace(String &ioString, const string_view &inSearch, const string_view &inReplace);
+MOSS_API void StringReplace(String &ioString, const string_view &inSearch, const string_view &inReplace);
 
 /// Convert a delimited string to an array of strings
-MOSS_EXPORT void StringToVector(const string_view &inString, TArray<String> &outVector, const string_view &inDelimiter = ",", bool inClearVector = true);
+MOSS_API void StringToVector(const string_view &inString, TArray<String> &outVector, const string_view &inDelimiter = ",", bool inClearVector = true);
 
 /// Convert an array strings to a delimited string
-MOSS_EXPORT void VectorToString(const TArray<String> &inVector, String &outString, const string_view &inDelimiter = ",");
+MOSS_API void VectorToString(const TArray<String> &inVector, String &outString, const string_view &inDelimiter = ",");
 
 /// Convert a string to lower case
-MOSS_EXPORT String ToLower(const string_view &inString);
+MOSS_API String ToLower(const string_view &inString);
 
 /// Converts the lower 4 bits of inNibble to a string that represents the number in binary format
-MOSS_EXPORT const char *NibbleToBinary(uint32 inNibble);
+MOSS_API const char *NibbleToBinary(uint32 inNibble);
 
 MOSS_SUPPRESS_WARNINGS_END

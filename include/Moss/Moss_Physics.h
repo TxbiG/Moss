@@ -785,10 +785,10 @@ MOSS_API bool Skeleton_AreJointsCorrectlyOrdered(const Skeleton* skeleton);
 
 /// Take a list of triangles and get the unique set of vertices and use them to create indexed triangles.
 /// Vertices that are less than inVertexWeldDistance apart will be combined to a single vertex.
-MOSS_EXPORT void Indexify(const TriangleList &inTriangles, VertexList &outVertices, IndexedTriangleList &outTriangles, float inVertexWeldDistance = 1.0e-4f);
+MOSS_API void Indexify(const TriangleList &inTriangles, VertexList &outVertices, IndexedTriangleList &outTriangles, float inVertexWeldDistance = 1.0e-4f);
 
 /// Take a list of indexed triangles and unpack them
-MOSS_EXPORT void Deindexify(const VertexList &inVertices, const IndexedTriangleList &inTriangles, TriangleList &outTriangles);
+MOSS_API void Deindexify(const VertexList &inVertices, const IndexedTriangleList &inTriangles, TriangleList &outTriangles);
 
 // ===========================================================================================================
 

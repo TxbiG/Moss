@@ -15,7 +15,7 @@ MOSS_SUPPRESS_WARNINGS_END
 class CollideShapeSettings;
 
 /// Dispatch function, main function to handle collisions between shapes
-class MOSS_EXPORT CollisionDispatch
+class MOSS_API CollisionDispatch
 {
 public:
 	/// Collide 2 shapes and pass any collision on to ioCollector

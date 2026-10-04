@@ -14,7 +14,7 @@ MOSS_SUPPRESS_WARNINGS_END
 class CollideShapeSettings;
 
 /// Collision detection helper that collides a convex object vs one or more triangles
-class MOSS_EXPORT CollideConvexVsTriangles
+class MOSS_API CollideConvexVsTriangles
 {
 public:
 	/// Constructor
