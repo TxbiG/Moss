@@ -57,8 +57,8 @@ Vec2::Vec2(const Float2 &inV)
     // Set z and w to zero
     mValue = _mm_move_ss(_mm_setzero_ps(), xy); // put xy in lower part, zeros in upper
 #elif defined(MOSS_SIMD_NEON)
-    float32x4_t xy = vld1_f32(&inV.x);
     float32x4_t zeros = vdupq_n_f32(0.0f); // zero for z,w
+	float32x4_t xy = vld1_f32(&inV.x);
     mValue = vcombine_f32(xy, zeros);
 #else
     mF32[0] = inV.x;

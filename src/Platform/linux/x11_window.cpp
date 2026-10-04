@@ -489,10 +489,10 @@ void* Moss_GetProcAddress(const char* procname) {
 
 // Forward declarations for global Vulkan loader
 static void* vulkanLib = nullptr;
-
 static PFN_vkGetInstanceProcAddr g_vkGetInstanceProcAddr = nullptr;
 
 g_vkGetInstanceProcAddr = (PFN_vkGetInstanceProcAddr)dlsym(vulkanLib, "vkGetInstanceProcAddr");
+
 void Moss_InitVulkanLoader(PFN_vkGetInstanceProcAddr loader) { if (loader) g_vkGetInstanceProcAddr = loader; }
 void Moss_ShutdownVulkanLoader() { g_vkGetInstanceProcAddr = nullptr; }
 
@@ -514,12 +514,16 @@ int Moss_VulkanSupported(void) {
     vulkanLib = dlopen("libvulkan.so.1", RTLD_NOW | RTLD_LOCAL);
     if (!vulkanLib) return 0;
 
-    vkGetInstanceProcAddr = (PFN_vkGetInstanceProcAddr)dlsym(vulkanLib, "vkGetInstanceProcAddr");
-    return vkGetInstanceProcAddr != NULL;
+    if (vulkanLib) {
+        // MOVE THE ASSIGNMENT HERE:
+        g_vkGetInstanceProcAddr = (PFN_vkGetInstanceProcAddr)dlsym(vulkanLib, "vkGetInstanceProcAddr");
+    }
+
+    return g_vkGetInstanceProcAddr != NULL;
 }
 
 void* Moss_GetInstanceProcAddress(VkInstance instance, const char* procname) {
-    if (!vkGetInstanceProcAddr) return nullptr; return (void*)vkGetInstanceProcAddr(instance, procname);
+    if (!g_vkGetInstanceProcAddr) return nullptr; return (void*)vkGetInstanceProcAddr(instance, procname);
 }
 
 const char** Moss_GetRequiredInstanceExtensions(uint32_t* count) {
