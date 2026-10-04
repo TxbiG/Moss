@@ -1,4 +1,4 @@
-#include <Moss/Platform/Linux/x11_platform.h>
+#include "x11_platform.h"
 
 #include <X11/cursorfont.h>
 #include <X11/Xmd.h>

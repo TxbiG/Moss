@@ -110,7 +110,7 @@ Vec2 Vec2::Zero()
 #if defined(MOSS_SIMD_SSE)
 	return _mm_setzero_ps();
 #elif defined(MOSS_SIMD_NEON)
-	return vdup_n_f32(0);
+	return vdupq_n_f32(0);
 #else
 	return Vec2(0, 0);
 #endif
@@ -121,7 +121,7 @@ Vec2 Vec2::Replicate(float inV)
 #if defined(MOSS_SIMD_SSE)
 	return _mm_set1_ps(inV);
 #elif defined(MOSS_SIMD_NEON)
-	return vdup_n_f32(inV);
+	return vdupq_n_f32(inV);
 #else
 	return Vec2(inV, inV);
 #endif
@@ -137,7 +137,7 @@ Vec2 Vec2::LoadFloat2Unsafe(const Float2 &inV)
 #if defined(MOSS_SIMD_SSE)
 	Type v = _mm_loadu_ps(&inV.x);
 #elif defined(MOSS_SIMD_NEON)
-	Type v = vld1_f32(&inV.x);
+	Type v =  vcombine_f32(vld1_f32(&inV->x), vdup_n_f32(0.0f));
 #else
 	Type v = { inV.x, inV.y };
 #endif
@@ -149,7 +149,7 @@ Vec2 Vec2::Min(Vec2 inV1, Vec2 inV2)
 #if defined(MOSS_SIMD_SSE)
 	return _mm_min_ps(inV1.mValue, inV2.mValue);
 #elif defined(MOSS_SIMD_NEON)
-	return vmin_f32(inV1.mValue, inV2.mValue);
+	return vminq_f32(inV1.mValue, inV2.mValue);
 #else
 	return Vec2(min(inV1.mF32[0], inV2.mF32[0]),
 				min(inV1.mF32[1], inV2.mF32[1]));
@@ -161,7 +161,7 @@ Vec2 Vec2::Max(const Vec2 inV1, const Vec2 inV2)
 #if defined(MOSS_SIMD_SSE)
 	return _mm_max_ps(inV1.mValue, inV2.mValue);
 #elif defined(MOSS_SIMD_NEON)
-	return vmax_f32(inV1.mValue, inV2.mValue);
+	return vmaxq_f32(inV1.mValue, inV2.mValue);
 #else
 	return Vec2(max(inV1.mF32[0], inV2.mF32[0]), max(inV1.mF32[1], inV2.mF32[1]));
 #endif
@@ -177,7 +177,7 @@ UVec4 Vec2::Equals(const Vec2 inV1, const Vec2 inV2)
 #if defined(MOSS_SIMD_SSE)
 	return _mm_castps_si128(_mm_cmpeq_ps(inV1.mValue, inV2.mValue));
 #elif defined(MOSS_SIMD_NEON)
-	return vceq_f32(inV1.mValue, inV2.mValue);
+	return vceqq_f32(inV1.mValue, inV2.mValue);
 #else
 	uint32 z = inV1.mF32[2] == inV2.mF32[2]? 0xffffffffu : 0;
 	return UVec4(inV1.mF32[0] == inV2.mF32[0]? 0xffffffffu : 0, inV1.mF32[1] == inV2.mF32[1]? 0xffffffffu : 0, z, z);
@@ -189,7 +189,7 @@ UVec4 Vec2::Less(const Vec2 inV1, const Vec2 inV2)
 #if defined(MOSS_SIMD_SSE)
 	return _mm_castps_si128(_mm_cmplt_ps(inV1.mValue, inV2.mValue));
 #elif defined(MOSS_SIMD_NEON)
-	return vclt_f32(inV1.mValue, inV2.mValue);
+	return vcltq_f32(inV1.mValue, inV2.mValue);
 #else
 	uint32 z = inV1.mF32[2] < inV2.mF32[2]? 0xffffffffu : 0;
 	return UVec4(inV1.mF32[0] < inV2.mF32[0]? 0xffffffffu : 0,
@@ -204,7 +204,7 @@ UVec4 Vec2::LessOrEqual(const Vec2 inV1, const Vec2 inV2)
 #if defined(MOSS_SIMD_SSE)
 	return _mm_castps_si128(_mm_cmple_ps(inV1.mValue, inV2.mValue));
 #elif defined(MOSS_SIMD_NEON)
-	return vcle_f32(inV1.mValue, inV2.mValue);
+	return vcleq_f32(inV1.mValue, inV2.mValue);
 #else
 	uint32 z = inV1.mF32[2] <= inV2.mF32[2]? 0xffffffffu : 0;
 	return UVec4(inV1.mF32[0] <= inV2.mF32[0]? 0xffffffffu : 0,
@@ -219,7 +219,7 @@ UVec4 Vec2::Greater(const Vec2 inV1, const Vec2 inV2)
 #if defined(MOSS_SIMD_SSE)
 	return _mm_castps_si128(_mm_cmpgt_ps(inV1.mValue, inV2.mValue));
 #elif defined(MOSS_SIMD_NEON)
-	return vcgt_f32(inV1.mValue, inV2.mValue);
+	return vcgtq_f32(inV1.mValue, inV2.mValue);
 #else
 	uint32 z = inV1.mF32[2] > inV2.mF32[2]? 0xffffffffu : 0;
 	return UVec4(inV1.mF32[0] > inV2.mF32[0]? 0xffffffffu : 0,
@@ -234,7 +234,7 @@ UVec4 Vec2::GreaterOrEqual(const Vec2 inV1, const Vec2 inV2)
 #if defined(MOSS_SIMD_SSE)
 	return _mm_castps_si128(_mm_cmpge_ps(inV1.mValue, inV2.mValue));
 #elif defined(MOSS_SIMD_NEON)
-	return vcge_f32(inV1.mValue, inV2.mValue);
+	return vcgeq_f32(inV1.mValue, inV2.mValue);
 #else
 	uint32 z = inV1.mF32[2] >= inV2.mF32[2]? 0xffffffffu : 0;
 	return UVec4(inV1.mF32[0] >= inV2.mF32[0]? 0xffffffffu : 0,

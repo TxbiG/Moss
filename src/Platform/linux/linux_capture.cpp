@@ -1,5 +1,4 @@
-#include <Moss/Moss_Platform.h>
-#include <Moss/Moss_stdinc.h>
+#include "linux_platform.h"
 
 Moss_CameraID* Moss_GetCameras(int* count);
 const char* Moss_GetCameraName(Moss_CameraID camera_id);

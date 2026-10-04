@@ -1,4 +1,4 @@
-#include <Moss/Platform/Linux/wl_platform.h>
+#include "wl_platform.h"
 #include "wayland-client-protocol.h"
 
 struct Moss_Monitor {

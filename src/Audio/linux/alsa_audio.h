@@ -1,7 +1,7 @@
 #ifndef MOSS_LINUX_ALSA_H
 #define MOSS_LINUX_ALSA_H
 
-#include <Moss/Audio/audio_intern.h>
+#include "../audio_intern.h"
 #include <alsa/asoundlib.h>
 
 #include <atomic>

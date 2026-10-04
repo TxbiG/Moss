@@ -1,5 +1,5 @@
 // alsa_speaker.cpp
-#include "audio_intern.h"
+#include "alsa_audio.h"
 #include <alsa/asoundlib.h>
 #include <vector>
 #include <string>
