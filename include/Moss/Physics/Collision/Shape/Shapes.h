@@ -4,7 +4,30 @@
 
 #pragma once
 
-MOSS_SUPPRESS_WARNINGS_END
+include <Moss/Moss_stdinc.h>
+#include <Moss/Core/NonCopyable.h>
+#include <Moss/Core/Reference.h>
+#include <Moss/Core/Result.h>
+#include <Moss/Core/ByteBuffer.h>
+#include <Moss/Core/TempAllocator.h>
+#include <Moss/Variants/Color.h>
+#include <Moss/Variants/TArray.h>
+#include <Moss/Variants/TSet.h>
+#include <Moss/Variants/TStaticArray.h>
+#include <Moss/Variants/Math/Real.h>
+#include <Moss/Variants/Math/HalfFloat.h>
+#include <Moss/Resources/ObjectStream/SerializableObject.h>
+#include <Moss/Physics/Collision/CollisionCollector.h>
+#include <Moss/Physics/Collision/PhysicsMaterial.h>
+#include <Moss/Physics/Collision/Shape/SubShapeID.h>
+#include <Moss/Physics/Collision/ShapeFilter.h>
+#include <Moss/Physics/PhysicsSettings.h>
+
+MOSS_SUPPRESS_WARNINGS_BEGIN
+
+class MassProperties;
+class CollideShapeSettings;
+class OrientedBox;
 struct RayCast;
 class RayCastSettings;
 class ConvexShape;
@@ -23,7 +46,6 @@ class CollideSoftBodyVertexIterator;
 class Shape;
 class StreamOut;
 class StreamIn;
-class Shape;
 #ifndef MOSS_DEBUG_RENDERER
 class DebugRenderer;
 #endif // MOSS_DEBUG_RENDERER
@@ -34,6 +56,7 @@ using CollidePointCollector = CollisionCollector<CollidePointResult, CollisionCo
 using CollideShapeCollector = CollisionCollector<CollideShapeResult, CollisionCollectorTraitsCollideShape>;
 using TransformedShapeCollector = CollisionCollector<TransformedShape, CollisionCollectorTraitsCollideShape>;
 
+
 using ShapeRefC = RefConst<Shape>;
 using ShapeList = TArray<ShapeRefC>;
 using PhysicsMaterialRefC = RefConst<PhysicsMaterial>;
@@ -42,6 +65,7 @@ using PhysicsMaterialList = TArray<PhysicsMaterialRefC>;
 /// Shapes are categorized in groups, each shape can return which group it belongs to through its Shape::GetType function.
 enum class EShapeType : uint8 {
 	Convex,							// Used by ConvexShape, all shapes that use the generic convex vs convex collision detection system (box, sphere, capsule, tapered capsule, cylinder, triangle)
+	
 	Compound,						// Used by CompoundShape
 	Decorated,						// Used by DecoratedShape
 	Mesh,							// Used by MeshShape
@@ -128,10 +152,8 @@ static_assert(std::size(sSubShapeTypeNames) == NumSubShapeTypes);
 /// in a form that is optimized for collision detection. After this, the ShapeSettings object is no longer needed
 /// and can be destroyed. Each shape class has a derived class of the ShapeSettings object to store shape specific
 /// data.
-class MOSS_EXPORT ShapeSettings : public SerializableObject, public RefTarget<ShapeSettings>
-{
+class MOSS_EXPORT ShapeSettings : public SerializableObject, public RefTarget<ShapeSettings> {
 	MOSS_DECLARE_SERIALIZABLE_ABSTRACT(MOSS_EXPORT, ShapeSettings)
-
 public:
 	using ShapeResult = Result<Ref<Shape>>;
 
@@ -450,26 +472,19 @@ private:
 
 
 /// Class that constructs a CapsuleShape
-class MOSS_EXPORT CapsuleShapeSettings final : public ConvexShapeSettings
-{
+class MOSS_EXPORT CapsuleShapeSettings final : public ConvexShapeSettings {
 	MOSS_DECLARE_SERIALIZABLE_VIRTUAL(MOSS_EXPORT, CapsuleShapeSettings)
-
 public:
 	/// Default constructor for deserialization
-							CapsuleShapeSettings() = default;
-
+	CapsuleShapeSettings() = default;
 	/// Create a capsule centered around the origin with one sphere cap at (0, -inHalfHeightOfCylinder, 0) and the other at (0, inHalfHeightOfCylinder, 0)
-							CapsuleShapeSettings(float inHalfHeightOfCylinder, float inRadius, const PhysicsMaterial *inMaterial = nullptr) : ConvexShapeSettings(inMaterial), mRadius(inRadius), mHalfHeightOfCylinder(inHalfHeightOfCylinder) { }
-
+	CapsuleShapeSettings(float inHalfHeightOfCylinder, float inRadius, const PhysicsMaterial *inMaterial = nullptr) : ConvexShapeSettings(inMaterial), mRadius(inRadius), mHalfHeightOfCylinder(inHalfHeightOfCylinder) { }
 	/// Check if this is a valid capsule shape
 	bool					IsValid() const															{ return mRadius > 0.0f && mHalfHeightOfCylinder >= 0.0f; }
-
 	/// Checks if the settings of this capsule make this shape a sphere
 	bool					IsSphere() const														{ return mHalfHeightOfCylinder == 0.0f; }
-
 	// See: ShapeSettings
 	virtual ShapeResult		Create() const override;
-
 	float					mRadius = 0.0f;
 	float					mHalfHeightOfCylinder = 0.0f;
 };
@@ -3367,4 +3382,6 @@ private:
 	float					mBottomRadius = 0.0f;
 	float					mConvexRadius = 0.0f;
 };
+
+
 MOSS_SUPPRESS_WARNINGS_END

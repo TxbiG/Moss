@@ -18,7 +18,7 @@ class StreamOut;
 /// information that is interesting for the simulation. The 2 materials involved in a contact could be used
 /// to decide which sound or particle effects to play.
 ///
-/// If you inherit from this material, don't forget to create a suitable default material in sDefault
+/// If you inherit from this material, don't forget to create a suitable default material in Default
 class MOSS_EXPORT PhysicsMaterial : public SerializableObject, public RefTarget<PhysicsMaterial> {
 	MOSS_DECLARE_SERIALIZABLE_VIRTUAL(MOSS_EXPORT, PhysicsMaterial)
 public:
@@ -27,7 +27,7 @@ public:
 	virtual									~PhysicsMaterial() override = default;
 
 	/// Default material that is used when a shape has no materials defined
-	static RefConst<PhysicsMaterial>		sDefault;
+	static RefConst<PhysicsMaterial>		Default;
 
 	// Properties
 	virtual const char*					GetDebugName() const			{ return "Unknown"; }
