@@ -149,8 +149,6 @@ void Moss_MonitorGetPhysicalSize(Moss_Monitor* monitor, int* width_mm, int* heig
 void Moss_MonitorGetContentScale(Moss_Monitor* monitor, float* xscale, float* yscale) { Moss_GetMonitorContentScale(monitor, xscale, yscale); }
 void Moss_MonitorGetPosition(Moss_Monitor* monitor, int* x, int* y) { Moss_GetMonitorPosition(monitor, x, y); }
 
-
-bool Moss_MonitorGetWorkArea(Moss_Monitor* monitor, Moss_MonitorRect* out_rect) { return Moss_MonitorGetRect(monitor, out_rect); }
 const char* Moss_MonitorGetName(Moss_Monitor* monitor) { return Moss_GetMonitorName(monitor); }
 void Moss_MonitorSetGammaRamp(Moss_Monitor* monitor, const Moss_GammaRamp* gammaRamp) { Moss_SetGammaRamp(monitor, gammaRamp); }
 Moss_GammaRamp* Moss_MonitorGetGammaRamp(Moss_Monitor* monitor) { return Moss_GetGammaRamp(monitor); }

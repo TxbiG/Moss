@@ -76,9 +76,7 @@ Vec2::Vec2(float inX, float inY) {
 	mValue = _mm_set_ps(0.0f, 0.0f, inY, inX);
 #elif defined(MOSS_SIMD_NEON)
 	// Store only X and Y, upper lanes filled with 0.0f
-	uint32x2_t xy = vcreate_u32(static_cast<uint64>(BitCast<uint32>(inX)) | (static_cast<uint64>(BitCast<uint32>(inY)) << 32));
-	uint32x2_t zero = vdup_n_u32(0);
-	mValue = vreinterpretq_f32_u32(vcombine_u32(xy, zero));
+	mValue = vsetq_lane_f32(inY, vsetq_lane_f32(inX, vdupq_n_f32(0.0f), 0), 1);
 #else
 	mF32[0] = inX;
 	mF32[1] = inY;
@@ -673,9 +671,9 @@ float Vec2::Length() const
 	return _mm_cvtss_f32(_mm_sqrt_ss(_mm_dp_ps(mValue, mValue, 0x7f)));
 #elif defined(MOSS_SIMD_NEON)
 	float32x4_t mul = vmulq_f32(mValue, mValue);
-	mul = vsetq_lane_f32(0, mul, 3);
-	float32x4_t sum = vdupq_n_f32(vaddvq_f32(mul));
-	return vget_lane_f32(vsqrt_f32(sum), 0);
+	// Accumulate lanes 0 and 1 safely out of your 128-bit layout
+	float sum = vgetq_lane_f32(mul, 0) + vgetq_lane_f32(mul, 1);
+	return std::sqrt(sum);
 #else
 	return sqrt(LengthSq());
 #endif
@@ -721,11 +719,10 @@ Vec2 Vec2::NormalizedOr(const Vec2 inZeroValue) const
 #endif // MOSS_FLOATING_POINT_EXCEPTIONS_ENABLED
 #elif defined(MOSS_SIMD_NEON)
 	float32x4_t mul = vmulq_f32(mValue, mValue);
-	mul = vsetq_lane_f32(0, mul, 3);
-	float32x4_t sum = vdupq_n_f32(vaddvq_f32(mul));
-	float32x4_t len = vsqrtq_f32(sum);
-	uint32x4_t is_zero = vceq_f32(len, vdupq_n_f32(0));
-	return vbslq_f32(is_zero, inZeroValue.mValue, vdivq_f32(mValue, len));
+	float sum = vgetq_lane_f32(mul, 0) + vgetq_lane_f32(mul, 1);
+	if (sum <= 0.00001f) { return inZeroValue; }
+	float32x4_t len = vdupq_n_f32(std::sqrt(sum));
+	return vdivq_f32(mValue, len);
 #else
 	float len_sq = LengthSq();
 	if (len_sq == 0.0f)
@@ -747,9 +744,9 @@ bool Vec2::IsNaN() const
 #elif defined(MOSS_SIMD_SSE)
 	return (_mm_movemask_ps(_mm_cmpunord_ps(mValue, mValue)) & 0x7) != 0;
 #elif defined(MOSS_SIMD_NEON)
-	uint32x4_t mask = MOSS_NEON_UINT32x4(1, 1, 1, 0);
-	uint32x4_t is_equal = vceq_f32(mValue, mValue); // If a number is not equal to itself it's a NaN
-	return vaddvq_u32(vandq_u32(is_equal, mask)) != 3;
+	uint32x4_t is_equal = vceqq_f32(mValue, mValue);
+	// If element 0 or element 1 fails the self-equality check, it means a NaN is present
+	return (vgetq_lane_u32(is_equal, 0) == 0) || (vgetq_lane_u32(is_equal, 1) == 0);
 #else
 	return isnan(mF32[0]) || isnan(mF32[1]) || isnan(mF32[2]);
 #endif
@@ -762,8 +759,8 @@ void Vec2::StoreFloat2(Float2 *outV) const
     __m128 t = _mm_shuffle_ps(mValue, mValue, _MM_SHUFFLE(1,1,1,1)); // get y component
     _mm_store_ss(&outV->y, t);
 #elif defined(MOSS_SIMD_NEON)
-    float32x4_t xy = vget_low_f32(mValue);
-    vst1_f32(&outV->x, xy);
+	outV->x = vgetq_lane_f32(mValue, 0);
+    outV->y = vgetq_lane_f32(mValue, 1);
 #else
     outV->x = mF32[0];
     outV->y = mF32[1];
@@ -798,9 +795,9 @@ float Vec2::ReduceMin() const
 	__m128 temp = _mm_min_ps(mValue, _mm_shuffle_ps(mValue, mValue, _MM_SHUFFLE(0, 0, 0, 1)));
     return _mm_cvtss_f32(temp);
 #elif defined(MOSS_SIMD_NEON)
-	float32x4_t xy = vget_low_f32(mValue);
-    float32x4_t minVal = vpmin_f32(xy, xy); // pairwise min
-    return vget_lane_f32(minVal, 0);
+	float x = vgetq_lane_f32(mValue, 0);
+	float y = vgetq_lane_f32(mValue, 1);
+    return (x < y) ? x : y;
 #else
 	return std::min(mF32[0], mF32[1]);
 #endif 
@@ -812,9 +809,9 @@ float Vec2::ReduceMax() const
 	__m128 temp = _mm_max_ps(mValue, _mm_shuffle_ps(mValue, mValue, _MM_SHUFFLE(0, 0, 0, 1)));
     return _mm_cvtss_f32(temp);
 #elif defined(MOSS_SIMD_NEON)
-	float32x4_t xy = vget_low_f32(mValue);
-    float32x4_t maxVal = vpmax_f32(xy, xy); // pairwise max
-    return vget_lane_f32(maxVal, 0);
+	float x = vgetq_lane_f32(mValue, 0);
+	float y = vgetq_lane_f32(mValue, 1);
+    return (x > y) ? x : y;
 #else
 	return std::max(mF32[0], mF32[1]);
 #endif

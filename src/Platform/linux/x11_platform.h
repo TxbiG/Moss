@@ -111,16 +111,6 @@ typedef struct libraryX11 {
 };
 
 // X11-specific per-monitor data
-typedef struct Moss_Monitor {
-    RROutput        output;
-    RRCrtc          crtc;
-    RRMode          oldMode;
-
-    // Index of corresponding Xinerama screen,
-    // for EWMH full screen window placement
-    int             index;
-};
-
 struct Moss_Monitor {
     RROutput id;
     char*    name;

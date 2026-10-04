@@ -1054,6 +1054,12 @@ MOSS_API uint32_t Moss_DX_GetShaderModel(void);      /* Info */
 #endif // MOSS_GRAPHICS_DIRECTX
 
 #if defined(MOSS_GRAPHICS_METAL)
+#ifdef __OBJC__
+    @class MTKView;
+#else
+    class MTKView; // Clean forward declaration for plain C++ compiler modules
+#endif
+
 MOSS_API MTKView*                       Moss_MetalGetView(Moss_Renderer* renderer);
 MOSS_API id<MTLDevice>                  Moss_MetalGetDevice(Moss_Renderer* renderer);
 MOSS_API id<MTLRenderCommandEncoder>    Moss_MetalGetRenderEncoder(Moss_Renderer* renderer);

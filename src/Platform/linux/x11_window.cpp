@@ -489,7 +489,9 @@ void* Moss_GetProcAddress(const char* procname) {
 
 // Forward declarations for global Vulkan loader
 static void* vulkanLib = nullptr;
-static PFN_vkGetInstanceProcAddr vkGetInstanceProcAddr = nullptr;
+g_vkGetInstanceProcAddr = (PFN_vkGetInstanceProcAddr)dlsym(vulkanLib, "vkGetInstanceProcAddr");
+void Moss_InitVulkanLoader(PFN_vkGetInstanceProcAddr loader) { if (loader) g_vkGetInstanceProcAddr = loader; }
+void Moss_ShutdownVulkanLoader() { g_vkGetInstanceProcAddr = nullptr; }
 
 
 VkResult Moss_CreateWindowSurface(Moss_Window* window, VkInstance instance, const VkAllocationCallbacks* allocator, VkSurfaceKHR* surface) {
@@ -511,16 +513,6 @@ int Moss_VulkanSupported(void) {
 
     vkGetInstanceProcAddr = (PFN_vkGetInstanceProcAddr)dlsym(vulkanLib, "vkGetInstanceProcAddr");
     return vkGetInstanceProcAddr != NULL;
-}
-
-void Moss_InitVulkanLoader(PFN_vkGetInstanceProcAddr loader) { if (loader) vkGetInstanceProcAddr = loader; }
-
-void Moss_ShutdownVulkanLoader() {
-    if (vulkanLib) {
-        dlclose(vulkanLib);
-        vulkanLib = nullptr;
-        vkGetInstanceProcAddr = nullptr;
-    }
 }
 
 void* Moss_GetInstanceProcAddress(VkInstance instance, const char* procname) {
