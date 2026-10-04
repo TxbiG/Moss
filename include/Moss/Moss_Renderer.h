@@ -1060,9 +1060,18 @@ MOSS_API uint32_t Moss_DX_GetShaderModel(void);      /* Info */
     class MTKView; // Clean forward declaration for plain C++ compiler modules
 #endif
 
-MOSS_API MTKView*                       Moss_MetalGetView(Moss_Renderer* renderer);
-MOSS_API id<MTLDevice>                  Moss_MetalGetDevice(Moss_Renderer* renderer);
-MOSS_API id<MTLRenderCommandEncoder>    Moss_MetalGetRenderEncoder(Moss_Renderer* renderer);
+#ifdef __OBJC__
+    // When included by Objective-C / Objective-C++ (.mm files)
+    #import <Metal/Metal.h>
+    MOSS_API MTKView*                       Moss_MetalGetView(Moss_Renderer* renderer);
+    MOSS_API id<MTLDevice>                  Moss_MetalGetDevice(Moss_Renderer* renderer);
+    MOSS_API id<MTLRenderCommandEncoder>    Moss_MetalGetRenderEncoder(Moss_Renderer* renderer);
+#else
+    // When included by plain C++ (.cpp files)
+    MOSS_API MTKView*                       Moss_MetalGetView(Moss_Renderer* renderer);
+    MOSS_API void*                          Moss_MetalGetDevice(Moss_Renderer* renderer);
+    MOSS_API void*                          Moss_MetalGetRenderEncoder(Moss_Renderer* renderer);
+#endif
 
 MOSS_API bool Moss_Metal_CompileMSL(const char* inputPath, const char* outputPath); /* Shader tools */
 MOSS_API bool Moss_Metal_SupportsFamily(uint32_t family); /* Capabilities */

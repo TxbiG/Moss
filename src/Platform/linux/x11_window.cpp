@@ -489,6 +489,9 @@ void* Moss_GetProcAddress(const char* procname) {
 
 // Forward declarations for global Vulkan loader
 static void* vulkanLib = nullptr;
+
+static PFN_vkGetInstanceProcAddr g_vkGetInstanceProcAddr = nullptr;
+
 g_vkGetInstanceProcAddr = (PFN_vkGetInstanceProcAddr)dlsym(vulkanLib, "vkGetInstanceProcAddr");
 void Moss_InitVulkanLoader(PFN_vkGetInstanceProcAddr loader) { if (loader) g_vkGetInstanceProcAddr = loader; }
 void Moss_ShutdownVulkanLoader() { g_vkGetInstanceProcAddr = nullptr; }
@@ -527,7 +530,7 @@ const char** Moss_GetRequiredInstanceExtensions(uint32_t* count) {
 }
 
 int Moss_GetPhysicalDevicePresentationSupport(Moss_Window& window, VkPhysicalDevice device, uint32_t queueFamily) {
-    return vkGetPhysicalDeviceXlibPresentationSupportKHR(device, queueFamily, x11.display, DefaultVisual(x11.display, x11.screen));
+    return vkGetPhysicalDeviceXlibPresentationSupportKHR(device, queueFamily, x11.display, DefaultVisual(x11.display, x11.screen)->visualid);
 }
 
 #endif // MOSS_GRAPHICS_VULKAN

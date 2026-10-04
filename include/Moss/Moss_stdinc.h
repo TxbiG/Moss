@@ -174,7 +174,6 @@
         #endif
     #endif
 #elif defined(__APPLE__)
-	#elif defined(__APPLE__)
     #include <TargetConditionals.h>
     #define MOSS_PLATFORM_APPLE
 
