@@ -21,7 +21,7 @@
 #include <X11/extensions/XInput2.h>     // The XInput extension provides raw mouse motion input
 #include <X11/extensions/shape.h>       // The Shape extension provides custom window shapes
 
-#if defined(MOSS_GRAPHICS_OPENGL)
+#ifdef MOSS_GRAPHICS_OPENGL
 #include <GL/glx.h>
 #endif // MOSS_GRAPHICS_OPENGL
 
@@ -36,6 +36,7 @@ struct Moss_Window {
     bool            iconified;
     bool            maximized;
     bool            transparent;
+    bool shouldClose;
 
     // Size and position tracking
     int             width, height;
@@ -48,10 +49,12 @@ struct Moss_Window {
     // Key repeat tracking for ibus quirks
     Time          keyPressTimes[256];
 
+#ifdef MOSS_GRAPHICS_OPENGL
     // GLX context (OpenGL only)
     GLXContext      glxContext;
     GLXWindow       glxWindow;
     XVisualInfo*    visual;
+#endif // MOSS_GRAPHICS_OPENGL
 };
 
 
@@ -69,9 +72,9 @@ typedef struct libraryX11 {
 
     // Clipboard and keyboard mappings
     char*           clipboardString;
-    char            keynames[Keyboard::MOSS_LAST_KEY + 1][5];
+    char            keynames[Keyboard::COUNT + 1][5];
     short int       keycodes[256];
-    short int       scancodes[Keyboard::MOSS_LAST_KEY + 1];
+    short int       scancodes[Keyboard::COUNT + 1];
 
     // Restore cursor pos (for raw mouse)
     double          restoreCursorPosX, restoreCursorPosY;
@@ -93,7 +96,7 @@ typedef struct libraryX11 {
     Atom            NET_WM_BYPASS_COMPOSITOR;
 
     // GLX functions (OpenGL only)
-#if defined(MOSS_GRAPHICS_OPENGL)
+#ifdef MOSS_GRAPHICS_OPENGL
     struct {
         void*           handle;
         PFNGLXGETFBCONFIGSPROC           GetFBConfigs;
@@ -120,7 +123,7 @@ struct Moss_Monitor {
 };
 
 // X11-specific per-cursor data
-typedef struct Moss_Cursor { Cursor handle; };
+struct Moss_Cursor { Cursor handle; };
 
 
 struct Moss_InputState {

@@ -126,12 +126,12 @@ void Moss_TerminateWindow(Moss_Window* window) {
     }
 #endif // MOSS_GRAPHICS_OPENGL
 
-    if (window->xwindow) {
-        XDestroyWindow(window->display, window->xwindow);
-        window->xwindow = 0;
+    if (window->handle) {
+        XDestroyWindow(x11.display, window->handle);
+        window->handle = 0;
     }
 
-    XFlush(window->display);
+    XFlush(x11.display);
     free(window);
 }
 
