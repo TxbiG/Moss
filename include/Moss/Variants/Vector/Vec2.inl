@@ -137,7 +137,7 @@ Vec2 Vec2::LoadFloat2Unsafe(const Float2 &inV)
 #if defined(MOSS_SIMD_SSE)
 	Type v = _mm_loadu_ps(&inV.x);
 #elif defined(MOSS_SIMD_NEON)
-	Type v = vld1q_f32(&inV.x);
+	Type v = vld1_f32(&inV.x);
 #else
 	Type v = { inV.x, inV.y };
 #endif
@@ -149,7 +149,7 @@ Vec2 Vec2::Min(Vec2 inV1, Vec2 inV2)
 #if defined(MOSS_SIMD_SSE)
 	return _mm_min_ps(inV1.mValue, inV2.mValue);
 #elif defined(MOSS_SIMD_NEON)
-	return vminq_f32(inV1.mValue, inV2.mValue);
+	return vmin_f32(inV1.mValue, inV2.mValue);
 #else
 	return Vec2(min(inV1.mF32[0], inV2.mF32[0]),
 				min(inV1.mF32[1], inV2.mF32[1]));
@@ -161,10 +161,9 @@ Vec2 Vec2::Max(const Vec2 inV1, const Vec2 inV2)
 #if defined(MOSS_SIMD_SSE)
 	return _mm_max_ps(inV1.mValue, inV2.mValue);
 #elif defined(MOSS_SIMD_NEON)
-	return vmaxq_f32(inV1.mValue, inV2.mValue);
+	return vmax_f32(inV1.mValue, inV2.mValue);
 #else
-	return Vec2(max(inV1.mF32[0], inV2.mF32[0]),
-				max(inV1.mF32[1], inV2.mF32[1]));
+	return Vec2(max(inV1.mF32[0], inV2.mF32[0]), max(inV1.mF32[1], inV2.mF32[1]));
 #endif
 }
 
@@ -178,13 +177,10 @@ UVec4 Vec2::Equals(const Vec2 inV1, const Vec2 inV2)
 #if defined(MOSS_SIMD_SSE)
 	return _mm_castps_si128(_mm_cmpeq_ps(inV1.mValue, inV2.mValue));
 #elif defined(MOSS_SIMD_NEON)
-	return vceqq_f32(inV1.mValue, inV2.mValue);
+	return vceq_f32(inV1.mValue, inV2.mValue);
 #else
 	uint32 z = inV1.mF32[2] == inV2.mF32[2]? 0xffffffffu : 0;
-	return UVec4(inV1.mF32[0] == inV2.mF32[0]? 0xffffffffu : 0,
-				 inV1.mF32[1] == inV2.mF32[1]? 0xffffffffu : 0,
-				 z,
-				 z);
+	return UVec4(inV1.mF32[0] == inV2.mF32[0]? 0xffffffffu : 0, inV1.mF32[1] == inV2.mF32[1]? 0xffffffffu : 0, z, z);
 #endif
 }
 
@@ -193,7 +189,7 @@ UVec4 Vec2::Less(const Vec2 inV1, const Vec2 inV2)
 #if defined(MOSS_SIMD_SSE)
 	return _mm_castps_si128(_mm_cmplt_ps(inV1.mValue, inV2.mValue));
 #elif defined(MOSS_SIMD_NEON)
-	return vcltq_f32(inV1.mValue, inV2.mValue);
+	return vclt_f32(inV1.mValue, inV2.mValue);
 #else
 	uint32 z = inV1.mF32[2] < inV2.mF32[2]? 0xffffffffu : 0;
 	return UVec4(inV1.mF32[0] < inV2.mF32[0]? 0xffffffffu : 0,
@@ -208,7 +204,7 @@ UVec4 Vec2::LessOrEqual(const Vec2 inV1, const Vec2 inV2)
 #if defined(MOSS_SIMD_SSE)
 	return _mm_castps_si128(_mm_cmple_ps(inV1.mValue, inV2.mValue));
 #elif defined(MOSS_SIMD_NEON)
-	return vcleq_f32(inV1.mValue, inV2.mValue);
+	return vcle_f32(inV1.mValue, inV2.mValue);
 #else
 	uint32 z = inV1.mF32[2] <= inV2.mF32[2]? 0xffffffffu : 0;
 	return UVec4(inV1.mF32[0] <= inV2.mF32[0]? 0xffffffffu : 0,
@@ -223,7 +219,7 @@ UVec4 Vec2::Greater(const Vec2 inV1, const Vec2 inV2)
 #if defined(MOSS_SIMD_SSE)
 	return _mm_castps_si128(_mm_cmpgt_ps(inV1.mValue, inV2.mValue));
 #elif defined(MOSS_SIMD_NEON)
-	return vcgtq_f32(inV1.mValue, inV2.mValue);
+	return vcgt_f32(inV1.mValue, inV2.mValue);
 #else
 	uint32 z = inV1.mF32[2] > inV2.mF32[2]? 0xffffffffu : 0;
 	return UVec4(inV1.mF32[0] > inV2.mF32[0]? 0xffffffffu : 0,
@@ -238,7 +234,7 @@ UVec4 Vec2::GreaterOrEqual(const Vec2 inV1, const Vec2 inV2)
 #if defined(MOSS_SIMD_SSE)
 	return _mm_castps_si128(_mm_cmpge_ps(inV1.mValue, inV2.mValue));
 #elif defined(MOSS_SIMD_NEON)
-	return vcgeq_f32(inV1.mValue, inV2.mValue);
+	return vcge_f32(inV1.mValue, inV2.mValue);
 #else
 	uint32 z = inV1.mF32[2] >= inV2.mF32[2]? 0xffffffffu : 0;
 	return UVec4(inV1.mF32[0] >= inV2.mF32[0]? 0xffffffffu : 0,
@@ -728,7 +724,7 @@ Vec2 Vec2::NormalizedOr(const Vec2 inZeroValue) const
 	mul = vsetq_lane_f32(0, mul, 3);
 	float32x2_t sum = vdup_n_f32(vaddvq_f32(mul));
 	float32x2_t len = vsqrtq_f32(sum);
-	uint32x4_t is_zero = vceqq_f32(len, vdup_n_f32(0));
+	uint32x4_t is_zero = vceq_f32(len, vdup_n_f32(0));
 	return vbslq_f32(is_zero, inZeroValue.mValue, vdivq_f32(mValue, len));
 #else
 	float len_sq = LengthSq();
@@ -752,7 +748,7 @@ bool Vec2::IsNaN() const
 	return (_mm_movemask_ps(_mm_cmpunord_ps(mValue, mValue)) & 0x7) != 0;
 #elif defined(MOSS_SIMD_NEON)
 	uint32x4_t mask = MOSS_NEON_UINT32x4(1, 1, 1, 0);
-	uint32x4_t is_equal = vceqq_f32(mValue, mValue); // If a number is not equal to itself it's a NaN
+	uint32x4_t is_equal = vceq_f32(mValue, mValue); // If a number is not equal to itself it's a NaN
 	return vaddvq_u32(vandq_u32(is_equal, mask)) != 3;
 #else
 	return isnan(mF32[0]) || isnan(mF32[1]) || isnan(mF32[2]);

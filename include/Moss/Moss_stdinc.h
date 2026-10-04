@@ -262,6 +262,7 @@
 
 // Detect CPU architecture
 #if defined(__x86_64__) || defined(_M_X64) || defined(__i386__) || defined(_M_IX86)
+	#include <immintrin.h> // Pulls in SSE, AVX, AVX2, TZCNT, LZCNT
 	// X86 CPU architecture
 	#define MOSS_CPU_X86
 	#if defined(__x86_64__) || defined(_M_X64)
@@ -331,7 +332,10 @@
 		#define MOSS_VECTOR_ALIGNMENT 8 // 32-bit ARM does not support aligning on the stack on 16 byte boundaries
 		#define MOSS_DVECTOR_ALIGNMENT 8
 		#if defined(__ARM_NEON)
+			#include <arm_neon.h>
 			#define MOSS_SIMD_NEON
+		#else
+			#include <immintrin.h>
 		#endif
 	#endif // __aarch64__ || _M_ARM64
 #elif defined(__riscv)
@@ -736,9 +740,7 @@ MOSS_SUPPRESS_WARNINGS_STD_BEGIN
 #endif
 
 // SIMD includes
-#if defined(MOSS_SIMD_SSEE)
-#include <immintrin.h>
-#elif defined(MOSS_SIMD_NEON)
+#if defined(MOSS_SIMD_NEON)
 	#ifdef MOSS_COMPILER_MSVC
 		#include <intrin.h>
 		#include <arm64_neon.h>
@@ -755,8 +757,6 @@ using std::min;
 using std::max;
 using std::abs;
 using std::acos;
-using std::acosf;
-using std::asinf;
 using std::sqrt;
 using std::ceil;
 using std::floor;
@@ -778,7 +778,6 @@ using std::fabs;
 using std::floor;
 using std::fmod;
 using std::pow;
-using std::powf;
 using std::sin;
 using std::qsort;
 using std::atof;
@@ -790,30 +789,16 @@ using std::tan;
 using std::log;
 using std::log10;
 using std::lround;
-using std::sqrtf;
 using std::srand;
 
 using std::asinhf;
 using std::acoshf;
 using std::asinhf;
 using std::atanhf;
-using std::asinf;
-using std::fabsf;
-using std::floorf;
-using std::fmodf;
 using std::isinf;
 using std::modf;
-using std::modff;
-using std::sinf;
-using std::atan2f;
 
-using std::ceilf;
-using std::cosf;
 using std::nanf;
-using std::tanf;
-using std::atanf;
-using std::log10f;
-using std::logf;
 using std::lroundf;
 using std::sscanf;
 

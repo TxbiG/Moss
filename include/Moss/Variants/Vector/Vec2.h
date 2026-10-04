@@ -23,7 +23,7 @@ public:
 #if defined(MOSS_SIMD_SSE)
 	using Type = __m128;
 #elif defined(MOSS_SIMD_NEON)
-	using Type = float32x2_t;
+	using Type = float32x4_t;
 #else
 	using Type = Vec4::Type;
 #endif
@@ -124,8 +124,8 @@ public:
 	MOSS_INLINE float			GetX() const									{ return _mm_cvtss_f32(mValue); }
 	MOSS_INLINE float			GetY() const									{ return mF32[1]; }
 #elif defined(MOSS_SIMD_NEON)
-	MOSS_INLINE float			GetX() const									{ return vgetq_lane_f32(mValue, 0); }
-	MOSS_INLINE float			GetY() const									{ return vgetq_lane_f32(mValue, 1); }
+	MOSS_INLINE float			GetX() const									{ return vget_lane_f32(mValue, 0); }
+	MOSS_INLINE float			GetY() const									{ return vget_lane_f32(mValue, 1); }
 #else
 	MOSS_INLINE float			GetX() const									{ return mF32[0]; }
 	MOSS_INLINE float			GetY() const									{ return mF32[1]; }
