@@ -269,7 +269,7 @@ protected:
 		KeyEqual equal;
 		size_type bucket_mask = mMaxSize - 1;
 		BVec16 control16 = BVec16::Replicate(control);
-		BVec16 bucket_empty = BVec16::sZero();
+		BVec16 bucket_empty = BVec16::Zero();
 		BVec16 bucket_deleted = BVec16::Replicate(cBucketDeleted);
 		for (;;)
 		{
@@ -639,7 +639,7 @@ public:
 		KeyEqual equal;
 		size_type bucket_mask = mMaxSize - 1;
 		BVec16 control16 = BVec16::Replicate(control);
-		BVec16 bucket_empty = BVec16::sZero();
+		BVec16 bucket_empty = BVec16::Zero();
 		for (;;)
 		{
 			// Read 16 control values
@@ -699,9 +699,9 @@ public:
 
 		// Read 16 control values before and after the current index
 		// (note that we added 15 bytes at the end of the control values that mirror the first 15 bytes)
-		BVec16 control_bytes_before = BVec16::sLoadByte16(mControl + ((inIterator.mIndex - 16) & (mMaxSize - 1)));
-		BVec16 control_bytes_after = BVec16::sLoadByte16(mControl + inIterator.mIndex);
-		BVec16 bucket_empty = BVec16::sZero();
+		BVec16 control_bytes_before = BVec16::LoadByte16(mControl + ((inIterator.mIndex - 16) & (mMaxSize - 1)));
+		BVec16 control_bytes_after = BVec16::LoadByte16(mControl + inIterator.mIndex);
+		BVec16 bucket_empty = BVec16::Zero();
 		uint32 control_empty_before = uint32(BVec16::Equals(control_bytes_before, bucket_empty).GetTrues());
 		uint32 control_empty_after = uint32(BVec16::Equals(control_bytes_after, bucket_empty).GetTrues());
 
@@ -793,7 +793,7 @@ public:
 					{
 						// Check if any buckets are free
 						BVec16 control_bytes = BVec16::sLoadByte16(mControl + dst);
-						uint32 control_free = uint32(BVec16::sAnd(control_bytes, bucket_used).GetTrues()) ^ 0xffff;
+						uint32 control_free = uint32(BVec16::And(control_bytes, bucket_used).GetTrues()) ^ 0xffff;
 						if (control_free != 0)
 						{
 							// Select this bucket as destination

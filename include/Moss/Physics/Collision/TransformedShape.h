@@ -4,11 +4,12 @@
 
 #pragma once
 
+#include <Moss/Moss_Physics.h>
+
 #include <Moss/Physics/Collision/ObjectLayer.h>
 #include <Moss/Physics/Collision/ShapeFilter.h>
 #include <Moss/Physics/Collision/Shape/Shape.h>
 #include <Moss/Physics/Collision/Shape/SubShapeID.h>
-#include <Moss/Physics/Collision/BackFaceMode.h>
 #include <Moss/Physics/Body/Body.h>
 
 MOSS_SUPPRESS_WARNINGS_END

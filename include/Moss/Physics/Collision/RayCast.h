@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include <Moss/Physics/Collision/BackFaceMode.h>
+#include <Moss/Moss_Physics.h>
 
 MOSS_SUPPRESS_WARNINGS_END
 

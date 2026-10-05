@@ -72,9 +72,9 @@ struct libraryX11 {
 
     // Clipboard and keyboard mappings
     char*           clipboardString;
-    char            keynames[Keyboard::COUNT + 1][5];
+    char            keynames[static_cast<int>(Keyboard::COUNT) + 1][5];
     short int       keycodes[256];
-    short int       scancodes[Keyboard::COUNT + 1];
+    short int       scancodes[static_cast<int>(Keyboard::COUNT) + 1];
 
     // Restore cursor pos (for raw mouse)
     double          restoreCursorPosX, restoreCursorPosY;

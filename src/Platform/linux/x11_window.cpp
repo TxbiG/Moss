@@ -484,21 +484,32 @@ void* Moss_GetProcAddress(const char* procname) {
 #endif // MOSS_GRAPHICS_OPENGL
 
 #ifdef MOSS_GRAPHICS_VULKAN
+
 #include <dlfcn.h>
 #include <vulkan/vulkan.h>
 #include <vulkan/vulkan_xlib.h>
 
-// Forward declarations for global Vulkan loader
+// Vulkan loader state
 static void* vulkanLib = nullptr;
 static PFN_vkGetInstanceProcAddr g_vkGetInstanceProcAddr = nullptr;
-g_vkGetInstanceProcAddr = (PFN_vkGetInstanceProcAddr)dlsym(vulkanLib, "vkGetInstanceProcAddr");
 
-void Moss_InitVulkanLoader(PFN_vkGetInstanceProcAddr loader) { if (loader) g_vkGetInstanceProcAddr = loader; }
-void Moss_ShutdownVulkanLoader() { g_vkGetInstanceProcAddr = nullptr; }
+void Moss_InitVulkanLoader(PFN_vkGetInstanceProcAddr loader) {
+    if (loader)
+        g_vkGetInstanceProcAddr = loader;
+}
 
+void Moss_ShutdownVulkanLoader() {
+    g_vkGetInstanceProcAddr = nullptr;
+
+    if (vulkanLib) {
+        dlclose(vulkanLib);
+        vulkanLib = nullptr;
+    }
+}
 
 VkResult Moss_CreateWindowSurface(Moss_Window* window, VkInstance instance, const VkAllocationCallbacks* allocator, VkSurfaceKHR* surface) {
-    if (!window || !surface) return VK_ERROR_INITIALIZATION_FAILED;
+    if (!window || !surface)
+        return VK_ERROR_INITIALIZATION_FAILED;
 
     VkXlibSurfaceCreateInfoKHR surfaceCreateInfo = {};
     surfaceCreateInfo.sType = VK_STRUCTURE_TYPE_XLIB_SURFACE_CREATE_INFO_KHR;
@@ -509,27 +520,41 @@ VkResult Moss_CreateWindowSurface(Moss_Window* window, VkInstance instance, cons
 }
 
 int Moss_VulkanSupported(void) {
-    if (vulkanLib) return 1;
+    if (vulkanLib && g_vkGetInstanceProcAddr)
+        return 1;
 
     vulkanLib = dlopen("libvulkan.so.1", RTLD_NOW | RTLD_LOCAL);
-    if (!vulkanLib) return 0;
 
-    if (vulkanLib) {
-        // MOVE THE ASSIGNMENT HERE:
-        g_vkGetInstanceProcAddr = (PFN_vkGetInstanceProcAddr)dlsym(vulkanLib, "vkGetInstanceProcAddr");
+    if (!vulkanLib)
+        return 0;
+
+    g_vkGetInstanceProcAddr = reinterpret_cast<PFN_vkGetInstanceProcAddr>(dlsym(vulkanLib, "vkGetInstanceProcAddr"));
+
+    if (!g_vkGetInstanceProcAddr) {
+        dlclose(vulkanLib);
+        vulkanLib = nullptr;
+        return 0;
     }
 
-    return g_vkGetInstanceProcAddr != NULL;
+    return 1;
 }
 
 void* Moss_GetInstanceProcAddress(VkInstance instance, const char* procname) {
-    if (!g_vkGetInstanceProcAddr) return nullptr; return (void*)vkGetInstanceProcAddr(instance, procname);
+    if (!g_vkGetInstanceProcAddr || !procname)
+        return nullptr;
+
+    return reinterpret_cast<void*>(g_vkGetInstanceProcAddr(instance, procname));
 }
 
 const char** Moss_GetRequiredInstanceExtensions(uint32_t* count) {
-    static const char* extensions[] = { VK_KHR_SURFACE_EXTENSION_NAME, VK_KHR_XLIB_SURFACE_EXTENSION_NAME };
+    static const char* extensions[] = {
+        VK_KHR_SURFACE_EXTENSION_NAME,
+        VK_KHR_XLIB_SURFACE_EXTENSION_NAME
+    };
 
-    if (count) *count = 2;
+    if (count)
+        *count = 2;
+
     return extensions;
 }
 

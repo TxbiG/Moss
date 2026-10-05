@@ -101,7 +101,7 @@ public:
 
 	/// Divide vector by float
 	inline TVec operator / (float inV2) const {
-		TVector v;
+		TVec v;
 		for (uint32 r = 0; r < Rows; ++r)
 			v.mF32[r] = mF32[r] / inV2;
 		return v;

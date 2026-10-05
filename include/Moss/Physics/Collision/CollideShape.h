@@ -4,8 +4,8 @@
 
 #pragma once
 
+#include <Moss/Moss_Physics.h>
 #include <Moss/Variants/TStaticArray.h>
-#include <Moss/Physics/Collision/BackFaceMode.h>
 #include <Moss/Physics/Collision/ActiveEdgeMode.h>
 #include <Moss/Physics/Collision/CollectFacesMode.h>
 #include <Moss/Physics/Collision/Shape/SubShapeID.h>
