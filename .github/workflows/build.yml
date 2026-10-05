@@ -29,16 +29,18 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y \
             ninja-build \
-            libgl1-mesa-dev \
-            libvulkan-dev \
-            mesa-vulkan-drivers \
+            libasound2-dev \
             libx11-dev \
             libxrandr-dev \
             libxinerama-dev \
             libxcursor-dev \
             libxi-dev \
+            libxext-dev \
             libwayland-dev \
-            libxkbcommon-dev
+            libxkbcommon-dev \
+            libvulkan-dev \
+            mesa-vulkan-drivers \
+            libgl1-mesa-dev
 
       - name: Install macOS dependencies
         if: runner.os == 'macOS'
