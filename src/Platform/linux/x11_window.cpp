@@ -25,7 +25,7 @@ VkInstance m_instance = VK_NULL_HANDLE;
 VkSurfaceKHR m_surface = VK_NULL_HANDLE;
 #endif // MOSS_GRAPHICS_VULKAN
 
-extern libraryX11 x11;
+libraryX11 x11;
 
 static Moss_FramebufferResizeCallback g_framebufferResizeCallback = NULL;
 static Moss_WindowSizeCallback g_windowSizeCallback = NULL;
@@ -44,11 +44,6 @@ Moss_Window* Moss_CreateWindow(const char* title, int width, int height, Moss_Mo
     window->width = width;
     window->height = height;
 
-    // Use the shared global X11 display
-    Display* dpy = x11.display;
-    int screen = x11.screen;
-    Window root = x11.root;
-
 #ifdef MOSS_GRAPHICS_OPENGL
     int fbcount;
     int attribs[] = {
@@ -66,28 +61,28 @@ Moss_Window* Moss_CreateWindow(const char* title, int width, int height, Moss_Mo
         None
     };
 
-    GLXFBConfig* fbc = x11.glx.ChooseFBConfig(dpy, screen, attribs, &fbcount);
+    GLXFBConfig* fbc = x11.glx.ChooseFBConfig(x11.display, x11.screen, attribs, &fbcount);
     if (!fbc) return NULL;
 
-    XVisualInfo* vi = x11.glx.GetVisualFromFBConfig(dpy, fbc[0]);
+    XVisualInfo* vi = x11.glx.GetVisualFromFBConfig(x11.display, fbc[0]);
     if (!vi) return NULL;
 
     window->visual = vi;
-    window->colormap = XCreateColormap(dpy, root, vi->visual, AllocNone);
+    window->colormap = XCreateColormap(x11.display, x11.root, vi->visual, AllocNone);
 
     XSetWindowAttributes swa;
     swa.colormap = window->colormap;
     swa.event_mask = ExposureMask | KeyPressMask | KeyReleaseMask | ButtonPressMask | ButtonReleaseMask | StructureNotifyMask;
 
-    window->handle = XCreateWindow(dpy, root, 0, 0, width, height, 0, vi->depth, InputOutput, vi->visual,
+    window->handle = XCreateWindow(x11.display, x11.root, 0, 0, width, height, 0, vi->depth, InputOutput, vi->visual,
                                    CWColormap | CWEventMask, &swa);
 
-    XStoreName(dpy, window->handle, title);
+    XStoreName(x11.display, window->handle, title);
 
-    x11.WM_DELETE_WINDOW = XInternAtom(dpy, "WM_DELETE_WINDOW", False);
-    XSetWMProtocols(dpy, window->handle, &x11.WM_DELETE_WINDOW, 1);
+    x11.WM_DELETE_WINDOW = XInternAtom(x11.display, "WM_DELETE_WINDOW", False);
+    XSetWMProtocols(x11.display, window->handle, &x11.WM_DELETE_WINDOW, 1);
 
-    window->glxWindow = x11.glx.CreateWindow(dpy, fbc[0], window->handle, NULL);
+    window->glxWindow = x11.glx.CreateWindow(x11.display, fbc[0], window->handle, NULL);
 
     int contextAttribs[] = {
         GLX_CONTEXT_MAJOR_VERSION_ARB, 4,
@@ -96,17 +91,17 @@ Moss_Window* Moss_CreateWindow(const char* title, int width, int height, Moss_Mo
         None
     };
 
-    window->glxContext = x11.glx.CreateContextAttribsARB(dpy, fbc[0], share ? share->glxContext : NULL, True, contextAttribs);
+    window->glxContext = x11.glx.CreateContextAttribsARB(x11.display, fbc[0], share ? share->glxContext : NULL, True, contextAttribs);
 
     if (!window->glxContext) { return NULL; }
 
-    x11.glx.MakeCurrent(dpy, window->glxWindow, window->glxContext);
+    x11.glx.MakeCurrent(x11.display, window->glxWindow, window->glxContext);
 
-    XMapWindow(dpy, window->handle);
-    XFlush(dpy);
+    XMapWindow(x11.display, window->handle);
+    XFlush(x11.display);
 
-    return window;
 #endif // MOSS_GRAPHICS_OPENGL
+    return window;
 }
 
 

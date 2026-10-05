@@ -142,4 +142,7 @@ struct Moss_InputState {
     } pads[4];
 };
 
+
+extern libraryX11 x11;
+
 #endif // MOSS_PLATFORM_LINUX_X11_H
