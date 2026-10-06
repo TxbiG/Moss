@@ -146,6 +146,38 @@ static constexpr uint32 NumSubShapeTypes = uint32(std::size(sAllSubShapeTypes));
 static constexpr const char *sSubShapeTypeNames[] = { "Sphere", "Box", "Triangle", "Capsule", "TaperedCapsule", "Cylinder", "ConvexHull", "StaticCompound", "MutableCompound", "RotatedTranslated", "Scaled", "OffsetCenterOfMass", "Mesh", "HeightField", "SoftBody", "User1", "User2", "User3", "User4", "User5", "User6", "User7", "User8", "UserConvex1", "UserConvex2", "UserConvex3", "UserConvex4", "UserConvex5", "UserConvex6", "UserConvex7", "UserConvex8", "Plane", "TaperedCylinder", "Empty" };
 static_assert(std::size(sSubShapeTypeNames) == NumSubShapeTypes);
 
+
+class MassProperties {
+public:
+	// Using eigendecomposition, decompose the inertia tensor into a diagonal matrix D and a right-handed rotation matrix R so that the inertia tensor is \f$R \: D \: R^{-1}\f$.
+	// @see https://en.wikipedia.org/wiki/Moment_of_inertia section 'Principal axes'
+	// @param outRotation The rotation matrix R
+	// @param outDiagonal The diagonal of the diagonal matrix D
+	// @return True if successful, false if failed
+	bool DecomposePrincipalMomentsOfInertia(Mat44 &outRotation, Vec3 &outDiagonal) const;
+
+	// Set the mass and inertia of a box with edge size inBoxSize and density inDensity
+	void					SetMassAndInertiaOfSolidBox(Vec3Arg inBoxSize, float inDensity);
+	// Set the mass and scale the inertia tensor to match the mass
+	void					ScaleToMass(float inMass);
+	// Calculates the size of the solid box that has an inertia tensor diagonal inInertiaDiagonal
+	static Vec3				sGetEquivalentSolidBoxSize(float inMass, Vec3Arg inInertiaDiagonal);
+	// Rotate the inertia by 3x3 matrix inRotation
+	void					Rotate(Mat44Arg inRotation);
+	// Translate the inertia by a vector inTranslation
+	void					Translate(Vec3Arg inTranslation);
+	// Scale the mass and inertia by inScale, note that elements can be < 0 to flip the shape
+	void					Scale(Vec3Arg inScale);
+	// Saves the state of this object in binary form to inStream.
+	void					SaveBinaryState(StreamOut &inStream) const;
+	// Restore the state of this object from inStream.
+	void					RestoreBinaryState(StreamIn &inStream);
+	// Mass of the shape (kg)
+	float					mMass = 0.0f;
+	// Inertia tensor of the shape (kg m^2)
+	Mat44					mInertia = Mat44::Zero();
+};
+
 /// Class that can construct shapes and that is serializable using the ObjectStream system.
 /// Can be used to store shape data in 'uncooked' form (i.e. in a form that is still human readable and authorable).
 /// Once the shape has been created using the Create() function, the data will be moved into the Shape class
@@ -470,6 +502,121 @@ private:
 	EShapeSubType					mShapeSubType;
 };
 
+/// Base class for all convex shapes. Defines a virtual interface.
+class MOSS_API ConvexShape : public Shape
+{
+public:
+	MOSS_OVERRIDE_NEW_DELETE
+
+	/// Constructor
+	explicit						ConvexShape(EShapeSubType inSubType) : Shape(EShapeType::Convex, inSubType) { }
+									ConvexShape(EShapeSubType inSubType, const ConvexShapeSettings &inSettings, ShapeResult &outResult) : Shape(EShapeType::Convex, inSubType, inSettings, outResult), mMaterial(inSettings.mMaterial), mDensity(inSettings.mDensity) { }
+									ConvexShape(EShapeSubType inSubType, const PhysicsMaterial *inMaterial) : Shape(EShapeType::Convex, inSubType), mMaterial(inMaterial) { }
+
+	// See Shape::GetSubShapeIDBitsRecursive
+	virtual uint32					GetSubShapeIDBitsRecursive() const override					{ return 0; } // Convex shapes don't have sub shapes
+
+	// See Shape::GetMaterial
+	virtual const PhysicsMaterial *	GetMaterial([[maybe_unused]] const SubShapeID &inSubShapeID) const override	{ MOSS_ASSERT(inSubShapeID.IsEmpty(), "Invalid subshape ID"); return GetMaterial(); }
+
+	// See Shape::CastRay
+	virtual bool					CastRay(const RayCast &inRay, const SubShapeIDCreator &inSubShapeIDCreator, RayCastResult &ioHit) const override;
+	virtual void					CastRay(const RayCast &inRay, const RayCastSettings &inRayCastSettings, const SubShapeIDCreator &inSubShapeIDCreator, CastRayCollector &ioCollector, const ShapeFilter &inShapeFilter = { }) const override;
+
+	// See: Shape::CollidePoint
+	virtual void					CollidePoint(Vec3Arg inPoint, const SubShapeIDCreator &inSubShapeIDCreator, CollidePointCollector &ioCollector, const ShapeFilter &inShapeFilter = { }) const override;
+
+	// See Shape::GetTrianglesStart
+	virtual void					GetTrianglesStart(GetTrianglesContext &ioContext, const AABox &inBox, Vec3Arg inPositionCOM, QuatArg inRotation, Vec3Arg inScale) const override;
+
+	// See Shape::GetTrianglesNext
+	virtual int						GetTrianglesNext(GetTrianglesContext &ioContext, int inMaxTrianglesRequested, Float3 *outTriangleVertices, const PhysicsMaterial **outMaterials = nullptr) const override;
+
+	// See Shape::GetSubmergedVolume
+	virtual void					GetSubmergedVolume(Mat44Arg inCenterOfMassTransform, Vec3Arg inScale, const Plane &inSurface, float &outTotalVolume, float &outSubmergedVolume, Vec3 &outCenterOfBuoyancy MOSS_IF_DEBUG_RENDERER(, RVec3Arg inBaseOffset)) const override;
+
+	/// Function that provides an interface for GJK
+	class Support
+	{
+	public:
+		/// Warning: Virtual destructor will not be called on this object!
+		virtual						~Support() = default;
+
+		/// Calculate the support vector for this convex shape (includes / excludes the convex radius depending on how this was obtained).
+		/// Support vector is relative to the center of mass of the shape.
+		virtual Vec3				GetSupport(Vec3Arg inDirection) const = 0;
+
+		/// Convex radius of shape. Collision detection on penetrating shapes is much more expensive,
+		/// so you can add a radius around objects to increase the shape. This makes it far less likely that they will actually penetrate.
+		virtual float				GetConvexRadius() const = 0;
+	};
+
+	/// Buffer to hold a Support object, used to avoid dynamic memory allocations
+	class alignas(16) SupportBuffer
+	{
+	public:
+		uint8						mData[4160];
+	};
+
+	/// How the GetSupport function should behave
+	enum class ESupportMode
+	{
+		ExcludeConvexRadius,		// Return the shape excluding the convex radius, Support::GetConvexRadius will return the convex radius if there is one, but adding this radius may not result in the most accurate/efficient representation of shapes with sharp edges
+		IncludeConvexRadius,		// Return the shape including the convex radius, Support::GetSupport includes the convex radius if there is one, Support::GetConvexRadius will return 0
+		Default,					// Use both Support::GetSupport add Support::GetConvexRadius to get a support point that matches the original shape as accurately/efficiently as possible
+	};
+
+	/// Returns an object that provides the GetSupport function for this shape.
+	/// inMode determines if this support function includes or excludes the convex radius.
+	/// of the values returned by the GetSupport function. This improves numerical accuracy of the results.
+	/// inScale scales this shape in local space.
+	virtual const Support*			GetSupportFunction(ESupportMode inMode, SupportBuffer &inBuffer, Vec3Arg inScale) const = 0;
+
+	/// Material of the shape
+	void							SetMaterial(const PhysicsMaterial *inMaterial)				{ mMaterial = inMaterial; }
+	const PhysicsMaterial*			GetMaterial() const											{ return mMaterial != nullptr? mMaterial : PhysicsMaterial::Default; }
+
+	/// Set density of the shape (kg / m^3)
+	void							SetDensity(float inDensity)									{ mDensity = inDensity; }
+
+	/// Get density of the shape (kg / m^3)
+	float							GetDensity() const											{ return mDensity; }
+
+#ifndef MOSS_DEBUG_RENDERER
+	// See Shape::DrawGetSupportFunction
+	virtual void					DrawGetSupportFunction(DebugRenderer *inRenderer, RMat44Arg inCenterOfMassTransform, Vec3Arg inScale, ColorArg inColor, bool inDrawSupportDirection) const override;
+
+	// See Shape::DrawGetSupportingFace
+	virtual void					DrawGetSupportingFace(DebugRenderer *inRenderer, RMat44Arg inCenterOfMassTransform, Vec3Arg inScale) const override;
+#endif // MOSS_DEBUG_RENDERER
+
+	// See Shape
+	virtual void					SaveBinaryState(StreamOut &inStream) const override;
+	virtual void					SaveMaterialState(PhysicsMaterialList &outMaterials) const override;
+	virtual void					RestoreMaterialState(const PhysicsMaterialRefC *inMaterials, uint32 inNumMaterials) override;
+
+	// Register shape functions with the registry
+	static void						sRegister();
+
+protected:
+	// See: Shape::RestoreBinaryState
+	virtual void					RestoreBinaryState(StreamIn &inStream) override;
+
+	/// Vertex list that forms a unit sphere
+	static const TStaticArray<Vec3, 384> sUnitSphereTriangles;
+
+private:
+	// Class for GetTrianglesStart/Next
+	class							CSGetTrianglesContext;
+
+	// Helper functions called by CollisionDispatch
+	static void						sCollideConvexVsConvex(const Shape *inShape1, const Shape *inShape2, Vec3Arg inScale1, Vec3Arg inScale2, Mat44Arg inCenterOfMassTransform1, Mat44Arg inCenterOfMassTransform2, const SubShapeIDCreator &inSubShapeIDCreator1, const SubShapeIDCreator &inSubShapeIDCreator2, const CollideShapeSettings &inCollideShapeSettings, CollideShapeCollector &ioCollector, const ShapeFilter &inShapeFilter);
+	static void						sCastConvexVsConvex(const ShapeCast &inShapeCast, const ShapeCastSettings &inShapeCastSettings, const Shape *inShape, Vec3Arg inScale, const ShapeFilter &inShapeFilter, Mat44Arg inCenterOfMassTransform2, const SubShapeIDCreator &inSubShapeIDCreator1, const SubShapeIDCreator &inSubShapeIDCreator2, CastShapeCollector &ioCollector);
+
+	// Properties
+	RefConst<PhysicsMaterial>		mMaterial;													// Material assigned to this shape
+	float							mDensity = 1000.0f;											// Uniform density of the interior of the convex object (kg / m^3)
+};
 
 /// Class that constructs a CapsuleShape
 class MOSS_API CapsuleShapeSettings final : public ConvexShapeSettings {
@@ -849,6 +996,23 @@ private:
 	AABox							mLocalBounds;
 };
 
+// Class that constructs a DecoratedShape
+class MOSS_API DecoratedShapeSettings : public ShapeSettings
+{
+	MOSS_DECLARE_SERIALIZABLE_VIRTUAL(MOSS_API, DecoratedShapeSettings)
+
+public:
+	/// Default constructor for deserialization
+									DecoratedShapeSettings() = default;
+
+	/// Constructor that decorates another shape
+	explicit						DecoratedShapeSettings(const ShapeSettings *inShape)	: mInnerShape(inShape) { }
+	explicit						DecoratedShapeSettings(const Shape *inShape)			: mInnerShapePtr(inShape) { }
+
+	RefConst<ShapeSettings>			mInnerShape;											// Sub shape (either this or mShapePtr needs to be filled up)
+	RefConst<Shape>					mInnerShapePtr;											// Sub shape (either this or mShape needs to be filled up)
+};
+
 // Class that constructs an OffsetCenterOfMassShape
 class MOSS_API OffsetCenterOfMassShapeSettings final : public DecoratedShapeSettings {
 	MOSS_DECLARE_SERIALIZABLE_VIRTUAL(MOSS_API, OffsetCenterOfMassShapeSettings)
@@ -866,23 +1030,6 @@ public:
 	virtual ShapeResult				Create() const override;
 
 	Vec3							mOffset;												// Offset to be applied to the center of mass of the child shape
-};
-
-// Class that constructs a DecoratedShape
-class MOSS_API DecoratedShapeSettings : public ShapeSettings
-{
-	MOSS_DECLARE_SERIALIZABLE_VIRTUAL(MOSS_API, DecoratedShapeSettings)
-
-public:
-	/// Default constructor for deserialization
-									DecoratedShapeSettings() = default;
-
-	/// Constructor that decorates another shape
-	explicit						DecoratedShapeSettings(const ShapeSettings *inShape)	: mInnerShape(inShape) { }
-	explicit						DecoratedShapeSettings(const Shape *inShape)			: mInnerShapePtr(inShape) { }
-
-	RefConst<ShapeSettings>			mInnerShape;											// Sub shape (either this or mShapePtr needs to be filled up)
-	RefConst<Shape>					mInnerShapePtr;											// Sub shape (either this or mShape needs to be filled up)
 };
 
 /// Base class for shapes that decorate another shape with extra functionality (e.g. scale, translation etc.)
@@ -1398,7 +1545,7 @@ private:
 	TArray<uint8>					mMaterialIndices;							// Compressed to the minimum amount of bits per material index (mSampleCount - 1) * (mSampleCount - 1) * mNumBitsPerMaterialIndex bits of data
 	uint32							mNumBitsPerMaterialIndex = 0;				// Number of bits per material index
 
-#ifndef MOSS_DEBUG_RENDERER
+#ifdef MOSS_DEBUG_RENDERER
 	/// Temporary rendering data
 	mutable TArray<DebugRenderer::GeometryRef> mGeometry;
 	mutable bool					mCachedUseMaterialColors = false;			// This is used to regenerate the triangle batch if the drawing settings change
@@ -1414,6 +1561,308 @@ class MOSS_API MutableCompoundShapeSettings final : public CompoundShapeSettings
 public:
 	// See: ShapeSettings
 	virtual ShapeResult				Create() const override;
+};
+
+/// Base class for a compound shape
+class MOSS_API CompoundShape : public Shape {
+public:
+	MOSS_OVERRIDE_NEW_DELETE
+
+	/// Constructor
+	explicit						CompoundShape(EShapeSubType inSubType) : Shape(EShapeType::Compound, inSubType) { }
+									CompoundShape(EShapeSubType inSubType, const ShapeSettings &inSettings, ShapeResult &outResult) : Shape(EShapeType::Compound, inSubType, inSettings, outResult) { }
+
+	// See Shape::GetCenterOfMass
+	virtual Vec3					GetCenterOfMass() const override						{ return mCenterOfMass; }
+
+	// See Shape::MustBeStatic
+	virtual bool					MustBeStatic() const override;
+
+	// See Shape::GetLocalBounds
+	virtual AABox					GetLocalBounds() const override							{ return mLocalBounds; }
+
+	// See Shape::GetSubShapeIDBitsRecursive
+	virtual uint32					GetSubShapeIDBitsRecursive() const override;
+
+	// See Shape::GetWorldSpaceBounds
+	virtual AABox					GetWorldSpaceBounds(Mat44Arg inCenterOfMassTransform, Vec3Arg inScale) const override;
+	using Shape::GetWorldSpaceBounds;
+
+	// See Shape::GetInnerRadius
+	virtual float					GetInnerRadius() const override							{ return mInnerRadius; }
+
+	// See Shape::GetMassProperties
+	virtual MassProperties			GetMassProperties() const override;
+
+	// See Shape::GetMaterial
+	virtual const PhysicsMaterial *	GetMaterial(const SubShapeID &inSubShapeID) const override;
+
+	// See Shape::GetLeafShape
+	virtual const Shape *			GetLeafShape(const SubShapeID &inSubShapeID, SubShapeID &outRemainder) const override;
+
+	// See Shape::GetSubShapeUserData
+	virtual uint64					GetSubShapeUserData(const SubShapeID &inSubShapeID) const override;
+
+	// See Shape::GetSubShapeTransformedShape
+	virtual TransformedShape		GetSubShapeTransformedShape(const SubShapeID &inSubShapeID, Vec3Arg inPositionCOM, QuatArg inRotation, Vec3Arg inScale, SubShapeID &outRemainder) const override;
+
+	// See Shape::GetSurfaceNormal
+	virtual Vec3					GetSurfaceNormal(const SubShapeID &inSubShapeID, Vec3Arg inLocalSurfacePosition) const override;
+
+	// See Shape::GetSupportingFace
+	virtual void					GetSupportingFace(const SubShapeID &inSubShapeID, Vec3Arg inDirection, Vec3Arg inScale, Mat44Arg inCenterOfMassTransform, SupportingFace &outVertices) const override;
+
+	// See Shape::GetSubmergedVolume
+	virtual void					GetSubmergedVolume(Mat44Arg inCenterOfMassTransform, Vec3Arg inScale, const Plane &inSurface, float &outTotalVolume, float &outSubmergedVolume, Vec3 &outCenterOfBuoyancy MOSS_IF_DEBUG_RENDERER(, RVec3Arg inBaseOffset)) const override;
+
+#ifndef MOSS_DEBUG_RENDERER
+	// See Shape::Draw
+	virtual void					Draw(DebugRenderer *inRenderer, RMat44Arg inCenterOfMassTransform, Vec3Arg inScale, ColorArg inColor, bool inUseMaterialColors, bool inDrawWireframe) const override;
+
+	// See Shape::DrawGetSupportFunction
+	virtual void					DrawGetSupportFunction(DebugRenderer *inRenderer, RMat44Arg inCenterOfMassTransform, Vec3Arg inScale, ColorArg inColor, bool inDrawSupportDirection) const override;
+
+	// See Shape::DrawGetSupportingFace
+	virtual void					DrawGetSupportingFace(DebugRenderer *inRenderer, RMat44Arg inCenterOfMassTransform, Vec3Arg inScale) const override;
+#endif // MOSS_DEBUG_RENDERER
+
+	// See: Shape::CollideSoftBodyVertices
+	virtual void					CollideSoftBodyVertices(Mat44Arg inCenterOfMassTransform, Vec3Arg inScale, const CollideSoftBodyVertexIterator &inVertices, uint32 inNumVertices, int inCollidingShapeIndex) const override;
+
+	// See Shape::TransformShape
+	virtual void					TransformShape(Mat44Arg inCenterOfMassTransform, TransformedShapeCollector &ioCollector) const override;
+
+	// See Shape::GetTrianglesStart
+	virtual void					GetTrianglesStart(GetTrianglesContext &ioContext, const AABox &inBox, Vec3Arg inPositionCOM, QuatArg inRotation, Vec3Arg inScale) const override { MOSS_ASSERT(false, "Cannot call on non-leaf shapes, use CollectTransformedShapes to collect the leaves first!"); }
+
+	// See Shape::GetTrianglesNext
+	virtual int						GetTrianglesNext(GetTrianglesContext &ioContext, int inMaxTrianglesRequested, Float3 *outTriangleVertices, const PhysicsMaterial **outMaterials = nullptr) const override { MOSS_ASSERT(false, "Cannot call on non-leaf shapes, use CollectTransformedShapes to collect the leaves first!"); return 0; }
+
+	/// Get which sub shape's bounding boxes overlap with an axis aligned box
+	/// @param inBox The axis aligned box to test against (relative to the center of mass of this shape)
+	/// @param outSubShapeIndices Buffer where to place the indices of the sub shapes that intersect
+	/// @param inMaxSubShapeIndices How many indices will fit in the buffer (normally you'd provide a buffer of GetNumSubShapes() indices)
+	/// @return How many indices were placed in outSubShapeIndices
+	virtual int						GetIntersectingSubShapes(const AABox &inBox, uint32 *outSubShapeIndices, int inMaxSubShapeIndices) const = 0;
+
+	/// Get which sub shape's bounding boxes overlap with an axis aligned box
+	/// @param inBox The axis aligned box to test against (relative to the center of mass of this shape)
+	/// @param outSubShapeIndices Buffer where to place the indices of the sub shapes that intersect
+	/// @param inMaxSubShapeIndices How many indices will fit in the buffer (normally you'd provide a buffer of GetNumSubShapes() indices)
+	/// @return How many indices were placed in outSubShapeIndices
+	virtual int						GetIntersectingSubShapes(const OrientedBox &inBox, uint32 *outSubShapeIndices, int inMaxSubShapeIndices) const = 0;
+
+	struct SubShape
+	{
+		/// Initialize sub shape from sub shape settings
+		/// @param inSettings Settings object
+		/// @param outResult Result object, only used in case of error
+		/// @return True on success, false on failure
+		bool						FromSettings(const CompoundShapeSettings::SubShapeSettings &inSettings, ShapeResult &outResult)
+		{
+			if (inSettings.mShapePtr != nullptr)
+			{
+				// Use provided shape
+				mShape = inSettings.mShapePtr;
+			}
+			else
+			{
+				// Create child shape
+				ShapeResult child_result = inSettings.mShape->Create();
+				if (!child_result.IsValid())
+				{
+					outResult = child_result;
+					return false;
+				}
+				mShape = child_result.Get();
+			}
+
+			// Copy user data
+			mUserData = inSettings.mUserData;
+
+			SetTransform(inSettings.mPosition, inSettings.mRotation, Vec3::Zero() /* Center of mass not yet calculated */);
+			return true;
+		}
+
+		/// Update the transform of this sub shape
+		/// @param inPosition New position
+		/// @param inRotation New orientation
+		/// @param inCenterOfMass The center of mass of the compound shape
+		MOSS_INLINE void				SetTransform(Vec3Arg inPosition, QuatArg inRotation, Vec3Arg inCenterOfMass)
+		{
+			SetPositionCOM(inPosition - inCenterOfMass + inRotation * mShape->GetCenterOfMass());
+
+			mIRotationIdentity = inRotation.IsClose(Quat::Identity()) || inRotation.IsClose(-Quat::Identity());
+			SetRotation(mIRotationIdentity? Quat::Identity() : inRotation);
+		}
+
+		/// Get the local transform for this shape given the scale of the child shape
+		/// The total transform of the child shape will be GetLocalTransformNoScale(inScale) * Mat44::Scaling(TransformScale(inScale))
+		/// @param inScale The scale of the child shape (in local space of this shape)
+		MOSS_INLINE Mat44			GetLocalTransformNoScale(Vec3Arg inScale) const
+		{
+			MOSS_ASSERT(IsValidScale(inScale));
+			return Mat44::RotationTranslation(GetRotation(), inScale * GetPositionCOM());
+		}
+
+		/// Test if inScale is valid for this sub shape
+		inline bool					IsValidScale(Vec3Arg inScale) const
+		{
+			// We can always handle uniform scale or identity rotations
+			if (mIRotationIdentity || ScaleHelpers::IsUniformScale(inScale))
+				return true;
+
+			return ScaleHelpers::CanScaleBeRotated(GetRotation(), inScale);
+		}
+
+		/// Transform the scale to the local space of the child shape
+		inline Vec3					TransformScale(Vec3Arg inScale) const
+		{
+			// We don't need to transform uniform scale or if the rotation is identity
+			if (mIRotationIdentity || ScaleHelpers::IsUniformScale(inScale))
+				return inScale;
+
+			return ScaleHelpers::RotateScale(GetRotation(), inScale);
+		}
+
+		/// Compress the center of mass position
+		MOSS_INLINE void				SetPositionCOM(Vec3Arg inPositionCOM)
+		{
+			inPositionCOM.StoreFloat3(&mPositionCOM);
+		}
+
+		/// Uncompress the center of mass position
+		MOSS_INLINE Vec3				GetPositionCOM() const
+		{
+			return Vec3::LoadFloat3Unsafe(mPositionCOM);
+		}
+
+		/// Compress the rotation
+		MOSS_INLINE void				SetRotation(QuatArg inRotation)
+		{
+			inRotation.StoreFloat3(&mRotation);
+		}
+
+		/// Uncompress the rotation
+		MOSS_INLINE Quat				GetRotation() const
+		{
+			return mIRotationIdentity? Quat::Identity() : Quat::LoadFloat3Unsafe(mRotation);
+		}
+
+		RefConst<Shape>				mShape;
+		Float3						mPositionCOM;											// Note: Position of center of mass of sub shape!
+		Float3						mRotation;												// Note: X, Y, Z of rotation quaternion - note we read 4 bytes beyond this so make sure there's something there
+		uint32						mUserData;												// User data value (put here because it falls in padding bytes)
+		bool						mIRotationIdentity;									// If mRotation is close to identity (put here because it falls in padding bytes)
+		// 3 padding bytes left
+	};
+
+	static_assert(sizeof(SubShape) == (MOSS_CPU_ADDRESS_BITS == 64? 40 : 36), "Compiler added unexpected padding");
+
+	using SubShapes = TArray<SubShape>;
+
+	/// Access to the sub shapes of this compound
+	const SubShapes &				GetSubShapes() const									{ return mSubShapes; }
+
+	/// Get the total number of sub shapes
+	uint32							GetNumSubShapes() const									{ return uint32(mSubShapes.size()); }
+
+	/// Access to a particular sub shape
+	const SubShape &				GetSubShape(uint32 inIdx) const							{ return mSubShapes[inIdx]; }
+
+	/// Get the user data associated with a shape in this compound
+	uint32							GetCompoundUserData(uint32 inIdx) const					{ return mSubShapes[inIdx].mUserData; }
+
+	/// Set the user data associated with a shape in this compound
+	void							SetCompoundUserData(uint32 inIdx, uint32 inUserData)		{ mSubShapes[inIdx].mUserData = inUserData; }
+
+	/// Check if a sub shape ID is still valid for this shape
+	/// @param inSubShapeID Sub shape id that indicates the leaf shape relative to this shape
+	/// @return True if the ID is valid, false if not
+	inline bool						IsSubShapeIDValid(SubShapeID inSubShapeID) const
+	{
+		SubShapeID remainder;
+		return inSubShapeID.PopID(GetSubShapeIDBits(), remainder) < mSubShapes.size();
+	}
+
+	/// Convert SubShapeID to sub shape index
+	/// @param inSubShapeID Sub shape id that indicates the leaf shape relative to this shape
+	/// @param outRemainder This is the sub shape ID for the sub shape of the compound after popping off the index
+	/// @return The index of the sub shape of this compound
+	inline uint32					GetSubShapeIndexFromID(SubShapeID inSubShapeID, SubShapeID &outRemainder) const
+	{
+		uint32 idx = inSubShapeID.PopID(GetSubShapeIDBits(), outRemainder);
+		MOSS_ASSERT(idx < mSubShapes.size(), "Invalid SubShapeID");
+		return idx;
+	}
+
+	/// @brief Convert a sub shape index to a sub shape ID
+	/// @param inIdx Index of the sub shape of this compound
+	/// @param inParentSubShapeID Parent SubShapeID (describing the path to the compound shape)
+	/// @return A sub shape ID creator that contains the full path to the sub shape with index inIdx
+	inline SubShapeIDCreator		GetSubShapeIDFromIndex(int inIdx, const SubShapeIDCreator &inParentSubShapeID) const
+	{
+		return inParentSubShapeID.PushID(inIdx, GetSubShapeIDBits());
+	}
+
+	// See Shape
+	virtual void					SaveBinaryState(StreamOut &inStream) const override;
+	virtual void					SaveSubShapeState(ShapeList &outSubShapes) const override;
+	virtual void					RestoreSubShapeState(const ShapeRefC *inSubShapes, uint32 inNumShapes) override;
+
+	// See Shape::GetStatsRecursive
+	virtual Stats					GetStatsRecursive(VisitedShapes &ioVisitedShapes) const override;
+
+	// See Shape::GetVolume
+	virtual float					GetVolume() const override;
+
+	// See Shape::IsValidScale
+	virtual bool					IsValidScale(Vec3Arg inScale) const override;
+
+	// See Shape::MakeScaleValid
+	virtual Vec3					MakeScaleValid(Vec3Arg inScale) const override;
+
+	// Register shape functions with the registry
+	static void						sRegister();
+
+protected:
+	// See: Shape::RestoreBinaryState
+	virtual void					RestoreBinaryState(StreamIn &inStream) override;
+
+	// Visitors for collision detection
+	struct CastRayVisitor;
+	struct CastRayVisitorCollector;
+	struct CollidePointVisitor;
+	struct CastShapeVisitor;
+	struct CollectTransformedShapesVisitor;
+	struct CollideCompoundVsShapeVisitor;
+	struct CollideShapeVsCompoundVisitor;
+	template <class BoxType> struct GetIntersectingSubShapesVisitor;
+
+	/// Determine amount of bits needed to encode sub shape id
+	inline uint32						GetSubShapeIDBits() const
+	{
+		// Ensure we have enough bits to encode our shape [0, n - 1]
+		uint32 n = uint32(mSubShapes.size()) - 1;
+		return 32 - CountLeadingZeros(n);
+	}
+
+	/// Determine the inner radius of this shape
+	inline void						CalculateInnerRadius()
+	{
+		mInnerRadius = FLT_MAX;
+		for (const SubShape &s : mSubShapes)
+			mInnerRadius = min(mInnerRadius, s.mShape->GetInnerRadius());
+	}
+
+	Vec3							mCenterOfMass { Vec3::Zero() };						// Center of mass of the compound
+	AABox							mLocalBounds { Vec3::Zero(), Vec3::Zero() };
+	SubShapes						mSubShapes;
+	float							mInnerRadius = FLT_MAX;									// Smallest radius of GetInnerRadius() of child shapes
+
+private:
+	// Helper functions called by CollisionDispatch
+	static void						sCastCompoundVsShape(const ShapeCast &inShapeCast, const ShapeCastSettings &inShapeCastSettings, const Shape *inShape, Vec3Arg inScale, const ShapeFilter &inShapeFilter, Mat44Arg inCenterOfMassTransform2, const SubShapeIDCreator &inSubShapeIDCreator1, const SubShapeIDCreator &inSubShapeIDCreator2, CastShapeCollector &ioCollector);
 };
 
 /// A compound shape, sub shapes can be rotated and translated.
@@ -1778,142 +2227,6 @@ private:
 #endif // MOSS_DEBUG_RENDERER
 };
 
-
-/// Class that constructs a ConvexShape (abstract)
-class MOSS_API ConvexShapeSettings : public ShapeSettings
-{
-	MOSS_DECLARE_SERIALIZABLE_ABSTRACT(MOSS_API, ConvexShapeSettings)
-
-public:
-	/// Constructor
-									ConvexShapeSettings() = default;
-	explicit						ConvexShapeSettings(const PhysicsMaterial *inMaterial)		: mMaterial(inMaterial) { }
-
-	/// Set the density of the object in kg / m^3
-	void							SetDensity(float inDensity)									{ mDensity = inDensity; }
-
-	// Properties
-	RefConst<PhysicsMaterial>		mMaterial;													// Material assigned to this shape
-	float							mDensity = 1000.0f;											// Uniform density of the interior of the convex object (kg / m^3)
-};
-
-/// Base class for all convex shapes. Defines a virtual interface.
-class MOSS_API ConvexShape : public Shape
-{
-public:
-	MOSS_OVERRIDE_NEW_DELETE
-
-	/// Constructor
-	explicit						ConvexShape(EShapeSubType inSubType) : Shape(EShapeType::Convex, inSubType) { }
-									ConvexShape(EShapeSubType inSubType, const ConvexShapeSettings &inSettings, ShapeResult &outResult) : Shape(EShapeType::Convex, inSubType, inSettings, outResult), mMaterial(inSettings.mMaterial), mDensity(inSettings.mDensity) { }
-									ConvexShape(EShapeSubType inSubType, const PhysicsMaterial *inMaterial) : Shape(EShapeType::Convex, inSubType), mMaterial(inMaterial) { }
-
-	// See Shape::GetSubShapeIDBitsRecursive
-	virtual uint32					GetSubShapeIDBitsRecursive() const override					{ return 0; } // Convex shapes don't have sub shapes
-
-	// See Shape::GetMaterial
-	virtual const PhysicsMaterial *	GetMaterial([[maybe_unused]] const SubShapeID &inSubShapeID) const override	{ MOSS_ASSERT(inSubShapeID.IsEmpty(), "Invalid subshape ID"); return GetMaterial(); }
-
-	// See Shape::CastRay
-	virtual bool					CastRay(const RayCast &inRay, const SubShapeIDCreator &inSubShapeIDCreator, RayCastResult &ioHit) const override;
-	virtual void					CastRay(const RayCast &inRay, const RayCastSettings &inRayCastSettings, const SubShapeIDCreator &inSubShapeIDCreator, CastRayCollector &ioCollector, const ShapeFilter &inShapeFilter = { }) const override;
-
-	// See: Shape::CollidePoint
-	virtual void					CollidePoint(Vec3Arg inPoint, const SubShapeIDCreator &inSubShapeIDCreator, CollidePointCollector &ioCollector, const ShapeFilter &inShapeFilter = { }) const override;
-
-	// See Shape::GetTrianglesStart
-	virtual void					GetTrianglesStart(GetTrianglesContext &ioContext, const AABox &inBox, Vec3Arg inPositionCOM, QuatArg inRotation, Vec3Arg inScale) const override;
-
-	// See Shape::GetTrianglesNext
-	virtual int						GetTrianglesNext(GetTrianglesContext &ioContext, int inMaxTrianglesRequested, Float3 *outTriangleVertices, const PhysicsMaterial **outMaterials = nullptr) const override;
-
-	// See Shape::GetSubmergedVolume
-	virtual void					GetSubmergedVolume(Mat44Arg inCenterOfMassTransform, Vec3Arg inScale, const Plane &inSurface, float &outTotalVolume, float &outSubmergedVolume, Vec3 &outCenterOfBuoyancy MOSS_IF_DEBUG_RENDERER(, RVec3Arg inBaseOffset)) const override;
-
-	/// Function that provides an interface for GJK
-	class Support
-	{
-	public:
-		/// Warning: Virtual destructor will not be called on this object!
-		virtual						~Support() = default;
-
-		/// Calculate the support vector for this convex shape (includes / excludes the convex radius depending on how this was obtained).
-		/// Support vector is relative to the center of mass of the shape.
-		virtual Vec3				GetSupport(Vec3Arg inDirection) const = 0;
-
-		/// Convex radius of shape. Collision detection on penetrating shapes is much more expensive,
-		/// so you can add a radius around objects to increase the shape. This makes it far less likely that they will actually penetrate.
-		virtual float				GetConvexRadius() const = 0;
-	};
-
-	/// Buffer to hold a Support object, used to avoid dynamic memory allocations
-	class alignas(16) SupportBuffer
-	{
-	public:
-		uint8						mData[4160];
-	};
-
-	/// How the GetSupport function should behave
-	enum class ESupportMode
-	{
-		ExcludeConvexRadius,		// Return the shape excluding the convex radius, Support::GetConvexRadius will return the convex radius if there is one, but adding this radius may not result in the most accurate/efficient representation of shapes with sharp edges
-		IncludeConvexRadius,		// Return the shape including the convex radius, Support::GetSupport includes the convex radius if there is one, Support::GetConvexRadius will return 0
-		Default,					// Use both Support::GetSupport add Support::GetConvexRadius to get a support point that matches the original shape as accurately/efficiently as possible
-	};
-
-	/// Returns an object that provides the GetSupport function for this shape.
-	/// inMode determines if this support function includes or excludes the convex radius.
-	/// of the values returned by the GetSupport function. This improves numerical accuracy of the results.
-	/// inScale scales this shape in local space.
-	virtual const Support*			GetSupportFunction(ESupportMode inMode, SupportBuffer &inBuffer, Vec3Arg inScale) const = 0;
-
-	/// Material of the shape
-	void							SetMaterial(const PhysicsMaterial *inMaterial)				{ mMaterial = inMaterial; }
-	const PhysicsMaterial*			GetMaterial() const											{ return mMaterial != nullptr? mMaterial : PhysicsMaterial::Default; }
-
-	/// Set density of the shape (kg / m^3)
-	void							SetDensity(float inDensity)									{ mDensity = inDensity; }
-
-	/// Get density of the shape (kg / m^3)
-	float							GetDensity() const											{ return mDensity; }
-
-#ifndef MOSS_DEBUG_RENDERER
-	// See Shape::DrawGetSupportFunction
-	virtual void					DrawGetSupportFunction(DebugRenderer *inRenderer, RMat44Arg inCenterOfMassTransform, Vec3Arg inScale, ColorArg inColor, bool inDrawSupportDirection) const override;
-
-	// See Shape::DrawGetSupportingFace
-	virtual void					DrawGetSupportingFace(DebugRenderer *inRenderer, RMat44Arg inCenterOfMassTransform, Vec3Arg inScale) const override;
-#endif // MOSS_DEBUG_RENDERER
-
-	// See Shape
-	virtual void					SaveBinaryState(StreamOut &inStream) const override;
-	virtual void					SaveMaterialState(PhysicsMaterialList &outMaterials) const override;
-	virtual void					RestoreMaterialState(const PhysicsMaterialRefC *inMaterials, uint32 inNumMaterials) override;
-
-	// Register shape functions with the registry
-	static void						sRegister();
-
-protected:
-	// See: Shape::RestoreBinaryState
-	virtual void					RestoreBinaryState(StreamIn &inStream) override;
-
-	/// Vertex list that forms a unit sphere
-	static const TStaticArray<Vec3, 384> sUnitSphereTriangles;
-
-private:
-	// Class for GetTrianglesStart/Next
-	class							CSGetTrianglesContext;
-
-	// Helper functions called by CollisionDispatch
-	static void						sCollideConvexVsConvex(const Shape *inShape1, const Shape *inShape2, Vec3Arg inScale1, Vec3Arg inScale2, Mat44Arg inCenterOfMassTransform1, Mat44Arg inCenterOfMassTransform2, const SubShapeIDCreator &inSubShapeIDCreator1, const SubShapeIDCreator &inSubShapeIDCreator2, const CollideShapeSettings &inCollideShapeSettings, CollideShapeCollector &ioCollector, const ShapeFilter &inShapeFilter);
-	static void						sCastConvexVsConvex(const ShapeCast &inShapeCast, const ShapeCastSettings &inShapeCastSettings, const Shape *inShape, Vec3Arg inScale, const ShapeFilter &inShapeFilter, Mat44Arg inCenterOfMassTransform2, const SubShapeIDCreator &inSubShapeIDCreator1, const SubShapeIDCreator &inSubShapeIDCreator2, CastShapeCollector &ioCollector);
-
-	// Properties
-	RefConst<PhysicsMaterial>		mMaterial;													// Material assigned to this shape
-	float							mDensity = 1000.0f;											// Uniform density of the interior of the convex object (kg / m^3)
-};
-
-
 // Class that constructs a StaticCompoundShape. Note that if you only want a compound of 1 shape, use a RotatedTranslatedShape instead.
 class MOSS_API StaticCompoundShapeSettings final : public CompoundShapeSettings
 {
@@ -2237,309 +2550,6 @@ public:
 	using SubShapes = TArray<SubShapeSettings>;
 
 	SubShapes						mSubShapes;
-};
-
-/// Base class for a compound shape
-class MOSS_API CompoundShape : public Shape
-{
-public:
-	MOSS_OVERRIDE_NEW_DELETE
-
-	/// Constructor
-	explicit						CompoundShape(EShapeSubType inSubType) : Shape(EShapeType::Compound, inSubType) { }
-									CompoundShape(EShapeSubType inSubType, const ShapeSettings &inSettings, ShapeResult &outResult) : Shape(EShapeType::Compound, inSubType, inSettings, outResult) { }
-
-	// See Shape::GetCenterOfMass
-	virtual Vec3					GetCenterOfMass() const override						{ return mCenterOfMass; }
-
-	// See Shape::MustBeStatic
-	virtual bool					MustBeStatic() const override;
-
-	// See Shape::GetLocalBounds
-	virtual AABox					GetLocalBounds() const override							{ return mLocalBounds; }
-
-	// See Shape::GetSubShapeIDBitsRecursive
-	virtual uint32					GetSubShapeIDBitsRecursive() const override;
-
-	// See Shape::GetWorldSpaceBounds
-	virtual AABox					GetWorldSpaceBounds(Mat44Arg inCenterOfMassTransform, Vec3Arg inScale) const override;
-	using Shape::GetWorldSpaceBounds;
-
-	// See Shape::GetInnerRadius
-	virtual float					GetInnerRadius() const override							{ return mInnerRadius; }
-
-	// See Shape::GetMassProperties
-	virtual MassProperties			GetMassProperties() const override;
-
-	// See Shape::GetMaterial
-	virtual const PhysicsMaterial *	GetMaterial(const SubShapeID &inSubShapeID) const override;
-
-	// See Shape::GetLeafShape
-	virtual const Shape *			GetLeafShape(const SubShapeID &inSubShapeID, SubShapeID &outRemainder) const override;
-
-	// See Shape::GetSubShapeUserData
-	virtual uint64					GetSubShapeUserData(const SubShapeID &inSubShapeID) const override;
-
-	// See Shape::GetSubShapeTransformedShape
-	virtual TransformedShape		GetSubShapeTransformedShape(const SubShapeID &inSubShapeID, Vec3Arg inPositionCOM, QuatArg inRotation, Vec3Arg inScale, SubShapeID &outRemainder) const override;
-
-	// See Shape::GetSurfaceNormal
-	virtual Vec3					GetSurfaceNormal(const SubShapeID &inSubShapeID, Vec3Arg inLocalSurfacePosition) const override;
-
-	// See Shape::GetSupportingFace
-	virtual void					GetSupportingFace(const SubShapeID &inSubShapeID, Vec3Arg inDirection, Vec3Arg inScale, Mat44Arg inCenterOfMassTransform, SupportingFace &outVertices) const override;
-
-	// See Shape::GetSubmergedVolume
-	virtual void					GetSubmergedVolume(Mat44Arg inCenterOfMassTransform, Vec3Arg inScale, const Plane &inSurface, float &outTotalVolume, float &outSubmergedVolume, Vec3 &outCenterOfBuoyancy MOSS_IF_DEBUG_RENDERER(, RVec3Arg inBaseOffset)) const override;
-
-#ifndef MOSS_DEBUG_RENDERER
-	// See Shape::Draw
-	virtual void					Draw(DebugRenderer *inRenderer, RMat44Arg inCenterOfMassTransform, Vec3Arg inScale, ColorArg inColor, bool inUseMaterialColors, bool inDrawWireframe) const override;
-
-	// See Shape::DrawGetSupportFunction
-	virtual void					DrawGetSupportFunction(DebugRenderer *inRenderer, RMat44Arg inCenterOfMassTransform, Vec3Arg inScale, ColorArg inColor, bool inDrawSupportDirection) const override;
-
-	// See Shape::DrawGetSupportingFace
-	virtual void					DrawGetSupportingFace(DebugRenderer *inRenderer, RMat44Arg inCenterOfMassTransform, Vec3Arg inScale) const override;
-#endif // MOSS_DEBUG_RENDERER
-
-	// See: Shape::CollideSoftBodyVertices
-	virtual void					CollideSoftBodyVertices(Mat44Arg inCenterOfMassTransform, Vec3Arg inScale, const CollideSoftBodyVertexIterator &inVertices, uint32 inNumVertices, int inCollidingShapeIndex) const override;
-
-	// See Shape::TransformShape
-	virtual void					TransformShape(Mat44Arg inCenterOfMassTransform, TransformedShapeCollector &ioCollector) const override;
-
-	// See Shape::GetTrianglesStart
-	virtual void					GetTrianglesStart(GetTrianglesContext &ioContext, const AABox &inBox, Vec3Arg inPositionCOM, QuatArg inRotation, Vec3Arg inScale) const override { MOSS_ASSERT(false, "Cannot call on non-leaf shapes, use CollectTransformedShapes to collect the leaves first!"); }
-
-	// See Shape::GetTrianglesNext
-	virtual int						GetTrianglesNext(GetTrianglesContext &ioContext, int inMaxTrianglesRequested, Float3 *outTriangleVertices, const PhysicsMaterial **outMaterials = nullptr) const override { MOSS_ASSERT(false, "Cannot call on non-leaf shapes, use CollectTransformedShapes to collect the leaves first!"); return 0; }
-
-	/// Get which sub shape's bounding boxes overlap with an axis aligned box
-	/// @param inBox The axis aligned box to test against (relative to the center of mass of this shape)
-	/// @param outSubShapeIndices Buffer where to place the indices of the sub shapes that intersect
-	/// @param inMaxSubShapeIndices How many indices will fit in the buffer (normally you'd provide a buffer of GetNumSubShapes() indices)
-	/// @return How many indices were placed in outSubShapeIndices
-	virtual int						GetIntersectingSubShapes(const AABox &inBox, uint32 *outSubShapeIndices, int inMaxSubShapeIndices) const = 0;
-
-	/// Get which sub shape's bounding boxes overlap with an axis aligned box
-	/// @param inBox The axis aligned box to test against (relative to the center of mass of this shape)
-	/// @param outSubShapeIndices Buffer where to place the indices of the sub shapes that intersect
-	/// @param inMaxSubShapeIndices How many indices will fit in the buffer (normally you'd provide a buffer of GetNumSubShapes() indices)
-	/// @return How many indices were placed in outSubShapeIndices
-	virtual int						GetIntersectingSubShapes(const OrientedBox &inBox, uint32 *outSubShapeIndices, int inMaxSubShapeIndices) const = 0;
-
-	struct SubShape
-	{
-		/// Initialize sub shape from sub shape settings
-		/// @param inSettings Settings object
-		/// @param outResult Result object, only used in case of error
-		/// @return True on success, false on failure
-		bool						FromSettings(const CompoundShapeSettings::SubShapeSettings &inSettings, ShapeResult &outResult)
-		{
-			if (inSettings.mShapePtr != nullptr)
-			{
-				// Use provided shape
-				mShape = inSettings.mShapePtr;
-			}
-			else
-			{
-				// Create child shape
-				ShapeResult child_result = inSettings.mShape->Create();
-				if (!child_result.IsValid())
-				{
-					outResult = child_result;
-					return false;
-				}
-				mShape = child_result.Get();
-			}
-
-			// Copy user data
-			mUserData = inSettings.mUserData;
-
-			SetTransform(inSettings.mPosition, inSettings.mRotation, Vec3::Zero() /* Center of mass not yet calculated */);
-			return true;
-		}
-
-		/// Update the transform of this sub shape
-		/// @param inPosition New position
-		/// @param inRotation New orientation
-		/// @param inCenterOfMass The center of mass of the compound shape
-		MOSS_INLINE void				SetTransform(Vec3Arg inPosition, QuatArg inRotation, Vec3Arg inCenterOfMass)
-		{
-			SetPositionCOM(inPosition - inCenterOfMass + inRotation * mShape->GetCenterOfMass());
-
-			mIRotationIdentity = inRotation.IsClose(Quat::Identity()) || inRotation.IsClose(-Quat::Identity());
-			SetRotation(mIRotationIdentity? Quat::Identity() : inRotation);
-		}
-
-		/// Get the local transform for this shape given the scale of the child shape
-		/// The total transform of the child shape will be GetLocalTransformNoScale(inScale) * Mat44::Scaling(TransformScale(inScale))
-		/// @param inScale The scale of the child shape (in local space of this shape)
-		MOSS_INLINE Mat44			GetLocalTransformNoScale(Vec3Arg inScale) const
-		{
-			MOSS_ASSERT(IsValidScale(inScale));
-			return Mat44::RotationTranslation(GetRotation(), inScale * GetPositionCOM());
-		}
-
-		/// Test if inScale is valid for this sub shape
-		inline bool					IsValidScale(Vec3Arg inScale) const
-		{
-			// We can always handle uniform scale or identity rotations
-			if (mIRotationIdentity || ScaleHelpers::IsUniformScale(inScale))
-				return true;
-
-			return ScaleHelpers::CanScaleBeRotated(GetRotation(), inScale);
-		}
-
-		/// Transform the scale to the local space of the child shape
-		inline Vec3					TransformScale(Vec3Arg inScale) const
-		{
-			// We don't need to transform uniform scale or if the rotation is identity
-			if (mIRotationIdentity || ScaleHelpers::IsUniformScale(inScale))
-				return inScale;
-
-			return ScaleHelpers::RotateScale(GetRotation(), inScale);
-		}
-
-		/// Compress the center of mass position
-		MOSS_INLINE void				SetPositionCOM(Vec3Arg inPositionCOM)
-		{
-			inPositionCOM.StoreFloat3(&mPositionCOM);
-		}
-
-		/// Uncompress the center of mass position
-		MOSS_INLINE Vec3				GetPositionCOM() const
-		{
-			return Vec3::LoadFloat3Unsafe(mPositionCOM);
-		}
-
-		/// Compress the rotation
-		MOSS_INLINE void				SetRotation(QuatArg inRotation)
-		{
-			inRotation.StoreFloat3(&mRotation);
-		}
-
-		/// Uncompress the rotation
-		MOSS_INLINE Quat				GetRotation() const
-		{
-			return mIRotationIdentity? Quat::Identity() : Quat::LoadFloat3Unsafe(mRotation);
-		}
-
-		RefConst<Shape>				mShape;
-		Float3						mPositionCOM;											// Note: Position of center of mass of sub shape!
-		Float3						mRotation;												// Note: X, Y, Z of rotation quaternion - note we read 4 bytes beyond this so make sure there's something there
-		uint32						mUserData;												// User data value (put here because it falls in padding bytes)
-		bool						mIRotationIdentity;									// If mRotation is close to identity (put here because it falls in padding bytes)
-		// 3 padding bytes left
-	};
-
-	static_assert(sizeof(SubShape) == (MOSS_CPU_ADDRESS_BITS == 64? 40 : 36), "Compiler added unexpected padding");
-
-	using SubShapes = TArray<SubShape>;
-
-	/// Access to the sub shapes of this compound
-	const SubShapes &				GetSubShapes() const									{ return mSubShapes; }
-
-	/// Get the total number of sub shapes
-	uint32							GetNumSubShapes() const									{ return uint32(mSubShapes.size()); }
-
-	/// Access to a particular sub shape
-	const SubShape &				GetSubShape(uint32 inIdx) const							{ return mSubShapes[inIdx]; }
-
-	/// Get the user data associated with a shape in this compound
-	uint32							GetCompoundUserData(uint32 inIdx) const					{ return mSubShapes[inIdx].mUserData; }
-
-	/// Set the user data associated with a shape in this compound
-	void							SetCompoundUserData(uint32 inIdx, uint32 inUserData)		{ mSubShapes[inIdx].mUserData = inUserData; }
-
-	/// Check if a sub shape ID is still valid for this shape
-	/// @param inSubShapeID Sub shape id that indicates the leaf shape relative to this shape
-	/// @return True if the ID is valid, false if not
-	inline bool						IsSubShapeIDValid(SubShapeID inSubShapeID) const
-	{
-		SubShapeID remainder;
-		return inSubShapeID.PopID(GetSubShapeIDBits(), remainder) < mSubShapes.size();
-	}
-
-	/// Convert SubShapeID to sub shape index
-	/// @param inSubShapeID Sub shape id that indicates the leaf shape relative to this shape
-	/// @param outRemainder This is the sub shape ID for the sub shape of the compound after popping off the index
-	/// @return The index of the sub shape of this compound
-	inline uint32					GetSubShapeIndexFromID(SubShapeID inSubShapeID, SubShapeID &outRemainder) const
-	{
-		uint32 idx = inSubShapeID.PopID(GetSubShapeIDBits(), outRemainder);
-		MOSS_ASSERT(idx < mSubShapes.size(), "Invalid SubShapeID");
-		return idx;
-	}
-
-	/// @brief Convert a sub shape index to a sub shape ID
-	/// @param inIdx Index of the sub shape of this compound
-	/// @param inParentSubShapeID Parent SubShapeID (describing the path to the compound shape)
-	/// @return A sub shape ID creator that contains the full path to the sub shape with index inIdx
-	inline SubShapeIDCreator		GetSubShapeIDFromIndex(int inIdx, const SubShapeIDCreator &inParentSubShapeID) const
-	{
-		return inParentSubShapeID.PushID(inIdx, GetSubShapeIDBits());
-	}
-
-	// See Shape
-	virtual void					SaveBinaryState(StreamOut &inStream) const override;
-	virtual void					SaveSubShapeState(ShapeList &outSubShapes) const override;
-	virtual void					RestoreSubShapeState(const ShapeRefC *inSubShapes, uint32 inNumShapes) override;
-
-	// See Shape::GetStatsRecursive
-	virtual Stats					GetStatsRecursive(VisitedShapes &ioVisitedShapes) const override;
-
-	// See Shape::GetVolume
-	virtual float					GetVolume() const override;
-
-	// See Shape::IsValidScale
-	virtual bool					IsValidScale(Vec3Arg inScale) const override;
-
-	// See Shape::MakeScaleValid
-	virtual Vec3					MakeScaleValid(Vec3Arg inScale) const override;
-
-	// Register shape functions with the registry
-	static void						sRegister();
-
-protected:
-	// See: Shape::RestoreBinaryState
-	virtual void					RestoreBinaryState(StreamIn &inStream) override;
-
-	// Visitors for collision detection
-	struct CastRayVisitor;
-	struct CastRayVisitorCollector;
-	struct CollidePointVisitor;
-	struct CastShapeVisitor;
-	struct CollectTransformedShapesVisitor;
-	struct CollideCompoundVsShapeVisitor;
-	struct CollideShapeVsCompoundVisitor;
-	template <class BoxType> struct GetIntersectingSubShapesVisitor;
-
-	/// Determine amount of bits needed to encode sub shape id
-	inline uint32						GetSubShapeIDBits() const
-	{
-		// Ensure we have enough bits to encode our shape [0, n - 1]
-		uint32 n = uint32(mSubShapes.size()) - 1;
-		return 32 - CountLeadingZeros(n);
-	}
-
-	/// Determine the inner radius of this shape
-	inline void						CalculateInnerRadius()
-	{
-		mInnerRadius = FLT_MAX;
-		for (const SubShape &s : mSubShapes)
-			mInnerRadius = min(mInnerRadius, s.mShape->GetInnerRadius());
-	}
-
-	Vec3							mCenterOfMass { Vec3::Zero() };						// Center of mass of the compound
-	AABox							mLocalBounds { Vec3::Zero(), Vec3::Zero() };
-	SubShapes						mSubShapes;
-	float							mInnerRadius = FLT_MAX;									// Smallest radius of GetInnerRadius() of child shapes
-
-private:
-	// Helper functions called by CollisionDispatch
-	static void						sCastCompoundVsShape(const ShapeCast &inShapeCast, const ShapeCastSettings &inShapeCastSettings, const Shape *inShape, Vec3Arg inScale, const ShapeFilter &inShapeFilter, Mat44Arg inCenterOfMassTransform2, const SubShapeIDCreator &inSubShapeIDCreator1, const SubShapeIDCreator &inSubShapeIDCreator2, CastShapeCollector &ioCollector);
 };
 
 // Class that constructs a RotatedTranslatedShape
@@ -3262,6 +3272,23 @@ private:
 
 
 
+/// Class that constructs a ConvexShape (abstract)
+class MOSS_API ConvexShapeSettings : public ShapeSettings
+{
+	MOSS_DECLARE_SERIALIZABLE_ABSTRACT(MOSS_API, ConvexShapeSettings)
+
+public:
+	/// Constructor
+									ConvexShapeSettings() = default;
+	explicit						ConvexShapeSettings(const PhysicsMaterial *inMaterial)		: mMaterial(inMaterial) { }
+
+	/// Set the density of the object in kg / m^3
+	void							SetDensity(float inDensity)									{ mDensity = inDensity; }
+
+	// Properties
+	RefConst<PhysicsMaterial>		mMaterial;													// Material assigned to this shape
+	float							mDensity = 1000.0f;											// Uniform density of the interior of the convex object (kg / m^3)
+};
 
 /// Class that constructs a TaperedCylinderShape
 class MOSS_API TaperedCylinderShapeSettings final : public ConvexShapeSettings
