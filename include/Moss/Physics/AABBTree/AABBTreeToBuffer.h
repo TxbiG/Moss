@@ -6,7 +6,7 @@
 
 #include <Moss/Physics/AABBTree/AABBTreeBuilder.h>
 #include <Moss/Core/ByteBuffer.h>
-#include <Moss/Physics/Geometry/IndexedTriangle.h>
+#include <Moss/Geometry/Triangle.h>
 
 MOSS_SUPPRESS_WARNINGS_BEGIN
 

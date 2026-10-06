@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include <Moss/Physics/Geometry/ClosestPoint.h>
+#include <Moss/Geometry/ClosestPoint.h>
 
 MOSS_SUPPRESS_WARNINGS_END
 

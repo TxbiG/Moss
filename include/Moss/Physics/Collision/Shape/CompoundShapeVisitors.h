@@ -11,8 +11,7 @@
 #include <Moss/Physics/Collision/ShapeCast.h>
 #include <Moss/Physics/Collision/TransformedShape.h>
 #include <Moss/Physics/Collision/CollisionDispatch.h>
-#include <Moss/Physics/Geometry/RayAABox.h>
-#include <Moss/Physics/Geometry/AABox4.h>
+#include <Moss/Geometry/RayCylinder.h>
 #include <Moss/Physics/Geometry/OrientedBox.h>
 
 MOSS_SUPPRESS_WARNINGS_END

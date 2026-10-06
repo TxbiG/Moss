@@ -5,8 +5,8 @@
 #pragma once
 
 #include <Moss/Core/NonCopyable.h>
-#include <Moss/Physics/Geometry/ClosestPoint.h>
-#include <Moss/Physics/Geometry/ConvexSupport.h>
+#include <Moss/Geometry/ClosestPoint.h>
+#include <Moss/Geometry/ConvexSupport.h>
 
 //#define MOSS_GJK_DEBUG
 #ifdef MOSS_GJK_DEBUG

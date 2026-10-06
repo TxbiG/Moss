@@ -18,7 +18,7 @@
 #include <Moss/Variants/TMap.h>
 #include <Moss/Core/NonCopyable.h>
 #include <Moss/Variants/Vector/Float2.h>
-#include <Moss/Physics/Geometry/IndexedTriangle.h>
+#include <Moss/Geometry/Triangle.h>
 #include <Moss/Variants/AABB3.h>
 
 MOSS_SUPPRESS_WARNINGS_BEGIN

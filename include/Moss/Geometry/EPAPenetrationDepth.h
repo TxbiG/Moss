@@ -6,8 +6,8 @@
 
 #include <Moss/Variants/TStaticArray.h>
 #include <Moss/Core/Profiler.h>
-#include <Moss/Physics/Geometry/GJKClosestPoint.h>
-#include <Moss/Physics/Geometry/EPAConvexHullBuilder.h>
+#include <Moss/Geometry/GJKClosestPoint.h>
+#include <Moss/Geometry/EPAConvexHullBuilder.h>
 
 //#define MOSS_EPA_PENETRATION_DEPTH_DEBUG
 

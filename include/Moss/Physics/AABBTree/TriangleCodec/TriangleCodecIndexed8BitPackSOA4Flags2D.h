@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include <Moss/Physics/Geometry/RayTriangle.h>
+#include <Moss/Geometry/RayCylinder.h>
 
 MOSS_SUPPRESS_WARNINGS_BEGIN
 
