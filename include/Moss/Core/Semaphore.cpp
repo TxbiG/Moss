@@ -3,6 +3,7 @@
 // SPDX-License-Identifier: MIT
 
 #include <Moss/Core/Semaphore.h>
+#include <cstdlib>
 
 #ifdef MOSS_PLATFORM_WINDOWS
 	MOSS_SUPPRESS_WARNING_PUSH

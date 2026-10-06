@@ -6,6 +6,7 @@
 
 #include <Moss/Core/NonCopyable.h>
 #include <Moss/Variants/Math/Real.h>
+#include <cstdlib>
 
 MOSS_SUPPRESS_WARNINGS_BEGIN
 

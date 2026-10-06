@@ -13,6 +13,7 @@
 #include <Moss/Physics/Collision/ObjectLayer.h>
 #include <Moss/Physics/Collision/PhysicsMaterial.h>
 #include <Moss/Physics/Collision/Shape/Shapes.h>
+#include <Moss/Physics/Body/BodyID.h>
 
 MOSS_SUPPRESS_WARNINGS_END
 

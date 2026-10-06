@@ -21,7 +21,7 @@
 #include <Moss/Physics/Collision/PhysicsMaterial.h>
 #include <Moss/Physics/Collision/Shape/SubShapeID.h>
 #include <Moss/Physics/Collision/ShapeFilter.h>
-#include <Moss/Physics/PhysicsSystem.h>
+#include <Moss/Physics/Body/BodyID.h>
 
 MOSS_SUPPRESS_WARNINGS_BEGIN
 

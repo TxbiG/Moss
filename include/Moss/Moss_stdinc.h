@@ -841,19 +841,19 @@ MOSS_API extern AlignedFreeFunction AlignedFree;
 MOSS_API void RegisterDefaultAllocator();
 
 // Macro to override the new and delete functions
-#define MOSS_OVERRIDE_NEW_DELETE 																																		\
-	MOSS_INLINE void *operator new (size_t inCount)												{ return ::Allocate(inCount); } 											\
-	MOSS_INLINE void operator delete (void *inPointer) noexcept									{ ::Free(inPointer); } 													\
-	MOSS_INLINE void *operator new[] (size_t inCount)											{ return Allocate(inCount); } 											\
-	MOSS_INLINE void operator delete[] (void *inPointer) noexcept								{ Free(inPointer); } 													\
-	MOSS_INLINE void *operator new (size_t inCount, std::align_val_t inAlignment)				{ return AlignedAllocate(inCount, static_cast<size_t>(inAlignment)); } 	\
-	MOSS_INLINE void operator delete (void *inPointer, [[maybe_unused]] std::align_val_t inAlignment) noexcept	{ AlignedFree(inPointer); } 							\
-	MOSS_INLINE void *operator new[] (size_t inCount, std::align_val_t inAlignment)				{ return AlignedAllocate(inCount, static_cast<size_t>(inAlignment)); } 	\
-	MOSS_INLINE void operator delete[] (void *inPointer, [[maybe_unused]] std::align_val_t inAlignment) noexcept	{ AlignedFree(inPointer); } 						\
-	MOSS_INLINE void *operator new ([[maybe_unused]] size_t inCount, void *inPointer) noexcept	{ return inPointer; } 													\
-	MOSS_INLINE void operator delete ([[maybe_unused]] void *inPointer, [[maybe_unused]] void *inPlace) noexcept { /* Do nothing */ } 									\
-	MOSS_INLINE void *operator new[] ([[maybe_unused]] size_t inCount, void *inPointer) noexcept	{ return inPointer; } 												\
-	MOSS_INLINE void operator delete[] ([[maybe_unused]] void *inPointer, [[maybe_unused]] void *inPlace) noexcept { /* Do nothing */ }
+#define MOSS_OVERRIDE_NEW_DELETE \
+	MOSS_INLINE void *operator new (size_t inCount)                         { return ::Allocate(inCount); } \
+	MOSS_INLINE void operator delete (void *inPointer) noexcept             { ::Free(inPointer); } \
+	MOSS_INLINE void *operator new[] (size_t inCount)                       { return ::Allocate(inCount); } \
+	MOSS_INLINE void operator delete[] (void *inPointer) noexcept           { ::Free(inPointer); } \
+	MOSS_INLINE void *operator new (size_t inCount, std::align_val_t inAlignment) { return ::AlignedAllocate(inCount, static_cast<size_t>(inAlignment)); } \
+	MOSS_INLINE void operator delete (void *inPointer, [[maybe_unused]] std::align_val_t inAlignment) noexcept { ::AlignedFree(inPointer); } \
+	MOSS_INLINE void *operator new[] (size_t inCount, std::align_val_t inAlignment) { return ::AlignedAllocate(inCount, static_cast<size_t>(inAlignment)); } \
+	MOSS_INLINE void operator delete[] (void *inPointer, [[maybe_unused]] std::align_val_t inAlignment) noexcept { ::AlignedFree(inPointer); } \
+	MOSS_INLINE void *operator new ([[maybe_unused]] size_t inCount, void *inPointer) noexcept { return inPointer; } \
+	MOSS_INLINE void operator delete ([[maybe_unused]] void *inPointer, [[maybe_unused]] void *inPlace) noexcept { } \
+	MOSS_INLINE void *operator new[] ([[maybe_unused]] size_t inCount, void *inPointer) noexcept { return inPointer; } \
+	MOSS_INLINE void operator delete[] ([[maybe_unused]] void *inPointer, [[maybe_unused]] void *inPlace) noexcept { }
 
 #else
 // Directly define the allocation functions
@@ -1875,11 +1875,10 @@ inline int FindRoot(const T inA, const T inB, const T inC, T &outX1, T &outX2) {
 }
 
 /*
-MOSS_SUPPRESS_WARNINGS_STD_BEGIN
+MOSS_SUPPRESS_WARNINGS_BEGIN
 #include <cstdlib>
-MOSS_SUPPRESS_WARNINGS_STD_END
+MOSS_SUPPRESS_WARNINGS_END
 #include <stdlib.h>
-
 MOSS_SUPPRESS_WARNINGS_BEGIN
 
 #ifdef MOSS_DISABLE_CUSTOM_ALLOCATOR
