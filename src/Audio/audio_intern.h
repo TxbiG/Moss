@@ -817,9 +817,9 @@ struct ReflectionHit2D {
 // 
 inline float DistanceAttenuation(float distance) { return 1.0f / (1.0f + distance * 0.2f); }
 // 
-inline Vec2 Right(const Vec2& forward) { return Vec2{ forward.y, -forward.x }; }
+inline Vec2 Right(const Vec2& forward) { return Vec2{ forward.GetY(), -forward.GetX() }; }
 //
-inline Vec2 WallNormal(const Wall& w) { Vec2 edge = w.b - w.a; return Vec2{ -edge.y, edge.x }.Normalized(); // perpendicular
+inline Vec2 WallNormal(const Wall& w) { Vec2 edge = w.b - w.a; return Vec2{ -edge.GetY(), edge.GetX() }.Normalized(); // perpendicular
 }
 //
 inline Vec2 Reflect(const Vec2& dir, const Vec2& normal) { return dir - 2.0f * dir.Dot(normal) * normal; }
@@ -827,7 +827,7 @@ inline Vec2 Reflect(const Vec2& dir, const Vec2& normal) { return dir - 2.0f * d
 inline bool RayIntersectsSegment(const Ray2D& ray, const Wall& seg, float& outT) {
     Vec2 v1 = ray.origin - seg.a;
     Vec2 v2 = seg.b - seg.a;
-    Vec2 v3 = Vec2{ -ray.dir.y, ray.dir.x }; // perpendicular
+    Vec2 v3 = Vec2{ -ray.dir.GetY(), ray.dir.GetX() }; // perpendicular
 
     float dot = v2.Dot(v3);
     if (fabs(dot) < 1e-6f) return false;
@@ -835,8 +835,7 @@ inline bool RayIntersectsSegment(const Ray2D& ray, const Wall& seg, float& outT)
     float t1 = v2.Cross(v1) / dot;
     float t2 = v1.Dot(v3) / dot;
 
-    if (t1 >= 0.0f && t2 >= 0.0f && t2 <= 1.0f)
-    {
+    if (t1 >= 0.0f && t2 >= 0.0f && t2 <= 1.0f) {
         outT = t1;
         return true;
     }

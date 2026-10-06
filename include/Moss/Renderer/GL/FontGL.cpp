@@ -181,7 +181,7 @@ void Font::renderText(const std::string& text, float x, float y, const Mat44& vi
     m_shader.SetUniform("uFontTexture", 0);
     m_shader.SetUniform("u_ViewProjection", viewProjection);
 
-    Mat44 model = Mat44::sTranslation(Vec3(x, y, -1.0f)); 
+    Mat44 model = Mat44::Translation(Vec3(x, y, -1.0f)); 
     m_shader.SetUniform("u_Model", model);
 
 

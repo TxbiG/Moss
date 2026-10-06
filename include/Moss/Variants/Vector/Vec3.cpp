@@ -46,22 +46,22 @@ const TStaticArray<Vec3, 1026> Vec3::sUnitSphere = []() {
 	TStaticArray<Vec3, 1026> verts;
 
 	// Add unit axis
-	verts.push_back(Vec3::sAxisX());
-	verts.push_back(-Vec3::sAxisX());
-	verts.push_back(Vec3::sAxisY());
-	verts.push_back(-Vec3::sAxisY());
+	verts.push_back(Vec3::AxisX());
+	verts.push_back(-Vec3::AxisX());
+	verts.push_back(Vec3::AxisY());
+	verts.push_back(-Vec3::AxisY());
 	verts.push_back(Vec3::sAxisZ());
 	verts.push_back(-Vec3::sAxisZ());
 
 	// Subdivide
-	sCreateVertices(verts, Vec3::sAxisX(), Vec3::sAxisY(), Vec3::sAxisZ(), level);
-	sCreateVertices(verts, -Vec3::sAxisX(), Vec3::sAxisY(), Vec3::sAxisZ(), level);
-	sCreateVertices(verts, Vec3::sAxisX(), -Vec3::sAxisY(), Vec3::sAxisZ(), level);
-	sCreateVertices(verts, -Vec3::sAxisX(), -Vec3::sAxisY(), Vec3::sAxisZ(), level);
-	sCreateVertices(verts, Vec3::sAxisX(), Vec3::sAxisY(), -Vec3::sAxisZ(), level);
-	sCreateVertices(verts, -Vec3::sAxisX(), Vec3::sAxisY(), -Vec3::sAxisZ(), level);
-	sCreateVertices(verts, Vec3::sAxisX(), -Vec3::sAxisY(), -Vec3::sAxisZ(), level);
-	sCreateVertices(verts, -Vec3::sAxisX(), -Vec3::sAxisY(), -Vec3::sAxisZ(), level);
+	sCreateVertices(verts, Vec3::AxisX(), Vec3::AxisY(), Vec3::sAxisZ(), level);
+	sCreateVertices(verts, -Vec3::AxisX(), Vec3::AxisY(), Vec3::sAxisZ(), level);
+	sCreateVertices(verts, Vec3::AxisX(), -Vec3::AxisY(), Vec3::sAxisZ(), level);
+	sCreateVertices(verts, -Vec3::AxisX(), -Vec3::AxisY(), Vec3::sAxisZ(), level);
+	sCreateVertices(verts, Vec3::AxisX(), Vec3::AxisY(), -Vec3::sAxisZ(), level);
+	sCreateVertices(verts, -Vec3::AxisX(), Vec3::AxisY(), -Vec3::sAxisZ(), level);
+	sCreateVertices(verts, Vec3::AxisX(), -Vec3::AxisY(), -Vec3::sAxisZ(), level);
+	sCreateVertices(verts, -Vec3::AxisX(), -Vec3::AxisY(), -Vec3::sAxisZ(), level);
 
 	return verts;
 }();

@@ -164,7 +164,7 @@ void ClipPolyVsAABox(const VERTEX_ARRAY &inPolygonToClip, const AABox &inAABox, 
 		for (int side = 0; side < 2; ++side)
 		{
 			// Get plane to clip against
-			Vec3 origin = Vec3::sZero(), normal = Vec3::sZero();
+			Vec3 origin = Vec3::Zero(), normal = Vec3::Zero();
 			if (side == 0)
 			{
 				normal.SetComponent(coord, 1.0f);

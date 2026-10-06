@@ -159,7 +159,7 @@ void SkeletonPose::CalculateLocalSpaceJointMatrices(Mat44 *outMatrices) const
 #ifndef MOSS_DEBUG_RENDERER
 void SkeletonPose::Draw(const DrawSettings &inDrawSettings, DebugRenderer *inRenderer, RMat44Arg inOffset) const
 {
-	RMat44 offset = inOffset * RMat44::sTranslation(mRootOffset);
+	RMat44 offset = inOffset * RMat44::Translation(mRootOffset);
 
 	const Skeleton::JointVector &joints = mSkeleton->GetJoints();
 

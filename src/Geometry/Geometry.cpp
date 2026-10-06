@@ -259,7 +259,7 @@ void ConvexHullBuilder::Face::CalculateNormalAndCentroid(const Vec3 *inPositions
 	int n = 2;
 
 	// Start accumulating the normal
-	mNormal = Vec3::sZero();
+	mNormal = Vec3::Zero();
 
 	// Loop over remaining edges accumulating normals in a triangle fan fashion
 	for (e = e->mNextEdge; e != mFirstEdge; e = e->mNextEdge)
@@ -322,11 +322,11 @@ ConvexHullBuilder::ConvexHullBuilder(const Positions &inPositions) :
 	mIteration = 0;
 
 	// Center the drawing of the first hull around the origin and calculate the delta offset between states
-	mOffset = RVec3::sZero();
+	mOffset = RVec3::Zero();
 	if (mPositions.empty())
 	{
 		// No hull will be generated
-		mDelta = Vec3::sZero();
+		mDelta = Vec3::Zero();
 	}
 	else
 	{
@@ -447,7 +447,7 @@ bool ConvexHullBuilder::AssignPointToFace(int inPositionIdx, const Faces &inFace
 float ConvexHullBuilder::DetermineCoplanarDistance() const
 {
 	// Formula as per: Implementing Quickhull - Dirk Gregorius.
-	Vec3 vmax = Vec3::sZero();
+	Vec3 vmax = Vec3::Zero();
 	for (Vec3 v : mPositions)
 		vmax = Vec3::Max(vmax, v.Abs());
 	return 3.0f * FLT_EPSILON * (vmax.GetX() + vmax.GetY() + vmax.GetZ());
@@ -1465,14 +1465,14 @@ void ConvexHullBuilder::ValidateFaces() const
 void ConvexHullBuilder::GetCenterOfMassAndVolume(Vec3 &outCenterOfMass, float &outVolume) const
 {
 	// Fourth point is the average of all face centroids
-	Vec3 v4 = Vec3::sZero();
+	Vec3 v4 = Vec3::Zero();
 	for (const Face *f : mFaces)
 		v4 += f->mCentroid;
 	v4 /= float(mFaces.size());
 
 	// Calculate mass and center of mass of this convex hull by summing all tetrahedrons
 	outVolume = 0.0f;
-	outCenterOfMass = Vec3::sZero();
+	outCenterOfMass = Vec3::Zero();
 	for (const Face *f : mFaces)
 	{
 		// Get the first vertex that we'll use to create a triangle fan
@@ -1615,7 +1615,7 @@ void ConvexHullBuilder::DrawState(bool inDrawConflictList) const
 
 			// Draw normal
 			RVec3 centroid = cDrawScale * (mOffset + f->mCentroid);
-			DebugRenderer::sInstance->DrawArrow(centroid, centroid + f->mNormal.NormalizedOr(Vec3::sZero()), face_color, 0.01f);
+			DebugRenderer::sInstance->DrawArrow(centroid, centroid + f->mNormal.NormalizedOr(Vec3::Zero()), face_color, 0.01f);
 
 			// Draw conflict list
 			if (inDrawConflictList)
@@ -1693,11 +1693,11 @@ ConvexHullBuilder2D::ConvexHullBuilder2D(const Positions &inPositions) :
 {
 #ifdef MOSS_DEBUG_RENDERER
 	// Center the drawing of the first hull around the origin and calculate the delta offset between states
-	mOffset = RVec3::sZero();
+	mOffset = RVec3::Zero();
 	if (mPositions.empty())
 	{
 		// No hull will be generated
-		mDelta = Vec3::sZero();
+		mDelta = Vec3::Zero();
 	}
 	else
 	{
@@ -1817,7 +1817,7 @@ ConvexHullBuilder2D::EResult ConvexHullBuilder2D::Initialize(int inIdx1, int inI
 
 	// Determine a suitable tolerance for detecting that points are colinear
 	// Formula as per: Implementing Quickhull - Dirk Gregorius.
-	Vec3 vmax = Vec3::sZero();
+	Vec3 vmax = Vec3::Zero();
 	for (Vec3 v : mPositions)
 		vmax = Vec3::Max(vmax, v.Abs());
 	float colinear_tolerance_sq = Square(2.0f * FLT_EPSILON * (vmax.GetX() + vmax.GetY()));
@@ -1977,7 +1977,7 @@ void ConvexHullBuilder2D::DrawState()
 
 		// Draw edge and normal
 		DebugRenderer::sInstance->DrawArrow(cDrawScale * (mOffset + mPositions[edge->mStartIdx]), cDrawScale * (mOffset + mPositions[next->mStartIdx]), color, 0.1f);
-		DebugRenderer::sInstance->DrawArrow(cDrawScale * (mOffset + edge->mCenter), cDrawScale * (mOffset + edge->mCenter) + edge->mNormal.NormalizedOr(Vec3::sZero()), Color::sGreen, 0.1f);
+		DebugRenderer::sInstance->DrawArrow(cDrawScale * (mOffset + edge->mCenter), cDrawScale * (mOffset + edge->mCenter) + edge->mNormal.NormalizedOr(Vec3::Zero()), Color::sGreen, 0.1f);
 
 		// Draw points that belong to this edge in the same color
 		for (int idx : edge->mConflictList)

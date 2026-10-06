@@ -86,8 +86,8 @@ struct AudioStream2D {
 
 struct AudioStream3D {
     AudioStream stream;
-    Vec3 position = Vec3::sZero();
-    Vec3 velocity = Vec3::sZero();
+    Vec3 position = Vec3::Zero();
+    Vec3 velocity = Vec3::Zero();
     float maxDistance = 100.0f;
     float pan = 0.0f;
     float dopplerScale = 1.0f;

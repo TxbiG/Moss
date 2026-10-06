@@ -17,13 +17,13 @@ MOSS_SUPPRESS_WARNINGS_END
 MOSS_INLINE float RayCylinder(Vec3Arg inRayOrigin, Vec3Arg inRayDirection, float inCylinderRadius) {
 	// Remove Y component of ray to see of ray intersects with infinite cylinder
 	UVec4 mask_y = UVec4(0, 0xffffffff, 0, 0);
-	Vec3 origin_xz = Vec3::sSelect(inRayOrigin, Vec3::sZero(), mask_y);
+	Vec3 origin_xz = Vec3::sSelect(inRayOrigin, Vec3::Zero(), mask_y);
 	float origin_xz_len_sq = origin_xz.LengthSq();
 	float r_sq = Square(inCylinderRadius);
 	if (origin_xz_len_sq > r_sq) {
 		// Ray starts outside of the infinite cylinder
 		// Solve: |RayOrigin_xz + fraction * RayDirection_xz|^2 = r^2 to find fraction
-		Vec3 direction_xz = Vec3::sSelect(inRayDirection, Vec3::sZero(), mask_y);
+		Vec3 direction_xz = Vec3::sSelect(inRayDirection, Vec3::Zero(), mask_y);
 		float a = direction_xz.LengthSq();
 		float b = 2.0f * origin_xz.Dot(direction_xz);
 		float c = origin_xz_len_sq - r_sq;
@@ -197,7 +197,7 @@ MOSS_INLINE float RayTriangle(Vec3Arg inOrigin, Vec3Arg inDirection, Vec3Arg inV
 	Vec3 epsilon = Vec3::Replicate(1.0e-12f);
 
 	// Zero & one
-	Vec3 zero = Vec3::sZero();
+	Vec3 zero = Vec3::Zero();
 	Vec3 one = Vec3::sOne();
 
 	// Find vectors for two edges sharing inV0
@@ -244,7 +244,7 @@ MOSS_INLINE Vec4 RayTriangle4(Vec3Arg inOrigin, Vec3Arg inDirection, Vec4Arg inV
 	Vec4 epsilon = Vec4::Replicate(1.0e-12f);
 
 	// Zero
-	Vec4 zero = Vec4::sZero();
+	Vec4 zero = Vec4::Zero();
 
 	// Find vectors for two edges sharing inV0
 	Vec4 e1x = inV1X - inV0X;
@@ -353,7 +353,7 @@ MOSS_INLINE float RayAABox(Vec3Arg inOrigin, const RayInvDirection &inInvDirecti
 	UVec4 no_intersection = Vec3::Greater(t_min, t_max);
 
 	// if (t_max < 0.0f) return FLT_MAX;
-	no_intersection = UVec4::sOr(no_intersection, Vec3::Less(t_max, Vec3::sZero()));
+	no_intersection = UVec4::sOr(no_intersection, Vec3::Less(t_max, Vec3::Zero()));
 
 	// if (inInvDirection.mIsParallel && !(Min <= inOrigin && inOrigin <= Max)) return FLT_MAX; else return t_min;
 	UVec4 no_parallel_overlap = UVec4::sOr(Vec3::Less(inOrigin, inBoundsMin), Vec3::Greater(inOrigin, inBoundsMax));
@@ -412,7 +412,7 @@ MOSS_INLINE Vec4 RayAABox4(Vec3Arg inOrigin, const RayInvDirection &inInvDirecti
 	UVec4 no_intersection = Vec4::Greater(t_min, t_max);
 
 	// if (t_max < 0.0f) return FLT_MAX;
-	no_intersection = UVec4::sOr(no_intersection, Vec4::Less(t_max, Vec4::sZero()));
+	no_intersection = UVec4::sOr(no_intersection, Vec4::Less(t_max, Vec4::Zero()));
 
 	// if bounds are invalid return FLOAT_MAX;
 	UVec4 bounds_invalid = UVec4::sOr(UVec4::sOr(Vec4::Greater(inBoundsMinX, inBoundsMaxX), Vec4::Greater(inBoundsMinY, inBoundsMaxY)), Vec4::Greater(inBoundsMinZ, inBoundsMaxZ));
@@ -454,7 +454,7 @@ MOSS_INLINE void RayAABox(Vec3Arg inOrigin, const RayInvDirection &inInvDirectio
 	UVec4 no_intersection = Vec3::Greater(t_min, t_max);
 
 	// if (t_max < 0.0f) return FLT_MAX;
-	no_intersection = UVec4::sOr(no_intersection, Vec3::Less(t_max, Vec3::sZero()));
+	no_intersection = UVec4::sOr(no_intersection, Vec3::Less(t_max, Vec3::Zero()));
 
 	// if (inInvDirection.mIsParallel && !(Min <= inOrigin && inOrigin <= Max)) return FLT_MAX; else return t_min;
 	UVec4 no_parallel_overlap = UVec4::sOr(Vec3::Less(inOrigin, inBoundsMin), Vec3::Greater(inOrigin, inBoundsMax));
@@ -492,7 +492,7 @@ MOSS_INLINE bool RayAABoxHits(Vec3Arg inOrigin, const RayInvDirection &inInvDire
 	UVec4 no_intersection = Vec3::Greater(t_min, t_max);
 
 	// if (t_max < 0.0f) return false;
-	no_intersection = UVec4::sOr(no_intersection, Vec3::Less(t_max, Vec3::sZero()));
+	no_intersection = UVec4::sOr(no_intersection, Vec3::Less(t_max, Vec3::Zero()));
 
 	// if (t_min > inClosest) return false;
 	no_intersection = UVec4::sOr(no_intersection, Vec3::Greater(t_min, Vec3::Replicate(inClosest)));
@@ -512,7 +512,7 @@ MOSS_INLINE bool RayAABoxHits(Vec3Arg inOrigin, Vec3Arg inDirection, Vec3Arg inB
 	Vec3 diff = 2.0f * inOrigin - inBoundsMin - inBoundsMax;
 	Vec3 abs_diff = diff.Abs();
 
-	UVec4 no_intersection = UVec4::sAnd(Vec3::Greater(abs_diff, extents), Vec3::sGreaterOrEqual(diff * inDirection, Vec3::sZero()));
+	UVec4 no_intersection = UVec4::sAnd(Vec3::Greater(abs_diff, extents), Vec3::sGreaterOrEqual(diff * inDirection, Vec3::Zero()));
 
 	Vec3 abs_dir = inDirection.Abs();
 	Vec3 abs_dir_yzz = abs_dir.Swizzle<SWIZZLE_Y, SWIZZLE_Z, SWIZZLE_Z>();

@@ -1,6 +1,13 @@
 #ifndef MOSS_PHYSICS_CONTRAINTS_H
 #define MOSS_PHYSICS_CONTRAINTS_H
 
+
+#include <Moss/Physics/Body/Body.h>
+#include <Moss/Physics/StateRecorder.h>
+#include <Moss/Physics/Constraints/ConstraintManager.h>  // IslandBuilder, ContactConstraintManager
+#include <Moss/Renderer/DebugRenderer.h>
+#include <Moss/Physics/Vehicle/Vehicle.h>                // MotorSettings lives here
+
 class Body;
 
 
@@ -40,8 +47,8 @@ class AngleConstraintPart {
 		MOSS_ASSERT(inWorldSpaceAxis.IsNormalized(1.0e-4f));
 
 		// Calculate properties used below
-		mInvI1_Axis = inBody1.IsDynamic()? inBody1.GetMotionProperties()->MultiplyWorldSpaceInverseInertiaByVector(inBody1.GetRotation(), inWorldSpaceAxis) : Vec3::sZero();
-		mInvI2_Axis = inBody2.IsDynamic()? inBody2.GetMotionProperties()->MultiplyWorldSpaceInverseInertiaByVector(inBody2.GetRotation(), inWorldSpaceAxis) : Vec3::sZero();
+		mInvI1_Axis = inBody1.IsDynamic()? inBody1.GetMotionProperties()->MultiplyWorldSpaceInverseInertiaByVector(inBody1.GetRotation(), inWorldSpaceAxis) : Vec3::Zero();
+		mInvI2_Axis = inBody2.IsDynamic()? inBody2.GetMotionProperties()->MultiplyWorldSpaceInverseInertiaByVector(inBody2.GetRotation(), inWorldSpaceAxis) : Vec3::Zero();
 
 		// Calculate inverse effective mass: K = J M^-1 J^T
 		return inWorldSpaceAxis.Dot(mInvI1_Axis + mInvI2_Axis);
@@ -288,12 +295,12 @@ public:
 			inv_effective_mass(1, 1) = mp1->GetInverseMass() + mR1PlusUxN2.Dot(mInvI1_R1PlusUxN2);
 		}
 		else {
-			mInvI1_R1PlusUxN1 = Vec3::sNaN();
-			mInvI1_R1PlusUxN2 = Vec3::sNaN();
+			mInvI1_R1PlusUxN1 = Vec3::NaN();
+			mInvI1_R1PlusUxN2 = Vec3::NaN();
 
 			MOSS_ERROR("mInvI1_R1PlusUxN1 and mInvI1_R1PlusUxN2 set to NaN.");
 
-			inv_effective_mass = Mat22::sZero();
+			inv_effective_mass = Mat22::Zero();
 		}
 
 		if (inBody2.IsDynamic()) {
@@ -308,8 +315,8 @@ public:
 			inv_effective_mass(1, 1) += mp2->GetInverseMass() + mR2xN2.Dot(mInvI2_R2xN2);
 		}
 		else {	
-			mInvI2_R2xN1 = Vec3::sNaN();
-			mInvI2_R2xN2 = Vec3::sNaN();
+			mInvI2_R2xN1 = Vec3::NaN();
+			mInvI2_R2xN2 = Vec3::NaN();
 			MOSS_ERROR("mInvI2_R2xN1 and mInvI2_R2xN2set to NaN.");
 		}
 
@@ -423,7 +430,7 @@ private:
 	Vec3						mInvI2_R2xN1;
 	Vec3						mInvI2_R2xN2;
 	Mat22						mEffectiveMass;
-	Vec2						mTotalLambda { Vec2::sZero() };
+	Vec2						mTotalLambda { Vec2::Zero() };
 };
 
 class GearConstraintPart {
@@ -572,7 +579,7 @@ private:
 class PointConstraintPart {
 	MOSS_INLINE bool ApplyVelocityStep(Body& ioBody1, Body& ioBody2, Vec3Arg inLambda) const {
 		// Apply impulse if delta is not zero
-		if (inLambda != Vec3::sZero()) {
+		if (inLambda != Vec3::Zero()) {
 			// Calculate velocity change due to constraint
 			//
 			// Impulse:
@@ -623,11 +630,11 @@ public:
 			inv_effective_mass = r1x.Multiply3x3(inv_i1).Multiply3x3RightTransposed(r1x);
 		}
 		else {
-			mInvI1_R1X = Mat44::sNaN();
+			mInvI1_R1X = Mat44::NaN();
 			MOSS_ERROR("had to store as NaN.")
 
 			summed_inv_mass = 0.0f;
-			inv_effective_mass = Mat44::sZero();
+			inv_effective_mass = Mat44::Zero();
 		}
 
 		if (inBody2.IsDynamic()) {
@@ -640,7 +647,7 @@ public:
 			inv_effective_mass += r2x.Multiply3x3(inv_i2).Multiply3x3RightTransposed(r2x);
 		}
 		else {
-			mInvI2_R2X = Mat44::sNaN();
+			mInvI2_R2X = Mat44::NaN();
 			MOSS_ERROR("had to store as NaN.")
 		}
 
@@ -651,8 +658,8 @@ public:
 
 	/// Deactivate this constraint
 	inline void	Deactivate() {
-		mEffectiveMass = Mat44::sZero();
-		mTotalLambda = Vec3::sZero();
+		mEffectiveMass = Mat44::Zero();
+		mTotalLambda = Vec3::Zero();
 	}
 
 	/// Check if constraint is active
@@ -687,7 +694,7 @@ public:
 	/// @param inBaumgarte Baumgarte constant (fraction of the error to correct)
 	inline bool	SolvePositionConstraint(Body& ioBody1, Body& ioBody2, float inBaumgarte) const {
 		Vec3 separation = (Vec3(ioBody2.GetCenterOfMassPosition() - ioBody1.GetCenterOfMassPosition()) + mR2 - mR1);
-		if (separation != Vec3::sZero()) {
+		if (separation != Vec3::Zero()) {
 			// Calculate lagrange multiplier (lambda) for Baumgarte stabilization:
 			//
 			// lambda = -K^-1* beta / dt* C
@@ -746,7 +753,7 @@ private:
 	Mat44						mInvI1_R1X;
 	Mat44						mInvI2_R2X;
 	Mat44						mEffectiveMass;
-	Vec3						mTotalLambda { Vec3::sZero() };
+	Vec3						mTotalLambda { Vec3::Zero() };
 };
 
 
@@ -803,8 +810,8 @@ public:
 		mC2 = a2.Cross(mB2);
 
 		// Calculate properties used during constraint solving
-		mInvI1 = inBody1.IsDynamic()? inBody1.GetMotionProperties()->GetInverseInertiaForRotation(inRotation1) : Mat44::sZero();
-		mInvI2 = inBody2.IsDynamic()? inBody2.GetMotionProperties()->GetInverseInertiaForRotation(inRotation2) : Mat44::sZero();
+		mInvI1 = inBody1.IsDynamic()? inBody1.GetMotionProperties()->GetInverseInertiaForRotation(inRotation1) : Mat44::Zero();
+		mInvI2 = inBody2.IsDynamic()? inBody2.GetMotionProperties()->GetInverseInertiaForRotation(inRotation2) : Mat44::Zero();
 		mB2xA1 = mB2.Cross(mA1);
 		mC2xA1 = mC2.Cross(mA1);
 
@@ -913,7 +920,7 @@ private:
 	Vec3						mB2xA1;
 	Vec3						mC2xA1;
 	Mat22						mEffectiveMass;
-	Vec2						mTotalLambda { Vec2::sZero() };
+	Vec2						mTotalLambda { Vec2::Zero() };
 };
 
 
@@ -957,7 +964,7 @@ class AxisConstraintPart {
 		}
 		else {
 		#ifdef MOSS_DEBUG
-			Vec3::sNaN().StoreFloat3(&mR1PlusUxAxis);
+			Vec3::NaN().StoreFloat3(&mR1PlusUxAxis);
 		#endif
 		}
 
@@ -968,7 +975,7 @@ class AxisConstraintPart {
 		}
 		else {
 		#ifdef MOSS_DEBUG
-			Vec3::sNaN().StoreFloat3(&mR2xAxis);
+			Vec3::NaN().StoreFloat3(&mR2xAxis);
 		#endif
 		}
 
@@ -982,7 +989,7 @@ class AxisConstraintPart {
 		}
 		else {
 			(void)r1_plus_u_x_axis; // Fix compiler warning: Not using this (it's not calculated either)
-			Vec3::sNaN().StoreFloat3(&mInvI1_R1PlusUxAxis);
+			Vec3::NaN().StoreFloat3(&mInvI1_R1PlusUxAxis);
 			MOSS_ERROR("mInvI1_R1PlusUxAxis set to NaN.")
 			inv_effective_mass = 0.0f;
 		}
@@ -994,7 +1001,7 @@ class AxisConstraintPart {
 		}
 		else {
 			(void)r2_x_axis; // Fix compiler warning: Not using this (it's not calculated either)
-			Vec3::sNaN().StoreFloat3(&mInvI2_R2xAxis);
+			Vec3::NaN().StoreFloat3(&mInvI2_R2xAxis);
 			MOSS_ERROR("had to store as NaN.")
 		}
 
@@ -1687,7 +1694,7 @@ private:
 	/// Internal helper function to update velocities of bodies after Lagrange multiplier is calculated
 	MOSS_INLINE bool ApplyVelocityStep(Body& ioBody1, Body& ioBody2, Vec3Arg inLambda) const {
 		// Apply impulse if delta is not zero
-		if (inLambda != Vec3::sZero()) {
+		if (inLambda != Vec3::Zero()) {
 			// Calculate velocity change due to constraint
 			//
 			// Impulse:
@@ -1726,8 +1733,8 @@ public:
 		Mat44 jp = (Mat44::sQuatLeftMultiply(0.5f* inBody1.GetRotation().Conjugated())* Mat44::sQuatRightMultiply(inBody2.GetRotation()* inInvInitialOrientation)).GetRotationSafe();
 
 		// Calculate properties used during constraint solving
-		Mat44 inv_i1 = inBody1.IsDynamic()? inBody1.GetMotionProperties()->GetInverseInertiaForRotation(inRotation1) : Mat44::sZero();
-		Mat44 inv_i2 = inBody2.IsDynamic()? inBody2.GetMotionProperties()->GetInverseInertiaForRotation(inRotation2) : Mat44::sZero();
+		Mat44 inv_i1 = inBody1.IsDynamic()? inBody1.GetMotionProperties()->GetInverseInertiaForRotation(inRotation1) : Mat44::Zero();
+		Mat44 inv_i2 = inBody2.IsDynamic()? inBody2.GetMotionProperties()->GetInverseInertiaForRotation(inRotation2) : Mat44::Zero();
 		mInvI1_JPT = inv_i1.Multiply3x3RightTransposed(jp);
 		mInvI2_JPT = inv_i2.Multiply3x3RightTransposed(jp);
 
@@ -1742,9 +1749,9 @@ public:
 
 	/// Deactivate this constraint
 	inline void	Deactivate() {
-		mEffectiveMass = Mat44::sZero();
-		mEffectiveMass_JP = Mat44::sZero();
-		mTotalLambda = Vec3::sZero();
+		mEffectiveMass = Mat44::Zero();
+		mEffectiveMass_JP = Mat44::Zero();
+		mTotalLambda = Vec3::Zero();
 	}
 
 	/// Check if constraint is active
@@ -1772,7 +1779,7 @@ public:
 	inline bool	SolvePositionConstraint(Body& ioBody1, Body& ioBody2, QuatArg inInvInitialOrientation, float inBaumgarte) const {
 		// Calculate constraint equation
 		Vec3 c = (ioBody1.GetRotation().Conjugated()* ioBody2.GetRotation()* inInvInitialOrientation).GetXYZ();
-		if (c != Vec3::sZero()) {
+		if (c != Vec3::Zero()) {
 			// Calculate lagrange multiplier (lambda) for Baumgarte stabilization:
 			//
 			// lambda = -K^-1* beta / dt* C
@@ -1825,7 +1832,7 @@ private:
 	Mat44						mInvI2_JPT;
 	Mat44						mEffectiveMass;
 	Mat44						mEffectiveMass_JP;
-	Vec3						mTotalLambda { Vec3::sZero() };
+	Vec3						mTotalLambda { Vec3::Zero() };
 };
 
 
@@ -2215,7 +2222,7 @@ public:
 			else {
 				// Use pyramid to solve limits
 				// The quaternion rotating by angle y around the Y axis then rotating by angle z around the Z axis is:
-				// q = Quat::Rotation(Vec3::sAxisZ(), z)* Quat::Rotation(Vec3::sAxisY(), y)
+				// q = Quat::Rotation(Vec3::sAxisZ(), z)* Quat::Rotation(Vec3::AxisY(), y)
 				// [q.x, q.y, q.z, q.w] = [-sin(y / 2)* sin(z / 2), sin(y / 2)* cos(z / 2), cos(y / 2)* sin(z / 2), cos(y / 2)* cos(z / 2)]
 				// So we can calculate y / 2 = atan2(q.y, q.w) and z / 2 = atan2(q.z, q.w)
 				Vec4 half_angle = Vec4::sATan2(ioSwing.GetXYZW().Swizzle<SWIZZLE_Y, SWIZZLE_Y, SWIZZLE_Z, SWIZZLE_Z>(), ioSwing.GetXYZW().SplatW());
@@ -2632,7 +2639,7 @@ private:
 	/// Internal helper function to update velocities of bodies after Lagrange multiplier is calculated
 	MOSS_INLINE bool ApplyVelocityStep(Body& ioBody1, Body& ioBody2, Vec3Arg inLambda) const {
 		// Apply impulse if delta is not zero
-		if (inLambda != Vec3::sZero())
+		if (inLambda != Vec3::Zero())
 		{
 			// Calculate velocity change due to constraint
 			//
@@ -2723,8 +2730,8 @@ public:
 	/// Calculate properties used during the functions below
 	inline void CalculateConstraintProperties(const Body& inBody1, Mat44Arg inRotation1, const Body& inBody2, Mat44Arg inRotation2) {
 		// Calculate properties used during constraint solving
-		mInvI1 = inBody1.IsDynamic()? inBody1.GetMotionProperties()->GetInverseInertiaForRotation(inRotation1) : Mat44::sZero();
-		mInvI2 = inBody2.IsDynamic()? inBody2.GetMotionProperties()->GetInverseInertiaForRotation(inRotation2) : Mat44::sZero();
+		mInvI1 = inBody1.IsDynamic()? inBody1.GetMotionProperties()->GetInverseInertiaForRotation(inRotation1) : Mat44::Zero();
+		mInvI2 = inBody2.IsDynamic()? inBody2.GetMotionProperties()->GetInverseInertiaForRotation(inRotation2) : Mat44::Zero();
 
 		// Calculate effective mass: K^-1 = (J M^-1 J^T)^-1
 		if (!mEffectiveMass.SetInversed3x3(mInvI1 + mInvI2))
@@ -2733,8 +2740,8 @@ public:
 
 	/// Deactivate this constraint
 	inline void Deactivate() {
-		mEffectiveMass = Mat44::sZero();
-		mTotalLambda = Vec3::sZero();
+		mEffectiveMass = Mat44::Zero();
+		mTotalLambda = Vec3::Zero();
 	}
 
 	/// Check if constraint is active
@@ -2787,7 +2794,7 @@ public:
 		//
 		// If we assume theta is small (error is small) then sin(x) = x so an approximation of the error angles is:
 		Vec3 error = 2.0f* diff.EnsureWPositive().GetXYZ();
-		if (error != Vec3::sZero()) {
+		if (error != Vec3::Zero()) {
 			// Calculate lagrange multiplier (lambda) for Baumgarte stabilization:
 			//
 			// lambda = -K^-1* beta / dt* C
@@ -2838,7 +2845,7 @@ private:
 	Mat44						mInvI1;
 	Mat44						mInvI2;
 	Mat44						mEffectiveMass;
-	Vec3						mTotalLambda { Vec3::sZero() };
+	Vec3						mTotalLambda { Vec3::Zero() };
 };
 
 
@@ -3081,14 +3088,14 @@ public:
 	bool						mAutoDetectPoint = false;
 
 	/// Body 1 constraint reference frame (space determined by mSpace)
-	RVec3						mPoint1 = RVec3::sZero();
-	Vec3						mAxisX1 = Vec3::sAxisX();
-	Vec3						mAxisY1 = Vec3::sAxisY();
+	RVec3						mPoint1 = RVec3::Zero();
+	Vec3						mAxisX1 = Vec3::AxisX();
+	Vec3						mAxisY1 = Vec3::AxisY();
 
 	/// Body 2 constraint reference frame (space determined by mSpace)
-	RVec3						mPoint2 = RVec3::sZero();
-	Vec3						mAxisX2 = Vec3::sAxisX();
-	Vec3						mAxisY2 = Vec3::sAxisY();
+	RVec3						mPoint2 = RVec3::Zero();
+	Vec3						mAxisX2 = Vec3::AxisX();
+	Vec3						mAxisY2 = Vec3::AxisY();
 
 protected:
 	// See: ConstraintSettings::RestoreBinaryState
@@ -3121,7 +3128,7 @@ public:
 	virtual Ref<ConstraintSettings> GetConstraintSettings() const override;
 
 	// See: TwoBodyConstraint
-	virtual Mat44				GetConstraintToBody1Matrix() const override					{ return Mat44::sTranslation(mLocalSpacePosition1); }
+	virtual Mat44				GetConstraintToBody1Matrix() const override					{ return Mat44::Translation(mLocalSpacePosition1); }
 	virtual Mat44				GetConstraintToBody2Matrix() const override					{ return Mat44::RotationTranslation(mInvInitialOrientation, mLocalSpacePosition2); }
 
 	///@name Get Lagrange multiplier from last physics update (the linear/angular impulse applied to satisfy the constraint)
@@ -3162,10 +3169,10 @@ public:
 	/// Body 1 constraint reference frame (space determined by mSpace).
 	/// Constraint will keep mPoint1 (a point on body 1) and mPoint2 (a point on body 2) at the same distance.
 	/// Note that this constraint can be used as a cheap PointConstraint by setting mPoint1 = mPoint2 (but this removes only 1 degree of freedom instead of 3).
-	RVec3						mPoint1 = RVec3::sZero();
+	RVec3						mPoint1 = RVec3::Zero();
 
 	/// Body 2 constraint reference frame (space determined by mSpace)
-	RVec3						mPoint2 = RVec3::sZero();
+	RVec3						mPoint2 = RVec3::Zero();
 
 	/// Ability to override the distance range at which the two points are kept apart. If the value is negative, it will be replaced by the distance between mPoint1 and mPoint2 (works only if mSpace is world space).
 	float						mMinDistance = -1.0f;
@@ -3197,10 +3204,10 @@ public:
 	/// Body 1 constraint reference frame (space determined by mSpace).
 	/// Constraint will keep mPoint1 (a point on body 1) and mPoint2 (a point on body 2) at the same distance.
 	/// Note that this constraint can be used as a cheap PointConstraint by setting mPoint1 = mPoint2 (but this removes only 1 degree of freedom instead of 3).
-	RVec3						mPoint1 = RVec3::sZero();
+	RVec3						mPoint1 = RVec3::Zero();
 
 	/// Body 2 constraint reference frame (space determined by mSpace)
-	RVec3						mPoint2 = RVec3::sZero();
+	RVec3						mPoint2 = RVec3::Zero();
 
 	/// Ability to override the distance range at which the two points are kept apart. If the value is negative, it will be replaced by the distance between mPoint1 and mPoint2 (works only if mSpace is world space).
 	float						mMinDistance = -1.0f;
@@ -3238,8 +3245,8 @@ public:
 	virtual Ref<ConstraintSettings> GetConstraintSettings() const override;
 
 	// See: TwoBodyConstraint
-	virtual Mat44				GetConstraintToBody1Matrix() const override					{ return Mat44::sTranslation(mLocalSpacePosition1); }
-	virtual Mat44				GetConstraintToBody2Matrix() const override					{ return Mat44::sTranslation(mLocalSpacePosition2); } // Note: Incorrect rotation as we don't track the original rotation difference, should not matter though as the constraint is not limiting rotation.
+	virtual Mat44				GetConstraintToBody1Matrix() const override					{ return Mat44::Translation(mLocalSpacePosition1); }
+	virtual Mat44				GetConstraintToBody2Matrix() const override					{ return Mat44::Translation(mLocalSpacePosition2); } // Note: Incorrect rotation as we don't track the original rotation difference, should not matter though as the constraint is not limiting rotation.
 
 	/// Update the minimum and maximum distance for the constraint
 	void						SetDistance(float inMinDistance, float inMaxDistance)		{ MOSS_ASSERT(inMinDistance <= inMaxDistance); mMinDistance = inMinDistance; mMaxDistance = inMaxDistance; }
@@ -3302,11 +3309,11 @@ public:
 	EConstraintSpace			mSpace = EConstraintSpace::WorldSpace;
 
 	/// Body 1 constraint position (space determined by mSpace).
-	RVec3						mPoint1 = RVec3::sZero();
+	RVec3						mPoint1 = RVec3::Zero();
 
 	/// Body 2 constraint position (space determined by mSpace).
 	/// Note: Normally you would set mPoint1 = mPoint2 if the bodies are already placed how you want to constrain them (if mSpace = world space).
-	RVec3						mPoint2 = RVec3::sZero();
+	RVec3						mPoint2 = RVec3::Zero();
 
 protected:
 	// See: ConstraintSettings::RestoreBinaryState
@@ -3350,8 +3357,8 @@ public:
 	inline Vec3					GetLocalSpacePoint2() const									{ return mLocalSpacePosition2; }
 
 	// See: TwoBodyConstraint
-	virtual Mat44				GetConstraintToBody1Matrix() const override					{ return Mat44::sTranslation(mLocalSpacePosition1); }
-	virtual Mat44				GetConstraintToBody2Matrix() const override					{ return Mat44::sTranslation(mLocalSpacePosition2); } // Note: Incorrect rotation as we don't track the original rotation difference, should not matter though as the constraint is not limiting rotation.
+	virtual Mat44				GetConstraintToBody1Matrix() const override					{ return Mat44::Translation(mLocalSpacePosition1); }
+	virtual Mat44				GetConstraintToBody2Matrix() const override					{ return Mat44::Translation(mLocalSpacePosition2); } // Note: Incorrect rotation as we don't track the original rotation difference, should not matter though as the constraint is not limiting rotation.
 
 	///@name Get Lagrange multiplier from last physics update (the linear impulse applied to satisfy the constraint)
 	inline Vec3					GetTotalLambdaPosition() const								{ return mPointConstraintPart.GetTotalLambda(); }
@@ -3388,14 +3395,14 @@ public:
 	/// mHingeAxis1 and mNormalAxis1 should be perpendicular. mHingeAxis2 and mNormalAxis2 should also be perpendicular.
 	/// If you configure the joint in world space and create both bodies with a relative rotation you want to be defined as zero,
 	/// you can simply set mHingeAxis1 = mHingeAxis2 and mNormalAxis1 = mNormalAxis2.
-	RVec3						mPoint1 = RVec3::sZero();
-	Vec3						mHingeAxis1 = Vec3::sAxisY();
-	Vec3						mNormalAxis1 = Vec3::sAxisX();
+	RVec3						mPoint1 = RVec3::Zero();
+	Vec3						mHingeAxis1 = Vec3::AxisY();
+	Vec3						mNormalAxis1 = Vec3::AxisX();
 
 	/// Body 2 constraint reference frame (space determined by mSpace)
-	RVec3						mPoint2 = RVec3::sZero();
-	Vec3						mHingeAxis2 = Vec3::sAxisY();
-	Vec3						mNormalAxis2 = Vec3::sAxisX();
+	RVec3						mPoint2 = RVec3::Zero();
+	Vec3						mHingeAxis2 = Vec3::AxisY();
+	Vec3						mNormalAxis2 = Vec3::AxisX();
 
 	/// Rotation around the hinge axis will be limited between [mLimitsMin, mLimitsMax] where mLimitsMin e [-pi, 0] and mLimitsMax e [0, pi].
 	/// Both angles are in radians.
@@ -3575,14 +3582,14 @@ public:
 
 	/// Body 1 constraint reference frame (space determined by mSpace).
 	/// Slider axis is the axis along which movement is possible (direction), normal axis is a perpendicular vector to define the frame.
-	RVec3						mPoint1 = RVec3::sZero();
-	Vec3						mSliderAxis1 = Vec3::sAxisX();
-	Vec3						mNormalAxis1 = Vec3::sAxisY();
+	RVec3						mPoint1 = RVec3::Zero();
+	Vec3						mSliderAxis1 = Vec3::AxisX();
+	Vec3						mNormalAxis1 = Vec3::AxisY();
 
 	/// Body 2 constraint reference frame (space determined by mSpace)
-	RVec3						mPoint2 = RVec3::sZero();
-	Vec3						mSliderAxis2 = Vec3::sAxisX();
-	Vec3						mNormalAxis2 = Vec3::sAxisY();
+	RVec3						mPoint2 = RVec3::Zero();
+	Vec3						mSliderAxis2 = Vec3::AxisX();
+	Vec3						mNormalAxis2 = Vec3::AxisY();
 
 	/// When the bodies move so that mPoint1 coincides with mPoint2 the slider position is defined to be 0, movement will be limited between [mLimitsMin, mLimitsMax] where mLimitsMin e [-inf, 0] and mLimitsMax e [0, inf]
 	float						mLimitsMin = -FLT_MAX;
@@ -3750,12 +3757,12 @@ public:
 	EConstraintSpace			mSpace = EConstraintSpace::WorldSpace;
 
 	/// Body 1 constraint reference frame (space determined by mSpace)
-	RVec3						mPoint1 = RVec3::sZero();
-	Vec3						mTwistAxis1 = Vec3::sAxisX();
+	RVec3						mPoint1 = RVec3::Zero();
+	Vec3						mTwistAxis1 = Vec3::AxisX();
 
 	/// Body 2 constraint reference frame (space determined by mSpace)
-	RVec3						mPoint2 = RVec3::sZero();
-	Vec3						mTwistAxis2 = Vec3::sAxisX();
+	RVec3						mPoint2 = RVec3::Zero();
+	Vec3						mTwistAxis2 = Vec3::AxisX();
 
 	/// Half of maximum angle between twist axis of body 1 and 2
 	float						mHalfConeAngle = 0.0f;
@@ -3874,14 +3881,14 @@ public:
 	EConstraintSpace			mSpace = EConstraintSpace::WorldSpace;
 
 	///@name Body 1 constraint reference frame (space determined by mSpace)
-	RVec3						mPosition1 = RVec3::sZero();
-	Vec3						mTwistAxis1 = Vec3::sAxisX();
-	Vec3						mPlaneAxis1 = Vec3::sAxisY();
+	RVec3						mPosition1 = RVec3::Zero();
+	Vec3						mTwistAxis1 = Vec3::AxisX();
+	Vec3						mPlaneAxis1 = Vec3::AxisY();
 
 	///@name Body 2 constraint reference frame (space determined by mSpace)
-	RVec3						mPosition2 = RVec3::sZero();
-	Vec3						mTwistAxis2 = Vec3::sAxisX();
-	Vec3						mPlaneAxis2 = Vec3::sAxisY();
+	RVec3						mPosition2 = RVec3::Zero();
+	Vec3						mTwistAxis2 = Vec3::AxisX();
+	Vec3						mPlaneAxis2 = Vec3::AxisY();
 
 	/// The type of swing constraint that we want to use.
 	ESwingType					mSwingType = ESwingType::Cone;
@@ -4022,7 +4029,7 @@ private:
 	MotorSettings				mTwistMotorSettings;
 	EMotorState					mSwingMotorState = EMotorState::Off;
 	EMotorState					mTwistMotorState = EMotorState::Off;
-	Vec3						mTargetAngularVelocity = Vec3::sZero();
+	Vec3						mTargetAngularVelocity = Vec3::Zero();
 	Quat						mTargetOrientation = Quat::Identity();
 
 	// RUN TIME PROPERTIES FOLLOW
@@ -4066,14 +4073,14 @@ public:
 	EConstraintSpace			mSpace = EConstraintSpace::WorldSpace;
 
 	/// Body 1 constraint reference frame (space determined by mSpace)
-	RVec3						mPosition1 = RVec3::sZero();
-	Vec3						mAxisX1 = Vec3::sAxisX();
-	Vec3						mAxisY1 = Vec3::sAxisY();
+	RVec3						mPosition1 = RVec3::Zero();
+	Vec3						mAxisX1 = Vec3::AxisX();
+	Vec3						mAxisY1 = Vec3::AxisY();
 
 	/// Body 2 constraint reference frame (space determined by mSpace)
-	RVec3						mPosition2 = RVec3::sZero();
-	Vec3						mAxisX2 = Vec3::sAxisX();
-	Vec3						mAxisY2 = Vec3::sAxisY();
+	RVec3						mPosition2 = RVec3::Zero();
+	Vec3						mAxisX2 = Vec3::AxisX();
+	Vec3						mAxisY2 = Vec3::AxisY();
 
 	/// Friction settings.
 	/// For translation: Max friction force in N. 0 = no friction.
@@ -4280,9 +4287,9 @@ private:
 
 	// Motor controls
 	EMotorState					mMotorState[EAxis::Num] = { EMotorState::Off, EMotorState::Off, EMotorState::Off, EMotorState::Off, EMotorState::Off, EMotorState::Off };
-	Vec3						mTargetVelocity = Vec3::sZero();
-	Vec3						mTargetAngularVelocity = Vec3::sZero();
-	Vec3						mTargetPosition = Vec3::sZero();
+	Vec3						mTargetVelocity = Vec3::Zero();
+	Vec3						mTargetAngularVelocity = Vec3::Zero();
+	Vec3						mTargetPosition = Vec3::Zero();
 	Quat						mTargetOrientation = Quat::Identity();
 
 	// RUN TIME PROPERTIES FOLLOW
@@ -4331,10 +4338,10 @@ public:
 	EConstraintSpace			mSpace = EConstraintSpace::WorldSpace;
 
 	/// Body 1 constraint reference frame (space determined by mSpace).
-	Vec3						mHingeAxis1 = Vec3::sAxisX();
+	Vec3						mHingeAxis1 = Vec3::AxisX();
 
 	/// Body 2 constraint reference frame (space determined by mSpace)
-	Vec3						mHingeAxis2 = Vec3::sAxisX();
+	Vec3						mHingeAxis2 = Vec3::AxisX();
 
 	/// Ratio between both gears, see SetRatio.
 	float						mRatio = 1.0f;
@@ -4476,7 +4483,7 @@ public:
 	RefConst<PathConstraintPath>	mPath;
 
 	/// The position of the path start relative to world transform of body 1
-	Vec3							mPathPosition = Vec3::sZero();
+	Vec3							mPathPosition = Vec3::Zero();
 
 	/// The rotation of the path start relative to world transform of body 1
 	Quat							mPathRotation = Quat::Identity();
@@ -4691,14 +4698,14 @@ public:
 	bool						mAutoDetectPoint = false;
 
 	/// Body 1 constraint reference frame (space determined by mSpace)
-	RVec3						mPoint1 = RVec3::sZero();
-	Vec3						mAxisX1 = Vec3::sAxisX();
-	Vec3						mAxisY1 = Vec3::sAxisY();
+	RVec3						mPoint1 = RVec3::Zero();
+	Vec3						mAxisX1 = Vec3::AxisX();
+	Vec3						mAxisY1 = Vec3::AxisY();
 
 	/// Body 2 constraint reference frame (space determined by mSpace)
-	RVec3						mPoint2 = RVec3::sZero();
-	Vec3						mAxisX2 = Vec3::sAxisX();
-	Vec3						mAxisY2 = Vec3::sAxisY();
+	RVec3						mPoint2 = RVec3::Zero();
+	Vec3						mAxisX2 = Vec3::AxisX();
+	Vec3						mAxisY2 = Vec3::AxisY();
 
 protected:
 	// See: ConstraintSettings::RestoreBinaryState
@@ -4731,7 +4738,7 @@ public:
 	virtual Ref<ConstraintSettings> GetConstraintSettings() const override;
 
 	// See: TwoBodyConstraint
-	virtual Mat44				GetConstraintToBody1Matrix() const override					{ return Mat44::sTranslation(mLocalSpacePosition1); }
+	virtual Mat44				GetConstraintToBody1Matrix() const override					{ return Mat44::Translation(mLocalSpacePosition1); }
 	virtual Mat44				GetConstraintToBody2Matrix() const override					{ return Mat44::RotationTranslation(mInvInitialOrientation, mLocalSpacePosition2); }
 
 	///@name Get Lagrange multiplier from last physics update (the linear/angular impulse applied to satisfy the constraint)
@@ -4825,16 +4832,16 @@ public:
 	EConstraintSpace			mSpace = EConstraintSpace::WorldSpace;
 
 	/// Body 1 constraint attachment point (space determined by mSpace).
-	RVec3						mBodyPoint1 = RVec3::sZero();
+	RVec3						mBodyPoint1 = RVec3::Zero();
 
 	/// Fixed world point to which body 1 is connected (always world space)
-	RVec3						mFixedPoint1 = RVec3::sZero();
+	RVec3						mFixedPoint1 = RVec3::Zero();
 
 	/// Body 2 constraint attachment point (space determined by mSpace)
-	RVec3						mBodyPoint2 = RVec3::sZero();
+	RVec3						mBodyPoint2 = RVec3::Zero();
 
 	/// Fixed world point to which body 2 is connected (always world space)
-	RVec3						mFixedPoint2 = RVec3::sZero();
+	RVec3						mFixedPoint2 = RVec3::Zero();
 
 	/// Ratio between the two line segments (see formula above), can be used to create a block and tackle
 	float						mRatio = 1.0f;
@@ -4875,8 +4882,8 @@ public:
 	virtual Ref<ConstraintSettings> GetConstraintSettings() const override;
 
 	// See: TwoBodyConstraint
-	virtual Mat44				GetConstraintToBody1Matrix() const override					{ return Mat44::sTranslation(mLocalSpacePosition1); }
-	virtual Mat44				GetConstraintToBody2Matrix() const override					{ return Mat44::sTranslation(mLocalSpacePosition2); } // Note: Incorrect rotation as we don't track the original rotation difference, should not matter though as the constraint is not limiting rotation.
+	virtual Mat44				GetConstraintToBody1Matrix() const override					{ return Mat44::Translation(mLocalSpacePosition1); }
+	virtual Mat44				GetConstraintToBody2Matrix() const override					{ return Mat44::Translation(mLocalSpacePosition2); } // Note: Incorrect rotation as we don't track the original rotation difference, should not matter though as the constraint is not limiting rotation.
 
 	/// Update the minimum and maximum length for the constraint
 	void						SetLength(float inMinLength, float inMaxLength)				{ MOSS_ASSERT(inMinLength >= 0.0f && inMinLength <= inMaxLength); mMinLength = inMinLength; mMaxLength = inMaxLength; }
@@ -4957,10 +4964,10 @@ public:
 	EConstraintSpace			mSpace = EConstraintSpace::WorldSpace;
 
 	/// Body 1 (pinion) constraint reference frame (space determined by mSpace).
-	Vec3						mHingeAxis = Vec3::sAxisX();
+	Vec3						mHingeAxis = Vec3::AxisX();
 
 	/// Body 2 (rack) constraint reference frame (space determined by mSpace)
-	Vec3						mSliderAxis = Vec3::sAxisX();
+	Vec3						mSliderAxis = Vec3::AxisX();
 
 	/// Ratio between the rack and pinion, see SetRatio.
 	float						mRatio = 1.0f;

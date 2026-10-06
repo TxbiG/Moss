@@ -441,7 +441,7 @@ public:
 #ifdef MOSS_EPA_CONVEX_BUILDER_DRAW
 		hull.DrawLabel("Closest found");
 		hull.DrawWireTriangle(*last, Color::sWhite);
-		hull.DrawArrow(last->mCentroid, last->mCentroid + last->mNormal.NormalizedOr(Vec3::sZero()), Color::sWhite, 0.1f);
+		hull.DrawArrow(last->mCentroid, last->mCentroid + last->mNormal.NormalizedOr(Vec3::Zero()), Color::sWhite, 0.1f);
 		hull.DrawState();
 #endif
 

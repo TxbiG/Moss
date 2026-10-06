@@ -417,7 +417,7 @@ namespace ClosestPoint
 
 		// Start out assuming point inside all halfspaces, so closest to itself
 		uint32 closest_set = 0b1111;
-		Vec3 closest_point = Vec3::sZero();
+		Vec3 closest_point = Vec3::Zero();
 		float best_dist_sq = FLT_MAX;
 
 		// Determine for each of the faces of the tetrahedron if the origin is in front of the plane

@@ -264,7 +264,7 @@ public:
 
 private:
 	RefConst<Skeleton>			mSkeleton;																///< Skeleton definition
-	RVec3						mRootOffset { RVec3::sZero() };											///< Extra offset applied to the root (and therefore also to all of its children)
+	RVec3						mRootOffset { RVec3::Zero() };											///< Extra offset applied to the root (and therefore also to all of its children)
 	JointStateVector			mJoints;																///< Local joint orientations (local to parent Joint)
 	Mat44Vector					mJointMatrices;															///< Local joint matrices (local to world matrix)
 };
@@ -288,7 +288,7 @@ public:
 		inline Mat44					ToMatrix() const									{ return Mat44::RotationTranslation(mRotation, mTranslation); }
 
 		Quat							mRotation = Quat::Identity();						///< Local space rotation of the joint
-		Vec3							mTranslation = Vec3::sZero();						///< Local space translation of the joint
+		Vec3							mTranslation = Vec3::Zero();						///< Local space translation of the joint
 	};
 
 	/// Contains the state of a single joint at a particular time

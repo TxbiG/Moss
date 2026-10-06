@@ -274,7 +274,7 @@ protected:
 		for (;;)
 		{
 			// Read 16 control values (note that we added 15 bytes at the end of the control values that mirror the first 15 bytes)
-			BVec16 control_bytes = BVec16::sLoadByte16(mControl + index);
+			BVec16 control_bytes = BVec16::LoadByte16(mControl + index);
 
 			// Check if we must find the element before we can insert
 			if constexpr (!InsertAfterGrow)
@@ -644,7 +644,7 @@ public:
 		{
 			// Read 16 control values
 			// (note that we added 15 bytes at the end of the control values that mirror the first 15 bytes)
-			BVec16 control_bytes = BVec16::sLoadByte16(mControl + index);
+			BVec16 control_bytes = BVec16::LoadByte16(mControl + index);
 
 			// Check for the control value we're looking for
 			// Note that when deleting we can create empty buckets instead of deleted buckets.
@@ -792,7 +792,7 @@ public:
 					for (;;)
 					{
 						// Check if any buckets are free
-						BVec16 control_bytes = BVec16::sLoadByte16(mControl + dst);
+						BVec16 control_bytes = BVec16::LoadByte16(mControl + dst);
 						uint32 control_free = uint32(BVec16::And(control_bytes, bucket_used).GetTrues()) ^ 0xffff;
 						if (control_free != 0)
 						{

@@ -419,7 +419,7 @@ typedef struct CollideSettingsBase {
 	float						penetrationTolerance/* = DEFAULT_PENETRATION_TOLERANCE*/;
 
 	// When mActiveEdgeMode is CollideOnlyWithActive a movement direction can be provided. When hitting an inactive edge, the system will select the triangle normal as penetration depth only if it impedes the movement less than with the calculated penetration depth.
-	Vec3					activeEdgeMovementDirection/* = Vec3::sZero()*/;
+	Vec3					activeEdgeMovementDirection/* = Vec3::Zero()*/;
 } CollideSettingsBase;
 
 /* CollideShapeSettings */

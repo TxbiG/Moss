@@ -213,7 +213,7 @@ void DebugRenderer::DrawCoordinateSystem(RMat44Arg inTransform, float inSize)
 void DebugRenderer::DrawPlane(RVec3Arg inPoint, Vec3Arg inNormal, ColorArg inColor, float inSize)
 {
 	// Create orthogonal basis
-	Vec3 perp1 = inNormal.Cross(Vec3::sAxisY()).NormalizedOr(Vec3::sAxisX());
+	Vec3 perp1 = inNormal.Cross(Vec3::AxisY()).NormalizedOr(Vec3::AxisX());
 	Vec3 perp2 = perp1.Cross(inNormal).Normalized();
 	perp1 = inNormal.Cross(perp2);
 
@@ -248,7 +248,7 @@ void DebugRenderer::DrawWireTriangle(RVec3Arg inV1, RVec3Arg inV2, RVec3Arg inV3
 
 void DebugRenderer::DrawWireSphere(RVec3Arg inCenter, float inRadius, ColorArg inColor, int inLevel)
 {
-	RMat44 matrix = RMat44::sTranslation(inCenter) * Mat44::sScale(inRadius);
+	RMat44 matrix = RMat44::Translation(inCenter) * Mat44::sScale(inRadius);
 
 	DrawWireUnitSphere(matrix, inColor, inLevel);
 }
@@ -257,14 +257,14 @@ void DebugRenderer::DrawWireUnitSphere(RMat44Arg inMatrix, ColorArg inColor, int
 {
 	MOSS_PROFILE_FUNCTION();
 
-	DrawWireUnitSphereRecursive(inMatrix, inColor, Vec3::sAxisX(), Vec3::sAxisY(), Vec3::sAxisZ(), inLevel);
-	DrawWireUnitSphereRecursive(inMatrix, inColor, -Vec3::sAxisX(), Vec3::sAxisY(), Vec3::sAxisZ(), inLevel);
-	DrawWireUnitSphereRecursive(inMatrix, inColor, Vec3::sAxisX(), -Vec3::sAxisY(), Vec3::sAxisZ(), inLevel);
-	DrawWireUnitSphereRecursive(inMatrix, inColor, -Vec3::sAxisX(), -Vec3::sAxisY(), Vec3::sAxisZ(), inLevel);
-	DrawWireUnitSphereRecursive(inMatrix, inColor, Vec3::sAxisX(), Vec3::sAxisY(), -Vec3::sAxisZ(), inLevel);
-	DrawWireUnitSphereRecursive(inMatrix, inColor, -Vec3::sAxisX(), Vec3::sAxisY(), -Vec3::sAxisZ(), inLevel);
-	DrawWireUnitSphereRecursive(inMatrix, inColor, Vec3::sAxisX(), -Vec3::sAxisY(), -Vec3::sAxisZ(), inLevel);
-	DrawWireUnitSphereRecursive(inMatrix, inColor, -Vec3::sAxisX(), -Vec3::sAxisY(), -Vec3::sAxisZ(), inLevel);
+	DrawWireUnitSphereRecursive(inMatrix, inColor, Vec3::AxisX(), Vec3::AxisY(), Vec3::sAxisZ(), inLevel);
+	DrawWireUnitSphereRecursive(inMatrix, inColor, -Vec3::AxisX(), Vec3::AxisY(), Vec3::sAxisZ(), inLevel);
+	DrawWireUnitSphereRecursive(inMatrix, inColor, Vec3::AxisX(), -Vec3::AxisY(), Vec3::sAxisZ(), inLevel);
+	DrawWireUnitSphereRecursive(inMatrix, inColor, -Vec3::AxisX(), -Vec3::AxisY(), Vec3::sAxisZ(), inLevel);
+	DrawWireUnitSphereRecursive(inMatrix, inColor, Vec3::AxisX(), Vec3::AxisY(), -Vec3::sAxisZ(), inLevel);
+	DrawWireUnitSphereRecursive(inMatrix, inColor, -Vec3::AxisX(), Vec3::AxisY(), -Vec3::sAxisZ(), inLevel);
+	DrawWireUnitSphereRecursive(inMatrix, inColor, Vec3::AxisX(), -Vec3::AxisY(), -Vec3::sAxisZ(), inLevel);
+	DrawWireUnitSphereRecursive(inMatrix, inColor, -Vec3::AxisX(), -Vec3::AxisY(), -Vec3::sAxisZ(), inLevel);
 }
 
 void DebugRenderer::DrawWireUnitSphereRecursive(RMat44Arg inMatrix, ColorArg inColor, Vec3Arg inDir1, Vec3Arg inDir2, Vec3Arg inDir3, int inLevel)
@@ -520,10 +520,10 @@ void DebugRenderer::Initialize()
 		{
 			TArray<Vertex> capsule_bottom_vertices;
 			TArray<uint32> capsule_bottom_indices;
-			Create8thSphere(capsule_bottom_indices, capsule_bottom_vertices, -Vec3::sAxisX(), -Vec3::sAxisY(),  Vec3::sAxisZ(), Float2(0.25f, 0.25f), sphere_support, level);
-			Create8thSphere(capsule_bottom_indices, capsule_bottom_vertices, -Vec3::sAxisY(),  Vec3::sAxisX(),  Vec3::sAxisZ(), Float2(0.25f, 0.75f), sphere_support, level);
-			Create8thSphere(capsule_bottom_indices, capsule_bottom_vertices,  Vec3::sAxisX(), -Vec3::sAxisY(), -Vec3::sAxisZ(), Float2(0.25f, 0.25f), sphere_support, level);
-			Create8thSphere(capsule_bottom_indices, capsule_bottom_vertices, -Vec3::sAxisY(), -Vec3::sAxisX(), -Vec3::sAxisZ(), Float2(0.25f, 0.75f), sphere_support, level);
+			Create8thSphere(capsule_bottom_indices, capsule_bottom_vertices, -Vec3::AxisX(), -Vec3::AxisY(),  Vec3::sAxisZ(), Float2(0.25f, 0.25f), sphere_support, level);
+			Create8thSphere(capsule_bottom_indices, capsule_bottom_vertices, -Vec3::AxisY(),  Vec3::AxisX(),  Vec3::sAxisZ(), Float2(0.25f, 0.75f), sphere_support, level);
+			Create8thSphere(capsule_bottom_indices, capsule_bottom_vertices,  Vec3::AxisX(), -Vec3::AxisY(), -Vec3::sAxisZ(), Float2(0.25f, 0.25f), sphere_support, level);
+			Create8thSphere(capsule_bottom_indices, capsule_bottom_vertices, -Vec3::AxisY(), -Vec3::AxisX(), -Vec3::sAxisZ(), Float2(0.25f, 0.75f), sphere_support, level);
 			mCapsuleBottom->mLODs.push_back({ CreateTriangleBatch(capsule_bottom_vertices, capsule_bottom_indices), distance });
 		}
 
@@ -531,10 +531,10 @@ void DebugRenderer::Initialize()
 		{
 			TArray<Vertex> capsule_top_vertices;
 			TArray<uint32> capsule_top_indices;
-			Create8thSphere(capsule_top_indices, capsule_top_vertices,  Vec3::sAxisX(),  Vec3::sAxisY(),  Vec3::sAxisZ(), Float2(0.25f, 0.75f), sphere_support, level);
-			Create8thSphere(capsule_top_indices, capsule_top_vertices,  Vec3::sAxisY(), -Vec3::sAxisX(),  Vec3::sAxisZ(), Float2(0.25f, 0.25f), sphere_support, level);
-			Create8thSphere(capsule_top_indices, capsule_top_vertices,  Vec3::sAxisY(),  Vec3::sAxisX(), -Vec3::sAxisZ(), Float2(0.25f, 0.25f), sphere_support, level);
-			Create8thSphere(capsule_top_indices, capsule_top_vertices, -Vec3::sAxisX(),  Vec3::sAxisY(), -Vec3::sAxisZ(), Float2(0.25f, 0.75f), sphere_support, level);
+			Create8thSphere(capsule_top_indices, capsule_top_vertices,  Vec3::AxisX(),  Vec3::AxisY(),  Vec3::sAxisZ(), Float2(0.25f, 0.75f), sphere_support, level);
+			Create8thSphere(capsule_top_indices, capsule_top_vertices,  Vec3::AxisY(), -Vec3::AxisX(),  Vec3::sAxisZ(), Float2(0.25f, 0.25f), sphere_support, level);
+			Create8thSphere(capsule_top_indices, capsule_top_vertices,  Vec3::AxisY(),  Vec3::AxisX(), -Vec3::sAxisZ(), Float2(0.25f, 0.25f), sphere_support, level);
+			Create8thSphere(capsule_top_indices, capsule_top_vertices, -Vec3::AxisX(),  Vec3::AxisY(), -Vec3::sAxisZ(), Float2(0.25f, 0.75f), sphere_support, level);
 			mCapsuleTop->mLODs.push_back({ CreateTriangleBatch(capsule_top_vertices, capsule_top_indices), distance });
 		}
 
@@ -678,14 +678,14 @@ DebugRenderer::Batch DebugRenderer::CreateTriangleBatchForConvex(SupportFunction
 
 	TArray<Vertex> vertices;
 	TArray<uint32> indices;
-	Create8thSphere(indices, vertices,  Vec3::sAxisX(),  Vec3::sAxisY(),  Vec3::sAxisZ(), Float2(0.25f, 0.25f), inGetSupport, inLevel);
-	Create8thSphere(indices, vertices,  Vec3::sAxisY(), -Vec3::sAxisX(),  Vec3::sAxisZ(), Float2(0.25f, 0.75f), inGetSupport, inLevel);
-	Create8thSphere(indices, vertices, -Vec3::sAxisY(),  Vec3::sAxisX(),  Vec3::sAxisZ(), Float2(0.25f, 0.75f), inGetSupport, inLevel);
-	Create8thSphere(indices, vertices, -Vec3::sAxisX(), -Vec3::sAxisY(),  Vec3::sAxisZ(), Float2(0.25f, 0.25f), inGetSupport, inLevel);
-	Create8thSphere(indices, vertices,  Vec3::sAxisY(),  Vec3::sAxisX(), -Vec3::sAxisZ(), Float2(0.25f, 0.75f), inGetSupport, inLevel);
-	Create8thSphere(indices, vertices, -Vec3::sAxisX(),  Vec3::sAxisY(), -Vec3::sAxisZ(), Float2(0.25f, 0.25f), inGetSupport, inLevel);
-	Create8thSphere(indices, vertices,  Vec3::sAxisX(), -Vec3::sAxisY(), -Vec3::sAxisZ(), Float2(0.25f, 0.25f), inGetSupport, inLevel);
-	Create8thSphere(indices, vertices, -Vec3::sAxisY(), -Vec3::sAxisX(), -Vec3::sAxisZ(), Float2(0.25f, 0.75f), inGetSupport, inLevel);
+	Create8thSphere(indices, vertices,  Vec3::AxisX(),  Vec3::AxisY(),  Vec3::sAxisZ(), Float2(0.25f, 0.25f), inGetSupport, inLevel);
+	Create8thSphere(indices, vertices,  Vec3::AxisY(), -Vec3::AxisX(),  Vec3::sAxisZ(), Float2(0.25f, 0.75f), inGetSupport, inLevel);
+	Create8thSphere(indices, vertices, -Vec3::AxisY(),  Vec3::AxisX(),  Vec3::sAxisZ(), Float2(0.25f, 0.75f), inGetSupport, inLevel);
+	Create8thSphere(indices, vertices, -Vec3::AxisX(), -Vec3::AxisY(),  Vec3::sAxisZ(), Float2(0.25f, 0.25f), inGetSupport, inLevel);
+	Create8thSphere(indices, vertices,  Vec3::AxisY(),  Vec3::AxisX(), -Vec3::sAxisZ(), Float2(0.25f, 0.75f), inGetSupport, inLevel);
+	Create8thSphere(indices, vertices, -Vec3::AxisX(),  Vec3::AxisY(), -Vec3::sAxisZ(), Float2(0.25f, 0.25f), inGetSupport, inLevel);
+	Create8thSphere(indices, vertices,  Vec3::AxisX(), -Vec3::AxisY(), -Vec3::sAxisZ(), Float2(0.25f, 0.25f), inGetSupport, inLevel);
+	Create8thSphere(indices, vertices, -Vec3::AxisY(), -Vec3::AxisX(), -Vec3::sAxisZ(), Float2(0.25f, 0.75f), inGetSupport, inLevel);
 
 	if (outBounds != nullptr)
 		*outBounds = sCalculateBounds(&vertices[0], (int)vertices.size());
@@ -740,7 +740,7 @@ void DebugRenderer::DrawSphere(RVec3Arg inCenter, float inRadius, ColorArg inCol
 {
 	MOSS_PROFILE_FUNCTION();
 
-	RMat44 matrix = RMat44::sTranslation(inCenter) * Mat44::sScale(inRadius);
+	RMat44 matrix = RMat44::Translation(inCenter) * Mat44::sScale(inRadius);
 
 	DrawUnitSphere(matrix, inColor, inCastShadow, inDrawMode);
 }
@@ -765,11 +765,11 @@ void DebugRenderer::DrawCapsule(RMat44Arg inMatrix, float inHalfHeightOfCylinder
 	float radius_sq = Square(inRadius);
 
 	// Draw bottom half sphere
-	RMat44 bottom_matrix = inMatrix * Mat44::sTranslation(Vec3(0, -inHalfHeightOfCylinder, 0)) * scale_matrix;
+	RMat44 bottom_matrix = inMatrix * Mat44::Translation(Vec3(0, -inHalfHeightOfCylinder, 0)) * scale_matrix;
 	DrawGeometry(bottom_matrix, world_bounds, radius_sq, inColor, mCapsuleBottom, ECullMode::CullBackFace, inCastShadow, inDrawMode);
 
 	// Draw top half sphere
-	RMat44 top_matrix = inMatrix * Mat44::sTranslation(Vec3(0, inHalfHeightOfCylinder, 0)) * scale_matrix;
+	RMat44 top_matrix = inMatrix * Mat44::Translation(Vec3(0, inHalfHeightOfCylinder, 0)) * scale_matrix;
 	DrawGeometry(top_matrix, world_bounds, radius_sq, inColor, mCapsuleTop, ECullMode::CullBackFace, inCastShadow, inDrawMode);
 
 	// Draw middle part
@@ -824,7 +824,7 @@ DebugRenderer::Geometry *DebugRenderer::CreateSwingLimitGeometry(int inNumSegmen
 		// Get local normal
 		const Vec3 &prev_pos = inVertices[(i + inNumSegments - 1) % inNumSegments];
 		const Vec3 &next_pos = inVertices[(i + 1) % inNumSegments];
-		Vec3 normal = 0.5f * (next_pos.Cross(pos).NormalizedOr(Vec3::sZero()) + pos.Cross(prev_pos).NormalizedOr(Vec3::sZero()));
+		Vec3 normal = 0.5f * (next_pos.Cross(pos).NormalizedOr(Vec3::Zero()) + pos.Cross(prev_pos).NormalizedOr(Vec3::Zero()));
 
 		// Store top vertex
 		top.mPosition = { 0, 0, 0 };
@@ -968,7 +968,7 @@ void DebugRenderer::DrawSwingPyramidLimits(RMat44Arg inMatrix, float inMinSwingY
 		const int num_segments = 64;
 		int quarter_num_segments = num_segments / 4;
 
-		// Note that this is q = Quat::Rotation(Vec3::sAxisZ(), z) * Quat::Rotation(Vec3::sAxisY(), y) with q.x set to zero so we don't introduce twist
+		// Note that this is q = Quat::Rotation(Vec3::sAxisZ(), z) * Quat::Rotation(Vec3::AxisY(), y) with q.x set to zero so we don't introduce twist
 		// This matches the calculation in SwingTwistConstraintPart::ClampSwingTwist
 		auto get_axis = [](float inY, float inZ) {
 			float hy = 0.5f * inY;

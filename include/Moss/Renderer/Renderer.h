@@ -16,7 +16,7 @@ class Texture;
 /// Camera setup
 struct CameraState
 {
-									CameraState() : mPos(RVec3::sZero()), mForward(0, 0, -1), mUp(0, 1, 0), mFOVY(DegreesToRadians(70.0f)) { }
+									CameraState() : mPos(RVec3::Zero()), mForward(0, 0, -1), mUp(0, 1, 0), mFOVY(DegreesToRadians(70.0f)) { }
 
 	RVec3							mPos;								///< Camera position
 	Vec3							mForward;							///< Camera forward vector
@@ -111,7 +111,7 @@ protected:
 	float							mPerspectiveYSign = 1.0f;			///< Sign for the Y coordinate in the projection matrix (1 for DX, -1 for Vulkan)
 	bool							mInFrame = false;					///< If we're within a BeginFrame() / EndFrame() pair
 	CameraState						mCameraState;
-	RVec3							mBaseOffset { RVec3::sZero() };		///< Offset to subtract from the camera position to deal with large worlds
+	RVec3							mBaseOffset { RVec3::Zero() };		///< Offset to subtract from the camera position to deal with large worlds
 	Frustum							mCameraFrustum;
 	Frustum							mLightFrustum;
 	uint32							mFrameIndex = 0;					///< Current frame index (0 or 1)

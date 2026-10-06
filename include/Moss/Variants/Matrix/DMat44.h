@@ -88,16 +88,16 @@ public:
 	/// Scale a matrix: result = Mat44::Scale(inScale) * this
 	MOSS_INLINE DMat44			PostScaled(Vec3Arg inScale) const;
 
-	/// Pre multiply by translation matrix: result = this * Mat44::sTranslation(inTranslation)
+	/// Pre multiply by translation matrix: result = this * Mat44::Translation(inTranslation)
 	MOSS_INLINE DMat44			PreTranslated(Vec3Arg inTranslation) const;
 
-	/// Pre multiply by translation matrix: result = this * Mat44::sTranslation(inTranslation)
+	/// Pre multiply by translation matrix: result = this * Mat44::Translation(inTranslation)
 	MOSS_INLINE DMat44			PreTranslated(DVec3Arg inTranslation) const;
 
-	/// Post multiply by translation matrix: result = Mat44::sTranslation(inTranslation) * this (i.e. add inTranslation to the 4-th column)
+	/// Post multiply by translation matrix: result = Mat44::Translation(inTranslation) * this (i.e. add inTranslation to the 4-th column)
 	MOSS_INLINE DMat44			PostTranslated(Vec3Arg inTranslation) const;
 
-	/// Post multiply by translation matrix: result = Mat44::sTranslation(inTranslation) * this (i.e. add inTranslation to the 4-th column)
+	/// Post multiply by translation matrix: result = Mat44::Translation(inTranslation) * this (i.e. add inTranslation to the 4-th column)
 	MOSS_INLINE DMat44			PostTranslated(DVec3Arg inTranslation) const;
 
 	/// Access to the columns

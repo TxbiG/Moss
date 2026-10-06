@@ -226,7 +226,7 @@ public:
 	{
 #ifdef MOSS_EPA_CONVEX_BUILDER_DRAW
 		mIteration = 0;
-		mOffset = RVec3::sZero();
+		mOffset = RVec3::Zero();
 #endif
 	}
 
@@ -615,7 +615,7 @@ public:
 	void				DrawState()
 	{
 		// Draw origin
-		DebugRenderer::sInstance->DrawCoordinateSystem(RMat44::sTranslation(cDrawScale * mOffset), 1.0f);
+		DebugRenderer::sInstance->DrawCoordinateSystem(RMat44::Translation(cDrawScale * mOffset), 1.0f);
 
 		// Draw triangles
 		for (const Triangle *t : mTriangles)
@@ -661,7 +661,7 @@ public:
 	/// Draw geometry for debugging purposes
 	void				DrawGeometry(const DebugRenderer::GeometryRef &inGeometry, ColorArg inColor)
 	{
-		RMat44 origin = RMat44::sScale(Vec3::Replicate(cDrawScale)) * RMat44::sTranslation(mOffset);
+		RMat44 origin = RMat44::sScale(Vec3::Replicate(cDrawScale)) * RMat44::Translation(mOffset);
 		DebugRenderer::sInstance->DrawGeometry(origin, inGeometry->mBounds.Transformed(origin), inGeometry->mBounds.GetExtent().LengthSq(), inColor, inGeometry);
 
 		mOffset += Vec3(inGeometry->mBounds.GetSize().GetX(), 0, 0);

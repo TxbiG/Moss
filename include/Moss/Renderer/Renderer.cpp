@@ -29,7 +29,7 @@ bool Renderer::BeginFrame(const CameraState &inCamera, float inWorldScale)
 
 	// Light properties
 	Vec3 light_pos = inWorldScale * Vec3(250, 250, 250);
-	Vec3 light_tgt = Vec3::sZero();
+	Vec3 light_tgt = Vec3::Zero();
 	Vec3 light_up = Vec3(0, 1, 0);
 	Vec3 light_fwd = (light_tgt - light_pos).Normalized();
 	float light_fov = DegreesToRadians(20.0f);

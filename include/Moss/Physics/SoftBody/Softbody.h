@@ -768,7 +768,7 @@ public:
 		float			mLength = 1.0f;								///< Fixed length of the rod, calculated by CalculateRodProperties
 		float			mInvMass = 1.0f;							///< Inverse of the mass of the rod (0 for static rods), calculated by CalculateRodProperties but can be overridden afterwards
 		float			mCompliance = 0.0f;							///< Inverse of the stiffness of the rod
-		Quat			mBishop	= Quat::sZero();					///< The Bishop frame of the rod (the rotation of the rod in its rest pose so that it has zero twist towards adjacent rods), calculated by CalculateRodProperties
+		Quat			mBishop	= Quat::Zero();					///< The Bishop frame of the rod (the rotation of the rod in its rest pose so that it has zero twist towards adjacent rods), calculated by CalculateRodProperties
 	};
 
 	/// A constraint that connects two Cosserat rods and limits bend and twist between the rods.
@@ -781,7 +781,7 @@ public:
 
 		uint32			mRod[2];									///< Indices of rods that are constrained (index in mRodStretchShearConstraints)
 		float			mCompliance = 0.0f;							///< Inverse of the stiffness of the rod
-		Quat			mOmega0 = Quat::sZero();					///< The initial rotation between the rods: rod1.mBishop.Conjugated() * rod2.mBishop, calculated by CalculateRodProperties
+		Quat			mOmega0 = Quat::Zero();					///< The initial rotation between the rods: rod1.mBishop.Conjugated() * rod2.mBishop, calculated by CalculateRodProperties
 	};
 
 
@@ -994,7 +994,7 @@ public:
 
 	// See Shape
 	virtual bool					MustBeStatic() const override							{ return false; }
-	virtual Vec3					GetCenterOfMass() const override						{ return Vec3::sZero(); }
+	virtual Vec3					GetCenterOfMass() const override						{ return Vec3::Zero(); }
 	virtual AABox					GetLocalBounds() const override;
 	virtual uint					GetSubShapeIDBitsRecursive() const override				{ return GetSubShapeIDBits(); }
 	virtual float					GetInnerRadius() const override							{ return 0.0f; }

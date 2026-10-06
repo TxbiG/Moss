@@ -842,8 +842,8 @@ MOSS_API void RegisterDefaultAllocator();
 
 // Macro to override the new and delete functions
 #define MOSS_OVERRIDE_NEW_DELETE 																																		\
-	MOSS_INLINE void *operator new (size_t inCount)												{ return Allocate(inCount); } 											\
-	MOSS_INLINE void operator delete (void *inPointer) noexcept									{ Free(inPointer); } 													\
+	MOSS_INLINE void *operator new (size_t inCount)												{ return ::Allocate(inCount); } 											\
+	MOSS_INLINE void operator delete (void *inPointer) noexcept									{ ::Free(inPointer); } 													\
 	MOSS_INLINE void *operator new[] (size_t inCount)											{ return Allocate(inCount); } 											\
 	MOSS_INLINE void operator delete[] (void *inPointer) noexcept								{ Free(inPointer); } 													\
 	MOSS_INLINE void *operator new (size_t inCount, std::align_val_t inAlignment)				{ return AlignedAllocate(inCount, static_cast<size_t>(inAlignment)); } 	\
@@ -937,12 +937,10 @@ inline MossAssertInitializer gMossAssertInitializer;
 
 // Helper to support optional message
 struct MossAssertLastParam {};
-inline bool MossAssertHelper(const char* expr, const char* file, uint32_t line, MossAssertLastParam)
-{
+inline bool MossAssertHelper(const char* expr, const char* file, uint32_t line, MossAssertLastParam) {
     return MossAssertFailed(expr, nullptr, file, line);
 }
-inline bool MossAssertHelper(const char* expr, const char* file, uint32_t line, const char* msg, MossAssertLastParam)
-{
+inline bool MossAssertHelper(const char* expr, const char* file, uint32_t line, const char* msg, MossAssertLastParam) {
     return MossAssertFailed(expr, msg, file, line);
 }
 
@@ -955,7 +953,7 @@ inline bool MossAssertHelper(const char* expr, const char* file, uint32_t line, 
         } \
     } while (0)
 
-#define MOSS_IF_ENABLE_ASSERTS(...)		__VA_ARGS__
+#define MOSS_IF_ENABLE_ASSERTS(...)  __VA_ARGS_
 #else
 	#define MOSS_TRACE(msg, ...)  		((void)0)
 	#define MOSS_DEBUG(msg, ...)  		((void)0)
@@ -966,7 +964,7 @@ inline bool MossAssertHelper(const char* expr, const char* file, uint32_t line, 
 	#define MOSS_CHECK(x, msg, ...)  	((void)0)
 	#define MOSS_ASSERT(...)  			((void)0)
 
-	#define MOSS_IF_ENABLE_ASSERTS(...) ((void)0)
+	#define MOSS_IF_ENABLE_ASSERTS(...)
 #endif
 
 // Shorthand for #ifdef MOSS_FLOATING_POINT_EXCEPTIONS_ENABLED / #endif

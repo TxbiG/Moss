@@ -5,6 +5,7 @@
 #pragma once
 
 #include <Moss/Core/NonCopyable.h>
+#include <Moss/Variants/Math/Real.h>
 
 MOSS_SUPPRESS_WARNINGS_BEGIN
 

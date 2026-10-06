@@ -71,20 +71,20 @@ public:
 	template <class A>
 	static void		sCreateHalfUnitSphereTop(A &ioVertices, int inDetailLevel)
 	{
-		sCreateUnitSphereHelper(ioVertices,  Vec3::sAxisX(),  Vec3::sAxisY(),  Vec3::sAxisZ(), inDetailLevel);
-		sCreateUnitSphereHelper(ioVertices,  Vec3::sAxisY(), -Vec3::sAxisX(),  Vec3::sAxisZ(), inDetailLevel);
-		sCreateUnitSphereHelper(ioVertices,  Vec3::sAxisY(),  Vec3::sAxisX(), -Vec3::sAxisZ(), inDetailLevel);
-		sCreateUnitSphereHelper(ioVertices, -Vec3::sAxisX(),  Vec3::sAxisY(), -Vec3::sAxisZ(), inDetailLevel);
+		sCreateUnitSphereHelper(ioVertices,  Vec3::AxisX(),  Vec3::AxisY(),  Vec3::sAxisZ(), inDetailLevel);
+		sCreateUnitSphereHelper(ioVertices,  Vec3::AxisY(), -Vec3::AxisX(),  Vec3::sAxisZ(), inDetailLevel);
+		sCreateUnitSphereHelper(ioVertices,  Vec3::AxisY(),  Vec3::AxisX(), -Vec3::sAxisZ(), inDetailLevel);
+		sCreateUnitSphereHelper(ioVertices, -Vec3::AxisX(),  Vec3::AxisY(), -Vec3::sAxisZ(), inDetailLevel);
 	}
 
 	/// Helper function that creates a vertex list of a half unit sphere (bottom part)
 	template <class A>
 	static void		sCreateHalfUnitSphereBottom(A &ioVertices, int inDetailLevel)
 	{
-		sCreateUnitSphereHelper(ioVertices, -Vec3::sAxisX(), -Vec3::sAxisY(),  Vec3::sAxisZ(), inDetailLevel);
-		sCreateUnitSphereHelper(ioVertices, -Vec3::sAxisY(),  Vec3::sAxisX(),  Vec3::sAxisZ(), inDetailLevel);
-		sCreateUnitSphereHelper(ioVertices,  Vec3::sAxisX(), -Vec3::sAxisY(), -Vec3::sAxisZ(), inDetailLevel);
-		sCreateUnitSphereHelper(ioVertices, -Vec3::sAxisY(), -Vec3::sAxisX(), -Vec3::sAxisZ(), inDetailLevel);
+		sCreateUnitSphereHelper(ioVertices, -Vec3::AxisX(), -Vec3::AxisY(),  Vec3::sAxisZ(), inDetailLevel);
+		sCreateUnitSphereHelper(ioVertices, -Vec3::AxisY(),  Vec3::AxisX(),  Vec3::sAxisZ(), inDetailLevel);
+		sCreateUnitSphereHelper(ioVertices,  Vec3::AxisX(), -Vec3::AxisY(), -Vec3::sAxisZ(), inDetailLevel);
+		sCreateUnitSphereHelper(ioVertices, -Vec3::AxisY(), -Vec3::AxisX(), -Vec3::sAxisZ(), inDetailLevel);
 	}
 
 	/// Helper function that creates an open cylinder of half height 1 and radius 1

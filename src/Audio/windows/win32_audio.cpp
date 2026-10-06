@@ -670,7 +670,7 @@ void Moss_AudioStream3DPlay(AudioStream3D* audiostream) {
 
     // --- Doppler pitch shift ---
     Vec3 listenerPos = Vec3(g_activeListener2D->x, 0.f, g_activeListener2D->y);
-    Vec3 listenerVel = Vec3::sZero(); // or get from system
+    Vec3 listenerVel = Vec3::Zero(); // or get from system
     Vec3 sourcePos   = Vec3(position.x, 0.f, position.y);
     Vec3 sourceVel   = Vec3(g_activeListenerVelocity2D->x, 0.f, g_activeListenerVelocity2D->y);
 
@@ -1187,7 +1187,7 @@ void Moss_AudioStream3DPlay(AudioStream3D* audiostream) {
 
     // --- Doppler pitch shift ---
     Vec3 listenerPos = Vec3(g_activeListener2D->x, 0.f, g_activeListener2D->y);
-    Vec3 listenerVel = Vec3::sZero(); // or get from system
+    Vec3 listenerVel = Vec3::Zero(); // or get from system
     Vec3 sourcePos   = Vec3(position.x, 0.f, position.y);
     Vec3 sourceVel   = Vec3(g_activeListenerVelocity2D->x, 0.f, g_activeListenerVelocity2D->y);
 
@@ -1245,8 +1245,8 @@ AudioListener2D* Moss_AudioCreateAudioListener2D() {
 
 AudioListener3D* Moss_AudioCreateAudioListener3D() {
     auto* listener = new AudioListener3D{};
-    listener->position = Vec3::sZero();
-    listener->velocity = Vec3::sZero();
+    listener->position = Vec3::Zero();
+    listener->velocity = Vec3::Zero();
     listener->active = false;
     return listener;
 }
@@ -1261,8 +1261,8 @@ RayAudioListener2D* Moss_AudioCreateRayAudioListener2D() {
 
 RayAudioListener3D* Moss_AudioCreateRayAudioListener3D() {
     auto* listener = new RayAudioListener3D{};
-    listener->position = Vec3::sZero();
-    listener->velocity = Vec3::sZero();
+    listener->position = Vec3::Zero();
+    listener->velocity = Vec3::Zero();
     listener->active = false;
     return listener;
 }

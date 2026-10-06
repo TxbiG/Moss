@@ -213,7 +213,7 @@ public:
 
 #ifdef MOSS_GJK_DEBUG
 		for (int i = 0; i < 4; ++i)
-			mY[i] = Vec3::sZero();
+			mY[i] = Vec3::Zero();
 #endif
 
 		// Previous length^2 of v
@@ -262,7 +262,7 @@ public:
 #ifdef MOSS_GJK_DEBUG
 				MOSS_TRACE("Full simplex");
 #endif
-				ioV = Vec3::sZero();
+				ioV = Vec3::Zero();
 				return true;
 			}
 
@@ -272,7 +272,7 @@ public:
 #ifdef MOSS_GJK_DEBUG
 				MOSS_TRACE("Distance zero");
 #endif
-				ioV = Vec3::sZero();
+				ioV = Vec3::Zero();
 				return true;
 			}
 
@@ -282,7 +282,7 @@ public:
 #ifdef MOSS_GJK_DEBUG
 				MOSS_TRACE("Machine precision reached");
 #endif
-				ioV = Vec3::sZero();
+				ioV = Vec3::Zero();
 				return true;
 			}
 
@@ -338,9 +338,9 @@ public:
 
 		for (int i = 0; i < 4; ++i)
 		{
-			mY[i] = Vec3::sZero();
-			mP[i] = Vec3::sZero();
-			mQ[i] = Vec3::sZero();
+			mY[i] = Vec3::Zero();
+			mP[i] = Vec3::Zero();
+			mQ[i] = Vec3::Zero();
 		}
 #endif
 
@@ -416,7 +416,7 @@ public:
 #ifdef MOSS_GJK_DEBUG
 				MOSS_TRACE("Full simplex");
 #endif
-				ioV = Vec3::sZero();
+				ioV = Vec3::Zero();
 				v_len_sq = 0.0f;
 				break;
 			}
@@ -430,7 +430,7 @@ public:
 #ifdef MOSS_GJK_DEBUG
 				MOSS_TRACE("Distance zero");
 #endif
-				ioV = Vec3::sZero();
+				ioV = Vec3::Zero();
 				v_len_sq = 0.0f;
 				break;
 			}
@@ -444,7 +444,7 @@ public:
 #ifdef MOSS_GJK_DEBUG
 				MOSS_TRACE("Machine precision reached");
 #endif
-				ioV = Vec3::sZero();
+				ioV = Vec3::Zero();
 				v_len_sq = 0.0f;
 				break;
 			}
@@ -522,7 +522,7 @@ public:
 
 		float lambda = 0.0f;
 		Vec3 x = inRayOrigin;
-		Vec3 v = x - inA.GetSupport(Vec3::sZero());
+		Vec3 v = x - inA.GetSupport(Vec3::Zero());
 		float v_len_sq = FLT_MAX;
 		bool allow_restart = false;
 
@@ -665,7 +665,7 @@ public:
 		MinkowskiDifference difference(inB, transformed_a);
 
 		// Do a raycast against the Minkowski difference
-		return CastRay(Vec3::sZero(), inDirection, inTolerance, difference, ioLambda);
+		return CastRay(Vec3::Zero(), inDirection, inTolerance, difference, ioLambda);
 	}
 
 	/// Test if a cast shape inA moving from inStart to lambda * inStart.GetTranslation() + inDirection where lambda e [0, ioLambda> intersects inB
@@ -700,14 +700,14 @@ public:
 		mNumPoints = 0;
 
 		float lambda = 0.0f;
-		Vec3 x = Vec3::sZero(); // Since A is already transformed we can start the cast from zero
-		Vec3 v = -inB.GetSupport(Vec3::sZero()) + transformed_a.GetSupport(Vec3::sZero()); // See CastRay: v = x - inA.GetSupport(Vec3::sZero()) where inA is the Minkowski difference inB - transformed_a (see CastShape above) and x is zero
+		Vec3 x = Vec3::Zero(); // Since A is already transformed we can start the cast from zero
+		Vec3 v = -inB.GetSupport(Vec3::Zero()) + transformed_a.GetSupport(Vec3::Zero()); // See CastRay: v = x - inA.GetSupport(Vec3::Zero()) where inA is the Minkowski difference inB - transformed_a (see CastShape above) and x is zero
 		float v_len_sq = FLT_MAX;
 		bool allow_restart = false;
 
 		// Keeps track of separating axis of the previous iteration.
 		// Initialized at zero as we don't know if our first v is actually a separating axis.
-		Vec3 prev_v = Vec3::sZero();
+		Vec3 prev_v = Vec3::Zero();
 
 		for (;;)
 		{
@@ -846,7 +846,7 @@ public:
 			mY[i] = x - (mQ[i] - mP[i]);
 
 		// Calculate the offset we need to apply to A and B to correct for the convex radius
-		Vec3 normalized_v = v.NormalizedOr(Vec3::sZero());
+		Vec3 normalized_v = v.NormalizedOr(Vec3::Zero());
 		Vec3 convex_radius_a = inConvexRadiusA * normalized_v;
 		Vec3 convex_radius_b = inConvexRadiusB * normalized_v;
 
@@ -893,7 +893,7 @@ private:
 	/// Draw state of algorithm
 	void		DrawState()
 	{
-		RMat44 origin = RMat44::sTranslation(mOffset);
+		RMat44 origin = RMat44::Translation(mOffset);
 
 		// Draw origin
 		DebugRenderer::sInstance->DrawCoordinateSystem(origin, 1.0f);
@@ -938,7 +938,7 @@ private:
 
 #ifdef MOSS_GJK_DEBUG
 	DebugRenderer::GeometryRef	mGeometry;	///< A visualization of the minkowski difference for state drawing
-	RVec3		mOffset = RVec3::sZero();	///< Offset to use for state drawing
+	RVec3		mOffset = RVec3::Zero();	///< Offset to use for state drawing
 #endif
 };
 

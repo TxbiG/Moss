@@ -140,7 +140,7 @@ void SurfaceRect::initBuffers() {
 
 
 void SurfaceRect::update() {
-    model = Mat44::sTranslation(Vec3(position.x, position.y, 0.0f)) * Mat44::RotationZ(rotation) * Mat44::sScale(Vec3(width, height, 1.0f));
+    model = Mat44::Translation(Vec3(position.x, position.y, 0.0f)) * Mat44::RotationZ(rotation) * Mat44::sScale(Vec3(width, height, 1.0f));
 }
 
 void SurfaceRect::draw(const Mat44& viewProjectionMatrix) {
