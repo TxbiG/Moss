@@ -289,14 +289,14 @@ enum class ENetSocketWait : uint8_t {
 enum class ENetSocketOption : uint16_t {
    NONBLOCK  = (1 << 0), 
    BROADCAST = (1 << 1), 
-   RCVBUF    = (1 << 2), 
-   SNDBUF    = (1 << 3), 
-   REUSEADDR = (1 << 4), 
-   RCVTIMEO  = (1 << 5), 
-   SNDTIMEO  = (1 << 6), 
+   RECEIVEBUFFER    = (1 << 2), 
+   SENDBUFFER    = (1 << 3), 
+   RECEIVE_ADRESS = (1 << 4), 
+   RECEIVE_TIMEOUT = (1 << 5), 
+   SEND_TIMEOUT  = (1 << 6), 
    SOCKET_ERROR = (1 << 7), // Renamed from ERROR to fix the Windows macro collision
-   NODELAY   = (1 << 8), 
-   TTL       = (1 << 9), 
+   NO_DELAY   = (1 << 8), 
+   TIMETOLIVE = (1 << 9), 
    IPV6ONLY  = (1 << 10) 
 };
 
