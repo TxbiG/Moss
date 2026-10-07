@@ -2,7 +2,7 @@
 
 MOSS_SUPPRESS_WARNINGS_BEGIN
 
-#include <Moss/Physics/Collision/Shape/Shape.h>
+#include <Moss/Physics/Collision/Shape/Shapes.h>
 
 enum class ETrackSide : uint8_t {
 	Left = 0,
