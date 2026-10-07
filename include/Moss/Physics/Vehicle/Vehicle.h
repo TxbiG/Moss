@@ -2,6 +2,7 @@
 
 MOSS_SUPPRESS_WARNINGS_BEGIN
 
+#include <Moss/Physics/Collision/Shape/Shape.h>
 
 enum class ETrackSide : uint8_t {
 	Left = 0,
@@ -32,8 +33,7 @@ public:
 ///
 /// The properties in this constraint are largely based on "Car Physics for Games" by Marco Monster.
 /// See: https://www.asawicki.info/Mirror/Car%20Physics%20for%20Games/Car%20Physics%20for%20Games.html
-class MOSS_API VehicleConstraintSettings : public ConstraintSettings
-{
+class MOSS_API VehicleConstraintSettings : public ConstraintSettings {
 	MOSS_DECLARE_SERIALIZABLE_VIRTUAL(MOSS_API, VehicleConstraintSettings)
 
 public:
@@ -43,7 +43,7 @@ public:
 	Vec3						mUp { 0, 1, 0 };							///< Vector indicating the up direction of the vehicle (in local space to the body)
 	Vec3						mForward { 0, 0, 1 };						///< Vector indicating forward direction of the vehicle (in local space to the body)
 	float						mMaxPitchRollAngle = MOSS_PI;				///< Defines the maximum pitch/roll angle (rad), can be used to avoid the car from getting upside down. The vehicle up direction will stay within a cone centered around the up axis with half top angle mMaxPitchRollAngle, set to pi to turn off.
-	Array<Ref<WheelSettings>>	mWheels;									///< List of wheels and their properties
+	TArray<Ref<WheelSettings>>	mWheels;									///< List of wheels and their properties
 	VehicleAntiRollBars			mAntiRollBars;								///< List of anti rollbars and their properties
 	Ref<VehicleControllerSettings> mController;								///< Defines how the vehicle can accelerate / decelerate
 
@@ -490,8 +490,8 @@ public:
 	void RestoreBinaryState(StreamIn &inStream);
 
 	ETransmissionMode		mMode = ETransmissionMode::Auto;			///< How to switch gears
-	Array<float>			mGearRatios { 2.66f, 1.78f, 1.3f, 1.0f, 0.74f }; ///< Ratio in rotation rate between engine and gear box, first element is 1st gear, 2nd element 2nd gear etc.
-	Array<float>			mReverseGearRatios { -2.90f };				///< Ratio in rotation rate between engine and gear box when driving in reverse
+	TArray<float>			mGearRatios { 2.66f, 1.78f, 1.3f, 1.0f, 0.74f }; ///< Ratio in rotation rate between engine and gear box, first element is 1st gear, 2nd element 2nd gear etc.
+	TArray<float>			mReverseGearRatios { -2.90f };				///< Ratio in rotation rate between engine and gear box when driving in reverse
 	float					mSwitchTime = 0.5f;							///< How long it takes to switch gears (s), only used in auto mode
 	float					mClutchReleaseTime = 0.3f;					///< How long it takes to release the clutch (go to full friction), only used in auto mode
 	float					mSwitchLatency = 0.5f;						///< How long to wait after releasing the clutch before another switch is attempted (s), only used in auto mode
@@ -684,7 +684,7 @@ public:
 
 	VehicleEngineSettings		mEngine;									///< The properties of the engine
 	VehicleTransmissionSettings	mTransmission;								///< The properties of the transmission (aka gear box)
-	Array<VehicleDifferentialSettings> mDifferentials;						///< List of differentials and their properties
+	TArray<VehicleDifferentialSettings> mDifferentials;						///< List of differentials and their properties
 	float						mDifferentialLimitedSlipRatio = 1.4f;		///< Ratio max / min average wheel speed of each differential (measured at the clutch). When the ratio is exceeded all torque gets distributed to the differential with the minimal average velocity. This allows implementing a limited slip differential between differentials. Set to FLT_MAX for an open differential. Value should be > 1.
 };
 
@@ -731,7 +731,7 @@ public:
 	void					RestoreBinaryState(StreamIn &inStream);
 
 	uint					mDrivenWheel;								///< Which wheel on the track is connected to the engine
-	Array<uint>				mWheels;									///< Indices of wheels that are inside this track, should include the driven wheel too
+	TArray<uint>				mWheels;									///< Indices of wheels that are inside this track, should include the driven wheel too
 	float					mInertia = 10.0f;							///< Moment of inertia (kg m^2) of the track and its wheels as seen on the driven wheel
 	float					mAngularDamping = 0.5f;						///< Damping factor of track and its wheels: dw/dt = -c * w as seen on the driven wheel
 	float					mMaxBrakeTorque = 15000.0f;					///< How much torque (Nm) the brakes can apply on the driven wheel

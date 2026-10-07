@@ -268,7 +268,7 @@ MOSS_INLINE Vec4 RayTriangle4(Vec3Arg inOrigin, Vec3Arg inDirection, Vec4Arg inV
 	Vec4 det = e1x * px + e1y * py + e1z * pz;
 
 	// Get sign bit for determinant and make positive
-	Vec4 det_sign = Vec4::sAnd(det, UVec4::Replicate(0x80000000).ReinterpretAsFloat());
+	Vec4 det_sign = Vec4::And(det, UVec4::Replicate(0x80000000).ReinterpretAsFloat());
 	det = Vec4::sXor(det, det_sign);
 
 	// Check which determinants are near zero
@@ -357,7 +357,7 @@ MOSS_INLINE float RayAABox(Vec3Arg inOrigin, const RayInvDirection &inInvDirecti
 
 	// if (inInvDirection.mIsParallel && !(Min <= inOrigin && inOrigin <= Max)) return FLT_MAX; else return t_min;
 	UVec4 no_parallel_overlap = UVec4::sOr(Vec3::Less(inOrigin, inBoundsMin), Vec3::Greater(inOrigin, inBoundsMax));
-	no_intersection = UVec4::sOr(no_intersection, UVec4::sAnd(inInvDirection.mIsParallel, no_parallel_overlap));
+	no_intersection = UVec4::sOr(no_intersection, UVec4::And(inInvDirection.mIsParallel, no_parallel_overlap));
 	no_intersection = UVec4::sOr(no_intersection, no_intersection.SplatY());
 	no_intersection = UVec4::sOr(no_intersection, no_intersection.SplatZ());
 	return Vec3::sSelect(t_min, flt_max, no_intersection).GetX();
@@ -419,9 +419,9 @@ MOSS_INLINE Vec4 RayAABox4(Vec3Arg inOrigin, const RayInvDirection &inInvDirecti
 	no_intersection = UVec4::sOr(no_intersection, bounds_invalid);
 
 	// if (inInvDirection.mIsParallel && !(Min <= inOrigin && inOrigin <= Max)) return FLT_MAX; else return t_min;
-	UVec4 no_parallel_overlapx = UVec4::sAnd(parallelx, UVec4::sOr(Vec4::Less(originx, inBoundsMinX), Vec4::Greater(originx, inBoundsMaxX)));
-	UVec4 no_parallel_overlapy = UVec4::sAnd(parallely, UVec4::sOr(Vec4::Less(originy, inBoundsMinY), Vec4::Greater(originy, inBoundsMaxY)));
-	UVec4 no_parallel_overlapz = UVec4::sAnd(parallelz, UVec4::sOr(Vec4::Less(originz, inBoundsMinZ), Vec4::Greater(originz, inBoundsMaxZ)));
+	UVec4 no_parallel_overlapx = UVec4::And(parallelx, UVec4::sOr(Vec4::Less(originx, inBoundsMinX), Vec4::Greater(originx, inBoundsMaxX)));
+	UVec4 no_parallel_overlapy = UVec4::And(parallely, UVec4::sOr(Vec4::Less(originy, inBoundsMinY), Vec4::Greater(originy, inBoundsMaxY)));
+	UVec4 no_parallel_overlapz = UVec4::And(parallelz, UVec4::sOr(Vec4::Less(originz, inBoundsMinZ), Vec4::Greater(originz, inBoundsMaxZ)));
 	no_intersection = UVec4::sOr(no_intersection, UVec4::sOr(UVec4::sOr(no_parallel_overlapx, no_parallel_overlapy), no_parallel_overlapz));
 	return Vec4::sSelect(t_min, flt_max, no_intersection);
 }
@@ -458,7 +458,7 @@ MOSS_INLINE void RayAABox(Vec3Arg inOrigin, const RayInvDirection &inInvDirectio
 
 	// if (inInvDirection.mIsParallel && !(Min <= inOrigin && inOrigin <= Max)) return FLT_MAX; else return t_min;
 	UVec4 no_parallel_overlap = UVec4::sOr(Vec3::Less(inOrigin, inBoundsMin), Vec3::Greater(inOrigin, inBoundsMax));
-	no_intersection = UVec4::sOr(no_intersection, UVec4::sAnd(inInvDirection.mIsParallel, no_parallel_overlap));
+	no_intersection = UVec4::sOr(no_intersection, UVec4::And(inInvDirection.mIsParallel, no_parallel_overlap));
 	no_intersection = UVec4::sOr(no_intersection, no_intersection.SplatY());
 	no_intersection = UVec4::sOr(no_intersection, no_intersection.SplatZ());
 	outMin = Vec3::sSelect(t_min, flt_max, no_intersection).GetX();
@@ -499,7 +499,7 @@ MOSS_INLINE bool RayAABoxHits(Vec3Arg inOrigin, const RayInvDirection &inInvDire
 
 	// if (inInvDirection.mIsParallel && !(Min <= inOrigin && inOrigin <= Max)) return false; else return true;
 	UVec4 no_parallel_overlap = UVec4::sOr(Vec3::Less(inOrigin, inBoundsMin), Vec3::Greater(inOrigin, inBoundsMax));
-	no_intersection = UVec4::sOr(no_intersection, UVec4::sAnd(inInvDirection.mIsParallel, no_parallel_overlap));
+	no_intersection = UVec4::sOr(no_intersection, UVec4::And(inInvDirection.mIsParallel, no_parallel_overlap));
 
 	return !no_intersection.TestAnyXYZTrue();
 }
@@ -512,7 +512,7 @@ MOSS_INLINE bool RayAABoxHits(Vec3Arg inOrigin, Vec3Arg inDirection, Vec3Arg inB
 	Vec3 diff = 2.0f * inOrigin - inBoundsMin - inBoundsMax;
 	Vec3 abs_diff = diff.Abs();
 
-	UVec4 no_intersection = UVec4::sAnd(Vec3::Greater(abs_diff, extents), Vec3::sGreaterOrEqual(diff * inDirection, Vec3::Zero()));
+	UVec4 no_intersection = UVec4::And(Vec3::Greater(abs_diff, extents), Vec3::sGreaterOrEqual(diff * inDirection, Vec3::Zero()));
 
 	Vec3 abs_dir = inDirection.Abs();
 	Vec3 abs_dir_yzz = abs_dir.Swizzle<SWIZZLE_Y, SWIZZLE_Z, SWIZZLE_Z>();

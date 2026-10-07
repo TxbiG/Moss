@@ -1168,7 +1168,7 @@ public:
 	virtual bool ShouldCollide(const BodyID &inBodyID) const override { return std::find(mBodyIDs.begin(), mBodyIDs.end(), inBodyID) == mBodyIDs.end(); }
 
 private:
-	Array<BodyID>			mBodyIDs;
+	TArray<BodyID>			mBodyIDs;
 };
 
 // Ignores a single body and chains the filter to another filter
@@ -1498,10 +1498,10 @@ public:
 	//////////////////
 
 	//@name Update linear and angular velocity (used during constraint solving)
-	inline void AddLinearVelocityStep(Vec3Arg inLinearVelocityChange) { MOSS_DET_LOG("AddLinearVelocityStep: " << inLinearVelocityChange); MOSS_ASSERT(BodyAccess::CheckRights(BodyAccess::VelocityAccess(), BodyAccess::EAccess::ReadWrite)); mLinearVelocity = LockTranslation(mLinearVelocity + inLinearVelocityChange); MOSS_ASSERT(!mLinearVelocity.IsNaN()); }
-	inline void SubLinearVelocityStep(Vec3Arg inLinearVelocityChange) { MOSS_DET_LOG("SubLinearVelocityStep: " << inLinearVelocityChange); MOSS_ASSERT(BodyAccess::CheckRights(BodyAccess::VelocityAccess(), BodyAccess::EAccess::ReadWrite)); mLinearVelocity = LockTranslation(mLinearVelocity - inLinearVelocityChange); MOSS_ASSERT(!mLinearVelocity.IsNaN()); }
-	inline void AddAngularVelocityStep(Vec3Arg inAngularVelocityChange) { MOSS_DET_LOG("AddAngularVelocityStep: " << inAngularVelocityChange); MOSS_ASSERT(BodyAccess::CheckRights(BodyAccess::VelocityAccess(), BodyAccess::EAccess::ReadWrite)); mAngularVelocity += inAngularVelocityChange; MOSS_ASSERT(!mAngularVelocity.IsNaN()); }
-	inline void SubAngularVelocityStep(Vec3Arg inAngularVelocityChange) { MOSS_DET_LOG("SubAngularVelocityStep: " << inAngularVelocityChange); MOSS_ASSERT(BodyAccess::CheckRights(BodyAccess::VelocityAccess(), BodyAccess::EAccess::ReadWrite)); mAngularVelocity -= inAngularVelocityChange; MOSS_ASSERT(!mAngularVelocity.IsNaN()); }
+	inline void AddLinearVelocityStep(Vec3Arg inLinearVelocityChange) { MOSS_LOG("AddLinearVelocityStep: " << inLinearVelocityChange); MOSS_ASSERT(BodyAccess::CheckRights(BodyAccess::VelocityAccess(), BodyAccess::EAccess::ReadWrite)); mLinearVelocity = LockTranslation(mLinearVelocity + inLinearVelocityChange); MOSS_ASSERT(!mLinearVelocity.IsNaN()); }
+	inline void SubLinearVelocityStep(Vec3Arg inLinearVelocityChange) { MOSS_LOG("SubLinearVelocityStep: " << inLinearVelocityChange); MOSS_ASSERT(BodyAccess::CheckRights(BodyAccess::VelocityAccess(), BodyAccess::EAccess::ReadWrite)); mLinearVelocity = LockTranslation(mLinearVelocity - inLinearVelocityChange); MOSS_ASSERT(!mLinearVelocity.IsNaN()); }
+	inline void AddAngularVelocityStep(Vec3Arg inAngularVelocityChange) { MOSS_LOG("AddAngularVelocityStep: " << inAngularVelocityChange); MOSS_ASSERT(BodyAccess::CheckRights(BodyAccess::VelocityAccess(), BodyAccess::EAccess::ReadWrite)); mAngularVelocity += inAngularVelocityChange; MOSS_ASSERT(!mAngularVelocity.IsNaN()); }
+	inline void SubAngularVelocityStep(Vec3Arg inAngularVelocityChange) { MOSS_LOG("SubAngularVelocityStep: " << inAngularVelocityChange); MOSS_ASSERT(BodyAccess::CheckRights(BodyAccess::VelocityAccess(), BodyAccess::EAccess::ReadWrite)); mAngularVelocity -= inAngularVelocityChange; MOSS_ASSERT(!mAngularVelocity.IsNaN()); }
 
 	// Apply the gyroscopic force (aka Dzhanibekov effect, see https://en.wikipedia.org/wiki/Tennis_racket_theorem)
 	inline void ApplyGyroscopicForceInternal(QuatArg inBodyRotation, float inDeltaTime);

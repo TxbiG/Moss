@@ -103,7 +103,7 @@ public:
 
 		uint32 VertexCount() const							{ return mEndVtx - mStartVtx; }
 
-		float MeasureLength(const Array<SVertex> &inVertices) const {
+		float MeasureLength(const TArray<SVertex> &inVertices) const {
 			float length = 0.0f;
 			for (uint32 v = mStartVtx; v < mEndVtx - 1; ++v)
 				length += (Vec3(inVertices[v + 1].mPosition) - Vec3(inVertices[v].mPosition)).Length();
@@ -231,10 +231,10 @@ public:
 	/// When this function returns mSimVertices, mSimStrands, mRenderVertices and mRenderStrands are overwritten.
 	/// @param inVertices Vertices for the strands.
 	/// @param inStrands The strands that this instance should have.
-	void InitRenderAndSimulationStrands(const Array<SVertex> &inVertices, const Array<SStrand> &inStrands);
+	void InitRenderAndSimulationStrands(const TArray<SVertex> &inVertices, const TArray<SStrand> &inStrands);
 
 	/// Resample the hairs to a new fixed number of vertices per strand. Must be called prior to Init if desired.
-	static void			sResample(Array<SVertex> &ioVertices, Array<SStrand> &ioStrands, uint32 inNumVerticesPerStrand);
+	static void			sResample(TArray<SVertex> &ioVertices, TArray<SStrand> &ioStrands, uint32 inNumVerticesPerStrand);
 
 	/// Initialize the structure, calculating simulation bounds and vertex properties
 	/// @param outMaxDistSqHairToScalp Maximum distance^2 the root vertex of a hair is from the scalp, can be used to check if the hair matched the scalp correctly
@@ -264,7 +264,7 @@ public:
 	/// @param inJointToHair Transform to bring the model space joint matrices to the hair local space
 	/// @param inJointMatrices Model space joint matrices of the joints in the face
 	/// @param outVertices Returns skinned vertices
-	void SkinScalpVertices(Mat44Arg inJointToHair, const Mat44 *inJointMatrices, Array<Vec3> &outVertices) const;
+	void SkinScalpVertices(Mat44Arg inJointToHair, const Mat44 *inJointMatrices, TArray<Vec3> &outVertices) const;
 
 	/// Saves the state of this object in binary form to inStream. Doesn't store the compute buffers.
 	void SaveBinaryState(StreamOut &inStream) const;
@@ -324,16 +324,16 @@ public:
 
 	static constexpr uint32 cDefaultIterationsPerSecond = 360;
 
-	Array<SVertex>		mSimVertices;								// Simulated vertices. Used by mSimStrands.
-	Array<SStrand>		mSimStrands;								// Defines the start and end of each simulated strand.
+	TArray<SVertex>		mSimVertices;								// Simulated vertices. Used by mSimStrands.
+	TArray<SStrand>		mSimStrands;								// Defines the start and end of each simulated strand.
 
-	Array<RVertex>		mRenderVertices;							// Rendered vertices. Used by mRenderStrands.
-	Array<RStrand>		mRenderStrands;								// Defines the start and end of each rendered strand.
+	TArray<RVertex>		mRenderVertices;							// Rendered vertices. Used by mRenderStrands.
+	TArray<RStrand>		mRenderStrands;								// Defines the start and end of each rendered strand.
 
-	Array<Float3>		mScalpVertices;								// Vertices of the scalp mesh, used to attach hairs. Note that the hair vertices mSimVertices must be in the same space as these vertices.
-	Array<IndexedTriangleNoMaterial> mScalpTriangles;				// Triangles of the scalp mesh.
-	Array<Mat44>		mScalpInverseBindPose;						// Inverse bind pose of the scalp mesh, joints are in model space
-	Array<SkinWeight>	mScalpSkinWeights;							// Skin weights of the scalp mesh, for each vertex we have mScalpNumSkinWeightsPerVertex entries
+	TArray<Float3>		mScalpVertices;								// Vertices of the scalp mesh, used to attach hairs. Note that the hair vertices mSimVertices must be in the same space as these vertices.
+	TArray<IndexedTriangleNoMaterial> mScalpTriangles;				// Triangles of the scalp mesh.
+	TArray<Mat44>		mScalpInverseBindPose;						// Inverse bind pose of the scalp mesh, joints are in model space
+	TArray<SkinWeight>	mScalpSkinWeights;							// Skin weights of the scalp mesh, for each vertex we have mScalpNumSkinWeightsPerVertex entries
 	uint32				mScalpNumSkinWeightsPerVertex = 0;			// Number of skin weights per vertex
 
 	uint32				mNumIterationsPerSecond = cDefaultIterationsPerSecond;
@@ -341,12 +341,12 @@ public:
 	UVec4				mGridSize { 32, 32, 32, 0 };				// Number of grid cells used to simulate the hair. W unused.
 	Vec3				mSimulationBoundsPadding = Vec3::Replicate(0.1f); // Padding around the simulation bounds to ensure that the grid is large enough and that we detect collisions with the hairs. This is added on all sides after calculating the bounds in the neutral pose.
 	Vec3				mInitialGravity { 0, -9.81f, 0 };			// Initial gravity in local space of the hair, used to calculate the unloaded rest pose
-	Array<Material>		mMaterials;									// Materials used by the hair strands
+	TArray<Material>		mMaterials;									// Materials used by the hair strands
 
 	// Values computed by Init
-	Array<SkinPoint>	mSkinPoints;								// For each simulated vertex, where it is attached to the scalp mesh
+	TArray<SkinPoint>	mSkinPoints;								// For each simulated vertex, where it is attached to the scalp mesh
 	AABox				mSimulationBounds { Vec3::Zero(), 1.0f };	// Bounds that the simulation is supposed to fit in
-	Array<float>		mNeutralDensity;							// Neutral density grid used to apply forces to keep the hair in place
+	TArray<float>		mNeutralDensity;							// Neutral density grid used to apply forces to keep the hair in place
 	float				mDensityScale = 0.0f;						// Highest density value in the neutral density grid, used to scale the density for rendering
 	uint32				mMaxVerticesPerStrand = 0;					// Maximum number of vertices per strand, used for padding the compute buffers
 
@@ -518,7 +518,7 @@ protected:
 		float							mTwoDivDeltaTime;								// 2 / mDeltaTime
 		float							mTimeRatio;										// Ratio between sub step delta time and default sub step delta time
 		Vec3							mSubStepGravity;								// Gravity to apply in a sub step
-		Array<LeafShape>				mShapes;										// List of colliding shapes
+		TArray<LeafShape>				mShapes;										// List of colliding shapes
 	};
 
 	// Calculate the UpdateContext parameters
@@ -555,7 +555,7 @@ protected:
 	Ref<ComputeBuffer>					mVelocitiesCB;
 	Ref<ComputeBuffer>					mVelocityAndDensityCB;
 	Ref<ComputeBuffer>					mConstantsCB;
-	Array<Ref<ComputeBuffer>>			mIterationConstantsCB;
+	TArray<Ref<ComputeBuffer>>			mIterationConstantsCB;
 	Ref<ComputeBuffer>					mRenderPositionsCB;
 
 	// Only valid after ReadBackGPUState has been called

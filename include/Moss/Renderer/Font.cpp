@@ -39,7 +39,7 @@ bool Font::Create(const char *inFontName, int inCharHeight)
 	constexpr int cSpacingV = 2; // Number of pixels to put vertically between characters
 
 	// Read font data
-	Array<uint8> font_data = ReadData((String("Fonts/") + inFontName + ".ttf").c_str());
+	TArray<uint8> font_data = ReadData((String("Fonts/") + inFontName + ".ttf").c_str());
 
 	// Construct a font info
 	stbtt_fontinfo font;

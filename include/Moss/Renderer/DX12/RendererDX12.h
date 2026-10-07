@@ -109,7 +109,7 @@ private:
 	ComPtr<ID3D12Fence>				mFence;								///< Fence object, used to signal the end of a frame
 	UINT64							mFenceValues[cFrameCount] = {};		///< Values that were used to signal completion of one of the two frames
 
-	using ResourceCache = UnorderedMap<uint64, Array<ComPtr<ID3D12Resource>>>;
+	using ResourceCache = UnorderedMap<uint64, TArray<ComPtr<ID3D12Resource>>>;
 
 	ResourceCache					mResourceCache;						///< Cache items ready to be reused
 	ResourceCache					mDelayCached[cFrameCount];			///< List of reusable ID3D12Resources that are potentially referenced by the GPU so can be used only when the GPU finishes
@@ -173,7 +173,7 @@ struct Moss_Renderer {
     ComPtr<ID3D12PipelineState>       mShadowPSO;
 
     // Resource management
-    using ResourceCache = UnorderedMap<uint64_t, Array<ComPtr<ID3D12Resource>>>;
+    using ResourceCache = UnorderedMap<uint64_t, TArray<ComPtr<ID3D12Resource>>>;
     ResourceCache                      mResourceCache;
     ResourceCache                      mDelayCached[cFrameCount];
     TArray<ComPtr<ID3D12Object>>       mDelayReleased[cFrameCount];

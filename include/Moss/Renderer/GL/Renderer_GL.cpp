@@ -263,15 +263,15 @@ struct Material {};
 struct Mesh {float* vertices; unsigned int* indecies; GLuint VBO, EBO, VAO; size_t vertexCount, indexCount; Shader& shader; }
 struct Model {Mesh* meshes; size_t meshCount; Texture* textures; size_t textureCount; Shader& shader;};
 
-//typedef struct MeshInstance2 {Rect* mesh; TVector<Vec2> position; float rotation; Shader& shader;};
-//typedef struct MeshInstance3 {Mesh* mesh; TVector<Vec3> position, rotation; Shader& shader;};
+//typedef struct MeshInstance2 {Rect* mesh; TVecVec2> position; float rotation; Shader& shader;};
+//typedef struct MeshInstance3 {Mesh* mesh; TVecVec3> position, rotation; Shader& shader;};
 
 struct Decal { GLuint textureID; Mat44 modelMatrix; Shader& shader; }
 
 
 struct ShaderManager
 {
-    TVector<Shader*> shaders;
+    TVecShader*> shaders;
 }*/
 
 // Life Cycle
@@ -280,33 +280,33 @@ struct ShaderManager
     DirectionalLighting2* directionalLight2;
     DirectionalLighting3* directionalLight3;
 
-    TVector<Rect*> rect;
-    TVector<Recti*> recti;
-    TVector<Surface*> Surface;
-    TVector<MeshInstance2*> meshInstance2;
+    TVecRect*> rect;
+    TVecRecti*> recti;
+    TVecSurface*> Surface;
+    TVecMeshInstance2*> meshInstance2;
 
-    TVector<Mesh*> mesh;
-    TVector<Model*> model;
-    TVector<MeshInstance3*> meshInstance3;
+    TVecMesh*> mesh;
+    TVecModel*> model;
+    TVecMeshInstance3*> meshInstance3;
 
-    TVector<Decal*> decal;
+    TVecDecal*> decal;
 
-    TVector<FogVolume*> fogVolume;
-    TVector<TextureLighting2*> textureLight2;
-    TVector<PointLight2*> pointLight2;
-    TVector<OmniLight3*> omniLight;
-    TVector<SpotLight3*> spotLight;
-    TVector<TextureLight3*> textureLight3;
+    TVecFogVolume*> fogVolume;
+    TVecTextureLighting2*> textureLight2;
+    TVecPointLight2*> pointLight2;
+    TVecOmniLight3*> omniLight;
+    TVecSpotLight3*> spotLight;
+    TVecTextureLight3*> textureLight3;
 
-    TVector<Shader*> shaders;
-    TVector<Material*> materials;
-    TVector<Shader*> posprocessing;
-    TVector<Shader*> compositors;
+    TVecShader*> shaders;
+    TVecMaterial*> materials;
+    TVecShader*> posprocessing;
+    TVecShader*> compositors;
 
 
     // Viewports
     Viewport m_viewport;
-    TVector<Viewport> m_viewports;
+    TVecViewport> m_viewports;
 
     // Callbacks
     Moss_RendererGetCamera2D m_camera2D;

@@ -15,7 +15,7 @@ PipelineStateDX12::PipelineStateDX12(RendererDX12 *inRenderer, const VertexShade
 {
 	D3D12_PRIMITIVE_TOPOLOGY_TYPE topology = inTopology == ETopology::Triangle? D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE : D3D12_PRIMITIVE_TOPOLOGY_TYPE_LINE;
 
-	Array<D3D12_INPUT_ELEMENT_DESC> input_description;
+	TArray<D3D12_INPUT_ELEMENT_DESC> input_description;
 	uint32 vertex_offset = 0, instance_offset = 0;
 	for (uint32 i = 0; i < inInputDescriptionCount; ++i)
 		switch (inInputDescription[i])

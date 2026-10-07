@@ -115,7 +115,7 @@ private:
 		explicit				ClassDescription(const RTTI *inRTTI)					: mRTTI(inRTTI) { }
 
 		const RTTI *			mRTTI = nullptr;
-		Array<AttributeDescription>	mAttributes;
+		TArray<AttributeDescription>	mAttributes;
 	};
 
 	struct ObjectInfo
@@ -140,7 +140,7 @@ private:
 
 	ClassDescriptionMap			mClassDescriptionMap;
 	IdentifierMap				mIdentifierMap;											///< Links identifier to an object pointer
-	Array<Link>					mUnresolvedLinks;										///< All pointers (links) are resolved after reading the entire file, e.g. when all object exist
+	TArray<Link>					mUnresolvedLinks;										///< All pointers (links) are resolved after reading the entire file, e.g. when all object exist
 };
 
 MOSS_SUPPRESS_WARNINGS_END

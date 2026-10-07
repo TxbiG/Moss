@@ -86,8 +86,8 @@ private:
 
 	using IdentifierMap = UnorderedMap<const void *, ObjectInfo>;
 	using ClassSet = UnorderedSet<const RTTI *>;
-	using ObjectQueue = Array<const void *>;
-	using ClassQueue = Array<const RTTI *>;
+	using ObjectQueue = TArray<const void *>;
+	using ClassQueue = TArray<const RTTI *>;
 
 	Identifier					mNextIdentifier = sNullIdentifier + 1;						///< Next free identifier for this stream
 	IdentifierMap				mIdentifierMap;												///< Links object pointer to an identifier

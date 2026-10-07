@@ -59,7 +59,7 @@ public:
 	template <class T>
 	inline const T *			GetMemberPointer(const void *inObject) const		{ return reinterpret_cast<const T *>(reinterpret_cast<const uint8 *>(inObject) + mMemberOffset); }
 
-	/// In case this attribute contains an RTTI type, return it (note that a Array<sometype> will return the rtti of sometype)
+	/// In case this attribute contains an RTTI type, return it (note that a TArray<sometype> will return the rtti of sometype)
 	const RTTI *				GetMemberPrimitiveType() const
 	{
 		return mGetMemberPrimitiveType();
@@ -96,7 +96,7 @@ private:
 	// Offset of the member relative to the class
 	uint32						mMemberOffset;
 
-	// In case this attribute contains an RTTI type, return it (note that a Array<sometype> will return the rtti of sometype)
+	// In case this attribute contains an RTTI type, return it (note that a TArray<sometype> will return the rtti of sometype)
 	pGetMemberPrimitiveType		mGetMemberPrimitiveType;
 
 	// Serialization operations

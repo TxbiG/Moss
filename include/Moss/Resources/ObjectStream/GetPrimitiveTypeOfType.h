@@ -8,7 +8,7 @@
 
 MOSS_SUPPRESS_WARNINGS_END
 
-/// Helper functions to get the underlying RTTI type of a type (so e.g. Array<sometype> will return sometype)
+/// Helper functions to get the underlying RTTI type of a type (so e.g. TArray<sometype> will return sometype)
 template <class T>
 const RTTI *GetPrimitiveTypeOfType(T *)
 {
@@ -34,7 +34,7 @@ const RTTI *GetPrimitiveTypeOfType(RefConst<T> *)
 }
 
 template <class T, class A>
-const RTTI *GetPrimitiveTypeOfType(Array<T, A> *)
+const RTTI *GetPrimitiveTypeOfType(TArray<T, A> *)
 {
 	return GetPrimitiveTypeOfType((T *)nullptr);
 }

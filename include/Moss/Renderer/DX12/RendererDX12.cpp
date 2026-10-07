@@ -49,7 +49,7 @@ void RendererDX12::WaitForGpu()
 		mFenceValues[n] = current_fence_value + 1;
 
 	// Release all used resources
-	for (Array<ComPtr<ID3D12Object>> &list : mDelayReleased)
+	for (TArray<ComPtr<ID3D12Object>> &list : mDelayReleased)
 		list.clear();
 
 	// Anything that's not used yet can be removed, delayed objects are now available
@@ -529,7 +529,7 @@ Ref<VertexShader> RendererDX12::CreateVertexShader(const char *inName)
 
 	// Read shader source file
 	String file_name = String("Shaders/DX/") + inName + ".hlsl";
-	Array<uint8> data = ReadData(file_name.c_str());
+	TArray<uint8> data = ReadData(file_name.c_str());
 
 	// Compile source
 	ComPtr<ID3DBlob> shader_blob, error_blob;
@@ -569,7 +569,7 @@ Ref<PixelShader> RendererDX12::CreatePixelShader(const char *inName)
 
 	// Read shader source file
 	String file_name = String("Shaders/DX/") + inName + ".hlsl";
-	Array<uint8> data = ReadData(file_name.c_str());
+	TArray<uint8> data = ReadData(file_name.c_str());
 
 	// Compile source
 	ComPtr<ID3DBlob> shader_blob, error_blob;

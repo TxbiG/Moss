@@ -126,7 +126,7 @@ public:
 
 // Define serialization templates
 template <class T, class A>
-bool OSIsType(Array<T, A> *, int inArrayDepth, EOSDataType inDataType, const char *inClassName)
+bool OSIsType(TArray<T, A> *, int inArrayDepth, EOSDataType inDataType, const char *inClassName)
 {
 	return (inArrayDepth > 0 && OSIsType(static_cast<T *>(nullptr), inArrayDepth - 1, inDataType, inClassName));
 }
@@ -157,7 +157,7 @@ bool OSIsType(RefConst<T> *, int inArrayDepth, EOSDataType inDataType, const cha
 
 /// Define serialization templates for dynamic arrays
 template <class T, class A>
-bool OSReadData(IObjectStreamIn &ioStream, Array<T, A> &inArray)
+bool OSReadData(IObjectStreamIn &ioStream, TArray<T, A> &inArray)
 {
 	bool continue_reading = true;
 
@@ -237,14 +237,14 @@ bool OSReadData(IObjectStreamIn &ioStream, RefConst<T> &inRef)
 
 // Define serialization templates for dynamic arrays
 template <class T, class A>
-void OSWriteDataType(IObjectStreamOut &ioStream, Array<T, A> *)
+void OSWriteDataType(IObjectStreamOut &ioStream, TArray<T, A> *)
 {
 	ioStream.WriteDataType(EOSDataType::Array);
 	OSWriteDataType(ioStream, static_cast<T *>(nullptr));
 }
 
 template <class T, class A>
-void OSWriteData(IObjectStreamOut &ioStream, const Array<T, A> &inArray)
+void OSWriteData(IObjectStreamOut &ioStream, const TArray<T, A> &inArray)
 {
 	// Write size of array
 	ioStream.HintNextItem();

@@ -68,7 +68,7 @@ public:
 
 	/// Get table that maps a body index to the constraint index with which it is connected to its parent. -1 if there is no constraint associated with the body.
 	/// Note that this will only tell you which constraint connects the body to its parent, it will not look in the additional constraint list.
-	const Array<int> &					GetBodyIndexToConstraintIndex() const							{ return mBodyIndexToConstraintIndex; }
+	const TArray<int> &					GetBodyIndexToConstraintIndex() const							{ return mBodyIndexToConstraintIndex; }
 
 	/// Map a single body index to a constraint index
 	int									GetConstraintIndexForBodyIndex(int inBodyIndex) const			{ return mBodyIndexToConstraintIndex[inBodyIndex]; }
@@ -79,7 +79,7 @@ public:
 	using BodyIdxPair = std::pair<int, int>;
 
 	/// Table that maps a constraint index (index in mConstraints) to the indices of the bodies that the constraint is connected to (index in mBodyIDs)
-	const Array<BodyIdxPair> &			GetConstraintIndexToBodyIdxPair() const							{ return mConstraintIndexToBodyIdxPair; }
+	const TArray<BodyIdxPair> &			GetConstraintIndexToBodyIdxPair() const							{ return mConstraintIndexToBodyIdxPair; }
 
 	/// Map a single constraint index (index in mConstraints) to the indices of the bodies that the constraint is connected to (index in mBodyIDs)
 	BodyIdxPair							GetBodyIndicesForConstraintIndex(int inConstraintIndex) const	{ return mConstraintIndexToBodyIdxPair[inConstraintIndex]; }
@@ -109,7 +109,7 @@ public:
 	};
 
 	/// List of additional constraints
-	using AdditionalConstraintVector = Array<AdditionalConstraint>;
+	using AdditionalConstraintVector = TArray<AdditionalConstraint>;
 
 	/// The skeleton for this ragdoll
 	Ref<Skeleton>						mSkeleton;
@@ -122,10 +122,10 @@ public:
 
 private:
 	/// Table that maps a body index (index in mBodyIDs) to the constraint index with which it is connected to its parent. -1 if there is no constraint associated with the body.
-	Array<int>							mBodyIndexToConstraintIndex;
+	TArray<int>							mBodyIndexToConstraintIndex;
 
 	/// Table that maps a constraint index (index in mConstraints) to the indices of the bodies that the constraint is connected to (index in mBodyIDs)
-	Array<BodyIdxPair>					mConstraintIndexToBodyIdxPair;
+	TArray<BodyIdxPair>					mConstraintIndexToBodyIdxPair;
 };
 
 /// Runtime ragdoll information
@@ -209,7 +209,7 @@ public:
 	BodyID GetBodyID(int inBodyIndex) const						{ return mBodyIDs[inBodyIndex]; }
 
 	/// Access to the array of body IDs
-	const Array<BodyID>& GetBodyIDs() const										{ return mBodyIDs; }
+	const TArray<BodyID>& GetBodyIDs() const										{ return mBodyIDs; }
 
 	/// Get number of constraints in the ragdoll
 	size_t GetConstraintCount() const								{ return mConstraints.size(); }
@@ -234,10 +234,10 @@ private:
 	RefConst<RagdollSettings> mRagdollSettings;
 
 	/// The bodies and constraints that this ragdoll consists of (1-on-1 with mRagdollSettings->mParts)
-	Array<BodyID> mBodyIDs;
+	TArray<BodyID> mBodyIDs;
 
 	/// Array of constraints that connect the bodies together
-	Array<Ref<TwoBodyConstraint>> mConstraints;
+	TArray<Ref<TwoBodyConstraint>> mConstraints;
 
 	/// Cached physics system
 	PhysicsSystem* mSystem;
