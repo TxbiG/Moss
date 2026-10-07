@@ -171,14 +171,14 @@ void SkeletonPose::Draw(const DrawSettings &inDrawSettings, DebugRenderer *inRen
 		{
 			int parent = joints[b].mParentJointIndex;
 			if (parent >= 0)
-				inRenderer->DrawLine(offset * mJointMatrices[parent].GetTranslation(), joint_transform.GetTranslation(), Color::sGreen);
+				inRenderer->DrawLine(offset * mJointMatrices[parent].GetTranslation(), joint_transform.GetTranslation(), Color::Green);
 		}
 
 		if (inDrawSettings.mDrawJointOrientations)
 			inRenderer->DrawCoordinateSystem(joint_transform, 0.05f);
 
 		if (inDrawSettings.mDrawJointNames)
-			inRenderer->DrawText3D(joint_transform.GetTranslation(), joints[b].mName, Color::sWhite, 0.05f);
+			inRenderer->DrawText3D(joint_transform.GetTranslation(), joints[b].mName, Color::, 0.05f);
 	}
 }
 #endif // MOSS_DEBUG_RENDERER

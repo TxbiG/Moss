@@ -123,7 +123,7 @@ public:
 	inline int					GetHeight() const													{ return mHeight; }
 
 	/// Sets the image to a specific color
-	void						Clear(ColorArg inColor = Color::sBlack);
+	void						Clear(ColorArg inColor = Color::Black);
 
 	/// Locking functions
 	void						Lock(ESurfaceLockMode inMode) const;

@@ -22,9 +22,9 @@ MOSS_SUPPRESS_WARNINGS_BEGIN
 ///		JobSystem *job_system = new JobSystemThreadPool(...);
 ///
 ///		// Create some jobs
-///		JobHandle second_job = job_system->CreateJob("SecondJob", Color::sRed, []() { ... }, 1); // Create a job with 1 dependency
-///		JobHandle first_job = job_system->CreateJob("FirstJob", Color::sGreen, [second_job]() { ....; second_job.RemoveDependency(); }, 0); // Job can start immediately, will start second job when it's done
-///		JobHandle third_job = job_system->CreateJob("ThirdJob", Color::sBlue, []() { ... }, 0); // This job can run immediately as well and can run in parallel to job 1 and 2
+///		JobHandle second_job = job_system->CreateJob("SecondJob", Color::Red, []() { ... }, 1); // Create a job with 1 dependency
+///		JobHandle first_job = job_system->CreateJob("FirstJob", Color::Green, [second_job]() { ....; second_job.RemoveDependency(); }, 0); // Job can start immediately, will start second job when it's done
+///		JobHandle third_job = job_system->CreateJob("ThirdJob", Color::Blue, []() { ... }, 0); // This job can run immediately as well and can run in parallel to job 1 and 2
 ///
 ///		// Add the jobs to the barrier so that we can execute them while we're waiting
 ///		Barrier *barrier = job_system->CreateBarrier();

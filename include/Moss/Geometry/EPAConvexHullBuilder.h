@@ -310,7 +310,7 @@ public:
 
 #ifdef MOSS_EPA_CONVEX_BUILDER_DRAW
 		// Draw new support point
-		DrawMarker(pos, Color::sYellow, 1.0f);
+		DrawMarker(pos, Color::Yellow, 1.0f);
 #endif
 
 #ifdef MOSS_EPA_CONVEX_BUILDER_VALIDATE
@@ -548,8 +548,8 @@ private:
 		for (int i = 0; i < (int)outEdges.size(); ++i)
 		{
 			RVec3 edge_start = cDrawScale * (mOffset + mPositions[outEdges[i].mStartIdx]);
-			DebugRenderer::sInstance->DrawArrow(edge_start, cDrawScale * (mOffset + mPositions[outEdges[(i + 1) % outEdges.size()].mStartIdx]), Color::sYellow, 0.01f);
-			DebugRenderer::sInstance->DrawText3D(edge_start, ConvertToString(outEdges[i].mStartIdx), Color::sWhite);
+			DebugRenderer::sInstance->DrawArrow(edge_start, cDrawScale * (mOffset + mPositions[outEdges[(i + 1) % outEdges.size()].mStartIdx]), Color::Yellow, 0.01f);
+			DebugRenderer::sInstance->DrawText3D(edge_start, ConvertToString(outEdges[i].mStartIdx), Color::);
 		}
 
 		// Draw the state with the facing triangles removed
@@ -627,14 +627,14 @@ public:
 				RVec3 p3 = cDrawScale * (mOffset + mPositions[t->mEdge[2].mStartIdx]);
 
 				// Draw triangle
-				DebugRenderer::sInstance->DrawTriangle(p1, p2, p3, Color::sGetDistinctColor(t->mIteration));
-				DebugRenderer::sInstance->DrawWireTriangle(p1, p2, p3, Color::sGrey);
+				DebugRenderer::sInstance->DrawTriangle(p1, p2, p3, Color::GetDistinctColor(t->mIteration));
+				DebugRenderer::sInstance->DrawWireTriangle(p1, p2, p3, Color::Grey);
 
 				// Draw normal
 				RVec3 centroid = cDrawScale * (mOffset + t->mCentroid);
 				float len = t->mNormal.Length();
 				if (len > 0.0f)
-					DebugRenderer::sInstance->DrawArrow(centroid, centroid + t->mNormal / len, Color::sDarkGreen, 0.01f);
+					DebugRenderer::sInstance->DrawArrow(centroid, centroid + t->mNormal / len, Color::DarkGreen, 0.01f);
 			}
 
 		// Determine max position
@@ -653,7 +653,7 @@ public:
 	/// Draw a label to indicate the next stage in the algorithm
 	void				DrawLabel(const string_view &inText)
 	{
-		DebugRenderer::sInstance->DrawText3D(cDrawScale * mOffset, inText, Color::sWhite, 0.1f * cDrawScale);
+		DebugRenderer::sInstance->DrawText3D(cDrawScale * mOffset, inText, Color::, 0.1f * cDrawScale);
 
 		mOffset += Vec3(5.0f, 0.0f, 0.0f);
 	}

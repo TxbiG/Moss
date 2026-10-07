@@ -21,6 +21,7 @@
 #include <Moss/Physics/Collision/PhysicsMaterial.h>
 #include <Moss/Physics/Collision/Shape/SubShapeID.h>
 #include <Moss/Physics/Collision/ShapeFilter.h>
+#include <Moss/Physics/Collision/SortReverseAndStore.h>
 #include <Moss/Physics/Body/BodyID.h>
 #include <Moss/Renderer/DebugRenderer.h>                // Fixes the incomplete type GeometryRef error
 

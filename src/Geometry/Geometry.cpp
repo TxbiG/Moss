@@ -833,8 +833,8 @@ void ConvexHullBuilder::AddPoint(Face *inFacingFace, int inIdx, float inCoplanar
 
 #ifdef MOSS_DEBUG_RENDERER
 	// Draw point to be added
-	DebugRenderer::sInstance->DrawMarker(cDrawScale * (mOffset + pos), Color::sYellow, 0.1f);
-	DebugRenderer::sInstance->DrawText3D(cDrawScale * (mOffset + pos), ConvertToString(inIdx), Color::sWhite);
+	DebugRenderer::sInstance->DrawMarker(cDrawScale * (mOffset + pos), Color::Yellow, 0.1f);
+	DebugRenderer::sInstance->DrawText3D(cDrawScale * (mOffset + pos), ConvertToString(inIdx), Color::);
 #endif // MOSS_DEBUG_RENDERER
 
 #ifdef MOSS_DEBUG
@@ -1068,7 +1068,7 @@ void ConvexHullBuilder::FindEdge(Face *inFacingFace, Vec3Arg inVertex, FullEdges
 #ifdef MOSS_DEBUG_RENDERER
 	// Draw edge of facing faces
 	for (int i = 0; i < (int)outEdges.size(); ++i)
-		DebugRenderer::sInstance->DrawArrow(cDrawScale * (mOffset + mPositions[outEdges[i].mStartIdx]), cDrawScale * (mOffset + mPositions[outEdges[i].mEndIdx]), Color::sWhite, 0.01f);
+		DebugRenderer::sInstance->DrawArrow(cDrawScale * (mOffset + mPositions[outEdges[i].mStartIdx]), cDrawScale * (mOffset + mPositions[outEdges[i].mEndIdx]), Color::, 0.01f);
 	DrawState();
 #endif // MOSS_DEBUG_RENDERER
 }
@@ -1090,8 +1090,8 @@ void ConvexHullBuilder::MergeFaces(Edge *inEdge)
 	MOSS_ASSERT(face != other_face);
 
 #ifdef MOSS_DEBUG_RENDERER
-	DrawWireFace(face, Color::sGreen);
-	DrawWireFace(other_face, Color::sRed);
+	DrawWireFace(face, Color::Green);
+	DrawWireFace(other_face, Color::Red);
 	DrawState();
 #endif // MOSS_DEBUG_RENDERER
 
@@ -1142,7 +1142,7 @@ void ConvexHullBuilder::MergeFaces(Edge *inEdge)
 	other_face->mConflictList.clear();
 
 #ifdef MOSS_CONVEX_BUILDER_DEBUG
-	DrawWireFace(face, Color::sWhite);
+	DrawWireFace(face, Color::);
 	DrawState();
 #endif
 }
@@ -1248,7 +1248,7 @@ void ConvexHullBuilder::RemoveInvalidEdges(Face *inFace, Faces &ioAffectedFaces)
 				{
 					// This edge leads back to the starting point, this means the edge is interior and needs to be removed
 #ifdef MOSS_DEBUG_RENDERER
-					DrawWireFace(inFace, Color::sBlue);
+					DrawWireFace(inFace, Color::Blue);
 					DrawState();
 #endif // MOSS_DEBUG_RENDERER
 
@@ -1261,7 +1261,7 @@ void ConvexHullBuilder::RemoveInvalidEdges(Face *inFace, Faces &ioAffectedFaces)
 					delete next_edge;
 
 #ifdef MOSS_DEBUG_RENDERER
-					DrawWireFace(inFace, Color::sGreen);
+					DrawWireFace(inFace, Color::Green);
 					DrawState();
 #endif // MOSS_DEBUG_RENDERER
 
@@ -1279,8 +1279,8 @@ void ConvexHullBuilder::RemoveInvalidEdges(Face *inFace, Faces &ioAffectedFaces)
 			{
 				// There are two edges that connect to the same face, we will remove the second one
 #ifdef MOSS_DEBUG_RENDERER
-				DrawWireFace(inFace, Color::sYellow);
-				DrawWireFace(neighbour_face, Color::sRed);
+				DrawWireFace(inFace, Color::Yellow);
+				DrawWireFace(neighbour_face, Color::Red);
 				DrawState();
 #endif // MOSS_DEBUG_RENDERER
 
@@ -1301,8 +1301,8 @@ void ConvexHullBuilder::RemoveInvalidEdges(Face *inFace, Faces &ioAffectedFaces)
 				delete next_edge;
 
 #ifdef MOSS_DEBUG_RENDERER
-				DrawWireFace(inFace, Color::sYellow);
-				DrawWireFace(neighbour_face, Color::sGreen);
+				DrawWireFace(inFace, Color::Yellow);
+				DrawWireFace(neighbour_face, Color::Green);
 				DrawState();
 #endif // MOSS_DEBUG_RENDERER
 
@@ -1347,7 +1347,7 @@ bool ConvexHullBuilder::RemoveTwoEdgeFace(Face *inFace, Faces &ioAffectedFaces) 
 	if (next_edge->mNextEdge == edge)
 	{
 #ifdef MOSS_CONVEX_BUILDER_DEBUG
-		DrawWireFace(inFace, Color::sRed);
+		DrawWireFace(inFace, Color::Red);
 		DrawState();
 #endif
 
@@ -1577,7 +1577,7 @@ void ConvexHullBuilder::DetermineMaxError(Face *&outFaceWithMaxError, float &out
 void ConvexHullBuilder::DrawState(bool inDrawConflictList) const
 {
 	// Draw origin
-	DebugRenderer::sInstance->DrawMarker(cDrawScale * mOffset, Color::sRed, 0.2f);
+	DebugRenderer::sInstance->DrawMarker(cDrawScale * mOffset, Color::Red, 0.2f);
 
 	int face_idx = 0;
 
@@ -1585,8 +1585,8 @@ void ConvexHullBuilder::DrawState(bool inDrawConflictList) const
 	for (const Face *f : mFaces)
 		if (!f->mRemoved)
 		{
-			Color iteration_color = Color::sGetDistinctColor(f->mIteration);
-			Color face_color = Color::sGetDistinctColor(face_idx++);
+			Color iteration_color = Color::GetDistinctColor(f->mIteration);
+			Color face_color = Color::GetDistinctColor(face_idx++);
 
 			// First point
 			const Edge *e = f->mFirstEdge;
@@ -1597,7 +1597,7 @@ void ConvexHullBuilder::DrawState(bool inDrawConflictList) const
 			RVec3 p2 = cDrawScale * (mOffset + mPositions[e->mStartIdx]);
 
 			// First line
-			DebugRenderer::sInstance->DrawLine(p1, p2, Color::sGrey);
+			DebugRenderer::sInstance->DrawLine(p1, p2, Color::Grey);
 
 			do
 			{
@@ -1607,7 +1607,7 @@ void ConvexHullBuilder::DrawState(bool inDrawConflictList) const
 
 				DebugRenderer::sInstance->DrawTriangle(p1, p2, p3, iteration_color);
 
-				DebugRenderer::sInstance->DrawLine(p2, p3, Color::sGrey);
+				DebugRenderer::sInstance->DrawLine(p2, p3, Color::Grey);
 
 				p2 = p3;
 			}
@@ -1973,11 +1973,11 @@ void ConvexHullBuilder2D::DrawState()
 		const Edge *next = edge->mNextEdge;
 
 		// Get unique color per edge
-		Color color = Color::sGetDistinctColor(color_idx++);
+		Color color = Color::GetDistinctColor(color_idx++);
 
 		// Draw edge and normal
 		DebugRenderer::sInstance->DrawArrow(cDrawScale * (mOffset + mPositions[edge->mStartIdx]), cDrawScale * (mOffset + mPositions[next->mStartIdx]), color, 0.1f);
-		DebugRenderer::sInstance->DrawArrow(cDrawScale * (mOffset + edge->mCenter), cDrawScale * (mOffset + edge->mCenter) + edge->mNormal.NormalizedOr(Vec3::Zero()), Color::sGreen, 0.1f);
+		DebugRenderer::sInstance->DrawArrow(cDrawScale * (mOffset + edge->mCenter), cDrawScale * (mOffset + edge->mCenter) + edge->mNormal.NormalizedOr(Vec3::Zero()), Color::Green, 0.1f);
 
 		// Draw points that belong to this edge in the same color
 		for (int idx : edge->mConflictList)

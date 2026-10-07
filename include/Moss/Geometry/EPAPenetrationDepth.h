@@ -237,7 +237,7 @@ public:
 		// Generate the hull of the Minkowski difference for visualization
 		MinkowskiDifference diff(inAIncludingConvexRadius, inBIncludingConvexRadius);
 		DebugRenderer::GeometryRef geometry = DebugRenderer::sInstance->CreateTriangleGeometryForConvex([&diff](Vec3Arg inDirection) { return diff.GetSupport(inDirection); });
-		hull.DrawGeometry(geometry, Color::sYellow);
+		hull.DrawGeometry(geometry, Color::Yellow);
 
 		hull.DrawLabel("Ensure origin in hull");
 #endif
@@ -285,8 +285,8 @@ public:
 
 #ifdef MOSS_EPA_CONVEX_BUILDER_DRAW
 			// Draw the point that we're adding
-			hull.DrawMarker(w, Color::sRed, 1.0f);
-			hull.DrawWireTriangle(*t, Color::sRed);
+			hull.DrawMarker(w, Color::Red, 1.0f);
+			hull.DrawWireTriangle(*t, Color::Red);
 			hull.DrawState();
 #endif
 
@@ -373,8 +373,8 @@ public:
 #endif
 #ifdef MOSS_EPA_CONVEX_BUILDER_DRAW
 			// Draw the point that we're adding
-			hull.DrawMarker(w, Color::sPurple, 1.0f);
-			hull.DrawWireTriangle(*t, Color::sPurple);
+			hull.DrawMarker(w, Color::Purple, 1.0f);
+			hull.DrawWireTriangle(*t, Color::Purple);
 			hull.DrawState();
 #endif
 
@@ -440,8 +440,8 @@ public:
 
 #ifdef MOSS_EPA_CONVEX_BUILDER_DRAW
 		hull.DrawLabel("Closest found");
-		hull.DrawWireTriangle(*last, Color::sWhite);
-		hull.DrawArrow(last->mCentroid, last->mCentroid + last->mNormal.NormalizedOr(Vec3::Zero()), Color::sWhite, 0.1f);
+		hull.DrawWireTriangle(*last, Color::);
+		hull.DrawArrow(last->mCentroid, last->mCentroid + last->mNormal.NormalizedOr(Vec3::Zero()), Color::, 0.1f);
 		hull.DrawState();
 #endif
 

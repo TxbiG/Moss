@@ -193,7 +193,7 @@ void Profiler::DumpInternal()
 	KeyToAggregator key_to_aggregators;
 	for (const ThreadSamples &t : threads)
 		for (ProfileSample *s = t.mSamplesBegin, *end = t.mSamplesEnd; s < end; ++s)
-			sAggregate(0, Color::sGetDistinctColor(0).GetUInt32(), s, end, aggregators, key_to_aggregators);
+			sAggregate(0, Color::GetDistinctColor(0).GetUInt32(), s, end, aggregators, key_to_aggregators);
 
 	// Dump as chart
 	DumpChart(tag.c_str(), threads, key_to_aggregators, aggregators);
