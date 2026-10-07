@@ -287,17 +287,17 @@ enum class ENetSocketWait : uint8_t {
 };
 
 enum class ENetSocketOption : uint16_t {
-   NONBLOCK  = (1 << 0), 
-   BROADCAST = (1 << 1), 
-   RECEIVEBUFFER    = (1 << 2), 
-   SENDBUFFER    = (1 << 3), 
-   RECEIVE_ADRESS = (1 << 4), 
-   RECEIVE_TIMEOUT = (1 << 5), 
-   SEND_TIMEOUT  = (1 << 6), 
-   SOCKET_ERROR = (1 << 7), // Renamed from ERROR to fix the Windows macro collision
-   NO_DELAY   = (1 << 8), 
-   TIMETOLIVE = (1 << 9), 
-   IPV6ONLY  = (1 << 10) 
+   NET_OPT_NONBLOCK  = (1 << 0), 
+   NET_OPT_BROADCAST = (1 << 1), 
+   NET_OPT_RCVBUF    = (1 << 2), 
+   NET_OPT_SNDBUF    = (1 << 3), 
+   NET_OPT_REUSEADDR = (1 << 4), 
+   NET_OPT_RCVTIMEO  = (1 << 5), 
+   NET_OPT_SNDTIMEO  = (1 << 6), 
+   NET_OPT_ERROR     = (1 << 7),  // Fully protected from macro collision
+   NET_OPT_NODELAY   = (1 << 8),  // Fully protected from macro collision
+   NET_OPT_TTL       = (1 << 9),  // Fully protected from macro collision
+   NET_OPT_IPV6ONLY  = (1 << 10) 
 };
 
 enum class ENetProtocolCommand : uint8_t{
