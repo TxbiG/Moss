@@ -7,7 +7,7 @@
 #include <Moss/Physics/Collision/BroadPhase/BroadPhaseLayer.h>
 #include <Moss/Physics/Collision/ObjectLayerPairFilterMask.h>
 
-MOSS_SUPPRESS_WARNINGS_END
+MOSS_SUPPRESS_WARNINGS_BEGIN
 
 /// Class that determines if an object layer can collide with a broadphase layer.
 /// This implementation works together with BroadPhaseLayerInterfaceMask and ObjectLayerPairFilterMask

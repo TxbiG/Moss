@@ -14,7 +14,7 @@
 #include <Moss/Geometry/RayCylinder.h>
 #include <Moss/Physics/Geometry/OrientedBox.h>
 
-MOSS_SUPPRESS_WARNINGS_END
+MOSS_SUPPRESS_WARNINGS_BEGIN
 
 struct CompoundShape::CastRayVisitor
 {

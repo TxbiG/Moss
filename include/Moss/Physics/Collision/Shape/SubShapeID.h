@@ -4,7 +4,7 @@
 
 #pragma once
 
-MOSS_SUPPRESS_WARNINGS_END
+MOSS_SUPPRESS_WARNINGS_BEGIN
 
 /// @brief A sub shape id contains a path to an element (usually a triangle or other primitive type) of a compound shape
 ///

@@ -7,7 +7,7 @@
 #include <Moss/Physics/Collision/GroupFilter.h>
 #include <Moss/Resources/ObjectStream/SerializableObject.h>
 
-MOSS_SUPPRESS_WARNINGS_END
+MOSS_SUPPRESS_WARNINGS_BEGIN
 
 class StreamIn;
 class StreamOut;

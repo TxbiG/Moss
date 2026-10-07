@@ -1,14 +1,15 @@
-#ifndef VEHICLE3D_H
-#define VEHICLE3D_H
+#pragma once
 
-enum class ETrackSide : uint
-{
+MOSS_SUPPRESS_WARNINGS_BEGIN
+
+
+enum class ETrackSide : uint8_t {
 	Left = 0,
 	Right = 1,
 	Num = 2
 };
 
-enum class ETransmissionMode : uint8
+enum class ETransmissionMode : uint8_t
 {
 	Auto,																///< Automatically shift gear up and down
 	Manual,																///< Manual gear shift (call SetTransmissionInput)
@@ -1190,5 +1191,3 @@ using VehicleAntiRollBars = TArray<VehicleAntiRollBar>;
 
 
 MOSS_SUPPRESS_WARNINGS_END
-
-#endif

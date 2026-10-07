@@ -22,11 +22,9 @@ static bool g_SpeakerPaused = false;
 // -----------------------------
 // Basic speaker functions
 // -----------------------------
-bool Moss_IsSpeakerDeviceReady() {
-    return g_PCM != nullptr;
-}
+bool Moss_IsSpeakerDeviceReady() { return g_PCM != nullptr; }
 
-bool Moss_AudioSpeakerOpen() {
+void Moss_AudioSpeakerOpen() {
     if (g_PCM)
         return true;
 

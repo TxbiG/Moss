@@ -11,7 +11,7 @@
 	#include <Moss/Renderer/DebugRenderer.h>
 #endif // MOSS_DEBUG_RENDERER
 
-MOSS_SUPPRESS_WARNINGS_END
+MOSS_SUPPRESS_WARNINGS_BEGIN
 
 /// Class that constructs a ConvexHullShape
 class MOSS_API ConvexHullShapeSettings final : public ConvexShapeSettings {

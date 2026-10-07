@@ -6,7 +6,7 @@
 
 #include <Moss/Physics/Collision/ContactListener.h>
 
-MOSS_SUPPRESS_WARNINGS_END
+MOSS_SUPPRESS_WARNINGS_BEGIN
 
 /// A structure that contains the estimated contact and friction impulses and the resulting body velocities
 struct CollisionEstimationResult

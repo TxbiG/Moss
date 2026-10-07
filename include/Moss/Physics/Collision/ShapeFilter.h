@@ -7,7 +7,7 @@
 #include <Moss/Physics/Body/BodyID.h>
 #include <Moss/Core/NonCopyable.h>
 
-MOSS_SUPPRESS_WARNINGS_END
+MOSS_SUPPRESS_WARNINGS_BEGIN
 
 class Shape;
 class SubShapeID;

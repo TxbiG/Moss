@@ -6,7 +6,7 @@
 
 #include <Moss/Physics/Collision/ObjectLayer.h>
 
-MOSS_SUPPRESS_WARNINGS_END
+MOSS_SUPPRESS_WARNINGS_BEGIN
 
 /// Filter class to test if two objects can collide based on their object layer. Used while finding collision pairs.
 /// Uses group bits and mask bits. Two layers can collide if Object1.Group & Object2.Mask is non-zero and Object2.Group & Object1.Mask is non-zero.

@@ -9,7 +9,7 @@
 #include <Moss/Physics/Collision/ShapeFilter.h>
 #include <Moss/Physics/Collision/BroadPhase/BroadPhase.h>
 
-MOSS_SUPPRESS_WARNINGS_END
+MOSS_SUPPRESS_WARNINGS_BEGIN
 
 class Shape;
 class CollideShapeSettings;

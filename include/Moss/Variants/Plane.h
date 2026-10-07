@@ -4,7 +4,7 @@
 
 #pragma once
 
-MOSS_SUPPRESS_WARNINGS_END
+MOSS_SUPPRESS_WARNINGS_BEGIN
 
 /// An infinite plane described by the formula X . Normal + Constant = 0.
 class [[nodiscard]] Plane {

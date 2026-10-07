@@ -15,7 +15,7 @@
 #include <Moss/Resources/ObjectStream/SerializableObject.h>
 
 
-MOSS_SUPPRESS_WARNINGS_END
+MOSS_SUPPRESS_WARNINGS_BEGIN
 
 class PhysicsSystem;
 #ifdef MOSS_DEBUG_RENDERER

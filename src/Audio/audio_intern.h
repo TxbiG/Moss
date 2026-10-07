@@ -10,7 +10,8 @@
 
 #include <Moss/Moss_Audio.h>
 #include <Moss/Moss_Physics.h>
-
+#include <Moss/Physics/Collision/RayCast.h>
+#include <Moss/Physics/PhysicsSystem.h>
 
 #define SOUND_SPEED 2043.0f
 
@@ -257,7 +258,7 @@ Wav* CreateWav(const char* path) {
     return wav;
 }
 
-void RemoveWav(Wav* wav) { if (wav) { delete[] wav->dataBegin;  delete wav; } }
+inline void RemoveWav(Wav* wav) { if (wav) { delete[] wav->dataBegin;  delete wav; } }
 
 
 // This is used to help build the pan Matrix
@@ -832,7 +833,7 @@ inline bool RayIntersectsSegment(const Ray2D& ray, const Wall& seg, float& outT)
     float dot = v2.Dot(v3);
     if (fabs(dot) < 1e-6f) return false;
 
-    float t1 = v2.Cross(v1) / dot;
+    float t1 = v2.GetX()*v1.GetY() - v2.GetY()*v1.GetX()
     float t2 = v1.Dot(v3) / dot;
 
     if (t1 >= 0.0f && t2 >= 0.0f && t2 <= 1.0f) {
@@ -906,6 +907,38 @@ void CastMultiBounceRays2D(const SoundSource2D& src, const Listener2D& listener,
     }
 }
 
+
+// ============================================
+// RayListener3D
+// ============================================
+struct AudioTriangle {
+    Vec3 a, b, c;
+};
+
+struct ReflectionHit {
+    Vec3 position;
+    Vec3 direction;
+    float attenuation;
+};
+struct Angles {
+    float azimuth;
+    float elevation;
+};
+struct HRTF {
+    std::vector<float> left;
+    std::vector<float> right;
+};
+
+struct SoundSource3D {
+    Vec3 position;
+    float baseVolume;
+};
+
+struct Listener3D {
+    Vec3 position;
+    Vec3 forward;
+    Vec3 up;
+};
 
 /*! */
 bool CastAudioRay(const PhysicsSystem& physics, const Vec3& from, const Vec3& to, RayCastResult& outHit) {
@@ -1044,39 +1077,6 @@ inline AudioResult Compute2DAudioWithReflections(const SoundSource2D& src, const
 
     return result;
 }
-
-
-// ============================================
-// RayListener3D
-// ============================================
-struct AudioTriangle {
-    Vec3 a, b, c;
-};
-
-struct Listener3D {
-    Vec3 position;
-    Vec3 forward;
-    Vec3 up;
-};
-
-struct SoundSource3D {
-    Vec3 position;
-    float baseVolume;
-};
-
-struct ReflectionHit {
-    Vec3 position;
-    Vec3 direction;
-    float attenuation;
-};
-struct Angles {
-    float azimuth;
-    float elevation;
-};
-struct HRTF {
-    std::vector<float> left;
-    std::vector<float> right;
-};
 
 /*! */
 inline Vec3 Right(const Listener3D& l) { return l.forward.Cross(l.up).Normalized(); }

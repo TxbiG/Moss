@@ -8,7 +8,7 @@
 #include <Moss/Physics/Collision/Shape/SubShapeID.h>
 #include <Moss/Core/HashCombine.h>
 
-MOSS_SUPPRESS_WARNINGS_END
+MOSS_SUPPRESS_WARNINGS_BEGIN
 
 /// A pair of bodies and their sub shape ID's. Can be used as a key in a map to find a contact point.
 class SubShapeIDPair {

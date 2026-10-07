@@ -13,7 +13,7 @@ MOSS_SUPPRESS_WARNINGS_STD_BEGIN
 MOSS_SUPPRESS_WARNINGS_STD_END
 
 
-MOSS_SUPPRESS_WARNINGS_END
+MOSS_SUPPRESS_WARNINGS_BEGIN
 
 class IslandBuilder;
 class BodyManager;
@@ -574,18 +574,10 @@ private:
 
 
 
-
-
-
-
-
-
-
 MOSS_SUPPRESS_WARNING_PUSH
 MOSS_GCC_SUPPRESS_WARNING("-Wshadow") // GCC complains about the 'Free' value conflicting with the 'Free' method
 
 /// How to constrain the rotation of the body to a PathConstraint
-
 
 MOSS_SUPPRESS_WARNING_POP
 

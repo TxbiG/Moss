@@ -7,7 +7,7 @@
 #include <Moss/Physics/Collision/SimShapeFilter.h>
 #include <Moss/Physics/Body/Body.h>
 
-MOSS_SUPPRESS_WARNINGS_END
+MOSS_SUPPRESS_WARNINGS_BEGIN
 
 /// Helper class to forward ShapeFilter calls to a SimShapeFilter
 /// INTERNAL CLASS DO NOT USE!

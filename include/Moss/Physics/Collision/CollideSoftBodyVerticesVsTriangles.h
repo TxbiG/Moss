@@ -7,7 +7,7 @@
 #include <Moss/Physics/Collision/CollideSoftBodyVertexIterator.h>
 #include <Moss/Geometry/ClosestPoint.h>
 
-MOSS_SUPPRESS_WARNINGS_END
+MOSS_SUPPRESS_WARNINGS_BEGIN
 
 /// Collision detection helper that collides soft body vertices vs triangles
 class MOSS_API CollideSoftBodyVerticesVsTriangles

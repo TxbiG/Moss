@@ -8,7 +8,7 @@
 #include <Moss/Physics/Collision/CollideShape.h>
 #include <Moss/Physics/Collision/Shape/Shape.h>
 
-MOSS_SUPPRESS_WARNINGS_END
+MOSS_SUPPRESS_WARNINGS_BEGIN
 
 /// Structure that holds a single shape cast (a shape moving along a linear path in 3d space with no rotation)
 template <class Vec, class Mat, class ShapeCastType>

@@ -3,7 +3,7 @@
 
 #include <Moss/Physics/Collision/Shape/Shape.h>
 
-MOSS_SUPPRESS_WARNINGS_END
+MOSS_SUPPRESS_WARNINGS_BEGIN
 
 enum class SoftBodyValidateResult
 {

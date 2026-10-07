@@ -1,6 +1,9 @@
 // alsa_microphone.cpp
 #include "alsa_audio.h"
 
+#include <sys/ioctl.h
+#include <linux/soundcard.h>
+
 #include <algorithm>
 #include <cmath>
 #include <cstdlib>
@@ -140,17 +143,6 @@ int Moss_MicrophoneListDevices(char*** device_names, int* count) {
 
 
 /*
-// alsa_microphone.cpp
-#include "alsa_audio.h"
-
-#include <algorithm>
-#include <cmath>
-#include <cstdlib>
-#include <cstring>
-
-Moss_Microphone mic;
-static Moss_Microphone* g_legacyMicrophone = nullptr;
-
 static void Moss_ResetMicrophoneBuffer(Moss_Microphone* micHandle, uint32_t ringFrames) {
     if (!micHandle)
         return;

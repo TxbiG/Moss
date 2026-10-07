@@ -6,7 +6,7 @@
 
 #include <Moss/Physics/Collision/PhysicsMaterial.h>
 
-MOSS_SUPPRESS_WARNINGS_END
+MOSS_SUPPRESS_WARNINGS_BEGIN
 
 /// Sample implementation of PhysicsMaterial that just holds the needed properties directly
 class MOSS_API PhysicsMaterialSimple : public PhysicsMaterial {

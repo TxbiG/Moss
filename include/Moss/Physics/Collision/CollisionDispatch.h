@@ -10,7 +10,7 @@
 #include <Moss/Physics/Collision/ShapeFilter.h>
 #include <Moss/Physics/Collision/NarrowPhaseStats.h>
 
-MOSS_SUPPRESS_WARNINGS_END
+MOSS_SUPPRESS_WARNINGS_BEGIN
 
 class CollideShapeSettings;
 

@@ -14,7 +14,7 @@
 #include <Moss/Renderer/DebugRenderer.h>
 #endif // MOSS_INTERNAL_EDGE_REMOVING_COLLECTOR_DEBUG
 
-MOSS_SUPPRESS_WARNINGS_END
+MOSS_SUPPRESS_WARNINGS_BEGIN
 
 /// Removes internal edges from collision results. Can be used to filter out 'ghost collisions'.
 /// Based on: Contact generation for meshes - Pierre Terdiman (https://www.codercorner.com/MeshContacts.pdf)

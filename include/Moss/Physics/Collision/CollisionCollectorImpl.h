@@ -7,7 +7,7 @@
 #include <Moss/Physics/Collision/CollisionCollector.h>
 #include <Moss/Core/QuickSort.h>
 
-MOSS_SUPPRESS_WARNINGS_END
+MOSS_SUPPRESS_WARNINGS_BEGIN
 
 /// Simple implementation that collects all hits and optionally sorts them on distance
 template <class CollectorType>

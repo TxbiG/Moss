@@ -4,7 +4,7 @@
 
 #pragma once
 
-MOSS_SUPPRESS_WARNINGS_END
+MOSS_SUPPRESS_WARNINGS_BEGIN
 
 /// This function will sort values from high to low and only keep the ones that are less than inMaxValue
 /// @param inValues Values to be sorted

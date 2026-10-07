@@ -7,7 +7,7 @@
 #include <Moss/Physics/Collision/Shape/ConvexShape.h>
 #include <Moss/Physics/Collision/ShapeCast.h>
 
-MOSS_SUPPRESS_WARNINGS_END
+MOSS_SUPPRESS_WARNINGS_BEGIN
 
 /// Collision detection helper that casts a convex object vs one or more triangles
 class MOSS_API CastConvexVsTriangles

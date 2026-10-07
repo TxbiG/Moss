@@ -4,7 +4,7 @@
 
 #pragma once
 
-MOSS_SUPPRESS_WARNINGS_END
+MOSS_SUPPRESS_WARNINGS_BEGIN
 
 RMat44 Body::GetWorldTransform() const
 {

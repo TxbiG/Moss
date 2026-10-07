@@ -7,7 +7,7 @@
 #include <Moss/Physics/SoftBody/SoftBodyVertex.h>
 #include <Moss/Core/StridedPtr.h>
 
-MOSS_SUPPRESS_WARNINGS_END
+MOSS_SUPPRESS_WARNINGS_BEGIN
 
 /// Class that allows iterating over the vertices of a soft body.
 /// It tracks the largest penetration and allows storing the resulting collision in a different structure than the soft body vertex itself.

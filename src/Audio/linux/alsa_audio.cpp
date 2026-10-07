@@ -178,7 +178,7 @@ static bool PlayWavWithALSA(Wav& wav, bool loop, float volume) {
 void AudioStream::play() {
     if (playing) return;
     playing = true;
-    PlayWavWithALSA(wav, loop, volume);
+    PlayWavWithALSA(*wav, loop, volume);
 }
 
 void AudioStream::stop() {
@@ -190,11 +190,11 @@ void AudioStream2D::play() {
     // Assume global listener2D exists
     extern AudioListener2D* gListener2D;
 
-    float distance = (gListener2D->position - position).length();
+    float distance = (gListener2D->position - position).Length();
     float distFactor = std::max(0.0f, 1.0f - (distance / maxDistance));
 
     // Pan left (-1) to right (+1)
-    float deltaX = position.x - gListener2D->position.x;
+    float deltaX = position.GetX() - gListener2D->position.GetX();
     float pan = std::clamp(deltaX / maxDistance, -1.0f, 1.0f);
 
     stream.setVolume(distFactor);
@@ -206,12 +206,12 @@ void AudioStream2D::stop() { stream.stop(); }
 void AudioStream3D::play() {
     extern AudioListener3D* gListener3D;
 
-    Float3 delta = position - gListener3D->position;
-    float distance = delta.length();
+    Vec3 delta = position - gListener3D->position;
+    float distance = delta.Length();
     float distFactor = std::max(0.0f, 1.0f - (distance / maxDistance));
 
     // Pan (assume X axis dominates stereo field)
-    float pan = std::clamp(delta.x / maxDistance, -1.0f, 1.0f);
+    float pan = std::clamp(delta.GetX() / maxDistance, -1.0f, 1.0f);
 
     stream.setVolume(distFactor);
     stream.setPan(pan);
@@ -263,8 +263,8 @@ void Speaker::setRenderCallback(RenderCallback cb) {
 
 
 
-static MicrophoneCallback = nullptr;
-static AudioStreamCallback = nullptr;
+//static MicrophoneCallback* = nullptr;
+//static AudioStreamCallback = nullptr;
 
 
 
@@ -281,7 +281,7 @@ Moss_AudioSource* Moss_AudioLoadOgg(const char* filename, AudioLoadType type);
 
 Moss_AudioSource* Moss_AudioLoadMP3(const char* filename);
 
-Moss_AudioSource* Moss_AudioCaptureMicrophone(Microphone* mic);
+Moss_AudioSource* Moss_AudioCaptureMicrophone(Moss_Microphone* mic);
 
 // Effects
 
@@ -438,16 +438,16 @@ const char* Moss_GetMicrophoneDeviceName(int index);
 int Moss_ListMicrophoneDevices();
 
 
-void Moss_AudioMicrophoneSetGain(Microphone* mic, float gain);
+void Moss_AudioMicrophoneSetGain(Moss_Microphone* mic, float gain);
 
-int Moss_AudioMicrophoneGetSampleRate(Microphone* mic);
+int Moss_AudioMicrophoneGetSampleRate(Moss_Microphone* mic);
 
-int Moss_AudioMicrophoneGetChannels(Microphone* mic);
+int Moss_AudioMicrophoneGetChannels(Moss_Microphone* mic);
 
 
 void Moss_AudioStreamSetCallback(AudioStream* stream, AudioStreamCallback callback, void* userData);
 
-void Moss_AudioMicrophoneSetCallback(Microphone* mic, MicrophoneCallback callback, void* userData);
+void Moss_AudioMicrophoneSetCallback(Moss_Microphone* mic, MicrophoneCallback callback, void* userData);
 
 
 
@@ -701,7 +701,7 @@ void AudioStream::stop() {
 
 void AudioStream2D::play() {
     AudioListener2D* listener = &g_listener2D;
-    const float distance = (listener->position - position).length();
+    const float distance = (listener->position - position).Length();
     const float distFactor = std::max(0.0f, 1.0f - (distance / std::max(maxDistance, 0.001f)));
     const float deltaX = position.x - listener->position.x;
     const float computedPan = std::clamp(deltaX / std::max(maxDistance, 0.001f), -1.0f, 1.0f);
@@ -715,7 +715,7 @@ void AudioStream2D::stop() { stream.stop(); }
 void AudioStream3D::play() {
     AudioListener3D* listener = &g_listener3D;
     Float3 delta = position - listener->position;
-    const float distance = delta.length();
+    const float distance = delta.Length();
     const float distFactor = std::max(0.0f, 1.0f - (distance / std::max(maxDistance, 0.001f)));
     const float computedPan = std::clamp(delta.x / std::max(maxDistance, 0.001f), -1.0f, 1.0f);
 
@@ -799,7 +799,7 @@ void Moss_AudioSourceDestroy(Moss_AudioSource* source) {
         source->destroy(source);
     }
 }
-Moss_AudioSource* Moss_AudioCaptureMicrophone(Microphone* mic);
+Moss_AudioSource* Moss_AudioCaptureMicrophone(Moss_Microphone* mic);
 Moss_AudioSource* Moss_AudioCaptureMossMicrophone(Moss_Microphone* mic);
 
 // Effects
@@ -956,16 +956,16 @@ const char* Moss_GetMicrophoneDeviceName(int index);
 int Moss_ListMicrophoneDevices();
 
 
-void Moss_AudioMicrophoneSetGain(Microphone* mic, float gain);
+void Moss_AudioMicrophoneSetGain(Moss_Microphone* mic, float gain);
 
-int Moss_AudioMicrophoneGetSampleRate(Microphone* mic);
+int Moss_AudioMicrophoneGetSampleRate(Moss_Microphone* mic);
 
-int Moss_AudioMicrophoneGetChannels(Microphone* mic);
+int Moss_AudioMicrophoneGetChannels(Moss_Microphone* mic);
 
 
 void Moss_AudioStreamSetCallback(AudioStream* stream, AudioStreamCallback callback, void* userData);
 
-void Moss_AudioMicrophoneSetCallback(Microphone* mic, MicrophoneCallback callback, void* userData);
+void Moss_AudioMicrophoneSetCallback(Moss_Microphone* mic, MicrophoneCallback callback, void* userData);
 void Moss_AudioStreamSetVolume(AudioStream* audiostream, float volume) { if (audiostream) audiostream->setVolume(volume); }
 void Moss_AudioStreamSetPitch(AudioStream* audiostream, float pitch) { if (audiostream) audiostream->setPitch(pitch); }
 void Moss_AudioStreamSetPlaybackRate(AudioStream* audiostream, float rate) { if (audiostream) audiostream->setPlaybackRate(rate); }

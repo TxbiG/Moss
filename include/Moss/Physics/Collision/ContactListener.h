@@ -7,7 +7,7 @@
 #include <Moss/Physics/Collision/Shape/SubShapeIDPair.h>
 #include <Moss/Variants/TStaticArray.h>
 
-MOSS_SUPPRESS_WARNINGS_END
+MOSS_SUPPRESS_WARNINGS_BEGIN
 
 class Body;
 class CollideShapeResult;

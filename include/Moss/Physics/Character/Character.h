@@ -7,7 +7,7 @@
 #include <Moss/Physics/Body/AllowedDOFs.h>
 
 
-MOSS_SUPPRESS_WARNINGS_END
+MOSS_SUPPRESS_WARNINGS_BEGIN
 
 class MOSS_API CharacterID {
 public:

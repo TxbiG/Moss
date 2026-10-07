@@ -11,7 +11,7 @@
 #include <Moss/Skeleton/SkeletonPose.h>
 #include <Moss/Physics/EActivation.h>
 
-MOSS_SUPPRESS_WARNINGS_END
+MOSS_SUPPRESS_WARNINGS_BEGIN
 
 class Ragdoll;
 class PhysicsSystem;

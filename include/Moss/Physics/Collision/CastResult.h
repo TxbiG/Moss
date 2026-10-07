@@ -7,7 +7,7 @@
 #include <Moss/Physics/Body/Body.h>
 #include <Moss/Physics/Collision/Shape/SubShapeID.h>
 
-MOSS_SUPPRESS_WARNINGS_END
+MOSS_SUPPRESS_WARNINGS_BEGIN
 
 /// Structure that holds a ray cast or other object cast hit
 class BroadPhaseCastResult

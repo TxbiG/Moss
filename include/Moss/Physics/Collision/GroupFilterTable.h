@@ -7,7 +7,7 @@
 #include <Moss/Physics/Collision/GroupFilter.h>
 #include <Moss/Physics/Collision/CollisionGroup.h>
 
-MOSS_SUPPRESS_WARNINGS_END
+MOSS_SUPPRESS_WARNINGS_BEGIN
 
 /// Implementation of GroupFilter that stores a bit table with one bit per sub shape ID pair to determine if they collide or not
 ///

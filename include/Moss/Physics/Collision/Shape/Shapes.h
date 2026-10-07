@@ -25,6 +25,8 @@
 
 MOSS_SUPPRESS_WARNINGS_BEGIN
 
+constexpr float cDefaultConvexRadius = 0.05f;
+
 class MassProperties;
 class CollideShapeSettings;
 class OrientedBox;
@@ -502,6 +504,45 @@ private:
 	EShapeSubType					mShapeSubType;
 };
 
+/// Class that constructs a ConvexShape (abstract)
+class MOSS_API ConvexShapeSettings : public ShapeSettings
+{
+	MOSS_DECLARE_SERIALIZABLE_ABSTRACT(MOSS_API, ConvexShapeSettings)
+
+public:
+	/// Constructor
+									ConvexShapeSettings() = default;
+	explicit						ConvexShapeSettings(const PhysicsMaterial *inMaterial)		: mMaterial(inMaterial) { }
+
+	/// Set the density of the object in kg / m^3
+	void							SetDensity(float inDensity)									{ mDensity = inDensity; }
+
+	// Properties
+	RefConst<PhysicsMaterial>		mMaterial;													// Material assigned to this shape
+	float							mDensity = 1000.0f;											// Uniform density of the interior of the convex object (kg / m^3)
+};
+
+/// Class that constructs a TaperedCylinderShape
+class MOSS_API TaperedCylinderShapeSettings final : public ConvexShapeSettings
+{
+	MOSS_DECLARE_SERIALIZABLE_VIRTUAL(MOSS_API, TaperedCylinderShapeSettings)
+
+public:
+	/// Default constructor for deserialization
+							TaperedCylinderShapeSettings() = default;
+
+	/// Create a tapered cylinder centered around the origin with bottom at (0, -inHalfHeightOfTaperedCylinder, 0) with radius inBottomRadius and top at (0, inHalfHeightOfTaperedCylinder, 0) with radius inTopRadius
+							TaperedCylinderShapeSettings(float inHalfHeightOfTaperedCylinder, float inTopRadius, float inBottomRadius, float inConvexRadius = cDefaultConvexRadius, const PhysicsMaterial *inMaterial = nullptr);
+
+	// See: ShapeSettings
+	virtual ShapeResult		Create() const override;
+
+	float					mHalfHeight = 0.0f;
+	float					mTopRadius = 0.0f;
+	float					mBottomRadius = 0.0f;
+	float					mConvexRadius = 0.0f;
+};
+
 /// Base class for all convex shapes. Defines a virtual interface.
 class MOSS_API ConvexShape : public Shape
 {
@@ -728,24 +769,6 @@ private:
 	float					mRadius = 0.0f;
 	float					mHalfHeightOfCylinder = 0.0f;
 };
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -1207,6 +1230,41 @@ namespace HeightFieldShapeConstants
 	/// When height samples are converted to 16 bit:
 	constexpr uint16				cNoCollisionValue16 = 0xffff;				// This is the magic value for 'no collision'
 	constexpr uint16				cMaxHeightValue16 = 0xfffe;					// This is the maximum allowed height value
+};
+
+// Base class settings to construct a compound shape
+class MOSS_API CompoundShapeSettings : public ShapeSettings
+{
+	MOSS_DECLARE_SERIALIZABLE_ABSTRACT(MOSS_API, CompoundShapeSettings)
+
+public:
+	/// Constructor. Use AddShape to add the parts.
+									CompoundShapeSettings() = default;
+
+	/// Add a shape to the compound.
+	void							AddShape(Vec3Arg inPosition, QuatArg inRotation, const ShapeSettings *inShape, uint32 inUserData = 0);
+
+	/// Add a shape to the compound. Variant that uses a concrete shape, which means this object cannot be serialized.
+	void							AddShape(Vec3Arg inPosition, QuatArg inRotation, const Shape *inShape, uint32 inUserData = 0);
+
+	struct SubShapeSettings
+	{
+		MOSS_DECLARE_SERIALIZABLE_NON_VIRTUAL(MOSS_API, SubShapeSettings)
+
+		RefConst<ShapeSettings>		mShape;													// Sub shape (either this or mShapePtr needs to be filled up)
+		RefConst<Shape>				mShapePtr;												// Sub shape (either this or mShape needs to be filled up)
+		Vec3						mPosition;												// Position of the sub shape
+		Quat						mRotation;												// Rotation of the sub shape
+
+		/// User data value (can be used by the application for any purpose).
+		/// Note this value can be retrieved through GetSubShape(...).mUserData, not through GetSubShapeUserData(...) as that returns Shape::GetUserData() of the leaf shape.
+		/// Use GetSubShapeIndexFromID get a shape index from a SubShapeID to pass to GetSubShape.
+		uint32						mUserData = 0;
+	};
+
+	using SubShapes = TArray<SubShapeSettings>;
+
+	SubShapes						mSubShapes;
 };
 
 
@@ -2516,42 +2574,6 @@ private:
 	float					mConvexRadius = 0.0f;
 };
 
-
-// Base class settings to construct a compound shape
-class MOSS_API CompoundShapeSettings : public ShapeSettings
-{
-	MOSS_DECLARE_SERIALIZABLE_ABSTRACT(MOSS_API, CompoundShapeSettings)
-
-public:
-	/// Constructor. Use AddShape to add the parts.
-									CompoundShapeSettings() = default;
-
-	/// Add a shape to the compound.
-	void							AddShape(Vec3Arg inPosition, QuatArg inRotation, const ShapeSettings *inShape, uint32 inUserData = 0);
-
-	/// Add a shape to the compound. Variant that uses a concrete shape, which means this object cannot be serialized.
-	void							AddShape(Vec3Arg inPosition, QuatArg inRotation, const Shape *inShape, uint32 inUserData = 0);
-
-	struct SubShapeSettings
-	{
-		MOSS_DECLARE_SERIALIZABLE_NON_VIRTUAL(MOSS_API, SubShapeSettings)
-
-		RefConst<ShapeSettings>		mShape;													// Sub shape (either this or mShapePtr needs to be filled up)
-		RefConst<Shape>				mShapePtr;												// Sub shape (either this or mShape needs to be filled up)
-		Vec3						mPosition;												// Position of the sub shape
-		Quat						mRotation;												// Rotation of the sub shape
-
-		/// User data value (can be used by the application for any purpose).
-		/// Note this value can be retrieved through GetSubShape(...).mUserData, not through GetSubShapeUserData(...) as that returns Shape::GetUserData() of the leaf shape.
-		/// Use GetSubShapeIndexFromID get a shape index from a SubShapeID to pass to GetSubShape.
-		uint32						mUserData = 0;
-	};
-
-	using SubShapes = TArray<SubShapeSettings>;
-
-	SubShapes						mSubShapes;
-};
-
 // Class that constructs a RotatedTranslatedShape
 class MOSS_API RotatedTranslatedShapeSettings final : public DecoratedShapeSettings
 {
@@ -3268,47 +3290,6 @@ private:
 #ifndef MOSS_DEBUG_RENDERER
 	mutable DebugRenderer::GeometryRef mGeometry;
 #endif // MOSS_DEBUG_RENDERER
-};
-
-
-
-/// Class that constructs a ConvexShape (abstract)
-class MOSS_API ConvexShapeSettings : public ShapeSettings
-{
-	MOSS_DECLARE_SERIALIZABLE_ABSTRACT(MOSS_API, ConvexShapeSettings)
-
-public:
-	/// Constructor
-									ConvexShapeSettings() = default;
-	explicit						ConvexShapeSettings(const PhysicsMaterial *inMaterial)		: mMaterial(inMaterial) { }
-
-	/// Set the density of the object in kg / m^3
-	void							SetDensity(float inDensity)									{ mDensity = inDensity; }
-
-	// Properties
-	RefConst<PhysicsMaterial>		mMaterial;													// Material assigned to this shape
-	float							mDensity = 1000.0f;											// Uniform density of the interior of the convex object (kg / m^3)
-};
-
-/// Class that constructs a TaperedCylinderShape
-class MOSS_API TaperedCylinderShapeSettings final : public ConvexShapeSettings
-{
-	MOSS_DECLARE_SERIALIZABLE_VIRTUAL(MOSS_API, TaperedCylinderShapeSettings)
-
-public:
-	/// Default constructor for deserialization
-							TaperedCylinderShapeSettings() = default;
-
-	/// Create a tapered cylinder centered around the origin with bottom at (0, -inHalfHeightOfTaperedCylinder, 0) with radius inBottomRadius and top at (0, inHalfHeightOfTaperedCylinder, 0) with radius inTopRadius
-							TaperedCylinderShapeSettings(float inHalfHeightOfTaperedCylinder, float inTopRadius, float inBottomRadius, float inConvexRadius = cDefaultConvexRadius, const PhysicsMaterial *inMaterial = nullptr);
-
-	// See: ShapeSettings
-	virtual ShapeResult		Create() const override;
-
-	float					mHalfHeight = 0.0f;
-	float					mTopRadius = 0.0f;
-	float					mBottomRadius = 0.0f;
-	float					mConvexRadius = 0.0f;
 };
 
 /// A cylinder with different top and bottom radii

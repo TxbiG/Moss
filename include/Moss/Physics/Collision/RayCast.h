@@ -6,7 +6,7 @@
 
 #include <Moss/Moss_Physics.h>
 
-MOSS_SUPPRESS_WARNINGS_END
+MOSS_SUPPRESS_WARNINGS_BEGIN
 
 /// Structure that holds a single ray cast
 template <class Vec, class Mat, class RayCastType>

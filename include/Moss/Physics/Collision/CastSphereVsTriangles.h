@@ -6,7 +6,7 @@
 
 #include <Moss/Physics/Collision/ShapeCast.h>
 
-MOSS_SUPPRESS_WARNINGS_END
+MOSS_SUPPRESS_WARNINGS_BEGIN
 
 /// Collision detection helper that casts a sphere vs one or more triangles
 class MOSS_API CastSphereVsTriangles

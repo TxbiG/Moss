@@ -7,7 +7,7 @@
 #include <Moss/Core/Result.h>
 #include <Moss/Resources/ObjectStream/SerializableObject.h>
 
-MOSS_SUPPRESS_WARNINGS_END
+MOSS_SUPPRESS_WARNINGS_BEGIN
 
 class CollisionGroup;
 class StreamIn;

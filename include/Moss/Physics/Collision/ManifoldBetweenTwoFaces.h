@@ -7,7 +7,7 @@
 #include <Moss/Physics/Collision/Shape/ConvexShape.h>
 #include <Moss/Physics/Collision/ContactListener.h>
 
-MOSS_SUPPRESS_WARNINGS_END
+MOSS_SUPPRESS_WARNINGS_BEGIN
 
 /// Remove contact points if there are > 4 (no more than 4 are needed for a stable solution)
 /// @param inPenetrationAxis is the world space penetration axis (must be normalized)

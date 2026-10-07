@@ -8,6 +8,10 @@
 #include <Moss/Renderer/DebugRenderer.h>
 #include <Moss/Physics/Vehicle/Vehicle.h>                // MotorSettings lives here
 
+
+MOSS_SUPPRESS_WARNINGS_BEGIN
+
+
 class Body;
 
 
@@ -5043,11 +5047,8 @@ private:
 	RackAndPinionConstraintPart	mRackAndPinionConstraintPart;
 };
 
-
-
-
-
-
 using Constraints = TArray<Ref<Constraint>>;
+
+MOSS_SUPPRESS_WARNINGS_END
 
 #endif

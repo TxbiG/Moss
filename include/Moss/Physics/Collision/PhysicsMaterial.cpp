@@ -8,7 +8,7 @@
 #include <Moss/Physics/Collision/PhysicsMaterialSimple.h>
 #include <Moss/Core/StreamUtils.h>
 
-MOSS_SUPPRESS_WARNINGS_END
+MOSS_SUPPRESS_WARNINGS_BEGIN
 
 RefConst<PhysicsMaterial> PhysicsMaterial::sDefault;
 

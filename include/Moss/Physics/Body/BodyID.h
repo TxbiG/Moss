@@ -2,7 +2,7 @@
 
 #include <Moss/Core/HashCombine.h>
 
-MOSS_SUPPRESS_WARNINGS_END
+MOSS_SUPPRESS_WARNINGS_BEGIN
 
 class BodyID {
 public:

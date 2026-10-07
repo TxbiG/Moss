@@ -6,7 +6,7 @@
 
 #include <Moss/Core/NonCopyable.h>
 
-MOSS_SUPPRESS_WARNINGS_END
+MOSS_SUPPRESS_WARNINGS_BEGIN
 
 /// Layer that objects can be in, determines which other objects it can collide with
 #ifndef MOSS_OBJECT_LAYER_BITS

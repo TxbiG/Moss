@@ -10,7 +10,7 @@
 #include <Moss/Physics/Collision/CollisionCollector.h>
 #include <Moss/Core/NonCopyable.h>
 
-MOSS_SUPPRESS_WARNINGS_END
+MOSS_SUPPRESS_WARNINGS_BEGIN
 
 // Shorthand function to ifdef out code if broadphase stats tracking is off
 #ifdef MOSS_TRACK_BROADPHASE_STATS
@@ -37,8 +37,7 @@ using CollideShapeBodyCollector = CollisionCollector<BodyID, CollisionCollectorT
 
 /// Interface to the broadphase that can perform collision queries. These queries will only test the bounding box of the body to quickly determine a potential set of colliding bodies.
 /// The shapes of the bodies are not tested, if you want this then you should use the NarrowPhaseQuery interface.
-class MOSS_API BroadPhaseQuery : public NonCopyable
-{
+class MOSS_API BroadPhaseQuery : public NonCopyable {
 public:
 	/// Virtual destructor
 	virtual				~BroadPhaseQuery() = default;

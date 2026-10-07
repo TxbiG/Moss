@@ -12,7 +12,7 @@
 #include <Moss/Physics/Body/Body.h>
 #include <Moss/Physics/PhysicsSettings.h>
 
-MOSS_SUPPRESS_WARNINGS_END
+MOSS_SUPPRESS_WARNINGS_BEGIN
 
 /// Class that contains all information of two colliding shapes
 class CollideShapeResult
