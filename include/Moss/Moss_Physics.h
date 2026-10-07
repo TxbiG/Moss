@@ -112,7 +112,6 @@ Building a Physics Engine with C++ and Simulating Machines - https://youtu.be/Tt
 #include <Moss/Geometry/Triangle.h>
 
 // 1. Base Core Utilities & Math Types
-#include <Moss/Physics/PhysicsCore.h>
 #include <Moss/Physics/Body/BodyID.h>
 
 // 2. Interfaces and Managers (Prerequisites for Bodies and Shapes)
