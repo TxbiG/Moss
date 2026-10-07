@@ -227,6 +227,35 @@ namespace ENetConstants
     constexpr uint32_t MAXIMUM_FRAGMENT_COUNT  = 1024 * 1024;
 }
 
+namespace ENetHostState {
+   constexpr uint32_t ENET_HOST_RECEIVE_BUFFER_SIZE          = 256 * 1024;
+   constexpr uint32_t ENET_HOST_SEND_BUFFER_SIZE             = 256 * 1024;
+   constexpr uint32_t ENET_HOST_BANDWIDTH_THROTTLE_INTERVAL  = 1000;
+   constexpr uint32_t ENET_HOST_DEFAULT_MTU                  = 1392;
+   constexpr uint32_t ENET_HOST_DEFAULT_MAXIMUM_PACKET_SIZE  = 32 * 1024 * 1024;
+   constexpr uint32_t ENET_HOST_DEFAULT_MAXIMUM_WAITING_DATA = 32 * 1024 * 1024;
+   constexpr uint32_t ENET_PEER_DEFAULT_ROUND_TRIP_TIME      = 500;
+   constexpr uint32_t ENET_PEER_DEFAULT_PACKET_THROTTLE      = 32;
+   constexpr uint32_t ENET_PEER_PACKET_THROTTLE_SCALE        = 32;
+   constexpr uint32_t ENET_PEER_PACKET_THROTTLE_COUNTER      = 7; 
+   constexpr uint32_t ENET_PEER_PACKET_THROTTLE_ACCELERATION = 2;
+   constexpr uint32_t ENET_PEER_PACKET_THROTTLE_DECELERATION = 2;
+   constexpr uint32_t ENET_PEER_PACKET_THROTTLE_INTERVAL     = 5000;
+   constexpr uint32_t ENET_PEER_PACKET_LOSS_SCALE            = (1 << 16);
+   constexpr uint32_t ENET_PEER_PACKET_LOSS_INTERVAL         = 10000;
+   constexpr uint32_t ENET_PEER_WINDOW_SIZE_SCALE            = 64 * 1024;
+   constexpr uint32_t ENET_PEER_TIMEOUT_LIMIT                = 32;
+   constexpr uint32_t ENET_PEER_TIMEOUT_MINIMUM              = 5000;
+   constexpr uint32_t ENET_PEER_TIMEOUT_MAXIMUM              = 30000;
+   constexpr uint32_t ENET_PEER_PING_INTERVAL                = 500;
+   constexpr uint32_t ENET_PEER_UNSEQUENCED_WINDOWS          = 64;
+   constexpr uint32_t ENET_PEER_UNSEQUENCED_WINDOW_SIZE      = 1024;
+   constexpr uint32_t ENET_PEER_FREE_UNSEQUENCED_WINDOWS     = 32;
+   constexpr uint32_t ENET_PEER_RELIABLE_WINDOWS             = 16;
+   constexpr uint32_t ENET_PEER_RELIABLE_WINDOW_SIZE         = 0x1000;
+   constexpr uint32_t ENET_PEER_FREE_RELIABLE_WINDOWS        = 8;
+}
+
 #ifndef ENET_BUFFER_MAXIMUM
 #define ENET_BUFFER_MAXIMUM (1 + 2 * ENetConstants::MAXIMUM_PACKET_COMMANDS)
 #endif
@@ -249,25 +278,26 @@ enum class ENetAddressType : uint8_t {
    IPV4,
    IPV6 
 };
+
 enum class ENetSocketWait : uint8_t { 
-   NONE = 0, 
-   SEND = (1 << 0), 
-   RECEIVE = (1 << 1), 
-   INTERRUPT = (1 << 2) 
+   NONE = (1 << 0),, 
+   SEND = (1 << 1), 
+   RECEIVE = (1 << 2), 
+   INTERRUPT = (1 << 3) 
 };
 
-enum class ENetSocketOption : uint8_t {
-   NONBLOCK  = 1,
-   BROADCAST = 2,
-   RCVBUF    = 3,
-   SNDBUF    = 4,
-   REUSEADDR = 5,
-   RCVTIMEO  = 6,
-   SNDTIMEO  = 7,
-   ERROR     = 8,
-   NODELAY   = 9,
-   TTL       = 10,
-   IPV6ONLY  = 11
+enum class ENetSocketOption : uint16_t {
+   NONBLOCK  = (1 << 0), // 1
+   BROADCAST = (1 << 1), // 2
+   RCVBUF    = (1 << 2), // 4
+   SNDBUF    = (1 << 3), // 8
+   REUSEADDR = (1 << 4), // 16
+   RCVTIMEO  = (1 << 5), // 32
+   SNDTIMEO  = (1 << 6), // 64
+   ERROR     = (1 << 7), // 128
+   NODELAY   = (1 << 8), // 256
+   TTL       = (1 << 9), // 512
+   IPV6ONLY  = (1 << 10) // 1024
 };
 
 enum class ENetProtocolCommand : uint8_t{
@@ -337,36 +367,6 @@ enum class ENetPeerState : uint8_t {
    DISCONNECTING               = 7,
    ACKNOWLEDGING_DISCONNECT    = 8,
    ZOMBIE                      = 9 
-};
-
-
-enum class ENetHostState : uint32_t{
-   ENET_HOST_RECEIVE_BUFFER_SIZE          = 256 * 1024,
-   ENET_HOST_SEND_BUFFER_SIZE             = 256 * 1024,
-   ENET_HOST_BANDWIDTH_THROTTLE_INTERVAL  = 1000,
-   ENET_HOST_DEFAULT_MTU                  = 1392,
-   ENET_HOST_DEFAULT_MAXIMUM_PACKET_SIZE  = 32 * 1024 * 1024,
-   ENET_HOST_DEFAULT_MAXIMUM_WAITING_DATA = 32 * 1024 * 1024,
-   ENET_PEER_DEFAULT_ROUND_TRIP_TIME      = 500,
-   ENET_PEER_DEFAULT_PACKET_THROTTLE      = 32,
-   ENET_PEER_PACKET_THROTTLE_SCALE        = 32,
-   ENET_PEER_PACKET_THROTTLE_COUNTER      = 7, 
-   ENET_PEER_PACKET_THROTTLE_ACCELERATION = 2,
-   ENET_PEER_PACKET_THROTTLE_DECELERATION = 2,
-   ENET_PEER_PACKET_THROTTLE_INTERVAL     = 5000,
-   ENET_PEER_PACKET_LOSS_SCALE            = (1 << 16),
-   ENET_PEER_PACKET_LOSS_INTERVAL         = 10000,
-   ENET_PEER_WINDOW_SIZE_SCALE            = 64 * 1024,
-   ENET_PEER_TIMEOUT_LIMIT                = 32,
-   ENET_PEER_TIMEOUT_MINIMUM              = 5000,
-   ENET_PEER_TIMEOUT_MAXIMUM              = 30000,
-   ENET_PEER_PING_INTERVAL                = 500,
-   ENET_PEER_UNSEQUENCED_WINDOWS          = 64,
-   ENET_PEER_UNSEQUENCED_WINDOW_SIZE      = 1024,
-   ENET_PEER_FREE_UNSEQUENCED_WINDOWS     = 32,
-   ENET_PEER_RELIABLE_WINDOWS             = 16,
-   ENET_PEER_RELIABLE_WINDOW_SIZE         = 0x1000,
-   ENET_PEER_FREE_RELIABLE_WINDOWS        = 8
 };
 
 enum class ENetPeerFlag : uint8_t {
