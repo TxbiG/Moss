@@ -106,63 +106,74 @@ Modified ENet6 v6.1.2 by SirLynix https://github.com/SirLynix/enet6/
 #include <stdlib.h>
 #include <cstdint>
 
-#ifdef MOSS_PLATFORM_WINDOWS
-#  ifdef MOSS_COMPILER_MSVC
-#     ifdef ENET_BUILDING_LIB
-#        pragma warning (disable: 4267) // size_t to int conversion
-#        pragma warning (disable: 4244) // 64bit to 32bit int
-#        pragma warning (disable: 4018) // signed/unsigned mismatch
-#        pragma warning (disable: 4146) // unary minus operator applied to unsigned type
-#        ifndef _CRT_SECURE_NO_DEPRECATE
-#           define _CRT_SECURE_NO_DEPRECATE
-#        endif // _CRT_SECURE_NO_DEPRECATE
-#        ifndef _CRT_SECURE_NO_WARNINGS
-#           define _CRT_SECURE_NO_WARNINGS
-#        endif // _CRT_SECURE_NO_WARNINGS
-#     endif // ENET_BUILDING_LIB
-#  endif // MOSS_COMPILER_MSVC
+#if defined(MOSS_PLATFORM_WINDOWS)
 
-//#define _WINSOCK_DEPRECATED_NO_WARNINGS
-#include <winsock2.h>
-#include <ws2tcpip.h>
+    #ifdef MOSS_COMPILER_MSVC
+        #ifdef ENET_BUILDING_LIB
+            #pragma warning(disable: 4267)
+            #pragma warning(disable: 4244)
+            #pragma warning(disable: 4018)
+            #pragma warning(disable: 4146)
+        #endif
 
-#define ENET_SOCKETSET_EMPTY(sockset)          FD_ZERO (&(sockset))
-#define ENET_SOCKETSET_ADD(sockset, socket)    FD_SET (socket, &(sockset))
-#define ENET_SOCKETSET_REMOVE(sockset, socket) FD_CLR (socket, &(sockset))
-#define ENET_SOCKETSET_CHECK(sockset, socket)  FD_ISSET (socket, &(sockset))
-#define ENET_SOCKET_NULL INVALID_SOCKET
-#define CLOSE_SOCKET(sockset) closesocket((s))
-#define SOCK_ERRNO WSAGetLastError()
-#define SOCK_EWOULDBLOCK WSAEWOULDBLOCK
+        #ifndef _CRT_SECURE_NO_DEPRECATE
+            #define _CRT_SECURE_NO_DEPRECATE
+        #endif
 
-SOCKET ENetSocket;
-fd_set ENetSocketSet;
-#endif // MOSS_PLATFORM_WINDOWS
-#ifdef MOSS_PLATFORM_LINUX || MOSS_PLATFORM_MACOS || MOSS_PLATFORM_ANDROID || MOSS_PLATFORM_IOS || MOSS_PLATFORM_BSD || MOSS_PLATFORM_UNIX
+        #ifndef _CRT_SECURE_NO_WARNINGS
+            #define _CRT_SECURE_NO_WARNINGS
+        #endif
+    #endif
 
-#include <stdlib.h>
-#include <sys/time.h>
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <arpa/inet.h>
-#include <netinet/in.h>
-#include <unistd.h>
-#include <fcntl.h>
-#include <netdb.h>
+    #include <winsock2.h>
+    #include <ws2tcpip.h>
 
-#define ENET_SOCKETSET_EMPTY(sockset)          FD_ZERO (&(sockset))
-#define ENET_SOCKETSET_ADD(sockset, socket)    FD_SET (socket, &(sockset))
-#define ENET_SOCKETSET_REMOVE(sockset, socket) FD_CLR (socket, &(sockset))
-#define ENET_SOCKETSET_CHECK(sockset, socket)  FD_ISSET (socket, &(sockset))
-#define INVALID_SOCKET (-1)
-#define CLOSE_SOCKET(s) close((s))
-#define SOCK_ERRNO errno
-#define SOCK_EWOULDBLOCK EWOULDBLOCK
-#define ENET_SOCKET_NULL -1
+    #define ENET_SOCKETSET_EMPTY(sockset)          FD_ZERO(&(sockset))
+    #define ENET_SOCKETSET_ADD(sockset, socket)    FD_SET((socket), &(sockset))
+    #define ENET_SOCKETSET_REMOVE(sockset, socket) FD_CLR((socket), &(sockset))
+    #define ENET_SOCKETSET_CHECK(sockset, socket)  FD_ISSET((socket), &(sockset))
 
-typedef int ENetSocket;
-typedef fd_set ENetSocketSet;
-#endif // MOSS_PLATFORM_LINUX || MOSS_PLATFORM_MACOS || MOSS_PLATFORM_ANDROID || MOSS_PLATFORM_IOS
+    #define ENET_SOCKET_NULL INVALID_SOCKET
+    #define CLOSE_SOCKET(s) closesocket((s))
+    #define SOCK_ERRNO WSAGetLastError()
+    #define SOCK_EWOULDBLOCK WSAEWOULDBLOCK
+
+    using ENetSocket = SOCKET;
+    using ENetSocketSet = fd_set;
+
+#elif defined(MOSS_PLATFORM_LINUX) || \
+      defined(MOSS_PLATFORM_MACOS) || \
+      defined(MOSS_PLATFORM_ANDROID) || \
+      defined(MOSS_PLATFORM_IOS) || \
+      defined(MOSS_PLATFORM_BSD) || \
+      defined(MOSS_PLATFORM_UNIX)
+
+    #include <errno.h>
+    #include <stdlib.h>
+    #include <sys/time.h>
+    #include <sys/types.h>
+    #include <sys/socket.h>
+    #include <arpa/inet.h>
+    #include <netinet/in.h>
+    #include <unistd.h>
+    #include <fcntl.h>
+    #include <netdb.h>
+
+    #define ENET_SOCKETSET_EMPTY(sockset)          FD_ZERO(&(sockset))
+    #define ENET_SOCKETSET_ADD(sockset, socket)    FD_SET((socket), &(sockset))
+    #define ENET_SOCKETSET_REMOVE(sockset, socket) FD_CLR((socket), &(sockset))
+    #define ENET_SOCKETSET_CHECK(sockset, socket)  FD_ISSET((socket), &(sockset))
+
+    #define INVALID_SOCKET (-1)
+    #define CLOSE_SOCKET(s) close((s))
+    #define SOCK_ERRNO errno
+    #define SOCK_EWOULDBLOCK EWOULDBLOCK
+    #define ENET_SOCKET_NULL (-1)
+
+    using ENetSocket = int;
+    using ENetSocketSet = fd_set;
+
+#endif
 
 
 #ifdef MSG_MAXIOVLEN
@@ -202,10 +213,6 @@ typedef fd_set ENetSocketSet;
 #define ENET_TIME_GREATER_EQUAL(a, b) (! ENET_TIME_LESS (a, b))
 
 #define ENET_TIME_DIFFERENCE(a, b) ((a) - (b) >= ENET_TIME_OVERFLOW ? (b) - (a) : (a) - (b))
-
-#ifndef ENET_BUFFER_MAXIMUM
-#define ENET_BUFFER_MAXIMUM (1 + 2 * MAXIMUM_PACKET_COMMANDS)
-#endif
 
 enum class ENetSocketType : uint8_t { 
    STREAM = 1, 
@@ -400,6 +407,11 @@ enum class ENetEventType : uint8_t {
  */
 struct ENetAddress {  ENetAddressType type; uint16_t port; union { uint8_t v4[4]; uint16_t v6[8]; } host; };
 
+struct ENetPacket;
+
+using ENetPacketAcknowledgedCallback = void (MOSS_CALL*)(ENetPacket * packet);
+using ENetPacketFreeCallback = void (MOSS_CALL*)(ENetPacket * packet);
+
 /**
  * ENet packet structure.
  *
@@ -424,20 +436,25 @@ struct ENetAddress {  ENetAddressType type; uint16_t port; union { uint8_t v4[4]
    @sa ENetPacketFlag
  */
 struct ENetPacket {
-   size_t                   referenceCount;  // internal use only */
+   size_t                referenceCount;  // internal use only */
    uint32_t              flags;           // bitwise-or of ENetPacketFlag constants */
    uint8_t *             data;            // allocated data for packet */
-   size_t                   dataLength;      // length of data */
+   size_t                dataLength;      // length of data */
+
    ENetPacketFreeCallback   freeCallback;    // function to be called when the packet is no longer in use */
    void *                   userData;        // application private data, may be freely modified */
 };
 
-struct ENetListNode { struct _ENetListNode * next; struct _ENetListNode * previous; };
+struct ENetListNode {
+   ENetListNode* next;
+   ENetListNode* previous;
+};
 
+using ENetListIterator = ENetListNode*;
 
-ENetListNode* ENetListIterator;
-
-struct _ENetList { ENetListNode sentinel; } ENetList;
+struct ENetList { 
+   ENetListNode sentinel; 
+};
 
 
 struct ENetProtocolHeader { uint16_t peerID; uint16_t sentTime; };
@@ -608,9 +625,6 @@ struct ENetPeer {
 
 struct ENetBuffer { void* data; size_t dataLength; };
 
-using ENetPacket = (MOSS_CALL* ENetPacketAcknowledgedCallback);
-using ENetPacket = (MOSS_CALL* ENetPacketFreeCallback);
-
 /** Callback that computes the checksum of the data held in buffers[0:bufferCount-1] */
 uint32_t (MOSS_CALL* ENetChecksumCallback) (const ENetBuffer* buffers, size_t bufferCount);
 
@@ -664,7 +678,7 @@ struct ENetHost {
    uint32_t          totalQueued;
    size_t               packetSize;
    uint16_t          headerFlags;
-   ENetProtocol         commands [MAXIMUM_PACKET_COMMANDS];
+   ENetProtocol         commands [ENetProtocalSize::MAXIMUM_PACKET_COMMANDS];
    size_t               commandCount;
    ENetBuffer           buffers [ENET_BUFFER_MAXIMUM];
    size_t               bufferCount;
