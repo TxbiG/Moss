@@ -2,12 +2,17 @@
 #include "alsa_audio.h"
 
 #include <sys/ioctl.h>
+#include <fcntl.h>
+#include <unistd.h>
 #include <linux/soundcard.h>
 
 #include <algorithm>
 #include <cmath>
 #include <cstdlib>
 #include <cstring>
+#include <vector>
+#include <string>
+#include <mutex>
 
 
 Moss_Microphone mic;
@@ -22,22 +27,10 @@ struct LinuxMicData {
     char buffer[4096];
 };
 
-// -----------------------------
-// Check if default microphone is ready
-// -----------------------------
-static bool Moss_IsMicrophoneDeviceReady() {
-    snd_pcm_t* handle;
-    int err = snd_pcm_open(&handle, "default", SND_PCM_STREAM_CAPTURE, 0);
-    if (err < 0) return false;
-
-    snd_pcm_close(handle);
-    return true;
-}
-
-// -----------------------------
-// Start / stop capture
-// -----------------------------
+// Start / stop capture loop
 static int mic_start(Moss_Microphone* mic) {
+    if (!mic || !mic->platform_data) return -1;
+    
     LinuxMicData* data = (LinuxMicData*)mic->platform_data;
     data->recording = 1;
 
@@ -54,9 +47,86 @@ static int mic_start(Moss_Microphone* mic) {
 }
 
 static int mic_stop(Moss_Microphone* mic) {
+    if (!mic || !mic->platform_data) return -1;
+    
     LinuxMicData* data = (LinuxMicData*)mic->platform_data;
     data->recording = 0;
     return 0;
+}
+
+// -----------------------------
+// Internal Helper Devices Enumeration
+// -----------------------------
+static void Moss_ResetMicrophoneBuffer(Moss_Microphone* micHandle, uint32_t ringFrames) {
+    if (!micHandle) return;
+
+    std::lock_guard<std::mutex> lock(micHandle->bufferMutex);
+    micHandle->ringFrameCapacity = std::max<uint32_t>(ringFrames, 1);
+    micHandle->ringBuffer.assign(micHandle->ringFrameCapacity * micHandle->channels, 0.0f);
+    micHandle->readFrame = 0;
+    micHandle->writeFrame = 0;
+    micHandle->availableFrames = 0;
+}
+
+static void Moss_UpdateMicrophoneLevels(Moss_Microphone* micHandle, const float* samples, uint32_t sampleCount) {
+    if (!micHandle || !micHandle->voiceMetricsEnabled || !samples || sampleCount == 0) return;
+
+    float peak = 0.0f;
+    double sumSquares = 0.0;
+    for (uint32_t i = 0; i < sampleCount; ++i) {
+        const float value = std::clamp(samples[i], -1.0f, 1.0f);
+        peak = std::max(peak, std::fabs(value));
+        sumSquares += static_cast<double>(value) * static_cast<double>(value);
+    }
+
+    const float rms = std::sqrt(static_cast<float>(sumSquares / sampleCount));
+    micHandle->levels.rms = rms;
+    micHandle->levels.peak = peak;
+    micHandle->levels.smoothed_volume = micHandle->levels.smoothed_volume * 0.85f + rms * 0.15f;
+    micHandle->levels.voice_activity = std::clamp((micHandle->levels.smoothed_volume - 0.015f) * 16.0f, 0.0f, 1.0f);
+}
+
+static void Moss_PushMicrophoneFrames(Moss_Microphone* micHandle, const float* frames, uint32_t frameCount) {
+    if (!micHandle || !frames || frameCount == 0 || micHandle->ringFrameCapacity == 0 || micHandle->channels == 0) return;
+
+    std::lock_guard<std::mutex> lock(micHandle->bufferMutex);
+    for (uint32_t frame = 0; frame < frameCount; ++frame) {
+        if (micHandle->availableFrames == micHandle->ringFrameCapacity) {
+            micHandle->readFrame = (micHandle->readFrame + 1) % micHandle->ringFrameCapacity;
+            micHandle->availableFrames--;
+        }
+
+        const uint32_t writeOffset = micHandle->writeFrame * micHandle->channels;
+        const uint32_t sourceOffset = frame * micHandle->channels;
+        for (uint32_t channel = 0; channel < micHandle->channels; ++channel)
+            micHandle->ringBuffer[writeOffset + channel] = frames[sourceOffset + channel];
+
+        micHandle->writeFrame = (micHandle->writeFrame + 1) % micHandle->ringFrameCapacity;
+        micHandle->availableFrames++;
+    }
+}
+
+static void Moss_EnumerateMicrophonesInto(Moss_Microphone* micHandle) {
+    if (!micHandle) return;
+
+    micHandle->microphoneNames.clear();
+    int card = -1;
+    while (snd_card_next(&card) >= 0 && card >= 0) {
+        snd_ctl_t* handle = nullptr;
+        snd_ctl_card_info_t* info = nullptr;
+        snd_ctl_card_info_alloca(&info);
+        
+        std::string card_name = "hw:" + std::to_string(card);
+        if (snd_ctl_open(&handle, card_name.c_str(), 0) < 0) continue;
+        if (snd_ctl_card_info(handle, info) >= 0) {
+            const char* name = snd_ctl_card_info_get_name(info);
+            if (name) micHandle->microphoneNames.emplace_back(name);
+        }
+        snd_ctl_close(handle);
+    }
+
+    if (micHandle->microphoneNames.empty())
+        micHandle->microphoneNames.emplace_back("default");
 }
 
 // -----------------------------
@@ -97,7 +167,7 @@ int microphone_init(Moss_Microphone* mic, MicrophoneCallback callback, void* use
 // Free microphone resources
 // -----------------------------
 int microphone_free(Moss_Microphone* mic) {
-    if (mic->platform_data) {
+    if (mic && mic->platform_data) {
         LinuxMicData* data = (LinuxMicData*)mic->platform_data;
         if (data->fd >= 0) close(data->fd);
         free(data);
@@ -111,117 +181,39 @@ int microphone_free(Moss_Microphone* mic) {
 // -----------------------------
 int Moss_MicrophoneListDevices(char*** device_names, int* count) {
     if (!device_names || !count) return -1;
-
     *device_names = nullptr;
     *count = 0;
-
+    
     std::vector<std::string> names;
     int card = -1;
-
     while (snd_card_next(&card) >= 0 && card >= 0) {
-        snd_ctl_t* handle;
-        snd_ctl_card_info_t* info;
+        snd_ctl_t* handle = nullptr;
+        snd_ctl_card_info_t* info = nullptr;
         snd_ctl_card_info_alloca(&info);
-
-        if (snd_ctl_open(&handle, card, 0) < 0) continue;
+        
+        std::string card_name = "hw:" + std::to_string(card);
+        if (snd_ctl_open(&handle, card_name.c_str(), 0) < 0) continue;
         if (snd_ctl_card_info(handle, info) >= 0) {
             const char* name = snd_ctl_card_info_get_name(info);
             if (name) names.push_back(name);
         }
         snd_ctl_close(handle);
     }
-
+    
     *count = static_cast<int>(names.size());
     if (*count == 0) return 0;
-
+    
     *device_names = (char**)calloc(*count, sizeof(char*));
     for (int i = 0; i < *count; ++i)
         (*device_names)[i] = strdup(names[i].c_str());
-
+        
     return 0;
-}
-
-
-/*
-static void Moss_ResetMicrophoneBuffer(Moss_Microphone* micHandle, uint32_t ringFrames) {
-    if (!micHandle)
-        return;
-
-    std::lock_guard<std::mutex> lock(micHandle->bufferMutex);
-    micHandle->ringFrameCapacity = std::max<uint32_t>(ringFrames, 1);
-    micHandle->ringBuffer.assign(micHandle->ringFrameCapacity * micHandle->channels, 0.0f);
-    micHandle->readFrame = 0;
-    micHandle->writeFrame = 0;
-    micHandle->availableFrames = 0;
-}
-
-static void Moss_UpdateMicrophoneLevels(Moss_Microphone* micHandle, const float* samples, uint32_t sampleCount) {
-    if (!micHandle || !micHandle->voiceMetricsEnabled || !samples || sampleCount == 0)
-        return;
-
-    float peak = 0.0f;
-    double sumSquares = 0.0;
-    for (uint32_t i = 0; i < sampleCount; ++i) {
-        const float value = std::clamp(samples[i], -1.0f, 1.0f);
-        peak = std::max(peak, std::fabs(value));
-        sumSquares += static_cast<double>(value) * static_cast<double>(value);
-    }
-
-    const float rms = std::sqrt(static_cast<float>(sumSquares / sampleCount));
-    micHandle->levels.rms = rms;
-    micHandle->levels.peak = peak;
-    micHandle->levels.smoothed_volume = micHandle->levels.smoothed_volume * 0.85f + rms * 0.15f;
-    micHandle->levels.voice_activity = std::clamp((micHandle->levels.smoothed_volume - 0.015f) * 16.0f, 0.0f, 1.0f);
-}
-
-static void Moss_PushMicrophoneFrames(Moss_Microphone* micHandle, const float* frames, uint32_t frameCount) {
-    if (!micHandle || !frames || frameCount == 0 || micHandle->ringFrameCapacity == 0 || micHandle->channels == 0)
-        return;
-
-    std::lock_guard<std::mutex> lock(micHandle->bufferMutex);
-    for (uint32_t frame = 0; frame < frameCount; ++frame) {
-        if (micHandle->availableFrames == micHandle->ringFrameCapacity) {
-            micHandle->readFrame = (micHandle->readFrame + 1) % micHandle->ringFrameCapacity;
-            micHandle->availableFrames--;
-        }
-
-        const uint32_t writeOffset = micHandle->writeFrame * micHandle->channels;
-        const uint32_t sourceOffset = frame * micHandle->channels;
-        for (uint32_t channel = 0; channel < micHandle->channels; ++channel)
-            micHandle->ringBuffer[writeOffset + channel] = frames[sourceOffset + channel];
-
-        micHandle->writeFrame = (micHandle->writeFrame + 1) % micHandle->ringFrameCapacity;
-        micHandle->availableFrames++;
-    }
-}
-
-static void Moss_EnumerateMicrophonesInto(Moss_Microphone* micHandle) {
-    if (!micHandle)
-        return;
-
-    micHandle->microphoneNames.clear();
-    int card = -1;
-    while (snd_card_next(&card) >= 0 && card >= 0) {
-        snd_ctl_t* handle = nullptr;
-        snd_ctl_card_info_t* info = nullptr;
-        snd_ctl_card_info_alloca(&info);
-        if (snd_ctl_open(&handle, card, 0) < 0)
-            continue;
-        if (snd_ctl_card_info(handle, info) >= 0) {
-            const char* name = snd_ctl_card_info_get_name(info);
-            if (name)
-                micHandle->microphoneNames.emplace_back(name);
-        }
-        snd_ctl_close(handle);
-    }
-
-    if (micHandle->microphoneNames.empty())
-        micHandle->microphoneNames.emplace_back("default");
 }
 
 uint32_t Moss_MicrophoneGetDeviceCount() {
     Moss_EnumerateMicrophonesInto(&mic);
-    return static_cast<uint32_t>(mic.microphoneNames.size());
+    if (device_index >= mic.microphoneNames.size()) return nullptr;
+    return mic.microphoneNames[device_index].c_str();
 }
 
 const char* Moss_MicrophoneGetDeviceName(uint32_t device_index) {
@@ -233,8 +225,7 @@ const char* Moss_MicrophoneGetDeviceName(uint32_t device_index) {
 
 Moss_Microphone* Moss_MicrophoneOpen(const Moss_MicrophoneDesc* desc) {
     Moss_MicrophoneDesc defaultDesc{};
-    if (!desc)
-        desc = &defaultDesc;
+    if (!desc) desc = &defaultDesc;
 
     Moss_Microphone* micHandle = new Moss_Microphone();
     micHandle->sampleRate = desc->sample_rate ? desc->sample_rate : 48000;
@@ -279,20 +270,24 @@ Moss_Microphone* Moss_MicrophoneOpen(const Moss_MicrophoneDesc* desc) {
 }
 
 void Moss_MicrophoneClose(Moss_Microphone* micHandle) {
-    if (!micHandle)
-        return;
+    if (!micHandle) return;
     Moss_MicrophoneStop(micHandle);
     if (micHandle->captureHandle) {
         snd_pcm_close(micHandle->captureHandle);
         micHandle->captureHandle = nullptr;
     }
-    if (micHandle != &mic)
-        delete micHandle;
+    if (micHandle != &mic) delete micHandle;
+}
+
+void Moss_MicrophoneStop(Moss_Microphone* micHandle) {
+    if (!micHandle || !micHandle->capturing) return;
+    micHandle->capturing = false;
+    if (micHandle->captureHandle) snd_pcm_drop(micHandle->captureHandle);
+    if (micHandle->captureThread.joinable()) micHandle->captureThread.join();
 }
 
 bool Moss_MicrophoneStart(Moss_Microphone* micHandle) {
-    if (!micHandle || !micHandle->captureHandle || micHandle->capturing)
-        return false;
+    if (!micHandle || !micHandle->captureHandle || micHandle->capturing) return false;
 
     micHandle->capturing = true;
     snd_pcm_prepare(micHandle->captureHandle);
@@ -308,8 +303,7 @@ bool Moss_MicrophoneStart(Moss_Microphone* micHandle) {
                 snd_pcm_prepare(micHandle->captureHandle);
                 continue;
             }
-            if (frames == 0)
-                continue;
+            if (frames == 0) continue;
 
             const uint32_t frameCount = static_cast<uint32_t>(frames);
             const uint32_t sampleCount = frameCount * micHandle->channels;
@@ -336,17 +330,17 @@ void Moss_MicrophoneStop(Moss_Microphone* micHandle) {
         micHandle->captureThread.join();
 }
 
+
 uint32_t Moss_MicrophoneRead(Moss_Microphone* micHandle, float* out_samples, uint32_t max_frames) {
-    if (!micHandle || !out_samples || max_frames == 0 || micHandle->channels == 0)
-        return 0;
+    if (!micHandle || !out_samples || max_frames == 0 || micHandle->channels == 0) return 0;
 
     std::lock_guard<std::mutex> lock(micHandle->bufferMutex);
     const uint32_t framesToRead = std::min(max_frames, micHandle->availableFrames);
     for (uint32_t frame = 0; frame < framesToRead; ++frame) {
         const uint32_t readOffset = micHandle->readFrame * micHandle->channels;
         const uint32_t outputOffset = frame * micHandle->channels;
-        for (uint32_t channel = 0; channel < micHandle->channels; ++channel)
-            out_samples[outputOffset + channel] = micHandle->ringBuffer[readOffset + channel];
+        for (uint32_t channel = 0; channel < micHandle->channels; ++channel) { out_samples[outputOffset + channel] = micHandle->ringBuffer[readOffset + channel]; }
+
         micHandle->readFrame = (micHandle->readFrame + 1) % micHandle->ringFrameCapacity;
     }
     micHandle->availableFrames -= framesToRead;
@@ -363,11 +357,12 @@ float Moss_MicrophoneGetLevelPeak(Moss_Microphone* micHandle) { return Moss_Micr
 float Moss_MicrophoneGetSmoothedVolume(Moss_Microphone* micHandle) { return Moss_MicrophoneGetLevels(micHandle).smoothed_volume; }
 float Moss_MicrophoneGetVoiceActivity(Moss_Microphone* micHandle) { return Moss_MicrophoneGetLevels(micHandle).voice_activity; }
 
+// Legacy Framework API Implementations
+
 bool Moss_IsMicrophoneDeviceReady() {
     snd_pcm_t* handle = nullptr;
     const int err = snd_pcm_open(&handle, "default", SND_PCM_STREAM_CAPTURE, 0);
-    if (err < 0)
-        return false;
+    if (err < 0) return false;
     snd_pcm_close(handle);
     return true;
 }
@@ -379,11 +374,17 @@ void Moss_AudioMicrophoneStop() { Moss_MicrophoneStop(g_legacyMicrophone); }
 int Moss_AudioMicrophoneID() { return 0; }
 bool Moss_AudioSelectMicrophoneDevice(int id) { return id == 0; }
 const char* Moss_GetMicrophoneDeviceName(int index) { return Moss_MicrophoneGetDeviceName(static_cast<uint32_t>(index)); }
-int Moss_ListMicrophoneDevices() { return static_cast<int>(Moss_MicrophoneGetDeviceCount()); }
-void Moss_AudioMicrophoneSetGain(Microphone*, float gain) { Moss_MicrophoneSetGain(g_legacyMicrophone, gain); }
-int Moss_AudioMicrophoneGetSampleRate(Microphone*) { return static_cast<int>(Moss_MicrophoneGetSampleRate(g_legacyMicrophone)); }
-int Moss_AudioMicrophoneGetChannels(Microphone*) { return static_cast<int>(Moss_MicrophoneGetChannels(g_legacyMicrophone)); }
-void Moss_AudioMicrophoneSetCallback(Microphone*, MicrophoneCallback callback, void* userData) { Moss_MicrophoneSetCallback(g_legacyMicrophone, callback, userData); }
+uint32_t Moss_MicrophoneGetDeviceCount() { Moss_EnumerateMicrophonesInto(&mic); return static_cast<uint32_t>(mic.microphoneNames.size()); }
+void Moss_AudioMicrophoneSetGain(Moss_Microphone*, float gain) { Moss_MicrophoneSetGain(g_legacyMicrophone, gain); }
+int Moss_AudioMicrophoneGetSampleRate(Moss_Microphone*) { return static_cast<int>(Moss_MicrophoneGetSampleRate(g_legacyMicrophone)); }
+int Moss_AudioMicrophoneGetChannels(Moss_Microphone*) { return static_cast<int>(Moss_MicrophoneGetChannels(g_legacyMicrophone)); }
+void Moss_AudioMicrophoneSetCallback(Moss_Microphone*, MicrophoneCallback callback, void* userData) { Moss_MicrophoneSetCallback(g_legacyMicrophone, callback, userData); }
+
+
+
+
+
+
 static uint32_t Moss_AudioSourceReadMossMicrophone(Moss_AudioSource* src, float* out_samples, uint32_t frames) {
     if (!src || !src->userdata || !out_samples || frames == 0)
         return 0;
@@ -407,7 +408,6 @@ Moss_AudioSource* Moss_AudioCaptureMossMicrophone(Moss_Microphone* sourceMic) {
     return source;
 }
 
-Moss_AudioSource* Moss_AudioCaptureMicrophone(Microphone*) {
+Moss_AudioSource* Moss_AudioCaptureMicrophone(Moss_Microphone*) {
     return Moss_AudioCaptureMossMicrophone(g_legacyMicrophone);
 }
-*/

@@ -114,6 +114,8 @@ Building a Physics Engine with C++ and Simulating Machines - https://youtu.be/Tt
 // 1. Base Core Utilities & Math Types
 #include <Moss/Physics/Body/BodyID.h>
 
+#include <Moss/Physics/Collision/ObjectLayer.h>    // Core file that defines BroadPhaseLayerFilter
+
 // 2. Interfaces and Managers (Prerequisites for Bodies and Shapes)
 #include <Moss/Physics/Collision/BroadPhase/BroadPhase.h>
 #include <Moss/Renderer/DebugRenderer.h>
@@ -133,9 +135,7 @@ static constexpr uint8_t cBodyTypeCount = 2;
 
 class BodyID;
 class CharacterID;
-using SubShapeID = uint32_t;
-using ObjectLayer = uint32_t;
-using BroadPhaseLayer = uint8_t;
+
 using CollisionGroupID = uint32_t;
 using CollisionSubGroupID = uint32_t;
 
