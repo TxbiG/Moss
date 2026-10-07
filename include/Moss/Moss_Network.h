@@ -214,6 +214,27 @@ Modified ENet6 v6.1.2 by SirLynix https://github.com/SirLynix/enet6/
 
 #define ENET_TIME_DIFFERENCE(a, b) ((a) - (b) >= ENET_TIME_OVERFLOW ? (b) - (a) : (a) - (b))
 
+namespace ENetConstants
+{
+    constexpr uint32_t MINIMUM_MTU             = 576;
+    constexpr uint32_t MAXIMUM_MTU             = 4096;
+    constexpr uint32_t MAXIMUM_PACKET_COMMANDS = 32;
+    constexpr uint32_t MINIMUM_WINDOW_SIZE     = 4096;
+    constexpr uint32_t MAXIMUM_WINDOW_SIZE     = 65536;
+    constexpr uint32_t MINIMUM_CHANNEL_COUNT   = 1;
+    constexpr uint32_t MAXIMUM_CHANNEL_COUNT   = 255;
+    constexpr uint32_t MAXIMUM_PEER_ID         = 0xFFF;
+    constexpr uint32_t MAXIMUM_FRAGMENT_COUNT  = 1024 * 1024;
+}
+
+#ifndef ENET_BUFFER_MAXIMUM
+#define ENET_BUFFER_MAXIMUM (1 + 2 * ENetConstants::MAXIMUM_PACKET_COMMANDS)
+#endif
+
+struct ENetPacket;
+struct ENetHost;
+struct ENetEvent;
+
 enum class ENetSocketType : uint8_t { 
    STREAM = 1, 
    DATAGRAM = 2 
@@ -247,18 +268,6 @@ enum class ENetSocketOption : uint8_t {
    NODELAY   = 9,
    TTL       = 10,
    IPV6ONLY  = 11
-};
-
-enum class ENetProtocalSize : uint32_t{
-   MINIMUM_MTU             = 576,
-   MAXIMUM_MTU             = 4096,
-   MAXIMUM_PACKET_COMMANDS = 32,
-   MINIMUM_WINDOW_SIZE     = 4096,
-   MAXIMUM_WINDOW_SIZE     = 65536,
-   MINIMUM_CHANNEL_COUNT   = 1,
-   MAXIMUM_CHANNEL_COUNT   = 255,
-   MAXIMUM_PEER_ID         = 0xFFF,
-   MAXIMUM_FRAGMENT_COUNT  = 1024 * 1024
 };
 
 enum class ENetProtocolCommand : uint8_t{
@@ -407,10 +416,8 @@ enum class ENetEventType : uint8_t {
  */
 struct ENetAddress {  ENetAddressType type; uint16_t port; union { uint8_t v4[4]; uint16_t v6[8]; } host; };
 
-struct ENetPacket;
-
-using ENetPacketAcknowledgedCallback = void (MOSS_CALL*)(ENetPacket * packet);
-using ENetPacketFreeCallback = void (MOSS_CALL*)(ENetPacket * packet);
+using ENetPacketAcknowledgedCallback = void (MOSS_CALL*)(ENetPacket* packet);
+using ENetPacketFreeCallback = void (MOSS_CALL*)(ENetPacket* packet);
 
 /**
  * ENet packet structure.
@@ -611,7 +618,7 @@ struct ENetPeer {
    uint16_t   reserved;
    uint16_t   incomingUnsequencedGroup;
    uint16_t   outgoingUnsequencedGroup;
-   uint32_t   unsequencedWindow [ENET_PEER_UNSEQUENCED_WINDOW_SIZE / 32]; 
+   uint32_t   unsequencedWindow [ENetHostState::ENET_PEER_UNSEQUENCED_WINDOW_SIZE / 32]; 
    uint32_t   eventData;
    size_t        totalWaitingData;
 
@@ -626,10 +633,10 @@ struct ENetPeer {
 struct ENetBuffer { void* data; size_t dataLength; };
 
 /** Callback that computes the checksum of the data held in buffers[0:bufferCount-1] */
-uint32_t (MOSS_CALL* ENetChecksumCallback) (const ENetBuffer* buffers, size_t bufferCount);
+using ENetChecksumCallback = uint32_t (MOSS_CALL*)(const ENetBuffer* buffers, size_t bufferCount);
 
 /** Callback for intercepting received raw UDP packets. Should return 1 to intercept, 0 to ignore, or -1 to propagate an error. */
-int (MOSS_CALL * ENetInterceptCallback) (struct ENetHost* host, struct ENetEvent * event);
+using ENetInterceptCallback = int (MOSS_CALL*)(struct ENetHost* host, struct ENetEvent* event);
 
 
 /** An ENet packet compressor for compressing UDP packets before socket sends or receives.
@@ -678,13 +685,13 @@ struct ENetHost {
    uint32_t          totalQueued;
    size_t               packetSize;
    uint16_t          headerFlags;
-   ENetProtocol         commands [ENetProtocalSize::MAXIMUM_PACKET_COMMANDS];
+   ENetProtocol         commands [ENetConstants::MAXIMUM_PACKET_COMMANDS];
    size_t               commandCount;
    ENetBuffer           buffers [ENET_BUFFER_MAXIMUM];
    size_t               bufferCount;
    ENetChecksumCallback checksum;                    // callback the user can set to enable packet checksums for this host */
    ENetCompressor       compressor;
-   uint8_t           packetData [2][MAXIMUM_MTU];
+   uint8_t           packetData [2][ENetConstants::MAXIMUM_MTU];
    ENetAddress          receivedAddress;
    uint8_t*         receivedData;
    size_t               receivedDataLength;
