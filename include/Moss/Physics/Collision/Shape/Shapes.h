@@ -22,7 +22,7 @@
 #include <Moss/Physics/Collision/Shape/SubShapeID.h>
 #include <Moss/Physics/Collision/ShapeFilter.h>
 #include <Moss/Physics/Body/BodyID.h>
-#include <Moss/Physics/DebugRenderer.h>                // Fixes the incomplete type GeometryRef error
+#include <Moss/Renderer/DebugRenderer.h>                // Fixes the incomplete type GeometryRef error
 
 
 
