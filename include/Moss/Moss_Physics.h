@@ -111,6 +111,20 @@ Building a Physics Engine with C++ and Simulating Machines - https://youtu.be/Tt
 
 #include <Moss/Geometry/Triangle.h>
 
+// 1. Base Core Utilities & Math Types
+#include <Moss/Physics/PhysicsCore.h>
+#include <Moss/Physics/Body/BodyID.h>
+
+// 2. Interfaces and Managers (Prerequisites for Bodies and Shapes)
+#include <Moss/Physics/Body/BodyLockInterface.h>
+#include <Moss/Physics/Body/BodyManager.h>
+#include <Moss/Physics/Collision/BroadPhase.h>
+#include <Moss/Physics/DebugRenderer.h>
+
+// 3. Collision Shapes (Uses DebugRenderer and Base Math)
+#include <Moss/Physics/Collision/Shape/Shapes.h>
+
+// 4. Concrete Physical Instances (Uses Shapes, BodyID, LockInterfaces, and Managers)
 #include <Moss/Physics/Body/Body.h>
 
 #define PHSICS_INVALID_COLLISION_GROUP_ID (~0U)

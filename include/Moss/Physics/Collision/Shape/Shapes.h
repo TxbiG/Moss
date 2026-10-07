@@ -22,6 +22,9 @@
 #include <Moss/Physics/Collision/Shape/SubShapeID.h>
 #include <Moss/Physics/Collision/ShapeFilter.h>
 #include <Moss/Physics/Body/BodyID.h>
+#include <Moss/Physics/DebugRenderer.h>                // Fixes the incomplete type GeometryRef error
+
+
 
 MOSS_SUPPRESS_WARNINGS_BEGIN
 
@@ -1621,6 +1624,80 @@ public:
 	virtual ShapeResult				Create() const override;
 };
 
+
+
+// Helper functions to get properties of a scaling vector
+namespace ScaleHelpers
+{
+	/// Minimum valid scale value. This is used to prevent division by zero when scaling a shape with a zero scale.
+	static constexpr float	cMinScale = 1.0e-6f;
+
+	/// The tolerance used to check if components of the scale vector are the same
+	static constexpr float	cScaleToleranceSq = 1.0e-8f;
+
+	/// Test if a scale is identity
+	inline bool				IsNotScaled(Vec3Arg inScale)									{ return inScale.IsClose(Vec3::One(), cScaleToleranceSq); }
+
+	/// Test if a scale is uniform
+	inline bool				IsUniformScale(Vec3Arg inScale)									{ return inScale.Swizzle<SWIZZLE_Y, SWIZZLE_Z, SWIZZLE_X>().IsClose(inScale, cScaleToleranceSq); }
+
+	/// Test if a scale is uniform in XZ
+	inline bool				IsUniformScaleXZ(Vec3Arg inScale)								{ return inScale.Swizzle<SWIZZLE_Z, SWIZZLE_Y, SWIZZLE_X>().IsClose(inScale, ScaleHelpers::cScaleToleranceSq); }
+
+	/// Scale the convex radius of an object
+	inline float			ScaleConvexRadius(float inConvexRadius, Vec3Arg inScale)		{ return min(inConvexRadius * inScale.Abs().ReduceMin(), cDefaultConvexRadius); }
+
+	/// Test if a scale flips an object inside out (which requires flipping all normals and polygon windings)
+	inline bool				IsInsideOut(Vec3Arg inScale)									{ return (CountBits(Vec3::Less(inScale, Vec3::Zero()).GetTrues() & 0x7) & 1) != 0; }
+
+	/// Test if any of the components of the scale have a value below cMinScale
+	inline bool				IsZeroScale(Vec3Arg inScale)									{ return Vec3::Less(inScale.Abs(), Vec3::Replicate(cMinScale)).TestAnyXYZTrue(); }
+
+	/// Ensure that the scale for each component is at least cMinScale
+	inline Vec3				MakeNonZeroScale(Vec3Arg inScale)								{ return inScale.GetSign() * Vec3::Max(inScale.Abs(), Vec3::Replicate(cMinScale)); }
+
+	/// Get the average scale if inScale, used to make the scale uniform when a shape doesn't support non-uniform scale
+	inline Vec3				MakeUniformScale(Vec3Arg inScale)								{ return Vec3::Replicate((inScale.GetX() + inScale.GetY() + inScale.GetZ()) / 3.0f); }
+
+	/// Average the scale in XZ, used to make the scale uniform when a shape doesn't support non-uniform scale in the XZ plane
+	inline Vec3				MakeUniformScaleXZ(Vec3Arg inScale)								{ return 0.5f * (inScale + inScale.Swizzle<SWIZZLE_Z, SWIZZLE_Y, SWIZZLE_X>()); }
+
+	/// Checks in scale can be rotated to child shape
+	/// @param inRotation Rotation of child shape
+	/// @param inScale Scale in local space of parent shape
+	/// @return True if the scale is valid (no shearing introduced)
+	inline bool				CanScaleBeRotated(QuatArg inRotation, Vec3Arg inScale)
+	{
+		// inScale is a scale in local space of the shape, so the transform for the shape (ignoring translation) is: T = Mat44::Scale(inScale) * mRotation.
+		// when we pass the scale to the child it needs to be local to the child, so we want T = mRotation * Mat44::Scale(ChildScale).
+		// Solving for ChildScale: ChildScale = mRotation^-1 * Mat44::Scale(inScale) * mRotation = mRotation^T * Mat44::Scale(inScale) * mRotation
+		// If any of the off diagonal elements are non-zero, it means the scale / rotation is not compatible.
+		Mat44 r = Mat44::Rotation(inRotation);
+		Mat44 child_scale = r.Multiply3x3LeftTransposed(r.PostScaled(inScale));
+
+		// Get the columns, but zero the diagonal
+		Vec4 zero = Vec4::Zero();
+		Vec4 c0 = Vec4::Select(child_scale.GetColumn4(0), zero, UVec4(0xffffffff, 0, 0, 0)).Abs();
+		Vec4 c1 = Vec4::Select(child_scale.GetColumn4(1), zero, UVec4(0, 0xffffffff, 0, 0)).Abs();
+		Vec4 c2 = Vec4::Select(child_scale.GetColumn4(2), zero, UVec4(0, 0, 0xffffffff, 0)).Abs();
+
+		// Check if all elements are less than epsilon
+		Vec4 epsilon = Vec4::Replicate(1.0e-6f);
+		return UVec4::And(UVec4::And(Vec4::Less(c0, epsilon), Vec4::Less(c1, epsilon)), Vec4::Less(c2, epsilon)).TestAllTrue();
+	}
+
+	/// Adjust scale for rotated child shape
+	/// @param inRotation Rotation of child shape
+	/// @param inScale Scale in local space of parent shape
+	/// @return Rotated scale
+	inline Vec3				RotateScale(QuatArg inRotation, Vec3Arg inScale)
+	{
+		// Get the diagonal of mRotation^T * Mat44::Scale(inScale) * mRotation (see comment at CanScaleBeRotated)
+		Mat44 r = Mat44::Rotation(inRotation);
+		return r.Multiply3x3LeftTransposed(r.PostScaled(inScale)).GetDiagonal3();
+	}
+}
+
 /// Base class for a compound shape
 class MOSS_API CompoundShape : public Shape {
 public:
@@ -2720,78 +2797,6 @@ private:
 	Vec3							mCenterOfMass;											// Position of the center of mass
 	Quat							mRotation;												// Rotation of the child shape
 };
-
-// Helper functions to get properties of a scaling vector
-namespace ScaleHelpers
-{
-	/// Minimum valid scale value. This is used to prevent division by zero when scaling a shape with a zero scale.
-	static constexpr float	cMinScale = 1.0e-6f;
-
-	/// The tolerance used to check if components of the scale vector are the same
-	static constexpr float	cScaleToleranceSq = 1.0e-8f;
-
-	/// Test if a scale is identity
-	inline bool				IsNotScaled(Vec3Arg inScale)									{ return inScale.IsClose(Vec3::One(), cScaleToleranceSq); }
-
-	/// Test if a scale is uniform
-	inline bool				IsUniformScale(Vec3Arg inScale)									{ return inScale.Swizzle<SWIZZLE_Y, SWIZZLE_Z, SWIZZLE_X>().IsClose(inScale, cScaleToleranceSq); }
-
-	/// Test if a scale is uniform in XZ
-	inline bool				IsUniformScaleXZ(Vec3Arg inScale)								{ return inScale.Swizzle<SWIZZLE_Z, SWIZZLE_Y, SWIZZLE_X>().IsClose(inScale, ScaleHelpers::cScaleToleranceSq); }
-
-	/// Scale the convex radius of an object
-	inline float			ScaleConvexRadius(float inConvexRadius, Vec3Arg inScale)		{ return min(inConvexRadius * inScale.Abs().ReduceMin(), cDefaultConvexRadius); }
-
-	/// Test if a scale flips an object inside out (which requires flipping all normals and polygon windings)
-	inline bool				IsInsideOut(Vec3Arg inScale)									{ return (CountBits(Vec3::Less(inScale, Vec3::Zero()).GetTrues() & 0x7) & 1) != 0; }
-
-	/// Test if any of the components of the scale have a value below cMinScale
-	inline bool				IsZeroScale(Vec3Arg inScale)									{ return Vec3::Less(inScale.Abs(), Vec3::Replicate(cMinScale)).TestAnyXYZTrue(); }
-
-	/// Ensure that the scale for each component is at least cMinScale
-	inline Vec3				MakeNonZeroScale(Vec3Arg inScale)								{ return inScale.GetSign() * Vec3::Max(inScale.Abs(), Vec3::Replicate(cMinScale)); }
-
-	/// Get the average scale if inScale, used to make the scale uniform when a shape doesn't support non-uniform scale
-	inline Vec3				MakeUniformScale(Vec3Arg inScale)								{ return Vec3::Replicate((inScale.GetX() + inScale.GetY() + inScale.GetZ()) / 3.0f); }
-
-	/// Average the scale in XZ, used to make the scale uniform when a shape doesn't support non-uniform scale in the XZ plane
-	inline Vec3				MakeUniformScaleXZ(Vec3Arg inScale)								{ return 0.5f * (inScale + inScale.Swizzle<SWIZZLE_Z, SWIZZLE_Y, SWIZZLE_X>()); }
-
-	/// Checks in scale can be rotated to child shape
-	/// @param inRotation Rotation of child shape
-	/// @param inScale Scale in local space of parent shape
-	/// @return True if the scale is valid (no shearing introduced)
-	inline bool				CanScaleBeRotated(QuatArg inRotation, Vec3Arg inScale)
-	{
-		// inScale is a scale in local space of the shape, so the transform for the shape (ignoring translation) is: T = Mat44::Scale(inScale) * mRotation.
-		// when we pass the scale to the child it needs to be local to the child, so we want T = mRotation * Mat44::Scale(ChildScale).
-		// Solving for ChildScale: ChildScale = mRotation^-1 * Mat44::Scale(inScale) * mRotation = mRotation^T * Mat44::Scale(inScale) * mRotation
-		// If any of the off diagonal elements are non-zero, it means the scale / rotation is not compatible.
-		Mat44 r = Mat44::Rotation(inRotation);
-		Mat44 child_scale = r.Multiply3x3LeftTransposed(r.PostScaled(inScale));
-
-		// Get the columns, but zero the diagonal
-		Vec4 zero = Vec4::Zero();
-		Vec4 c0 = Vec4::Select(child_scale.GetColumn4(0), zero, UVec4(0xffffffff, 0, 0, 0)).Abs();
-		Vec4 c1 = Vec4::Select(child_scale.GetColumn4(1), zero, UVec4(0, 0xffffffff, 0, 0)).Abs();
-		Vec4 c2 = Vec4::Select(child_scale.GetColumn4(2), zero, UVec4(0, 0, 0xffffffff, 0)).Abs();
-
-		// Check if all elements are less than epsilon
-		Vec4 epsilon = Vec4::Replicate(1.0e-6f);
-		return UVec4::And(UVec4::And(Vec4::Less(c0, epsilon), Vec4::Less(c1, epsilon)), Vec4::Less(c2, epsilon)).TestAllTrue();
-	}
-
-	/// Adjust scale for rotated child shape
-	/// @param inRotation Rotation of child shape
-	/// @param inScale Scale in local space of parent shape
-	/// @return Rotated scale
-	inline Vec3				RotateScale(QuatArg inRotation, Vec3Arg inScale)
-	{
-		// Get the diagonal of mRotation^T * Mat44::Scale(inScale) * mRotation (see comment at CanScaleBeRotated)
-		Mat44 r = Mat44::Rotation(inRotation);
-		return r.Multiply3x3LeftTransposed(r.PostScaled(inScale)).GetDiagonal3();
-	}
-}
 
 // Class that constructs a ScaledShape
 class MOSS_API ScaledShapeSettings final : public DecoratedShapeSettings
