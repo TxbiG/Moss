@@ -1,7 +1,7 @@
 // alsa_microphone.cpp
 #include "alsa_audio.h"
 
-#include <sys/ioctl.h
+#include <sys/ioctl.h>
 #include <linux/soundcard.h>
 
 #include <algorithm>
