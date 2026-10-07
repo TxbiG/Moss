@@ -294,7 +294,7 @@ enum class ENetSocketOption : uint16_t {
    REUSEADDR = (1 << 4), 
    RCVTIMEO  = (1 << 5), 
    SNDTIMEO  = (1 << 6), 
-   ERROR     = (1 << 7), 
+   SOCKET_ERROR = (1 << 7), // Renamed from ERROR to fix the Windows macro collision
    NODELAY   = (1 << 8), 
    TTL       = (1 << 9), 
    IPV6ONLY  = (1 << 10) 
