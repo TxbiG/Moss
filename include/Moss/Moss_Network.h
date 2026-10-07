@@ -280,24 +280,24 @@ enum class ENetAddressType : uint8_t {
 };
 
 enum class ENetSocketWait : uint8_t { 
-   NONE = (1 << 0),, 
+   NONE = (1 << 0), 
    SEND = (1 << 1), 
    RECEIVE = (1 << 2), 
    INTERRUPT = (1 << 3) 
 };
 
 enum class ENetSocketOption : uint16_t {
-   NONBLOCK  = (1 << 0), // 1
-   BROADCAST = (1 << 1), // 2
-   RCVBUF    = (1 << 2), // 4
-   SNDBUF    = (1 << 3), // 8
-   REUSEADDR = (1 << 4), // 16
-   RCVTIMEO  = (1 << 5), // 32
-   SNDTIMEO  = (1 << 6), // 64
-   ERROR     = (1 << 7), // 128
-   NODELAY   = (1 << 8), // 256
-   TTL       = (1 << 9), // 512
-   IPV6ONLY  = (1 << 10) // 1024
+   NONBLOCK  = (1 << 0), 
+   BROADCAST = (1 << 1), 
+   RCVBUF    = (1 << 2), 
+   SNDBUF    = (1 << 3), 
+   REUSEADDR = (1 << 4), 
+   RCVTIMEO  = (1 << 5), 
+   SNDTIMEO  = (1 << 6), 
+   ERROR     = (1 << 7), 
+   NODELAY   = (1 << 8), 
+   TTL       = (1 << 9), 
+   IPV6ONLY  = (1 << 10) 
 };
 
 enum class ENetProtocolCommand : uint8_t{
