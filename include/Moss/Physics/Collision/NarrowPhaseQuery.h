@@ -4,7 +4,6 @@
 
 #pragma once
 
-#include <Moss/Moss_Physics.h>
 #include <Moss/Physics/Body/Body.h>
 #include <Moss/Physics/Collision/ShapeFilter.h>
 #include <Moss/Physics/Collision/BroadPhase/BroadPhase.h>

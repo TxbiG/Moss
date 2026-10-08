@@ -283,10 +283,6 @@ enum class ETransmissionMode : uint8 {
 	Manual 
 };
 
-enum class EActivation : uint8 { 
-	Activate, 
-	DontActivate 
-};
 enum class EConstraintType : uint8 { 
 	Constraint, 
 	TwoBodyConstraint 

@@ -23,6 +23,12 @@ class SoftBodyCreationSettings;
 class BodyActivationListener;
 class StateRecorderFilter;
 struct PhysicsSettings;
+class BodyManager;
+class BodyLockInterface;
+class BroadPhase;
+class BroadPhaseLayerFilter;
+class TwoBodyConstraint;
+class TwoBodyConstraintSettings;
 #ifndef MOSS_DEBUG_RENDERER
 class DebugRenderer;
 class BodyDrawFilter;
@@ -61,9 +67,14 @@ enum class EOverrideMassProperties : uint8_t {
 	MassAndInertiaProvided				// Tells the system to take the mass and inertia from mMassPropertiesOverride
 };
 
-enum class ECanSleep {
+enum class ECanSleep : uint8  {
 	CannotSleep = 0,																		//< Object cannot go to sleep
 	CanSleep = 1,																			//< Object can go to sleep
+};
+
+enum class EActivation : uint8 { 
+	Activate, 
+	DontActivate 
 };
 
 enum class EMotionQuality : uint8_t
