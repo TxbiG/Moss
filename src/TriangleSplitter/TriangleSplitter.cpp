@@ -4,7 +4,7 @@
 
 #include <Moss/TriangleSplitter/TriangleSplitter.h>
 
-MOSS_SUPRESS_WARNINGS_BEGIN
+MOSS_SUPPRESS_WARNINGS_BEGIN
 
 TriangleSplitter::TriangleSplitter(const VertexList &inVertices, const IndexedTriangleList &inTriangles) :
 	mVertices(inVertices),
@@ -13,8 +13,7 @@ TriangleSplitter::TriangleSplitter(const VertexList &inVertices, const IndexedTr
 	mSortedTriangleIdx.resize(inTriangles.size());
 	mCentroids.resize(inTriangles.size() + 1); // Add 1 so we can load with Vec3::LoadFloat3Unsafe
 
-	for (uint t = 0; t < inTriangles.size(); ++t)
-	{
+	for (uint32_t t = 0; t < inTriangles.size(); ++t) {
 		// Initially triangles start unsorted
 		mSortedTriangleIdx[t] = t;
 
@@ -26,11 +25,10 @@ TriangleSplitter::TriangleSplitter(const VertexList &inVertices, const IndexedTr
 	mCentroids.back() = Float3(0, 0, 0);
 }
 
-bool TriangleSplitter::SplitInternal(const Range &inTriangles, uint inDimension, float inSplit, Range &outLeft, Range &outRight)
-{
+bool TriangleSplitter::SplitInternal(const Range &inTriangles, uint32_t inDimension, float inSplit, Range &outLeft, Range &outRight) {
 	// Divide triangles
-	uint *start = mSortedTriangleIdx.data() + inTriangles.mBegin;
-	uint *end = mSortedTriangleIdx.data() + inTriangles.mEnd;
+	uint32_t *start = mSortedTriangleIdx.data() + inTriangles.mBegin;
+	uint32_t *end = mSortedTriangleIdx.data() + inTriangles.mEnd;
 	while (start < end)
 	{
 		// Search for first element that is on the right hand side of the split plane
@@ -51,15 +49,15 @@ bool TriangleSplitter::SplitInternal(const Range &inTriangles, uint inDimension,
 	}
 	MOSS_ASSERT(start == end);
 
-	uint start_idx = uint(start - mSortedTriangleIdx.data());
+	uint32_t start_idx = uint32_t(start - mSortedTriangleIdx.data());
 
 #ifdef MOSS_DEBUG
 	// Validate division algorithm
 	MOSS_ASSERT(inTriangles.mBegin <= start_idx);
 	MOSS_ASSERT(start_idx <= inTriangles.mEnd);
-	for (uint i = inTriangles.mBegin; i < start_idx; ++i)
+	for (uint32_t i = inTriangles.mBegin; i < start_idx; ++i)
 		MOSS_ASSERT(mCentroids[mSortedTriangleIdx[i]][inDimension] < inSplit);
-	for (uint i = start_idx; i < inTriangles.mEnd; ++i)
+	for (uint32_t i = start_idx; i < inTriangles.mEnd; ++i)
 		MOSS_ASSERT(mCentroids[mSortedTriangleIdx[i]][inDimension] >= inSplit);
 #endif
 
@@ -70,32 +68,22 @@ bool TriangleSplitter::SplitInternal(const Range &inTriangles, uint inDimension,
 
 
 
+TriangleSplitterMean::TriangleSplitterMean(const VertexList &inVertices, const IndexedTriangleList &inTriangles) 
+: TriangleSplitter(inVertices, inTriangles) { }
 
-
-
-
-
-
-
-TriangleSplitterMean::TriangleSplitterMean(const VertexList &inVertices, const IndexedTriangleList &inTriangles) :
-	TriangleSplitter(inVertices, inTriangles)
-{
-}
-
-bool TriangleSplitterMean::Split(const Range &inTriangles, Range &outLeft, Range &outRight)
-{
-	const uint *begin = mSortedTriangleIdx.data() + inTriangles.mBegin;
-	const uint *end = mSortedTriangleIdx.data() + inTriangles.mEnd;
+bool TriangleSplitterMean::Split(const Range &inTriangles, Range &outLeft, Range &outRight) {
+	const uint32_t *begin = mSortedTriangleIdx.data() + inTriangles.mBegin;
+	const uint32_t *end = mSortedTriangleIdx.data() + inTriangles.mEnd;
 
 	// Calculate mean value for these triangles
 	Vec3 mean = Vec3::Zero();
-	for (const uint *t = begin; t < end; ++t)
+	for (const uint32_t *t = begin; t < end; ++t)
 		mean += Vec3::LoadFloat3Unsafe(mCentroids[*t]);
 	mean *= 1.0f / inTriangles.Count();
 
 	// Calculate deviation
 	Vec3 deviation = Vec3::Zero();
-	for (const uint *t = begin; t < end; ++t)
+	for (const uint32_t *t = begin; t < end; ++t)
 	{
 		Vec3 delta = Vec3::LoadFloat3Unsafe(mCentroids[*t]) - mean;
 		deviation += delta * delta;
@@ -103,7 +91,7 @@ bool TriangleSplitterMean::Split(const Range &inTriangles, Range &outLeft, Range
 	deviation *= 1.0f / inTriangles.Count();
 
 	// Calculate split plane
-	uint dimension = deviation.GetHighestComponentIndex();
+	uint32_t dimension = deviation.GetHighestComponentIndex();
 	float split = mean[dimension];
 
 	return SplitInternal(inTriangles, dimension, split, outLeft, outRight);
@@ -112,7 +100,7 @@ bool TriangleSplitterMean::Split(const Range &inTriangles, Range &outLeft, Range
 
 
 
-TriangleSplitterBinning::TriangleSplitterBinning(const VertexList &inVertices, const IndexedTriangleList &inTriangles, uint inMinNumBins, uint inMaxNumBins, uint inNumTrianglesPerBin) :
+TriangleSplitterBinning::TriangleSplitterBinning(const VertexList &inVertices, const IndexedTriangleList &inTriangles, uint32_t inMinNumBins, uint32_t inMaxNumBins, uint32_t inNumTrianglesPerBin) :
 	TriangleSplitter(inVertices, inTriangles),
 	mMinNumBins(inMinNumBins),
 	mMaxNumBins(inMaxNumBins),
@@ -121,14 +109,13 @@ TriangleSplitterBinning::TriangleSplitterBinning(const VertexList &inVertices, c
 	mBins.resize(mMaxNumBins * 3); // mMaxNumBins per dimension
 }
 
-bool TriangleSplitterBinning::Split(const Range &inTriangles, Range &outLeft, Range &outRight)
-{
-	const uint *begin = mSortedTriangleIdx.data() + inTriangles.mBegin;
-	const uint *end = mSortedTriangleIdx.data() + inTriangles.mEnd;
+bool TriangleSplitterBinning::Split(const Range &inTriangles, Range &outLeft, Range &outRight) {
+	const uint32_t *begin = mSortedTriangleIdx.data() + inTriangles.mBegin;
+	const uint32_t *end = mSortedTriangleIdx.data() + inTriangles.mEnd;
 
 	// Calculate bounds for this range
 	AABox centroid_bounds;
-	for (const uint *t = begin; t < end; ++t)
+	for (const uint32_t *t = begin; t < end; ++t)
 		centroid_bounds.Encapsulate(Vec3::LoadFloat3Unsafe(mCentroids[*t]));
 
 	// Convert bounds to min coordinate and size
@@ -138,15 +125,14 @@ bool TriangleSplitterBinning::Split(const Range &inTriangles, Range &outLeft, Ra
 	Vec3 bounds_size = Vec3::Max(centroid_bounds.mMax - bounds_min, Vec3::Replicate(cMinSize));
 
 	float best_cp = FLT_MAX;
-	uint best_dim = 0xffffffff;
+	uint32_t best_dim = 0xffffffff;
 	float best_split = 0;
 
 	// Bin in all dimensions
-	uint num_bins = Clamp(inTriangles.Count() / mNumTrianglesPerBin, mMinNumBins, mMaxNumBins);
+	uint32_t num_bins = Clamp(inTriangles.Count() / mNumTrianglesPerBin, mMinNumBins, mMaxNumBins);
 
 	// Initialize bins
-	for (uint dim = 0; dim < 3; ++dim)
-	{
+	for (uint32_t dim = 0; dim < 3; ++dim) {
 		// Get bounding box size for this dimension
 		float bounds_min_dim = bounds_min[dim];
 		float bounds_size_dim = bounds_size[dim];
@@ -154,7 +140,7 @@ bool TriangleSplitterBinning::Split(const Range &inTriangles, Range &outLeft, Ra
 		// Get the bins for this dimension
 		Bin *bins_dim = &mBins[num_bins * dim];
 
-		for (uint b = 0; b < num_bins; ++b)
+		for (uint32_t b = 0; b < num_bins; ++b)
 		{
 			Bin &bin = bins_dim[b];
 			bin.mBounds.SetEmpty();
@@ -164,8 +150,7 @@ bool TriangleSplitterBinning::Split(const Range &inTriangles, Range &outLeft, Ra
 	}
 
 	// Bin all triangles in all dimensions at once
-	for (const uint *t = begin; t < end; ++t)
-	{
+	for (const uint32_t *t = begin; t < end; ++t) {
 		Vec3 centroid_pos = Vec3::LoadFloat3Unsafe(mCentroids[*t]);
 
 		AABox triangle_bounds = AABox::FromTriangle(mVertices, mTriangles[*t]);
@@ -173,8 +158,7 @@ bool TriangleSplitterBinning::Split(const Range &inTriangles, Range &outLeft, Ra
 		Vec3 bin_no_f = (centroid_pos - bounds_min) / bounds_size * float(num_bins);
 		UVec4 bin_no = UVec4::Min(bin_no_f.ToInt(), UVec4::Replicate(num_bins - 1));
 
-		for (uint dim = 0; dim < 3; ++dim)
-		{
+		for (uint32_t dim = 0; dim < 3; ++dim) {
 			// Select bin
 			Bin &bin = mBins[num_bins * dim + bin_no[dim]];
 
@@ -185,8 +169,7 @@ bool TriangleSplitterBinning::Split(const Range &inTriangles, Range &outLeft, Ra
 		}
 	}
 
-	for (uint dim = 0; dim < 3; ++dim)
-	{
+	for (uint32_t dim = 0; dim < 3; ++dim) {
 		// Skip axis if too small
 		if (bounds_size[dim] <= cMinSize)
 			continue;
@@ -197,8 +180,7 @@ bool TriangleSplitterBinning::Split(const Range &inTriangles, Range &outLeft, Ra
 		// Calculate totals left to right
 		AABox prev_bounds;
 		int prev_triangles = 0;
-		for (uint b = 0; b < num_bins; ++b)
-		{
+		for (uint32_t b = 0; b < num_bins; ++b) {
 			Bin &bin = bins_dim[b];
 			bin.mBoundsAccumulatedLeft = prev_bounds; // Don't include this node as we'll take a split on the left side of the bin
 			bin.mNumTrianglesAccumulatedLeft = prev_triangles;
@@ -219,7 +201,7 @@ bool TriangleSplitterBinning::Split(const Range &inTriangles, Range &outLeft, Ra
 		}
 
 		// Get best splitting plane
-		for (uint b = 1; b < num_bins; ++b) // Start at 1 since selecting bin 0 would result in everything ending up on the right side
+		for (uint32_t b = 1; b < num_bins; ++b) // Start at 1 since selecting bin 0 would result in everything ending up on the right side
 		{
 			// Calculate surface area heuristic and see if it is better than the current best
 			const Bin &bin = bins_dim[b];
@@ -241,4 +223,4 @@ bool TriangleSplitterBinning::Split(const Range &inTriangles, Range &outLeft, Ra
 }
 
 
-MOSS_SUPRESS_WARNINGS_END
+MOSS_SUPPRESS_WARNINGS_END
