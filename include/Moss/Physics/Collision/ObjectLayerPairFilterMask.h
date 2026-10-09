@@ -22,30 +22,21 @@ public:
 	static constexpr uint32_t	cMask = (1 << cNumBits) - 1;
 
 	/// Construct an ObjectLayer from a group and mask bits
-	static ObjectLayer		sGetObjectLayer(uint32_t inGroup, uint32_t inMask = cMask)
-	{
+	static ObjectLayer		GetObjectLayer(uint32_t inGroup, uint32_t inMask = cMask) {
 		MOSS_ASSERT((inGroup & ~cMask) == 0);
 		MOSS_ASSERT((inMask & ~cMask) == 0);
 		return ObjectLayer((inGroup & cMask) | (inMask << cNumBits));
 	}
 
 	/// Get the group bits from an ObjectLayer
-	static inline uint32_t	sGetGroup(ObjectLayer inObjectLayer)
-	{
-		return uint32_t(inObjectLayer) & cMask;
-	}
+	static inline uint32_t	GetGroup(ObjectLayer inObjectLayer) { return uint32_t(inObjectLayer) & cMask; }
 
 	/// Get the mask bits from an ObjectLayer
-	static inline uint32_t	sGetMask(ObjectLayer inObjectLayer)
-	{
-		return uint32_t(inObjectLayer) >> cNumBits;
-	}
+	static inline uint32_t	GetMask(ObjectLayer inObjectLayer) { return uint32_t(inObjectLayer) >> cNumBits; }
 
 	/// Returns true if two layers can collide
-	virtual bool			ShouldCollide(ObjectLayer inObject1, ObjectLayer inObject2) const override
-	{
-		return (sGetGroup(inObject1) & sGetMask(inObject2)) != 0
-			&& (sGetGroup(inObject2) & sGetMask(inObject1)) != 0;
+	virtual bool			ShouldCollide(ObjectLayer inObject1, ObjectLayer inObject2) const override {
+		return (sGetGroup(inObject1) & sGetMask(inObject2)) != 0 && (sGetGroup(inObject2) & sGetMask(inObject1)) != 0;
 	}
 };
 

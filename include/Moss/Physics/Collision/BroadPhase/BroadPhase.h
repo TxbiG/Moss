@@ -37,17 +37,13 @@ using CollideShapeBodyCollector = CollisionCollector<BodyID, CollisionCollectorT
 
 
 /// Filter class for broadphase layers
-class MOSS_API BroadPhaseLayerFilter : public NonCopyable
-{
+class MOSS_API BroadPhaseLayerFilter : public NonCopyable {
 public:
 	/// Destructor
 	virtual							~BroadPhaseLayerFilter() = default;
 
 	/// Function to filter out broadphase layers when doing collision query test (return true to allow testing against objects with this layer)
-	virtual bool					ShouldCollide([[maybe_unused]] BroadPhaseLayer inLayer) const
-	{
-		return true;
-	}
+	virtual bool					ShouldCollide([[maybe_unused]] BroadPhaseLayer inLayer) const { return true; }
 };
 
 /// Interface to the broadphase that can perform collision queries. These queries will only test the bounding box of the body to quickly determine a potential set of colliding bodies.
