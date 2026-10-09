@@ -12,8 +12,7 @@ MOSS_SUPPRESS_WARNINGS_BEGIN
 /// Uses group bits and mask bits. Two layers can collide if Object1.Group & Object2.Mask is non-zero and Object2.Group & Object1.Mask is non-zero.
 /// The behavior is similar to that in e.g. Bullet.
 /// This implementation works together with BroadPhaseLayerInterfaceMask and ObjectVsBroadPhaseLayerFilterMask
-class ObjectLayerPairFilterMask : public ObjectLayerPairFilter
-{
+class ObjectLayerPairFilterMask : public ObjectLayerPairFilter {
 public:
 	MOSS_OVERRIDE_NEW_DELETE
 
@@ -36,7 +35,7 @@ public:
 
 	/// Returns true if two layers can collide
 	virtual bool			ShouldCollide(ObjectLayer inObject1, ObjectLayer inObject2) const override {
-		return (sGetGroup(inObject1) & sGetMask(inObject2)) != 0 && (sGetGroup(inObject2) & sGetMask(inObject1)) != 0;
+		return (GetGroup(inObject1) & GetMask(inObject2)) != 0 && (GetGroup(inObject2) & GetMask(inObject1)) != 0;
 	}
 };
 
