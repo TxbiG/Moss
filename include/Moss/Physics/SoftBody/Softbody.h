@@ -5,14 +5,12 @@
 
 MOSS_SUPPRESS_WARNINGS_BEGIN
 
-enum class SoftBodyValidateResult
-{
+enum class SoftBodyValidateResult {
 	AcceptContact,														///< Accept this contact
 	RejectContact,														///< Reject this contact
 };
 
-class SoftBodyContactSettings
-{
+class SoftBodyContactSettings {
 public:
 	float							mInvMassScale1 = 1.0f;				///< Scale factor for the inverse mass of the soft body (0 = infinite mass, 1 = use original mass, 2 = body has half the mass). For the same contact pair, you should strive to keep the value the same over time.
 	float							mInvMassScale2 = 1.0f;				///< Scale factor for the inverse mass of the other body (0 = infinite mass, 1 = use original mass, 2 = body has half the mass). For the same contact pair, you should strive to keep the value the same over time.
@@ -531,8 +529,6 @@ public:
 
 	using SharedSettingsToIDMap = StreamUtils::ObjectToIDMap<SoftBodySharedSettings>;
 	using IDToSharedSettingsMap = StreamUtils::IDToObjectMap<SoftBodySharedSettings>;
-	using MaterialToIDMap = StreamUtils::ObjectToIDMap<PhysicsMaterial>;
-	using IDToMaterialMap = StreamUtils::IDToObjectMap<PhysicsMaterial>;
 
 	// Save this shared settings and its materials. Pass in an empty map ioSettingsMap / ioMaterialMap or reuse the same map while saving multiple settings objects to the same stream in order to avoid writing duplicates.
 	void				SaveWithMaterials(StreamOut &inStream, SharedSettingsToIDMap &ioSettingsMap, MaterialToIDMap &ioMaterialMap) const;
@@ -810,8 +806,6 @@ public:
 	using IDToGroupFilterMap = StreamUtils::IDToObjectMap<GroupFilter>;
 	using SharedSettingsToIDMap = SoftBodySharedSettings::SharedSettingsToIDMap;
 	using IDToSharedSettingsMap = SoftBodySharedSettings::IDToSharedSettingsMap;
-	using MaterialToIDMap = StreamUtils::ObjectToIDMap<PhysicsMaterial>;
-	using IDToMaterialMap = StreamUtils::IDToObjectMap<PhysicsMaterial>;
 
 	// Save this body creation settings, its shared settings and group filter. Pass in an empty map in ioSharedSettingsMap / ioMaterialMap / ioGroupFilterMap or reuse the same map while saving multiple shapes to the same stream in order to avoid writing duplicates.
 	// Pass nullptr to ioSharedSettingsMap and ioMaterial map to skip saving shared settings and materials

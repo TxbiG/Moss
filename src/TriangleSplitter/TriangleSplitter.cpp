@@ -6,10 +6,7 @@
 
 MOSS_SUPPRESS_WARNINGS_BEGIN
 
-TriangleSplitter::TriangleSplitter(const VertexList &inVertices, const IndexedTriangleList &inTriangles) :
-	mVertices(inVertices),
-	mTriangles(inTriangles)
-{
+TriangleSplitter::TriangleSplitter(const VertexList &inVertices, const IndexedTriangleList &inTriangles) : mVertices(inVertices), mTriangles(inTriangles) {
 	mSortedTriangleIdx.resize(inTriangles.size());
 	mCentroids.resize(inTriangles.size() + 1); // Add 1 so we can load with Vec3::LoadFloat3Unsafe
 

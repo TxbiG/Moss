@@ -26,6 +26,10 @@
 #include <Moss/Renderer/DebugRenderer.h>                // Fixes the incomplete type GeometryRef error
 
 
+using ShapeToIDMap = StreamUtils::ObjectToIDMap<Shape>;
+using IDToShapeMap = StreamUtils::IDToObjectMap<Shape>;
+using MaterialToIDMap = StreamUtils::ObjectToIDMap<PhysicsMaterial>;
+using IDToMaterialMap = StreamUtils::IDToObjectMap<PhysicsMaterial>;
 
 MOSS_SUPPRESS_WARNINGS_BEGIN
 

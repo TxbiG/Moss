@@ -35,6 +35,21 @@ using RayCastBodyCollector = CollisionCollector<BroadPhaseCastResult, CollisionC
 using CastShapeBodyCollector = CollisionCollector<BroadPhaseCastResult, CollisionCollectorTraitsCastShape>;
 using CollideShapeBodyCollector = CollisionCollector<BodyID, CollisionCollectorTraitsCollideShape>;
 
+
+/// Filter class for broadphase layers
+class MOSS_API BroadPhaseLayerFilter : public NonCopyable
+{
+public:
+	/// Destructor
+	virtual							~BroadPhaseLayerFilter() = default;
+
+	/// Function to filter out broadphase layers when doing collision query test (return true to allow testing against objects with this layer)
+	virtual bool					ShouldCollide([[maybe_unused]] BroadPhaseLayer inLayer) const
+	{
+		return true;
+	}
+};
+
 /// Interface to the broadphase that can perform collision queries. These queries will only test the bounding box of the body to quickly determine a potential set of colliding bodies.
 /// The shapes of the bodies are not tested, if you want this then you should use the NarrowPhaseQuery interface.
 class MOSS_API BroadPhaseQuery : public NonCopyable {
@@ -130,20 +145,6 @@ public:
 
 	/// Returns true if an object layer should collide with a broadphase layer
 	virtual bool					ShouldCollide([[maybe_unused]] ObjectLayer inLayer1, [[maybe_unused]] BroadPhaseLayer inLayer2) const
-	{
-		return true;
-	}
-};
-
-/// Filter class for broadphase layers
-class MOSS_API BroadPhaseLayerFilter : public NonCopyable
-{
-public:
-	/// Destructor
-	virtual							~BroadPhaseLayerFilter() = default;
-
-	/// Function to filter out broadphase layers when doing collision query test (return true to allow testing against objects with this layer)
-	virtual bool					ShouldCollide([[maybe_unused]] BroadPhaseLayer inLayer) const
 	{
 		return true;
 	}
