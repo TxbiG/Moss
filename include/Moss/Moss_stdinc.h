@@ -101,6 +101,7 @@
  * MOSS_PLATFORM_VISIONOS
  * MOSS_PLATFORM_VITA
  * MOSS_PLATFORM_WINGDK
+ * MOSS_PLATFORM_EMBEDDED
  * ```
  *
  * ---
@@ -152,6 +153,7 @@
 // Determine platform
 #if defined(MOSS_PLATFORM_BLUE)
 	// Correct define already defined, this overrides everything else
+	#define MOSS_PLATFORM_EMBEDDED
 #elif defined(__EMSCRIPTEN__)
 	#define MOSS_PLATFORM_WASM
 #elif defined(_WIN32) || defined(_WIN64)
@@ -169,8 +171,10 @@
         #define MOSS_PLATFORM_GDK
         #if defined(_GAMING_XBOX_X)
             #define MOSS_PLATFORM_XBOXSERIES
+			#define MOSS_PLATFORM_EMBEDDED
         #else
             #define MOSS_PLATFORM_XBOXONE
+			#define MOSS_PLATFORM_EMBEDDED
         #endif
     #endif
 #elif defined(__APPLE__)
@@ -181,13 +185,16 @@
         #define MOSS_PLATFORM_MACOS
     #elif TARGET_OS_IPHONE
         #define MOSS_PLATFORM_IOS
+		#define MOSS_PLATFORM_EMBEDDED
     #elif TARGET_OS_TV
         #define MOSS_PLATFORM_TVOS
+		#define MOSS_PLATFORM_EMBEDDED
     #elif TARGET_OS_VISION
         #define MOSS_PLATFORM_VISIONOS
     #endif
 #elif defined(ANDROID) || defined(__ANDROID__) 	// Android is linux too, so that's why we check it first
 	#define MOSS_PLATFORM_ANDROID
+	#define MOSS_PLATFORM_EMBEDDED
 	// Add Android TV
 #elif defined(linux) || defined(__linux) || defined(__linux__)
 	// Linux

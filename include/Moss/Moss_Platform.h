@@ -1109,7 +1109,7 @@ MOSS_API bool Moss_WriteStorageFile(Moss_Storage* storage, const char* path, con
 
 
 // Mobile Android / IOS App Creation
-#if defined(MOSS_PLATFORM_ANDROID) || defined(MOSS_PLATFORM_IOS) || defined(MOSS_PLATFORM_TVOS) || defined(MOSS_PLATFORM_XBOXSERIES) || defined(MOSS_PLATFORM_XBOXONE)
+#if defined(MOSS_PLATFORM_EMBEDDED)
 /*! @brief Embedded window intended for creating mobile, consoles and tv applications. @param X X. @ingroup window */
 MOSS_API Moss_Window* Moss_CreateEmbeddedWindow();
 MOSS_API void Moss_Terminate_EmbeddedWindow();
@@ -1148,7 +1148,7 @@ MOSS_API int Moss_GetPhysicalDevicePresentationSupport(Moss_Window* window, VkPh
 
 // Metal
 #if defined(MOSS_GRAPHICS_METAL)
-typedef void *Moss_MetalView;
+typedef void* Moss_MetalView;
 MOSS_API Moss_MetalView Moss_Metal_CreateView(Moss_Window *window);
 MOSS_API void Moss_Metal_DestroyView(Moss_MetalView view);
 MOSS_API void* Moss_Metal_GetLayer(Moss_MetalView view);
