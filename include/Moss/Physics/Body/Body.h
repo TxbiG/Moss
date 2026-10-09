@@ -13,6 +13,7 @@
 #include <Moss/Physics/Collision/ObjectLayer.h>
 #include <Moss/Physics/Collision/PhysicsMaterial.h>
 #include <Moss/Physics/Collision/Shape/Shapes.h>
+#include <Moss/Physics/Collision/BroadPhase/BroadPhaseLayerInterfaceMask.h>
 #include <Moss/Physics/Body/BodyID.h>
 
 MOSS_SUPPRESS_WARNINGS_BEGIN
@@ -202,7 +203,45 @@ struct alignas(uint64) BodyPair {
 
 static_assert(sizeof(BodyPair) == sizeof(uint64), "Mismatch in class size");
 
+// Base class interface for locking a body. Usually you will use BodyLockRead / BodyLockWrite / BodyLockMultiRead / BodyLockMultiWrite instead.
+class BodyLockInterface : public NonCopyable {
+public:
+	// Redefine MutexMask
+	using MutexMask = BodyManager::MutexMask;
 
+	// Constructor
+	explicit					BodyLockInterface(BodyManager &inBodyManager)		: mBodyManager(inBodyManager) { }
+	virtual						~BodyLockInterface() = default;
+
+	//@name Locking functions
+
+	virtual SharedMutex *		LockRead(const BodyID &inBodyID) const = 0;
+	virtual void				UnlockRead(SharedMutex *inMutex) const = 0;
+	virtual SharedMutex *		LockWrite(const BodyID &inBodyID) const = 0;
+	virtual void				UnlockWrite(SharedMutex *inMutex) const = 0;
+
+
+	// Get the mask needed to lock all bodies
+	inline MutexMask			GetAllBodiesMutexMask() const
+	{
+		return mBodyManager.GetAllBodiesMutexMask();
+	}
+
+	//@name Batch locking functions
+
+	virtual MutexMask			GetMutexMask(const BodyID *inBodies, int inNumber) const = 0;
+	virtual void				LockRead(MutexMask inMutexMask) const = 0;
+	virtual void				UnlockRead(MutexMask inMutexMask) const = 0;
+	virtual void				LockWrite(MutexMask inMutexMask) const = 0;
+	virtual void				UnlockWrite(MutexMask inMutexMask) const = 0;
+
+
+	// Convert body ID to body
+	inline Body *				TryGetBody(const BodyID &inBodyID) const			{ return mBodyManager.TryGetBody(inBodyID); }
+
+protected:
+	BodyManager &				mBodyManager;
+};
 
 template <bool Write, class BodyType>
 class BodyLockBase : public NonCopyable {
@@ -742,10 +781,10 @@ public:
 	// Check if this is a valid body pointer. When a body is freed the memory that the pointer occupies is reused to store a freelist.
 	static inline bool IsValidBodyPointer(const Body *inBody)		{ return (uintptr_t(inBody) & cIsFreedBody) == 0; }
 
-	// Get all bodies. Note that this can contain invalid body pointers, call sIsValidBodyPointer to check.
+	// Get all bodies. Note that this can contain invalid body pointers, call IsValidBodyPointer to check.
 	const BodyVector&			GetBodies() const							{ return mBodies; }
 
-	// Get all bodies. Note that this can contain invalid body pointers, call sIsValidBodyPointer to check.
+	// Get all bodies. Note that this can contain invalid body pointers, call IsValidBodyPointer to check.
 	BodyVector&					GetBodies()									{ return mBodies; }
 
 	// Get all body IDs under the protection of a lock
@@ -765,7 +804,7 @@ public:
 			return nullptr;
 
 		const Body *body = mBodies[idx];
-		if (sIsValidBodyPointer(body) && body->GetID() == inID)
+		if (IsValidBodyPointer(body) && body->GetID() == inID)
 			return body;
 
 		return nullptr;
@@ -779,7 +818,7 @@ public:
 			return nullptr;
 
 		Body *body = mBodies[idx];
-		if (sIsValidBodyPointer(body) && body->GetID() == inID)
+		if (IsValidBodyPointer(body) && body->GetID() == inID)
 			return body;
 
 		return nullptr;
@@ -879,7 +918,7 @@ public:
 		inline GrantActiveBodiesAccess(bool inAllowActivation, bool inAllowDeactivation)
 		{
 			MOSS_ASSERT(!sGetOverrideAllowActivation());
-			sSetOverrideAllowActivation(inAllowActivation);
+			SetOverrideAllowActivation(inAllowActivation);
 
 			MOSS_ASSERT(!sGetOverrideAllowDeactivation());
 			sSetOverrideAllowDeactivation(inAllowDeactivation);
@@ -887,7 +926,7 @@ public:
 
 		inline ~GrantActiveBodiesAccess()
 		{
-			sSetOverrideAllowActivation(false);
+			SetOverrideAllowActivation(false);
 			sSetOverrideAllowDeactivation(false);
 		}
 	};
@@ -922,7 +961,7 @@ private:
 	void							ValidateFreeList() const;
 #endif // defined(MOSS_DEBUG)
 
-	// List of pointers to all bodies. Contains invalid pointers for deleted bodies, check with sIsValidBodyPointer. Note that this array is reserved to the max bodies that is passed in the Init function so that adding bodies will not reallocate the array.
+	// List of pointers to all bodies. Contains invalid pointers for deleted bodies, check with IsValidBodyPointer. Note that this array is reserved to the max bodies that is passed in the Init function so that adding bodies will not reallocate the array.
 	BodyVector						mBodies;
 
 	// Current number of allocated bodies
@@ -986,46 +1025,6 @@ private:
 #endif
 };
 
-
-// Base class interface for locking a body. Usually you will use BodyLockRead / BodyLockWrite / BodyLockMultiRead / BodyLockMultiWrite instead.
-class BodyLockInterface : public NonCopyable {
-public:
-	// Redefine MutexMask
-	using MutexMask = BodyManager::MutexMask;
-
-	// Constructor
-	explicit					BodyLockInterface(BodyManager &inBodyManager)		: mBodyManager(inBodyManager) { }
-	virtual						~BodyLockInterface() = default;
-
-	//@name Locking functions
-
-	virtual SharedMutex *		LockRead(const BodyID &inBodyID) const = 0;
-	virtual void				UnlockRead(SharedMutex *inMutex) const = 0;
-	virtual SharedMutex *		LockWrite(const BodyID &inBodyID) const = 0;
-	virtual void				UnlockWrite(SharedMutex *inMutex) const = 0;
-
-
-	// Get the mask needed to lock all bodies
-	inline MutexMask			GetAllBodiesMutexMask() const
-	{
-		return mBodyManager.GetAllBodiesMutexMask();
-	}
-
-	//@name Batch locking functions
-
-	virtual MutexMask			GetMutexMask(const BodyID *inBodies, int inNumber) const = 0;
-	virtual void				LockRead(MutexMask inMutexMask) const = 0;
-	virtual void				UnlockRead(MutexMask inMutexMask) const = 0;
-	virtual void				LockWrite(MutexMask inMutexMask) const = 0;
-	virtual void				UnlockWrite(MutexMask inMutexMask) const = 0;
-
-
-	// Convert body ID to body
-	inline Body *				TryGetBody(const BodyID &inBodyID) const			{ return mBodyManager.TryGetBody(inBodyID); }
-
-protected:
-	BodyManager &				mBodyManager;
-};
 
 // Implementation that performs no locking (assumes the lock has already been taken)
 class BodyLockInterfaceNoLock final : public BodyLockInterface {

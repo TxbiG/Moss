@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include <Moss/Physics/Body/Body.h>
+#include <Moss/Physics/Body/BodyID.h>
 #include <Moss/Core/Mutex.h>
 #include <Moss/Physics/Collision/ObjectLayer.h>
 #include <Moss/Physics/Collision/CollisionCollector.h>
