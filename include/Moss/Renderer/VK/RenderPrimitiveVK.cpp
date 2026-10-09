@@ -49,11 +49,11 @@ void RenderPrimitiveVK::UnlockVertexBuffer()
 	vkUnmapMemory(mRenderer->GetDevice(), mVertexBuffer.mMemory);
 }
 
-void RenderPrimitiveVK::CreateIndexBuffer(int inNumIdx, const uint32 *inData)
+void RenderPrimitiveVK::CreateIndexBuffer(int inNumIdx, const uint32_t *inData)
 {
 	RenderPrimitive::CreateIndexBuffer(inNumIdx, inData);
 
-	VkDeviceSize size = VkDeviceSize(inNumIdx) * sizeof(uint32);
+	VkDeviceSize size = VkDeviceSize(inNumIdx) * sizeof(uint32_t);
 	if (inData != nullptr)
 	{
 		mRenderer->CreateDeviceLocalBuffer(inData, size, VK_BUFFER_USAGE_INDEX_BUFFER_BIT, mIndexBuffer);
@@ -63,13 +63,13 @@ void RenderPrimitiveVK::CreateIndexBuffer(int inNumIdx, const uint32 *inData)
 		mRenderer->CreateBuffer(size, VK_BUFFER_USAGE_INDEX_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, mIndexBuffer);
 }
 
-uint32 *RenderPrimitiveVK::LockIndexBuffer()
+uint32_t *RenderPrimitiveVK::LockIndexBuffer()
 {
 	MOSS_ASSERT(!mIndexBufferDeviceLocal);
 
 	void *data;
-	vkMapMemory(mRenderer->GetDevice(), mIndexBuffer.mMemory, mIndexBuffer.mOffset, VkDeviceSize(mNumIdx) * sizeof(uint32), 0, &data);
-	return reinterpret_cast<uint32 *>(data);
+	vkMapMemory(mRenderer->GetDevice(), mIndexBuffer.mMemory, mIndexBuffer.mOffset, VkDeviceSize(mNumIdx) * sizeof(uint32_t), 0, &data);
+	return reinterpret_cast<uint32_t *>(data);
 }
 
 void RenderPrimitiveVK::UnlockIndexBuffer()

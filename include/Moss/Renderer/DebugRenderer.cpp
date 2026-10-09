@@ -292,13 +292,13 @@ void DebugRenderer::DrawWireUnitSphereRecursive(RMat44Arg inMatrix, ColorArg inC
 	}
 }
 
-void DebugRenderer::Create8thSphereRecursive(TArray<uint32> &ioIndices, TArray<Vertex> &ioVertices, Vec3Arg inDir1, uint32 &ioIdx1, Vec3Arg inDir2, uint32 &ioIdx2, Vec3Arg inDir3, uint32 &ioIdx3, const Float2 &inUV, SupportFunction inGetSupport, int inLevel)
+void DebugRenderer::Create8thSphereRecursive(TArray<uint32_t> &ioIndices, TArray<Vertex> &ioVertices, Vec3Arg inDir1, uint32_t &ioIdx1, Vec3Arg inDir2, uint32_t &ioIdx2, Vec3Arg inDir3, uint32_t &ioIdx3, const Float2 &inUV, SupportFunction inGetSupport, int inLevel)
 {
 	if (inLevel == 0)
 	{
 		if (ioIdx1 == 0xffffffff)
 		{
-			ioIdx1 = (uint32)ioVertices.size();
+			ioIdx1 = (uint32_t)ioVertices.size();
 			Float3 position, normal;
 			inGetSupport(inDir1).StoreFloat3(&position);
 			inDir1.StoreFloat3(&normal);
@@ -307,7 +307,7 @@ void DebugRenderer::Create8thSphereRecursive(TArray<uint32> &ioIndices, TArray<V
 
 		if (ioIdx2 == 0xffffffff)
 		{
-			ioIdx2 = (uint32)ioVertices.size();
+			ioIdx2 = (uint32_t)ioVertices.size();
 			Float3 position, normal;
 			inGetSupport(inDir2).StoreFloat3(&position);
 			inDir2.StoreFloat3(&normal);
@@ -316,7 +316,7 @@ void DebugRenderer::Create8thSphereRecursive(TArray<uint32> &ioIndices, TArray<V
 
 		if (ioIdx3 == 0xffffffff)
 		{
-			ioIdx3 = (uint32)ioVertices.size();
+			ioIdx3 = (uint32_t)ioVertices.size();
 			Float3 position, normal;
 			inGetSupport(inDir3).StoreFloat3(&position);
 			inDir3.StoreFloat3(&normal);
@@ -333,9 +333,9 @@ void DebugRenderer::Create8thSphereRecursive(TArray<uint32> &ioIndices, TArray<V
 		Vec3 center2 = (inDir2 + inDir3).Normalized();
 		Vec3 center3 = (inDir3 + inDir1).Normalized();
 
-		uint32 idx1 = 0xffffffff;
-		uint32 idx2 = 0xffffffff;
-		uint32 idx3 = 0xffffffff;
+		uint32_t idx1 = 0xffffffff;
+		uint32_t idx2 = 0xffffffff;
+		uint32_t idx3 = 0xffffffff;
 
 		Create8thSphereRecursive(ioIndices, ioVertices, inDir1,  ioIdx1, center1, idx1,   center3, idx3,   inUV, inGetSupport, inLevel - 1);
 		Create8thSphereRecursive(ioIndices, ioVertices, center1, idx1,	 center2, idx2,   center3, idx3,   inUV, inGetSupport, inLevel - 1);
@@ -344,11 +344,11 @@ void DebugRenderer::Create8thSphereRecursive(TArray<uint32> &ioIndices, TArray<V
 	}
 }
 
-void DebugRenderer::Create8thSphere(TArray<uint32> &ioIndices, TArray<Vertex> &ioVertices, Vec3Arg inDir1, Vec3Arg inDir2, Vec3Arg inDir3, const Float2 &inUV, SupportFunction inGetSupport, int inLevel)
+void DebugRenderer::Create8thSphere(TArray<uint32_t> &ioIndices, TArray<Vertex> &ioVertices, Vec3Arg inDir1, Vec3Arg inDir2, Vec3Arg inDir3, const Float2 &inUV, SupportFunction inGetSupport, int inLevel)
 {
-	uint32 idx1 = 0xffffffff;
-	uint32 idx2 = 0xffffffff;
-	uint32 idx3 = 0xffffffff;
+	uint32_t idx1 = 0xffffffff;
+	uint32_t idx2 = 0xffffffff;
+	uint32_t idx3 = 0xffffffff;
 
 	Create8thSphereRecursive(ioIndices, ioVertices, inDir1, idx1, inDir2, idx2, inDir3, idx3, inUV, inGetSupport, inLevel);
 }
@@ -356,20 +356,20 @@ void DebugRenderer::Create8thSphere(TArray<uint32> &ioIndices, TArray<Vertex> &i
 DebugRenderer::Batch DebugRenderer::CreateCylinder(float inTop, float inBottom, float inTopRadius, float inBottomRadius, int inLevel)
 {
 	TArray<Vertex> cylinder_vertices;
-	TArray<uint32> cylinder_indices;
+	TArray<uint32_t> cylinder_indices;
 
 	for (int q = 0; q < 4; ++q)
 	{
 		Float2 uv = (q & 1) == 0? Float2(0.25f, 0.75f) : Float2(0.25f, 0.25f);
 
-		uint32 center_start_idx = (uint32)cylinder_vertices.size();
+		uint32_t center_start_idx = (uint32_t)cylinder_vertices.size();
 
 		Float3 nt(0.0f, 1.0f, 0.0f);
 		Float3 nb(0.0f, -1.0f, 0.0f);
 		cylinder_vertices.push_back({ Float3(0.0f, inTop, 0.0f), nt, uv, Color:: });
 		cylinder_vertices.push_back({ Float3(0.0f, inBottom, 0.0f), nb, uv, Color:: });
 
-		uint32 vtx_start_idx = (uint32)cylinder_vertices.size();
+		uint32_t vtx_start_idx = (uint32_t)cylinder_vertices.size();
 
 		int num_parts = 1 << inLevel;
 		for (int i = 0; i <= num_parts; ++i)
@@ -394,7 +394,7 @@ DebugRenderer::Batch DebugRenderer::CreateCylinder(float inTop, float inBottom, 
 
 		for (int i = 0; i < num_parts; ++i)
 		{
-			uint32 start = vtx_start_idx + 4 * i;
+			uint32_t start = vtx_start_idx + 4 * i;
 
 			// Top
 			cylinder_indices.push_back(center_start_idx);
@@ -420,10 +420,10 @@ DebugRenderer::Batch DebugRenderer::CreateCylinder(float inTop, float inBottom, 
 	return CreateTriangleBatch(cylinder_vertices, cylinder_indices);
 }
 
-void DebugRenderer::CreateQuad(TArray<uint32> &ioIndices, TArray<Vertex> &ioVertices, Vec3Arg inV1, Vec3Arg inV2, Vec3Arg inV3, Vec3Arg inV4)
+void DebugRenderer::CreateQuad(TArray<uint32_t> &ioIndices, TArray<Vertex> &ioVertices, Vec3Arg inV1, Vec3Arg inV2, Vec3Arg inV3, Vec3Arg inV4)
 {
 	// Make room
-	uint32 start_idx = uint32(ioVertices.size());
+	uint32_t start_idx = uint32_t(ioVertices.size());
 	ioVertices.resize(start_idx + 4);
 	Vertex *vertices = &ioVertices[start_idx];
 
@@ -463,7 +463,7 @@ void DebugRenderer::Initialize()
 	// Box
 	{
 		TArray<Vertex> box_vertices;
-		TArray<uint32> box_indices;
+		TArray<uint32_t> box_indices;
 
 		// Get corner points
 		Vec3 v0 = Vec3(-1,  1, -1);
@@ -519,7 +519,7 @@ void DebugRenderer::Initialize()
 		// Capsule bottom half sphere
 		{
 			TArray<Vertex> capsule_bottom_vertices;
-			TArray<uint32> capsule_bottom_indices;
+			TArray<uint32_t> capsule_bottom_indices;
 			Create8thSphere(capsule_bottom_indices, capsule_bottom_vertices, -Vec3::AxisX(), -Vec3::AxisY(),  Vec3::sAxisZ(), Float2(0.25f, 0.25f), sphere_support, level);
 			Create8thSphere(capsule_bottom_indices, capsule_bottom_vertices, -Vec3::AxisY(),  Vec3::AxisX(),  Vec3::sAxisZ(), Float2(0.25f, 0.75f), sphere_support, level);
 			Create8thSphere(capsule_bottom_indices, capsule_bottom_vertices,  Vec3::AxisX(), -Vec3::AxisY(), -Vec3::sAxisZ(), Float2(0.25f, 0.25f), sphere_support, level);
@@ -530,7 +530,7 @@ void DebugRenderer::Initialize()
 		// Capsule top half sphere
 		{
 			TArray<Vertex> capsule_top_vertices;
-			TArray<uint32> capsule_top_indices;
+			TArray<uint32_t> capsule_top_indices;
 			Create8thSphere(capsule_top_indices, capsule_top_vertices,  Vec3::AxisX(),  Vec3::AxisY(),  Vec3::sAxisZ(), Float2(0.25f, 0.75f), sphere_support, level);
 			Create8thSphere(capsule_top_indices, capsule_top_vertices,  Vec3::AxisY(), -Vec3::AxisX(),  Vec3::sAxisZ(), Float2(0.25f, 0.25f), sphere_support, level);
 			Create8thSphere(capsule_top_indices, capsule_top_vertices,  Vec3::AxisY(),  Vec3::AxisX(), -Vec3::sAxisZ(), Float2(0.25f, 0.25f), sphere_support, level);
@@ -541,12 +541,12 @@ void DebugRenderer::Initialize()
 		// Capsule middle part
 		{
 			TArray<Vertex> capsule_mid_vertices;
-			TArray<uint32> capsule_mid_indices;
+			TArray<uint32_t> capsule_mid_indices;
 			for (int q = 0; q < 4; ++q)
 			{
 				Float2 uv = (q & 1) == 0? Float2(0.25f, 0.25f) : Float2(0.25f, 0.75f);
 
-				uint32 start_idx = (uint32)capsule_mid_vertices.size();
+				uint32_t start_idx = (uint32_t)capsule_mid_vertices.size();
 
 				int num_parts = 1 << level;
 				for (int i = 0; i <= num_parts; ++i)
@@ -564,7 +564,7 @@ void DebugRenderer::Initialize()
 
 				for (int i = 0; i < num_parts; ++i)
 				{
-					uint32 start = start_idx + 2 * i;
+					uint32_t start = start_idx + 2 * i;
 
 					capsule_mid_indices.push_back(start);
 					capsule_mid_indices.push_back(start + 1);
@@ -581,12 +581,12 @@ void DebugRenderer::Initialize()
 		// Open cone
 		{
 			TArray<Vertex> open_cone_vertices;
-			TArray<uint32> open_cone_indices;
+			TArray<uint32_t> open_cone_indices;
 			for (int q = 0; q < 4; ++q)
 			{
 				Float2 uv = (q & 1) == 0? Float2(0.25f, 0.25f) : Float2(0.25f, 0.75f);
 
-				uint32 start_idx = (uint32)open_cone_vertices.size();
+				uint32_t start_idx = (uint32_t)open_cone_vertices.size();
 
 				int num_parts = 2 << level;
 				Float3 vt(0, 0, 0);
@@ -610,7 +610,7 @@ void DebugRenderer::Initialize()
 
 				for (int i = 0; i < num_parts; ++i)
 				{
-					uint32 start = start_idx + 2 * i;
+					uint32_t start = start_idx + 2 * i;
 
 					open_cone_indices.push_back(start);
 					open_cone_indices.push_back(start + 1);
@@ -677,7 +677,7 @@ DebugRenderer::Batch DebugRenderer::CreateTriangleBatchForConvex(SupportFunction
 	MOSS_PROFILE_FUNCTION();
 
 	TArray<Vertex> vertices;
-	TArray<uint32> indices;
+	TArray<uint32_t> indices;
 	Create8thSphere(indices, vertices,  Vec3::AxisX(),  Vec3::AxisY(),  Vec3::sAxisZ(), Float2(0.25f, 0.25f), inGetSupport, inLevel);
 	Create8thSphere(indices, vertices,  Vec3::AxisY(), -Vec3::AxisX(),  Vec3::sAxisZ(), Float2(0.25f, 0.75f), inGetSupport, inLevel);
 	Create8thSphere(indices, vertices, -Vec3::AxisY(),  Vec3::AxisX(),  Vec3::sAxisZ(), Float2(0.25f, 0.75f), inGetSupport, inLevel);
@@ -841,8 +841,8 @@ DebugRenderer::Geometry *DebugRenderer::CreateSwingLimitGeometry(int inNumSegmen
 
 	// Allocate space for indices
 	int num_indices = 3 * inNumSegments;
-	uint32 *indices_start = (uint32 *)MOSS_STACK_ALLOC(num_indices * sizeof(uint32));
-	uint32 *indices = indices_start;
+	uint32_t *indices_start = (uint32_t *)MOSS_STACK_ALLOC(num_indices * sizeof(uint32_t));
+	uint32_t *indices = indices_start;
 
 	// Calculate indices
 	for (int i = 0; i < inNumSegments; ++i)
@@ -1042,8 +1042,8 @@ void DebugRenderer::DrawPie(RVec3Arg inCenter, float inRadius, Vec3Arg inNormal,
 
 		// Allocate space for indices
 		int num_indices = num_parts * 3;
-		uint32 *indices_start = (uint32 *)MOSS_STACK_ALLOC(num_indices * sizeof(uint32));
-		uint32 *indices = indices_start;
+		uint32_t *indices_start = (uint32_t *)MOSS_STACK_ALLOC(num_indices * sizeof(uint32_t));
+		uint32_t *indices = indices_start;
 
 		for (int i = 0; i < num_parts; ++i)
 		{

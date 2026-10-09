@@ -98,7 +98,7 @@ struct Wav;
 struct Moss_AudioRayHit2D;
 struct Moss_AudioRayHit3D;
 
-using ChannelID = uint32;
+using ChannelID = uint32_t;
 
 typedef void (*MicrophoneCallback)(const float* buffer, int samples, void* userData);
 typedef void (*AudioStreamCallback)(float* buffer, int frames, void* userData);
@@ -137,20 +137,20 @@ enum class AudioLoadType {
 };
 struct Moss_AudioDecodedData {
     float* samples = nullptr;
-    uint32 frame_count = 0;
-    uint32 channels = 0;
-    uint32 sample_rate = 0;
+    uint32_t frame_count = 0;
+    uint32_t channels = 0;
+    uint32_t sample_rate = 0;
     void (*free_samples)(void* userdata, float* samples) = nullptr;
     void* userdata = nullptr;
 };
 typedef bool (*Moss_AudioDecodeCallback)(const char* filename, AudioLoadType type, Moss_AudioDecodedData* out_data, void* userdata);
 
 struct Moss_MicrophoneDesc {
-    uint32 device_index = 0;
-    uint32 sample_rate = 48000;
-    uint32 channels = 1;
-    uint32 buffer_frames = 480;
-    uint32 ring_buffer_frames = 48000;
+    uint32_t device_index = 0;
+    uint32_t sample_rate = 48000;
+    uint32_t channels = 1;
+    uint32_t buffer_frames = 480;
+    uint32_t ring_buffer_frames = 48000;
     bool start_immediately = true;
     bool enable_voice_metrics = true;
 };
@@ -169,7 +169,7 @@ struct Moss_AudioRayHit2D {
     Vec2 normal = Vec2::Zero();
     float absorption = 0.5f;
     float transmission = 0.25f;
-    uint32 material_id = 0;
+    uint32_t material_id = 0;
 };
 
 struct Moss_AudioRayHit3D {
@@ -179,7 +179,7 @@ struct Moss_AudioRayHit3D {
     Vec3 normal = Vec3::Zero();
     float absorption = 0.5f;
     float transmission = 0.25f;
-    uint32 material_id = 0;
+    uint32_t material_id = 0;
 };
 
 struct Moss_AudioRayTrace2DDesc {
@@ -189,7 +189,7 @@ struct Moss_AudioRayTrace2DDesc {
     Vec2 listener_position = Vec2::Zero();
     Vec2 source_position = Vec2::Zero();
     float max_distance = 100.0f;
-    uint32 reflection_rays = 0;
+    uint32_t reflection_rays = 0;
     float direct_occlusion_strength = 1.0f;
     float reflection_strength = 0.35f;
     float air_absorption = 0.02f;
@@ -202,7 +202,7 @@ struct Moss_AudioRayTrace3DDesc {
     Vec3 listener_position = Vec3::Zero();
     Vec3 source_position = Vec3::Zero();
     float max_distance = 100.0f;
-    uint32 reflection_rays = 0;
+    uint32_t reflection_rays = 0;
     float direct_occlusion_strength = 1.0f;
     float reflection_strength = 0.35f;
     float air_absorption = 0.02f;
@@ -371,9 +371,9 @@ MOSS_API void Moss_AudioRayListener2DSetPhysics(RayAudioListener2D* listener, Ph
 /*! @brief X. */
 MOSS_API void Moss_AudioRayListener3DSetPhysics(RayAudioListener3D* listener, PhysicsSystem* physics, Moss_AudioRaycast3DCallback raycast, void* user_data);
 /*! @brief X. */
-MOSS_API void Moss_AudioRayListener2DSetTraceSettings(RayAudioListener2D* listener, float max_distance, uint32 reflection_rays);
+MOSS_API void Moss_AudioRayListener2DSetTraceSettings(RayAudioListener2D* listener, float max_distance, uint32_t reflection_rays);
 /*! @brief X. */
-MOSS_API void Moss_AudioRayListener3DSetTraceSettings(RayAudioListener3D* listener, float max_distance, uint32 reflection_rays);
+MOSS_API void Moss_AudioRayListener3DSetTraceSettings(RayAudioListener3D* listener, float max_distance, uint32_t reflection_rays);
 /*! @brief X. */
 MOSS_API bool Moss_AudioRayTrace2D(const Moss_AudioRayTrace2DDesc* desc, Moss_AudioRayTraceResult* out_result);
 /*! @brief X. */
@@ -408,9 +408,9 @@ MOSS_API int Moss_ListSpeakerDevices();
 
 // Microphone
 /*! @brief Check if microphone is ready. */
-MOSS_API uint32 Moss_MicrophoneGetDeviceCount();
+MOSS_API uint32_t Moss_MicrophoneGetDeviceCount();
 /*! @brief Check if microphone is ready. */
-MOSS_API const char* Moss_MicrophoneGetDeviceName(uint32 device_index);
+MOSS_API const char* Moss_MicrophoneGetDeviceName(uint32_t device_index);
 /*! @brief Check if microphone is ready. */
 MOSS_API Moss_Microphone* Moss_MicrophoneOpen(const Moss_MicrophoneDesc* desc);
 /*! @brief Check if microphone is ready. */
@@ -420,13 +420,13 @@ MOSS_API bool Moss_MicrophoneStart(Moss_Microphone* microphone);
 /*! @brief Check if microphone is ready. */
 MOSS_API void Moss_MicrophoneStop(Moss_Microphone* microphone);
 /*! @brief Check if microphone is ready. */
-MOSS_API uint32 Moss_MicrophoneRead(Moss_Microphone* microphone, float* out_samples, uint32 max_frames);
+MOSS_API uint32_t Moss_MicrophoneRead(Moss_Microphone* microphone, float* out_samples, uint32_t max_frames);
 /*! @brief Check if microphone is ready. */
 MOSS_API void Moss_MicrophoneSetGain(Moss_Microphone* microphone, float gain);
 /*! @brief Check if microphone is ready. */
-MOSS_API uint32 Moss_MicrophoneGetSampleRate(Moss_Microphone* microphone);
+MOSS_API uint32_t Moss_MicrophoneGetSampleRate(Moss_Microphone* microphone);
 /*! @brief Check if microphone is ready. */
-MOSS_API uint32 Moss_MicrophoneGetChannels(Moss_Microphone* microphone);
+MOSS_API uint32_t Moss_MicrophoneGetChannels(Moss_Microphone* microphone);
 /*! @brief Set a microphone capture callback. @param mic Microphone device. @param callback Callback function. @param userData User-defined pointer. */
 MOSS_API void Moss_MicrophoneSetCallback(Moss_Microphone* microphone, MicrophoneCallback callback, void* userData);
 /*! @brief Check if microphone is ready. */

@@ -75,10 +75,10 @@ public:
     //virtual void SetUniform(const char* name, unsigned int value0, unsigned int value1, unsigned int value2, unsigned int value3) = 0;
 
     // Unsigned Integer Array Uniforms
-    //virtual void SetUniformInt(const char* name, int count, uint32* value) = 0;
-    //virtual void SetUniformInt2(const char* name, int count, uint32* value) = 0;
-    //virtual void SetUniformInt3(const char* name, int count, uint32* value) = 0;
-    //virtual void SetUniformInt4(const char* name, int count, uint32* value) = 0;
+    //virtual void SetUniformInt(const char* name, int count, uint32_t* value) = 0;
+    //virtual void SetUniformInt2(const char* name, int count, uint32_t* value) = 0;
+    //virtual void SetUniformInt3(const char* name, int count, uint32_t* value) = 0;
+    //virtual void SetUniformInt4(const char* name, int count, uint32_t* value) = 0;
 
     // Float Array Uniforms
     //virtual void SetUniformArrayf(const char* name, int count, const float* value) = 0;

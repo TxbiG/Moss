@@ -23,20 +23,20 @@ public:
 	void								Parse(StreamIn &inStream);
 
 	/// Get the number of parsed frames
-	uint32								GetNumFrames() const				{ return (uint32)mFrames.size(); }
+	uint32_t								GetNumFrames() const				{ return (uint32_t)mFrames.size(); }
 
 	/// Draw a frame
-	void								DrawFrame(uint32 inFrameNumber) const;
+	void								DrawFrame(uint32_t inFrameNumber) const;
 
 private:
 	/// The debug renderer we're using to do the actual rendering
 	DebugRenderer &						mRenderer;
 
 	/// Mapping of ID to batch
-	TMap<uint32, DebugRenderer::Batch> mBatches;
+	TMap<uint32_t, DebugRenderer::Batch> mBatches;
 
 	/// Mapping of ID to geometry
-	TMap<uint32, DebugRenderer::GeometryRef> mGeometries;
+	TMap<uint32_t, DebugRenderer::GeometryRef> mGeometries;
 
 	/// The list of parsed frames
 	using Frame = DebugRendererRecorder::Frame;

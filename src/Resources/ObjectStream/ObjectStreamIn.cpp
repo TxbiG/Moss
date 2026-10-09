@@ -147,7 +147,7 @@ void *ObjectStreamIn::Read(const RTTI *inRTTI)
 
 				// Increment refcount if it was a referencing pointer
 				if (link.mRefCountOffset != -1)
-					++(*(uint32 *)(((uint8 *)obj_info.mInstance) + link.mRefCountOffset));
+					++(*(uint32_t *)(((uint8 *)obj_info.mInstance) + link.mRefCountOffset));
 
 				// Add referenced object to the list
 				if (referenced_objects.find(obj_info.mInstance) == referenced_objects.end())
@@ -266,12 +266,12 @@ bool ObjectStreamIn::ReadRTTI()
 	ClassDescription &class_desc = mClassDescriptionMap.try_emplace(class_name, rtti).first->second;
 
 	// Read the number of entries in the description
-	uint32 count;
+	uint32_t count;
 	if (!ReadCount(count))
 		return false;
 
 	// Read the entries
-	for (uint32 i = 0; i < count; ++i)
+	for (uint32_t i = 0; i < count; ++i)
 	{
 		AttributeDescription attribute;
 
@@ -433,10 +433,10 @@ bool ObjectStreamIn::SkipAttributeData(int inArrayDepth, EOSDataType inDataType,
 	bool continue_reading = true;
 
 	// Get number of items to read
-	uint32 count = 1;
+	uint32_t count = 1;
 	for (; inArrayDepth > 0; --inArrayDepth)
 	{
-		uint32 temporary;
+		uint32_t temporary;
 		if (ReadCount(temporary))
 		{
 			// Multiply for multi dimensional arrays
@@ -504,7 +504,7 @@ bool ObjectStreamIn::SkipAttributeData(int inArrayDepth, EOSDataType inDataType,
 
 				case EOSDataType::T_uint32:
 					{
-						uint32 temporary;
+						uint32_t temporary;
 						continue_reading = ReadPrimitiveData(temporary);
 						break;
 					}

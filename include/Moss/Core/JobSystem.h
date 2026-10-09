@@ -105,10 +105,10 @@ public:
 		inline void			RemoveDependency(int inCount = 1) const		{ GetPtr()->RemoveDependencyAndQueue(inCount); }
 
 		/// Remove a dependency from a batch of jobs at once, this can be more efficient than removing them one by one as it requires less locking
-		static inline void	sRemoveDependencies(const JobHandle *inHandles, uint32 inNumHandles, int inCount = 1);
+		static inline void	sRemoveDependencies(const JobHandle *inHandles, uint32_t inNumHandles, int inCount = 1);
 
 		/// Helper function to remove dependencies on a static array of job handles
-		template <uint32 N>
+		template <uint32_t N>
 		static inline void	sRemoveDependencies(TStaticArray<JobHandle, N> &inHandles, int inCount = 1)
 		{
 			sRemoveDependencies(inHandles.data(), inHandles.size(), inCount);
@@ -130,7 +130,7 @@ public:
 
 		/// Add multiple jobs to this barrier
 		/// Note that jobs can keep being added to the barrier while waiting for the barrier
-		virtual void		AddJobs(const JobHandle *inHandles, uint32 inNumHandles) = 0;
+		virtual void		AddJobs(const JobHandle *inHandles, uint32_t inNumHandles) = 0;
 
 	protected:
 		/// Job needs to be able to call OnJobFinished
@@ -154,7 +154,7 @@ public:
 
 	/// Create a new job, the job is started immediately if inNumDependencies == 0 otherwise it starts when
 	/// RemoveDependency causes the dependency counter to reach 0.
-	virtual JobHandle		CreateJob(const char *inName, ColorArg inColor, const JobFunction &inJobFunction, uint32 inNumDependencies = 0) = 0;
+	virtual JobHandle		CreateJob(const char *inName, ColorArg inColor, const JobFunction &inJobFunction, uint32_t inNumDependencies = 0) = 0;
 
 	/// Create a new barrier, used to wait on jobs
 	virtual Barrier *		CreateBarrier() = 0;
@@ -173,7 +173,7 @@ protected:
 		MOSS_OVERRIDE_NEW_DELETE
 
 		/// Constructor
-							Job([[maybe_unused]] const char *inJobName, [[maybe_unused]] ColorArg inColor, JobSystem *inJobSystem, const JobFunction &inJobFunction, uint32 inNumDependencies) :
+							Job([[maybe_unused]] const char *inJobName, [[maybe_unused]] ColorArg inColor, JobSystem *inJobSystem, const JobFunction &inJobFunction, uint32_t inNumDependencies) :
 		#if defined(MOSS_EXTERNAL_PROFILE) || defined(MOSS_PROFILE_ENABLED)
 			mJobName(inJobName),
 			mColor(inColor),
@@ -232,10 +232,10 @@ protected:
 		}
 
 		/// Run the job function, returns the number of dependencies that this job still has or cExecutingState or cDoneState
-		inline uint32		Execute()
+		inline uint32_t		Execute()
 		{
 			// Transition job to executing state
-			uint32 state = 0; // We can only start running with a dependency counter of 0
+			uint32_t state = 0; // We can only start running with a dependency counter of 0
 			if (!mNumDependencies.compare_exchange_strong(state, cExecutingState, memory_order_acquire))
 				return state; // state is updated by compare_exchange_strong to the current value
 
@@ -277,8 +277,8 @@ protected:
 		const char *		GetName() const								{ return mJobName; }
 	#endif // defined(MOSS_EXTERNAL_PROFILE) || defined(MOSS_PROFILE_ENABLED)
 
-		static constexpr uint32 cExecutingState = 0xe0e0e0e0;			///< Value of mNumDependencies when job is executing
-		static constexpr uint32 cDoneState		= 0xd0d0d0d0;			///< Value of mNumDependencies when job is done executing
+		static constexpr uint32_t cExecutingState = 0xe0e0e0e0;			///< Value of mNumDependencies when job is executing
+		static constexpr uint32_t cDoneState		= 0xd0d0d0d0;			///< Value of mNumDependencies when job is done executing
 
 		static constexpr intptr_t cBarrierDoneState = ~intptr_t(0);		///< Value to use when the barrier has been triggered
 
@@ -290,15 +290,15 @@ private:
 		JobSystem *			mJobSystem;									///< The job system we belong to
 		atomic<intptr_t>	mBarrier = 0;								///< Barrier that this job is associated with (is a Barrier pointer)
 		JobFunction			mJobFunction;								///< Main job function
-		atomic<uint32>		mReferenceCount = 0;						///< Amount of JobHandles pointing to this job
-		atomic<uint32>		mNumDependencies;							///< Amount of jobs that need to complete before this job can run
+		atomic<uint32_t>		mReferenceCount = 0;						///< Amount of JobHandles pointing to this job
+		atomic<uint32_t>		mNumDependencies;							///< Amount of jobs that need to complete before this job can run
 	};
 
 	/// Adds a job to the job queue
 	virtual void			QueueJob(Job *inJob) = 0;
 
 	/// Adds a number of jobs at once to the job queue
-	virtual void			QueueJobs(Job **inJobs, uint32 inNumJobs) = 0;
+	virtual void			QueueJobs(Job **inJobs, uint32_t inNumJobs) = 0;
 
 	/// Frees a job
 	virtual void			FreeJob(Job *inJob) = 0;

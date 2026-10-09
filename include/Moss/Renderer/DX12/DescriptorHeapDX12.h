@@ -13,7 +13,7 @@ public:
 	/// @param inType Type of heap
 	/// @param inFlags Flags for the heap
 	/// @param inNumber Number of handles to reserve
-	void								Init(ID3D12Device *inDevice, D3D12_DESCRIPTOR_HEAP_TYPE inType, D3D12_DESCRIPTOR_HEAP_FLAGS inFlags, uint32 inNumber)
+	void								Init(ID3D12Device *inDevice, D3D12_DESCRIPTOR_HEAP_TYPE inType, D3D12_DESCRIPTOR_HEAP_FLAGS inFlags, uint32_t inNumber)
 	{
 		// Create the heap
 		D3D12_DESCRIPTOR_HEAP_DESC heap_desc = {};
@@ -31,7 +31,7 @@ public:
 
 		// Populate the freelist
 		mFreeList.reserve(inNumber);
-		for (uint32 i = 0; i < inNumber; ++i)
+		for (uint32_t i = 0; i < inNumber; ++i)
 			mFreeList.push_back(i);
 	}
 
@@ -42,7 +42,7 @@ public:
 
 		D3D12_CPU_DESCRIPTOR_HANDLE handle = mHeap->GetCPUDescriptorHandleForHeapStart();
 
-		uint32 index = mFreeList.back();
+		uint32_t index = mFreeList.back();
 		mFreeList.pop_back();
 
 		handle.ptr += index * mDescriptorSize;
@@ -52,7 +52,7 @@ public:
 	/// Free a handle and return it to the freelist
 	void								Free(D3D12_CPU_DESCRIPTOR_HANDLE inHandle)
 	{
-		uint32 index = uint32((inHandle.ptr - mHeap->GetCPUDescriptorHandleForHeapStart().ptr) / mDescriptorSize);
+		uint32_t index = uint32_t((inHandle.ptr - mHeap->GetCPUDescriptorHandleForHeapStart().ptr) / mDescriptorSize);
 
 		mFreeList.push_back(index);
 	}
@@ -72,7 +72,7 @@ public:
 
 private:
 	ComPtr<ID3D12DescriptorHeap>		mHeap;
-	uint32								mDescriptorSize;				///< The size (in bytes) of a single heap descriptor
-	TArray<uint32>							mFreeList;						///< List of indices in the heap that are still free
+	uint32_t								mDescriptorSize;				///< The size (in bytes) of a single heap descriptor
+	TArray<uint32_t>							mFreeList;						///< List of indices in the heap that are still free
 	INT64								mGPUOffset = -1;				///< Offset between CPU and GPU handles
 };

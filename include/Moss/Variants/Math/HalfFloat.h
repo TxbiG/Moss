@@ -51,14 +51,14 @@ enum ERoundingMode {
 template <int RoundingMode>
 inline HalfFloat FromFloatFallback(float inV)
 {
-	// Reinterpret the float as an uint32
-	uint32 value = BitCast<uint32>(inV);
+	// Reinterpret the float as an uint32_t
+	uint32_t value = BitCast<uint32_t>(inV);
 
 	// Extract exponent
-	uint32 exponent = (value >> FLOAT_EXPONENT_POS) & FLOAT_EXPONENT_MASK;
+	uint32_t exponent = (value >> FLOAT_EXPONENT_POS) & FLOAT_EXPONENT_MASK;
 
 	// Extract mantissa
-	uint32 mantissa = value & FLOAT_MANTISSA_MASK;
+	uint32_t mantissa = value & FLOAT_MANTISSA_MASK;
 
 	// Extract the sign and move it into the right spot for the half float (so we can just or it in at the end)
 	HalfFloat hf_sign = HalfFloat(value >> (FLOAT_SIGN_POS - HALF_FLT_SIGN_POS)) & (1 << HALF_FLT_SIGN_POS);
@@ -105,12 +105,12 @@ inline HalfFloat FromFloatFallback(float inV)
 	HalfFloat hf = hf_sign | hf_exponent | hf_mantissa;
 
 	// Calculate the remaining bits that we're discarding
-	uint32 remainder = mantissa & ((1 << shift) - 1);
+	uint32_t remainder = mantissa & ((1 << shift) - 1);
 
 	if constexpr (RoundingMode == ROUND_TO_NEAREST)
 	{
 		// Round to nearest
-		uint32 round_threshold = 1 << (shift - 1);
+		uint32_t round_threshold = 1 << (shift - 1);
 		if (remainder > round_threshold // Above threshold, we must always round
 			|| (remainder == round_threshold && (hf_mantissa & 1))) // When equal, round to nearest even
 			hf++; // May overflow to infinity
@@ -158,7 +158,7 @@ MOSS_INLINE HalfFloat FromFloat(float inV)
 /// Convert 4 half floats (lower 64 bits) to floats, fallback version when no intrinsics available
 inline Vec4 ToFloatFallback(UVec4Arg inValue)
 {
-	// Unpack half floats to 4 uint32's
+	// Unpack half floats to 4 uint32_t's
 	UVec4 value = inValue.Expand4Uint16Lo();
 
 	// Normal half float path, extract the exponent and mantissa, shift them into place and update the exponent bias

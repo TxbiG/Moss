@@ -676,7 +676,7 @@ public:
 	uint64					GetHash() const
 	{
 		// Hash length first
-		uint64 ret = Hash<uint32> { } (uint32(size()));
+		uint64 ret = Hash<uint32_t> { } (uint32_t(size()));
 
 		// Then hash elements
 		for (const T *element = mElements, *element_end = mElements + mSize; element < element_end; ++element)

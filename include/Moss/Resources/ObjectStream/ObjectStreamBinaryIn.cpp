@@ -15,7 +15,7 @@ ObjectStreamBinaryIn::ObjectStreamBinaryIn(istream &inStream) :
 
 bool ObjectStreamBinaryIn::ReadDataType(EOSDataType &outType)
 {
-	uint32 type;
+	uint32_t type;
 	mStream.read((char *)&type, sizeof(type));
 	if (mStream.fail()) return false;
 	outType = (EOSDataType)type;
@@ -36,9 +36,9 @@ bool ObjectStreamBinaryIn::ReadIdentifier(Identifier &outIdentifier)
 	return true;
 }
 
-bool ObjectStreamBinaryIn::ReadCount(uint32 &outCount)
+bool ObjectStreamBinaryIn::ReadCount(uint32_t &outCount)
 {
-	uint32 count;
+	uint32_t count;
 	mStream.read((char *)&count, sizeof(count));
 	if (mStream.fail()) return false;
 	outCount = count;
@@ -72,9 +72,9 @@ bool ObjectStreamBinaryIn::ReadPrimitiveData(int &outPrimitive)
 	return true;
 }
 
-bool ObjectStreamBinaryIn::ReadPrimitiveData(uint32 &outPrimitive)
+bool ObjectStreamBinaryIn::ReadPrimitiveData(uint32_t &outPrimitive)
 {
-	uint32 primitive;
+	uint32_t primitive;
 	mStream.read((char *)&primitive, sizeof(primitive));
 	if (mStream.fail()) return false;
 	outPrimitive = primitive;
@@ -120,7 +120,7 @@ bool ObjectStreamBinaryIn::ReadPrimitiveData(bool &outPrimitive)
 bool ObjectStreamBinaryIn::ReadPrimitiveData(String &outPrimitive)
 {
 	// Read length or ID of string
-	uint32 len;
+	uint32_t len;
 	if (!ReadPrimitiveData(len))
 		return false;
 

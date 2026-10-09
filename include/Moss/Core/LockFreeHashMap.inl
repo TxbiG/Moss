@@ -15,7 +15,7 @@ inline LFHMAllocator::~LFHMAllocator()
 	AlignedFree(mObjectStore);
 }
 
-inline void LFHMAllocator::Init(uint32 inObjectStoreSizeBytes)
+inline void LFHMAllocator::Init(uint32_t inObjectStoreSizeBytes)
 {
 	MOSS_ASSERT(mObjectStore == nullptr);
 
@@ -28,19 +28,19 @@ inline void LFHMAllocator::Clear()
 	mWriteOffset = 0;
 }
 
-inline void LFHMAllocator::Allocate(uint32 inBlockSize, uint32 &ioBegin, uint32 &ioEnd)
+inline void LFHMAllocator::Allocate(uint32_t inBlockSize, uint32_t &ioBegin, uint32_t &ioEnd)
 {
 	// If we're already beyond the end of our buffer then don't do an atomic add.
 	// It's possible that many keys are inserted after the allocator is full, making it possible
-	// for mWriteOffset (uint32) to wrap around to zero. When this happens, there will be a memory corruption.
+	// for mWriteOffset (uint32_t) to wrap around to zero. When this happens, there will be a memory corruption.
 	// This way, we will be able to progress the write offset beyond the size of the buffer
 	// worst case by max <CPU count> * inBlockSize.
 	if (mWriteOffset.load(memory_order_relaxed) >= mObjectStoreSizeBytes)
 		return;
 
 	// Atomically fetch a block from the pool
-	uint32 begin = mWriteOffset.fetch_add(inBlockSize, memory_order_relaxed);
-	uint32 end = min(begin + inBlockSize, mObjectStoreSizeBytes);
+	uint32_t begin = mWriteOffset.fetch_add(inBlockSize, memory_order_relaxed);
+	uint32_t end = min(begin + inBlockSize, mObjectStoreSizeBytes);
 
 	if (ioEnd == begin)
 	{
@@ -59,15 +59,15 @@ inline void LFHMAllocator::Allocate(uint32 inBlockSize, uint32 &ioBegin, uint32 
 }
 
 template <class T>
-inline uint32 LFHMAllocator::ToOffset(const T *inData) const
+inline uint32_t LFHMAllocator::ToOffset(const T *inData) const
 {
 	const uint8 *data = reinterpret_cast<const uint8 *>(inData);
 	MOSS_ASSERT(data >= mObjectStore && data < mObjectStore + mObjectStoreSizeBytes);
-	return uint32(data - mObjectStore);
+	return uint32_t(data - mObjectStore);
 }
 
 template <class T>
-inline T *LFHMAllocator::FromOffset(uint32 inOffset) const
+inline T *LFHMAllocator::FromOffset(uint32_t inOffset) const
 {
 	MOSS_ASSERT(inOffset < mObjectStoreSizeBytes);
 	return reinterpret_cast<T *>(mObjectStore + inOffset);
@@ -77,18 +77,18 @@ inline T *LFHMAllocator::FromOffset(uint32 inOffset) const
 // LFHMAllocatorContext
 ///////////////////////////////////////////////////////////////////////////////////
 
-inline LFHMAllocatorContext::LFHMAllocatorContext(LFHMAllocator &inAllocator, uint32 inBlockSize) :
+inline LFHMAllocatorContext::LFHMAllocatorContext(LFHMAllocator &inAllocator, uint32_t inBlockSize) :
 	mAllocator(inAllocator),
 	mBlockSize(inBlockSize)
 {
 }
 
-inline bool LFHMAllocatorContext::Allocate(uint32 inSize, uint32 inAlignment, uint32 &outWriteOffset)
+inline bool LFHMAllocatorContext::Allocate(uint32_t inSize, uint32_t inAlignment, uint32_t &outWriteOffset)
 {
 	// Calculate needed bytes for alignment
 	MOSS_ASSERT(IsPowerOf2(inAlignment));
-	uint32 alignment_mask = inAlignment - 1;
-	uint32 alignment = (inAlignment - (mBegin & alignment_mask)) & alignment_mask;
+	uint32_t alignment_mask = inAlignment - 1;
+	uint32_t alignment = (inAlignment - (mBegin & alignment_mask)) & alignment_mask;
 
 	// Check if we have space
 	if (mEnd - mBegin < inSize + alignment)
@@ -116,7 +116,7 @@ inline bool LFHMAllocatorContext::Allocate(uint32 inSize, uint32 inAlignment, ui
 ///////////////////////////////////////////////////////////////////////////////////
 
 template <class Key, class Value>
-void LockFreeHashMap<Key, Value>::Init(uint32 inMaxBuckets)
+void LockFreeHashMap<Key, Value>::Init(uint32_t inMaxBuckets)
 {
 	MOSS_ASSERT(inMaxBuckets >= 4 && IsPowerOf2(inMaxBuckets));
 	MOSS_ASSERT(mBuckets == nullptr);
@@ -124,7 +124,7 @@ void LockFreeHashMap<Key, Value>::Init(uint32 inMaxBuckets)
 	mNumBuckets = inMaxBuckets;
 	mMaxBuckets = inMaxBuckets;
 
-	mBuckets = reinterpret_cast<atomic<uint32> *>(AlignedAllocate(inMaxBuckets * sizeof(atomic<uint32>), 16));
+	mBuckets = reinterpret_cast<atomic<uint32_t> *>(AlignedAllocate(inMaxBuckets * sizeof(atomic<uint32_t>), 16));
 
 	Clear();
 }
@@ -144,10 +144,10 @@ void LockFreeHashMap<Key, Value>::Clear()
 #endif // MOSS_DEBUG
 
 	// Reset buckets 4 at a time
-	static_assert(sizeof(atomic<uint32>) == sizeof(uint32));
+	static_assert(sizeof(atomic<uint32_t>) == sizeof(uint32_t));
 	UVec4 invalid_handle = UVec4::Replicate(cInvalidHandle);
-	uint32 *start = reinterpret_cast<uint32 *>(mBuckets);
-	const uint32 *end = start + mNumBuckets;
+	uint32_t *start = reinterpret_cast<uint32_t *>(mBuckets);
+	const uint32_t *end = start + mNumBuckets;
 	MOSS_ASSERT(IsAligned(start, 16));
 	while (start < end)
 	{
@@ -157,7 +157,7 @@ void LockFreeHashMap<Key, Value>::Clear()
 }
 
 template <class Key, class Value>
-void LockFreeHashMap<Key, Value>::SetNumBuckets(uint32 inNumBuckets)
+void LockFreeHashMap<Key, Value>::SetNumBuckets(uint32_t inNumBuckets)
 {
 	MOSS_ASSERT(mNumKeyValues == 0);
 	MOSS_ASSERT(inNumBuckets <= mMaxBuckets);
@@ -174,10 +174,10 @@ inline typename LockFreeHashMap<Key, Value>::KeyValue *LockFreeHashMap<Key, Valu
 	MOSS_ASSERT(Find(inKey, inKeyHash) == nullptr);
 
 	// Calculate total size
-	uint32 size = sizeof(KeyValue) + inExtraBytes;
+	uint32_t size = sizeof(KeyValue) + inExtraBytes;
 
 	// Get the write offset for this key value pair
-	uint32 write_offset;
+	uint32_t write_offset;
 	if (!ioContext.Allocate(size, alignof(KeyValue), write_offset))
 		return nullptr;
 
@@ -196,10 +196,10 @@ inline typename LockFreeHashMap<Key, Value>::KeyValue *LockFreeHashMap<Key, Valu
 	new (&kv->mValue) Value(std::forward<Params>(inConstructorParams)...);
 
 	// Get the offset to the first object from the bucket with corresponding hash
-	atomic<uint32> &offset = mBuckets[inKeyHash & (mNumBuckets - 1)];
+	atomic<uint32_t> &offset = mBuckets[inKeyHash & (mNumBuckets - 1)];
 
 	// Add this entry as the first element in the linked list
-	uint32 old_offset = offset.load(memory_order_relaxed);
+	uint32_t old_offset = offset.load(memory_order_relaxed);
 	for (;;)
 	{
 		kv->mNextOffset = old_offset;
@@ -214,7 +214,7 @@ template <class Key, class Value>
 inline const typename LockFreeHashMap<Key, Value>::KeyValue *LockFreeHashMap<Key, Value>::Find(const Key &inKey, uint64 inKeyHash) const
 {
 	// Get the offset to the keyvalue object from the bucket with corresponding hash
-	uint32 offset = mBuckets[inKeyHash & (mNumBuckets - 1)].load(memory_order_acquire);
+	uint32_t offset = mBuckets[inKeyHash & (mNumBuckets - 1)].load(memory_order_acquire);
 	while (offset != cInvalidHandle)
 	{
 		// Loop through linked list of values until the right one is found
@@ -229,13 +229,13 @@ inline const typename LockFreeHashMap<Key, Value>::KeyValue *LockFreeHashMap<Key
 }
 
 template <class Key, class Value>
-inline uint32 LockFreeHashMap<Key, Value>::ToHandle(const KeyValue *inKeyValue) const
+inline uint32_t LockFreeHashMap<Key, Value>::ToHandle(const KeyValue *inKeyValue) const
 {
 	return mAllocator.ToOffset(inKeyValue);
 }
 
 template <class Key, class Value>
-inline const typename LockFreeHashMap<Key, Value>::KeyValue *LockFreeHashMap<Key, Value>::FromHandle(uint32 inHandle) const
+inline const typename LockFreeHashMap<Key, Value>::KeyValue *LockFreeHashMap<Key, Value>::FromHandle(uint32_t inHandle) const
 {
 	return mAllocator.template FromOffset<const KeyValue>(inHandle);
 }
@@ -243,9 +243,9 @@ inline const typename LockFreeHashMap<Key, Value>::KeyValue *LockFreeHashMap<Key
 template <class Key, class Value>
 inline void LockFreeHashMap<Key, Value>::GetAllKeyValues(TArray<const KeyValue *> &outAll) const
 {
-	for (const atomic<uint32> *bucket = mBuckets; bucket < mBuckets + mNumBuckets; ++bucket)
+	for (const atomic<uint32_t> *bucket = mBuckets; bucket < mBuckets + mNumBuckets; ++bucket)
 	{
-		uint32 offset = *bucket;
+		uint32_t offset = *bucket;
 		while (offset != cInvalidHandle)
 		{
 			const KeyValue *kv = mAllocator.template FromOffset<const KeyValue>(offset);
@@ -324,10 +324,10 @@ void LockFreeHashMap<Key, Value>::TraceStats() const
 	for (int i = 0; i < cMaxPerBucket; ++i)
 		histogram[i] = 0;
 
-	for (atomic<uint32> *bucket = mBuckets, *bucket_end = mBuckets + mNumBuckets; bucket < bucket_end; ++bucket)
+	for (atomic<uint32_t> *bucket = mBuckets, *bucket_end = mBuckets + mNumBuckets; bucket < bucket_end; ++bucket)
 	{
 		int objects_in_bucket = 0;
-		uint32 offset = *bucket;
+		uint32_t offset = *bucket;
 		while (offset != cInvalidHandle)
 		{
 			const KeyValue *kv = mAllocator.template FromOffset<const KeyValue>(offset);

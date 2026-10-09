@@ -71,7 +71,7 @@ public:
 
 	// Encapsulate triangle in bounding box
 	void Encapsulate(const VertexList &inVertices, const IndexedTriangle &inTriangle) {
-		for (uint32 idx : inTriangle.mIdx)
+		for (uint32_t idx : inTriangle.mIdx)
 			Encapsulate(RVec3(inVertices[idx]));
 	}
 
@@ -246,11 +246,11 @@ public:
 
 
 using AABox = AABB3;
-inline uint32 MortonCode::sGetMortonCode(Vec3Arg inVector, const AABox& inVectorBounds) {
+inline uint32_t MortonCode::sGetMortonCode(Vec3Arg inVector, const AABox& inVectorBounds) {
 	Vec3 scaled = (inVector - inVectorBounds.mMin) / inVectorBounds.GetSize();
-	uint32 x = sExpandBits(scaled.GetX());
-	uint32 y = sExpandBits(scaled.GetY());
-	uint32 z = sExpandBits(scaled.GetZ());
+	uint32_t x = sExpandBits(scaled.GetX());
+	uint32_t y = sExpandBits(scaled.GetY());
+	uint32_t z = sExpandBits(scaled.GetZ());
 	return (x << 2) + (y << 1) + z;
 }
 inline bool Sphere::Overlaps(const AABox &inOther) const {

@@ -61,7 +61,7 @@ typedef int socklen_t;
 #define MSG_NOSIGNAL 0
 #endif
 
-static uint32 timeBase = 0;
+static uint32_t timeBase = 0;
 static int addressFamily[] = {
     AF_UNSPEC, /* ENetAddressType::ANY */
     AF_INET,   /* ENetAddressType::IPV4 */
@@ -77,12 +77,12 @@ void Moss_TerminateNetwork(void)
 {
 }
 
-uint32 enet_host_random_seed (void)
+uint32_t enet_host_random_seed (void)
 {
-    return (uint32) time (NULL);
+    return (uint32_t) time (NULL);
 }
 
-uint32 enet_time_get (void)
+uint32_t enet_time_get (void)
 {
     struct timeval timeVal;
 
@@ -92,7 +92,7 @@ uint32 enet_time_get (void)
 }
 
 void
-enet_time_set (uint32 newTimeBase)
+enet_time_set (uint32_t newTimeBase)
 {
     struct timeval timeVal;
 
@@ -476,7 +476,7 @@ int enet_socket_receive (ENetSocket socket, ENetAddress * address, ENetBuffer * 
 }
 
 int
-enet_socketset_select (ENetSocket maxSocket, ENetSocketSet * readSet, ENetSocketSet * writeSet, uint32 timeout)
+enet_socketset_select (ENetSocket maxSocket, ENetSocketSet * readSet, ENetSocketSet * writeSet, uint32_t timeout)
 {
     struct timeval timeVal;
 
@@ -487,7 +487,7 @@ enet_socketset_select (ENetSocket maxSocket, ENetSocketSet * readSet, ENetSocket
 }
 
 int
-enet_socket_wait (ENetSocket socket, uint32 * condition, uint32 timeout)
+enet_socket_wait (ENetSocket socket, uint32_t * condition, uint32_t timeout)
 {
 #ifdef HAS_POLL
     struct pollfd pollSocket;

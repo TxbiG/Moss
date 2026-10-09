@@ -33,6 +33,6 @@ MOSS_API void VectorToString(const TArray<String> &inVector, String &outString, 
 MOSS_API String ToLower(const string_view &inString);
 
 /// Converts the lower 4 bits of inNibble to a string that represents the number in binary format
-MOSS_API const char *NibbleToBinary(uint32 inNibble);
+MOSS_API const char *NibbleToBinary(uint32_t inNibble);
 
 MOSS_SUPPRESS_WARNINGS_END

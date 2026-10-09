@@ -1120,7 +1120,7 @@ bool DVec3::IsNaN() const
 #elif defined(MOSS_SIMD_RVV)
 	const vfloat64m2_t v = __riscv_vle64_v_f64m2(mF64, 3);
 	const vbool32_t mask = __riscv_vmfeq_vv_f64m2_b32(v, v, 3);
-	const uint32 eq = __riscv_vcpop_m_b32(mask, 3);
+	const uint32_t eq = __riscv_vcpop_m_b32(mask, 3);
 	return eq != 3;
 #else
 	return isnan(mF64[0]) || isnan(mF64[1]) || isnan(mF64[2]);

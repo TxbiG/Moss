@@ -68,8 +68,8 @@ public:
 
 	/// Constructor
 	Triangle() = default;
-	Triangle(const Float3 &inV1, const Float3 &inV2, const Float3 &inV3, uint32 inMaterialIndex = 0, uint32 inUserData = 0) : mV { inV1, inV2, inV3 }, mMaterialIndex(inMaterialIndex), mUserData(inUserData) { }
-	Triangle(Vec3Arg inV1, Vec3Arg inV2, Vec3Arg inV3, uint32 inMaterialIndex = 0, uint32 inUserData = 0) : mMaterialIndex(inMaterialIndex), mUserData(inUserData) { inV1.StoreFloat3(&mV[0]); inV2.StoreFloat3(&mV[1]); inV3.StoreFloat3(&mV[2]); }
+	Triangle(const Float3 &inV1, const Float3 &inV2, const Float3 &inV3, uint32_t inMaterialIndex = 0, uint32_t inUserData = 0) : mV { inV1, inV2, inV3 }, mMaterialIndex(inMaterialIndex), mUserData(inUserData) { }
+	Triangle(Vec3Arg inV1, Vec3Arg inV2, Vec3Arg inV3, uint32_t inMaterialIndex = 0, uint32_t inUserData = 0) : mMaterialIndex(inMaterialIndex), mUserData(inUserData) { inV1.StoreFloat3(&mV[0]); inV2.StoreFloat3(&mV[1]); inV3.StoreFloat3(&mV[2]); }
 
 	/// Get center of triangle
 	Vec3			GetCentroid() const
@@ -79,8 +79,8 @@ public:
 
 	/// Vertices
 	Float3			mV[3];
-	uint32			mMaterialIndex = 0;			///< Follows mV[3] so that we can read mV as 4 vectors
-	uint32			mUserData = 0;				///< User data that can be used for anything by the application, e.g. for tracking the original index of the triangle
+	uint32_t			mMaterialIndex = 0;			///< Follows mV[3] so that we can read mV as 4 vectors
+	uint32_t			mUserData = 0;				///< User data that can be used for anything by the application, e.g. for tracking the original index of the triangle
 };
 
 using TriangleList = TArray<Triangle>;
@@ -91,9 +91,9 @@ class MortonCode {
 public:
 	/// First converts a floating point value in the range [0, 1] to a 10 bit fixed point integer.
 	/// Then expands a 10-bit integer into 30 bits by inserting 2 zeros after each bit.
-	static uint32 sExpandBits(float inV) {
+	static uint32_t sExpandBits(float inV) {
 		MOSS_ASSERT(inV >= 0.0f && inV <= 1.0f);
-		uint32 v = uint32(inV * 1023.0f + 0.5f);
+		uint32_t v = uint32_t(inV * 1023.0f + 0.5f);
 		MOSS_ASSERT(v < 1024);
 		v = (v * 0x00010001u) & 0xFF0000FFu;
 		v = (v * 0x00000101u) & 0x0F00F00Fu;
@@ -103,7 +103,7 @@ public:
 	}
 
 	/// Calculate the morton code for inVector, given that all vectors lie in inVectorBounds
-	static uint32 sGetMortonCode(Vec3Arg inVector, const AABB3& inVectorBounds);
+	static uint32_t sGetMortonCode(Vec3Arg inVector, const AABB3& inVectorBounds);
 };
 
 
@@ -120,7 +120,7 @@ public:
 
 	// Constructor
 					IndexedTriangleNoMaterial() = default;
-	constexpr		IndexedTriangleNoMaterial(uint32 inI1, uint32 inI2, uint32 inI3) : mIdx { inI1, inI2, inI3 } { }
+	constexpr		IndexedTriangleNoMaterial(uint32_t inI1, uint32_t inI2, uint32_t inI3) : mIdx { inI1, inI2, inI3 } { }
 
 	// Check if two triangles are identical
 	bool			operator == (const IndexedTriangleNoMaterial& inRHS) const
@@ -157,7 +157,7 @@ public:
 	// Rotate the vertices so that the second vertex becomes first etc. This does not change the represented triangle.
 	void			Rotate()
 	{
-		uint32 tmp = mIdx[0];
+		uint32_t tmp = mIdx[0];
 		mIdx[0] = mIdx[1];
 		mIdx[1] = mIdx[2];
 		mIdx[2] = tmp;
@@ -172,11 +172,11 @@ public:
 	// Get the hash value of this structure
 	uint64			GetHash() const
 	{
-		static_assert(sizeof(IndexedTriangleNoMaterial) == 3* sizeof(uint32), "Class should have no padding");
+		static_assert(sizeof(IndexedTriangleNoMaterial) == 3* sizeof(uint32_t), "Class should have no padding");
 		return HashBytes(this, sizeof(IndexedTriangleNoMaterial));
 	}
 
-	uint32			mIdx[3];
+	uint32_t			mIdx[3];
 };
 
 
@@ -186,7 +186,7 @@ public:
 	using IndexedTriangleNoMaterial::IndexedTriangleNoMaterial;
 
 	// Constructor
-	constexpr		IndexedTriangle(uint32 inI1, uint32 inI2, uint32 inI3, uint32 inMaterialIndex, uint32 inUserData = 0) : IndexedTriangleNoMaterial(inI1, inI2, inI3), mMaterialIndex(inMaterialIndex), mUserData(inUserData) { }
+	constexpr		IndexedTriangle(uint32_t inI1, uint32_t inI2, uint32_t inI3, uint32_t inMaterialIndex, uint32_t inUserData = 0) : IndexedTriangleNoMaterial(inI1, inI2, inI3), mMaterialIndex(inMaterialIndex), mUserData(inUserData) { }
 
 	// Check if two triangles are identical
 	bool			operator == (const IndexedTriangle& inRHS) const
@@ -216,12 +216,12 @@ public:
 	// Get the hash value of this structure
 	uint64			GetHash() const
 	{
-		static_assert(sizeof(IndexedTriangle) == 5* sizeof(uint32), "Class should have no padding");
+		static_assert(sizeof(IndexedTriangle) == 5* sizeof(uint32_t), "Class should have no padding");
 		return HashBytes(this, sizeof(IndexedTriangle));
 	}
 
-	uint32			mMaterialIndex = 0;
-	uint32			mUserData = 0;				// User data that can be used for anything by the application, e.g. for tracking the original index of the triangle
+	uint32_t			mMaterialIndex = 0;
+	uint32_t			mUserData = 0;				// User data that can be used for anything by the application, e.g. for tracking the original index of the triangle
 };
 
 

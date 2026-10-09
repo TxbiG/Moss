@@ -42,7 +42,7 @@ void JobSystemWithBarrier::BarrierImpl::AddJob(const JobHandle &inJob)
 
 		// Add the job to our job list
 		job->AddRef();
-		uint32 write_index = mJobWriteIndex++;
+		uint32_t write_index = mJobWriteIndex++;
 		while (write_index - mJobReadIndex >= cMaxJobs)
 		{
 			MOSS_ASSERT(false, "Barrier full, stalling!");
@@ -56,7 +56,7 @@ void JobSystemWithBarrier::BarrierImpl::AddJob(const JobHandle &inJob)
 		mSemaphore.Release();
 }
 
-void JobSystemWithBarrier::BarrierImpl::AddJobs(const JobHandle *inHandles, uint32 inNumHandles)
+void JobSystemWithBarrier::BarrierImpl::AddJobs(const JobHandle *inHandles, uint32_t inNumHandles)
 {
 	MOSS_PROFILE_FUNCTION();
 
@@ -78,7 +78,7 @@ void JobSystemWithBarrier::BarrierImpl::AddJobs(const JobHandle *inHandles, uint
 
 			// Add the job to our job list
 			job->AddRef();
-			uint32 write_index = mJobWriteIndex++;
+			uint32_t write_index = mJobWriteIndex++;
 			while (write_index - mJobReadIndex >= cMaxJobs)
 			{
 				MOSS_ASSERT(false, "Barrier full, stalling!");
@@ -128,7 +128,7 @@ void JobSystemWithBarrier::BarrierImpl::Wait()
 				}
 
 				// Loop through the jobs and execute the first executable job
-				for (uint32 index = mJobReadIndex; index < mJobWriteIndex; ++index)
+				for (uint32_t index = mJobReadIndex; index < mJobWriteIndex; ++index)
 				{
 					const atomic<Job *> &job = mJobs[index & (cMaxJobs - 1)];
 					Job *job_ptr = job.load();
@@ -165,7 +165,7 @@ void JobSystemWithBarrier::BarrierImpl::Wait()
 	}
 }
 
-void JobSystemWithBarrier::Init(uint32 inMaxBarriers)
+void JobSystemWithBarrier::Init(uint32_t inMaxBarriers)
 {
 	MOSS_ASSERT(mBarriers == nullptr); // Already initialized?
 
@@ -174,7 +174,7 @@ void JobSystemWithBarrier::Init(uint32 inMaxBarriers)
 	mBarriers = new BarrierImpl [inMaxBarriers];
 }
 
-JobSystemWithBarrier::JobSystemWithBarrier(uint32 inMaxBarriers)
+JobSystemWithBarrier::JobSystemWithBarrier(uint32_t inMaxBarriers)
 {
 	Init(inMaxBarriers);
 }
@@ -194,7 +194,7 @@ JobSystem::Barrier *JobSystemWithBarrier::CreateBarrier()
 	MOSS_PROFILE_FUNCTION();
 
 	// Find the first unused barrier
-	for (uint32 index = 0; index < mMaxBarriers; ++index)
+	for (uint32_t index = 0; index < mMaxBarriers; ++index)
 	{
 		bool expected = false;
 		if (mBarriers[index].mInUse.compare_exchange_strong(expected, true))

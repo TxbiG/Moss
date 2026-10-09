@@ -23,10 +23,10 @@ void DebugRendererPlayback::Parse(StreamIn &inStream)
 
 		if (command == ECommand::CreateBatch)
 		{
-			uint32 id;
+			uint32_t id;
 			inStream.Read(id);
 
-			uint32 triangle_count;
+			uint32_t triangle_count;
 			inStream.Read(triangle_count);
 
 			DebugRenderer::Triangle *triangles = new DebugRenderer::Triangle [triangle_count];
@@ -38,20 +38,20 @@ void DebugRendererPlayback::Parse(StreamIn &inStream)
 		}
 		else if (command == ECommand::CreateBatchIndexed)
 		{
-			uint32 id;
+			uint32_t id;
 			inStream.Read(id);
 
-			uint32 vertex_count;
+			uint32_t vertex_count;
 			inStream.Read(vertex_count);
 
 			DebugRenderer::Vertex *vertices = new DebugRenderer::Vertex [vertex_count];
 			inStream.ReadBytes(vertices, vertex_count * sizeof(DebugRenderer::Vertex));
 
-			uint32 index_count;
+			uint32_t index_count;
 			inStream.Read(index_count);
 
-			uint32 *indices = new uint32 [index_count];
-			inStream.ReadBytes(indices, index_count * sizeof(uint32));
+			uint32_t *indices = new uint32_t [index_count];
+			inStream.ReadBytes(indices, index_count * sizeof(uint32_t));
 
 			mBatches.insert({ id, mRenderer.CreateTriangleBatch(vertices, vertex_count, indices, index_count) });
 
@@ -60,7 +60,7 @@ void DebugRendererPlayback::Parse(StreamIn &inStream)
 		}
 		else if (command == ECommand::CreateGeometry)
 		{
-			uint32 geometry_id;
+			uint32_t geometry_id;
 			inStream.Read(geometry_id);
 
 			AABox bounds;
@@ -70,14 +70,14 @@ void DebugRendererPlayback::Parse(StreamIn &inStream)
 			DebugRenderer::GeometryRef geometry = new DebugRenderer::Geometry(bounds);
 			mGeometries[geometry_id] = geometry;
 
-			uint32 num_lods;
+			uint32_t num_lods;
 			inStream.Read(num_lods);
-			for (uint32 l = 0; l < num_lods; ++l)
+			for (uint32_t l = 0; l < num_lods; ++l)
 			{
 				DebugRenderer::LOD lod;
 				inStream.Read(lod.mDistance);
 
-				uint32 batch_id;
+				uint32_t batch_id;
 				inStream.Read(batch_id);
 				lod.mTriangleBatch = mBatches.find(batch_id)->second;
 
@@ -90,7 +90,7 @@ void DebugRendererPlayback::Parse(StreamIn &inStream)
 			Frame &frame = mFrames.back();
 
 			// Read all lines
-			uint32 num_lines = 0;
+			uint32_t num_lines = 0;
 			inStream.Read(num_lines);
 			frame.mLines.resize(num_lines);
 			for (DebugRendererRecorder::LineBlob &line : frame.mLines)
@@ -101,7 +101,7 @@ void DebugRendererPlayback::Parse(StreamIn &inStream)
 			}
 
 			// Read all triangles
-			uint32 num_triangles = 0;
+			uint32_t num_triangles = 0;
 			inStream.Read(num_triangles);
 			frame.mTriangles.resize(num_triangles);
 			for (DebugRendererRecorder::TriangleBlob &triangle : frame.mTriangles)
@@ -114,7 +114,7 @@ void DebugRendererPlayback::Parse(StreamIn &inStream)
 			}
 
 			// Read all texts
-			uint32 num_texts = 0;
+			uint32_t num_texts = 0;
 			inStream.Read(num_texts);
 			frame.mTexts.resize(num_texts);
 			for (DebugRendererRecorder::TextBlob &text : frame.mTexts)
@@ -126,7 +126,7 @@ void DebugRendererPlayback::Parse(StreamIn &inStream)
 			}
 
 			// Read all geometries
-			uint32 num_geometries = 0;
+			uint32_t num_geometries = 0;
 			inStream.Read(num_geometries);
 			frame.mGeometries.resize(num_geometries);
 			for (DebugRendererRecorder::GeometryBlob &geom : frame.mGeometries)
@@ -144,7 +144,7 @@ void DebugRendererPlayback::Parse(StreamIn &inStream)
 	}
 }
 
-void DebugRendererPlayback::DrawFrame(uint32 inFrameNumber) const
+void DebugRendererPlayback::DrawFrame(uint32_t inFrameNumber) const
 {
 	const Frame &frame = mFrames[inFrameNumber];
 

@@ -33,14 +33,14 @@ private:
 	/// @return True if new closest point was found.
 	/// False if the function failed, in this case the output variables are not modified
 	template <bool LastPointPartOfClosestFeature>
-	bool		GetClosest(float inPrevVLenSq, Vec3 &outV, float &outVLenSq, uint32 &outSet) const
+	bool		GetClosest(float inPrevVLenSq, Vec3 &outV, float &outVLenSq, uint32_t &outSet) const
 	{
 #ifdef MOSS_GJK_DEBUG
 		for (int i = 0; i < mNumPoints; ++i)
 			MOSS_TRACE("y[%d] = [%s], |y[%d]| = %g", i, ConvertToString(mY[i]).c_str(), i, (double)mY[i].Length());
 #endif
 
-		uint32 set;
+		uint32_t set;
 		Vec3 v;
 
 		switch (mNumPoints)
@@ -102,7 +102,7 @@ private:
 	}
 
 	// Remove points that are not in the set, only updates mY
-	void		UpdatePointSetY(uint32 inSet)
+	void		UpdatePointSetY(uint32_t inSet)
 	{
 		int num_points = 0;
 		for (int i = 0; i < mNumPoints; ++i)
@@ -115,7 +115,7 @@ private:
 	}
 
 	// Remove points that are not in the set, only updates mP
-	void		UpdatePointSetP(uint32 inSet)
+	void		UpdatePointSetP(uint32_t inSet)
 	{
 		int num_points = 0;
 		for (int i = 0; i < mNumPoints; ++i)
@@ -128,7 +128,7 @@ private:
 	}
 
 	// Remove points that are not in the set, only updates mP and mQ
-	void		UpdatePointSetPQ(uint32 inSet)
+	void		UpdatePointSetPQ(uint32_t inSet)
 	{
 		int num_points = 0;
 		for (int i = 0; i < mNumPoints; ++i)
@@ -142,7 +142,7 @@ private:
 	}
 
 	// Remove points that are not in the set, updates mY, mP and mQ
-	void		UpdatePointSetYPQ(uint32 inSet)
+	void		UpdatePointSetYPQ(uint32_t inSet)
 	{
 		int num_points = 0;
 		for (int i = 0; i < mNumPoints; ++i)
@@ -252,7 +252,7 @@ public:
 
 			// Determine the new closest point
 			float v_len_sq;			// Length^2 of v
-			uint32 set;				// Set of points that form the new simplex
+			uint32_t set;				// Set of points that form the new simplex
 			if (!GetClosest<true>(prev_v_len_sq, ioV, v_len_sq, set))
 				return false;
 
@@ -403,7 +403,7 @@ public:
 			MOSS_TRACE("w = [%s]", ConvertToString(w).c_str());
 #endif
 
-			uint32 set;
+			uint32_t set;
 			if (!GetClosest<true>(prev_v_len_sq, ioV, v_len_sq, set))
 			{
 				--mNumPoints; // Undo add last point
@@ -492,9 +492,9 @@ public:
 
 	/// Get the resulting simplex after the GetClosestPoints algorithm finishes.
 	/// If it returned a squared distance of 0, the origin will be contained in the simplex.
-	void		GetClosestPointsSimplex(Vec3 *outY, Vec3 *outP, Vec3 *outQ, uint32 &outNumPoints) const
+	void		GetClosestPointsSimplex(Vec3 *outY, Vec3 *outP, Vec3 *outQ, uint32_t &outNumPoints) const
 	{
-		uint32 size = sizeof(Vec3) * mNumPoints;
+		uint32_t size = sizeof(Vec3) * mNumPoints;
 		memcpy(outY, mY, size);
 		memcpy(outP, mP, size);
 		memcpy(outQ, mQ, size);
@@ -591,7 +591,7 @@ public:
 				mY[i] = x - mP[i];
 
 			// Determine the new closest point from Y to origin
-			uint32 set;						// Set of points that form the new simplex
+			uint32_t set;						// Set of points that form the new simplex
 			if (!GetClosest<false>(v_len_sq, v, v_len_sq, set))
 			{
 #ifdef MOSS_GJK_DEBUG
@@ -789,7 +789,7 @@ public:
 				mY[i] = x - (mQ[i] - mP[i]);
 
 			// Determine the new closest point from Y to origin
-			uint32 set;						// Set of points that form the new simplex
+			uint32_t set;						// Set of points that form the new simplex
 			if (!GetClosest<false>(v_len_sq, v, v_len_sq, set))
 			{
 #ifdef MOSS_GJK_DEBUG

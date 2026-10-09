@@ -25,7 +25,7 @@ public:
 	MOSS_OVERRIDE_NEW_DELETE
 
 	/// Underlying storage type
-	using Type = uint32;
+	using Type = uint32_t;
 
 	/// Type that is bigger than the underlying storage type for operations that would otherwise overflow
 	using BiggerType = uint64;
@@ -33,13 +33,13 @@ public:
 	static_assert(sizeof(BiggerType) > sizeof(Type), "The calculation below assumes BiggerType is a bigger type than Type");
 
 	/// How many bits we can store in this ID
-	static constexpr uint32 MaxBits = 8 * sizeof(Type);
+	static constexpr uint32_t MaxBits = 8 * sizeof(Type);
 
 	/// Constructor
 						SubShapeID() = default;
 
 	/// Get the next id in the chain of ids (pops parents before children)
-	Type				PopID(uint32 inBits, SubShapeID &outRemainder) const
+	Type				PopID(uint32_t inBits, SubShapeID &outRemainder) const
 	{
 		Type mask_bits = Type((BiggerType(1) << inBits) - 1);
 		Type fill_bits = Type(BiggerType(cEmpty) << (MaxBits - inBits)); // Fill left side bits with 1 so that if there's no remainder all bits will be set, note that we do this using a BiggerType since on intel 0xffffffff << 32 == 0xffffffff
@@ -90,7 +90,7 @@ private:
 
 	/// Adds an id at a particular position in the chain
 	/// (this should really only be called by the SubShapeIDCreator)
-	void				PushID(Type inValue, uint32 inFirstBit, uint32 inBits)
+	void				PushID(Type inValue, uint32_t inFirstBit, uint32_t inBits)
 	{
 		// First clear the bits
 		mValue &= ~(Type((BiggerType(1) << inBits) - 1) << inFirstBit);
@@ -108,7 +108,7 @@ class SubShapeIDCreator
 {
 public:
 	/// Add a new id to the chain of id's and return it
-	SubShapeIDCreator	PushID(uint32 inValue, uint32 inBits) const
+	SubShapeIDCreator	PushID(uint32_t inValue, uint32_t inBits) const
 	{
 		MOSS_ASSERT(inValue < (SubShapeID::BiggerType(1) << inBits));
 		SubShapeIDCreator copy = *this;
@@ -125,14 +125,14 @@ public:
 	}
 
 	/// Get the number of bits that have been written to the sub shape ID so far
-	inline uint32			GetNumBitsWritten() const
+	inline uint32_t			GetNumBitsWritten() const
 	{
 		return mCurrentBit;
 	}
 
 private:
 	SubShapeID			mID;
-	uint32				mCurrentBit = 0;
+	uint32_t				mCurrentBit = 0;
 };
 
 MOSS_SUPPRESS_WARNINGS_END

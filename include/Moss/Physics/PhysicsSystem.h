@@ -28,7 +28,7 @@ enum class EActivation
 };
 
 /// Enum used by PhysicsSystem to report error conditions during the PhysicsSystem::Update call. This is a bit field, multiple errors can trigger in the same update.
-enum class EPhysicsUpdateError : uint32
+enum class EPhysicsUpdateError : uint32_t
 {
 	None					= 0,			///< No errors
 	ManifoldCacheFull		= 1 << 0,		///< The manifold cache is full, this means that the total number of contacts between bodies is too high. Some contacts were ignored. Increase inMaxContactConstraints in PhysicsSystem::Init.
@@ -39,7 +39,7 @@ enum class EPhysicsUpdateError : uint32
 /// OR operator for EPhysicsUpdateError
 inline EPhysicsUpdateError operator | (EPhysicsUpdateError inA, EPhysicsUpdateError inB)
 {
-	return static_cast<EPhysicsUpdateError>(static_cast<uint32>(inA) | static_cast<uint32>(inB));
+	return static_cast<EPhysicsUpdateError>(static_cast<uint32_t>(inA) | static_cast<uint32_t>(inB));
 }
 
 /// OR operator for EPhysicsUpdateError
@@ -52,7 +52,7 @@ inline EPhysicsUpdateError operator |= (EPhysicsUpdateError &ioA, EPhysicsUpdate
 /// AND operator for EPhysicsUpdateError
 inline EPhysicsUpdateError operator & (EPhysicsUpdateError inA, EPhysicsUpdateError inB)
 {
-	return static_cast<EPhysicsUpdateError>(static_cast<uint32>(inA) & static_cast<uint32>(inB));
+	return static_cast<EPhysicsUpdateError>(static_cast<uint32_t>(inA) & static_cast<uint32_t>(inB));
 }
 
 /// If objects are closer than this distance, they are considered to be colliding (used for GJK) (unit: meter)
@@ -126,10 +126,10 @@ struct PhysicsSettings {
 
 	// Number of solver velocity iterations to run
 	// Note that this needs to be >= 2 in order for friction to work (friction is applied using the non-penetration impulse from the previous iteration)
-	uint32		mNumVelocitySteps = 10;
+	uint32_t		mNumVelocitySteps = 10;
 
 	// Number of solver position iterations to run
-	uint32		mNumPositionSteps = 2;
+	uint32_t		mNumPositionSteps = 2;
 
 	// Minimal velocity needed before a collision can be elastic. If the relative velocity between colliding objects
 	// in the direction of the contact normal is lower than this, the restitution will be zero regardless of the configured
@@ -184,17 +184,17 @@ public:
 	~PhysicsSystem();
 
 	/// The maximum value that can be passed to Init for inMaxBodies.
-	static constexpr uint32		cMaxBodiesLimit = BodyID::cMaxBodyIndex + 1;
+	static constexpr uint32_t		cMaxBodiesLimit = BodyID::cMaxBodyIndex + 1;
 
 	/// The maximum value that can be passed to Init for inMaxBodyPairs.
 	/// Note you should really use a lower value, using this value will cost a lot of memory!
 	/// On a 32 bit platform, you'll run out of memory way before you reach this limit.
-	static constexpr uint32		cMaxBodyPairsLimit = ContactConstraintManager::cMaxBodyPairsLimit;
+	static constexpr uint32_t		cMaxBodyPairsLimit = ContactConstraintManager::cMaxBodyPairsLimit;
 
 	/// The maximum value that can be passed to Init for inMaxContactConstraints.
 	/// Note you should really use a lower value, using this value will cost a lot of memory!
 	/// On a 32 bit platform, you'll run out of memory way before you reach this limit.
-	static constexpr uint32		cMaxContactConstraintsLimit = ContactConstraintManager::cMaxContactConstraintsLimit;
+	static constexpr uint32_t		cMaxContactConstraintsLimit = ContactConstraintManager::cMaxContactConstraintsLimit;
 
 	/// Initialize the system.
 	/// @param inMaxBodies Maximum number of bodies to support.
@@ -204,7 +204,7 @@ public:
 	/// @param inBroadPhaseLayerInterface Information on the mapping of object layers to broad phase layers. Since this is a virtual interface, the instance needs to stay alive during the lifetime of the PhysicsSystem.
 	/// @param inObjectVsBroadPhaseLayerFilter Filter callback function that is used to determine if an object layer collides with a broad phase layer. Since this is a virtual interface, the instance needs to stay alive during the lifetime of the PhysicsSystem.
 	/// @param inObjectLayerPairFilter Filter callback function that is used to determine if two object layers collide. Since this is a virtual interface, the instance needs to stay alive during the lifetime of the PhysicsSystem.
-	void						Init(uint32 inMaxBodies, uint32 inNumBodyMutexes, uint32 inMaxBodyPairs, uint32 inMaxContactConstraints, const BroadPhaseLayerInterface &inBroadPhaseLayerInterface, const ObjectVsBroadPhaseLayerFilter &inObjectVsBroadPhaseLayerFilter, const ObjectLayerPairFilter &inObjectLayerPairFilter);
+	void						Init(uint32_t inMaxBodies, uint32_t inNumBodyMutexes, uint32_t inMaxBodyPairs, uint32_t inMaxContactConstraints, const BroadPhaseLayerInterface &inBroadPhaseLayerInterface, const ObjectVsBroadPhaseLayerFilter &inObjectVsBroadPhaseLayerFilter, const ObjectLayerPairFilter &inObjectLayerPairFilter);
 
 	/// Listener that is notified whenever a body is activated/deactivated
 	void						SetBodyActivationListener(BodyActivationListener *inListener) { mBodyManager.SetBodyActivationListener(inListener); }
@@ -355,13 +355,13 @@ public:
 	DefaultObjectLayerFilter	GetDefaultLayerFilter(ObjectLayer inLayer) const			{ return DefaultObjectLayerFilter(*mObjectLayerPairFilter, inLayer); }
 
 	/// Gets the current amount of bodies that are in the body manager
-	uint32						GetNumBodies() const										{ return mBodyManager.GetNumBodies(); }
+	uint32_t						GetNumBodies() const										{ return mBodyManager.GetNumBodies(); }
 
 	/// Gets the current amount of active bodies that are in the body manager
-	uint32						GetNumActiveBodies(EBodyType inType) const					{ return mBodyManager.GetNumActiveBodies(inType); }
+	uint32_t						GetNumActiveBodies(EBodyType inType) const					{ return mBodyManager.GetNumActiveBodies(inType); }
 
 	/// Get the maximum amount of bodies that this physics system supports
-	uint32						GetMaxBodies() const										{ return mBodyManager.GetMaxBodies(); }
+	uint32_t						GetMaxBodies() const										{ return mBodyManager.GetMaxBodies(); }
 
 	/// Helper struct that counts the number of bodies of each type
 	using BodyStats = BodyManager::BodyStats;
@@ -422,7 +422,7 @@ private:
 	void						JobSolvePositionConstraints(PhysicsUpdateContext *ioContext, PhysicsUpdateContext::Step *ioStep);
 	void						JobSoftBodyPrepare(PhysicsUpdateContext *ioContext, PhysicsUpdateContext::Step *ioStep);
 	void						JobSoftBodyCollide(PhysicsUpdateContext *ioContext) const;
-	void						JobSoftBodySimulate(PhysicsUpdateContext *ioContext, uint32 inThreadIndex) const;
+	void						JobSoftBodySimulate(PhysicsUpdateContext *ioContext, uint32_t inThreadIndex) const;
 	void						JobSoftBodyFinalize(PhysicsUpdateContext *ioContext);
 
 	// Tries to spawn a new FindCollisions job if max concurrency hasn't been reached yet
@@ -445,7 +445,7 @@ private:
 	class BodiesToSleep;
 
 	/// Called at the end of JobSolveVelocityConstraints to check if bodies need to go to sleep and to update their bounding box in the broadphase
-	void						CheckSleepAndUpdateBounds(uint32 inIslandIndex, const PhysicsUpdateContext *ioContext, const PhysicsUpdateContext::Step *ioStep, BodiesToSleep &ioBodiesToSleep);
+	void						CheckSleepAndUpdateBounds(uint32_t inIslandIndex, const PhysicsUpdateContext *ioContext, const PhysicsUpdateContext::Step *ioStep, BodiesToSleep &ioBodiesToSleep);
 
 	// Helper function that solves the velocity of a CCD contact
 	template <EMotionType Type2>

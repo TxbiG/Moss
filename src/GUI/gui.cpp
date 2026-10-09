@@ -132,7 +132,7 @@ MOSS_API bool          CollapsingHeader(const char* label, bool* p_visible, Moss
 /*! @brief X.*/
 MOSS_API void          SetNextItemOpen(bool is_open, Moss_GuiCond cond = 0);                  // set next TreeNode/CollapsingHeader open state.
 /*! @brief X.*/
-MOSS_API void          SetNextItemStorageID(uint32 storage_id);                           // set id to use for open/close storage (default to same as item id).
+MOSS_API void          SetNextItemStorageID(uint32_t storage_id);                           // set id to use for open/close storage (default to same as item id).
 
 // Widgets: Selectables
     // - A selectable highlights when hovered, and can display another color when selected.
@@ -218,7 +218,7 @@ MOSS_API void          EndPopup();                                              
     //  - Use IsWindowAppearing() after BeginPopup() to tell if a window just opened.
     //  - Moss_PORTANT: Notice that for OpenPopupOnItemClick() we exceptionally default flags to 1 (== Moss_GuiPopupFlags_MouseButtonRight) for backward compatibility with older API taking 'int mouse_button = 1' parameter
 MOSS_API void          OpenPopup(const char* str_id, Moss_GuiPopupFlags popup_flags = 0);                     // call to mark popup as open (don't call every frame!).
-MOSS_API void          OpenPopup(uint32 id, Moss_GuiPopupFlags popup_flags = 0);                             // id overload to facilitate calling from nested stacks
+MOSS_API void          OpenPopup(uint32_t id, Moss_GuiPopupFlags popup_flags = 0);                             // id overload to facilitate calling from nested stacks
 MOSS_API void          OpenPopupOnItemClick(const char* str_id = NULL, Moss_GuiPopupFlags popup_flags = 1);   // helper to open popup when clicked on last item. Default to Moss_GuiPopupFlags_MouseButtonRight == 1. (note: actually triggers on the mouse _released_ event to be consistent with popup behaviors)
 MOSS_API void          CloseCurrentPopup();                                                                // manually close the popup we have begin-ed into.
 
@@ -272,7 +272,7 @@ MOSS_API bool          TableSetColumnIndex(int column_n);                  // ap
     // - You may manually submit headers using TableNextRow() + TableHeader() calls, but this is only useful in
     //   some advanced use cases (e.g. adding custom widgets in header row).
     // - Use TableSetupScrollFreeze() to lock columns/rows so they stay visible when scrolled.
-MOSS_API void          TableSetupColumn(const char* label, Moss_GuiTableColumnFlags flags = 0, float init_width_or_weight = 0.0f, uint32 user_id = 0);
+MOSS_API void          TableSetupColumn(const char* label, Moss_GuiTableColumnFlags flags = 0, float init_width_or_weight = 0.0f, uint32_t user_id = 0);
 MOSS_API void          TableSetupScrollFreeze(int cols, int rows);         // lock columns/rows so they stay visible when scrolled.
 MOSS_API void          TableHeader(const char* label);                     // submit one header cell manually (rarely used)
 MOSS_API void          TableHeadersRow();                                  // submit a row with headers cells based on data provided to TableSetupColumn() + submit context menu
@@ -292,7 +292,7 @@ MOSS_API const char*           TableGetColumnName(int column_n = -1);      // re
 MOSS_API Moss_GuiTableColumnFlags TableGetColumnFlags(int column_n = -1);     // return column flags so you can query their Enabled/Visible/Sorted/Hovered status flags. Pass -1 to use current column.
 MOSS_API void                  TableSetColumnEnabled(int column_n, bool v);// change user accessible enabled/disabled state of a column. Set to false to hide the column. User can use the context menu to change this themselves (right-click in headers, or right-click in columns body with Moss_GuiTableFlags_ContextMenuInBody)
 MOSS_API int                   TableGetHoveredColumn();                    // return hovered column. return -1 when table is not hovered. return columns_count if the unused space at the right of visible columns is hovered. Can also use (TableGetColumnFlags() & Moss_GuiTableColumnFlags_IsHovered) instead.
-MOSS_API void                  TableSetBgColor(Moss_GuiTableBgTarget target, uint32 color, int column_n = -1);  // change the color of a cell, row, or column. See Moss_GuiTableBgTarget_ flags for details.
+MOSS_API void                  TableSetBgColor(Moss_GuiTableBgTarget target, uint32_t color, int column_n = -1);  // change the color of a cell, row, or column. See Moss_GuiTableBgTarget_ flags for details.
 
     // Tab Bars, Tabs
     // - Note: Tabs are automatically created by the docking system (when in 'docking' branch). Use this to create tab bars/tabs yourself.
@@ -364,8 +364,8 @@ MOSS_API void DatePicker();
 
 /*
     // Color Utilities
-MOSS_API Float4        ColorConvertU32ToFloat4(uint32 in);
-MOSS_API uint32        ColorConvertFloat4ToU32(const Float4& in);
+MOSS_API Float4        ColorConvertU32ToFloat4(uint32_t in);
+MOSS_API uint32_t        ColorConvertFloat4ToU32(const Float4& in);
 MOSS_API void          ColorConvertRGBtoHSV(float r, float g, float b, float& out_h, float& out_s, float& out_v);
 MOSS_API void          ColorConvertHSVtoRGB(float h, float s, float v, float& out_r, float& out_g, float& out_b);
 //==========================================================
@@ -397,7 +397,7 @@ MOSS_API void          SetScrollFromPosY(float local_y, float center_y_ratio = 0
 // Parameters stacks (shared)
 MOSS_API void          PushFont(Moss_Font* font);                                         // use NULL as a shortcut to push default font
 MOSS_API void          PopFont();
-MOSS_API void          PushStyleColor(Moss_GuiCol idx, uint32 col);                        // modify a style color. always use this if you modify the style after NewFrame().
+MOSS_API void          PushStyleColor(Moss_GuiCol idx, uint32_t col);                        // modify a style color. always use this if you modify the style after NewFrame().
 MOSS_API void          PushStyleColor(Moss_GuiCol idx, const Float4& col);
 MOSS_API void          PopStyleColor(int count = 1);
 MOSS_API void          PushStyleVar(int idx, float val);                     // modify a style float variable. always use this if you modify the style after NewFrame()!
@@ -421,9 +421,9 @@ MOSS_API void          PopTextWrapPos();
 MOSS_API Moss_Font*       GetFont();                                                      // get current font
 MOSS_API float         GetFontSize();                                                  // get current font size (= height in pixels) of current font with current scale applied
 MOSS_API Float2        GetFontTexUvWhitePixel();                                       // get UV coordinate for a white pixel, useful to draw custom shapes via the Moss_DrawList API
-MOSS_API uint32         GetColorU32(Moss_GuiCol idx, float alpha_mul = 1.0f);              // retrieve given style color with style alpha applied and optional extra alpha multiplier, packed as a 32-bit value suitable for Moss_DrawList
-MOSS_API uint32         GetColorU32(const Float4& col);                                 // retrieve given color with style alpha applied, packed as a 32-bit value suitable for Moss_DrawList
-MOSS_API uint32         GetColorU32(uint32 col, float alpha_mul = 1.0f);                 // retrieve given color with style alpha applied, packed as a 32-bit value suitable for Moss_DrawList
+MOSS_API uint32_t         GetColorU32(Moss_GuiCol idx, float alpha_mul = 1.0f);              // retrieve given style color with style alpha applied and optional extra alpha multiplier, packed as a 32-bit value suitable for Moss_DrawList
+MOSS_API uint32_t         GetColorU32(const Float4& col);                                 // retrieve given color with style alpha applied, packed as a 32-bit value suitable for Moss_DrawList
+MOSS_API uint32_t         GetColorU32(uint32_t col, float alpha_mul = 1.0f);                 // retrieve given color with style alpha applied, packed as a 32-bit value suitable for Moss_DrawList
 MOSS_API const Float4& GetStyleColorVec4(Moss_GuiCol idx);                                // retrieve style color as stored in Moss_GuiStyle structure. use to feed back into PushStyleColor(), otherwise use GetColorU32() to get style color with style alpha baked in.
 
 
@@ -481,10 +481,10 @@ MOSS_API void          PushID(const char* str_id_begin, const char* str_id_end);
 MOSS_API void          PushID(const void* ptr_id);                                     // push pointer into the ID stack (will hash pointer).
 MOSS_API void          PushID(int int_id);                                             // push integer into the ID stack (will hash integer).
 MOSS_API void          PopID();                                                        // pop from the ID stack.
-MOSS_API uint32        GetID(const char* str_id);                                      // calculate unique ID (hash of whole ID stack + given parameter). e.g. if you want to query into Moss_GuiStorage yourself
-MOSS_API uint32        GetID(const char* str_id_begin, const char* str_id_end);
-MOSS_API uint32        GetID(const void* ptr_id);
-MOSS_API uint32        GetID(int int_id);
+MOSS_API uint32_t        GetID(const char* str_id);                                      // calculate unique ID (hash of whole ID stack + given parameter). e.g. if you want to query into Moss_GuiStorage yourself
+MOSS_API uint32_t        GetID(const char* str_id_begin, const char* str_id_end);
+MOSS_API uint32_t        GetID(const void* ptr_id);
+MOSS_API uint32_t        GetID(int int_id);
 // Windows Utilities
     // - 'current window' = the window we are appending into while inside a Begin()/End() block. 'next window' = next window we will Begin() into.
 MOSS_API bool          IsWindowAppearing();
@@ -591,7 +591,7 @@ MOSS_API bool          IsItemToggledOpen();                                     
 MOSS_API bool          IsAnyItemHovered();                                                 // is any item hovered?
 MOSS_API bool          IsAnyItemActive();                                                  // is any item active?
 MOSS_API bool          IsAnyItemFocused();                                                 // is any item focused?
-MOSS_API uint32       GetItemID();                                                        // get ID of last item (~~ often same Moss_Gui::GetID(label) beforehand)
+MOSS_API uint32_t       GetItemID();                                                        // get ID of last item (~~ often same Moss_Gui::GetID(label) beforehand)
 MOSS_API Float2        GetItemRectMin();                                                   // get upper-left bounding rectangle of the last item (screen space)
 MOSS_API Float2        GetItemRectMax();                                                   // get lower-right bounding rectangle of the last item (screen space)
 MOSS_API Float2        GetItemRectSize();                                                  // get size of last item

@@ -39,47 +39,47 @@ public:
 		MOSS_OVERRIDE_NEW_DELETE
 
 		/// Indicates that there is no child
-		static constexpr uint32 cInvalidNodeIndex = ~uint32(0);
+		static constexpr uint32_t cInvalidNodeIndex = ~uint32_t(0);
 
 		/// Get number of triangles in this node
-		inline uint32 GetTriangleCount() const				{ return mNumTriangles; }
+		inline uint32_t GetTriangleCount() const				{ return mNumTriangles; }
 
 		/// Check if this node has any children
 		inline bool HasChildren() const						{ return mChild[0] != cInvalidNodeIndex || mChild[1] != cInvalidNodeIndex; }
 
 		/// Min depth of tree
-		uint32 GetMinDepth(const TArray<Node> &inNodes) const;
+		uint32_t GetMinDepth(const TArray<Node> &inNodes) const;
 
 		/// Max depth of tree
-		uint32 GetMaxDepth(const TArray<Node> &inNodes) const;
+		uint32_t GetMaxDepth(const TArray<Node> &inNodes) const;
 
 		/// Number of nodes in tree
-		uint32 GetNodeCount(const TArray<Node> &inNodes) const;
+		uint32_t GetNodeCount(const TArray<Node> &inNodes) const;
 
 		/// Number of leaf nodes in tree
-		uint32 GetLeafNodeCount(const TArray<Node> &inNodes) const;
+		uint32_t GetLeafNodeCount(const TArray<Node> &inNodes) const;
 
 		/// Get triangle count in tree
-		uint32 GetTriangleCountInTree(const TArray<Node> &inNodes) const;
+		uint32_t GetTriangleCountInTree(const TArray<Node> &inNodes) const;
 
 		/// Calculate min and max triangles per node
-		void GetTriangleCountPerNode(const TArray<Node> &inNodes, float &outAverage, uint32 &outMin, uint32 &outMax) const;
+		void GetTriangleCountPerNode(const TArray<Node> &inNodes, float &outAverage, uint32_t &outMin, uint32_t &outMax) const;
 
 		/// Calculate the total cost of the tree using the surface area heuristic
 		float CalculateSAHCost(const TArray<Node> &inNodes, float inCostTraversal, float inCostLeaf) const;
 
 		/// Recursively get children (breadth first) to get in total inN children (or less if there are no more)
-		void GetNChildren(const TArray<Node> &inNodes, uint32 inN, TArray<const Node *> &outChildren) const;
+		void GetNChildren(const TArray<Node> &inNodes, uint32_t inN, TArray<const Node *> &outChildren) const;
 
 		/// Bounding box
 		AABox mBounds;
 
 		/// Triangles (if no child nodes)
-		uint32 mTrianglesBegin; // Index into mTriangles
-		uint32 mNumTriangles = 0;
+		uint32_t mTrianglesBegin; // Index into mTriangles
+		uint32_t mNumTriangles = 0;
 
 		/// Child node indices (if no triangles)
-		uint32 mChild[2] = { cInvalidNodeIndex, cInvalidNodeIndex };
+		uint32_t mChild[2] = { cInvalidNodeIndex, cInvalidNodeIndex };
 
 	private:
 		friend class AABBTreeBuilder;
@@ -88,11 +88,11 @@ public:
 		float CalculateSAHCostInternal(const TArray<Node> &inNodes, float inCostTraversalDivSurfaceArea, float inCostLeafDivSurfaceArea) const;
 
 		/// Recursive helper function to calculate min and max triangles per node
-		void GetTriangleCountPerNodeInternal(const TArray<Node> &inNodes, float &outAverage, uint32 &outAverageDivisor, uint32 &outMin, uint32 &outMax) const;
+		void GetTriangleCountPerNodeInternal(const TArray<Node> &inNodes, float &outAverage, uint32_t &outAverageDivisor, uint32_t &outMin, uint32_t &outMax) const;
 	};
 
 	/// Constructor
-	AABBTreeBuilder(TriangleSplitter &inSplitter, uint32 inMaxTrianglesPerLeaf = 16);
+	AABBTreeBuilder(TriangleSplitter &inSplitter, uint32_t inMaxTrianglesPerLeaf = 16);
 
 	/// Recursively build tree, returns the root node of the tree
 	Node*					Build(AABBTreeBuilderStats &outStats);
@@ -104,10 +104,10 @@ public:
 	const TArray<IndexedTriangle>& GetTriangles() const { return mTriangles; }
 
 private:
-	uint32					BuildInternal(const TriangleSplitter::Range &inTriangles);
+	uint32_t					BuildInternal(const TriangleSplitter::Range &inTriangles);
 
 	TriangleSplitter &		mTriangleSplitter;
-	const uint32				mMaxTrianglesPerLeaf;
+	const uint32_t				mMaxTrianglesPerLeaf;
 	TArray<Node>				mNodes;
 	TArray<IndexedTriangle>	mTriangles;
 };

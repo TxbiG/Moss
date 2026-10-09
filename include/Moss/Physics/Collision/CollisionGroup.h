@@ -21,8 +21,8 @@ class MOSS_API CollisionGroup
 	MOSS_DECLARE_SERIALIZABLE_NON_VIRTUAL(MOSS_API, CollisionGroup)
 
 public:
-	using GroupID			= uint32;
-	using SubGroupID		= uint32;
+	using GroupID			= uint32_t;
+	using SubGroupID		= uint32_t;
 
 	static const GroupID	cInvalidGroup = ~GroupID(0);
 	static const SubGroupID	cInvalidSubGroup = ~SubGroupID(0);

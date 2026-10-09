@@ -38,7 +38,7 @@ private:
 		/// Construct a node ID
 		static inline NodeID	sInvalid()							{ return NodeID(cInvalidNodeIndex); }
 		static inline NodeID	sFromBodyID(BodyID inID)			{ NodeID node_id(inID.GetIndexAndSequenceNumber()); MOSS_ASSERT(node_id.IsBody()); return node_id; }
-		static inline NodeID	sFromNodeIndex(uint32 inIdx)		{ MOSS_ASSERT((inIdx & cIsNode) == 0); return NodeID(inIdx | cIsNode); }
+		static inline NodeID	sFromNodeIndex(uint32_t inIdx)		{ MOSS_ASSERT((inIdx & cIsNode) == 0); return NodeID(inIdx | cIsNode); }
 
 		/// Check what type of ID it is
 		inline bool				IsValid() const						{ return mID != cInvalidNodeIndex; }
@@ -47,7 +47,7 @@ private:
 
 		/// Get body or node index
 		inline BodyID			GetBodyID() const					{ MOSS_ASSERT(IsBody()); return BodyID(mID); }
-		inline uint32			GetNodeIndex() const				{ MOSS_ASSERT(IsNode()); return mID & ~cIsNode; }
+		inline uint32_t			GetNodeIndex() const				{ MOSS_ASSERT(IsNode()); return mID & ~cIsNode; }
 
 		/// Comparison
 		inline bool				operator == (const BodyID &inRHS) const { return mID == inRHS.GetIndexAndSequenceNumber(); }
@@ -56,11 +56,11 @@ private:
 	private:
 		friend class AtomicNodeID;
 
-		inline explicit			NodeID(uint32 inID)					: mID(inID) { }
+		inline explicit			NodeID(uint32_t inID)					: mID(inID) { }
 
-		static const uint32		cIsNode = BodyID::cBroadPhaseBit;	// If this bit is set it means that the ID refers to a node, otherwise it refers to a body
+		static const uint32_t		cIsNode = BodyID::cBroadPhaseBit;	// If this bit is set it means that the ID refers to a node, otherwise it refers to a body
 
-		uint32					mID;
+		uint32_t					mID;
 	};
 
 	static_assert(sizeof(NodeID) == sizeof(BodyID), "Body id's should have the same size as NodeIDs");
@@ -90,7 +90,7 @@ private:
 		inline bool				CompareExchange(NodeID inOld, NodeID inNew)	{ return mID.compare_exchange_strong(inOld.mID, inNew.mID); }
 
 	private:
-		atomic<uint32>			mID;
+		atomic<uint32_t>			mID;
 	};
 
 	/// Class that represents a node in the tree
@@ -128,21 +128,21 @@ private:
 
 		/// Index of the parent node.
 		/// Note: This value is unreliable during the UpdatePrepare/Finalize() function as a node may be relinked to the newly built tree.
-		atomic<uint32>			mParentNodeIndex = cInvalidNodeIndex;
+		atomic<uint32_t>			mParentNodeIndex = cInvalidNodeIndex;
 
 		/// If this part of the tree has changed, if not, we will treat this sub tree as a single body during the UpdatePrepare/Finalize().
 		/// If any changes are made to an object inside this sub tree then the direct path from the body to the top of the tree will become changed.
-		atomic<uint32>			mIsChanged;
+		atomic<uint32_t>			mIsChanged;
 
 		// Padding to align to 124 bytes
-		uint32					mPadding = 0;
+		uint32_t					mPadding = 0;
 	};
 
 	// Maximum size of the stack during tree walk
 	static constexpr int		cStackSize = 128;
 
 	static_assert(sizeof(atomic<float>) == 4, "Assuming that an atomic doesn't add any additional storage");
-	static_assert(sizeof(atomic<uint32>) == 4, "Assuming that an atomic doesn't add any additional storage");
+	static_assert(sizeof(atomic<uint32_t>) == 4, "Assuming that an atomic doesn't add any additional storage");
 	static_assert(std::is_trivially_destructible<Node>(), "Assuming that we don't have a destructor");
 
 public:
@@ -159,11 +159,11 @@ public:
 								Tracking(const Tracking &inRHS) : mBroadPhaseLayer(inRHS.mBroadPhaseLayer.load()), mObjectLayer(inRHS.mObjectLayer.load()), mBodyLocation(inRHS.mBodyLocation.load()) { }
 
 		/// Invalid body location identifier
-		static const uint32		cInvalidBodyLocation = 0xffffffff;
+		static const uint32_t		cInvalidBodyLocation = 0xffffffff;
 
 		atomic<BroadPhaseLayer::Type> mBroadPhaseLayer = (BroadPhaseLayer::Type)cBroadPhaseLayerInvalid;
 		atomic<ObjectLayer>		mObjectLayer = cObjectLayerInvalid;
-		atomic<uint32>			mBodyLocation { cInvalidBodyLocation };
+		atomic<uint32_t>			mBodyLocation { cInvalidBodyLocation };
 	};
 
 	using TrackingVector = TArray<Tracking>;
@@ -260,7 +260,7 @@ public:
 
 private:
 	/// Constants
-	static constexpr uint32		cInvalidNodeIndex = 0xffffffff;		// Value used to indicate node index is invalid
+	static constexpr uint32_t		cInvalidNodeIndex = 0xffffffff;		// Value used to indicate node index is invalid
 	static const AABox			cInvalidBounds;						// Invalid bounding box using cLargeFloat
 
 	/// We alternate between two trees in order to let collision queries complete in parallel to adding/removing objects to the tree
@@ -270,12 +270,12 @@ private:
 		inline NodeID GetNodeID() const	{ return NodeID::FromNodeIndex(mIndex); }
 
 		/// Index of the root node of the tree (this is always a node, never a body id)
-		atomic<uint32> mIndex { cInvalidNodeIndex };
+		atomic<uint32_t> mIndex { cInvalidNodeIndex };
 	};
 
 	/// Caches location of body inBodyID in the tracker, body can be found in mNodes[inNodeIdx].mChildNodeID[inChildIdx]
-	void						GetBodyLocation(const TrackingVector &inTracking, BodyID inBodyID, uint32 &outNodeIdx, uint32 &outChildIdx) const;
-	void						SetBodyLocation(TrackingVector &ioTracking, BodyID inBodyID, uint32 inNodeIdx, uint32 inChildIdx) const;
+	void						GetBodyLocation(const TrackingVector &inTracking, BodyID inBodyID, uint32_t &outNodeIdx, uint32_t &outChildIdx) const;
+	void						SetBodyLocation(TrackingVector &ioTracking, BodyID inBodyID, uint32_t inNodeIdx, uint32_t inChildIdx) const;
 	static void					sInvalidateBodyLocation(TrackingVector &ioTracking, BodyID inBodyID);
 
 	/// Get the current root of the tree
@@ -286,22 +286,22 @@ private:
 	inline AABox				GetNodeOrBodyBounds(const BodyVector &inBodies, NodeID inNodeID) const;
 
 	/// Mark node and all of its parents as changed
-	inline void					MarkNodeAndParentsChanged(uint32 inNodeIndex);
+	inline void					MarkNodeAndParentsChanged(uint32_t inNodeIndex);
 
 	/// Widen parent bounds of node inNodeIndex to encapsulate inNewBounds, also mark node and all of its parents as changed
-	inline void					WidenAndMarkNodeAndParentsChanged(uint32 inNodeIndex, const AABox &inNewBounds);
+	inline void					WidenAndMarkNodeAndParentsChanged(uint32_t inNodeIndex, const AABox &inNewBounds);
 
 	/// Allocate a new node
-	inline uint32				AllocateNode(bool inIsChanged);
+	inline uint32_t				AllocateNode(bool inIsChanged);
 
 	/// Try to insert a new leaf to the tree at inNodeIndex
 	inline bool					TryInsertLeaf(TrackingVector &ioTracking, int inNodeIndex, NodeID inLeafID, const AABox &inLeafBounds, int inLeafNumBodies);
 
 	/// Try to replace the existing root with a new root that contains both the existing root and the new leaf
-	inline bool					TryCreateNewRoot(TrackingVector &ioTracking, atomic<uint32> &ioRootNodeIndex, NodeID inLeafID, const AABox &inLeafBounds, int inLeafNumBodies);
+	inline bool					TryCreateNewRoot(TrackingVector &ioTracking, atomic<uint32_t> &ioRootNodeIndex, NodeID inLeafID, const AABox &inLeafBounds, int inLeafNumBodies);
 
 	/// Build a tree for ioBodyIDs, returns the NodeID of the root (which will be the ID of a single body if inNumber = 1). All tree levels up to inMaxDepthMarkChanged will be marked as 'changed'.
-	NodeID						BuildTree(const BodyVector &inBodies, TrackingVector &ioTracking, NodeID *ioNodeIDs, int inNumber, uint32 inMaxDepthMarkChanged, AABox &outBounds);
+	NodeID						BuildTree(const BodyVector &inBodies, TrackingVector &ioTracking, NodeID *ioNodeIDs, int inNumber, uint32_t inMaxDepthMarkChanged, AABox &outBounds);
 
 	/// Sorts ioNodeIDs spatially into 2 groups. Second groups starts at ioNodeIDs + outMidPoint.
 	/// After the function returns ioNodeIDs and ioNodeCenters will be shuffled
@@ -315,7 +315,7 @@ private:
 #ifdef MOSS_DEBUG
 	/// Validate that the tree is consistent.
 	/// Note: This function only works if the tree is not modified while we're traversing it.
-	void						ValidateTree(const BodyVector &inBodies, const TrackingVector &inTracking, uint32 inNodeIndex, uint32 inNumExpectedBodies) const;
+	void						ValidateTree(const BodyVector &inBodies, const TrackingVector &inTracking, uint32_t inNodeIndex, uint32_t inNumExpectedBodies) const;
 #endif
 
 #ifdef MOSS_DUMP_BROADPHASE_TREE
@@ -332,12 +332,12 @@ private:
 	/// Number of bodies currently in the tree
 	/// This is aligned to be in a different cache line from the `Allocator` pointer to prevent cross-thread syncs
 	/// when reading nodes.
-	alignas(MOSS_CACHE_LINE_SIZE) atomic<uint32> mNumBodies { 0 };
+	alignas(MOSS_CACHE_LINE_SIZE) atomic<uint32_t> mNumBodies { 0 };
 
 	/// We alternate between two tree root nodes. When updating, we activate the new tree and we keep the old tree alive.
 	/// for queries that are in progress until the next time DiscardOldTree() is called.
 	RootNode					mRootNode[2];
-	atomic<uint32>				mRootNodeIndex { 0 };
+	atomic<uint32_t>				mRootNodeIndex { 0 };
 
 	/// Flag to keep track of changes to the broadphase, if false, we don't need to UpdatePrepare/Finalize()
 	atomic<bool>				mIsDirty = false;
@@ -373,7 +373,7 @@ private:
 #endif // MOSS_TRACK_BROADPHASE_STATS
 
 	/// Debug function to get the depth of the tree from node inNodeID
-	uint32						GetMaxTreeDepth(const NodeID &inNodeID) const;
+	uint32_t						GetMaxTreeDepth(const NodeID &inNodeID) const;
 
 	/// Walk the node tree calling the Visitor::VisitNodes for each node encountered and Visitor::VisitBody for each body encountered
 	template <class Visitor>
@@ -457,7 +457,7 @@ private:
 
 	/// One tree per object layer
 	QuadTree *				mLayers;
-	uint32					mNumLayers;
+	uint32_t					mNumLayers;
 
 	/// UpdateState implementation for this tree used during UpdatePrepare/Finalize()
 	struct UpdateStateImpl
@@ -477,10 +477,10 @@ private:
 	mutable SharedMutex		mQueryLocks[2];
 
 	/// This index indicates which lock is currently active, it alternates between 0 and 1
-	atomic<uint32>			mQueryLockIdx { 0 };
+	atomic<uint32_t>			mQueryLockIdx { 0 };
 
 	/// This is the next tree to update in UpdatePrepare()
-	uint32					mNextLayerToUpdate = 0;
+	uint32_t					mNextLayerToUpdate = 0;
 };
 
 MOSS_SUPPRESS_WARNINGS_END

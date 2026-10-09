@@ -22,7 +22,7 @@ public:
 	//Ref<Texture>			CreateTexture(const Surface *inSurface) override;
 	Ref<VertexShader>		CreateVertexShader(const char *inName) override;
 	Ref<PixelShader>		CreatePixelShader(const char *inName) override;
-	unique_ptr<PipelineState> CreatePipelineState(const VertexShader *inVertexShader, const PipelineState::EInputDescription *inInputDescription, uint32 inInputDescriptionCount, const PixelShader *inPixelShader, PipelineState::EDrawPass inDrawPass, PipelineState::EFillMode inFillMode, PipelineState::ETopology inTopology, PipelineState::EDepthTest inDepthTest, PipelineState::EBlendMode inBlendMode, PipelineState::ECullMode inCullMode) override;
+	unique_ptr<PipelineState> CreatePipelineState(const VertexShader *inVertexShader, const PipelineState::EInputDescription *inInputDescription, uint32_t inInputDescriptionCount, const PixelShader *inPixelShader, PipelineState::EDrawPass inDrawPass, PipelineState::EFillMode inFillMode, PipelineState::ETopology inTopology, PipelineState::EDepthTest inDepthTest, PipelineState::EBlendMode inBlendMode, PipelineState::ECullMode inCullMode) override;
 	RenderPrimitive *		CreateRenderPrimitive(PipelineState::ETopology inType) override;
 	RenderInstances *		CreateRenderInstances() override;
 	Texture *				GetShadowMap() const override									{ return mShadowMap.GetPtr(); }
@@ -39,25 +39,25 @@ public:
 	VkCommandBuffer					GetCommandBuffer()												{ MOSS_ASSERT(mInFrame); return mCommandBuffers[mFrameIndex]; }
 	VkCommandBuffer					StartTempCommandBuffer();
 	void							EndTempCommandBuffer(VkCommandBuffer inCommandBuffer);
-	void							AllocateMemory(VkDeviceSize inSize, uint32 inMemoryTypeBits, VkMemoryPropertyFlags inProperties, VkDeviceMemory &outMemory);
+	void							AllocateMemory(VkDeviceSize inSize, uint32_t inMemoryTypeBits, VkMemoryPropertyFlags inProperties, VkDeviceMemory &outMemory);
 	void							FreeMemory(VkDeviceMemory inMemory, VkDeviceSize inSize);
 	void							CreateBuffer(VkDeviceSize inSize, VkBufferUsageFlags inUsage, VkMemoryPropertyFlags inProperties, BufferVK &outBuffer);
 	void							CopyBuffer(VkBuffer inSrc, VkBuffer inDst, VkDeviceSize inSize);
 	void							CreateDeviceLocalBuffer(const void *inData, VkDeviceSize inSize, VkBufferUsageFlags inUsage, BufferVK &outBuffer);
 	void							FreeBuffer(BufferVK &ioBuffer);
 	unique_ptr<ConstantBufferVK>	CreateConstantBuffer(VkDeviceSize inBufferSize);
-	void							CreateImage(uint32 inWidth, uint32 inHeight, VkFormat inFormat, VkImageTiling inTiling, VkImageUsageFlags inUsage, VkMemoryPropertyFlags inProperties, VkImage &outImage, VkDeviceMemory &outMemory);
+	void							CreateImage(uint32_t inWidth, uint32_t inHeight, VkFormat inFormat, VkImageTiling inTiling, VkImageUsageFlags inUsage, VkMemoryPropertyFlags inProperties, VkImage &outImage, VkDeviceMemory &outMemory);
 	void							DestroyImage(VkImage inImage, VkDeviceMemory inMemory);
 	VkImageView						CreateImageView(VkImage inImage, VkFormat inFormat, VkImageAspectFlags inAspectFlags);
 	VkFormat						FindDepthFormat();
 
 private:
-	uint32							FindMemoryType(uint32 inTypeFilter, VkMemoryPropertyFlags inProperties);
+	uint32_t							FindMemoryType(uint32_t inTypeFilter, VkMemoryPropertyFlags inProperties);
 	void							FreeBufferInternal(BufferVK &ioBuffer);
 	VkSurfaceFormatKHR				SelectFormat(VkPhysicalDevice inDevice);
 	void							CreateSwapChain(VkPhysicalDevice inDevice);
 	void							DestroySwapChain();
-	void							UpdateViewPortAndScissorRect(uint32 inWidth, uint32 inHeight);
+	void							UpdateViewPortAndScissorRect(uint32_t inWidth, uint32_t inHeight);
 	VkSemaphore						AllocateSemaphore();
 	void							FreeSemaphore(VkSemaphore inSemaphore);
 
@@ -68,8 +68,8 @@ private:
 	VkPhysicalDevice				mPhysicalDevice = VK_NULL_HANDLE;
 	VkPhysicalDeviceMemoryProperties mMemoryProperties;
 	VkDevice						mDevice = VK_NULL_HANDLE;
-	uint32							mGraphicsQueueIndex = 0;
-	uint32							mPresentQueueIndex = 0;
+	uint32_t							mGraphicsQueueIndex = 0;
+	uint32_t							mPresentQueueIndex = 0;
 	VkQueue							mGraphicsQueue = VK_NULL_HANDLE;
 	VkQueue							mPresentQueue = VK_NULL_HANDLE;
 	VkSurfaceKHR					mSurface = VK_NULL_HANDLE;
@@ -94,7 +94,7 @@ private:
 	VkPipelineLayout				mPipelineLayout = VK_NULL_HANDLE;
 	VkFramebuffer					mShadowFrameBuffer = VK_NULL_HANDLE;
 	TArray<VkFramebuffer>			mSwapChainFramebuffers;
-	uint32							mImageIndex = 0;
+	uint32_t							mImageIndex = 0;
 	VkCommandPool					mCommandPool = VK_NULL_HANDLE;
 	VkCommandBuffer					mCommandBuffers[cFrameCount];
 	TArray<VkSemaphore>				mAvailableSemaphores;
@@ -143,8 +143,8 @@ private:
 	using MemoryCache = TMap<Key, TArray<Memory>, KeyHasher>;
 
 	MemoryCache						mMemoryCache;
-	uint32							mNumAllocations = 0;
-	uint32							mMaxNumAllocations = 0;
+	uint32_t							mNumAllocations = 0;
+	uint32_t							mMaxNumAllocations = 0;
 	VkDeviceSize					mTotalAllocated = 0;
 	VkDeviceSize					mMaxTotalAllocated = 0;
 };

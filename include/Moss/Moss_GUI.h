@@ -85,7 +85,7 @@ MOSS_API void          EndWindow();
 /*! @brief X.*/
 MOSS_API bool          BeginWindowChild(const char* str_id, const Float2& size = Float2(0, 0), Moss_GuiChildFlags child_flags = 0, Moss_GuiWindowFlags window_flags = 0);
 /*! @brief X.*/
-MOSS_API bool          BeginWindowChild(uint32 id, const Float2& size = Float2(0, 0), Moss_GuiChildFlags child_flags = 0, Moss_GuiWindowFlags window_flags = 0);
+MOSS_API bool          BeginWindowChild(uint32_t id, const Float2& size = Float2(0, 0), Moss_GuiChildFlags child_flags = 0, Moss_GuiWindowFlags window_flags = 0);
 /*! @brief X.*/
 MOSS_API void          EndWindowChild();
 

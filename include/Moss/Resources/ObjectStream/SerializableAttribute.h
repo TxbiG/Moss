@@ -44,7 +44,7 @@ public:
 	using pWriteDataType = void (*)(IObjectStreamOut &ioStream);
 
 	/// Constructor
-								SerializableAttribute(const char *inName, uint32 inMemberOffset, pGetMemberPrimitiveType inGetMemberPrimitiveType, pIsType inIsType, pReadData inReadData, pWriteData inWriteData, pWriteDataType inWriteDataType) : mName(inName), mMemberOffset(inMemberOffset), mGetMemberPrimitiveType(inGetMemberPrimitiveType), mIsType(inIsType), mReadData(inReadData), mWriteData(inWriteData), mWriteDataType(inWriteDataType) { }
+								SerializableAttribute(const char *inName, uint32_t inMemberOffset, pGetMemberPrimitiveType inGetMemberPrimitiveType, pIsType inIsType, pReadData inReadData, pWriteData inWriteData, pWriteDataType inWriteDataType) : mName(inName), mMemberOffset(inMemberOffset), mGetMemberPrimitiveType(inGetMemberPrimitiveType), mIsType(inIsType), mReadData(inReadData), mWriteData(inWriteData), mWriteDataType(inWriteDataType) { }
 
 	/// Construct from other attribute with base class offset
 								SerializableAttribute(const SerializableAttribute &inOther, int inBaseOffset) : mName(inOther.mName), mMemberOffset(inOther.mMemberOffset + inBaseOffset), mGetMemberPrimitiveType(inOther.mGetMemberPrimitiveType), mIsType(inOther.mIsType), mReadData(inOther.mReadData), mWriteData(inOther.mWriteData), mWriteDataType(inOther.mWriteDataType) { }
@@ -94,7 +94,7 @@ private:
 	const char *				mName;
 
 	// Offset of the member relative to the class
-	uint32						mMemberOffset;
+	uint32_t						mMemberOffset;
 
 	// In case this attribute contains an RTTI type, return it (note that a TArray<sometype> will return the rtti of sometype)
 	pGetMemberPrimitiveType		mGetMemberPrimitiveType;

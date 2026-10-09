@@ -36,7 +36,7 @@ public:
 	template <class T, class A, std::enable_if_t<std::is_trivially_copyable_v<T>, bool> = true>
 	void				Read(TArray<T, A> &outT)
 	{
-		uint32 len = uint32(outT.size()); // Initialize to previous array size, this is used for validation in the StateRecorder class
+		uint32_t len = uint32_t(outT.size()); // Initialize to previous array size, this is used for validation in the StateRecorder class
 		Read(len);
 		if (!IsEOF() && !IsFailed())
 		{
@@ -61,7 +61,7 @@ public:
 	template <class Type, class Traits, class Allocator>
 	void				Read(std::basic_string<Type, Traits, Allocator> &outString)
 	{
-		uint32 len = 0;
+		uint32_t len = 0;
 		Read(len);
 		if (!IsEOF() && !IsFailed())
 		{
@@ -76,7 +76,7 @@ public:
 	template <class T, class A, typename F>
 	void				Read(TArray<T, A> &outT, const F &inReadElement)
 	{
-		uint32 len = uint32(outT.size()); // Initialize to previous array size, this is used for validation in the StateRecorder class
+		uint32_t len = uint32_t(outT.size()); // Initialize to previous array size, this is used for validation in the StateRecorder class
 		Read(len);
 		if (!IsEOF() && !IsFailed())
 		{

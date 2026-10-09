@@ -75,19 +75,19 @@ struct AudioEffect{
 
 
 struct Wav {
-    uint32 riffChunkId = 0;
-    uint32 riffChunkSize = 0;
-    uint32 format = 0;
-    uint32 formatChunkId = 0;
-    uint32 formatChunkSize = 0;
+    uint32_t riffChunkId = 0;
+    uint32_t riffChunkSize = 0;
+    uint32_t format = 0;
+    uint32_t formatChunkId = 0;
+    uint32_t formatChunkSize = 0;
     uint16 audioFormat = 0;
     uint16 numChannels = 0;
-    uint32 sampleRate = 0;
-    uint32 byteRate = 0;
+    uint32_t sampleRate = 0;
+    uint32_t byteRate = 0;
     uint16 blockAlign = 0;
     uint16 bitsPerSample = 0;
     uint8 dataChunkId[4] = {};
-    uint32 dataChunkSize = 0;
+    uint32_t dataChunkSize = 0;
 
     // Raw PCM data
     char* dataBegin = nullptr;
@@ -207,7 +207,7 @@ void Moss_EnumerateMicrophone();
 // Populate internal speaker list.
 void Moss_EnumerateSpeakers();
 
-static uint32 ReadU32LE(const uint8* data) { return data[0] | (data[1] << 8) | (data[2] << 16) | (data[3] << 24); }
+static uint32_t ReadU32LE(const uint8* data) { return data[0] | (data[1] << 8) | (data[2] << 16) | (data[3] << 24); }
 static uint16 ReadU16LE(const uint8* data) { return data[0] | (data[1] << 8); }
 
 Wav* CreateWav(const char* path) {
@@ -241,7 +241,7 @@ Wav* CreateWav(const char* path) {
     // Search for "data" chunk (may come after other chunks like "fact")
     while (pos + 8 < buffer.size()) {
         const char* chunkID = reinterpret_cast<const char*>(&buffer[pos]);
-        uint32 chunkSize = ReadU32LE(&buffer[pos + 4]);
+        uint32_t chunkSize = ReadU32LE(&buffer[pos + 4]);
 
         if (std::memcmp(chunkID, "data", 4) == 0) {
             std::memcpy(wav->dataChunkId, chunkID, 4);

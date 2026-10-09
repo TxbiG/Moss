@@ -34,17 +34,17 @@ public:
 #ifdef MOSS_DEBUG
 	/// Call before taking the lock
 	static inline void sCheckLock(PhysicsLockContext inContext, EPhysicsLockTypes inType) {
-		uint32 &mutexes = sGetLockedMutexes(inContext);
-		MOSS_ASSERT(uint32(inType) > mutexes, "A lock of same or higher priority was already taken, this can create a deadlock!");
-		mutexes = mutexes | uint32(inType);
+		uint32_t &mutexes = sGetLockedMutexes(inContext);
+		MOSS_ASSERT(uint32_t(inType) > mutexes, "A lock of same or higher priority was already taken, this can create a deadlock!");
+		mutexes = mutexes | uint32_t(inType);
 	}
 
 	/// Call after releasing the lock
 	static inline void sCheckUnlock(PhysicsLockContext inContext, EPhysicsLockTypes inType)
 	{
-		uint32 &mutexes = sGetLockedMutexes(inContext);
-		MOSS_ASSERT((mutexes & uint32(inType)) != 0, "Mutex was not locked!");
-		mutexes = mutexes & ~uint32(inType);
+		uint32_t &mutexes = sGetLockedMutexes(inContext);
+		MOSS_ASSERT((mutexes & uint32_t(inType)) != 0, "Mutex was not locked!");
+		mutexes = mutexes & ~uint32_t(inType);
 	}
 #endif // MOSS_DEBUG
 
@@ -75,12 +75,12 @@ public:
 #ifdef MOSS_DEBUG
 private:
 	struct LockData {
-		uint32					mLockedMutexes = 0;
+		uint32_t					mLockedMutexes = 0;
 		PhysicsLockContext		mContext = nullptr;
 	};
 
 	// Helper function to find the locked mutexes for a particular context
-	static uint32 &				sGetLockedMutexes(PhysicsLockContext inContext) {
+	static uint32_t &				sGetLockedMutexes(PhysicsLockContext inContext) {
 		static thread_local LockData sLocks[4];
 
 		// If we find a matching context we can use it

@@ -14,15 +14,15 @@ FixedSizeFreeList<Object>::~FixedSizeFreeList()
 		MOSS_ASSERT(mNumFreeObjects.load(memory_order_relaxed) == mNumPages * mPageSize);
 
 		// Free memory for pages
-		uint32 num_pages = mNumObjectsAllocated / mPageSize;
-		for (uint32 page = 0; page < num_pages; ++page)
+		uint32_t num_pages = mNumObjectsAllocated / mPageSize;
+		for (uint32_t page = 0; page < num_pages; ++page)
 			AlignedFree(mPages[page]);
 		Free(mPages);
 	}
 }
 
 template <typename Object>
-void FixedSizeFreeList<Object>::Init(uint32 inMaxObjects, uint32 inPageSize)
+void FixedSizeFreeList<Object>::Init(uint32_t inMaxObjects, uint32_t inPageSize)
 {
 	// Check sanity
 	MOSS_ASSERT(inPageSize > 0 && IsPowerOf2(inPageSize));
@@ -51,13 +51,13 @@ void FixedSizeFreeList<Object>::Init(uint32 inMaxObjects, uint32 inPageSize)
 
 template <typename Object>
 template <typename... Parameters>
-uint32 FixedSizeFreeList<Object>::ConstructObject(Parameters &&... inParameters)
+uint32_t FixedSizeFreeList<Object>::ConstructObject(Parameters &&... inParameters)
 {
 	for (;;)
 	{
 		// Get first object from the linked list
 		uint64 first_free_object_and_tag = mFirstFreeObjectAndTag.load(memory_order_acquire);
-		uint32 first_free = uint32(first_free_object_and_tag);
+		uint32_t first_free = uint32_t(first_free_object_and_tag);
 		if (first_free == cInvalidObjectIndex)
 		{
 			// The free list is empty, we take an object from the page that has never been used before
@@ -68,7 +68,7 @@ uint32 FixedSizeFreeList<Object>::ConstructObject(Parameters &&... inParameters)
 				lock_guard lock(mPageMutex);
 				while (first_free >= mNumObjectsAllocated)
 				{
-					uint32 next_page = mNumObjectsAllocated / mPageSize;
+					uint32_t next_page = mNumObjectsAllocated / mPageSize;
 					if (next_page == mNumPages)
 						return cInvalidObjectIndex; // Out of space!
 					mPages[next_page] = reinterpret_cast<ObjectStorage *>(AlignedAllocate(mPageSize * sizeof(ObjectStorage), max<size_t>(alignof(ObjectStorage), MOSS_CACHE_LINE_SIZE)));
@@ -86,7 +86,7 @@ uint32 FixedSizeFreeList<Object>::ConstructObject(Parameters &&... inParameters)
 		else
 		{
 			// Load next pointer
-			uint32 new_first_free = GetStorage(first_free).mNextFreeObject.load(memory_order_acquire);
+			uint32_t new_first_free = GetStorage(first_free).mNextFreeObject.load(memory_order_acquire);
 
 			// Construct a new first free object tag
 			uint64 new_first_free_object_and_tag = uint64(new_first_free) + (uint64(mAllocationTag.fetch_add(1, memory_order_relaxed)) << 32);
@@ -106,12 +106,12 @@ uint32 FixedSizeFreeList<Object>::ConstructObject(Parameters &&... inParameters)
 }
 
 template <typename Object>
-void FixedSizeFreeList<Object>::AddObjectToBatch(Batch &ioBatch, uint32 inObjectIndex)
+void FixedSizeFreeList<Object>::AddObjectToBatch(Batch &ioBatch, uint32_t inObjectIndex)
 {
-	MOSS_ASSERT(ioBatch.mNumObjects != uint32(-1), "Trying to reuse a batch that has already been freed");
+	MOSS_ASSERT(ioBatch.mNumObjects != uint32_t(-1), "Trying to reuse a batch that has already been freed");
 
 	// Reset next index
-	atomic<uint32> &next_free_object = GetStorage(inObjectIndex).mNextFreeObject;
+	atomic<uint32_t> &next_free_object = GetStorage(inObjectIndex).mNextFreeObject;
 	MOSS_ASSERT(next_free_object.load(memory_order_relaxed) == inObjectIndex, "Trying to add a object to the batch that is already in a free list");
 	next_free_object.store(cInvalidObjectIndex, memory_order_release);
 
@@ -132,7 +132,7 @@ void FixedSizeFreeList<Object>::DestructObjectBatch(Batch &ioBatch)
 		// Call destructors
 		if constexpr (!std::is_trivially_destructible<Object>())
 		{
-			uint32 object_idx = ioBatch.mFirstObjectIndex;
+			uint32_t object_idx = ioBatch.mFirstObjectIndex;
 			do
 			{
 				ObjectStorage &storage = GetStorage(object_idx);
@@ -148,7 +148,7 @@ void FixedSizeFreeList<Object>::DestructObjectBatch(Batch &ioBatch)
 		{
 			// Get first object from the list
 			uint64 first_free_object_and_tag = mFirstFreeObjectAndTag.load(memory_order_acquire);
-			uint32 first_free = uint32(first_free_object_and_tag);
+			uint32_t first_free = uint32_t(first_free_object_and_tag);
 
 			// Make it the next pointer of the last object in the batch that is to be freed
 			storage.mNextFreeObject.store(first_free, memory_order_release);
@@ -164,7 +164,7 @@ void FixedSizeFreeList<Object>::DestructObjectBatch(Batch &ioBatch)
 
 				// Mark the batch as freed
 #ifdef MOSS_DEBUG
-				ioBatch.mNumObjects = uint32(-1);
+				ioBatch.mNumObjects = uint32_t(-1);
 #endif // MOSS_DEBUG
 				return;
 			}
@@ -173,7 +173,7 @@ void FixedSizeFreeList<Object>::DestructObjectBatch(Batch &ioBatch)
 }
 
 template <typename Object>
-void FixedSizeFreeList<Object>::DestructObject(uint32 inObjectIndex)
+void FixedSizeFreeList<Object>::DestructObject(uint32_t inObjectIndex)
 {
 	MOSS_ASSERT(inObjectIndex != cInvalidObjectIndex);
 
@@ -186,7 +186,7 @@ void FixedSizeFreeList<Object>::DestructObject(uint32 inObjectIndex)
 	{
 		// Get first object from the list
 		uint64 first_free_object_and_tag = mFirstFreeObjectAndTag.load(memory_order_acquire);
-		uint32 first_free = uint32(first_free_object_and_tag);
+		uint32_t first_free = uint32_t(first_free_object_and_tag);
 
 		// Make it the next pointer of the last object in the batch that is to be freed
 		storage.mNextFreeObject.store(first_free, memory_order_release);
@@ -207,7 +207,7 @@ void FixedSizeFreeList<Object>::DestructObject(uint32 inObjectIndex)
 template<typename Object>
 inline void FixedSizeFreeList<Object>::DestructObject(Object *inObject)
 {
-	uint32 index = reinterpret_cast<ObjectStorage *>(inObject)->mNextFreeObject.load(memory_order_relaxed);
+	uint32_t index = reinterpret_cast<ObjectStorage *>(inObject)->mNextFreeObject.load(memory_order_relaxed);
 	MOSS_ASSERT(index < mNumObjectsAllocated);
 	DestructObject(index);
 }

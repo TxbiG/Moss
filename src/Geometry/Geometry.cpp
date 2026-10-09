@@ -25,20 +25,20 @@ MOSS_SUPPRESS_WARNINGS_STD_END
 
 MOSS_SUPPRESS_WARNINGS_BEGIN
 
-static MOSS_INLINE const Float3 &sIndexifyGetFloat3(const TriangleList &inTriangles, uint32 inVertexIndex) { return inTriangles[inVertexIndex / 3].mV[inVertexIndex % 3]; }
+static MOSS_INLINE const Float3 &sIndexifyGetFloat3(const TriangleList &inTriangles, uint32_t inVertexIndex) { return inTriangles[inVertexIndex / 3].mV[inVertexIndex % 3]; }
 
-static MOSS_INLINE Vec3 sIndexifyGetVec3(const TriangleList &inTriangles, uint32 inVertexIndex) { return Vec3::LoadFloat3Unsafe(sIndexifyGetFloat3(inTriangles, inVertexIndex)); }
+static MOSS_INLINE Vec3 sIndexifyGetVec3(const TriangleList &inTriangles, uint32_t inVertexIndex) { return Vec3::LoadFloat3Unsafe(sIndexifyGetFloat3(inTriangles, inVertexIndex)); }
 
-static void sIndexifyVerticesBruteForce(const TriangleList &inTriangles, const uint32 *inVertexIndices, const uint32 *inVertexIndicesEnd, TArray<uint32> &ioWeldedVertices, float inVertexWeldDistance) {
+static void sIndexifyVerticesBruteForce(const TriangleList &inTriangles, const uint32_t *inVertexIndices, const uint32_t *inVertexIndicesEnd, TArray<uint32_t> &ioWeldedVertices, float inVertexWeldDistance) {
 	float weld_dist_sq = Square(inVertexWeldDistance);
 
 	// Compare every vertex
-	for (const uint32 *v1_idx = inVertexIndices; v1_idx < inVertexIndicesEnd; ++v1_idx)
+	for (const uint32_t *v1_idx = inVertexIndices; v1_idx < inVertexIndicesEnd; ++v1_idx)
 	{
 		Vec3 v1 = sIndexifyGetVec3(inTriangles, *v1_idx);
 
 		// with every other vertex...
-		for (const uint32 *v2_idx = v1_idx + 1; v2_idx < inVertexIndicesEnd; ++v2_idx)
+		for (const uint32_t *v2_idx = v1_idx + 1; v2_idx < inVertexIndicesEnd; ++v2_idx)
 		{
 			Vec3 v2 = sIndexifyGetVec3(inTriangles, *v2_idx);
 
@@ -46,26 +46,26 @@ static void sIndexifyVerticesBruteForce(const TriangleList &inTriangles, const u
 			if ((v2 - v1).LengthSq() <= weld_dist_sq)
 			{
 				// Find the lowest indices both indices link to
-				uint32 idx1 = *v1_idx;
+				uint32_t idx1 = *v1_idx;
 				for (;;)
 				{
-					uint32 new_idx1 = ioWeldedVertices[idx1];
+					uint32_t new_idx1 = ioWeldedVertices[idx1];
 					if (new_idx1 >= idx1)
 						break;
 					idx1 = new_idx1;
 				}
-				uint32 idx2 = *v2_idx;
+				uint32_t idx2 = *v2_idx;
 				for (;;)
 				{
-					uint32 new_idx2 = ioWeldedVertices[idx2];
+					uint32_t new_idx2 = ioWeldedVertices[idx2];
 					if (new_idx2 >= idx2)
 						break;
 					idx2 = new_idx2;
 				}
 
 				// Order the vertices
-				uint32 lowest = min(idx1, idx2);
-				uint32 highest = max(idx1, idx2);
+				uint32_t lowest = min(idx1, idx2);
+				uint32_t highest = max(idx1, idx2);
 
 				// Link highest to lowest
 				ioWeldedVertices[highest] = lowest;
@@ -79,8 +79,8 @@ static void sIndexifyVerticesBruteForce(const TriangleList &inTriangles, const u
 	}
 }
 
-static void sIndexifyVerticesRecursively(const TriangleList &inTriangles, uint32 *ioVertexIndices, uint32 inNumVertices, uint32 *ioScratch, TArray<uint32> &ioWeldedVertices, 
-	float inVertexWeldDistance, uint32 inMaxRecursion) {
+static void sIndexifyVerticesRecursively(const TriangleList &inTriangles, uint32_t *ioVertexIndices, uint32_t inNumVertices, uint32_t *ioScratch, TArray<uint32_t> &ioWeldedVertices, 
+	float inVertexWeldDistance, uint32_t inMaxRecursion) {
 	// Check if we have few enough vertices to do a brute force search
 	// Or if we've recursed too deep (this means we chipped off a few vertices each iteration because all points are very close)
 	if (inNumVertices <= 8 || inMaxRecursion == 0)
@@ -91,7 +91,7 @@ static void sIndexifyVerticesRecursively(const TriangleList &inTriangles, uint32
 
 	// Calculate bounds
 	AABox bounds;
-	for (const uint32 *v = ioVertexIndices, *v_end = ioVertexIndices + inNumVertices; v < v_end; ++v)
+	for (const uint32_t *v = ioVertexIndices, *v_end = ioVertexIndices + inNumVertices; v < v_end; ++v)
 		bounds.Encapsulate(sIndexifyGetVec3(inTriangles, *v));
 
 	// Determine split plane
@@ -99,8 +99,8 @@ static void sIndexifyVerticesRecursively(const TriangleList &inTriangles, uint32
 	float split_value = bounds.GetCenter()[split_axis];
 
 	// Partition vertices
-	uint32 *v_read = ioVertexIndices, *v_write = ioVertexIndices, *v_end = ioVertexIndices + inNumVertices;
-	uint32 *scratch = ioScratch;
+	uint32_t *v_read = ioVertexIndices, *v_write = ioVertexIndices, *v_end = ioVertexIndices + inNumVertices;
+	uint32_t *scratch = ioScratch;
 	while (v_read < v_end)
 	{
 		// Calculate distance to plane
@@ -126,7 +126,7 @@ static void sIndexifyVerticesRecursively(const TriangleList &inTriangles, uint32
 	}
 
 	// Check if we made any progress
-	uint32 num_vertices_on_both_sides = (uint32)(scratch - ioScratch);
+	uint32_t num_vertices_on_both_sides = (uint32_t)(scratch - ioScratch);
 	if (num_vertices_on_both_sides == inNumVertices)
 	{
 		sIndexifyVerticesBruteForce(inTriangles, ioVertexIndices, ioVertexIndices + inNumVertices, ioWeldedVertices, inVertexWeldDistance);
@@ -134,37 +134,37 @@ static void sIndexifyVerticesRecursively(const TriangleList &inTriangles, uint32
 	}
 
 	// Calculate how we classified the vertices
-	uint32 num_vertices_left = (uint32)(v_write - ioVertexIndices);
-	uint32 num_vertices_right = (uint32)(ioVertexIndices + inNumVertices - v_end);
+	uint32_t num_vertices_left = (uint32_t)(v_write - ioVertexIndices);
+	uint32_t num_vertices_right = (uint32_t)(ioVertexIndices + inNumVertices - v_end);
 	MOSS_ASSERT(num_vertices_left + num_vertices_right + num_vertices_on_both_sides == inNumVertices);
-	memcpy(v_write, ioScratch, num_vertices_on_both_sides * sizeof(uint32));
+	memcpy(v_write, ioScratch, num_vertices_on_both_sides * sizeof(uint32_t));
 
 	// Recurse
-	uint32 max_recursion = inMaxRecursion - 1;
+	uint32_t max_recursion = inMaxRecursion - 1;
 	sIndexifyVerticesRecursively(inTriangles, ioVertexIndices, num_vertices_left + num_vertices_on_both_sides, ioScratch, ioWeldedVertices, inVertexWeldDistance, max_recursion);
 	sIndexifyVerticesRecursively(inTriangles, ioVertexIndices + num_vertices_left, num_vertices_right + num_vertices_on_both_sides, ioScratch, ioWeldedVertices, inVertexWeldDistance, max_recursion);
 }
 
 void Indexify(const TriangleList &inTriangles, VertexList &outVertices, IndexedTriangleList &outTriangles, float inVertexWeldDistance) {
-	uint32 num_triangles = (uint32)inTriangles.size();
-	uint32 num_vertices = num_triangles * 3;
+	uint32_t num_triangles = (uint32_t)inTriangles.size();
+	uint32_t num_vertices = num_triangles * 3;
 
 	// Create a list of all vertex indices
-	TArray<uint32> vertex_indices;
+	TArray<uint32_t> vertex_indices;
 	vertex_indices.resize(num_vertices);
-	for (uint32 i = 0; i < num_vertices; ++i)
+	for (uint32_t i = 0; i < num_vertices; ++i)
 		vertex_indices[i] = i;
 
 	// Link each vertex to itself
-	TArray<uint32> welded_vertices;
+	TArray<uint32_t> welded_vertices;
 	welded_vertices.resize(num_vertices);
-	for (uint32 i = 0; i < num_vertices; ++i)
+	for (uint32_t i = 0; i < num_vertices; ++i)
 		welded_vertices[i] = i;
 
 	// A scope to free memory used by the scratch array
 	{
 		// Some scratch memory, used for the vertices that fall in both partitions
-		TArray<uint32> scratch;
+		TArray<uint32_t> scratch;
 		scratch.resize(num_vertices);
 
 		// Recursively split the vertices
@@ -173,8 +173,8 @@ void Indexify(const TriangleList &inTriangles, VertexList &outVertices, IndexedT
 
 	// Do a pass to complete the welding, linking each vertex to the vertex it is welded to
 	// (and since we're going from 0 to N we can be sure that the vertex we're linking to is already linked to the lowest vertex)
-	uint32 num_resulting_vertices = 0;
-	for (uint32 i = 0; i < num_vertices; ++i)
+	uint32_t num_resulting_vertices = 0;
+	for (uint32_t i = 0; i < num_vertices; ++i)
 	{
 		MOSS_ASSERT(welded_vertices[welded_vertices[i]] <= welded_vertices[i]);
 		welded_vertices[i] = welded_vertices[welded_vertices[i]];
@@ -185,11 +185,11 @@ void Indexify(const TriangleList &inTriangles, VertexList &outVertices, IndexedT
 	// Collect the vertices
 	outVertices.clear();
 	outVertices.reserve(num_resulting_vertices);
-	for (uint32 i = 0; i < num_vertices; ++i)
+	for (uint32_t i = 0; i < num_vertices; ++i)
 		if (welded_vertices[i] == i)
 		{
 			// New vertex
-			welded_vertices[i] = (uint32)outVertices.size();
+			welded_vertices[i] = (uint32_t)outVertices.size();
 			outVertices.push_back(sIndexifyGetFloat3(inTriangles, i));
 		}
 		else
@@ -201,7 +201,7 @@ void Indexify(const TriangleList &inTriangles, VertexList &outVertices, IndexedT
 	// Create indexed triangles
 	outTriangles.clear();
 	outTriangles.reserve(num_triangles);
-	for (uint32 t = 0; t < num_triangles; ++t)
+	for (uint32_t t = 0; t < num_triangles; ++t)
 	{
 		IndexedTriangle it;
 		it.mMaterialIndex = inTriangles[t].mMaterialIndex;
@@ -390,7 +390,7 @@ float ConvexHullBuilder::GetDistanceToEdgeSq(Vec3Arg inPoint, const Face *inFace
 			all_inside = false;
 
 			// Measure distance to this edge
-			uint32 s;
+			uint32_t s;
 			edge_dist_sq = min(edge_dist_sq, ClosestPoint::GetClosestPointOnLine(p1 - inPoint, p2 - inPoint, s).LengthSq());
 		}
 		p1 = p2;

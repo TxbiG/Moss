@@ -24,7 +24,7 @@ ProfileThread::~ProfileThread()
 //////////////////////////////////////////////////////////////////////////////////////////
 
 MOSS_TSAN_NO_SANITIZE // TSAN reports a race on sOutOfSamplesReported, however the worst case is that we report the out of samples message multiple times
-ProfileMeasurement::ProfileMeasurement(const char *inName, uint32 inColor)
+ProfileMeasurement::ProfileMeasurement(const char *inName, uint32_t inColor)
 {
 	ProfileThread *current_thread = ProfileThread::sGetInstance();
 	if (current_thread == nullptr)

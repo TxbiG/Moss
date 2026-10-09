@@ -20,7 +20,7 @@ const RTTI *Factory::Find(const char *inName)
 	return c != m_ClassNameMap.end()? c->second : nullptr;
 }
 
-const RTTI *Factory::Find(uint32 inHash)
+const RTTI *Factory::Find(uint32_t inHash)
 {
 	ClassHashMap::iterator c = m_ClassHashMap.find(inHash);
 	return c != m_ClassHashMap.end()? c->second : nullptr;
@@ -60,7 +60,7 @@ bool Factory::Register(const RTTI *inRTTI)
 	return true;
 }
 
-bool Factory::Register(const RTTI **inRTTIs, uint32 inNumber)
+bool Factory::Register(const RTTI **inRTTIs, uint32_t inNumber)
 {
 	m_ClassHashMap.reserve(m_ClassHashMap.size() + inNumber);
 	m_ClassNameMap.reserve(m_ClassNameMap.size() + inNumber);

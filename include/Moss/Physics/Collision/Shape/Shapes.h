@@ -150,7 +150,7 @@ static constexpr EShapeSubType sCompoundSubShapeTypes[] = { EShapeSubType::Stati
 static constexpr EShapeSubType sDecoratorSubShapeTypes[] = { EShapeSubType::RotatedTranslated, EShapeSubType::Scaled, EShapeSubType::OffsetCenterOfMass };
 
 /// How many shape types we support
-static constexpr uint32 NumSubShapeTypes = uint32(std::size(sAllSubShapeTypes));
+static constexpr uint32_t NumSubShapeTypes = uint32_t(std::size(sAllSubShapeTypes));
 
 /// Names of sub shape types
 static constexpr const char *sSubShapeTypeNames[] = { "Sphere", "Box", "Triangle", "Capsule", "TaperedCapsule", "Cylinder", "ConvexHull", "StaticCompound", "MutableCompound", "RotatedTranslated", "Scaled", "OffsetCenterOfMass", "Mesh", "HeightField", "SoftBody", "User1", "User2", "User3", "User4", "User5", "User6", "User7", "User8", "UserConvex1", "UserConvex2", "UserConvex3", "UserConvex4", "UserConvex5", "UserConvex6", "UserConvex7", "UserConvex8", "Plane", "TaperedCylinder", "Empty" };
@@ -263,7 +263,7 @@ public:
 	virtual AABox					GetLocalBounds() const = 0;
 
 	/// Get the max number of sub shape ID bits that are needed to be able to address any leaf shape in this shape. Used mainly for checking that it is smaller or equal than SubShapeID::MaxBits.
-	virtual uint32					GetSubShapeIDBitsRecursive() const = 0;
+	virtual uint32_t					GetSubShapeIDBitsRecursive() const = 0;
 
 	/// Get world space bounds including convex radius.
 	/// This shape is scaled by inScale in local space first.
@@ -375,7 +375,7 @@ public:
 	/// @param inVertices The vertices of the soft body
 	/// @param inNumVertices The number of vertices in inVertices
 	/// @param inCollidingShapeIndex Value to store in CollideSoftBodyVertexIterator::mCollidingShapeIndex when a collision was found
-	virtual void					CollideSoftBodyVertices(Mat44Arg inCenterOfMassTransform, Vec3Arg inScale, const CollideSoftBodyVertexIterator &inVertices, uint32 inNumVertices, int inCollidingShapeIndex) const = 0;
+	virtual void					CollideSoftBodyVertices(Mat44Arg inCenterOfMassTransform, Vec3Arg inScale, const CollideSoftBodyVertexIterator &inVertices, uint32_t inNumVertices, int inCollidingShapeIndex) const = 0;
 
 	/// Collect the leaf transformed shapes of all leaf shapes of this shape.
 	/// inBox is the world space axis aligned box which leaf shapes should collide with.
@@ -431,13 +431,13 @@ public:
 	virtual void					SaveMaterialState([[maybe_unused]] PhysicsMaterialList &outMaterials) const			{ /* By default do nothing */ }
 
 	/// Restore the material references after calling sRestoreFromBinaryState. Note that the exact same materials need to be provided in the same order as returned by SaveMaterialState.
-	virtual void					RestoreMaterialState([[maybe_unused]] const PhysicsMaterialRefC *inMaterials, [[maybe_unused]] uint32 inNumMaterials) { MOSS_ASSERT(inNumMaterials == 0); }
+	virtual void					RestoreMaterialState([[maybe_unused]] const PhysicsMaterialRefC *inMaterials, [[maybe_unused]] uint32_t inNumMaterials) { MOSS_ASSERT(inNumMaterials == 0); }
 
 	/// Outputs the shape references that this shape has to outSubShapes.
 	virtual void					SaveSubShapeState([[maybe_unused]] ShapeList &outSubShapes) const					{ /* By default do nothing */ }
 
 	/// Restore the shape references after calling sRestoreFromBinaryState. Note that the exact same shapes need to be provided in the same order as returned by SaveSubShapeState.
-	virtual void					RestoreSubShapeState([[maybe_unused]] const ShapeRefC *inSubShapes, [[maybe_unused]] uint32 inNumShapes) { MOSS_ASSERT(inNumShapes == 0); }
+	virtual void					RestoreSubShapeState([[maybe_unused]] const ShapeRefC *inSubShapes, [[maybe_unused]] uint32_t inNumShapes) { MOSS_ASSERT(inNumShapes == 0); }
 
 	using ShapeToIDMap = StreamUtils::ObjectToIDMap<Shape>;
 	using IDToShapeMap = StreamUtils::IDToObjectMap<Shape>;
@@ -455,10 +455,10 @@ public:
 	/// Class that holds information about the shape that can be used for logging / data collection purposes
 	struct Stats
 	{
-									Stats(size_t inSizeBytes, uint32 inNumTriangles) : mSizeBytes(inSizeBytes), mNumTriangles(inNumTriangles) { }
+									Stats(size_t inSizeBytes, uint32_t inNumTriangles) : mSizeBytes(inSizeBytes), mNumTriangles(inNumTriangles) { }
 
 		size_t						mSizeBytes;				// Amount of memory used by this shape (size in bytes)
-		uint32						mNumTriangles;			// Number of triangles in this shape (when applicable)
+		uint32_t						mNumTriangles;			// Number of triangles in this shape (when applicable)
 	};
 
 	/// Get stats of this shape. Use for logging / data collection purposes only. Does not add values from child shapes, use GetStatsRecursive for this.
@@ -563,7 +563,7 @@ public:
 									ConvexShape(EShapeSubType inSubType, const PhysicsMaterial *inMaterial) : Shape(EShapeType::Convex, inSubType), mMaterial(inMaterial) { }
 
 	// See Shape::GetSubShapeIDBitsRecursive
-	virtual uint32					GetSubShapeIDBitsRecursive() const override					{ return 0; } // Convex shapes don't have sub shapes
+	virtual uint32_t					GetSubShapeIDBitsRecursive() const override					{ return 0; } // Convex shapes don't have sub shapes
 
 	// See Shape::GetMaterial
 	virtual const PhysicsMaterial *	GetMaterial([[maybe_unused]] const SubShapeID &inSubShapeID) const override	{ MOSS_ASSERT(inSubShapeID.IsEmpty(), "Invalid subshape ID"); return GetMaterial(); }
@@ -642,7 +642,7 @@ public:
 	// See Shape
 	virtual void					SaveBinaryState(StreamOut &inStream) const override;
 	virtual void					SaveMaterialState(PhysicsMaterialList &outMaterials) const override;
-	virtual void					RestoreMaterialState(const PhysicsMaterialRefC *inMaterials, uint32 inNumMaterials) override;
+	virtual void					RestoreMaterialState(const PhysicsMaterialRefC *inMaterials, uint32_t inNumMaterials) override;
 
 	// Register shape functions with the registry
 	static void						sRegister();
@@ -739,7 +739,7 @@ public:
 	virtual void			CollidePoint(Vec3Arg inPoint, const SubShapeIDCreator &inSubShapeIDCreator, CollidePointCollector &ioCollector, const ShapeFilter &inShapeFilter = { }) const override;
 
 	// See: Shape::CollideSoftBodyVertices
-	virtual void			CollideSoftBodyVertices(Mat44Arg inCenterOfMassTransform, Vec3Arg inScale, const CollideSoftBodyVertexIterator &inVertices, uint32 inNumVertices, int inCollidingShapeIndex) const override;
+	virtual void			CollideSoftBodyVertices(Mat44Arg inCenterOfMassTransform, Vec3Arg inScale, const CollideSoftBodyVertexIterator &inVertices, uint32_t inNumVertices, int inCollidingShapeIndex) const override;
 
 	// See Shape::GetTrianglesStart
 	virtual void			GetTrianglesStart(GetTrianglesContext &ioContext, const AABox &inBox, Vec3Arg inPositionCOM, QuatArg inRotation, Vec3Arg inScale) const override;
@@ -853,7 +853,7 @@ public:
 	virtual void			CollidePoint(Vec3Arg inPoint, const SubShapeIDCreator &inSubShapeIDCreator, CollidePointCollector &ioCollector, const ShapeFilter &inShapeFilter = { }) const override;
 
 	// See: Shape::CollideSoftBodyVertices
-	virtual void			CollideSoftBodyVertices(Mat44Arg inCenterOfMassTransform, Vec3Arg inScale, const CollideSoftBodyVertexIterator &inVertices, uint32 inNumVertices, int inCollidingShapeIndex) const override;
+	virtual void			CollideSoftBodyVertices(Mat44Arg inCenterOfMassTransform, Vec3Arg inScale, const CollideSoftBodyVertexIterator &inVertices, uint32_t inNumVertices, int inCollidingShapeIndex) const override;
 
 	// See Shape::GetTrianglesStart
 	virtual void			GetTrianglesStart(GetTrianglesContext &ioContext, const AABox &inBox, Vec3Arg inPositionCOM, QuatArg inRotation, Vec3Arg inScale) const override;
@@ -945,7 +945,7 @@ public:
 	virtual AABox					GetLocalBounds() const override								{ return mLocalBounds; }
 
 	// See Shape::GetSubShapeIDBitsRecursive
-	virtual uint32					GetSubShapeIDBitsRecursive() const override					{ return 0; }
+	virtual uint32_t					GetSubShapeIDBitsRecursive() const override					{ return 0; }
 
 	// See Shape::GetInnerRadius
 	virtual float					GetInnerRadius() const override								{ return 0.0f; }
@@ -975,7 +975,7 @@ public:
 	virtual void					CollidePoint(Vec3Arg inPoint, const SubShapeIDCreator &inSubShapeIDCreator, CollidePointCollector &ioCollector, const ShapeFilter &inShapeFilter = { }) const override;
 
 	// See: Shape::CollideSoftBodyVertices
-	virtual void					CollideSoftBodyVertices(Mat44Arg inCenterOfMassTransform, Vec3Arg inScale, const CollideSoftBodyVertexIterator &inVertices, uint32 inNumVertices, int inCollidingShapeIndex) const override;
+	virtual void					CollideSoftBodyVertices(Mat44Arg inCenterOfMassTransform, Vec3Arg inScale, const CollideSoftBodyVertexIterator &inVertices, uint32_t inNumVertices, int inCollidingShapeIndex) const override;
 
 	// See Shape::GetTrianglesStart
 	virtual void					GetTrianglesStart(GetTrianglesContext &ioContext, const AABox &inBox, Vec3Arg inPositionCOM, QuatArg inRotation, Vec3Arg inScale) const override;
@@ -989,7 +989,7 @@ public:
 	// See Shape
 	virtual void					SaveBinaryState(StreamOut &inStream) const override;
 	virtual void					SaveMaterialState(PhysicsMaterialList &outMaterials) const override;
-	virtual void					RestoreMaterialState(const PhysicsMaterialRefC *inMaterials, uint32 inNumMaterials) override;
+	virtual void					RestoreMaterialState(const PhysicsMaterialRefC *inMaterials, uint32_t inNumMaterials) override;
 
 	// See Shape::GetStats
 	virtual Stats					GetStats() const override									{ return Stats(sizeof(*this), 0); }
@@ -1084,7 +1084,7 @@ public:
 	virtual Vec3					GetCenterOfMass() const override						{ return mInnerShape->GetCenterOfMass(); }
 
 	// See Shape::GetSubShapeIDBitsRecursive
-	virtual uint32					GetSubShapeIDBitsRecursive() const override				{ return mInnerShape->GetSubShapeIDBitsRecursive(); }
+	virtual uint32_t					GetSubShapeIDBitsRecursive() const override				{ return mInnerShape->GetSubShapeIDBitsRecursive(); }
 
 	// See Shape::GetLeafShape
 	virtual const Shape *			GetLeafShape(const SubShapeID &inSubShapeID, SubShapeID &outRemainder) const override { return mInnerShape->GetLeafShape(inSubShapeID, outRemainder); }
@@ -1100,7 +1100,7 @@ public:
 
 	// See Shape
 	virtual void					SaveSubShapeState(ShapeList &outSubShapes) const override;
-	virtual void					RestoreSubShapeState(const ShapeRefC *inSubShapes, uint32 inNumShapes) override;
+	virtual void					RestoreSubShapeState(const ShapeRefC *inSubShapes, uint32_t inNumShapes) override;
 
 	// See Shape::GetStatsRecursive
 	virtual Stats					GetStatsRecursive(VisitedShapes &ioVisitedShapes) const override;
@@ -1181,7 +1181,7 @@ public:
 	virtual void					CollidePoint(Vec3Arg inPoint, const SubShapeIDCreator &inSubShapeIDCreator, CollidePointCollector &ioCollector, const ShapeFilter &inShapeFilter = { }) const override;
 
 	// See: Shape::CollideSoftBodyVertices
-	virtual void					CollideSoftBodyVertices(Mat44Arg inCenterOfMassTransform, Vec3Arg inScale, const CollideSoftBodyVertexIterator &inVertices, uint32 inNumVertices, int inCollidingShapeIndex) const override;
+	virtual void					CollideSoftBodyVertices(Mat44Arg inCenterOfMassTransform, Vec3Arg inScale, const CollideSoftBodyVertexIterator &inVertices, uint32_t inNumVertices, int inCollidingShapeIndex) const override;
 
 	// See Shape::CollectTransformedShapes
 	virtual void					CollectTransformedShapes(const AABox &inBox, Vec3Arg inPositionCOM, QuatArg inRotation, Vec3Arg inScale, const SubShapeIDCreator &inSubShapeIDCreator, TransformedShapeCollector &ioCollector, const ShapeFilter &inShapeFilter) const override;
@@ -1230,10 +1230,10 @@ namespace HeightFieldShapeConstants
 	/// Stack size to use during WalkHeightField
 	constexpr int					cStackSize = 128;
 
-	/// A position in the hierarchical grid is defined by a level (which grid), x and y position. We encode this in a single uint32 as: level << 28 | y << 14 | x
-	constexpr uint32					cNumBitsXY = 14;
-	constexpr uint32					cMaskBitsXY = (1 << cNumBitsXY) - 1;
-	constexpr uint32					cLevelShift = 2 * cNumBitsXY;
+	/// A position in the hierarchical grid is defined by a level (which grid), x and y position. We encode this in a single uint32_t as: level << 28 | y << 14 | x
+	constexpr uint32_t					cNumBitsXY = 14;
+	constexpr uint32_t					cMaskBitsXY = (1 << cNumBitsXY) - 1;
+	constexpr uint32_t					cLevelShift = 2 * cNumBitsXY;
 
 	/// When height samples are converted to 16 bit:
 	constexpr uint16				cNoCollisionValue16 = 0xffff;				// This is the magic value for 'no collision'
@@ -1250,10 +1250,10 @@ public:
 									CompoundShapeSettings() = default;
 
 	/// Add a shape to the compound.
-	void							AddShape(Vec3Arg inPosition, QuatArg inRotation, const ShapeSettings *inShape, uint32 inUserData = 0);
+	void							AddShape(Vec3Arg inPosition, QuatArg inRotation, const ShapeSettings *inShape, uint32_t inUserData = 0);
 
 	/// Add a shape to the compound. Variant that uses a concrete shape, which means this object cannot be serialized.
-	void							AddShape(Vec3Arg inPosition, QuatArg inRotation, const Shape *inShape, uint32 inUserData = 0);
+	void							AddShape(Vec3Arg inPosition, QuatArg inRotation, const Shape *inShape, uint32_t inUserData = 0);
 
 	struct SubShapeSettings
 	{
@@ -1267,7 +1267,7 @@ public:
 		/// User data value (can be used by the application for any purpose).
 		/// Note this value can be retrieved through GetSubShape(...).mUserData, not through GetSubShapeUserData(...) as that returns Shape::GetUserData() of the leaf shape.
 		/// Use GetSubShapeIndexFromID get a shape index from a SubShapeID to pass to GetSubShape.
-		uint32						mUserData = 0;
+		uint32_t						mUserData = 0;
 	};
 
 	using SubShapes = TArray<SubShapeSettings>;
@@ -1291,7 +1291,7 @@ public:
 	/// inSampleCount: inSampleCount / mBlockSize must be minimally 2 and a power of 2 is the most efficient in terms of performance and storage.
 	/// inSamples: inSampleCount^2 vertices.
 	/// inMaterialIndices: (inSampleCount - 1)^2 indices that index into inMaterialList.
-									HeightFieldShapeSettings(const float *inSamples, Vec3Arg inOffset, Vec3Arg inScale, uint32 inSampleCount, const uint8 *inMaterialIndices = nullptr, const PhysicsMaterialList &inMaterialList = PhysicsMaterialList());
+									HeightFieldShapeSettings(const float *inSamples, Vec3Arg inOffset, Vec3Arg inScale, uint32_t inSampleCount, const uint8 *inMaterialIndices = nullptr, const PhysicsMaterialList &inMaterialList = PhysicsMaterialList());
 
 	// See: ShapeSettings
 	virtual ShapeResult				Create() const override;
@@ -1305,13 +1305,13 @@ public:
 	/// Given mBlockSize, mSampleCount and mHeightSamples, calculate the amount of bits needed to stay below absolute error inMaxError
 	/// @param inMaxError Maximum allowed error in mHeightSamples after compression (note that this does not take mScale.Y into account)
 	/// @return Needed bits per sample in the range [1, 8].
-	uint32							CalculateBitsPerSampleForError(float inMaxError) const;
+	uint32_t							CalculateBitsPerSampleForError(float inMaxError) const;
 
 	/// The height field is a surface defined by: mOffset + mScale * (x, mHeightSamples[y * mSampleCount + x], y).
 	/// where x and y are integers in the range x and y e [0, mSampleCount - 1].
 	Vec3							mOffset = Vec3::Zero();
 	Vec3							mScale = Vec3::One();
-	uint32							mSampleCount = 0;
+	uint32_t							mSampleCount = 0;
 
 	/// Artificial minimal value of mHeightSamples, used for compression and can be used to update the terrain after creating with lower height values. If there are any lower values in mHeightSamples, this value will be ignored.
 	float							mMinHeightValue = cLargeFloat;
@@ -1321,17 +1321,17 @@ public:
 
 	/// When bigger than mMaterials.size() the internal material list will be preallocated to support this number of materials.
 	/// This avoids reallocations when calling HeightFieldShape::SetMaterials with new materials later.
-	uint32							mMaterialsCapacity = 0;
+	uint32_t							mMaterialsCapacity = 0;
 
 	/// The heightfield is divided in blocks of mBlockSize * mBlockSize * 2 triangles and the acceleration structure culls blocks only,
 	/// bigger block sizes reduce memory consumption but also reduce query performance. Sensible values are [2, 8], does not need to be
 	/// a power of 2. Note that at run-time we'll perform one more grid subdivision, so the effective block size is half of what is provided here.
-	uint32							mBlockSize = 2;
+	uint32_t							mBlockSize = 2;
 
 	/// How many bits per sample to use to compress the height field. Can be in the range [1, 8].
 	/// Note that each sample is compressed relative to the min/max value of its block of mBlockSize * mBlockSize pixels so the effective precision is higher.
 	/// Also note that increasing mBlockSize saves more memory than reducing the amount of bits per sample.
-	uint32							mBitsPerSample = 8;
+	uint32_t							mBitsPerSample = 8;
 
 	/// An array of mSampleCount^2 height samples. Samples are stored in row major order, so the sample at (x, y) is at index y * mSampleCount + x.
 	TArray<float>					mHeightSamples;
@@ -1370,16 +1370,16 @@ public:
 	virtual bool					MustBeStatic() const override				{ return true; }
 
 	/// Get the size of the height field. Note that this will always be rounded up to the nearest multiple of GetBlockSize().
-	inline uint32						GetSampleCount() const						{ return mSampleCount; }
+	inline uint32_t						GetSampleCount() const						{ return mSampleCount; }
 
 	/// Get the size of a block
-	inline uint32						GetBlockSize() const						{ return mBlockSize; }
+	inline uint32_t						GetBlockSize() const						{ return mBlockSize; }
 
 	// See Shape::GetLocalBounds
 	virtual AABox					GetLocalBounds() const override;
 
 	// See Shape::GetSubShapeIDBitsRecursive
-	virtual uint32					GetSubShapeIDBitsRecursive() const override	{ return GetSubShapeIDBits(); }
+	virtual uint32_t					GetSubShapeIDBitsRecursive() const override	{ return GetSubShapeIDBits(); }
 
 	// See Shape::GetInnerRadius
 	virtual float					GetInnerRadius() const override				{ return 0.0f; }
@@ -1391,7 +1391,7 @@ public:
 	virtual const PhysicsMaterial *	GetMaterial(const SubShapeID &inSubShapeID) const override;
 
 	/// Overload to get the material at a particular location
-	const PhysicsMaterial *			GetMaterial(uint32 inX, uint32 inY) const;
+	const PhysicsMaterial *			GetMaterial(uint32_t inX, uint32_t inY) const;
 
 	// See Shape::GetSurfaceNormal
 	virtual Vec3					GetSurfaceNormal(const SubShapeID &inSubShapeID, Vec3Arg inLocalSurfacePosition) const override;
@@ -1415,7 +1415,7 @@ public:
 	virtual void					CollidePoint(Vec3Arg inPoint, const SubShapeIDCreator &inSubShapeIDCreator, CollidePointCollector &ioCollector, const ShapeFilter &inShapeFilter = { }) const override;
 
 	// See: Shape::CollideSoftBodyVertices
-	virtual void					CollideSoftBodyVertices(Mat44Arg inCenterOfMassTransform, Vec3Arg inScale, const CollideSoftBodyVertexIterator &inVertices, uint32 inNumVertices, int inCollidingShapeIndex) const override;
+	virtual void					CollideSoftBodyVertices(Mat44Arg inCenterOfMassTransform, Vec3Arg inScale, const CollideSoftBodyVertexIterator &inVertices, uint32_t inNumVertices, int inCollidingShapeIndex) const override;
 
 	// See Shape::GetTrianglesStart
 	virtual void					GetTrianglesStart(GetTrianglesContext &ioContext, const AABox &inBox, Vec3Arg inPositionCOM, QuatArg inRotation, Vec3Arg inScale) const override;
@@ -1425,10 +1425,10 @@ public:
 
 	/// Get height field position at sampled location (inX, inY).
 	/// where inX and inY are integers in the range inX e [0, mSampleCount - 1] and inY e [0, mSampleCount - 1].
-	Vec3							GetPosition(uint32 inX, uint32 inY) const;
+	Vec3							GetPosition(uint32_t inX, uint32_t inY) const;
 
 	/// Check if height field at sampled location (inX, inY) has collision (has a hole or not)
-	bool							IsNoCollision(uint32 inX, uint32 inY) const;
+	bool							IsNoCollision(uint32_t inX, uint32_t inY) const;
 
 	/// Projects inLocalPosition (a point in the space of the shape) along the Y axis onto the surface and returns it in outSurfacePosition.
 	/// When there is no surface position (because of a hole or because the point is outside the heightfield) the function will return false.
@@ -1439,7 +1439,7 @@ public:
 	/// @param outX X coordinate of the triangle (in the range [0, mSampleCount - 2])
 	/// @param outY Y coordinate of the triangle (in the range [0, mSampleCount - 2])
 	/// @param outTriangleIndex Triangle within the quad (0 = lower triangle or 1 = upper triangle)
-	void							GetSubShapeCoordinates(const SubShapeID &inSubShapeID, uint32 &outX, uint32 &outY, uint32 &outTriangleIndex) const;
+	void							GetSubShapeCoordinates(const SubShapeID &inSubShapeID, uint32_t &outX, uint32_t &outY, uint32_t &outTriangleIndex) const;
 
 	/// Get the range of height values that this height field can encode. Can be used to determine the allowed range when setting the height values with SetHeights.
 	float							GetMinHeightValue() const					{ return mOffset.GetY(); }
@@ -1453,7 +1453,7 @@ public:
 	/// @param inSizeY Number of samples in Y direction, must be a multiple of mBlockSize and in the range [0, mSampleCount - inY]
 	/// @param outHeights Returned height values, must be at least inSizeX * inSizeY floats. Values are returned in x-major order and can be cNoCollisionValue.
 	/// @param inHeightsStride Stride in floats between two consecutive rows of outHeights (can be negative if the data is upside down).
-	void							GetHeights(uint32 inX, uint32 inY, uint32 inSizeX, uint32 inSizeY, float *outHeights, intptr_t inHeightsStride) const;
+	void							GetHeights(uint32_t inX, uint32_t inY, uint32_t inSizeX, uint32_t inSizeY, float *outHeights, intptr_t inHeightsStride) const;
 
 	/// Set the height values of a block of data.
 	/// Note that this requires decompressing and recompressing a border of size mBlockSize in the negative x/y direction so will cause some precision loss.
@@ -1466,7 +1466,7 @@ public:
 	/// @param inHeightsStride Stride in floats between two consecutive rows of inHeights (can be negative if the data is upside down).
 	/// @param inAllocator Allocator to use for temporary memory
 	/// @param inActiveEdgeCosThresholdAngle Cosine of the threshold angle (if the angle between the two triangles is bigger than this, the edge is active, note that a concave edge is always inactive).
-	void							SetHeights(uint32 inX, uint32 inY, uint32 inSizeX, uint32 inSizeY, const float *inHeights, intptr_t inHeightsStride, TempAllocator &inAllocator, float inActiveEdgeCosThresholdAngle = 0.996195f);
+	void							SetHeights(uint32_t inX, uint32_t inY, uint32_t inSizeX, uint32_t inSizeY, const float *inHeights, intptr_t inHeightsStride, TempAllocator &inAllocator, float inActiveEdgeCosThresholdAngle = 0.996195f);
 
 	/// Get the current list of materials, the indices returned by GetMaterials() will index into this list.
 	const PhysicsMaterialList &		GetMaterialList() const						{ return mMaterials; }
@@ -1478,7 +1478,7 @@ public:
 	/// @param inSizeY Number of samples in Y direction
 	/// @param outMaterials Returned material indices, must be at least inSizeX * inSizeY uint8s. Values are returned in x-major order.
 	/// @param inMaterialsStride Stride in uint8s between two consecutive rows of outMaterials (can be negative if the data is upside down).
-	void							GetMaterials(uint32 inX, uint32 inY, uint32 inSizeX, uint32 inSizeY, uint8 *outMaterials, intptr_t inMaterialsStride) const;
+	void							GetMaterials(uint32_t inX, uint32_t inY, uint32_t inSizeX, uint32_t inSizeY, uint8 *outMaterials, intptr_t inMaterialsStride) const;
 
 	/// Set the material indices of a block of data.
 	/// Beware this can create a race condition if you're running collision queries in parallel. See class documentation for more information.
@@ -1491,12 +1491,12 @@ public:
 	/// @param inMaterialList The material list to use for the new material indices or nullptr if the material list should not be updated
 	/// @param inAllocator Allocator to use for temporary memory
 	/// @return True if the material indices were set, false if the total number of materials exceeded 256
-	bool							SetMaterials(uint32 inX, uint32 inY, uint32 inSizeX, uint32 inSizeY, const uint8 *inMaterials, intptr_t inMaterialsStride, const PhysicsMaterialList *inMaterialList, TempAllocator &inAllocator);
+	bool							SetMaterials(uint32_t inX, uint32_t inY, uint32_t inSizeX, uint32_t inSizeY, const uint8 *inMaterials, intptr_t inMaterialsStride, const PhysicsMaterialList *inMaterialList, TempAllocator &inAllocator);
 
 	// See Shape
 	virtual void					SaveBinaryState(StreamOut &inStream) const override;
 	virtual void					SaveMaterialState(PhysicsMaterialList &outMaterials) const override;
-	virtual void					RestoreMaterialState(const PhysicsMaterialRefC *inMaterials, uint32 inNumMaterials) override;
+	virtual void					RestoreMaterialState(const PhysicsMaterialRefC *inMaterials, uint32_t inNumMaterials) override;
 
 	// See Shape::GetStats
 	virtual Stats					GetStats() const override;
@@ -1527,7 +1527,7 @@ private:
 	void							AllocateBuffers();
 
 	/// Calculate bit mask for all active edges in the heightfield for a specific region
-	void							CalculateActiveEdges(uint32 inX, uint32 inY, uint32 inSizeX, uint32 inSizeY, const float *inHeights, uint32 inHeightsStartX, uint32 inHeightsStartY, intptr_t inHeightsStride, float inHeightsScale, float inActiveEdgeCosThresholdAngle, TempAllocator &inAllocator);
+	void							CalculateActiveEdges(uint32_t inX, uint32_t inY, uint32_t inSizeX, uint32_t inSizeY, const float *inHeights, uint32_t inHeightsStartX, uint32_t inHeightsStartY, intptr_t inHeightsStride, float inHeightsScale, float inActiveEdgeCosThresholdAngle, TempAllocator &inAllocator);
 
 	/// Calculate bit mask for all active edges in the heightfield
 	void							CalculateActiveEdges(const HeightFieldShapeSettings &inSettings);
@@ -1536,32 +1536,32 @@ private:
 	void							StoreMaterialIndices(const HeightFieldShapeSettings &inSettings);
 
 	/// Get the amount of horizontal/vertical blocks
-	inline uint32						GetNumBlocks() const						{ return mSampleCount / mBlockSize; }
+	inline uint32_t						GetNumBlocks() const						{ return mSampleCount / mBlockSize; }
 
 	/// Get the maximum level (amount of grids) of the tree
-	static inline uint32				sGetMaxLevel(uint32 inNumBlocks)				{ return 32 - CountLeadingZeros(inNumBlocks - 1); }
+	static inline uint32_t				sGetMaxLevel(uint32_t inNumBlocks)				{ return 32 - CountLeadingZeros(inNumBlocks - 1); }
 
 	/// Get the range block offset and stride for GetBlockOffsetAndScale
-	static inline void				sGetRangeBlockOffsetAndStride(uint32 inNumBlocks, uint32 inMaxLevel, uint32 &outRangeBlockOffset, uint32 &outRangeBlockStride);
+	static inline void				sGetRangeBlockOffsetAndStride(uint32_t inNumBlocks, uint32_t inMaxLevel, uint32_t &outRangeBlockOffset, uint32_t &outRangeBlockStride);
 
 	/// For block (inBlockX, inBlockY) get the offset and scale needed to decode a uint8 height sample to a uint16
-	inline void						GetBlockOffsetAndScale(uint32 inBlockX, uint32 inBlockY, uint32 inRangeBlockOffset, uint32 inRangeBlockStride, float &outBlockOffset, float &outBlockScale) const;
+	inline void						GetBlockOffsetAndScale(uint32_t inBlockX, uint32_t inBlockY, uint32_t inRangeBlockOffset, uint32_t inRangeBlockStride, float &outBlockOffset, float &outBlockScale) const;
 
 	/// Get the height sample at position (inX, inY)
-	inline uint8					GetHeightSample(uint32 inX, uint32 inY) const;
+	inline uint8					GetHeightSample(uint32_t inX, uint32_t inY) const;
 
 	/// Faster version of GetPosition when block offset and scale are already known
-	inline Vec3						GetPosition(uint32 inX, uint32 inY, float inBlockOffset, float inBlockScale, bool &outNoCollision) const;
+	inline Vec3						GetPosition(uint32_t inX, uint32_t inY, float inBlockOffset, float inBlockScale, bool &outNoCollision) const;
 
 	/// Determine amount of bits needed to encode sub shape id
-	uint32							GetSubShapeIDBits() const;
+	uint32_t							GetSubShapeIDBits() const;
 
 	/// En/decode a sub shape ID. inX and inY specify the coordinate of the triangle. inTriangle == 0 is the lower triangle, inTriangle == 1 is the upper triangle.
-	inline SubShapeID				EncodeSubShapeID(const SubShapeIDCreator &inCreator, uint32 inX, uint32 inY, uint32 inTriangle) const;
-	inline void						DecodeSubShapeID(const SubShapeID &inSubShapeID, uint32 &outX, uint32 &outY, uint32 &outTriangle) const;
+	inline SubShapeID				EncodeSubShapeID(const SubShapeIDCreator &inCreator, uint32_t inX, uint32_t inY, uint32_t inTriangle) const;
+	inline void						DecodeSubShapeID(const SubShapeID &inSubShapeID, uint32_t &outX, uint32_t &outY, uint32_t &outTriangle) const;
 
 	/// Get the edge flags for a triangle
-	inline uint8					GetEdgeFlags(uint32 inX, uint32 inY, uint32 inTriangle) const;
+	inline uint8					GetEdgeFlags(uint32_t inX, uint32_t inY, uint32_t inTriangle) const;
 
 	// Helper functions called by CollisionDispatch
 	static void						sCollideConvexVsHeightField(const Shape *inShape1, const Shape *inShape2, Vec3Arg inScale1, Vec3Arg inScale2, Mat44Arg inCenterOfMassTransform1, Mat44Arg inCenterOfMassTransform2, const SubShapeIDCreator &inSubShapeIDCreator1, const SubShapeIDCreator &inSubShapeIDCreator2, const CollideShapeSettings &inCollideShapeSettings, CollideShapeCollector &ioCollector, const ShapeFilter &inShapeFilter);
@@ -1582,10 +1582,10 @@ private:
 	};
 
 	/// For block (inBlockX, inBlockY) get the range block and the entry in the range block
-	inline void						GetRangeBlock(uint32 inBlockX, uint32 inBlockY, uint32 inRangeBlockOffset, uint32 inRangeBlockStride, RangeBlock *&outBlock, uint32 &outIndexInBlock);
+	inline void						GetRangeBlock(uint32_t inBlockX, uint32_t inBlockY, uint32_t inRangeBlockOffset, uint32_t inRangeBlockStride, RangeBlock *&outBlock, uint32_t &outIndexInBlock);
 
 	/// Offset of first RangedBlock in grid per level
-	static const uint32				sGridOffsets[];
+	static const uint32_t				sGridOffsets[];
 
 	/// The height field is a surface defined by: mOffset + mScale * (x, mHeightSamples[y * mSampleCount + x], y).
 	/// where x and y are integers in the range x and y e [0, mSampleCount - 1].
@@ -1593,11 +1593,11 @@ private:
 	Vec3							mScale = Vec3::One();
 
 	/// Height data
-	uint32							mSampleCount = 0;							// See HeightFieldShapeSettings::mSampleCount
-	uint32							mBlockSize = 2;								// See HeightFieldShapeSettings::mBlockSize
-	uint32							mHeightSamplesSize = 0;						// Size of mHeightSamples in bytes
-	uint32							mRangeBlocksSize = 0;						// Size of mRangeBlocks in elements
-	uint32							mActiveEdgesSize = 0;						// Size of mActiveEdges in bytes
+	uint32_t							mSampleCount = 0;							// See HeightFieldShapeSettings::mSampleCount
+	uint32_t							mBlockSize = 2;								// See HeightFieldShapeSettings::mBlockSize
+	uint32_t							mHeightSamplesSize = 0;						// Size of mHeightSamples in bytes
+	uint32_t							mRangeBlocksSize = 0;						// Size of mRangeBlocks in elements
+	uint32_t							mActiveEdgesSize = 0;						// Size of mActiveEdges in bytes
 	uint8							mBitsPerSample = 8;							// See HeightFieldShapeSettings::mBitsPerSample
 	uint8							mSampleMask = 0xff;							// All bits set for a sample: (1 << mBitsPerSample) - 1, used to indicate that there's no collision
 	uint16							mMinSample = HeightFieldShapeConstants::cNoCollisionValue16; // Min and max value in mHeightSamples quantized to 16 bit, for calculating bounding box
@@ -1609,7 +1609,7 @@ private:
 	/// Materials
 	PhysicsMaterialList				mMaterials;									// The materials of square at (x, y) is: mMaterials[mMaterialIndices[x + y * (mSampleCount - 1)]]
 	TArray<uint8>					mMaterialIndices;							// Compressed to the minimum amount of bits per material index (mSampleCount - 1) * (mSampleCount - 1) * mNumBitsPerMaterialIndex bits of data
-	uint32							mNumBitsPerMaterialIndex = 0;				// Number of bits per material index
+	uint32_t							mNumBitsPerMaterialIndex = 0;				// Number of bits per material index
 
 #ifdef MOSS_DEBUG_RENDERER
 	/// Temporary rendering data
@@ -1722,7 +1722,7 @@ public:
 	virtual AABox					GetLocalBounds() const override							{ return mLocalBounds; }
 
 	// See Shape::GetSubShapeIDBitsRecursive
-	virtual uint32					GetSubShapeIDBitsRecursive() const override;
+	virtual uint32_t					GetSubShapeIDBitsRecursive() const override;
 
 	// See Shape::GetWorldSpaceBounds
 	virtual AABox					GetWorldSpaceBounds(Mat44Arg inCenterOfMassTransform, Vec3Arg inScale) const override;
@@ -1767,7 +1767,7 @@ public:
 #endif // MOSS_DEBUG_RENDERER
 
 	// See: Shape::CollideSoftBodyVertices
-	virtual void					CollideSoftBodyVertices(Mat44Arg inCenterOfMassTransform, Vec3Arg inScale, const CollideSoftBodyVertexIterator &inVertices, uint32 inNumVertices, int inCollidingShapeIndex) const override;
+	virtual void					CollideSoftBodyVertices(Mat44Arg inCenterOfMassTransform, Vec3Arg inScale, const CollideSoftBodyVertexIterator &inVertices, uint32_t inNumVertices, int inCollidingShapeIndex) const override;
 
 	// See Shape::TransformShape
 	virtual void					TransformShape(Mat44Arg inCenterOfMassTransform, TransformedShapeCollector &ioCollector) const override;
@@ -1783,14 +1783,14 @@ public:
 	/// @param outSubShapeIndices Buffer where to place the indices of the sub shapes that intersect
 	/// @param inMaxSubShapeIndices How many indices will fit in the buffer (normally you'd provide a buffer of GetNumSubShapes() indices)
 	/// @return How many indices were placed in outSubShapeIndices
-	virtual int						GetIntersectingSubShapes(const AABox &inBox, uint32 *outSubShapeIndices, int inMaxSubShapeIndices) const = 0;
+	virtual int						GetIntersectingSubShapes(const AABox &inBox, uint32_t *outSubShapeIndices, int inMaxSubShapeIndices) const = 0;
 
 	/// Get which sub shape's bounding boxes overlap with an axis aligned box
 	/// @param inBox The axis aligned box to test against (relative to the center of mass of this shape)
 	/// @param outSubShapeIndices Buffer where to place the indices of the sub shapes that intersect
 	/// @param inMaxSubShapeIndices How many indices will fit in the buffer (normally you'd provide a buffer of GetNumSubShapes() indices)
 	/// @return How many indices were placed in outSubShapeIndices
-	virtual int						GetIntersectingSubShapes(const OrientedBox &inBox, uint32 *outSubShapeIndices, int inMaxSubShapeIndices) const = 0;
+	virtual int						GetIntersectingSubShapes(const OrientedBox &inBox, uint32_t *outSubShapeIndices, int inMaxSubShapeIndices) const = 0;
 
 	struct SubShape
 	{
@@ -1892,7 +1892,7 @@ public:
 		RefConst<Shape>				mShape;
 		Float3						mPositionCOM;											// Note: Position of center of mass of sub shape!
 		Float3						mRotation;												// Note: X, Y, Z of rotation quaternion - note we read 4 bytes beyond this so make sure there's something there
-		uint32						mUserData;												// User data value (put here because it falls in padding bytes)
+		uint32_t						mUserData;												// User data value (put here because it falls in padding bytes)
 		bool						mIRotationIdentity;									// If mRotation is close to identity (put here because it falls in padding bytes)
 		// 3 padding bytes left
 	};
@@ -1905,16 +1905,16 @@ public:
 	const SubShapes &				GetSubShapes() const									{ return mSubShapes; }
 
 	/// Get the total number of sub shapes
-	uint32							GetNumSubShapes() const									{ return uint32(mSubShapes.size()); }
+	uint32_t							GetNumSubShapes() const									{ return uint32_t(mSubShapes.size()); }
 
 	/// Access to a particular sub shape
-	const SubShape &				GetSubShape(uint32 inIdx) const							{ return mSubShapes[inIdx]; }
+	const SubShape &				GetSubShape(uint32_t inIdx) const							{ return mSubShapes[inIdx]; }
 
 	/// Get the user data associated with a shape in this compound
-	uint32							GetCompoundUserData(uint32 inIdx) const					{ return mSubShapes[inIdx].mUserData; }
+	uint32_t							GetCompoundUserData(uint32_t inIdx) const					{ return mSubShapes[inIdx].mUserData; }
 
 	/// Set the user data associated with a shape in this compound
-	void							SetCompoundUserData(uint32 inIdx, uint32 inUserData)		{ mSubShapes[inIdx].mUserData = inUserData; }
+	void							SetCompoundUserData(uint32_t inIdx, uint32_t inUserData)		{ mSubShapes[inIdx].mUserData = inUserData; }
 
 	/// Check if a sub shape ID is still valid for this shape
 	/// @param inSubShapeID Sub shape id that indicates the leaf shape relative to this shape
@@ -1929,9 +1929,9 @@ public:
 	/// @param inSubShapeID Sub shape id that indicates the leaf shape relative to this shape
 	/// @param outRemainder This is the sub shape ID for the sub shape of the compound after popping off the index
 	/// @return The index of the sub shape of this compound
-	inline uint32					GetSubShapeIndexFromID(SubShapeID inSubShapeID, SubShapeID &outRemainder) const
+	inline uint32_t					GetSubShapeIndexFromID(SubShapeID inSubShapeID, SubShapeID &outRemainder) const
 	{
-		uint32 idx = inSubShapeID.PopID(GetSubShapeIDBits(), outRemainder);
+		uint32_t idx = inSubShapeID.PopID(GetSubShapeIDBits(), outRemainder);
 		MOSS_ASSERT(idx < mSubShapes.size(), "Invalid SubShapeID");
 		return idx;
 	}
@@ -1948,7 +1948,7 @@ public:
 	// See Shape
 	virtual void					SaveBinaryState(StreamOut &inStream) const override;
 	virtual void					SaveSubShapeState(ShapeList &outSubShapes) const override;
-	virtual void					RestoreSubShapeState(const ShapeRefC *inSubShapes, uint32 inNumShapes) override;
+	virtual void					RestoreSubShapeState(const ShapeRefC *inSubShapes, uint32_t inNumShapes) override;
 
 	// See Shape::GetStatsRecursive
 	virtual Stats					GetStatsRecursive(VisitedShapes &ioVisitedShapes) const override;
@@ -1980,10 +1980,10 @@ protected:
 	template <class BoxType> struct GetIntersectingSubShapesVisitor;
 
 	/// Determine amount of bits needed to encode sub shape id
-	inline uint32						GetSubShapeIDBits() const
+	inline uint32_t						GetSubShapeIDBits() const
 	{
 		// Ensure we have enough bits to encode our shape [0, n - 1]
-		uint32 n = uint32(mSubShapes.size()) - 1;
+		uint32_t n = uint32_t(mSubShapes.size()) - 1;
 		return 32 - CountLeadingZeros(n);
 	}
 
@@ -2037,10 +2037,10 @@ public:
 	virtual void					CollectTransformedShapes(const AABox &inBox, Vec3Arg inPositionCOM, QuatArg inRotation, Vec3Arg inScale, const SubShapeIDCreator &inSubShapeIDCreator, TransformedShapeCollector &ioCollector, const ShapeFilter &inShapeFilter) const override;
 
 	// See: CompoundShape::GetIntersectingSubShapes
-	virtual int						GetIntersectingSubShapes(const AABox &inBox, uint32 *outSubShapeIndices, int inMaxSubShapeIndices) const override;
+	virtual int						GetIntersectingSubShapes(const AABox &inBox, uint32_t *outSubShapeIndices, int inMaxSubShapeIndices) const override;
 
 	// See: CompoundShape::GetIntersectingSubShapes
-	virtual int						GetIntersectingSubShapes(const OrientedBox &inBox, uint32 *outSubShapeIndices, int inMaxSubShapeIndices) const override;
+	virtual int						GetIntersectingSubShapes(const OrientedBox &inBox, uint32_t *outSubShapeIndices, int inMaxSubShapeIndices) const override;
 
 	// See Shape
 	virtual void					SaveBinaryState(StreamOut &inStream) const override;
@@ -2059,19 +2059,19 @@ public:
 	/// @param inUserData User data that will be stored with the shape and can be retrieved using GetCompoundUserData
 	/// @param inIndex Index where to insert the shape, UINT_MAX to add to the end
 	/// @return The index of the newly added shape
-	uint32							AddShape(Vec3Arg inPosition, QuatArg inRotation, const Shape *inShape, uint32 inUserData = 0, uint32 inIndex = UINT_MAX);
+	uint32_t							AddShape(Vec3Arg inPosition, QuatArg inRotation, const Shape *inShape, uint32_t inUserData = 0, uint32_t inIndex = UINT_MAX);
 
 	/// Remove a shape by index.
 	/// Beware this can create a race condition if you're running collision queries in parallel. See class documentation for more information.
-	void							RemoveShape(uint32 inIndex);
+	void							RemoveShape(uint32_t inIndex);
 
 	/// Modify the position / orientation of a shape.
 	/// Beware this can create a race condition if you're running collision queries in parallel. See class documentation for more information.
-	void							ModifyShape(uint32 inIndex, Vec3Arg inPosition, QuatArg inRotation);
+	void							ModifyShape(uint32_t inIndex, Vec3Arg inPosition, QuatArg inRotation);
 
 	/// Modify the position / orientation and shape at the same time.
 	/// Beware this can create a race condition if you're running collision queries in parallel. See class documentation for more information.
-	void							ModifyShape(uint32 inIndex, Vec3Arg inPosition, QuatArg inRotation, const Shape *inShape);
+	void							ModifyShape(uint32_t inIndex, Vec3Arg inPosition, QuatArg inRotation, const Shape *inShape);
 
 	/// @brief Batch set positions / orientations, this avoids duplicate work due to bounding box calculation.
 	/// Beware this can create a race condition if you're running collision queries in parallel. See class documentation for more information.
@@ -2081,7 +2081,7 @@ public:
 	/// @param inRotations A list of orientations with arbitrary stride
 	/// @param inPositionStride The position stride (the number of bytes between the first and second element)
 	/// @param inRotationStride The orientation stride (the number of bytes between the first and second element)
-	void							ModifyShapes(uint32 inStartIndex, uint32 inNumber, const Vec3 *inPositions, const Quat *inRotations, uint32 inPositionStride = sizeof(Vec3), uint32 inRotationStride = sizeof(Quat));
+	void							ModifyShapes(uint32_t inStartIndex, uint32_t inNumber, const Vec3 *inPositions, const Quat *inRotations, uint32_t inPositionStride = sizeof(Vec3), uint32_t inRotationStride = sizeof(Quat));
 
 	/// Recalculate the center of mass and shift all objects so they're centered around it
 	/// (this needs to be done of dynamic bodies and if the center of mass changes significantly due to adding / removing / repositioning sub shapes or else the simulation will look unnatural)
@@ -2117,14 +2117,14 @@ private:
 			return inResult.TestAnyTrue();
 		}
 
-		MOSS_INLINE bool				ShouldVisitSubShape(UVec4Arg inResult, uint32 inIndexInBlock) const
+		MOSS_INLINE bool				ShouldVisitSubShape(UVec4Arg inResult, uint32_t inIndexInBlock) const
 		{
 			return inResult[inIndexInBlock] != 0;
 		}
 	};
 
 	/// Get the number of blocks of 4 bounding boxes
-	inline uint32						GetNumBlocks() const										{ return ((uint32)mSubShapes.size() + 3) >> 2; }
+	inline uint32_t						GetNumBlocks() const										{ return ((uint32_t)mSubShapes.size() + 3) >> 2; }
 
 	/// Ensure that the mSubShapeBounds has enough space to store bounding boxes equivalent to the number of shapes in mSubShapes
 	void							EnsureSubShapeBoundsCapacity();
@@ -2132,7 +2132,7 @@ private:
 	/// Update mSubShapeBounds
 	/// @param inStartIdx First sub shape to update
 	/// @param inNumber Number of shapes to update
-	void							CalculateSubShapeBounds(uint32 inStartIdx, uint32 inNumber);
+	void							CalculateSubShapeBounds(uint32_t inStartIdx, uint32_t inNumber);
 
 	/// Calculate mLocalBounds from mSubShapeBounds
 	void							CalculateLocalBounds();
@@ -2195,7 +2195,7 @@ public:
 
 	/// Maximum number of triangles in each leaf of the axis aligned box tree. This is a balance between memory and performance. Can be in the range [1, MeshShape::MaxTrianglesPerLeaf].
 	/// Sensible values are between 4 (for better performance) and 8 (for less memory usage).
-	uint32							mMaxTrianglesPerLeaf = 8;
+	uint32_t							mMaxTrianglesPerLeaf = 8;
 
 	/// Cosine of the threshold angle (if the angle between the two triangles is bigger than this, the edge is active, note that a concave edge is always inactive).
 	/// Setting this value too small can cause ghost collisions with edges, setting it too big can cause depenetration artifacts (objects not depenetrating quickly).
@@ -2239,7 +2239,7 @@ public:
 	virtual AABox					GetLocalBounds() const override;
 
 	// See Shape::GetSubShapeIDBitsRecursive
-	virtual uint32					GetSubShapeIDBitsRecursive() const override;
+	virtual uint32_t					GetSubShapeIDBitsRecursive() const override;
 
 	// See Shape::GetInnerRadius
 	virtual float					GetInnerRadius() const override								{ return 0.0f; }
@@ -2255,7 +2255,7 @@ public:
 
 	/// Determine which material index a particular sub shape uses (note that if there are no materials this function will return 0 so check the array size)
 	/// Note: This could for example be used to create a decorator shape around a mesh shape that overrides the GetMaterial call to replace a material with another material.
-	uint32							GetMaterialIndex(const SubShapeID &inSubShapeID) const;
+	uint32_t							GetMaterialIndex(const SubShapeID &inSubShapeID) const;
 
 	// See Shape::GetSurfaceNormal
 	virtual Vec3					GetSurfaceNormal(const SubShapeID &inSubShapeID, Vec3Arg inLocalSurfacePosition) const override;
@@ -2278,7 +2278,7 @@ public:
 	virtual void					CollidePoint(Vec3Arg inPoint, const SubShapeIDCreator &inSubShapeIDCreator, CollidePointCollector &ioCollector, const ShapeFilter &inShapeFilter = { }) const override;
 
 	// See: Shape::CollideSoftBodyVertices
-	virtual void					CollideSoftBodyVertices(Mat44Arg inCenterOfMassTransform, Vec3Arg inScale, const CollideSoftBodyVertexIterator &inVertices, uint32 inNumVertices, int inCollidingShapeIndex) const override;
+	virtual void					CollideSoftBodyVertices(Mat44Arg inCenterOfMassTransform, Vec3Arg inScale, const CollideSoftBodyVertexIterator &inVertices, uint32_t inNumVertices, int inCollidingShapeIndex) const override;
 
 	// See Shape::GetTrianglesStart
 	virtual void					GetTrianglesStart(GetTrianglesContext &ioContext, const AABox &inBox, Vec3Arg inPositionCOM, QuatArg inRotation, Vec3Arg inScale) const override;
@@ -2292,7 +2292,7 @@ public:
 	// See Shape
 	virtual void					SaveBinaryState(StreamOut &inStream) const override;
 	virtual void					SaveMaterialState(PhysicsMaterialList &outMaterials) const override;
-	virtual void					RestoreMaterialState(const PhysicsMaterialRefC *inMaterials, uint32 inNumMaterials) override;
+	virtual void					RestoreMaterialState(const PhysicsMaterialRefC *inMaterials, uint32_t inNumMaterials) override;
 
 	// See Shape::GetStats
 	virtual Stats					GetStats() const override;
@@ -2301,7 +2301,7 @@ public:
 	virtual float					GetVolume() const override									{ return 0; }
 
 	// When MeshShape::mPerTriangleUserData is true, this function can be used to retrieve the user data that was stored in the mesh shape.
-	uint32							GetTriangleUserData(const SubShapeID &inSubShapeID) const;
+	uint32_t							GetTriangleUserData(const SubShapeID &inSubShapeID) const;
 
 #ifndef MOSS_DEBUG_RENDERER
 	// Settings
@@ -2334,7 +2334,7 @@ private:
 	void							WalkTreePerTriangle(const SubShapeIDCreator &inSubShapeIDCreator2, Visitor &ioVisitor) const;
 
 	/// Decode a sub shape ID
-	inline void						DecodeSubShapeID(const SubShapeID &inSubShapeID, const void *&outTriangleBlock, uint32 &outTriangleIndex) const;
+	inline void						DecodeSubShapeID(const SubShapeID &inSubShapeID, const void *&outTriangleBlock, uint32_t &outTriangleIndex) const;
 
 	// Helper functions called by CollisionDispatch
 	static void						sCollideConvexVsMesh(const Shape *inShape1, const Shape *inShape2, Vec3Arg inScale1, Vec3Arg inScale2, Mat44Arg inCenterOfMassTransform1, Mat44Arg inCenterOfMassTransform2, const SubShapeIDCreator &inSubShapeIDCreator1, const SubShapeIDCreator &inSubShapeIDCreator2, const CollideShapeSettings &inCollideShapeSettings, CollideShapeCollector &ioCollector, const ShapeFilter &inShapeFilter);
@@ -2403,10 +2403,10 @@ public:
 	virtual void					CollectTransformedShapes(const AABox &inBox, Vec3Arg inPositionCOM, QuatArg inRotation, Vec3Arg inScale, const SubShapeIDCreator &inSubShapeIDCreator, TransformedShapeCollector &ioCollector, const ShapeFilter &inShapeFilter) const override;
 
 	// See: CompoundShape::GetIntersectingSubShapes
-	virtual int						GetIntersectingSubShapes(const AABox &inBox, uint32 *outSubShapeIndices, int inMaxSubShapeIndices) const override;
+	virtual int						GetIntersectingSubShapes(const AABox &inBox, uint32_t *outSubShapeIndices, int inMaxSubShapeIndices) const override;
 
 	// See: CompoundShape::GetIntersectingSubShapes
-	virtual int						GetIntersectingSubShapes(const OrientedBox &inBox, uint32 *outSubShapeIndices, int inMaxSubShapeIndices) const override;
+	virtual int						GetIntersectingSubShapes(const OrientedBox &inBox, uint32_t *outSubShapeIndices, int inMaxSubShapeIndices) const override;
 
 	// See Shape
 	virtual void					SaveBinaryState(StreamOut &inStream) const override;
@@ -2443,12 +2443,12 @@ private:
 
 	/// Sorts ioBodyIdx spatially into 2 groups. Second groups starts at ioBodyIdx + outMidPoint.
 	/// After the function returns ioBodyIdx and ioBounds will be shuffled
-	static void						sPartition(uint32 *ioBodyIdx, AABox *ioBounds, int inNumber, int &outMidPoint);
+	static void						sPartition(uint32_t *ioBodyIdx, AABox *ioBounds, int inNumber, int &outMidPoint);
 
 	/// Sorts ioBodyIdx from inBegin to (but excluding) inEnd spatially into 4 groups.
 	/// outSplit needs to be 5 ints long, when the function returns each group runs from outSplit[i] to (but excluding) outSplit[i + 1]
 	/// After the function returns ioBodyIdx and ioBounds will be shuffled
-	static void						sPartition4(uint32 *ioBodyIdx, AABox *ioBounds, int inBegin, int inEnd, int *outSplit);
+	static void						sPartition4(uint32_t *ioBodyIdx, AABox *ioBounds, int inBegin, int inEnd, int *outSplit);
 
 	// Helper functions called by CollisionDispatch
 	static void						sCollideCompoundVsShape(const Shape *inShape1, const Shape *inShape2, Vec3Arg inScale1, Vec3Arg inScale2, Mat44Arg inCenterOfMassTransform1, Mat44Arg inCenterOfMassTransform2, const SubShapeIDCreator &inSubShapeIDCreator1, const SubShapeIDCreator &inSubShapeIDCreator2, const CollideShapeSettings &inCollideShapeSettings, CollideShapeCollector &ioCollector, const ShapeFilter &inShapeFilter);
@@ -2462,7 +2462,7 @@ private:
 	MOSS_INLINE void					WalkTree(Visitor &ioVisitor) const;						// Walk the node tree calling the Visitor::VisitNodes for each node encountered and Visitor::VisitShape for each sub shape encountered
 
 	/// Bits used in Node::mNodeProperties
-	enum : uint32
+	enum : uint32_t
 	{
 		IS_SUBSHAPE					= 0x80000000,											// If this bit is set, the other bits index in mSubShape, otherwise in mNodes
 		INVALID_NODE				= 0x7fffffff,											// Signifies an invalid node
@@ -2471,8 +2471,8 @@ private:
 	/// Node structure
 	struct Node
 	{
-		void						SetChildBounds(uint32 inIndex, const AABox &inBounds);	// Set bounding box for child inIndex to inBounds
-		void						SetChildInvalid(uint32 inIndex);							// Mark the child inIndex as invalid and set its bounding box to invalid
+		void						SetChildBounds(uint32_t inIndex, const AABox &inBounds);	// Set bounding box for child inIndex to inBounds
+		void						SetChildInvalid(uint32_t inIndex);							// Mark the child inIndex as invalid and set its bounding box to invalid
 
 		HalfFloat					mBoundsMinX[4];											// 4 child bounding boxes
 		HalfFloat					mBoundsMinY[4];
@@ -2480,7 +2480,7 @@ private:
 		HalfFloat					mBoundsMaxX[4];
 		HalfFloat					mBoundsMaxY[4];
 		HalfFloat					mBoundsMaxZ[4];
-		uint32						mNodeProperties[4];										// 4 child node properties
+		uint32_t						mNodeProperties[4];										// 4 child node properties
 	};
 
 	static_assert(sizeof(Node) == 64, "Node should be 64 bytes");
@@ -2523,7 +2523,7 @@ public:
 	// See: Shape
 	Vec3					GetCenterOfMass() const override								{ return mCenterOfMass; }
 	AABox					GetLocalBounds() const override									{ return { Vec3::Zero(), Vec3::Zero() }; }
-	uint32					GetSubShapeIDBitsRecursive() const override						{ return 0; }
+	uint32_t					GetSubShapeIDBitsRecursive() const override						{ return 0; }
 	float					GetInnerRadius() const override									{ return 0.0f; }
 	MassProperties			GetMassProperties() const override;
 	const PhysicsMaterial *	GetMaterial([[maybe_unused]] const SubShapeID &inSubShapeID) const override { return PhysicsMaterial::Default; }
@@ -2539,7 +2539,7 @@ public:
 	virtual bool			CastRay([[maybe_unused]] const RayCast &inRay, [[maybe_unused]] const SubShapeIDCreator &inSubShapeIDCreator, [[maybe_unused]] RayCastResult &ioHit) const override { return false; }
 	virtual void			CastRay([[maybe_unused]] const RayCast &inRay, [[maybe_unused]] const RayCastSettings &inRayCastSettings, [[maybe_unused]] const SubShapeIDCreator &inSubShapeIDCreator, [[maybe_unused]] CastRayCollector &ioCollector, [[maybe_unused]] const ShapeFilter &inShapeFilter = { }) const override { /* Do nothing */ }
 	virtual void			CollidePoint([[maybe_unused]] Vec3Arg inPoint, [[maybe_unused]] const SubShapeIDCreator &inSubShapeIDCreator, [[maybe_unused]] CollidePointCollector &ioCollector, [[maybe_unused]] const ShapeFilter &inShapeFilter = { }) const override { /* Do nothing */ }
-	virtual void			CollideSoftBodyVertices([[maybe_unused]] Mat44Arg inCenterOfMassTransform, [[maybe_unused]] Vec3Arg inScale, [[maybe_unused]] const CollideSoftBodyVertexIterator &inVertices, [[maybe_unused]] uint32 inNumVertices, [[maybe_unused]] int inCollidingShapeIndex) const override { /* Do nothing */ }
+	virtual void			CollideSoftBodyVertices([[maybe_unused]] Mat44Arg inCenterOfMassTransform, [[maybe_unused]] Vec3Arg inScale, [[maybe_unused]] const CollideSoftBodyVertexIterator &inVertices, [[maybe_unused]] uint32_t inNumVertices, [[maybe_unused]] int inCollidingShapeIndex) const override { /* Do nothing */ }
 	virtual void			GetTrianglesStart([[maybe_unused]] GetTrianglesContext &ioContext, [[maybe_unused]] const AABox &inBox, [[maybe_unused]] Vec3Arg inPositionCOM, [[maybe_unused]] QuatArg inRotation, [[maybe_unused]] Vec3Arg inScale) const override { /* Do nothing */ }
 	virtual int				GetTrianglesNext([[maybe_unused]] GetTrianglesContext &ioContext, [[maybe_unused]] int inMaxTrianglesRequested, [[maybe_unused]] Float3 *outTriangleVertices, [[maybe_unused]] const PhysicsMaterial **outMaterials = nullptr) const override { return 0; }
 	Stats					GetStats() const override										{ return { sizeof(*this), 0 }; }
@@ -2621,7 +2621,7 @@ public:
 	virtual void			CollidePoint(Vec3Arg inPoint, const SubShapeIDCreator &inSubShapeIDCreator, CollidePointCollector &ioCollector, const ShapeFilter &inShapeFilter = { }) const override;
 
 	// See: Shape::CollideSoftBodyVertices
-	virtual void			CollideSoftBodyVertices(Mat44Arg inCenterOfMassTransform, Vec3Arg inScale, const CollideSoftBodyVertexIterator &inVertices, uint32 inNumVertices, int inCollidingShapeIndex) const override;
+	virtual void			CollideSoftBodyVertices(Mat44Arg inCenterOfMassTransform, Vec3Arg inScale, const CollideSoftBodyVertexIterator &inVertices, uint32_t inNumVertices, int inCollidingShapeIndex) const override;
 
 	// See Shape::GetTrianglesStart
 	virtual void			GetTrianglesStart(GetTrianglesContext &ioContext, const AABox &inBox, Vec3Arg inPositionCOM, QuatArg inRotation, Vec3Arg inScale) const override;
@@ -2743,7 +2743,7 @@ public:
 	virtual void					CollidePoint(Vec3Arg inPoint, const SubShapeIDCreator &inSubShapeIDCreator, CollidePointCollector &ioCollector, const ShapeFilter &inShapeFilter = { }) const override;
 
 	// See: Shape::CollideSoftBodyVertices
-	virtual void					CollideSoftBodyVertices(Mat44Arg inCenterOfMassTransform, Vec3Arg inScale, const CollideSoftBodyVertexIterator &inVertices, uint32 inNumVertices, int inCollidingShapeIndex) const override;
+	virtual void					CollideSoftBodyVertices(Mat44Arg inCenterOfMassTransform, Vec3Arg inScale, const CollideSoftBodyVertexIterator &inVertices, uint32_t inNumVertices, int inCollidingShapeIndex) const override;
 
 	// See Shape::CollectTransformedShapes
 	virtual void					CollectTransformedShapes(const AABox &inBox, Vec3Arg inPositionCOM, QuatArg inRotation, Vec3Arg inScale, const SubShapeIDCreator &inSubShapeIDCreator, TransformedShapeCollector &ioCollector, const ShapeFilter &inShapeFilter) const override;
@@ -2887,7 +2887,7 @@ public:
 	virtual void					CollidePoint(Vec3Arg inPoint, const SubShapeIDCreator &inSubShapeIDCreator, CollidePointCollector &ioCollector, const ShapeFilter &inShapeFilter = { }) const override;
 
 	// See: Shape::CollideSoftBodyVertices
-	virtual void					CollideSoftBodyVertices(Mat44Arg inCenterOfMassTransform, Vec3Arg inScale, const CollideSoftBodyVertexIterator &inVertices, uint32 inNumVertices, int inCollidingShapeIndex) const override;
+	virtual void					CollideSoftBodyVertices(Mat44Arg inCenterOfMassTransform, Vec3Arg inScale, const CollideSoftBodyVertexIterator &inVertices, uint32_t inNumVertices, int inCollidingShapeIndex) const override;
 
 	// See Shape::CollectTransformedShapes
 	virtual void					CollectTransformedShapes(const AABox &inBox, Vec3Arg inPositionCOM, QuatArg inRotation, Vec3Arg inScale, const SubShapeIDCreator &inSubShapeIDCreator, TransformedShapeCollector &ioCollector, const ShapeFilter &inShapeFilter) const override;
@@ -3007,7 +3007,7 @@ public:
 	virtual void			CollidePoint(Vec3Arg inPoint, const SubShapeIDCreator &inSubShapeIDCreator, CollidePointCollector &ioCollector, const ShapeFilter &inShapeFilter = { }) const override;
 
 	// See: Shape::CollideSoftBodyVertices
-	virtual void			CollideSoftBodyVertices(Mat44Arg inCenterOfMassTransform, Vec3Arg inScale, const CollideSoftBodyVertexIterator &inVertices, uint32 inNumVertices, int inCollidingShapeIndex) const override;
+	virtual void			CollideSoftBodyVertices(Mat44Arg inCenterOfMassTransform, Vec3Arg inScale, const CollideSoftBodyVertexIterator &inVertices, uint32_t inNumVertices, int inCollidingShapeIndex) const override;
 
 	// See Shape::GetTrianglesStart
 	virtual void			GetTrianglesStart(GetTrianglesContext &ioContext, const AABox &inBox, Vec3Arg inPositionCOM, QuatArg inRotation, Vec3Arg inScale) const override;
@@ -3130,7 +3130,7 @@ public:
 	virtual void			CollidePoint(Vec3Arg inPoint, const SubShapeIDCreator &inSubShapeIDCreator, CollidePointCollector &ioCollector, const ShapeFilter &inShapeFilter = { }) const override;
 
 	// See: Shape::CollideSoftBodyVertices
-	virtual void			CollideSoftBodyVertices(Mat44Arg inCenterOfMassTransform, Vec3Arg inScale, const CollideSoftBodyVertexIterator &inVertices, uint32 inNumVertices, int inCollidingShapeIndex) const override;
+	virtual void			CollideSoftBodyVertices(Mat44Arg inCenterOfMassTransform, Vec3Arg inScale, const CollideSoftBodyVertexIterator &inVertices, uint32_t inNumVertices, int inCollidingShapeIndex) const override;
 
 	// See Shape::GetTrianglesStart
 	virtual void			GetTrianglesStart(GetTrianglesContext &ioContext, const AABox &inBox, Vec3Arg inPositionCOM, QuatArg inRotation, Vec3Arg inScale) const override;
@@ -3252,7 +3252,7 @@ public:
 	virtual const Support *	GetSupportFunction(ESupportMode inMode, SupportBuffer &inBuffer, Vec3Arg inScale) const override;
 
 	// See: Shape::CollideSoftBodyVertices
-	virtual void			CollideSoftBodyVertices(Mat44Arg inCenterOfMassTransform, Vec3Arg inScale, const CollideSoftBodyVertexIterator &inVertices, uint32 inNumVertices, int inCollidingShapeIndex) const override;
+	virtual void			CollideSoftBodyVertices(Mat44Arg inCenterOfMassTransform, Vec3Arg inScale, const CollideSoftBodyVertexIterator &inVertices, uint32_t inNumVertices, int inCollidingShapeIndex) const override;
 
 #ifndef MOSS_DEBUG_RENDERER
 	// See Shape::Draw
@@ -3349,7 +3349,7 @@ public:
 	virtual void			CollidePoint(Vec3Arg inPoint, const SubShapeIDCreator &inSubShapeIDCreator, CollidePointCollector &ioCollector, const ShapeFilter &inShapeFilter = { }) const override;
 
 	// See: Shape::CollideSoftBodyVertices
-	virtual void			CollideSoftBodyVertices(Mat44Arg inCenterOfMassTransform, Vec3Arg inScale, const CollideSoftBodyVertexIterator &inVertices, uint32 inNumVertices, int inCollidingShapeIndex) const override;
+	virtual void			CollideSoftBodyVertices(Mat44Arg inCenterOfMassTransform, Vec3Arg inScale, const CollideSoftBodyVertexIterator &inVertices, uint32_t inNumVertices, int inCollidingShapeIndex) const override;
 
 	// See Shape::GetTrianglesStart
 	virtual void			GetTrianglesStart(GetTrianglesContext &ioContext, const AABox &inBox, Vec3Arg inPositionCOM, QuatArg inRotation, Vec3Arg inScale) const override;

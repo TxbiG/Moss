@@ -78,7 +78,7 @@ public:
         decalBuffer->Bind(0);
 
         // Render instanced cube geometry
-        mInstances->SetInstanceCount(static_cast<uint32>(mDecals.size()));
+        mInstances->SetInstanceCount(static_cast<uint32_t>(mDecals.size()));
         mInstances->Draw();
 
         pipeline->SetUniformBlock("DecalData", &decalData, sizeof(decalData));
@@ -92,7 +92,7 @@ private:
         Vec4 color;
         float emission_energy;
         float blendFactor;
-        uint32 textureIndex;
+        uint32_t textureIndex;
     };
 
     void InitPipeline() {
@@ -125,6 +125,6 @@ private:
     unique_ptr<PipelineState> pipeline;
     Ref<RenderInstances> innstances;
 
-    static constexpr uint32 MAX_DECALS = 512;
+    static constexpr uint32_t MAX_DECALS = 512;
 };
 #endif // MOSS_DECAL_MANAGER_H

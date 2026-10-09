@@ -21,13 +21,13 @@ public:
 	void AddBody(const BodyCreationSettings &inBody);
 
 	/// Body constant to use to indicate that the constraint is attached to the fixed world
-	static constexpr uint32 cFixedToWorld = 0xffffffff;
+	static constexpr uint32_t cFixedToWorld = 0xffffffff;
 
 	/// Add a constraint to the scene
 	/// @param inConstraint Constraint settings
 	/// @param inBody1 Index in the bodies list of first body to attach constraint to
 	/// @param inBody2 Index in the bodies list of the second body to attach constraint to
-	void AddConstraint(const TwoBodyConstraintSettings *inConstraint, uint32 inBody1, uint32 inBody2);
+	void AddConstraint(const TwoBodyConstraintSettings *inConstraint, uint32_t inBody1, uint32_t inBody2);
 
 	/// Add a soft body to the scene
 	void AddSoftBody(const SoftBodyCreationSettings &inSoftBody);
@@ -45,11 +45,11 @@ public:
 
 	public:
 		ConnectedConstraint() = default;
-		ConnectedConstraint(const TwoBodyConstraintSettings *inSettings, uint32 inBody1, uint32 inBody2) : mSettings(inSettings), mBody1(inBody1), mBody2(inBody2) { }
+		ConnectedConstraint(const TwoBodyConstraintSettings *inSettings, uint32_t inBody1, uint32_t inBody2) : mSettings(inSettings), mBody1(inBody1), mBody2(inBody2) { }
 
 		RefConst<TwoBodyConstraintSettings>	mSettings;										// Constraint settings
-		uint32								mBody1;											// Index of first body (in mBodies)
-		uint32								mBody2;											// Index of second body (in mBodies)
+		uint32_t								mBody1;											// Index of first body (in mBodies)
+		uint32_t								mBody2;											// Index of second body (in mBodies)
 	};
 
 	/// Get number of constraints in this scene

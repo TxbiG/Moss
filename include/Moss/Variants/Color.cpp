@@ -30,7 +30,7 @@ Color Color::GetDistinctColor(int inIndex)
 {
 	MOSS_ASSERT(inIndex >= 0);
 
-	return Colors[inIndex % (sizeof(sColors) / sizeof(uint32))];
+	return Colors[inIndex % (sizeof(sColors) / sizeof(uint32_t))];
 }
 
 MOSS_SUPPRESS_WARNINGS_END

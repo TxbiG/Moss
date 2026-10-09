@@ -203,13 +203,13 @@ enum class EPhysicsUpdateError : uint32_t {
 	ContactConstraintsFull	= 1 << 2,		// The contact constraints buffer is full. Some contacts were ignored. Increase inMaxContactConstraints in PhysicsSystem::Init.
 };
 
-inline EPhysicsUpdateError operator | (EPhysicsUpdateError inA, EPhysicsUpdateError inB) { return static_cast<EPhysicsUpdateError>(static_cast<uint32>(inA) | static_cast<uint32>(inB)); }
+inline EPhysicsUpdateError operator | (EPhysicsUpdateError inA, EPhysicsUpdateError inB) { return static_cast<EPhysicsUpdateError>(static_cast<uint32_t>(inA) | static_cast<uint32_t>(inB)); }
 
 // OR operator for EPhysicsUpdateError
 inline EPhysicsUpdateError operator |= (EPhysicsUpdateError &ioA, EPhysicsUpdateError inB) { ioA = ioA | inB; return ioA; }
 
 // AND operator for EPhysicsUpdateError
-inline EPhysicsUpdateError operator & (EPhysicsUpdateError inA, EPhysicsUpdateError inB) { return static_cast<EPhysicsUpdateError>(static_cast<uint32>(inA) & static_cast<uint32>(inB)); }
+inline EPhysicsUpdateError operator & (EPhysicsUpdateError inA, EPhysicsUpdateError inB) { return static_cast<EPhysicsUpdateError>(static_cast<uint32_t>(inA) & static_cast<uint32_t>(inB)); }
 
 enum class EValidateResult {
 	AcceptAllContactsForThisBodyPair = 0,

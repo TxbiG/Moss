@@ -10,7 +10,7 @@
 MOSS_SUPPRESS_WARNINGS_BEGIN
 
 /// Templatized matrix class
-template <uint32 Rows, uint32 Cols>
+template <uint32_t Rows, uint32_t Cols>
 class [[nodiscard]] Matrix
 {
 public:
@@ -19,13 +19,13 @@ public:
 	inline									Matrix(const Matrix &inM2)								{ *this = inM2; }
 
 	/// Dimensions
-	inline uint32								GetRows() const											{ return Rows; }
-	inline uint32								GetCols() const											{ return Cols; }
+	inline uint32_t								GetRows() const											{ return Rows; }
+	inline uint32_t								GetCols() const											{ return Cols; }
 
 	/// Zero matrix
 	inline void								SetZero()
 	{
-		for (uint32 c = 0; c < Cols; ++c)
+		for (uint32_t c = 0; c < Cols; ++c)
 			mCol[c].SetZero();
 	}
 
@@ -34,7 +34,7 @@ public:
 	/// Check if this matrix consists of all zeros
 	inline bool								IsZero() const
 	{
-		for (uint32 c = 0; c < Cols; ++c)
+		for (uint32_t c = 0; c < Cols; ++c)
 			if (!mCol[c].IsZero())
 				return false;
 
@@ -48,7 +48,7 @@ public:
 		SetZero();
 
 		// Set diagonal to 1
-		for (uint32 rc = 0, min_rc = min(Rows, Cols); rc < min_rc; ++rc)
+		for (uint32_t rc = 0, min_rc = min(Rows, Cols); rc < min_rc; ++rc)
 			mCol[rc].mF32[rc] = 1.0f;
 	}
 
@@ -64,7 +64,7 @@ public:
 		SetZero();
 
 		// Set diagonal
-		for (uint32 rc = 0, min_rc = min(Rows, Cols); rc < min_rc; ++rc) { mCol[rc].mF32[rc] = inV[rc]; }
+		for (uint32_t rc = 0, min_rc = min(Rows, Cols); rc < min_rc; ++rc) { mCol[rc].mF32[rc] = inV[rc]; }
 	}
 
 	inline static Matrix					sDiagonal(const TVec<Rows < Cols? Rows : Cols> &inV)
@@ -76,22 +76,22 @@ public:
 
 	/// Copy a (part) of another matrix into this matrix
 	template <class OtherMatrix>
-		void								CopyPart(const OtherMatrix &inM, uint32 inSourceRow, uint32 inSourceCol, uint32 inNumRows, uint32 inNumCols, uint32 inDestRow, uint32 inDestCol)
+		void								CopyPart(const OtherMatrix &inM, uint32_t inSourceRow, uint32_t inSourceCol, uint32_t inNumRows, uint32_t inNumCols, uint32_t inDestRow, uint32_t inDestCol)
 		{
-			for (uint32 c = 0; c < inNumCols; ++c)
-				for (uint32 r = 0; r < inNumRows; ++r)
+			for (uint32_t c = 0; c < inNumCols; ++c)
+				for (uint32_t r = 0; r < inNumRows; ++r)
 					mCol[inDestCol + c].mF32[inDestRow + r] = inM(inSourceRow + r, inSourceCol + c);
 		}
 
 	/// Get float component by element index
-	inline float							operator () (uint32 inRow, uint32 inColumn) const
+	inline float							operator () (uint32_t inRow, uint32_t inColumn) const
 	{
 		MOSS_ASSERT(inRow < Rows);
 		MOSS_ASSERT(inColumn < Cols);
 		return mCol[inColumn].mF32[inRow];
 	}
 
-	inline float &							operator () (uint32 inRow, uint32 inColumn)
+	inline float &							operator () (uint32_t inRow, uint32_t inColumn)
 	{
 		MOSS_ASSERT(inRow < Rows);
 		MOSS_ASSERT(inColumn < Cols);
@@ -101,7 +101,7 @@ public:
 	/// Comparison
 	inline bool								operator == (const Matrix &inM2) const
 	{
-		for (uint32 c = 0; c < Cols; ++c)
+		for (uint32_t c = 0; c < Cols; ++c)
 			if (mCol[c] != inM2.mCol[c])
 				return false;
 		return true;
@@ -109,7 +109,7 @@ public:
 
 	inline bool								operator != (const Matrix &inM2) const
 	{
-		for (uint32 c = 0; c < Cols; ++c)
+		for (uint32_t c = 0; c < Cols; ++c)
 			if (mCol[c] != inM2.mCol[c])
 				return true;
 		return false;
@@ -118,21 +118,21 @@ public:
 	/// Assignment
 	inline Matrix &							operator = (const Matrix &inM2)
 	{
-		for (uint32 c = 0; c < Cols; ++c)
+		for (uint32_t c = 0; c < Cols; ++c)
 			mCol[c] = inM2.mCol[c];
 		return *this;
 	}
 
 	/// Multiply matrix by matrix
-	template <uint32 OtherCols>
+	template <uint32_t OtherCols>
 	inline Matrix<Rows, OtherCols>	operator * (const Matrix<Cols, OtherCols> &inM) const
 	{
 		Matrix<Rows, OtherCols> m;
-		for (uint32 c = 0; c < OtherCols; ++c)
-			for (uint32 r = 0; r < Rows; ++r)
+		for (uint32_t c = 0; c < OtherCols; ++c)
+			for (uint32_t r = 0; r < Rows; ++r)
 			{
 				float dot = 0.0f;
-				for (uint32 i = 0; i < Cols; ++i)
+				for (uint32_t i = 0; i < Cols; ++i)
 					dot += mCol[i].mF32[r] * inM.mCol[c].mF32[i];
 				m.mCol[c].mF32[r] = dot;
 			}
@@ -143,10 +143,10 @@ public:
 	inline TVec<Rows>						operator * (const TVec<Cols> &inV) const
 	{
 		TVec<Rows> v;
-		for (uint32 r = 0; r < Rows; ++r)
+		for (uint32_t r = 0; r < Rows; ++r)
 		{
 			float dot = 0.0f;
-			for (uint32 c = 0; c < Cols; ++c)
+			for (uint32_t c = 0; c < Cols; ++c)
 				dot += mCol[c].mF32[r] * inV.mF32[c];
 			v.mF32[r] = dot;
 		}
@@ -157,7 +157,7 @@ public:
 	inline Matrix							operator * (float inV) const
 	{
 		Matrix m;
-		for (uint32 c = 0; c < Cols; ++c)
+		for (uint32_t c = 0; c < Cols; ++c)
 			m.mCol[c] = mCol[c] * inV;
 		return m;
 	}
@@ -171,7 +171,7 @@ public:
 	inline Matrix							operator + (const Matrix &inM) const
 	{
 		Matrix m;
-		for (uint32 c = 0; c < Cols; ++c)
+		for (uint32_t c = 0; c < Cols; ++c)
 			m.mCol[c] = mCol[c] + inM.mCol[c];
 		return m;
 	}
@@ -180,7 +180,7 @@ public:
 	inline Matrix							operator - (const Matrix &inM) const
 	{
 		Matrix m;
-		for (uint32 c = 0; c < Cols; ++c)
+		for (uint32_t c = 0; c < Cols; ++c)
 			m.mCol[c] = mCol[c] - inM.mCol[c];
 		return m;
 	}
@@ -189,8 +189,8 @@ public:
 	inline Matrix<Cols, Rows>				Transposed() const
 	{
 		Matrix<Cols, Rows> m;
-		for (uint32 r = 0; r < Rows; ++r)
-			for (uint32 c = 0; c < Cols; ++c)
+		for (uint32_t r = 0; r < Rows; ++r)
+			for (uint32_t c = 0; c < Cols; ++c)
 				m.mCol[r].mF32[c] = mCol[c].mF32[r];
 		return m;
 	}
@@ -214,7 +214,7 @@ public:
 	/// To String
 	friend ostream &						operator << (ostream &inStream, const Matrix &inM)
 	{
-		for (uint32 i = 0; i < Cols - 1; ++i)
+		for (uint32_t i = 0; i < Cols - 1; ++i)
 			inStream << inM.mCol[i] << ", ";
 		inStream << inM.mCol[Cols - 1];
 		return inStream;

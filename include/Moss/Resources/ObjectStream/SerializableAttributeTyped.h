@@ -17,7 +17,7 @@ MOSS_SUPPRESS_WARNINGS_END
 //////////////////////////////////////////////////////////////////////////////////////////
 
 template <class MemberType>
-inline void AddSerializableAttributeTyped(RTTI &inRTTI, uint32 inOffset, const char *inName)
+inline void AddSerializableAttributeTyped(RTTI &inRTTI, uint32_t inOffset, const char *inName)
 {
 	inRTTI.AddAttribute(SerializableAttribute(inName, inOffset,
 		[]()

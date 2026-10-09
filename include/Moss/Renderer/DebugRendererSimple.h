@@ -59,7 +59,7 @@ public:
 protected:
 	/// Implementation of DebugRenderer interface
 	virtual Batch				CreateTriangleBatch(const Triangle *inTriangles, int inTriangleCount) override;
-	virtual Batch				CreateTriangleBatch(const Vertex *inVertices, int inVertexCount, const uint32 *inIndices, int inIndexCount) override;
+	virtual Batch				CreateTriangleBatch(const Vertex *inVertices, int inVertexCount, const uint32_t *inIndices, int inIndexCount) override;
 	virtual void				DrawGeometry(RMat44Arg inModelMatrix, const AABox &inWorldSpaceBounds, float inLODScaleSq, ColorArg inModelColor, const GeometryRef &inGeometry, ECullMode inCullMode, ECastShadow inCastShadow, EDrawMode inDrawMode) override;
 
 private:
@@ -75,7 +75,7 @@ private:
 		TArray<Triangle>			mTriangles;
 
 	private:
-		atomic<uint32>			mRefCount = 0;
+		atomic<uint32_t>			mRefCount = 0;
 	};
 
 	/// Last provided camera position

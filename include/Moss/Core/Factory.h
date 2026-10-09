@@ -22,13 +22,13 @@ public:
 	const RTTI *				Find(const char *inName);
 
 	/// Find type info for a specific class by hash
-	const RTTI *				Find(uint32 inHash);
+	const RTTI *				Find(uint32_t inHash);
 
 	/// Register an object with the factory. Returns false on failure.
 	bool						Register(const RTTI *inRTTI);
 
 	/// Register a list of objects with the factory. Returns false on failure.
-	bool						Register(const RTTI **inRTTIs, uint32 inNumber);
+	bool						Register(const RTTI **inRTTIs, uint32_t inNumber);
 
 	/// Unregisters all types
 	void						Clear();
@@ -41,7 +41,7 @@ public:
 
 private:
 	using ClassNameMap = TMap<string_view, const RTTI *>;
-	using ClassHashMap = TMap<uint32, const RTTI *>;
+	using ClassHashMap = TMap<uint32_t, const RTTI *>;
 
 	ClassNameMap				m_ClassNameMap;			// Map of class names to type info
 	ClassHashMap				m_ClassHashMap;			// Map of class hash to type info

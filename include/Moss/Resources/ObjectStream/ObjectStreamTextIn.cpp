@@ -35,7 +35,7 @@ bool ObjectStreamTextIn::ReadDataType(EOSDataType &outType)
 			outType = EOSDataType::T_uint16;
 		else if (token == "int")
 			outType = EOSDataType::T_int;
-		else if (token == "uint32")
+		else if (token == "uint32_t")
 			outType = EOSDataType::T_uint32;
 		else if (token == "uint64")
 			outType = EOSDataType::T_uint64;
@@ -87,7 +87,7 @@ bool ObjectStreamTextIn::ReadIdentifier(Identifier &outIdentifier)
 	String token;
 	if (!ReadWord(token))
 		return false;
-	outIdentifier = (uint32)std::strtoul(token.c_str(), nullptr, 16);
+	outIdentifier = (uint32_t)std::strtoul(token.c_str(), nullptr, 16);
 	if (errno == ERANGE)
 	{
 		outIdentifier = sNullIdentifier;
@@ -96,7 +96,7 @@ bool ObjectStreamTextIn::ReadIdentifier(Identifier &outIdentifier)
 	return true;
 }
 
-bool ObjectStreamTextIn::ReadCount(uint32 &outCount)
+bool ObjectStreamTextIn::ReadCount(uint32_t &outCount)
 {
 	return ReadPrimitiveData(outCount);
 }
@@ -106,7 +106,7 @@ bool ObjectStreamTextIn::ReadPrimitiveData(uint8 &outPrimitive)
 	String token;
 	if (!ReadWord(token))
 		return false;
-	uint32 temporary;
+	uint32_t temporary;
 	IStringStream stream(token);
 	stream >> temporary;
 	if (!stream.fail())
@@ -122,7 +122,7 @@ bool ObjectStreamTextIn::ReadPrimitiveData(uint16 &outPrimitive)
 	String token;
 	if (!ReadWord(token))
 		return false;
-	uint32 temporary;
+	uint32_t temporary;
 	IStringStream stream(token);
 	stream >> temporary;
 	if (!stream.fail())
@@ -143,7 +143,7 @@ bool ObjectStreamTextIn::ReadPrimitiveData(int &outPrimitive)
 	return !stream.fail();
 }
 
-bool ObjectStreamTextIn::ReadPrimitiveData(uint32 &outPrimitive)
+bool ObjectStreamTextIn::ReadPrimitiveData(uint32_t &outPrimitive)
 {
 	String token;
 	if (!ReadWord(token))
@@ -339,7 +339,7 @@ bool ObjectStreamTextIn::ReadPrimitiveData(Vec4 &outPrimitive)
 
 bool ObjectStreamTextIn::ReadPrimitiveData(UVec4 &outPrimitive)
 {
-	uint32 x, y, z, w;
+	uint32_t x, y, z, w;
 	if (!ReadPrimitiveData(x) || !ReadPrimitiveData(y) || !ReadPrimitiveData(z) || !ReadPrimitiveData(w))
 		return false;
 	outPrimitive = UVec4(x, y, z, w);

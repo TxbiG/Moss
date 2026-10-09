@@ -12,7 +12,7 @@
 #include <mmsystem.h>
 #include <ws2tcpip.h>
 
-static uint32 timeBase = 0;
+static uint32_t timeBase = 0;
 
 static int addressFamily[] = {
     AF_UNSPEC, /* ENetAddressType::ANY */
@@ -44,11 +44,11 @@ void Moss_TerminateNetwork(void)
     WSACleanup();
 }
 
-uint32 enet_host_random_seed(void) { return (uint32) timeGetTime (); }
+uint32_t enet_host_random_seed(void) { return (uint32_t) timeGetTime (); }
 
-uint32 enet_time_get (void) { return (uint32) timeGetTime () - timeBase; }
+uint32_t enet_time_get (void) { return (uint32_t) timeGetTime () - timeBase; }
 
-void enet_time_set (uint32 newTimeBase) { timeBase = (uint32) timeGetTime() - newTimeBase; }
+void enet_time_set (uint32_t newTimeBase) { timeBase = (uint32_t) timeGetTime() - newTimeBase; }
 
 int enet_address_set_host (ENetAddress* address, ENetAddressType type, const char * name) {
     struct addrinfo hints;
@@ -334,7 +334,7 @@ int enet_socket_receive (ENetSocket socket, ENetAddress * address, ENetBuffer * 
     return (int) recvLength;
 }
 
-int enet_socketset_select(ENetSocket maxSocket, ENetSocketSet * readSet, ENetSocketSet * writeSet, uint32 timeout) {
+int enet_socketset_select(ENetSocket maxSocket, ENetSocketSet * readSet, ENetSocketSet * writeSet, uint32_t timeout) {
     struct timeval timeVal;
 
     timeVal.tv_sec = timeout / 1000;
@@ -343,7 +343,7 @@ int enet_socketset_select(ENetSocket maxSocket, ENetSocketSet * readSet, ENetSoc
     return select (maxSocket + 1, readSet, writeSet, NULL, & timeVal);
 }
 
-int enet_socket_wait(ENetSocket socket, uint32 * condition, uint32 timeout) {
+int enet_socket_wait(ENetSocket socket, uint32_t * condition, uint32_t timeout) {
     fd_set readSet, writeSet;
     struct timeval timeVal;
     int selectCount;

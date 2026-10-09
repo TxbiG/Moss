@@ -1079,7 +1079,7 @@ using int64 = signed long long;
 
 using uint8 = unsigned char;
 using uint16 = unsigned short;
-using uint32 = unsigned int;
+using uint32_t = unsigned int;
 using uint64 = unsigned long long;
 
 // Signed
@@ -1097,18 +1097,18 @@ using uint64 = unsigned long long;
 
 #define MAX_UINT8   ((uint8)(0xFF))
 #define MAX_UINT16  ((uint16)(0xFFFF))
-#define MAX_UINT32  ((uint32)(0xFFFFFFFFu))
+#define MAX_UINT32  ((uint32_t)(0xFFFFFFFFu))
 #define MAX_UINT64  ((uint64)(0xFFFFFFFFFFFFFFFF))
 #define MIN_UINT8   ((uint8)0x00)
 #define MIN_UINT16  ((uint16)0x0000)
-#define MIN_UINT32  ((uint32)0x00000000)
+#define MIN_UINT32  ((uint32_t)0x00000000)
 #define MIN_UINT64  ((uint64)(0x0000000000000000))
 
 
 // Assert sizes of types
 static_assert(sizeof(uint8) == 1, "Invalid size of uint8");
 static_assert(sizeof(uint16) == 2, "Invalid size of uint16");
-static_assert(sizeof(uint32) == 4, "Invalid size of uint32");
+static_assert(sizeof(uint32_t) == 4, "Invalid size of uint32_t");
 static_assert(sizeof(uint64) == 8, "Invalid size of uint64");
 static_assert(sizeof(void *) == (MOSS_CPU_ADDRESS_BITS == 64? 8 : 4), "Invalid size of pointer" );
 
@@ -1484,7 +1484,7 @@ inline bool IsAligned(T inV, uint64 inAlignment) {
 }
 
 // Compute number of trailing zero bits (how many low bits are zero)
-inline uint32 CountTrailingZeros(uint32 inValue) {
+inline uint32_t CountTrailingZeros(uint32_t inValue) {
 #if defined(MOSS_CPU_X86) || defined(MOSS_CPU_WASM)
 	#if defined(MOSS_SIMD_TZCNT)
 		return _tzcnt_u32(inValue);
@@ -1520,7 +1520,7 @@ inline uint32 CountTrailingZeros(uint32 inValue) {
 }
 
 // Compute the number of leading zero bits (how many high bits are zero)
-inline uint32 CountLeadingZeros(uint32 inValue) {
+inline uint32_t CountLeadingZeros(uint32_t inValue) {
 
 #if defined(MOSS_CPU_X86) || defined(MOSS_CPU_WASM)
 	#if defined(MOSS_SIMD_LZCNT)
@@ -1551,7 +1551,7 @@ inline uint32 CountLeadingZeros(uint32 inValue) {
 }
 
 // Count the number of 1 bits in a value
-inline uint32 CountBits(uint32 inValue) {
+inline uint32_t CountBits(uint32_t inValue) {
 
 #if defined(MOSS_COMPILER_CLANG) || defined(MOSS_COMPILER_GCC)
 	return __builtin_popcount(inValue);
@@ -1572,8 +1572,8 @@ inline uint32 CountBits(uint32 inValue) {
 }
 
 // Get the next higher power of 2 of a value, or the value itself if the value is already a power of 2
-inline uint32 GetNextPowerOf2(uint32 inValue) {
-	return inValue <= 1? uint32(1) : uint32(1) << (32 - CountLeadingZeros(inValue - 1));
+inline uint32_t GetNextPowerOf2(uint32_t inValue) {
+	return inValue <= 1? uint32_t(1) : uint32_t(1) << (32 - CountLeadingZeros(inValue - 1));
 }
 
 // Simple implementation of C++20 std::bit_cast (unfortunately not constexpr)

@@ -167,7 +167,7 @@ Float2 Font::MeasureText(const string_view &inText) const
 	float x = 0;
 
 	// Loop through string
-	for (uint32 i = 0; i < inText.size(); ++i)
+	for (uint32_t i = 0; i < inText.size(); ++i)
 	{
 		// Get character
 		int ch = inText[i];
@@ -209,7 +209,7 @@ bool Font::CreateString(Mat44Arg inTransform, const string_view &inText, ColorAr
 
 	// Count the number of printable chars
 	int printable = 0;
-	for (uint32 i = 0; i < inText.size(); ++i)
+	for (uint32_t i = 0; i < inText.size(); ++i)
 	{
 		int ch = inText[i];
 		static_assert(cBeginChar == ' ', "We skip space in the for loop below");
@@ -229,18 +229,18 @@ bool Font::CreateString(Mat44Arg inTransform, const string_view &inText, ColorAr
 	ioPrimitive.CreateIndexBuffer(idx_size);
 
 	// Current vertex
-	uint32 vtx = 0;
+	uint32_t vtx = 0;
 
 	// Lock buffers
 	FontVertex *font_vtx = (FontVertex *)ioPrimitive.LockVertexBuffer();
-	uint32 *idx_start = ioPrimitive.LockIndexBuffer();
-	uint32 *idx = idx_start;
+	uint32_t *idx_start = ioPrimitive.LockIndexBuffer();
+	uint32_t *idx = idx_start;
 
 	// Current raster position
 	float x = 0, y = -1.0f;
 
 	// Loop through string
-	for (uint32 i = 0; i < inText.size(); ++i)
+	for (uint32_t i = 0; i < inText.size(); ++i)
 	{
 		// Get character
 		int ch = inText[i];
@@ -313,7 +313,7 @@ bool Font::CreateString(Mat44Arg inTransform, const string_view &inText, ColorAr
 	}
 
 	// Check that we completely filled the output buffer
-	MOSS_ASSERT(vtx == (uint32)vtx_size);
+	MOSS_ASSERT(vtx == (uint32_t)vtx_size);
 	MOSS_ASSERT(idx == idx_start + idx_size);
 
 	// Unlock buffers

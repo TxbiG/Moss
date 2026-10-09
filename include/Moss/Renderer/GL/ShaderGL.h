@@ -111,24 +111,24 @@ public:
     /*! @brief Tell ShaderGL to get uniform content. @param ShaderGL ShaderGL struct. @param name Name of uniform. @param value Mat4x3 type. */
     //void SetUniformMat4x3(const char *name, const Mat4x3& value);
     // Unsigned int
-    /*! @brief Tell ShaderGL to get uniform content. @param ShaderGL ShaderGL struct. @param name Name of uniform. @param value uint32 type. */
+    /*! @brief Tell ShaderGL to get uniform content. @param ShaderGL ShaderGL struct. @param name Name of uniform. @param value uint32_t type. */
     //void SetUniform(const char* name, unsigned int value);
-    /*! @brief Tell ShaderGL to get uniform content. @param ShaderGL ShaderGL struct. @param name Name of uniform. @param value0 uint32 type. @param value1 uint32 type. */
+    /*! @brief Tell ShaderGL to get uniform content. @param ShaderGL ShaderGL struct. @param name Name of uniform. @param value0 uint32_t type. @param value1 uint32_t type. */
     //void SetUniform(const char* name, unsigned int value0, unsigned int value1);
-    /*! @brief Tell ShaderGL to get uniform content. @param ShaderGL ShaderGL struct. @param name Name of uniform. @param value0 uint32 type. @param value1 uint32 type. @param value2 uint32 type. */
+    /*! @brief Tell ShaderGL to get uniform content. @param ShaderGL ShaderGL struct. @param name Name of uniform. @param value0 uint32_t type. @param value1 uint32_t type. @param value2 uint32_t type. */
     //void SetUniform(const char* name, unsigned int value0, unsigned int value1, unsigned int value2);
-    /*! @brief Tell ShaderGL to get uniform content. @param ShaderGL ShaderGL struct. @param name Name of uniform. @param value0 uint32 type. @param value1 uint32 type. @param value2 uint32 type. @param value3 uint32 type. */
+    /*! @brief Tell ShaderGL to get uniform content. @param ShaderGL ShaderGL struct. @param name Name of uniform. @param value0 uint32_t type. @param value1 uint32_t type. @param value2 uint32_t type. @param value3 uint32_t type. */
     //void SetUniform(const char* name, unsigned int value0, unsigned int value1, unsigned int value2, unsigned int value3);
 
     // Unsigned Integer Array Uniforms
-    /*! @brief Tell ShaderGL to get uniform content. @param ShaderGL ShaderGL struct. @param name Name of uniform. @param count int type. @param value uint32 type. */
-    //void SetUniformInt(const char* name, int count, uint32* value);
-    /*! @brief Tell ShaderGL to get uniform content. @param ShaderGL ShaderGL struct. @param name Name of uniform. @param count int type. @param value uint32 type. */
-    //void SetUniformInt2(const char* name, int count, uint32* value);
-    /*! @brief Tell ShaderGL to get uniform content. @param ShaderGL ShaderGL struct. @param name Name of uniform. @param count int type. @param value uint32 type. */
-    //void SetUniformInt3(const char* name, int count, uint32* value);
-    /*! @brief Tell ShaderGL to get uniform content. @param ShaderGL ShaderGL struct. @param name Name of uniform. @param count int type. @param value uint32 type. */
-    //void SetUniformInt4(const char* name, int count, uint32* value);
+    /*! @brief Tell ShaderGL to get uniform content. @param ShaderGL ShaderGL struct. @param name Name of uniform. @param count int type. @param value uint32_t type. */
+    //void SetUniformInt(const char* name, int count, uint32_t* value);
+    /*! @brief Tell ShaderGL to get uniform content. @param ShaderGL ShaderGL struct. @param name Name of uniform. @param count int type. @param value uint32_t type. */
+    //void SetUniformInt2(const char* name, int count, uint32_t* value);
+    /*! @brief Tell ShaderGL to get uniform content. @param ShaderGL ShaderGL struct. @param name Name of uniform. @param count int type. @param value uint32_t type. */
+    //void SetUniformInt3(const char* name, int count, uint32_t* value);
+    /*! @brief Tell ShaderGL to get uniform content. @param ShaderGL ShaderGL struct. @param name Name of uniform. @param count int type. @param value uint32_t type. */
+    //void SetUniformInt4(const char* name, int count, uint32_t* value);
 
     // Float Array Uniforms
     /*! @brief Tell ShaderGL to get uniform content. @param ShaderGL ShaderGL struct. @param name Name of uniform. @param count int type. @param value float* type. */

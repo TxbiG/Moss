@@ -9,13 +9,13 @@
 MOSS_SUPPRESS_WARNINGS_BEGIN
 
 /// Simple variable length array backed by a fixed size buffer
-template <class T, uint32 N>
+template <class T, uint32_t N>
 class [[nodiscard]] TStaticArray {
 public:
 	using value_type = T;
-	using size_type = uint32;
+	using size_type = uint32_t;
 
-	static constexpr uint32 Capacity = N;
+	static constexpr uint32_t Capacity = N;
 
 	/// Default constructor
 	TStaticArray() = default;
@@ -239,7 +239,7 @@ public:
 	}
 
 	/// Assignment operator with static array of different max length
-	template <uint32 M>
+	template <uint32_t M>
 	TStaticArray<T, N> &	operator = (const TStaticArray<T, M> &inRHS)
 	{
 		size_type rhs_size = inRHS.size();
@@ -284,7 +284,7 @@ public:
 	uint64					GetHash() const
 	{
 		// Hash length first
-		uint64 ret = Hash<uint32> { } (uint32(size()));
+		uint64 ret = Hash<uint32_t> { } (uint32_t(size()));
 
 		// Then hash elements
 		for (const T *element = reinterpret_cast<const T *>(mElements), *element_end = reinterpret_cast<const T *>(mElements) + mSize; element < element_end; ++element)
@@ -314,7 +314,7 @@ MOSS_CLANG_SUPPRESS_WARNING("-Wc++98-compat")
 namespace std
 {
 	/// Declare std::hash for TStaticArray
-	template <class T, uint32 N>
+	template <class T, uint32_t N>
 	struct hash<TStaticArray<T, N>>
 	{
 		size_t operator () (const TStaticArray<T, N> &inRHS) const

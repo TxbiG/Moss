@@ -175,14 +175,14 @@ This is used for 3D
 ```cpp
 ParticleSystem2 g_particleSystem2D;
 
-uint32 explosionID = g_particleSystem2D.CreateParticleEffect(explosionTransform);
+uint32_t explosionID = g_particleSystem2D.CreateParticleEffect(explosionTransform);
 g_particleSystem2D.CreateParticleEmitter(); // attaches emitters to effect
 
 
 Transform2 t;
 t.position = pos;
 
-uint32 effectID = g_particleSystem2D.CreateParticleEffect(t);
+uint32_t effectID = g_particleSystem2D.CreateParticleEffect(t);
 ParticleEmitterID emitter = g_particleSystem2D.CreateParticleEmitter();
 
 // Configure emitter
@@ -212,7 +212,7 @@ ParticleSystem3 g_particleSystem3D;
 Transform2 t;
 t.position = pos;
 
-uint32 effectID = g_particleSystem3D.CreateParticleEffect(t);
+uint32_t effectID = g_particleSystem3D.CreateParticleEffect(t);
 ParticleEmitterID emitter = g_particleSystem3D.CreateParticleEmitter();
 
 // Configure emitter

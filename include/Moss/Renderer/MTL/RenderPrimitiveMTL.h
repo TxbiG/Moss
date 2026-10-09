@@ -22,9 +22,9 @@ public:
 	virtual void			UnlockVertexBuffer() override;
 
 	/// Index buffer management functions
-	virtual void			CreateIndexBuffer(int inNumIdx, const uint32 *inData = nullptr) override;
+	virtual void			CreateIndexBuffer(int inNumIdx, const uint32_t *inData = nullptr) override;
 	virtual void			ReleaseIndexBuffer() override;
-	virtual uint32 *		LockIndexBuffer() override;
+	virtual uint32_t *		LockIndexBuffer() override;
 	virtual void			UnlockIndexBuffer() override;
 
 	/// Draw the primitive

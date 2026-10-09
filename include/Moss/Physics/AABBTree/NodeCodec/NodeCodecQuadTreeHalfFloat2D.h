@@ -20,7 +20,7 @@ public:
 	struct Header {
 		Float2							mRootBoundsMin;
 		Float2							mRootBoundsMax;
-		uint32							mRootProperties;
+		uint32_t							mRootProperties;
 		uint8							mBlockIDBits;			// Number of bits to address a triangle block
 		uint8							mPadding[2] = { 0 };
 	};
@@ -32,7 +32,7 @@ public:
 	static constexpr int				StackSize = 128;
 
 	/// Node properties
-	enum : uint32 {
+	enum : uint32_t {
 		TRIANGLE_COUNT_BITS				= 4,
 		TRIANGLE_COUNT_SHIFT			= 28,
 		TRIANGLE_COUNT_MASK				= (1 << TRIANGLE_COUNT_BITS) - 1,
@@ -50,7 +50,7 @@ public:
 		HalfFloat						mBoundsMaxX[4];
 		HalfFloat						mBoundsMaxY[4];
 		HalfFloat						mBoundsMaxZ[4];
-		uint32							mNodeProperties[4];		// 4 child node properties
+		uint32_t							mNodeProperties[4];		// 4 child node properties
 	};
 
 	static_assert(sizeof(Node) == 64, "Node should be 64 bytes");
@@ -96,7 +96,7 @@ public:
 				}
 				else {
 					// Make this an invalid triangle node
-					node->mNodeProperties[i] = uint32(TRIANGLE_COUNT_MASK) << TRIANGLE_COUNT_SHIFT;
+					node->mNodeProperties[i] = uint32_t(TRIANGLE_COUNT_MASK) << TRIANGLE_COUNT_SHIFT;
 
 					// Make bounding box invalid
 					node->mBoundsMinX[i] = HALF_FLT_MAX;
@@ -118,12 +118,12 @@ public:
 		}
 
 		/// Once all nodes have been added, this call finalizes all nodes by patching in the offsets of the child nodes (that were added after the node itself was added)
-		bool NodeFinalize(const AABBTreeBuilder::Node *inNode, size_t inNodeStart, uint32 inNumChildren, const size_t *inChildrenNodeStart, const size_t *inChildrenTrianglesStart, ByteBuffer &ioBuffer) {
+		bool NodeFinalize(const AABBTreeBuilder::Node *inNode, size_t inNodeStart, uint32_t inNumChildren, const size_t *inChildrenNodeStart, const size_t *inChildrenTrianglesStart, ByteBuffer &ioBuffer) {
 			if (!inNode->HasChildren())
 				return true;
 
 			Node *node = ioBuffer.Get<Node>(inNodeStart);
-			for (uint32 i = 0; i < inNumChildren; ++i) {
+			for (uint32_t i = 0; i < inNumChildren; ++i) {
 				size_t offset;
 				if (node->mNodeProperties[i] != 0) {
 					offset = inChildrenTrianglesStart[i];								// This is a triangle block
@@ -135,7 +135,7 @@ public:
 				if (offset & OFFSET_NON_SIGNIFICANT_MASK) { MOSS_ERROR("NodeCodecQuadTreeHalfFloat: Internal Error: Offset has non-significant bits set"); return false; }
 				offset >>= OFFSET_NON_SIGNIFICANT_BITS;
 				if (offset > OFFSET_MASK) { MOSS_ERROR("NodeCodecQuadTreeHalfFloat: Offset too large. Too much data."); return false; }
-				node->mNodeProperties[i] |= uint32(offset);
+				node->mNodeProperties[i] |= uint32_t(offset);
 			}
 
 			return true;
@@ -156,8 +156,8 @@ public:
 
 			inRoot->mBounds.mMin.StoreFloat2(&outHeader->mRootBoundsMin);
 			inRoot->mBounds.mMax.StoreFloat2(&outHeader->mRootBoundsMax);
-			outHeader->mRootProperties = uint32(offset) + (inRoot->GetTriangleCount() << TRIANGLE_COUNT_SHIFT);
-			outHeader->mBlockIDBits = uint8(32 - CountLeadingZeros(uint32(highest_triangle_block)));
+			outHeader->mRootProperties = uint32_t(offset) + (inRoot->GetTriangleCount() << TRIANGLE_COUNT_SHIFT);
+			outHeader->mBlockIDBits = uint8(32 - CountLeadingZeros(uint32_t(highest_triangle_block)));
 
 			if (inRoot->GetTriangleCount() >= TRIANGLE_COUNT_MASK) { MOSS_ERROR("NodeCodecQuadTreeHalfFloat: Too many triangles"); return false; }
 
@@ -173,10 +173,10 @@ public:
 	{
 	public:
 		/// Get the amount of bits needed to store an ID to a triangle block
-		inline static uint32 sTriangleBlockIDBits(const Header *inHeader) { return inHeader->mBlockIDBits; }
+		inline static uint32_t sTriangleBlockIDBits(const Header *inHeader) { return inHeader->mBlockIDBits; }
 
 		/// Convert a triangle block ID to the start of the triangle buffer
-		inline static const void* sGetTriangleBlockStart(const uint8 *inBufferStart, uint32 inTriangleBlockID) { return inBufferStart + (inTriangleBlockID << OFFSET_NON_SIGNIFICANT_BITS); }
+		inline static const void* sGetTriangleBlockStart(const uint8 *inBufferStart, uint32_t inTriangleBlockID) { return inBufferStart + (inTriangleBlockID << OFFSET_NON_SIGNIFICANT_BITS); }
 
 		/// Constructor
 		MOSS_INLINE explicit DecodingContext(const Header *inHeader) { mNodeStack[0] = inHeader->mRootProperties; } // Start with the root node on the stack
@@ -186,8 +186,8 @@ public:
 		MOSS_INLINE void WalkTree(const uint8 *inBufferStart, const TriangleContext &inTriangleContext, Visitor &ioVisitor) {
 			do {
 				// Test if node contains triangles
-				uint32 node_properties = mNodeStack[mTop];
-				uint32 tri_count = node_properties >> TRIANGLE_COUNT_SHIFT;
+				uint32_t node_properties = mNodeStack[mTop];
+				uint32_t tri_count = node_properties >> TRIANGLE_COUNT_SHIFT;
 				if (tri_count == 0) {
 					const Node *node = reinterpret_cast<const Node *>(inBufferStart + (node_properties << OFFSET_NON_SIGNIFICANT_BITS));
 
@@ -201,15 +201,15 @@ public:
 					Vec4 bounds_maxy = HalfFloatConversion::ToFloat(UVec4(node->mBoundsMaxY[0] + (node->mBoundsMaxY[1] << 16), node->mBoundsMaxY[2] + (node->mBoundsMaxY[3] << 16), 0, 0));
 					Vec4 bounds_maxz = HalfFloatConversion::ToFloat(UVec4(node->mBoundsMaxZ[0] + (node->mBoundsMaxZ[1] << 16), node->mBoundsMaxZ[2] + (node->mBoundsMaxZ[3] << 16), 0, 0));
 				#else
-					UVec4 bounds_minxy = UVec4::LoadInt4(reinterpret_cast<const uint32 *>(&node->mBoundsMinX[0]));
+					UVec4 bounds_minxy = UVec4::LoadInt4(reinterpret_cast<const uint32_t *>(&node->mBoundsMinX[0]));
 					Vec4 bounds_minx = HalfFloatConversion::ToFloat(bounds_minxy);
 					Vec4 bounds_miny = HalfFloatConversion::ToFloat(bounds_minxy.Swizzle<SWIZZLE_Z, SWIZZLE_W, SWIZZLE_UNUSED, SWIZZLE_UNUSED>());
 
-					UVec4 bounds_minzmaxx = UVec4::LoadInt4(reinterpret_cast<const uint32 *>(&node->mBoundsMinZ[0]));
+					UVec4 bounds_minzmaxx = UVec4::LoadInt4(reinterpret_cast<const uint32_t *>(&node->mBoundsMinZ[0]));
 					Vec4 bounds_minz = HalfFloatConversion::ToFloat(bounds_minzmaxx);
 					Vec4 bounds_maxx = HalfFloatConversion::ToFloat(bounds_minzmaxx.Swizzle<SWIZZLE_Z, SWIZZLE_W, SWIZZLE_UNUSED, SWIZZLE_UNUSED>());
 
-					UVec4 bounds_maxyz = UVec4::LoadInt4(reinterpret_cast<const uint32 *>(&node->mBoundsMaxY[0]));
+					UVec4 bounds_maxyz = UVec4::LoadInt4(reinterpret_cast<const uint32_t *>(&node->mBoundsMaxY[0]));
 					Vec4 bounds_maxy = HalfFloatConversion::ToFloat(bounds_maxyz);
 					Vec4 bounds_maxz = HalfFloatConversion::ToFloat(bounds_maxyz.Swizzle<SWIZZLE_Z, SWIZZLE_W, SWIZZLE_UNUSED, SWIZZLE_UNUSED>());
 				#endif
@@ -228,7 +228,7 @@ public:
 				else if (tri_count != TRIANGLE_COUNT_MASK) // TRIANGLE_COUNT_MASK indicates a padding node, normally we shouldn't visit these nodes but when querying with a big enough box you could touch HALF_FLT_MAX (about 65K)
 				{
 					// Node contains triangles, do individual tests
-					uint32 triangle_block_id = node_properties & OFFSET_MASK;
+					uint32_t triangle_block_id = node_properties & OFFSET_MASK;
 					const void *triangles = sGetTriangleBlockStart(inBufferStart, triangle_block_id);
 
 					ioVisitor.VisitTriangles(inTriangleContext, triangles, tri_count, triangle_block_id);
@@ -250,7 +250,7 @@ public:
 		bool IsDoneWalking() const { return mTop < 0; }
 
 	private:
-		uint32						mNodeStack[StackSize];
+		uint32_t						mNodeStack[StackSize];
 		int							mTop = 0;
 	};
 };

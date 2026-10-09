@@ -15,7 +15,7 @@ MOSS_SUPPRESS_WARNINGS_BEGIN
 
 #if defined(MOSS_EXTERNAL_PROFILE) && defined(MOSS_SHARED_LIBRARY)
 
-ProfileStartMeasurementFunction ProfileStartMeasurement = [](const char *, uint32, uint8 *) { };
+ProfileStartMeasurementFunction ProfileStartMeasurement = [](const char *, uint32_t, uint8 *) { };
 ProfileEndMeasurementFunction ProfileEndMeasurement = [](uint8 *) { };
 
 #elif defined(MOSS_PROFILE_ENABLED)
@@ -99,7 +99,7 @@ void Profiler::RemoveThread(ProfileThread *inThread)
 	mThreads.erase(i);
 }
 
-void Profiler::sAggregate(int inDepth, uint32 inColor, ProfileSample *&ioSample, const ProfileSample *inEnd, Aggregators &ioAggregators, KeyToAggregator &ioKeyToAggregator)
+void Profiler::sAggregate(int inDepth, uint32_t inColor, ProfileSample *&ioSample, const ProfileSample *inEnd, Aggregators &ioAggregators, KeyToAggregator &ioKeyToAggregator)
 {
 	// Store depth
 	ioSample->mDepth = uint8(min(255, inDepth));

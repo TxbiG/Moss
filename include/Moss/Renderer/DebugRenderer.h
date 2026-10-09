@@ -248,9 +248,9 @@ public:
 
 	/// Create a batch of triangles that can be drawn efficiently
 	virtual Batch			CreateTriangleBatch(const Triangle *inTriangles, int inTriangleCount) = 0;
-	virtual Batch			CreateTriangleBatch(const Vertex *inVertices, int inVertexCount, const uint32 *inIndices, int inIndexCount) = 0;
+	virtual Batch			CreateTriangleBatch(const Vertex *inVertices, int inVertexCount, const uint32_t *inIndices, int inIndexCount) = 0;
 	Batch					CreateTriangleBatch(const TArray<Triangle> &inTriangles) { return CreateTriangleBatch(inTriangles.empty()? nullptr : &inTriangles[0], int(inTriangles.size())); }
-	Batch					CreateTriangleBatch(const TArray<Vertex> &inVertices, const TArray<uint32> &inIndices) { return CreateTriangleBatch(inVertices.empty()? nullptr : &inVertices[0], int(inVertices.size()), inIndices.empty()? nullptr : &inIndices[0], int(inIndices.size())); }
+	Batch					CreateTriangleBatch(const TArray<Vertex> &inVertices, const TArray<uint32_t> &inIndices) { return CreateTriangleBatch(inVertices.empty()? nullptr : &inVertices[0], int(inVertices.size()), inIndices.empty()? nullptr : &inIndices[0], int(inIndices.size())); }
 	Batch					CreateTriangleBatch(const VertexList &inVertices, const IndexedTriangleNoMaterialList &inTriangles);
 
 	/// Create a primitive for a convex shape using its support function
@@ -290,11 +290,11 @@ private:
 	void					DrawWireUnitSphereRecursive(RMat44Arg inMatrix, Color inColor, Vec3Arg inDir1, Vec3Arg inDir2, Vec3Arg inDir3, int inLevel);
 
 	/// Helper functions to create a box
-	void					CreateQuad(TArray<uint32> &ioIndices, TArray<Vertex> &ioVertices, Vec3Arg inV1, Vec3Arg inV2, Vec3Arg inV3, Vec3Arg inV4);
+	void					CreateQuad(TArray<uint32_t> &ioIndices, TArray<Vertex> &ioVertices, Vec3Arg inV1, Vec3Arg inV2, Vec3Arg inV3, Vec3Arg inV4);
 
 	/// Helper functions to create a vertex and index buffer for a sphere
-	void					Create8thSphereRecursive(TArray<uint32> &ioIndices, TArray<Vertex> &ioVertices, Vec3Arg inDir1, uint32 &ioIdx1, Vec3Arg inDir2, uint32 &ioIdx2, Vec3Arg inDir3, uint32 &ioIdx3, const Float2 &inUV, SupportFunction inGetSupport, int inLevel);
-	void					Create8thSphere(TArray<uint32> &ioIndices, TArray<Vertex> &ioVertices, Vec3Arg inDir1, Vec3Arg inDir2, Vec3Arg inDir3, const Float2 &inUV, SupportFunction inGetSupport, int inLevel);
+	void					Create8thSphereRecursive(TArray<uint32_t> &ioIndices, TArray<Vertex> &ioVertices, Vec3Arg inDir1, uint32_t &ioIdx1, Vec3Arg inDir2, uint32_t &ioIdx2, Vec3Arg inDir3, uint32_t &ioIdx3, const Float2 &inUV, SupportFunction inGetSupport, int inLevel);
+	void					Create8thSphere(TArray<uint32_t> &ioIndices, TArray<Vertex> &ioVertices, Vec3Arg inDir1, Vec3Arg inDir2, Vec3Arg inDir3, const Float2 &inUV, SupportFunction inGetSupport, int inLevel);
 
 	/// Helper functions to create a vertex and index buffer for a cylinder
 	Batch					CreateCylinder(float inTop, float inBottom, float inTopRadius, float inBottomRadius, int inLevel);

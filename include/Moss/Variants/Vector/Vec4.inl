@@ -27,8 +27,8 @@ Vec4::Vec4(float inX, float inY, float inZ, float inW)
 #if defined(MOSS_SIMD_SSE)
 	mValue = _mm_set_ps(inW, inZ, inY, inX);
 #elif defined(MOSS_SIMD_NEON)
-	uint32x2_t xy = vcreate_u32(static_cast<uint64>(BitCast<uint32>(inX)) | (static_cast<uint64>(BitCast<uint32>(inY)) << 32));
-	uint32x2_t zw = vcreate_u32(static_cast<uint64>(BitCast<uint32>(inZ)) | (static_cast<uint64>(BitCast<uint32>(inW)) << 32));
+	uint32x2_t xy = vcreate_u32(static_cast<uint64>(BitCast<uint32_t>(inX)) | (static_cast<uint64>(BitCast<uint32_t>(inY)) << 32));
+	uint32x2_t zw = vcreate_u32(static_cast<uint64>(BitCast<uint32_t>(inZ)) | (static_cast<uint64>(BitCast<uint32_t>(inW)) << 32));
 	mValue = vreinterpretq_f32_u32(vcombine_u32(xy, zw));
 #else
 	this->mF32[0] = inX;
@@ -38,7 +38,7 @@ Vec4::Vec4(float inX, float inY, float inZ, float inW)
 #endif
 }
 
-template<uint32 SwizzleX, uint32 SwizzleY, uint32 SwizzleZ, uint32 SwizzleW>
+template<uint32_t SwizzleX, uint32_t SwizzleY, uint32_t SwizzleZ, uint32_t SwizzleW>
 Vec4 Vec4::Swizzle() const
 {
 	static_assert(SwizzleX <= 3, "SwizzleX template parameter out of range");
@@ -727,7 +727,7 @@ UVec4 Vec4::ToInt() const
 #elif defined(MOSS_SIMD_NEON)
 	return vcvtq_u32_f32(mValue);
 #else
-	return UVec4(uint32(mF32[0]), uint32(mF32[1]), uint32(mF32[2]), uint32(mF32[3]));
+	return UVec4(uint32_t(mF32[0]), uint32_t(mF32[1]), uint32_t(mF32[2]), uint32_t(mF32[3]));
 #endif
 }
 

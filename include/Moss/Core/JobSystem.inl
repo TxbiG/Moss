@@ -6,15 +6,15 @@ MOSS_SUPPRESS_WARNINGS_BEGIN
 
 void JobSystem::Job::AddDependency(int inCount)
 {
-	MOSS_IF_ENABLE_ASSERTS(uint32 old_value =) mNumDependencies.fetch_add(inCount, memory_order_relaxed);
+	MOSS_IF_ENABLE_ASSERTS(uint32_t old_value =) mNumDependencies.fetch_add(inCount, memory_order_relaxed);
 	MOSS_ASSERT(old_value > 0 && old_value != cExecutingState && old_value != cDoneState, "Job is queued, running or done, it is not allowed to add a dependency to a running job");
 }
 
 bool JobSystem::Job::RemoveDependency(int inCount)
 {
-	uint32 old_value = mNumDependencies.fetch_sub(inCount, memory_order_release);
+	uint32_t old_value = mNumDependencies.fetch_sub(inCount, memory_order_release);
 	MOSS_ASSERT(old_value != cExecutingState && old_value != cDoneState, "Job is running or done, it is not allowed to add a dependency to a running job");
-	uint32 new_value = old_value - inCount;
+	uint32_t new_value = old_value - inCount;
 	MOSS_ASSERT(old_value > new_value, "Test wrap around, this is a logic error");
 	return new_value == 0;
 }
@@ -25,7 +25,7 @@ void JobSystem::Job::RemoveDependencyAndQueue(int inCount)
 		mJobSystem->QueueJob(this);
 }
 
-void JobSystem::JobHandle::sRemoveDependencies(const JobHandle *inHandles, uint32 inNumHandles, int inCount)
+void JobSystem::JobHandle::sRemoveDependencies(const JobHandle *inHandles, uint32_t inNumHandles, int inCount)
 {
 	MOSS_PROFILE_FUNCTION();
 
@@ -48,7 +48,7 @@ void JobSystem::JobHandle::sRemoveDependencies(const JobHandle *inHandles, uint3
 	}
 
 	// If any jobs need to be scheduled, schedule them as a batch
-	uint32 num_jobs_to_queue = uint32(next_job - jobs_to_queue);
+	uint32_t num_jobs_to_queue = uint32_t(next_job - jobs_to_queue);
 	if (num_jobs_to_queue != 0)
 		job_system->QueueJobs(jobs_to_queue, num_jobs_to_queue);
 }

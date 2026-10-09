@@ -34,7 +34,7 @@ void ObjectStreamBinaryOut::WriteIdentifier(Identifier inIdentifier)
 	mStream.write((const char *)&inIdentifier, sizeof(inIdentifier));
 }
 
-void ObjectStreamBinaryOut::WriteCount(uint32 inCount)
+void ObjectStreamBinaryOut::WriteCount(uint32_t inCount)
 {
 	mStream.write((const char *)&inCount, sizeof(inCount));
 }
@@ -54,7 +54,7 @@ void ObjectStreamBinaryOut::WritePrimitiveData(const int &inPrimitive)
 	mStream.write((const char *)&inPrimitive, sizeof(inPrimitive));
 }
 
-void ObjectStreamBinaryOut::WritePrimitiveData(const uint32 &inPrimitive)
+void ObjectStreamBinaryOut::WritePrimitiveData(const uint32_t &inPrimitive)
 {
 	mStream.write((const char *)&inPrimitive, sizeof(inPrimitive));
 }
@@ -84,7 +84,7 @@ void ObjectStreamBinaryOut::WritePrimitiveData(const String &inPrimitive)
 	// Empty strings are trivial
 	if (inPrimitive.empty())
 	{
-		WritePrimitiveData((uint32)0);
+		WritePrimitiveData((uint32_t)0);
 		return;
 	}
 
@@ -101,7 +101,7 @@ void ObjectStreamBinaryOut::WritePrimitiveData(const String &inPrimitive)
 	mNextStringID++;
 
 	// Write string
-	uint32 len = min((uint32)inPrimitive.size(), (uint32)0x7fffffff);
+	uint32_t len = min((uint32_t)inPrimitive.size(), (uint32_t)0x7fffffff);
 	WritePrimitiveData(len);
 	mStream.write(inPrimitive.c_str(), len);
 }

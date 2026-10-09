@@ -136,10 +136,10 @@ void ShaderGL::SetUniformUint(const char *name, unsigned int value) { GLint loca
 void ShaderGL::SetUniformUint2(const char *name, unsigned int value0, unsigned int value1) { GLint location = getUniformLocation(name); if (location != -1) glUniform2ui(location, value0, value1); }
 void ShaderGL::SetUniformUint3(const char *name, unsigned int value0, unsigned int value1, unsigned int value2) { GLint location = getUniformLocation(name); if (location != -1) glUniform3ui(location, value0, value1, value2); }
 void ShaderGL::SetUniformUint4(const char *name, unsigned int value0, unsigned int value1, unsigned int value2, unsigned int value3) { GLint location = getUniformLocation(name); if (location != -1) glUniform4ui(location, value0, value1, value2, value3); }
-void ShaderGL::SetUniformInt(const char *name, int count, uint32 *value) { GLint location = getUniformLocation(name); if (location != -1) glUniform1uiv(location, count, value); }
-void ShaderGL::SetUniformInt2(const char *name, int count, uint32 *value) { GLint location = getUniformLocation(name); if (location != -1) glUniform2uiv(location, count, value); }
-void ShaderGL::SetUniformInt3(const char *name, int count, uint32 *value) { GLint location = getUniformLocation(name); if (location != -1) glUniform3uiv(location, count, value); }
-void ShaderGL::SetUniformInt4(const char *name, int count, uint32 *value) { GLint location = getUniformLocation(name); if (location != -1) glUniform4uiv(location, count, value); }
+void ShaderGL::SetUniformInt(const char *name, int count, uint32_t *value) { GLint location = getUniformLocation(name); if (location != -1) glUniform1uiv(location, count, value); }
+void ShaderGL::SetUniformInt2(const char *name, int count, uint32_t *value) { GLint location = getUniformLocation(name); if (location != -1) glUniform2uiv(location, count, value); }
+void ShaderGL::SetUniformInt3(const char *name, int count, uint32_t *value) { GLint location = getUniformLocation(name); if (location != -1) glUniform3uiv(location, count, value); }
+void ShaderGL::SetUniformInt4(const char *name, int count, uint32_t *value) { GLint location = getUniformLocation(name); if (location != -1) glUniform4uiv(location, count, value); }
 void ShaderGL::SetUniformArrayf(const char *name, int count, const float *value) { GLint location = getUniformLocation(name); if (location != -1) glUniform1fv(location, count, value); }
 void ShaderGL::SetUniformArrayf2(const char *name, int count, const float *value) { GLint location = getUniformLocation(name); if (location != -1) glUniform2fv(location, count, value); }
 void ShaderGL::SetUniformArrayf3(const char *name, int count, const float *value) { GLint location = getUniformLocation(name); if (location != -1) glUniform3fv(location, count, value); }

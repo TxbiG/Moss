@@ -15,7 +15,7 @@ class PipelineStateDX12 : public PipelineState
 {
 public:
 	/// Constructor
-	PipelineStateDX12(RendererDX12 *inRenderer, const VertexShaderDX12 *inVertexShader, const EInputDescription *inInputDescription, uint32 inInputDescriptionCount, 
+	PipelineStateDX12(RendererDX12 *inRenderer, const VertexShaderDX12 *inVertexShader, const EInputDescription *inInputDescription, uint32_t inInputDescriptionCount, 
 		const PixelShaderDX12 *inPixelShader, EDrawPass inDrawPass, EFillMode inFillMode, ETopology inTopology, EDepthTest inDepthTest, EBlendMode inBlendMode, ECullMode inCullMode);
 	virtual	~PipelineStateDX12() override;
 
@@ -54,10 +54,10 @@ public:
     //virtual void SetUniform(const char* name, unsigned int value0, unsigned int value1, unsigned int value2, unsigned int value3);
 
     // Unsigned Integer Array Uniforms
-    //virtual void SetUniform(const char* name, int count, uint32* value) override;
-    //virtual void SetUniform(const char* name, int count, uint32* value) override;
-    //virtual void SetUniform(const char* name, int count, uint32* value) override;
-    //virtual void SetUniform(const char* name, int count, uint32* value) override;
+    //virtual void SetUniform(const char* name, int count, uint32_t* value) override;
+    //virtual void SetUniform(const char* name, int count, uint32_t* value) override;
+    //virtual void SetUniform(const char* name, int count, uint32_t* value) override;
+    //virtual void SetUniform(const char* name, int count, uint32_t* value) override;
 
     // Float Array Uniforms
     //virtual void SetUniform(const char* name, int count, const float* value) override;

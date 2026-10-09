@@ -25,7 +25,7 @@
     the window size of a connection which limits the amount of reliable packets that may be in transit
     at any given time.
 */
-ENetHost* enet_host_create(ENetAddressType type, const ENetAddress * address, size_t peerCount, size_t channelLimit, uint32 incomingBandwidth, uint32 outgoingBandwidth) {
+ENetHost* enet_host_create(ENetAddressType type, const ENetAddress * address, size_t peerCount, size_t channelLimit, uint32_t incomingBandwidth, uint32_t outgoingBandwidth) {
     ENetHost * host;
     ENetPeer * currentPeer;
 
@@ -70,7 +70,7 @@ ENetHost* enet_host_create(ENetAddressType type, const ENetAddress * address, si
     if (! channelLimit || channelLimit > ENetProtocalSize::MAXIMUM_CHANNEL_COUNT) {channelLimit = ENetProtocalSize::MAXIMUM_CHANNEL_COUNT;}
     else if (channelLimit < ENetProtocalSize::MINIMUM_CHANNEL_COUNT) { channelLimit = ENetProtocalSize::MINIMUM_CHANNEL_COUNT; }
 
-    host->randomSeed = (uint32) (size_t) host;
+    host->randomSeed = (uint32_t) (size_t) host;
     host->randomSeed += enet_host_random_seed ();
     host->randomSeed = (host -> randomSeed << 16) | (host -> randomSeed >> 16);
     host->channelLimit = channelLimit;
@@ -147,10 +147,10 @@ void enet_host_destroy(ENetHost* host)
     enet_free (host);
 }
 
-uint32 enet_host_random(ENetHost* host)
+uint32_t enet_host_random(ENetHost* host)
 {
     /* Mulberry32 by Tommy Ettinger */
-    uint32 n = (host -> randomSeed += 0x6D2B79F5U);
+    uint32_t n = (host -> randomSeed += 0x6D2B79F5U);
     n = (n ^ (n >> 15)) * (n | 1U);
     n ^= n + (n ^ (n >> 7)) * (n | 61U);
     return n ^ (n >> 14);
@@ -165,7 +165,7 @@ uint32 enet_host_random(ENetHost* host)
     @remarks The peer returned will have not completed the connection until enet_host_service()
     notifies of an ENET_EVENT_TYPE_CONNECT event for the peer.
 */
-ENetPeer* enet_host_connect(ENetHost * host, const ENetAddress * address, size_t channelCount, uint32 data)
+ENetPeer* enet_host_connect(ENetHost * host, const ENetAddress * address, size_t channelCount, uint32_t data)
 {
     ENetPeer * currentPeer;
     ENetChannel * channel;
@@ -283,7 +283,7 @@ void enet_host_channel_limit(ENetHost * host, size_t channelLimit)
   specified in enet_host_create().
 */
 void
-enet_host_bandwidth_limit(ENetHost * host, uint32 incomingBandwidth, uint32 outgoingBandwidth)
+enet_host_bandwidth_limit(ENetHost * host, uint32_t incomingBandwidth, uint32_t outgoingBandwidth)
 {
   host->incomingBandwidth = incomingBandwidth;
   host->outgoingBandwidth = outgoingBandwidth;
@@ -293,9 +293,9 @@ enet_host_bandwidth_limit(ENetHost * host, uint32 incomingBandwidth, uint32 outg
 void
 enet_host_bandwidth_throttle(ENetHost * host)
 {
-    uint32 timeCurrent = enet_time_get (),
+    uint32_t timeCurrent = enet_time_get (),
         elapsedTime = timeCurrent - host -> bandwidthThrottleEpoch,
-        peersRemaining = (uint32) host -> connectedPeers,
+        peersRemaining = (uint32_t) host -> connectedPeers,
         dataTotal = ~0,
         bandwidth = ~0,
         throttle = 0,
@@ -331,7 +331,7 @@ enet_host_bandwidth_throttle(ENetHost * host)
           throttle = (bandwidth * ENET_PEER_PACKET_THROTTLE_SCALE) / dataTotal;
 
         for (peer = host -> peers; peer < & host -> peers [host -> peerCount]; ++ peer) {
-            uint32 peerBandwidth;
+            uint32_t peerBandwidth;
             
             if ((peer -> state != ENetPeerState::CONNECTED && peer -> state != ENetPeerState::DISCONNECT_LATER) || peer -> incomingBandwidth == 0 || peer -> outgoingBandwidthThrottleEpoch == timeCurrent) continue;
 
@@ -378,7 +378,7 @@ enet_host_bandwidth_throttle(ENetHost * host)
     {
        host -> recalculateBandwidthLimits = 0;
 
-       peersRemaining = (uint32) host -> connectedPeers;
+       peersRemaining = (uint32_t) host -> connectedPeers;
        bandwidth = host -> incomingBandwidth;
        needsAdjustment = 1;
 

@@ -13,7 +13,7 @@ MOSS_SUPPRESS_WARNINGS_BEGIN
 class ObjectLayerPairFilterTable : public ObjectLayerPairFilter {
 private:
 	/// Get which bit corresponds to the pair (inLayer1, inLayer2)
-	uint32					GetBit(ObjectLayer inLayer1, ObjectLayer inLayer2) const
+	uint32_t					GetBit(ObjectLayer inLayer1, ObjectLayer inLayer2) const
 	{
 		// We store the lower left half only, so swap the inputs when trying to access the top right half
 		if (inLayer1 > inLayer2)
@@ -31,7 +31,7 @@ public:
 	MOSS_OVERRIDE_NEW_DELETE
 
 	/// Constructs the table with inNumObjectLayers Layers, initially all layer pairs are disabled
-	explicit				ObjectLayerPairFilterTable(uint32 inNumObjectLayers) :
+	explicit				ObjectLayerPairFilterTable(uint32_t inNumObjectLayers) :
 		mNumObjectLayers(inNumObjectLayers)
 	{
 		// By default nothing collides
@@ -42,7 +42,7 @@ public:
 	}
 
 	/// Get the number of object layers
-	uint32					GetNumObjectLayers() const
+	uint32_t					GetNumObjectLayers() const
 	{
 		return mNumObjectLayers;
 	}
@@ -50,14 +50,14 @@ public:
 	/// Disable collision between two object layers
 	void					DisableCollision(ObjectLayer inLayer1, ObjectLayer inLayer2)
 	{
-		uint32 bit = GetBit(inLayer1, inLayer2);
+		uint32_t bit = GetBit(inLayer1, inLayer2);
 		mTable[bit >> 3] &= (0xff ^ (1 << (bit & 0b111)));
 	}
 
 	/// Enable collision between two object layers
 	void					EnableCollision(ObjectLayer inLayer1, ObjectLayer inLayer2)
 	{
-		uint32 bit = GetBit(inLayer1, inLayer2);
+		uint32_t bit = GetBit(inLayer1, inLayer2);
 		mTable[bit >> 3] |= 1 << (bit & 0b111);
 	}
 
@@ -65,12 +65,12 @@ public:
 	virtual bool			ShouldCollide(ObjectLayer inObject1, ObjectLayer inObject2) const override
 	{
 		// Test if the bit is set for this group pair
-		uint32 bit = GetBit(inObject1, inObject2);
+		uint32_t bit = GetBit(inObject1, inObject2);
 		return (mTable[bit >> 3] & (1 << (bit & 0b111))) != 0;
 	}
 
 private:
-	uint32			mNumObjectLayers;	// The number of layers that this table supports
+	uint32_t			mNumObjectLayers;	// The number of layers that this table supports
 	TArray<uint328>	mTable;				// The table of bits that indicates which layers collide
 };
 

@@ -57,7 +57,7 @@ public:
 	static const Color		White;
 
 	union {
-		uint32				mU32;	// Combined value for red, green, blue and alpha
+		uint32_t				mU32;	// Combined value for red, green, blue and alpha
 		struct {
 			float			r;		// Red channel
 			float			g;		// Green channel

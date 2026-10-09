@@ -7,7 +7,7 @@
 MOSS_SUPPRESS_WARNINGS_BEGIN
 
 /// Templatized vector class
-template <uint32 Rows>
+template <uint32_t Rows>
 class [[nodiscard]] TVec
 {
 public:
@@ -16,11 +16,11 @@ public:
 	inline	TVec(const TVec &) = default;
 
 	/// Dimensions
-	inline uint32 GetRows() const { return Rows; }
+	inline uint32_t GetRows() const { return Rows; }
 
 	/// Vector with all zeros
 	inline void SetZero() {
-		for (uint32 r = 0; r < Rows; ++r)
+		for (uint32_t r = 0; r < Rows; ++r)
 			mF32[r] = 0.0f;
 	}
 
@@ -28,17 +28,17 @@ public:
 
 	/// Copy a (part) of another vector into this vector
 	template <class OtherVector>
-	void CopyPart(const OtherVector &inV, uint32 inSourceRow, uint32 inNumRows, uint32 inDestRow) {
-		for (uint32 r = 0; r < inNumRows; ++r) { mF32[inDestRow + r] = inV[inSourceRow + r]; }
+	void CopyPart(const OtherVector &inV, uint32_t inSourceRow, uint32_t inNumRows, uint32_t inDestRow) {
+		for (uint32_t r = 0; r < inNumRows; ++r) { mF32[inDestRow + r] = inV[inSourceRow + r]; }
 	}
 
 	/// Get float component by index
-	inline float operator [] (uint32 inCoordinate) const {
+	inline float operator [] (uint32_t inCoordinate) const {
 		MOSS_ASSERT(inCoordinate < Rows);
 		return mF32[inCoordinate];
 	}
 
-	inline float& operator [] (uint32 inCoordinate)
+	inline float& operator [] (uint32_t inCoordinate)
 	{
 		MOSS_ASSERT(inCoordinate < Rows);
 		return mF32[inCoordinate];
@@ -47,7 +47,7 @@ public:
 	/// Comparison
 	inline bool operator == (const TVec &inV2) const
 	{
-		for (uint32 r = 0; r < Rows; ++r)
+		for (uint32_t r = 0; r < Rows; ++r)
 		{
 			if (mF32[r] != inV2.mF32[r])
 				return false;
@@ -57,7 +57,7 @@ public:
 
 	inline bool operator != (const TVec &inV2) const
 	{
-		for (uint32 r = 0; r < Rows; ++r)
+		for (uint32_t r = 0; r < Rows; ++r)
 			if (mF32[r] != inV2.mF32[r])
 				return true;
 		return false;
@@ -66,7 +66,7 @@ public:
 	/// Test if vector consists of all zeros
 	inline bool IsZero() const
 	{
-		for (uint32 r = 0; r < Rows; ++r)
+		for (uint32_t r = 0; r < Rows; ++r)
 			if (mF32[r] != 0.0f)
 				return false;
 		return true;
@@ -85,13 +85,13 @@ public:
 	inline TVec operator * (const float inV2) const
 	{
 		TVec v;
-		for (uint32 r = 0; r < Rows; ++r)
+		for (uint32_t r = 0; r < Rows; ++r)
 			v.mF32[r] = mF32[r] * inV2;
 		return v;
 	}
 
 	inline TVec& operator *= (const float inV2) {
-		for (uint32 r = 0; r < Rows; ++r)
+		for (uint32_t r = 0; r < Rows; ++r)
 			mF32[r] *= inV2;
 		return *this;
 	}
@@ -102,13 +102,13 @@ public:
 	/// Divide vector by float
 	inline TVec operator / (float inV2) const {
 		TVec v;
-		for (uint32 r = 0; r < Rows; ++r)
+		for (uint32_t r = 0; r < Rows; ++r)
 			v.mF32[r] = mF32[r] / inV2;
 		return v;
 	}
 
 	inline TVec& operator /= (float inV2) {
-		for (uint32 r = 0; r < Rows; ++r)
+		for (uint32_t r = 0; r < Rows; ++r)
 			mF32[r] /= inV2;
 		return *this;
 	}
@@ -116,13 +116,13 @@ public:
 	/// Add two float vectors (component wise)
 	inline TVec operator + (const TVec &inV2) const {
 		TVec v;
-		for (uint32 r = 0; r < Rows; ++r)
+		for (uint32_t r = 0; r < Rows; ++r)
 			v.mF32[r] = mF32[r] + inV2.mF32[r];
 		return v;
 	}
 
 	inline TVec & operator += (const TVec &inV2) {
-		for (uint32 r = 0; r < Rows; ++r)
+		for (uint32_t r = 0; r < Rows; ++r)
 			mF32[r] += inV2.mF32[r];
 		return *this;
 	}
@@ -130,7 +130,7 @@ public:
 	/// Negate
 	inline TVec operator - () const {
 		TVec v;
-		for (uint32 r = 0; r < Rows; ++r)
+		for (uint32_t r = 0; r < Rows; ++r)
 			v.mF32[r] = -mF32[r];
 		return v;
 	}
@@ -138,13 +138,13 @@ public:
 	/// Subtract two float vectors (component wise)
 	inline TVec operator - (const TVec &inV2) const {
 		TVec v;
-		for (uint32 r = 0; r < Rows; ++r)
+		for (uint32_t r = 0; r < Rows; ++r)
 			v.mF32[r] = mF32[r] - inV2.mF32[r];
 		return v;
 	}
 
 	inline TVec& operator -= (const TVec &inV2) {
-		for (uint32 r = 0; r < Rows; ++r)
+		for (uint32_t r = 0; r < Rows; ++r)
 			mF32[r] -= inV2.mF32[r];
 		return *this;
 	}
@@ -152,7 +152,7 @@ public:
 	/// Dot product
 	inline float Dot(const TVec &inV2) const {
 		float dot = 0.0f;
-		for (uint32 r = 0; r < Rows; ++r)
+		for (uint32_t r = 0; r < Rows; ++r)
 			dot += mF32[r] * inV2.mF32[r];
 		return dot;
 	}
@@ -178,7 +178,7 @@ public:
 	/// To String
 	friend ostream& operator << (ostream &inStream, const TVec &inV) {
 		inStream << "[";
-		for (uint32 i = 0; i < Rows - 1; ++i)
+		for (uint32_t i = 0; i < Rows - 1; ++i)
 			inStream << inV.mF32[i] << ", ";
 		inStream << inV.mF32[Rows - 1] << "]";
 		return inStream;

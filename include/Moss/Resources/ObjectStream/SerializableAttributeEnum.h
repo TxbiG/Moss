@@ -16,7 +16,7 @@ MOSS_SUPPRESS_WARNINGS_END
 //////////////////////////////////////////////////////////////////////////////////////////
 
 template <class MemberType>
-inline void AddSerializableAttributeEnum(RTTI &inRTTI, uint32 inOffset, const char *inName) {
+inline void AddSerializableAttributeEnum(RTTI &inRTTI, uint32_t inOffset, const char *inName) {
 	inRTTI.AddAttribute(SerializableAttribute(inName, inOffset,
 		[]() -> const RTTI *
 		{
@@ -28,7 +28,7 @@ inline void AddSerializableAttributeEnum(RTTI &inRTTI, uint32 inOffset, const ch
 		},
 		[](IObjectStreamIn &ioStream, void *inObject)
 		{
-			uint32 temporary;
+			uint32_t temporary;
 			if (OSReadData(ioStream, temporary))
 			{
 				*reinterpret_cast<MemberType *>(inObject) = static_cast<MemberType>(temporary);
@@ -38,8 +38,8 @@ inline void AddSerializableAttributeEnum(RTTI &inRTTI, uint32 inOffset, const ch
 		},
 		[](IObjectStreamOut &ioStream, const void *inObject)
 		{
-			static_assert(sizeof(MemberType) <= sizeof(uint32));
-			uint32 temporary = uint32(*reinterpret_cast<const MemberType *>(inObject));
+			static_assert(sizeof(MemberType) <= sizeof(uint32_t));
+			uint32_t temporary = uint32_t(*reinterpret_cast<const MemberType *>(inObject));
 			OSWriteData(ioStream, temporary);
 		},
 		[](IObjectStreamOut &ioStream)

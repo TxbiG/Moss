@@ -38,14 +38,14 @@ public:
 	static constexpr bool			ChangesOffsetOnPack = false;
 
 	/// Amount of bits per component
-	enum EComponentData : uint32
+	enum EComponentData : uint32_t
 	{
 		COMPONENT_BITS = 21,
 		COMPONENT_MASK = (1 << COMPONENT_BITS) - 1,
 	};
 
 	/// Packed X and Y coordinate
-	enum EVertexXY : uint32
+	enum EVertexXY : uint32_t
 	{
 		COMPONENT_X = 0,
 		COMPONENT_Y1 = COMPONENT_BITS,
@@ -53,7 +53,7 @@ public:
 	};
 
 	/// Packed Z and Y coordinate
-	enum EVertexZY : uint32
+	enum EVertexZY : uint32_t
 	{
 		COMPONENT_Z = 0,
 		COMPONENT_Y2 = COMPONENT_BITS,
@@ -63,8 +63,8 @@ public:
 	/// A single packed vertex
 	struct VertexData
 	{
-		uint32						mVertexXY;
-		uint32						mVertexZY;
+		uint32_t						mVertexXY;
+		uint32_t						mVertexZY;
 	};
 
 	static_assert(sizeof(VertexData) == 8, "Compiler added padding");
@@ -78,7 +78,7 @@ public:
 
 	static_assert(sizeof(TriangleBlock) == 16, "Compiler added padding");
 
-	enum ETriangleBlockHeaderFlags : uint32
+	enum ETriangleBlockHeaderFlags : uint32_t
 	{
 		OFFSET_TO_VERTICES_BITS = 29,							// Offset from current block to start of vertices in bytes
 		OFFSET_TO_VERTICES_MASK = (1 << OFFSET_TO_VERTICES_BITS) - 1,
@@ -93,9 +93,9 @@ public:
 	{
 		const VertexData *			GetVertexData() const		{ return reinterpret_cast<const VertexData *>(reinterpret_cast<const uint8 *>(this) + ((mFlags & OFFSET_TO_VERTICES_MASK) << OFFSET_NON_SIGNIFICANT_BITS)); }
 		const TriangleBlock *		GetTriangleBlock() const	{ return reinterpret_cast<const TriangleBlock *>(reinterpret_cast<const uint8 *>(this) + sizeof(TriangleBlockHeader)); }
-		const uint32 *				GetUserData() const			{ uint32 offset = mFlags >> OFFSET_TO_VERTICES_BITS; return offset == 0? nullptr : reinterpret_cast<const uint32 *>(GetTriangleBlock() + offset); }
+		const uint32_t *				GetUserData() const			{ uint32_t offset = mFlags >> OFFSET_TO_VERTICES_BITS; return offset == 0? nullptr : reinterpret_cast<const uint32_t *>(GetTriangleBlock() + offset); }
 
-		uint32						mFlags;
+		uint32_t						mFlags;
 	};
 
 	static_assert(sizeof(TriangleBlockHeader) == 4, "Compiler added padding");
@@ -110,7 +110,7 @@ public:
 		{
 			// Only used the referenced triangles, just like EncodingContext::Finalize does
 			for (const IndexedTriangle &i : inTriangles)
-				for (uint32 idx : i.mIdx)
+				for (uint32_t idx : i.mIdx)
 					mBounds.Encapsulate(Vec3(inVertices[idx]));
 		}
 
@@ -135,7 +135,7 @@ public:
 	{
 	public:
 		/// Indicates a vertex hasn't been seen yet in the triangle list
-		static constexpr uint32		cNotFound = 0xffffffff;
+		static constexpr uint32_t		cNotFound = 0xffffffff;
 
 		/// Construct the encoding context
 		explicit					EncodingContext(const VertexList &inVertices) :
@@ -144,30 +144,30 @@ public:
 		}
 
 		/// Mimics the size a call to Pack() would add to the buffer
-		void						PreparePack(const IndexedTriangle *inTriangles, uint32 inNumTriangles, bool inStoreUserData, uint64 &ioBufferSize)
+		void						PreparePack(const IndexedTriangle *inTriangles, uint32_t inNumTriangles, bool inStoreUserData, uint64 &ioBufferSize)
 		{
 			// Add triangle block header
 			ioBufferSize += sizeof(TriangleBlockHeader);
 
 			// Compute first vertex that this batch will use (ensuring there's enough room if none of the vertices are shared)
-			uint32 start_vertex = Clamp((int)mVertexCount - 256 + (int)inNumTriangles * 3, 0, (int)mVertexCount);
+			uint32_t start_vertex = Clamp((int)mVertexCount - 256 + (int)inNumTriangles * 3, 0, (int)mVertexCount);
 
 			// Pack vertices
-			uint32 padded_triangle_count = AlignUp(inNumTriangles, 4);
-			for (uint32 t = 0; t < padded_triangle_count; t += 4)
+			uint32_t padded_triangle_count = AlignUp(inNumTriangles, 4);
+			for (uint32_t t = 0; t < padded_triangle_count; t += 4)
 			{
 				// Add triangle block header
 				ioBufferSize += sizeof(TriangleBlock);
 
-				for (uint32 vertex_nr = 0; vertex_nr < 3; ++vertex_nr)
-					for (uint32 block_tri_idx = 0; block_tri_idx < 4; ++block_tri_idx)
+				for (uint32_t vertex_nr = 0; vertex_nr < 3; ++vertex_nr)
+					for (uint32_t block_tri_idx = 0; block_tri_idx < 4; ++block_tri_idx)
 					{
 						// Fetch vertex index. Create degenerate triangles for padding triangles.
 						bool triangle_available = t + block_tri_idx < inNumTriangles;
-						uint32 src_vertex_index = triangle_available? inTriangles[t + block_tri_idx].mIdx[vertex_nr] : inTriangles[inNumTriangles - 1].mIdx[0];
+						uint32_t src_vertex_index = triangle_available? inTriangles[t + block_tri_idx].mIdx[vertex_nr] : inTriangles[inNumTriangles - 1].mIdx[0];
 
 						// Check if we've seen this vertex before and if it is in the range that we can encode
-						uint32 &vertex_index = mVertexMap[src_vertex_index];
+						uint32_t &vertex_index = mVertexMap[src_vertex_index];
 						if (vertex_index == cNotFound || vertex_index < start_vertex)
 						{
 							// Add vertex
@@ -179,7 +179,7 @@ public:
 
 			// Add user data
 			if (inStoreUserData)
-				ioBufferSize += inNumTriangles * sizeof(uint32);
+				ioBufferSize += inNumTriangles * sizeof(uint32_t);
 		}
 
 		/// Mimics the size the Finalize() call would add to ioBufferSize
@@ -196,13 +196,13 @@ public:
 			mVertices.reserve(mVertexCount);
 
 			// Set vertex map back to 'not found'
-			for (uint32 &v : mVertexMap)
+			for (uint32_t &v : mVertexMap)
 				v = cNotFound;
 		}
 
 		/// Pack the triangles in inContainer to ioBuffer. This stores the mMaterialIndex of a triangle in the 8 bit flags.
 		/// Returns size_t(-1) on error.
-		size_t						Pack(const IndexedTriangle *inTriangles, uint32 inNumTriangles, bool inStoreUserData, ByteBuffer &ioBuffer, const char *&outError)
+		size_t						Pack(const IndexedTriangle *inTriangles, uint32_t inNumTriangles, bool inStoreUserData, ByteBuffer &ioBuffer, const char *&outError)
 		{
 			MOSS_ASSERT(inNumTriangles > 0);
 
@@ -213,7 +213,7 @@ public:
 			TriangleBlockHeader *header = ioBuffer.Allocate<TriangleBlockHeader>();
 
 			// Compute first vertex that this batch will use (ensuring there's enough room if none of the vertices are shared)
-			uint32 start_vertex = Clamp((int)mVertices.size() - 256 + (int)inNumTriangles * 3, 0, (int)mVertices.size());
+			uint32_t start_vertex = Clamp((int)mVertices.size() - 256 + (int)inNumTriangles * 3, 0, (int)mVertices.size());
 
 			// Store the start vertex offset relative to TriangleBlockHeader
 			size_t offset_to_vertices = mVerticesStartIdx - triangle_block_start + size_t(start_vertex) * sizeof(VertexData);
@@ -228,39 +228,39 @@ public:
 				outError = "TriangleCodecIndexed8BitPackSOA4Flags: Offset to vertices doesn't fit. Too much data.";
 				return size_t(-1);
 			}
-			header->mFlags = uint32(offset_to_vertices);
+			header->mFlags = uint32_t(offset_to_vertices);
 
 			// When we store user data we need to store the offset to the user data in TriangleBlocks
-			uint32 padded_triangle_count = AlignUp(inNumTriangles, 4);
+			uint32_t padded_triangle_count = AlignUp(inNumTriangles, 4);
 			if (inStoreUserData)
 			{
-				uint32 num_blocks = padded_triangle_count >> 2;
+				uint32_t num_blocks = padded_triangle_count >> 2;
 				MOSS_ASSERT(num_blocks <= OFFSET_TO_USERDATA_MASK);
 				header->mFlags |= num_blocks << OFFSET_TO_VERTICES_BITS;
 			}
 
 			// Pack vertices
-			for (uint32 t = 0; t < padded_triangle_count; t += 4)
+			for (uint32_t t = 0; t < padded_triangle_count; t += 4)
 			{
 				TriangleBlock *block = ioBuffer.Allocate<TriangleBlock>();
-				for (uint32 vertex_nr = 0; vertex_nr < 3; ++vertex_nr)
-					for (uint32 block_tri_idx = 0; block_tri_idx < 4; ++block_tri_idx)
+				for (uint32_t vertex_nr = 0; vertex_nr < 3; ++vertex_nr)
+					for (uint32_t block_tri_idx = 0; block_tri_idx < 4; ++block_tri_idx)
 					{
 						// Fetch vertex index. Create degenerate triangles for padding triangles.
 						bool triangle_available = t + block_tri_idx < inNumTriangles;
-						uint32 src_vertex_index = triangle_available? inTriangles[t + block_tri_idx].mIdx[vertex_nr] : inTriangles[inNumTriangles - 1].mIdx[0];
+						uint32_t src_vertex_index = triangle_available? inTriangles[t + block_tri_idx].mIdx[vertex_nr] : inTriangles[inNumTriangles - 1].mIdx[0];
 
 						// Check if we've seen this vertex before and if it is in the range that we can encode
-						uint32 &vertex_index = mVertexMap[src_vertex_index];
+						uint32_t &vertex_index = mVertexMap[src_vertex_index];
 						if (vertex_index == cNotFound || vertex_index < start_vertex)
 						{
 							// Add vertex
-							vertex_index = (uint32)mVertices.size();
+							vertex_index = (uint32_t)mVertices.size();
 							mVertices.push_back(src_vertex_index);
 						}
 
 						// Store vertex index
-						uint32 vertex_offset = vertex_index - start_vertex;
+						uint32_t vertex_offset = vertex_index - start_vertex;
 						if (vertex_offset > 0xff)
 						{
 							outError = "TriangleCodecIndexed8BitPackSOA4Flags: Offset doesn't fit in 8 bit";
@@ -269,7 +269,7 @@ public:
 						block->mIndices[vertex_nr][block_tri_idx] = (uint8)vertex_offset;
 
 						// Store flags
-						uint32 flags = triangle_available? inTriangles[t + block_tri_idx].mMaterialIndex : 0;
+						uint32_t flags = triangle_available? inTriangles[t + block_tri_idx].mMaterialIndex : 0;
 						if (flags > 0xff)
 						{
 							outError = "TriangleCodecIndexed8BitPackSOA4Flags: Material index doesn't fit in 8 bit";
@@ -282,8 +282,8 @@ public:
 			// Store user data
 			if (inStoreUserData)
 			{
-				uint32 *user_data = ioBuffer.Allocate<uint32>(inNumTriangles);
-				for (uint32 t = 0; t < inNumTriangles; ++t)
+				uint32_t *user_data = ioBuffer.Allocate<uint32_t>(inNumTriangles);
+				for (uint32_t t = 0; t < inNumTriangles; ++t)
 					user_data[t] = inTriangles[t].mUserData;
 			}
 
@@ -303,13 +303,13 @@ public:
 
 			// Calculate bounding box
 			AABox bounds;
-			for (uint32 v : mVertices)
+			for (uint32_t v : mVertices)
 				bounds.Encapsulate(Vec3(inVertices[v]));
 
 			// Compress vertices
 			VertexData *vertices = ioBuffer.Allocate<VertexData>(mVertices.size());
 			Vec3 compress_scale = Vec3::Replicate(COMPONENT_MASK) / Vec3::Max(bounds.GetSize(), Vec3::Replicate(1.0e-20f));
-			for (uint32 v : mVertices) {
+			for (uint32_t v : mVertices) {
 				UVec4 c = ((Vec3(inVertices[v]) - bounds.mMin) * compress_scale + Vec3::Replicate(0.5f)).ToInt();
 				MOSS_ASSERT(c.GetX() <= COMPONENT_MASK);
 				MOSS_ASSERT(c.GetY() <= COMPONENT_MASK);
@@ -325,11 +325,11 @@ public:
 		}
 
 	private:
-		using VertexMap = TArray<uint32>;
+		using VertexMap = TArray<uint32_t>;
 
-		uint32						mVertexCount = 0;			// Number of vertices calculated during PreparePack
+		uint32_t						mVertexCount = 0;			// Number of vertices calculated during PreparePack
 		size_t						mVerticesStartIdx = 0;		// Start of the vertices in the output buffer, calculated during PreparePack
-		TArray<uint32>				mVertices;					// Output vertices as an index into the original vertex list (inVertices), sorted according to occurrence
+		TArray<uint32_t>				mVertices;					// Output vertices as an index into the original vertex list (inVertices), sorted according to occurrence
 		VertexMap					mVertexMap;					// Maps from the original mesh vertex index (inVertices) to the index in our output vertices (mVertices)
 	};
 
@@ -359,7 +359,7 @@ public:
 		MOSS_INLINE void				Unpack(const TriangleBlock *inBlock, const VertexData *inVertices, Vec4 &outX1, Vec4 &outY1, Vec4 &outZ1, Vec4 &outX2, Vec4 &outY2, Vec4 &outZ2, Vec4 &outX3, Vec4 &outY3, Vec4 &outZ3) const
 		{
 			// Get the indices for the three vertices (reads 4 bytes extra, but these are the flags so that's ok)
-			UVec4 indices = UVec4::LoadInt4(reinterpret_cast<const uint32 *>(&inBlock->mIndices[0]));
+			UVec4 indices = UVec4::LoadInt4(reinterpret_cast<const uint32_t *>(&inBlock->mIndices[0]));
 			UVec4 iv1 = indices.Expand4Byte0();
 			UVec4 iv2 = indices.Expand4Byte4();
 			UVec4 iv3 = indices.Expand4Byte8();
@@ -389,7 +389,7 @@ public:
 		}
 
 		/// Unpacks triangles in the format t1v1,t1v2,t1v3, t2v1,t2v2,t2v3, ...
-		MOSS_INLINE void				Unpack(const void *inTriangleStart, uint32 inNumTriangles, Vec3 *outTriangles) const
+		MOSS_INLINE void				Unpack(const void *inTriangleStart, uint32_t inNumTriangles, Vec3 *outTriangles) const
 		{
 			MOSS_ASSERT(inNumTriangles > 0);
 			const TriangleBlockHeader *header = reinterpret_cast<const TriangleBlockHeader *>(inTriangleStart);
@@ -423,7 +423,7 @@ public:
 		}
 
 		/// Tests a ray against the packed triangles
-		MOSS_INLINE float			TestRay(Vec3Arg inRayOrigin, Vec3Arg inRayDirection, const void *inTriangleStart, uint32 inNumTriangles, float inClosest, uint32 &outClosestTriangleIndex) const
+		MOSS_INLINE float			TestRay(Vec3Arg inRayOrigin, Vec3Arg inRayDirection, const void *inTriangleStart, uint32_t inNumTriangles, float inClosest, uint32_t &outClosestTriangleIndex) const
 		{
 			MOSS_ASSERT(inNumTriangles > 0);
 			const TriangleBlockHeader *header = reinterpret_cast<const TriangleBlockHeader *>(inTriangleStart);
@@ -464,12 +464,12 @@ public:
 		}
 
 		/// Decode a single triangle
-		inline void					GetTriangle(const void *inTriangleStart, uint32 inTriangleIdx, Vec3 &outV1, Vec3 &outV2, Vec3 &outV3) const
+		inline void					GetTriangle(const void *inTriangleStart, uint32_t inTriangleIdx, Vec3 &outV1, Vec3 &outV2, Vec3 &outV3) const
 		{
 			const TriangleBlockHeader *header = reinterpret_cast<const TriangleBlockHeader *>(inTriangleStart);
 			const VertexData *vertices = header->GetVertexData();
 			const TriangleBlock *block = header->GetTriangleBlock() + (inTriangleIdx >> 2);
-			uint32 block_triangle_idx = inTriangleIdx & 0b11;
+			uint32_t block_triangle_idx = inTriangleIdx & 0b11;
 
 			// Get the 3 vertices
 			const VertexData &v1 = vertices[block->mIndices[0][block_triangle_idx]];
@@ -498,15 +498,15 @@ public:
 		}
 
 		/// Get user data for a triangle
-		MOSS_INLINE uint32			GetUserData(const void *inTriangleStart, uint32 inTriangleIdx) const
+		MOSS_INLINE uint32_t			GetUserData(const void *inTriangleStart, uint32_t inTriangleIdx) const
 		{
 			const TriangleBlockHeader *header = reinterpret_cast<const TriangleBlockHeader *>(inTriangleStart);
-			const uint32 *user_data = header->GetUserData();
+			const uint32_t *user_data = header->GetUserData();
 			return user_data != nullptr? user_data[inTriangleIdx] : 0;
 		}
 
 		/// Get flags for entire triangle block
-		MOSS_INLINE static void		sGetFlags(const void *inTriangleStart, uint32 inNumTriangles, uint8 *outTriangleFlags)
+		MOSS_INLINE static void		sGetFlags(const void *inTriangleStart, uint32_t inNumTriangles, uint8 *outTriangleFlags)
 		{
 			MOSS_ASSERT(inNumTriangles > 0);
 			const TriangleBlockHeader *header = reinterpret_cast<const TriangleBlockHeader *>(inTriangleStart);
@@ -533,7 +533,7 @@ public:
 		}
 
 		/// Unpacks triangles and flags, convenience function
-		MOSS_INLINE void				Unpack(const void *inTriangleStart, uint32 inNumTriangles, Vec3 *outTriangles, uint8 *outTriangleFlags) const
+		MOSS_INLINE void				Unpack(const void *inTriangleStart, uint32_t inNumTriangles, Vec3 *outTriangles, uint8 *outTriangleFlags) const
 		{
 			Unpack(inTriangleStart, inNumTriangles, outTriangles);
 			sGetFlags(inTriangleStart, inNumTriangles, outTriangleFlags);

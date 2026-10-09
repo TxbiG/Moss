@@ -34,7 +34,7 @@ static FormatDescription sFormats[] =
 	FormatDescription("Invalid",	0,		0,		ESurfaceFormat::Invalid,	ESurfaceFormat::Invalid,	0x00000000,	0x00000000,	0x00000000, 0x00000000),
 };
 
-FormatDescription::FormatDescription(const char *inFormatName, int inBitsPerPixel, int inNumberOfComponents, ESurfaceFormat inClosest8BitFormat, ESurfaceFormat inClosestAlphaFormat, uint32 inRedMask, uint32 inGreenMask, uint32 inBlueMask, uint32 inAlphaMask) :
+FormatDescription::FormatDescription(const char *inFormatName, int inBitsPerPixel, int inNumberOfComponents, ESurfaceFormat inClosest8BitFormat, ESurfaceFormat inClosestAlphaFormat, uint32_t inRedMask, uint32_t inGreenMask, uint32_t inBlueMask, uint32_t inAlphaMask) :
 	mFormatName(inFormatName),
 	mBitsPerPixel(inBitsPerPixel),
 	mNumberOfComponents(inNumberOfComponents),
@@ -47,16 +47,16 @@ FormatDescription::FormatDescription(const char *inFormatName, int inBitsPerPixe
 {
 }
 
-uint32 FormatDescription::Encode(ColorArg inColor) const
+uint32_t FormatDescription::Encode(ColorArg inColor) const
 {
-	uint32 col = 0;
-	uint32 written_mask = 0;
+	uint32_t col = 0;
+	uint32_t written_mask = 0;
 
 	// Loop through all components
 	for (int c = 0; c < 4; ++c)
 	{
 		// Check that we have not yet written this part of the color yet
-		uint32 mask = GetComponentMask(c);
+		uint32_t mask = GetComponentMask(c);
 		if ((written_mask & mask) != 0) continue;
 		written_mask |= mask;
 
@@ -67,19 +67,19 @@ uint32 FormatDescription::Encode(ColorArg inColor) const
 	return col;
 }
 
-const Color FormatDescription::Decode(uint32 inColor) const
+const Color FormatDescription::Decode(uint32_t inColor) const
 {
 	Color col(0, 0, 0, 0);
 
 	// Loop through all components
 	for (int c = 0; c < 4; ++c)
 	{
-		uint32 mask = GetComponentMask(c);
+		uint32_t mask = GetComponentMask(c);
 		if (mask != 0)
 		{
-			uint32 shift = CountTrailingZeros(mask);
-			uint32 shifted_color = (inColor & mask) >> shift;
-			uint32 shifted_mask = mask >> shift;
+			uint32_t shift = CountTrailingZeros(mask);
+			uint32_t shifted_color = (inColor & mask) >> shift;
+			uint32_t shifted_mask = mask >> shift;
 			col(c) = uint8((255 * shifted_color + 127) / shifted_mask);
 		}
 		else
@@ -92,9 +92,9 @@ const Color FormatDescription::Decode(uint32 inColor) const
 const FormatDescription &GetFormatDescription(ESurfaceFormat inFormat)
 {
 	if (inFormat <= ESurfaceFormat::Invalid)
-		return sFormats[uint32(inFormat)];
+		return sFormats[uint32_t(inFormat)];
 
-	return sFormats[uint32(ESurfaceFormat::Invalid)];
+	return sFormats[uint32_t(ESurfaceFormat::Invalid)];
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
@@ -126,7 +126,7 @@ void Surface::Lock(ESurfaceLockMode inMode) const
 {
 	// Check if this resource can be locked
 	MOSS_ASSERT(!IsLocked());
-	MOSS_ASSERT((uint32(inMode) & uint32(ESurfaceLockMode::ReadWrite)) != 0);
+	MOSS_ASSERT((uint32_t(inMode) & uint32_t(ESurfaceLockMode::ReadWrite)) != 0);
 
 	// Store mode
 	mLockMode = inMode;
@@ -165,7 +165,7 @@ void Surface::Clear(ColorArg inColor)
 	int height = GetHeight();
 
 	// Determine clear color
-	uint32 col = GetFormatDescription().Encode(inColor);
+	uint32_t col = GetFormatDescription().Encode(inColor);
 
 	// Clear the image
 	for (int y = 0; y < height; ++y)

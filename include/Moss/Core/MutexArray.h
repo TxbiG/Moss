@@ -20,14 +20,14 @@ public:
 							MutexArray() = default;
 
 	/// Constructor, constructs an array with inNumMutexes entries
-	explicit				MutexArray(uint32 inNumMutexes) { Init(inNumMutexes); }
+	explicit				MutexArray(uint32_t inNumMutexes) { Init(inNumMutexes); }
 
 	/// Destructor
 							~MutexArray() { delete [] mMutexStorage; }
 
 	/// Initialization
 	/// @param inNumMutexes The amount of mutexes to allocate
-	void					Init(uint32 inNumMutexes)
+	void					Init(uint32_t inNumMutexes)
 	{
 		MOSS_ASSERT(mMutexStorage == nullptr);
 		MOSS_ASSERT(inNumMutexes > 0 && IsPowerOf2(inNumMutexes));
@@ -37,26 +37,26 @@ public:
 	}
 
 	/// Get the number of mutexes that were allocated
-	inline uint32				GetNumMutexes() const
+	inline uint32_t				GetNumMutexes() const
 	{
 		return mNumMutexes;
 	}
 
 	/// Convert an object index to a mutex index
-	inline uint32			GetMutexIndex(uint32 inObjectIndex) const
+	inline uint32_t			GetMutexIndex(uint32_t inObjectIndex) const
 	{
-		Hash<uint32> hasher;
+		Hash<uint32_t> hasher;
 		return hasher(inObjectIndex) & (mNumMutexes - 1);
 	}
 
 	/// Get the mutex belonging to a certain object by index
-	inline MutexType &		GetMutexByObjectIndex(uint32 inObjectIndex)
+	inline MutexType &		GetMutexByObjectIndex(uint32_t inObjectIndex)
 	{
 		return mMutexStorage[GetMutexIndex(inObjectIndex)].mMutex;
 	}
 
 	/// Get a mutex by index in the array
-	inline MutexType &		GetMutexByIndex(uint32 inMutexIndex)
+	inline MutexType &		GetMutexByIndex(uint32_t inMutexIndex)
 	{
 		return mMutexStorage[inMutexIndex].mMutex;
 	}
@@ -91,7 +91,7 @@ private:
 	};
 
 	MutexStorage *			mMutexStorage = nullptr;
-	uint32					mNumMutexes = 0;
+	uint32_t					mNumMutexes = 0;
 };
 
 MOSS_SUPPRESS_WARNINGS_END

@@ -16,7 +16,7 @@ MOSS_SUPPRESS_WARNINGS_BEGIN
 
 /// Helper class that needs to be put on the stack to update the state of the floating point control word.
 /// This state is kept per thread.
-template <uint32 Value, uint32 Mask>
+template <uint32_t Value, uint32_t Mask>
 class FPControlWord : public NonCopyable
 {
 public:
@@ -32,7 +32,7 @@ public:
 	}
 
 private:
-	uint32		mPrevState;
+	uint32_t		mPrevState;
 };
 
 #elif defined(MOSS_CPU_ARM) && defined(MOSS_COMPILER_MSVC)
@@ -99,13 +99,13 @@ private:
 
 /// Helper class that needs to be put on the stack to update the state of the floating point control word.
 /// This state is kept per thread.
-template <uint32 Value, uint32 Mask>
+template <uint32_t Value, uint32_t Mask>
 class FPControlWord : public NonCopyable
 {
 public:
 	FPControlWord()
 	{
-		uint32 val;
+		uint32_t val;
 		asm volatile("vmrs %0, fpscr" : "=r" (val));
 		mPrevState = val;
 		val &= ~Mask;
@@ -115,7 +115,7 @@ public:
 
 	~FPControlWord()
 	{
-		uint32 val;
+		uint32_t val;
 		asm volatile("vmrs %0, fpscr" : "=r" (val));
 		val &= ~Mask;
 		val |= mPrevState & Mask;
@@ -123,7 +123,7 @@ public:
 	}
 
 private:
-	uint32		mPrevState;
+	uint32_t		mPrevState;
 };
 
 #elif defined(MOSS_CPU_RISCV)

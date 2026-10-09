@@ -26,7 +26,7 @@ public:
 	virtual void						DrawLine(RVec3Arg inFrom, RVec3Arg inTo, ColorArg inColor) override;
 	virtual void						DrawTriangle(RVec3Arg inV1, RVec3Arg inV2, RVec3Arg inV3, ColorArg inColor, ECastShadow inCastShadow) override;
 	virtual Batch						CreateTriangleBatch(const Triangle *inTriangles, int inTriangleCount) override;
-	virtual Batch						CreateTriangleBatch(const Vertex *inVertices, int inVertexCount, const uint32 *inIndices, int inIndexCount) override;
+	virtual Batch						CreateTriangleBatch(const Vertex *inVertices, int inVertexCount, const uint32_t *inIndices, int inIndexCount) override;
 	virtual void						DrawGeometry(RMat44Arg inModelMatrix, const AABox &inWorldSpaceBounds, float inLODScaleSq, ColorArg inModelColor, const GeometryRef &inGeometry, ECullMode inCullMode, ECastShadow inCastShadow, EDrawMode inDrawMode) override;
 	virtual void						DrawText3D(RVec3Arg inPosition, const string_view &inString, ColorArg inColor, float inHeight) override;
 
@@ -77,7 +77,7 @@ public:
 	{
 		RMat44							mModelMatrix;
 		Color							mModelColor;
-		uint32							mGeometryID;
+		uint32_t							mGeometryID;
 		ECullMode						mCullMode;
 		ECastShadow						mCastShadow;
 		EDrawMode						mDrawMode;
@@ -99,13 +99,13 @@ private:
 	public:
 		MOSS_OVERRIDE_NEW_DELETE
 
-										BatchImpl(uint32 inID)		: mID(inID) {  }
+										BatchImpl(uint32_t inID)		: mID(inID) {  }
 
 		virtual void					AddRef() override			{ ++mRefCount; }
 		virtual void					Release() override			{ if (--mRefCount == 0) delete this; }
 
-		atomic<uint32>					mRefCount = 0;
-		uint32							mID;
+		atomic<uint32_t>					mRefCount = 0;
+		uint32_t							mID;
 	};
 
 	/// Lock that prevents concurrent access to the internal structures
@@ -115,11 +115,11 @@ private:
 	StreamOut &							mStream;
 
 	/// Next available ID
-	uint32								mNextBatchID = 1;
-	uint32								mNextGeometryID = 1;
+	uint32_t								mNextBatchID = 1;
+	uint32_t								mNextGeometryID = 1;
 
 	/// Cached geometries and their IDs
-	TMap<GeometryRef, uint32>	mGeometries;
+	TMap<GeometryRef, uint32_t>	mGeometries;
 
 	/// Data that is being accumulated for the current frame
 	Frame								mCurrentFrame;

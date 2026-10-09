@@ -24,7 +24,7 @@ DebugRenderer::Batch DebugRendererSimple::CreateTriangleBatch(const Triangle *in
 	return batch;
 }
 
-DebugRenderer::Batch DebugRendererSimple::CreateTriangleBatch(const Vertex *inVertices, int inVertexCount, const uint32 *inIndices, int inIndexCount)
+DebugRenderer::Batch DebugRendererSimple::CreateTriangleBatch(const Vertex *inVertices, int inVertexCount, const uint32_t *inIndices, int inIndexCount)
 {
 	BatchImpl *batch = new BatchImpl;
 	if (inVertices == nullptr || inVertexCount == 0 || inIndices == nullptr || inIndexCount == 0)

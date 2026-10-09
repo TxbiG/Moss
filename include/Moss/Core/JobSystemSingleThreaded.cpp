@@ -6,15 +6,15 @@
 
 MOSS_SUPPRESS_WARNINGS_BEGIN
 
-void JobSystemSingleThreaded::Init(uint32 inMaxJobs)
+void JobSystemSingleThreaded::Init(uint32_t inMaxJobs)
 {
 	mJobs.Init(inMaxJobs, inMaxJobs);
 }
 
-JobHandle JobSystemSingleThreaded::CreateJob(const char *inJobName, ColorArg inColor, const JobFunction &inJobFunction, uint32 inNumDependencies)
+JobHandle JobSystemSingleThreaded::CreateJob(const char *inJobName, ColorArg inColor, const JobFunction &inJobFunction, uint32_t inNumDependencies)
 {
 	// Construct an object
-	uint32 index = mJobs.ConstructObject(inJobName, inColor, this, inJobFunction, inNumDependencies);
+	uint32_t index = mJobs.ConstructObject(inJobName, inColor, this, inJobFunction, inNumDependencies);
 	MOSS_ASSERT(index != AvailableJobs::cInvalidObjectIndex);
 	Job *job = &mJobs.Get(index);
 
@@ -39,9 +39,9 @@ void JobSystemSingleThreaded::QueueJob(Job *inJob)
 	inJob->Execute();
 }
 
-void JobSystemSingleThreaded::QueueJobs(Job **inJobs, uint32 inNumJobs)
+void JobSystemSingleThreaded::QueueJobs(Job **inJobs, uint32_t inNumJobs)
 {
-	for (uint32 i = 0; i < inNumJobs; ++i)
+	for (uint32_t i = 0; i < inNumJobs; ++i)
 		QueueJob(inJobs[i]);
 }
 

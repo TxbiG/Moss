@@ -68,7 +68,7 @@ Semaphore::~Semaphore()
 #endif
 }
 
-void Semaphore::Release(uint32 inNumber)
+void Semaphore::Release(uint32_t inNumber)
 {
 	MOSS_ASSERT(inNumber > 0);
 
@@ -100,7 +100,7 @@ void Semaphore::Release(uint32 inNumber)
 #endif
 }
 
-void Semaphore::Acquire(uint32 inNumber)
+void Semaphore::Acquire(uint32_t inNumber)
 {
 	MOSS_ASSERT(inNumber > 0);
 

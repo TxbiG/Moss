@@ -66,8 +66,8 @@ public:
 	static MOSS_INLINE BVec16	Not(BVec16Arg inV1);
 
 	/// Get component by index
-	MOSS_INLINE uint8			operator [] (uint32 inCoordinate) const				{ MOSS_ASSERT(inCoordinate < 16); return mU8[inCoordinate]; }
-	MOSS_INLINE uint8 &			operator [] (uint32 inCoordinate)						{ MOSS_ASSERT(inCoordinate < 16); return mU8[inCoordinate]; }
+	MOSS_INLINE uint8			operator [] (uint32_t inCoordinate) const				{ MOSS_ASSERT(inCoordinate < 16); return mU8[inCoordinate]; }
+	MOSS_INLINE uint8 &			operator [] (uint32_t inCoordinate)						{ MOSS_ASSERT(inCoordinate < 16); return mU8[inCoordinate]; }
 
 	/// Test if any of the components are true (true is when highest bit of component is set)
 	MOSS_INLINE bool				TestAnyTrue() const;
@@ -81,10 +81,10 @@ public:
 	/// To String
 	friend ostream &			operator << (ostream &inStream, BVec16Arg inV)
 	{
-		inStream << uint32(inV.mU8[0]) << ", " << uint32(inV.mU8[1]) << ", " << uint32(inV.mU8[2]) << ", " << uint32(inV.mU8[3]) << ", "
-				 << uint32(inV.mU8[4]) << ", " << uint32(inV.mU8[5]) << ", " << uint32(inV.mU8[6]) << ", " << uint32(inV.mU8[7]) << ", "
-				 << uint32(inV.mU8[8]) << ", " << uint32(inV.mU8[9]) << ", " << uint32(inV.mU8[10]) << ", " << uint32(inV.mU8[11]) << ", "
-				 << uint32(inV.mU8[12]) << ", " << uint32(inV.mU8[13]) << ", " << uint32(inV.mU8[14]) << ", " << uint32(inV.mU8[15]);
+		inStream << uint32_t(inV.mU8[0]) << ", " << uint32_t(inV.mU8[1]) << ", " << uint32_t(inV.mU8[2]) << ", " << uint32_t(inV.mU8[3]) << ", "
+				 << uint32_t(inV.mU8[4]) << ", " << uint32_t(inV.mU8[5]) << ", " << uint32_t(inV.mU8[6]) << ", " << uint32_t(inV.mU8[7]) << ", "
+				 << uint32_t(inV.mU8[8]) << ", " << uint32_t(inV.mU8[9]) << ", " << uint32_t(inV.mU8[10]) << ", " << uint32_t(inV.mU8[11]) << ", "
+				 << uint32_t(inV.mU8[12]) << ", " << uint32_t(inV.mU8[13]) << ", " << uint32_t(inV.mU8[14]) << ", " << uint32_t(inV.mU8[15]);
 		return inStream;
 	}
 

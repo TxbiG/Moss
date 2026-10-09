@@ -23,12 +23,12 @@ public:
 	virtual void				WriteDataType(EOSDataType inType) override;
 	virtual void				WriteName(const char *inName) override;
 	virtual void				WriteIdentifier(Identifier inIdentifier) override;
-	virtual void				WriteCount(uint32 inCount) override;
+	virtual void				WriteCount(uint32_t inCount) override;
 
 	virtual void				WritePrimitiveData(const uint8 &inPrimitive) override;
 	virtual void				WritePrimitiveData(const uint16 &inPrimitive) override;
 	virtual void				WritePrimitiveData(const int &inPrimitive) override;
-	virtual void				WritePrimitiveData(const uint32 &inPrimitive) override;
+	virtual void				WritePrimitiveData(const uint32_t &inPrimitive) override;
 	virtual void				WritePrimitiveData(const uint64 &inPrimitive) override;
 	virtual void				WritePrimitiveData(const float &inPrimitive) override;
 	virtual void				WritePrimitiveData(const double &inPrimitive) override;
@@ -46,10 +46,10 @@ public:
 	virtual void				WritePrimitiveData(const DMat44 &inPrimitive) override;
 
 private:
-	using StringTable = UnorderedMap<String, uint32>;
+	using StringTable = UnorderedMap<String, uint32_t>;
 
 	StringTable					mStringTable;
-	uint32						mNextStringID = 0x80000000;
+	uint32_t						mNextStringID = 0x80000000;
 };
 
 MOSS_SUPPRESS_WARNINGS_END

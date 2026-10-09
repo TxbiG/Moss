@@ -20,7 +20,7 @@ void RenderInstancesDX12::Clear()
 
 void RenderInstancesDX12::CreateBuffer(int inNumInstances, int inInstanceSize)
 {
-	uint32 new_size = uint32(inNumInstances) * inInstanceSize;
+	uint32_t new_size = uint32_t(inNumInstances) * inInstanceSize;
 	if (mInstanceBuffer == nullptr || mInstanceBufferSize < new_size)
 	{
 		// Delete the old buffer
@@ -40,7 +40,7 @@ void RenderInstancesDX12::CreateBuffer(int inNumInstances, int inInstanceSize)
 
 void *RenderInstancesDX12::Lock()
 {
-	uint32 *mapped_resource;
+	uint32_t *mapped_resource;
 	D3D12_RANGE range = { 0, 0 };
 	mInstanceBuffer->Map(0, &range, (void **)&mapped_resource);
 	return mapped_resource;
@@ -87,7 +87,7 @@ void RenderInstancesDX12::Draw(RenderPrimitive *inPrimitive, int inStartInstance
 		// Set index buffer
 		D3D12_INDEX_BUFFER_VIEW ib_view;
 		ib_view.BufferLocation = primitive->mIdxBuffer->GetGPUVirtualAddress();
-		ib_view.SizeInBytes = primitive->mNumIdxToDraw * sizeof(uint32);
+		ib_view.SizeInBytes = primitive->mNumIdxToDraw * sizeof(uint32_t);
 		ib_view.Format = DXGI_FORMAT_R32_UINT;
 		command_list->IASetIndexBuffer(&ib_view);
 

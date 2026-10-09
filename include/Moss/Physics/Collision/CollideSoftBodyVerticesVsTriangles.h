@@ -29,7 +29,7 @@ public:
 	MOSS_INLINE void		ProcessTriangle(Vec3Arg inV0, Vec3Arg inV1, Vec3Arg inV2)
 	{
 		// Get the closest point from the vertex to the triangle
-		uint32 set;
+		uint32_t set;
 		Vec3 closest_point = ClosestPoint::GetClosestPointOnTriangle(inV0 - mLocalPosition, inV1 - mLocalPosition, inV2 - mLocalPosition, set);
 		float dist_sq = closest_point.LengthSq();
 		if (dist_sq < mClosestDistanceSq)
@@ -84,7 +84,7 @@ public:
 	Vec3				mClosestPoint;
 	float				mNormalSign;
 	float				mClosestDistanceSq;
-	uint32				mSet;
+	uint32_t				mSet;
 };
 
 MOSS_SUPPRESS_WARNINGS_END

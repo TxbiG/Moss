@@ -28,7 +28,7 @@
 
 MOSS_SUPPRESS_WARNINGS_BEGIN
 
-void JobSystemThreadPool::Init(uint32 inMaxJobs, uint32 inMaxBarriers, int inNumThreads)
+void JobSystemThreadPool::Init(uint32_t inMaxJobs, uint32_t inMaxBarriers, int inNumThreads)
 {
 	JobSystemWithBarrier::Init(inMaxBarriers);
 
@@ -43,7 +43,7 @@ void JobSystemThreadPool::Init(uint32 inMaxJobs, uint32 inMaxBarriers, int inNum
 	StartThreads(inNumThreads);
 }
 
-JobSystemThreadPool::JobSystemThreadPool(uint32 inMaxJobs, uint32 inMaxBarriers, int inNumThreads)
+JobSystemThreadPool::JobSystemThreadPool(uint32_t inMaxJobs, uint32_t inMaxBarriers, int inNumThreads)
 {
 	Init(inMaxJobs, inMaxBarriers, inNumThreads);
 }
@@ -63,7 +63,7 @@ void JobSystemThreadPool::StartThreads([[maybe_unused]] int inNumThreads)
 	mQuit = false;
 
 	// Allocate heads
-	mHeads = reinterpret_cast<atomic<uint32> *>(Allocate(sizeof(atomic<uint32>) * inNumThreads));
+	mHeads = reinterpret_cast<atomic<uint32_t> *>(Allocate(sizeof(atomic<uint32_t>) * inNumThreads));
 	for (int i = 0; i < inNumThreads; ++i)
 		mHeads[i] = 0;
 
@@ -88,7 +88,7 @@ void JobSystemThreadPool::StopThreads()
 
 	// Signal threads that we want to stop and wake them up
 	mQuit = true;
-	mSemaphore.Release((uint32)mThreads.size());
+	mSemaphore.Release((uint32_t)mThreads.size());
 
 	// Wait for all threads to finish
 	for (thread &t : mThreads)
@@ -99,7 +99,7 @@ void JobSystemThreadPool::StopThreads()
 	mThreads.clear();
 
 	// Ensure that there are no lingering jobs in the queue
-	for (uint32 head = 0; head != mTail; ++head)
+	for (uint32_t head = 0; head != mTail; ++head)
 	{
 		// Fetch job
 		Job *job_ptr = mQueue[head & (cQueueLength - 1)].exchange(nullptr);
@@ -117,12 +117,12 @@ void JobSystemThreadPool::StopThreads()
 	mTail = 0;
 }
 
-JobHandle JobSystemThreadPool::CreateJob(const char *inJobName, ColorArg inColor, const JobFunction &inJobFunction, uint32 inNumDependencies)
+JobHandle JobSystemThreadPool::CreateJob(const char *inJobName, ColorArg inColor, const JobFunction &inJobFunction, uint32_t inNumDependencies)
 {
 	MOSS_PROFILE_FUNCTION();
 
 	// Loop until we can get a job from the free list
-	uint32 index;
+	uint32_t index;
 	for (;;)
 	{
 		index = mJobs.ConstructObject(inJobName, inColor, this, inJobFunction, inNumDependencies);
@@ -149,10 +149,10 @@ void JobSystemThreadPool::FreeJob(Job *inJob)
 	mJobs.DestructObject(inJob);
 }
 
-uint32 JobSystemThreadPool::GetHead() const
+uint32_t JobSystemThreadPool::GetHead() const
 {
 	// Find the minimal value across all threads
-	uint32 head = mTail;
+	uint32_t head = mTail;
 	for (size_t i = 0; i < mThreads.size(); ++i)
 		head = min(head, mHeads[i].load());
 	return head;
@@ -166,12 +166,12 @@ void JobSystemThreadPool::QueueJobInternal(Job *inJob)
 	// Need to read head first because otherwise the tail can already have passed the head
 	// We read the head outside of the loop since it involves iterating over all threads and we only need to update
 	// it if there's not enough space in the queue.
-	uint32 head = GetHead();
+	uint32_t head = GetHead();
 
 	for (;;)
 	{
 		// Check if there's space in the queue
-		uint32 old_value = mTail;
+		uint32_t old_value = mTail;
 		if (old_value - head >= cQueueLength)
 		{
 			// We calculated the head outside of the loop, update head (and we also need to update tail to prevent it from passing head)
@@ -182,7 +182,7 @@ void JobSystemThreadPool::QueueJobInternal(Job *inJob)
 			if (old_value - head >= cQueueLength)
 			{
 				// Wake up all threads in order to ensure that they can clear any nullptrs they may not have processed yet
-				mSemaphore.Release((uint32)mThreads.size());
+				mSemaphore.Release((uint32_t)mThreads.size());
 
 				// Sleep a little (we have to wait for other threads to update their head pointer in order for us to be able to continue)
 				std::this_thread::sleep_for(std::chrono::microseconds(100));
@@ -219,7 +219,7 @@ void JobSystemThreadPool::QueueJob(Job *inJob)
 	mSemaphore.Release();
 }
 
-void JobSystemThreadPool::QueueJobs(Job **inJobs, uint32 inNumJobs)
+void JobSystemThreadPool::QueueJobs(Job **inJobs, uint32_t inNumJobs)
 {
 	MOSS_PROFILE_FUNCTION();
 
@@ -234,7 +234,7 @@ void JobSystemThreadPool::QueueJobs(Job **inJobs, uint32 inNumJobs)
 		QueueJobInternal(*job);
 
 	// Wake up threads
-	mSemaphore.Release(min(inNumJobs, (uint32)mThreads.size()));
+	mSemaphore.Release(min(inNumJobs, (uint32_t)mThreads.size()));
 }
 
 #if defined(MOSS_PLATFORM_WINDOWS)
@@ -325,7 +325,7 @@ void JobSystemThreadPool::ThreadMain(int inThreadIndex)
 	// Call the thread init function
 	mThreadInitFunction(inThreadIndex);
 
-	atomic<uint32> &head = mHeads[inThreadIndex];
+	atomic<uint32_t> &head = mHeads[inThreadIndex];
 
 	while (!mQuit)
 	{

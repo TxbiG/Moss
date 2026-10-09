@@ -625,7 +625,7 @@ JSONTEST_FIXTURE_LOCAL(ValueTest, integers) {
   JSONTEST_ASSERT_EQUAL(false, val.asBool());
   JSONTEST_ASSERT_STRING_EQUAL("0", val.asString());
 
-  // Default uint32
+  // Default uint32_t
   val = Json::Value(Json::uintValue);
 
   JSONTEST_ASSERT_EQUAL(Json::uintValue, val.type());
@@ -926,7 +926,7 @@ JSONTEST_FIXTURE_LOCAL(ValueTest, integers) {
   JSONTEST_ASSERT_EQUAL(true, val.asBool());
   JSONTEST_ASSERT_STRING_EQUAL("-2147483648", val.asString());
 
-  // uint32 max
+  // uint32_t max
   val = Json::Value(kuint32max);
 
   JSONTEST_ASSERT_EQUAL(Json::uintValue, val.type());
@@ -1430,7 +1430,7 @@ JSONTEST_FIXTURE_LOCAL(ValueTest, nonIntegers) {
       "-2147483648.5",
       normalizeFloatingPointStr(JsonTest::ToJsonString(val.asString())));
 
-  // A bit over uint32 max
+  // A bit over uint32_t max
   val = Json::Value(kuint32max + 0.5);
 
   JSONTEST_ASSERT_EQUAL(Json::realValue, val.type());

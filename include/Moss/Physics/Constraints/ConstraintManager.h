@@ -33,11 +33,11 @@ public:
 	template <class Type>
 	MOSS_INLINE void				operator () (const Type *inObject)
 	{
-		uint32 num_velocity_steps = inObject->GetNumVelocityStepsOverride();
+		uint32_t num_velocity_steps = inObject->GetNumVelocityStepsOverride();
 		mNumVelocitySteps = max(mNumVelocitySteps, num_velocity_steps);
 		mApplyDefaultVelocity |= num_velocity_steps == 0;
 
-		uint32 num_position_steps = inObject->GetNumPositionStepsOverride();
+		uint32_t num_position_steps = inObject->GetNumPositionStepsOverride();
 		mNumPositionSteps = max(mNumPositionSteps, num_position_steps);
 		mApplyDefaultPosition |= num_position_steps == 0;
 	}
@@ -53,14 +53,14 @@ public:
 	}
 
 	/// Get the results of the calculation
-	MOSS_INLINE uint32				GetNumPositionSteps() const					{ return mNumPositionSteps; }
-	MOSS_INLINE uint32				GetNumVelocitySteps() const					{ return mNumVelocitySteps; }
+	MOSS_INLINE uint32_t				GetNumPositionSteps() const					{ return mNumPositionSteps; }
+	MOSS_INLINE uint32_t				GetNumVelocitySteps() const					{ return mNumVelocitySteps; }
 
 private:
 	const PhysicsSettings &		mSettings;
 
-	uint32						mNumVelocitySteps = 0;
-	uint32						mNumPositionSteps = 0;
+	uint32_t						mNumVelocitySteps = 0;
+	uint32_t						mNumPositionSteps = 0;
 
 	bool						mApplyDefaultVelocity = false;
 	bool						mApplyDefaultPosition = false;
@@ -89,7 +89,7 @@ public:
 	/// Initialize the system.
 	/// @param inMaxBodyPairs Maximum amount of body pairs to process (anything else will fall through the world), this number should generally be much higher than the max amount of contact points as there will be lots of bodies close that are not actually touching
 	/// @param inMaxContactConstraints Maximum amount of contact constraints to process (anything else will fall through the world)
-	void						Init(uint32 inMaxBodyPairs, uint32 inMaxContactConstraints);
+	void						Init(uint32_t inMaxBodyPairs, uint32_t inMaxContactConstraints);
 
 	/// Listener that is notified whenever a contact point between two bodies is added/updated/removed
 	void						SetContactListener(ContactListener *inListener)						{ mContactListener = inListener; }
@@ -111,7 +111,7 @@ public:
 	CombineFunction				GetCombineRestitution() const										{ return mCombineRestitution; }
 
 	/// Get the max number of contact constraints that are allowed
-	uint32						GetMaxConstraints() const											{ return mMaxConstraints; }
+	uint32_t						GetMaxConstraints() const											{ return mMaxConstraints; }
 
 	/// Check with the listener if inBody1 and inBody2 could collide, returns false if not
 	inline ValidateResult		ValidateContactPoint(const Body &inBody1, const Body &inBody2, RVec3Arg inBaseOffset, const CollideShapeResult &inCollisionResult) const
@@ -134,8 +134,8 @@ public:
 	public:
 		using LFHMAllocatorContext::LFHMAllocatorContext;
 
-		uint32					mNumBodyPairs = 0;						// Total number of body pairs added using this allocator
-		uint32					mNumManifolds = 0;						// Total number of manifolds added using this allocator
+		uint32_t					mNumBodyPairs = 0;						// Total number of body pairs added using this allocator
+		uint32_t					mNumManifolds = 0;						// Total number of manifolds added using this allocator
 		EPhysicsUpdateError		mErrors = EPhysicsUpdateError::None;	// Errors reported on this allocator
 	};
 
@@ -201,20 +201,20 @@ public:
 	/// will be used from now on to read from. After finalizing the contact cache, the contact removed callbacks will be called.
 	/// inExpectedNumBodyPairs / inExpectedNumManifolds are the amount of body pairs / manifolds found in the previous step and is
 	/// used to determine the amount of buckets the contact cache hash map will use in the next update.
-	void						FinalizeContactCacheAndCallContactPointRemovedCallbacks(uint32 inExpectedNumBodyPairs, uint32 inExpectedNumManifolds);
+	void						FinalizeContactCacheAndCallContactPointRemovedCallbacks(uint32_t inExpectedNumBodyPairs, uint32_t inExpectedNumManifolds);
 
 	/// Check if 2 bodies were in contact during the last simulation step. Since contacts are only detected between active bodies, at least one of the bodies must be active.
 	/// Uses the read collision cache to determine if 2 bodies are in contact.
 	bool						WereBodiesInContact(const BodyID &inBody1ID, const BodyID &inBody2ID) const;
 
 	/// Get the number of contact constraints that were found
-	uint32						GetNumConstraints() const											{ return min<uint32>(mNumConstraints, mMaxConstraints); }
+	uint32_t						GetNumConstraints() const											{ return min<uint32_t>(mNumConstraints, mMaxConstraints); }
 
 	/// Sort contact constraints deterministically
-	void						SortContacts(uint32 *inConstraintIdxBegin, uint32 *inConstraintIdxEnd) const;
+	void						SortContacts(uint32_t *inConstraintIdxBegin, uint32_t *inConstraintIdxEnd) const;
 
 	/// Get the affected bodies for a given constraint
-	inline void					GetAffectedBodies(uint32 inConstraintIdx, const Body *&outBody1, const Body *&outBody2) const
+	inline void					GetAffectedBodies(uint32_t inConstraintIdx, const Body *&outBody1, const Body *&outBody2) const
 	{
 		const ContactConstraint &constraint = mConstraints[inConstraintIdx];
 		outBody1 = constraint.mBody1;
@@ -223,7 +223,7 @@ public:
 
 	/// Apply last frame's impulses as an initial guess for this frame's impulses
 	template <class MotionPropertiesCallback>
-	void						WarmStartVelocityConstraints(const uint32 *inConstraintIdxBegin, const uint32 *inConstraintIdxEnd, float inWarmStartImpulseRatio, MotionPropertiesCallback &ioCallback);
+	void						WarmStartVelocityConstraints(const uint32_t *inConstraintIdxBegin, const uint32_t *inConstraintIdxEnd, float inWarmStartImpulseRatio, MotionPropertiesCallback &ioCallback);
 
 	/// Solve velocity constraints, when almost nothing changes this should only apply very small impulses
 	/// since we're warm starting with the total impulse applied in the last frame above.
@@ -255,10 +255,10 @@ public:
 	/// e = the restitution coefficient, v_n^- is the normal velocity prior to the collision
 	///
 	/// Restitution is only applied when v_n^- is large enough and the points are moving towards collision
-	bool						SolveVelocityConstraints(const uint32 *inConstraintIdxBegin, const uint32 *inConstraintIdxEnd);
+	bool						SolveVelocityConstraints(const uint32_t *inConstraintIdxBegin, const uint32_t *inConstraintIdxEnd);
 
 	/// Save back the lambdas to the contact cache for the next warm start
-	void						StoreAppliedImpulses(const uint32 *inConstraintIdxBegin, const uint32 *inConstraintIdxEnd) const;
+	void						StoreAppliedImpulses(const uint32_t *inConstraintIdxBegin, const uint32_t *inConstraintIdxEnd) const;
 
 	/// Solve position constraints.
 	/// This is using the approach described in 'Modeling and Solving Constraints' by Erin Catto presented at GDC 2007.
@@ -276,7 +276,7 @@ public:
 	///
 	/// beta = baumgarte stabilization factor.
 	/// dt = delta time.
-	bool						SolvePositionConstraints(const uint32 *inConstraintIdxBegin, const uint32 *inConstraintIdxEnd);
+	bool						SolvePositionConstraints(const uint32_t *inConstraintIdxBegin, const uint32_t *inConstraintIdxEnd);
 
 	/// Recycle the constraint buffer. Should be called between collision simulation steps.
 	void						RecycleConstraintBuffer();
@@ -343,7 +343,7 @@ private:
 		void					RestoreState(StateRecorder &inStream);
 
 		/// Handle to next cached contact points in ManifoldCache::mCachedManifolds for the same body pair
-		uint32					mNextWithSameBodyPair;
+		uint32_t					mNextWithSameBodyPair;
 
 		/// Contact normal in the space of 2.
 		/// Note: this value is read through LoadFloat3Unsafe.
@@ -391,7 +391,7 @@ private:
 		Float3					mDeltaRotation;
 
 		/// Handle to first manifold in ManifoldCache::mCachedManifolds
-		uint32					mFirstCachedManifold;
+		uint32_t					mFirstCachedManifold;
 	};
 
 	static_assert(sizeof(CachedBodyPair) == 28, "Unexpected size");
@@ -406,14 +406,14 @@ private:
 	{
 	public:
 		/// Initialize the cache
-		void					Init(uint32 inMaxBodyPairs, uint32 inMaxContactConstraints, uint32 inCachedManifoldsSize);
+		void					Init(uint32_t inMaxBodyPairs, uint32_t inMaxContactConstraints, uint32_t inCachedManifoldsSize);
 
 		/// Reset all entries from the cache
 		void					Clear();
 
 		/// Prepare cache before creating new contacts.
 		/// inExpectedNumBodyPairs / inExpectedNumManifolds are the amount of body pairs / manifolds found in the previous step and is used to determine the amount of buckets the contact cache hash map will use.
-		void					Prepare(uint32 inExpectedNumBodyPairs, uint32 inExpectedNumManifolds);
+		void					Prepare(uint32_t inExpectedNumBodyPairs, uint32_t inExpectedNumManifolds);
 
 		/// Get a new allocator context for storing contacts. Note that you should call this once and then add multiple contacts using the context.
 		ContactAllocator		GetContactAllocator()						{ return ContactAllocator(mAllocator, cAllocatorBlockSize); }
@@ -422,8 +422,8 @@ private:
 		const MKeyValue *		Find(const SubShapeIDPair &inKey, uint64 inKeyHash) const;
 		MKeyValue *				Create(ContactAllocator &ioContactAllocator, const SubShapeIDPair &inKey, uint64 inKeyHash, int inNumContactPoints);
 		MKVAndCreated			FindOrCreate(ContactAllocator &ioContactAllocator, const SubShapeIDPair &inKey, uint64 inKeyHash, int inNumContactPoints);
-		uint32					ToHandle(const MKeyValue *inKeyValue) const;
-		const MKeyValue *		FromHandle(uint32 inHandle) const;
+		uint32_t					ToHandle(const MKeyValue *inKeyValue) const;
+		const MKeyValue *		FromHandle(uint32_t inHandle) const;
 
 		/// Find / create entry for BodyPair -> CachedBodyPair
 		const BPKeyValue *		Find(const BodyPair &inKey, uint64 inKeyHash) const;
@@ -435,10 +435,10 @@ private:
 
 #ifdef MOSS_DEBUG
 		/// Get the amount of manifolds in the cache
-		uint32					GetNumManifolds() const						{ return mCachedManifolds.GetNumKeyValues(); }
+		uint32_t					GetNumManifolds() const						{ return mCachedManifolds.GetNumKeyValues(); }
 
 		/// Get the amount of body pairs in the cache
-		uint32					GetNumBodyPairs() const						{ return mCachedBodyPairs.GetNumKeyValues(); }
+		uint32_t					GetNumBodyPairs() const						{ return mCachedBodyPairs.GetNumKeyValues(); }
 
 		/// Before a cache is finalized you can only do Create(), after only Find() or Clear()
 		void					Finalize();
@@ -450,7 +450,7 @@ private:
 
 	private:
 		/// Block size used when allocating new blocks in the contact cache
-		static constexpr uint32	cAllocatorBlockSize = 4096;
+		static constexpr uint32_t	cAllocatorBlockSize = 4096;
 
 		/// Allocator used by both mCachedManifolds and mCachedBodyPairs, this makes it more likely that a body pair and its manifolds are close in memory
 		LFHMAllocator			mAllocator;
@@ -527,10 +527,10 @@ private:
 
 public:
 	/// The maximum value that can be passed to Init for inMaxContactConstraints. Note you should really use a lower value, using this value will cost a lot of memory!
-	static constexpr uint32		cMaxContactConstraintsLimit = ~uint32(0) / sizeof(ContactConstraint);
+	static constexpr uint32_t		cMaxContactConstraintsLimit = ~uint32_t(0) / sizeof(ContactConstraint);
 
 	/// The maximum value that can be passed to Init for inMaxBodyPairs. Note you should really use a lower value, using this value will cost a lot of memory!
-	static constexpr uint32		cMaxBodyPairsLimit = ~uint32(0) / sizeof(BodyPairMap::KeyValue);
+	static constexpr uint32_t		cMaxBodyPairsLimit = ~uint32_t(0) / sizeof(BodyPairMap::KeyValue);
 
 private:
 	/// Internal helper function to calculate the friction and non-penetration constraint properties. Templated to the motion type to reduce the amount of branches and calculations.
@@ -564,8 +564,8 @@ private:
 
 	/// The constraints that were added this frame
 	ContactConstraint *			mConstraints = nullptr;
-	uint32						mMaxConstraints = 0;
-	atomic<uint32>				mNumConstraints { 0 };
+	uint32_t						mMaxConstraints = 0;
+	atomic<uint32_t>				mNumConstraints { 0 };
 
 	/// Context used for this physics update
 	PhysicsUpdateContext *		mUpdateContext;

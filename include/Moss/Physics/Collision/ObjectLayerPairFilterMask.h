@@ -18,11 +18,11 @@ public:
 	MOSS_OVERRIDE_NEW_DELETE
 
 	/// Number of bits for the group and mask bits
-	static constexpr uint32 cNumBits = MOSS_OBJECT_LAYER_BITS / 2;
-	static constexpr uint32	cMask = (1 << cNumBits) - 1;
+	static constexpr uint32_t cNumBits = MOSS_OBJECT_LAYER_BITS / 2;
+	static constexpr uint32_t	cMask = (1 << cNumBits) - 1;
 
 	/// Construct an ObjectLayer from a group and mask bits
-	static ObjectLayer		sGetObjectLayer(uint32 inGroup, uint32 inMask = cMask)
+	static ObjectLayer		sGetObjectLayer(uint32_t inGroup, uint32_t inMask = cMask)
 	{
 		MOSS_ASSERT((inGroup & ~cMask) == 0);
 		MOSS_ASSERT((inMask & ~cMask) == 0);
@@ -30,15 +30,15 @@ public:
 	}
 
 	/// Get the group bits from an ObjectLayer
-	static inline uint32	sGetGroup(ObjectLayer inObjectLayer)
+	static inline uint32_t	sGetGroup(ObjectLayer inObjectLayer)
 	{
-		return uint32(inObjectLayer) & cMask;
+		return uint32_t(inObjectLayer) & cMask;
 	}
 
 	/// Get the mask bits from an ObjectLayer
-	static inline uint32	sGetMask(ObjectLayer inObjectLayer)
+	static inline uint32_t	sGetMask(ObjectLayer inObjectLayer)
 	{
-		return uint32(inObjectLayer) >> cNumBits;
+		return uint32_t(inObjectLayer) >> cNumBits;
 	}
 
 	/// Returns true if two layers can collide

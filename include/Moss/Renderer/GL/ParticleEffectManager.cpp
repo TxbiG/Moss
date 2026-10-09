@@ -57,7 +57,7 @@ ParticleEmitterBucket2::ParticleEmitterBucket2(const ParticleEmitter2& resource)
     glBindVertexArray(0);
 }
 
-void ParticleEmitterBucket2::Update(uint32 currentTime, uint32 deltaTime) {
+void ParticleEmitterBucket2::Update(uint32_t currentTime, uint32_t deltaTime) {
     SpawnParticles(deltaTime);
     for (auto& p : m_particles) {
         if (p.age < p.lifespan) {
@@ -82,7 +82,7 @@ void ParticleEmitterBucket2::draw() {
 
 }
 
-void ParticleEmitterBucket2::SpawnParticles(uint32 deltaTime) {
+void ParticleEmitterBucket2::SpawnParticles(uint32_t deltaTime) {
     int numToSpawn = 10; // for example
     for (int i = 0; i < numToSpawn; ++i) {
         Particle2 p;

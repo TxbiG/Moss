@@ -11,16 +11,16 @@ class MOSS_API CharacterID {
 public:
 	MOSS_OVERRIDE_NEW_DELETE
 
-	static constexpr uint32	cInvalidCharacterID = 0xffffffff;	///< The value for an invalid character ID
+	static constexpr uint32_t	cInvalidCharacterID = 0xffffffff;	///< The value for an invalid character ID
 
 	/// Construct invalid character ID
 	CharacterID() : mID(cInvalidCharacterID) { }
 
 	/// Construct with specific value, make sure you don't use the same value twice!
-	explicit CharacterID(uint32 inID) : mID(inID) { }
+	explicit CharacterID(uint32_t inID) : mID(inID) { }
 
 	/// Get the numeric value of the ID
-	inline uint32 GetValue() const {
+	inline uint32_t GetValue() const {
 		return mID;
 	}
 
@@ -51,29 +51,29 @@ public:
 
 	/// Get the hash for this character ID
 	inline uint64 GetHash() const {
-		return Hash<uint32>{} (mID);
+		return Hash<uint32_t>{} (mID);
 	}
 
 	/// Generate the next available character ID
 	static CharacterID sNextCharacterID() {
 		for (;;) {
-			uint32 next = sNextID.fetch_add(1, std::memory_order_relaxed);
+			uint32_t next = sNextID.fetch_add(1, std::memory_order_relaxed);
 			if (next != cInvalidCharacterID)
 				return CharacterID(next);
 		}
 	}
 
 	/// Set the next available character ID, can be used after destroying all character to prepare for a second deterministic run
-	static void sSetNextCharacterID(uint32 inNextValue = 1) {
+	static void sSetNextCharacterID(uint32_t inNextValue = 1) {
 		sNextID.store(inNextValue, std::memory_order_relaxed);
 	}
 
 private:
 	/// Next character ID to be assigned
-	inline static atomic<uint32> sNextID = 1;
+	inline static atomic<uint32_t> sNextID = 1;
 
 	/// ID value
-	uint32					mID;
+	uint32_t					mID;
 };
 
 

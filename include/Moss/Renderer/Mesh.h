@@ -29,9 +29,9 @@ public:
 	void					SetNumVtxToDraw(int inUsed)														{ mNumVtxToDraw = inUsed; }
 
 	/// Index buffer management functions
-	virtual void			CreateIndexBuffer(int inNumIdx, const uint32 *inData = nullptr) = 0;
+	virtual void			CreateIndexBuffer(int inNumIdx, const uint32_t *inData = nullptr) = 0;
 	virtual void			ReleaseIndexBuffer();
-	virtual uint32 *		LockIndexBuffer() = 0;
+	virtual uint32_t *		LockIndexBuffer() = 0;
 	virtual void			UnlockIndexBuffer() = 0;
 	int						GetNumIdx() const																{ return mNumIdx; }
 	int						GetNumIdxToDraw() const															{ return mNumIdxToDraw; }

@@ -30,7 +30,7 @@ protected:
 	virtual							~ObjectStream() = default;
 
 	/// Identifier for objects
-	using Identifier = uint32;
+	using Identifier = uint32_t;
 
 	static constexpr int			sVersion = 1;
 	static constexpr int			sRevision = 0;
@@ -45,13 +45,13 @@ public:
 	virtual bool				ReadDataType(EOSDataType &outType) = 0;
 	virtual bool				ReadName(String &outName) = 0;
 	virtual bool				ReadIdentifier(Identifier &outIdentifier) = 0;
-	virtual bool				ReadCount(uint32 &outCount) = 0;
+	virtual bool				ReadCount(uint32_t &outCount) = 0;
 
 	///@name Read primitives
 	virtual bool				ReadPrimitiveData(uint8 &outPrimitive) = 0;
 	virtual bool				ReadPrimitiveData(uint16 &outPrimitive) = 0;
 	virtual bool				ReadPrimitiveData(int &outPrimitive) = 0;
-	virtual bool				ReadPrimitiveData(uint32 &outPrimitive) = 0;
+	virtual bool				ReadPrimitiveData(uint32_t &outPrimitive) = 0;
 	virtual bool				ReadPrimitiveData(uint64 &outPrimitive) = 0;
 	virtual bool				ReadPrimitiveData(float &outPrimitive) = 0;
 	virtual bool				ReadPrimitiveData(double &outPrimitive) = 0;
@@ -81,13 +81,13 @@ public:
 	virtual void				WriteDataType(EOSDataType inType) = 0;
 	virtual void				WriteName(const char *inName) = 0;
 	virtual void				WriteIdentifier(Identifier inIdentifier) = 0;
-	virtual void				WriteCount(uint32 inCount) = 0;
+	virtual void				WriteCount(uint32_t inCount) = 0;
 
 	///@name Write primitives
 	virtual void				WritePrimitiveData(const uint8 &inPrimitive) = 0;
 	virtual void				WritePrimitiveData(const uint16 &inPrimitive) = 0;
 	virtual void				WritePrimitiveData(const int &inPrimitive) = 0;
-	virtual void				WritePrimitiveData(const uint32 &inPrimitive) = 0;
+	virtual void				WritePrimitiveData(const uint32_t &inPrimitive) = 0;
 	virtual void				WritePrimitiveData(const uint64 &inPrimitive) = 0;
 	virtual void				WritePrimitiveData(const float &inPrimitive) = 0;
 	virtual void				WritePrimitiveData(const double &inPrimitive) = 0;
@@ -131,13 +131,13 @@ bool OSIsType(TArray<T, A> *, int inArrayDepth, EOSDataType inDataType, const ch
 	return (inArrayDepth > 0 && OSIsType(static_cast<T *>(nullptr), inArrayDepth - 1, inDataType, inClassName));
 }
 
-template <class T, uint32 N>
+template <class T, uint32_t N>
 bool OSIsType(StaticArray<T, N> *, int inArrayDepth, EOSDataType inDataType, const char *inClassName)
 {
 	return (inArrayDepth > 0 && OSIsType(static_cast<T *>(nullptr), inArrayDepth - 1, inDataType, inClassName));
 }
 
-template <class T, uint32 N>
+template <class T, uint32_t N>
 bool OSIsType(T (*)[N], int inArrayDepth, EOSDataType inDataType, const char *inClassName)
 {
 	return (inArrayDepth > 0 && OSIsType(static_cast<T *>(nullptr), inArrayDepth - 1, inDataType, inClassName));
@@ -162,7 +162,7 @@ bool OSReadData(IObjectStreamIn &ioStream, TArray<T, A> &inArray)
 	bool continue_reading = true;
 
 	// Read array length
-	uint32 array_length;
+	uint32_t array_length;
 	continue_reading = ioStream.ReadCount(array_length);
 
 	// Read array items
@@ -170,7 +170,7 @@ bool OSReadData(IObjectStreamIn &ioStream, TArray<T, A> &inArray)
 	{
 		inArray.clear();
 		inArray.resize(array_length);
-		for (uint32 el = 0; el < array_length && continue_reading; ++el)
+		for (uint32_t el = 0; el < array_length && continue_reading; ++el)
 			continue_reading = OSReadData(ioStream, inArray[el]);
 	}
 
@@ -178,13 +178,13 @@ bool OSReadData(IObjectStreamIn &ioStream, TArray<T, A> &inArray)
 }
 
 /// Define serialization templates for static arrays
-template <class T, uint32 N>
+template <class T, uint32_t N>
 bool OSReadData(IObjectStreamIn &ioStream, StaticArray<T, N> &inArray)
 {
 	bool continue_reading = true;
 
 	// Read array length
-	uint32 array_length;
+	uint32_t array_length;
 	continue_reading = ioStream.ReadCount(array_length);
 
 	// Check if we can fit this many elements
@@ -196,7 +196,7 @@ bool OSReadData(IObjectStreamIn &ioStream, StaticArray<T, N> &inArray)
 	{
 		inArray.clear();
 		inArray.resize(array_length);
-		for (uint32 el = 0; el < array_length && continue_reading; ++el)
+		for (uint32_t el = 0; el < array_length && continue_reading; ++el)
 			continue_reading = OSReadData(ioStream, inArray[el]);
 	}
 
@@ -204,19 +204,19 @@ bool OSReadData(IObjectStreamIn &ioStream, StaticArray<T, N> &inArray)
 }
 
 /// Define serialization templates for C style arrays
-template <class T, uint32 N>
+template <class T, uint32_t N>
 bool OSReadData(IObjectStreamIn &ioStream, T (&inArray)[N])
 {
 	bool continue_reading = true;
 
 	// Read array length
-	uint32 array_length;
+	uint32_t array_length;
 	continue_reading = ioStream.ReadCount(array_length);
 	if (array_length != N)
 		return false;
 
 	// Read array items
-	for (uint32 el = 0; el < N && continue_reading; ++el)
+	for (uint32_t el = 0; el < N && continue_reading; ++el)
 		continue_reading = OSReadData(ioStream, inArray[el]);
 
 	return continue_reading;
@@ -248,7 +248,7 @@ void OSWriteData(IObjectStreamOut &ioStream, const TArray<T, A> &inArray)
 {
 	// Write size of array
 	ioStream.HintNextItem();
-	ioStream.WriteCount(static_cast<uint32>(inArray.size()));
+	ioStream.WriteCount(static_cast<uint32_t>(inArray.size()));
 
 	// Write data in array
 	ioStream.HintIndentUp();
@@ -258,14 +258,14 @@ void OSWriteData(IObjectStreamOut &ioStream, const TArray<T, A> &inArray)
 }
 
 /// Define serialization templates for static arrays
-template <class T, uint32 N>
+template <class T, uint32_t N>
 void OSWriteDataType(IObjectStreamOut &ioStream, StaticArray<T, N> *)
 {
 	ioStream.WriteDataType(EOSDataType::Array);
 	OSWriteDataType(ioStream, static_cast<T *>(nullptr));
 }
 
-template <class T, uint32 N>
+template <class T, uint32_t N>
 void OSWriteData(IObjectStreamOut &ioStream, const StaticArray<T, N> &inArray)
 {
 	// Write size of array
@@ -280,19 +280,19 @@ void OSWriteData(IObjectStreamOut &ioStream, const StaticArray<T, N> &inArray)
 }
 
 /// Define serialization templates for C style arrays
-template <class T, uint32 N>
+template <class T, uint32_t N>
 void OSWriteDataType(IObjectStreamOut &ioStream, T (*)[N])
 {
 	ioStream.WriteDataType(EOSDataType::Array);
 	OSWriteDataType(ioStream, static_cast<T *>(nullptr));
 }
 
-template <class T, uint32 N>
+template <class T, uint32_t N>
 void OSWriteData(IObjectStreamOut &ioStream, const T (&inArray)[N])
 {
 	// Write size of array
 	ioStream.HintNextItem();
-	ioStream.WriteCount(uint32(N));
+	ioStream.WriteCount(uint32_t(N));
 
 	// Write data in array
 	ioStream.HintIndentUp();

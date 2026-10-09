@@ -15,7 +15,7 @@ MOSS_SUPPRESS_WARNINGS_BEGIN
 #if MOSS_OBJECT_LAYER_BITS == 16
 	using ObjectLayer = uint16;
 #elif MOSS_OBJECT_LAYER_BITS == 32
-	using ObjectLayer = uint32;
+	using ObjectLayer = uint32_t;
 #else
 	#error "MOSS_OBJECT_LAYER_BITS must be 16 or 32"
 #endif

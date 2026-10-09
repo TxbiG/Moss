@@ -18,7 +18,7 @@ public:
 
 	/// Initialize the allocator
 	/// @param inObjectStoreSizeBytes Number of bytes to reserve for all key value pairs
-	inline void				Init(uint32 inObjectStoreSizeBytes);
+	inline void				Init(uint32_t inObjectStoreSizeBytes);
 
 	/// Clear all allocations
 	inline void				Clear();
@@ -27,20 +27,20 @@ public:
 	/// @param inBlockSize Size of block to allocate (will potentially return a smaller block if memory is full).
 	/// @param ioBegin Should be the start of the first free byte in current memory block on input, will contain the start of the first free byte in allocated block on return.
 	/// @param ioEnd Should be the byte beyond the current memory block on input, will contain the byte beyond the allocated block on return.
-	inline void				Allocate(uint32 inBlockSize, uint32 &ioBegin, uint32 &ioEnd);
+	inline void				Allocate(uint32_t inBlockSize, uint32_t &ioBegin, uint32_t &ioEnd);
 
 	/// Convert a pointer to an offset
 	template <class T>
-	inline uint32			ToOffset(const T *inData) const;
+	inline uint32_t			ToOffset(const T *inData) const;
 
 	/// Convert an offset to a pointer
 	template <class T>
-	inline T *				FromOffset(uint32 inOffset) const;
+	inline T *				FromOffset(uint32_t inOffset) const;
 
 private:
 	uint8 *					mObjectStore = nullptr;			///< This contains a contiguous list of objects (possibly of varying size)
-	uint32					mObjectStoreSizeBytes = 0;		///< The size of mObjectStore in bytes
-	atomic<uint32>			mWriteOffset { 0 };				///< Next offset to write to in mObjectStore
+	uint32_t					mObjectStoreSizeBytes = 0;		///< The size of mObjectStore in bytes
+	atomic<uint32_t>			mWriteOffset { 0 };				///< Next offset to write to in mObjectStore
 };
 
 /// Allocator context object for a lock free hash map that allocates a larger memory block at once and hands it out in smaller portions.
@@ -49,20 +49,20 @@ class LFHMAllocatorContext : public NonCopyable
 {
 public:
 	/// Construct a new allocator context
-	inline					LFHMAllocatorContext(LFHMAllocator &inAllocator, uint32 inBlockSize);
+	inline					LFHMAllocatorContext(LFHMAllocator &inAllocator, uint32_t inBlockSize);
 
 	/// @brief Allocate data block
 	/// @param inSize Size of block to allocate.
 	/// @param inAlignment Alignment of block to allocate.
 	/// @param outWriteOffset Offset in buffer where block is located
 	/// @return True if allocation succeeded
-	inline bool				Allocate(uint32 inSize, uint32 inAlignment, uint32 &outWriteOffset);
+	inline bool				Allocate(uint32_t inSize, uint32_t inAlignment, uint32_t &outWriteOffset);
 
 private:
 	LFHMAllocator &			mAllocator;
-	uint32					mBlockSize;
-	uint32					mBegin = 0;
-	uint32					mEnd = 0;
+	uint32_t					mBlockSize;
+	uint32_t					mBegin = 0;
+	uint32_t					mEnd = 0;
 };
 
 /// Very simple lock free hash map that only allows insertion, retrieval and provides a fixed amount of buckets and fixed storage.
@@ -79,21 +79,21 @@ public:
 
 	/// Initialization
 	/// @param inMaxBuckets Max amount of buckets to use in the hashmap. Must be power of 2.
-	void					Init(uint32 inMaxBuckets);
+	void					Init(uint32_t inMaxBuckets);
 
 	/// Remove all elements.
 	/// Note that this cannot happen simultaneously with adding new elements.
 	void					Clear();
 
 	/// Get the current amount of buckets that the map is using
-	uint32					GetNumBuckets() const			{ return mNumBuckets; }
+	uint32_t					GetNumBuckets() const			{ return mNumBuckets; }
 
 	/// Get the maximum amount of buckets that this map supports
-	uint32					GetMaxBuckets() const			{ return mMaxBuckets; }
+	uint32_t					GetMaxBuckets() const			{ return mMaxBuckets; }
 
 	/// Update the number of buckets. This must be done after clearing the map and cannot be done concurrently with any other operations on the map.
 	/// Note that the number of buckets can never become bigger than the specified max buckets during initialization and that it must be a power of 2.
-	void					SetNumBuckets(uint32 inNumBuckets);
+	void					SetNumBuckets(uint32_t inNumBuckets);
 
 	/// A key / value pair that is inserted in the map
 	class KeyValue
@@ -107,7 +107,7 @@ public:
 		template <class K, class V> friend class LockFreeHashMap;
 
 		Key					mKey;							///< Key for this entry
-		uint32				mNextOffset;					///< Offset in mObjectStore of next KeyValue entry with same hash
+		uint32_t				mNextOffset;					///< Offset in mObjectStore of next KeyValue entry with same hash
 		Value				mValue;							///< Value for this entry + optionally extra bytes
 	};
 
@@ -120,18 +120,18 @@ public:
 	inline const KeyValue *	Find(const Key &inKey, uint64 inKeyHash) const;
 
 	/// Value of an invalid handle
-	const static uint32		cInvalidHandle = uint32(-1);
+	const static uint32_t		cInvalidHandle = uint32_t(-1);
 
-	/// Get convert key value pair to uint32 handle
-	inline uint32			ToHandle(const KeyValue *inKeyValue) const;
+	/// Get convert key value pair to uint32_t handle
+	inline uint32_t			ToHandle(const KeyValue *inKeyValue) const;
 
-	/// Convert uint32 handle back to key and value
-	inline const KeyValue *	FromHandle(uint32 inHandle) const;
+	/// Convert uint32_t handle back to key and value
+	inline const KeyValue *	FromHandle(uint32_t inHandle) const;
 
 #ifdef MOSS_DEBUG
 	/// Get the number of key value pairs that this map currently contains.
 	/// Available only when asserts are enabled because adding elements creates contention on this atomic and negatively affects performance.
-	inline uint32			GetNumKeyValues() const			{ return mNumKeyValues; }
+	inline uint32_t			GetNumKeyValues() const			{ return mNumKeyValues; }
 #endif // MOSS_DEBUG
 
 	/// Get all key/value pairs
@@ -151,8 +151,8 @@ public:
 		Iterator &			operator ++ ();
 
 		MapType *			mMap;
-		uint32				mBucket;
-		uint32				mOffset;
+		uint32_t				mBucket;
+		uint32_t				mOffset;
 	};
 
 	/// Iterate over the map, note that it is not safe to do this in parallel to Clear().
@@ -169,12 +169,12 @@ private:
 	LFHMAllocator &			mAllocator;						///< Allocator used to allocate key value pairs
 
 #ifdef MOSS_DEBUG
-	atomic<uint32>			mNumKeyValues = 0;				///< Number of key value pairs in the store
+	atomic<uint32_t>			mNumKeyValues = 0;				///< Number of key value pairs in the store
 #endif // MOSS_DEBUG
 
-	atomic<uint32> *		mBuckets = nullptr;				///< This contains the offset in mObjectStore of the first object with a particular hash
-	uint32					mNumBuckets = 0;				///< Current number of buckets
-	uint32					mMaxBuckets = 0;				///< Maximum number of buckets
+	atomic<uint32_t> *		mBuckets = nullptr;				///< This contains the offset in mObjectStore of the first object with a particular hash
+	uint32_t					mNumBuckets = 0;				///< Current number of buckets
+	uint32_t					mMaxBuckets = 0;				///< Maximum number of buckets
 };
 
 MOSS_SUPPRESS_WARNINGS_END

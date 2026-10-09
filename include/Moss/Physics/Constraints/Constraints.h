@@ -2099,12 +2099,12 @@ public:
 	}
 
 	/// Flags to indicate which axis got clamped by ClampSwingTwist
-	static constexpr uint32		cClampedTwistMin = 1 << 0;
-	static constexpr uint32		cClampedTwistMax = 1 << 1;
-	static constexpr uint32		cClampedSwingYMin = 1 << 2;
-	static constexpr uint32		cClampedSwingYMax = 1 << 3;
-	static constexpr uint32		cClampedSwingZMin = 1 << 4;
-	static constexpr uint32		cClampedSwingZMax = 1 << 5;
+	static constexpr uint32_t		cClampedTwistMin = 1 << 0;
+	static constexpr uint32_t		cClampedTwistMax = 1 << 1;
+	static constexpr uint32_t		cClampedSwingYMin = 1 << 2;
+	static constexpr uint32_t		cClampedSwingYMax = 1 << 3;
+	static constexpr uint32_t		cClampedSwingZMin = 1 << 4;
+	static constexpr uint32_t		cClampedSwingZMax = 1 << 5;
 
 	/// Helper function to determine if we're clamped against the min or max limit
 	static MOSS_INLINE bool		sDistanceToMinShorter(float inDeltaMin, float inDeltaMax) {
@@ -2121,7 +2121,7 @@ public:
 	}
 
 	/// Clamp twist and swing against the constraint limits, returns which parts were clamped (everything assumed in constraint space)
-	inline void					ClampSwingTwist(Quat& ioSwing, Quat& ioTwist, uint32& outClampedAxis) const {
+	inline void					ClampSwingTwist(Quat& ioSwing, Quat& ioTwist, uint32_t& outClampedAxis) const {
 		// Start with not clamped
 		outClampedAxis = 0;
 
@@ -2267,7 +2267,7 @@ public:
 
 		// Clamp against joint limits
 		Quat q_clamped_swing = q_swing, q_clamped_twist = q_twist;
-		uint32 clamped_axis;
+		uint32_t clamped_axis;
 		ClampSwingTwist(q_clamped_swing, q_clamped_twist, clamped_axis);
 
 		if (mRotationFlags&  SwingYLocked) {
@@ -2403,7 +2403,7 @@ public:
 		Quat q_swing, q_twist;
 		inConstraintRotation.GetSwingTwist(q_swing, q_twist);
 
-		uint32 clamped_axis;
+		uint32_t clamped_axis;
 		ClampSwingTwist(q_swing, q_twist, clamped_axis);
 
 		// Solve rotation violations
@@ -2875,29 +2875,29 @@ public:
 	Constraints				GetConstraints() const;
 
 	/// Get total number of constraints
-	inline uint32			GetNumConstraints() const					{ return uint32(mConstraints.size()); }
+	inline uint32_t			GetNumConstraints() const					{ return uint32_t(mConstraints.size()); }
 
 	/// Determine the active constraints of a subset of the constraints
-	void					GetActiveConstraints(uint32 inStartConstraintIdx, uint32 inEndConstraintIdx, Constraint **outActiveConstraints, uint32 &outNumActiveConstraints) const;
+	void					GetActiveConstraints(uint32_t inStartConstraintIdx, uint32_t inEndConstraintIdx, Constraint **outActiveConstraints, uint32_t &outNumActiveConstraints) const;
 
 	/// Link bodies to form islands
-	static void				sBuildIslands(Constraint **inActiveConstraints, uint32 inNumActiveConstraints, IslandBuilder &ioBuilder, BodyManager &inBodyManager);
+	static void				sBuildIslands(Constraint **inActiveConstraints, uint32_t inNumActiveConstraints, IslandBuilder &ioBuilder, BodyManager &inBodyManager);
 
 	/// In order to have a deterministic simulation, we need to sort the constraints of an island before solving them
-	static void				sSortConstraints(Constraint **inActiveConstraints, uint32 *inConstraintIdxBegin, uint32 *inConstraintIdxEnd);
+	static void				sSortConstraints(Constraint **inActiveConstraints, uint32_t *inConstraintIdxBegin, uint32_t *inConstraintIdxEnd);
 
 	/// Prior to solving the velocity constraints, you must call SetupVelocityConstraints once to precalculate values that are independent of velocity
-	static void				sSetupVelocityConstraints(Constraint **inActiveConstraints, uint32 inNumActiveConstraints, float inDeltaTime);
+	static void				sSetupVelocityConstraints(Constraint **inActiveConstraints, uint32_t inNumActiveConstraints, float inDeltaTime);
 
 	/// Apply last frame's impulses, must be called prior to SolveVelocityConstraints
 	template <class ConstraintCallback>
-	static void				sWarmStartVelocityConstraints(Constraint **inActiveConstraints, const uint32 *inConstraintIdxBegin, const uint32 *inConstraintIdxEnd, float inWarmStartImpulseRatio, ConstraintCallback &ioCallback);
+	static void				sWarmStartVelocityConstraints(Constraint **inActiveConstraints, const uint32_t *inConstraintIdxBegin, const uint32_t *inConstraintIdxEnd, float inWarmStartImpulseRatio, ConstraintCallback &ioCallback);
 
 	/// This function is called multiple times to iteratively come to a solution that meets all velocity constraints
-	static bool				sSolveVelocityConstraints(Constraint **inActiveConstraints, const uint32 *inConstraintIdxBegin, const uint32 *inConstraintIdxEnd, float inDeltaTime);
+	static bool				sSolveVelocityConstraints(Constraint **inActiveConstraints, const uint32_t *inConstraintIdxBegin, const uint32_t *inConstraintIdxEnd, float inDeltaTime);
 
 	/// This function is called multiple times to iteratively come to a solution that meets all position constraints
-	static bool				sSolvePositionConstraints(Constraint **inActiveConstraints, const uint32 *inConstraintIdxBegin, const uint32 *inConstraintIdxEnd, float inDeltaTime, float inBaumgarte);
+	static bool				sSolvePositionConstraints(Constraint **inActiveConstraints, const uint32_t *inConstraintIdxBegin, const uint32_t *inConstraintIdxEnd, float inDeltaTime, float inBaumgarte);
 
 #ifndef MOSS_DEBUG_RENDERER
 	/// Draw all constraints
@@ -2960,16 +2960,16 @@ public:
 
 	/// Priority of the constraint when solving. Higher numbers have are more likely to be solved correctly.
 	/// Note that if you want a deterministic simulation and you cannot guarantee the order in which constraints are added/removed, you can make the priority for all constraints unique to get a deterministic ordering.
-	uint32						GetConstraintPriority() const				{ return mConstraintPriority; }
-	void						SetConstraintPriority(uint32 inPriority)	{ mConstraintPriority = inPriority; }
+	uint32_t						GetConstraintPriority() const				{ return mConstraintPriority; }
+	void						SetConstraintPriority(uint32_t inPriority)	{ mConstraintPriority = inPriority; }
 
 	/// Used only when the constraint is active. Override for the number of solver velocity iterations to run, 0 means use the default in PhysicsSettings::mNumVelocitySteps. The number of iterations to use is the max of all contacts and constraints in the island.
-	void						SetNumVelocityStepsOverride(uint32 inN)		{ MOSS_ASSERT(inN < 256); mNumVelocityStepsOverride = uint8(inN); }
-	uint32						GetNumVelocityStepsOverride() const			{ return mNumVelocityStepsOverride; }
+	void						SetNumVelocityStepsOverride(uint32_t inN)		{ MOSS_ASSERT(inN < 256); mNumVelocityStepsOverride = uint8(inN); }
+	uint32_t						GetNumVelocityStepsOverride() const			{ return mNumVelocityStepsOverride; }
 
 	/// Used only when the constraint is active. Override for the number of solver position iterations to run, 0 means use the default in PhysicsSettings::mNumPositionSteps. The number of iterations to use is the max of all contacts and constraints in the island.
-	void						SetNumPositionStepsOverride(uint32 inN)		{ MOSS_ASSERT(inN < 256); mNumPositionStepsOverride = uint8(inN); }
-	uint32						GetNumPositionStepsOverride() const			{ return mNumPositionStepsOverride; }
+	void						SetNumPositionStepsOverride(uint32_t inN)		{ MOSS_ASSERT(inN < 256); mNumPositionStepsOverride = uint8(inN); }
+	uint32_t						GetNumPositionStepsOverride() const			{ return mNumPositionStepsOverride; }
 
 	/// Enable / disable this constraint. This can e.g. be used to implement a breakable constraint by detecting that the constraint impulse
 	/// (see e.g. PointConstraint::GetTotalLambdaPosition) went over a certain limit and then disabling the constraint.
@@ -3006,10 +3006,10 @@ public:
 	///@}
 
 	/// Link bodies that are connected by this constraint in the island builder
-	virtual void				BuildIslands(uint32 inConstraintIndex, IslandBuilder& ioBuilder, BodyManager& inBodyManager) = 0;
+	virtual void				BuildIslands(uint32_t inConstraintIndex, IslandBuilder& ioBuilder, BodyManager& inBodyManager) = 0;
 
 	/// Link bodies that are connected by this constraint in the same split. Returns the split index.
-	virtual uint32				BuildIslandSplits(LargeIslandSplitter& ioSplitter) const = 0;
+	virtual uint32_t				BuildIslandSplits(LargeIslandSplitter& ioSplitter) const = 0;
 
 #ifndef MOSS_DEBUG_RENDERER
 	// Drawing interface
@@ -3044,13 +3044,13 @@ private:
 	friend class ConstraintManager;
 
 	/// Index that indicates this constraint is not in the constraint manager
-	static constexpr uint32		cInvalidConstraintIndex = 0xffffffff;
+	static constexpr uint32_t		cInvalidConstraintIndex = 0xffffffff;
 
 	/// Index in the mConstraints list of the ConstraintManager for easy finding
-	uint32						mConstraintIndex = cInvalidConstraintIndex;
+	uint32_t						mConstraintIndex = cInvalidConstraintIndex;
 
 	/// Priority of the constraint when solving. Higher numbers have are more likely to be solved correctly.
-	uint32						mConstraintPriority = 0;
+	uint32_t						mConstraintPriority = 0;
 
 	/// Used only when the constraint is active. Override for the number of solver velocity iterations to run, 0 means use the default in PhysicsSettings::mNumVelocitySteps. The number of iterations to use is the max of all contacts and constraints in the island.
 	uint8						mNumVelocityStepsOverride = 0;
@@ -4451,10 +4451,10 @@ public:
 	virtual Mat44				GetConstraintToBody2Matrix() const = 0;
 
 	// Link bodies that are connected by this constraint in the island builder
-	virtual void				BuildIslands(uint32 inConstraintIndex, IslandBuilder &ioBuilder, BodyManager &inBodyManager) override;
+	virtual void				BuildIslands(uint32_t inConstraintIndex, IslandBuilder &ioBuilder, BodyManager &inBodyManager) override;
 
 	// Link bodies that are connected by this constraint in the same split. Returns the split index.
-	virtual uint32				BuildIslandSplits(LargeIslandSplitter &ioSplitter) const override;
+	virtual uint32_t				BuildIslandSplits(LargeIslandSplitter &ioSplitter) const override;
 
 protected:
 	// The two bodies involved

@@ -37,18 +37,18 @@ public:
 	/// Constructor
 	inline					RefTarget() = default;
 	inline					RefTarget(const RefTarget &)					{ /* Do not copy refcount */ }
-	inline					~RefTarget()									{ MOSS_IF_ENABLE_ASSERTS(uint32 value = mRefCount.load(memory_order_relaxed);) MOSS_ASSERT(value == 0 || value == cEmbedded); } ///< assert no one is referencing us
+	inline					~RefTarget()									{ MOSS_IF_ENABLE_ASSERTS(uint32_t value = mRefCount.load(memory_order_relaxed);) MOSS_ASSERT(value == 0 || value == cEmbedded); } ///< assert no one is referencing us
 
 	/// Mark this class as embedded, this means the type can be used in a compound or constructed on the stack.
 	/// The Release function will never destruct the object, it is assumed the destructor will be called by whoever allocated
 	/// the object and at that point in time it is checked that no references are left to the structure.
-	inline void				SetEmbedded() const								{ MOSS_IF_ENABLE_ASSERTS(uint32 old = ) mRefCount.fetch_add(cEmbedded, memory_order_relaxed); MOSS_ASSERT(old < cEmbedded); }
+	inline void				SetEmbedded() const								{ MOSS_IF_ENABLE_ASSERTS(uint32_t old = ) mRefCount.fetch_add(cEmbedded, memory_order_relaxed); MOSS_ASSERT(old < cEmbedded); }
 
 	/// Assignment operator
 	inline RefTarget &		operator = (const RefTarget &)					{ /* Don't copy refcount */ return *this; }
 
 	/// Get current refcount of this object
-	uint32					GetRefCount() const								{ return mRefCount.load(memory_order_relaxed); }
+	uint32_t					GetRefCount() const								{ return mRefCount.load(memory_order_relaxed); }
 
 	/// Add or release a reference to this object
 	inline void				AddRef() const
@@ -78,9 +78,9 @@ public:
 	static int				sInternalGetRefCountOffset()					{ return offsetof(T, mRefCount); }
 
 protected:
-	static constexpr uint32 cEmbedded = 0x0ebedded;							///< A large value that gets added to the refcount to mark the object as embedded
+	static constexpr uint32_t cEmbedded = 0x0ebedded;							///< A large value that gets added to the refcount to mark the object as embedded
 
-	mutable atomic<uint32>	mRefCount = 0;									///< Current reference count
+	mutable atomic<uint32_t>	mRefCount = 0;									///< Current reference count
 };
 
 /// Pure virtual version of RefTarget

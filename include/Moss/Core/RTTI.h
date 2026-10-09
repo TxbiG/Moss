@@ -142,7 +142,7 @@ public:
 	bool						IsAbstract() const											{ return mCreate == nullptr || mDestruct == nullptr; }
 	int							GetBaseClassCount() const;
 	const RTTI *				GetBaseClass(int inIdx) const;
-	uint32						GetHash() const;
+	uint32_t						GetHash() const;
 
 	/// Create an object of this type (returns nullptr if the object is abstract)
 	void *						CreateObject() const;

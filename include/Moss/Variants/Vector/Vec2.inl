@@ -19,7 +19,7 @@ void Vec2::CheckW() const
 {
 #ifdef MOSS_FLOATING_POINT_EXCEPTIONS_ENABLED
 	// Avoid asserts when both components are NaN
-	MOSS_ASSERT(reinterpret_cast<const uint32 *>(mF32)[2] == reinterpret_cast<const uint32 *>(mF32)[3]);
+	MOSS_ASSERT(reinterpret_cast<const uint32_t *>(mF32)[2] == reinterpret_cast<const uint32_t *>(mF32)[3]);
 #endif // MOSS_FLOATING_POINT_EXCEPTIONS_ENABLED
 }
 
@@ -85,7 +85,7 @@ Vec2::Vec2(float inX, float inY) {
 #endif
 }
 
-template<uint32 SwizzleX, uint32 SwizzleY>
+template<uint32_t SwizzleX, uint32_t SwizzleY>
 Vec2 Vec2::Swizzle() const
 {
     static_assert(SwizzleX <= 3, "SwizzleX template parameter out of range");
@@ -175,7 +175,7 @@ UVec4 Vec2::Equals(const Vec2 inV1, const Vec2 inV2)
 #elif defined(MOSS_SIMD_NEON)
 	return vceqq_f32(inV1.mValue, inV2.mValue);
 #else
-	uint32 z = inV1.mF32[2] == inV2.mF32[2]? 0xffffffffu : 0;
+	uint32_t z = inV1.mF32[2] == inV2.mF32[2]? 0xffffffffu : 0;
 	return UVec4(inV1.mF32[0] == inV2.mF32[0]? 0xffffffffu : 0, inV1.mF32[1] == inV2.mF32[1]? 0xffffffffu : 0, z, z);
 #endif
 }
@@ -187,7 +187,7 @@ UVec4 Vec2::Less(const Vec2 inV1, const Vec2 inV2)
 #elif defined(MOSS_SIMD_NEON)
 	return vcltq_f32(inV1.mValue, inV2.mValue);
 #else
-	uint32 z = inV1.mF32[2] < inV2.mF32[2]? 0xffffffffu : 0;
+	uint32_t z = inV1.mF32[2] < inV2.mF32[2]? 0xffffffffu : 0;
 	return UVec4(inV1.mF32[0] < inV2.mF32[0]? 0xffffffffu : 0,
 				 inV1.mF32[1] < inV2.mF32[1]? 0xffffffffu : 0,
 				 z,
@@ -202,7 +202,7 @@ UVec4 Vec2::LessOrEqual(const Vec2 inV1, const Vec2 inV2)
 #elif defined(MOSS_SIMD_NEON)
 	return vcleq_f32(inV1.mValue, inV2.mValue);
 #else
-	uint32 z = inV1.mF32[2] <= inV2.mF32[2]? 0xffffffffu : 0;
+	uint32_t z = inV1.mF32[2] <= inV2.mF32[2]? 0xffffffffu : 0;
 	return UVec4(inV1.mF32[0] <= inV2.mF32[0]? 0xffffffffu : 0,
 				 inV1.mF32[1] <= inV2.mF32[1]? 0xffffffffu : 0,
 				 z,
@@ -217,7 +217,7 @@ UVec4 Vec2::Greater(const Vec2 inV1, const Vec2 inV2)
 #elif defined(MOSS_SIMD_NEON)
 	return vcgtq_f32(inV1.mValue, inV2.mValue);
 #else
-	uint32 z = inV1.mF32[2] > inV2.mF32[2]? 0xffffffffu : 0;
+	uint32_t z = inV1.mF32[2] > inV2.mF32[2]? 0xffffffffu : 0;
 	return UVec4(inV1.mF32[0] > inV2.mF32[0]? 0xffffffffu : 0,
 				 inV1.mF32[1] > inV2.mF32[1]? 0xffffffffu : 0,
 				 z,
@@ -232,7 +232,7 @@ UVec4 Vec2::GreaterOrEqual(const Vec2 inV1, const Vec2 inV2)
 #elif defined(MOSS_SIMD_NEON)
 	return vcgeq_f32(inV1.mValue, inV2.mValue);
 #else
-	uint32 z = inV1.mF32[2] >= inV2.mF32[2]? 0xffffffffu : 0;
+	uint32_t z = inV1.mF32[2] >= inV2.mF32[2]? 0xffffffffu : 0;
 	return UVec4(inV1.mF32[0] >= inV2.mF32[0]? 0xffffffffu : 0,
 				 inV1.mF32[1] >= inV2.mF32[1]? 0xffffffffu : 0,
 				 z,
@@ -772,7 +772,7 @@ UVec4 Vec2::ToInt() const
 #elif defined(MOSS_SIMD_NEON)
 	return vcvtq_u32_f32(mValue);
 #else
-	return UVec4(uint32(mF32[0]), uint32(mF32[1]), uint32(mF32[2]), uint32(mF32[3]));
+	return UVec4(uint32_t(mF32[0]), uint32_t(mF32[1]), uint32_t(mF32[2]), uint32_t(mF32[3]));
 #endif
 }
 

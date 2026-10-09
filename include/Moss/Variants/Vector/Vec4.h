@@ -131,8 +131,8 @@ public:
 
 	Vec4&						operator = (const Vec4 &inRHS) = default;
 	/// Get float component by index
-	MOSS_INLINE float			operator [] (uint32 inCoordinate) const			{ MOSS_ASSERT(inCoordinate < 4); return mF32[inCoordinate]; }
-	//MOSS_INLINE float&			operator [] (uint32 inCoordinate)					{ MOSS_ASSERT(inCoordinate < 4); return mF32[inCoordinate]; }
+	MOSS_INLINE float			operator [] (uint32_t inCoordinate) const			{ MOSS_ASSERT(inCoordinate < 4); return mF32[inCoordinate]; }
+	//MOSS_INLINE float&			operator [] (uint32_t inCoordinate)					{ MOSS_ASSERT(inCoordinate < 4); return mF32[inCoordinate]; }
 
 	/// Comparison
 	MOSS_INLINE bool			operator == (const Vec4 inV2) const;
@@ -187,7 +187,7 @@ public:
 	MOSS_INLINE Vec4			operator / (const Vec4 inV2) const;
 
 	/// Swizzle the elements in inV
-	template<uint32 SwizzleX, uint32 SwizzleY, uint32 SwizzleZ, uint32 SwizzleW>
+	template<uint32_t SwizzleX, uint32_t SwizzleY, uint32_t SwizzleZ, uint32_t SwizzleW>
 	MOSS_INLINE Vec4			Swizzle() const;
 
 	/// Replicate the X component to all components

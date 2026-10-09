@@ -15,7 +15,7 @@ class PipelineStateMTL : public PipelineState
 {
 public:
 	/// Constructor
-										PipelineStateMTL(RendererMTL *inRenderer, const VertexShaderMTL *inVertexShader, const EInputDescription *inInputDescription, uint32 inInputDescriptionCount, const PixelShaderMTL *inPixelShader, EDrawPass inDrawPass, EFillMode inFillMode, ETopology inTopology, EDepthTest inDepthTest, EBlendMode inBlendMode, ECullMode inCullMode);
+										PipelineStateMTL(RendererMTL *inRenderer, const VertexShaderMTL *inVertexShader, const EInputDescription *inInputDescription, uint32_t inInputDescriptionCount, const PixelShaderMTL *inPixelShader, EDrawPass inDrawPass, EFillMode inFillMode, ETopology inTopology, EDepthTest inDepthTest, EBlendMode inBlendMode, ECullMode inCullMode);
 	virtual								~PipelineStateMTL() override;
 
 	/// Make this pipeline state active (any primitives rendered after this will use this state)
@@ -53,10 +53,10 @@ public:
     //virtual void SetUniform(const char* name, unsigned int value0, unsigned int value1, unsigned int value2, unsigned int value3);
 
     // Unsigned Integer Array Uniforms
-    //virtual void SetUniform(const char* name, int count, uint32* value) override;
-    //virtual void SetUniform(const char* name, int count, uint32* value) override;
-    //virtual void SetUniform(const char* name, int count, uint32* value) override;
-    //virtual void SetUniform(const char* name, int count, uint32* value) override;
+    //virtual void SetUniform(const char* name, int count, uint32_t* value) override;
+    //virtual void SetUniform(const char* name, int count, uint32_t* value) override;
+    //virtual void SetUniform(const char* name, int count, uint32_t* value) override;
+    //virtual void SetUniform(const char* name, int count, uint32_t* value) override;
 
     // Float Array Uniforms
     //virtual void SetUniform(const char* name, int count, const float* value) override;

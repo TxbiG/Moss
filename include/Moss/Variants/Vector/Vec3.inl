@@ -18,7 +18,7 @@ MOSS_SUPPRESS_WARNINGS_BEGIN
 void Vec3::CheckW() const {
 
 #ifdef MOSS_FLOATING_POINT_EXCEPTIONS_ENABLED
-	MOSS_ASSERT(reinterpret_cast<const uint32 *>(mF32)[2] == reinterpret_cast<const uint32 *>(mF32)[3]);	// Avoid asserts when both components are NaN
+	MOSS_ASSERT(reinterpret_cast<const uint32_t *>(mF32)[2] == reinterpret_cast<const uint32_t *>(mF32)[3]);	// Avoid asserts when both components are NaN
 #endif // MOSS_FLOATING_POINT_EXCEPTIONS_ENABLED
 
 }
@@ -74,7 +74,7 @@ Vec3::Vec3(float inX, float inY, float inZ)
 #if defined(MOSS_SIMD_SSE)
 	mValue = _mm_set_ps(inZ, inZ, inY, inX);
 #elif defined(MOSS_SIMD_NEON)
-	uint32x2_t xy = vcreate_u32(static_cast<uint64>(BitCast<uint32>(inX)) | (static_cast<uint64>(BitCast<uint32>(inY)) << 32));
+	uint32x2_t xy = vcreate_u32(static_cast<uint64>(BitCast<uint32_t>(inX)) | (static_cast<uint64>(BitCast<uint32_t>(inY)) << 32));
 	uint32x2_t zz = vreinterpret_u32_f32(vdup_n_f32(inZ));
 	mValue = vreinterpretq_f32_u32(vcombine_u32(xy, zz));
 #else
@@ -87,7 +87,7 @@ Vec3::Vec3(float inX, float inY, float inZ)
 #endif
 }
 
-template<uint32 SwizzleX, uint32 SwizzleY, uint32 SwizzleZ>
+template<uint32_t SwizzleX, uint32_t SwizzleY, uint32_t SwizzleZ>
 Vec3 Vec3::Swizzle() const
 {
 	static_assert(SwizzleX <= 3, "SwizzleX template parameter out of range");
@@ -185,7 +185,7 @@ UVec4 Vec3::Equals(const Vec3 inV1, const Vec3 inV2)
 #elif defined(MOSS_SIMD_NEON)
 	return vceqq_f32(inV1.mValue, inV2.mValue);
 #else
-	uint32 z = inV1.mF32[2] == inV2.mF32[2]? 0xffffffffu : 0;
+	uint32_t z = inV1.mF32[2] == inV2.mF32[2]? 0xffffffffu : 0;
 	return UVec4(inV1.mF32[0] == inV2.mF32[0]? 0xffffffffu : 0,
 				 inV1.mF32[1] == inV2.mF32[1]? 0xffffffffu : 0,
 				 z,
@@ -199,7 +199,7 @@ UVec4 Vec3::Less(const Vec3 inV1, const Vec3 inV2) {
 #elif defined(MOSS_SIMD_NEON)
 	return vcltq_f32(inV1.mValue, inV2.mValue);
 #else
-	uint32 z = inV1.mF32[2] < inV2.mF32[2]? 0xffffffffu : 0;
+	uint32_t z = inV1.mF32[2] < inV2.mF32[2]? 0xffffffffu : 0;
 	return UVec4(inV1.mF32[0] < inV2.mF32[0]? 0xffffffffu : 0,
 				 inV1.mF32[1] < inV2.mF32[1]? 0xffffffffu : 0,
 				 z,
@@ -214,7 +214,7 @@ UVec4 Vec3::LessOrEqual(const Vec3 inV1, const Vec3 inV2)
 #elif defined(MOSS_SIMD_NEON)
 	return vcleq_f32(inV1.mValue, inV2.mValue);
 #else
-	uint32 z = inV1.mF32[2] <= inV2.mF32[2]? 0xffffffffu : 0;
+	uint32_t z = inV1.mF32[2] <= inV2.mF32[2]? 0xffffffffu : 0;
 	return UVec4(inV1.mF32[0] <= inV2.mF32[0]? 0xffffffffu : 0,
 				 inV1.mF32[1] <= inV2.mF32[1]? 0xffffffffu : 0,
 				 z,
@@ -229,7 +229,7 @@ UVec4 Vec3::Greater(const Vec3 inV1, const Vec3 inV2)
 #elif defined(MOSS_SIMD_NEON)
 	return vcgtq_f32(inV1.mValue, inV2.mValue);
 #else
-	uint32 z = inV1.mF32[2] > inV2.mF32[2]? 0xffffffffu : 0;
+	uint32_t z = inV1.mF32[2] > inV2.mF32[2]? 0xffffffffu : 0;
 	return UVec4(inV1.mF32[0] > inV2.mF32[0]? 0xffffffffu : 0,
 				 inV1.mF32[1] > inV2.mF32[1]? 0xffffffffu : 0,
 				 z,
@@ -244,7 +244,7 @@ UVec4 Vec3::GreaterOrEqual(const Vec3 inV1, const Vec3 inV2)
 #elif defined(MOSS_SIMD_NEON)
 	return vcgeq_f32(inV1.mValue, inV2.mValue);
 #else
-	uint32 z = inV1.mF32[2] >= inV2.mF32[2]? 0xffffffffu : 0;
+	uint32_t z = inV1.mF32[2] >= inV2.mF32[2]? 0xffffffffu : 0;
 	return UVec4(inV1.mF32[0] >= inV2.mF32[0]? 0xffffffffu : 0,
 				 inV1.mF32[1] >= inV2.mF32[1]? 0xffffffffu : 0,
 				 z,
@@ -791,7 +791,7 @@ UVec4 Vec3::ToInt() const
 #elif defined(MOSS_SIMD_NEON)
 	return vcvtq_u32_f32(mValue);
 #else
-	return UVec4(uint32(mF32[0]), uint32(mF32[1]), uint32(mF32[2]), uint32(mF32[3]));
+	return UVec4(uint32_t(mF32[0]), uint32_t(mF32[1]), uint32_t(mF32[2]), uint32_t(mF32[3]));
 #endif
 }
 

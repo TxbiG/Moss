@@ -17,7 +17,7 @@ class HashTable
 public:
 	/// Properties
 	using value_type = KeyValue;
-	using size_type = uint32;
+	using size_type = uint32_t;
 	using difference_type = ptrdiff_t;
 
 private:
@@ -115,7 +115,7 @@ private:
 	/// Get the maximum number of elements that we can support given a number of buckets
 	static constexpr size_type sGetMaxLoad(size_type inBucketCount)
 	{
-		return uint32((cMaxLoadFactorNumerator * inBucketCount) / cMaxLoadFactorDenominator);
+		return uint32_t((cMaxLoadFactorNumerator * inBucketCount) / cMaxLoadFactorDenominator);
 	}
 
 	/// Update the control value for a bucket
@@ -172,7 +172,7 @@ private:
 		memcpy(mControl, inRHS.mControl, mMaxSize + 15);
 
 		// Copy elements
-		uint32 index = 0;
+		uint32_t index = 0;
 		for (const uint8 *control = mControl, *control_end = mControl + mMaxSize; control != control_end; ++control, ++index)
 			if (*control & cBucketUsed)
 				new (mData + index) KeyValue(inRHS.mData[index]);
@@ -283,7 +283,7 @@ protected:
 				// Note that when deleting we can create empty buckets instead of deleted buckets.
 				// This means we must unconditionally check all buckets in this batch for equality
 				// (also beyond the first empty bucket).
-				uint32 control_equal = uint32(BVec16::Equals(control_bytes, control16).GetTrues());
+				uint32_t control_equal = uint32_t(BVec16::Equals(control_bytes, control16).GetTrues());
 
 				// Index within the 16 buckets
 				size_type local_index = index;
@@ -292,7 +292,7 @@ protected:
 				while (control_equal != 0)
 				{
 					// Get the first equal bucket
-					uint32 first_equal = CountTrailingZeros(control_equal);
+					uint32_t first_equal = CountTrailingZeros(control_equal);
 
 					// Skip to the bucket
 					local_index += first_equal;
@@ -317,14 +317,14 @@ protected:
 				if (first_deleted_index == cNoDeleted)
 				{
 					// Check if any buckets have been deleted, if so store the first one
-					uint32 control_deleted = uint32(BVec16::Equals(control_bytes, bucket_deleted).GetTrues());
+					uint32_t control_deleted = uint32_t(BVec16::Equals(control_bytes, bucket_deleted).GetTrues());
 					if (control_deleted != 0)
 						first_deleted_index = index + CountTrailingZeros(control_deleted);
 				}
 			}
 
 			// Check for empty buckets
-			uint32 control_empty = uint32(BVec16::Equals(control_bytes, bucket_empty).GetTrues());
+			uint32_t control_empty = uint32_t(BVec16::Equals(control_bytes, bucket_empty).GetTrues());
 			if (control_empty != 0)
 			{
 				// If we found a deleted bucket, use it.
@@ -486,7 +486,7 @@ public:
 	void					reserve(size_type inMaxSize)
 	{
 		// Calculate max size based on load factor
-		size_type max_size = GetNextPowerOf2(max<uint32>((cMaxLoadFactorDenominator * inMaxSize) / cMaxLoadFactorNumerator, 16));
+		size_type max_size = GetNextPowerOf2(max<uint32_t>((cMaxLoadFactorDenominator * inMaxSize) / cMaxLoadFactorNumerator, 16));
 		if (max_size <= mMaxSize)
 			return;
 
@@ -650,7 +650,7 @@ public:
 			// Note that when deleting we can create empty buckets instead of deleted buckets.
 			// This means we must unconditionally check all buckets in this batch for equality
 			// (also beyond the first empty bucket).
-			uint32 control_equal = uint32(BVec16::Equals(control_bytes, control16).GetTrues());
+			uint32_t control_equal = uint32_t(BVec16::Equals(control_bytes, control16).GetTrues());
 
 			// Index within the 16 buckets
 			size_type local_index = index;
@@ -659,7 +659,7 @@ public:
 			while (control_equal != 0)
 			{
 				// Get the first equal bucket
-				uint32 first_equal = CountTrailingZeros(control_equal);
+				uint32_t first_equal = CountTrailingZeros(control_equal);
 
 				// Skip to the bucket
 				local_index += first_equal;
@@ -680,7 +680,7 @@ public:
 			}
 
 			// Check for empty buckets
-			uint32 control_empty = uint32(BVec16::Equals(control_bytes, bucket_empty).GetTrues());
+			uint32_t control_empty = uint32_t(BVec16::Equals(control_bytes, bucket_empty).GetTrues());
 			if (control_empty != 0)
 			{
 				// An empty bucket was found, we didn't find the element
@@ -702,13 +702,13 @@ public:
 		BVec16 control_bytes_before = BVec16::LoadByte16(mControl + ((inIterator.mIndex - 16) & (mMaxSize - 1)));
 		BVec16 control_bytes_after = BVec16::LoadByte16(mControl + inIterator.mIndex);
 		BVec16 bucket_empty = BVec16::Zero();
-		uint32 control_empty_before = uint32(BVec16::Equals(control_bytes_before, bucket_empty).GetTrues());
-		uint32 control_empty_after = uint32(BVec16::Equals(control_bytes_after, bucket_empty).GetTrues());
+		uint32_t control_empty_before = uint32_t(BVec16::Equals(control_bytes_before, bucket_empty).GetTrues());
+		uint32_t control_empty_after = uint32_t(BVec16::Equals(control_bytes_after, bucket_empty).GetTrues());
 
 		// If (this index including) there exist 16 consecutive non-empty slots (represented by a bit being 0) then
 		// a probe looking for some element needs to continue probing so we cannot mark the bucket as empty
 		// but must mark it as deleted instead.
-		// Note that we use: CountLeadingZeros(uint16) = CountLeadingZeros(uint32) - 16.
+		// Note that we use: CountLeadingZeros(uint16) = CountLeadingZeros(uint32_t) - 16.
 		uint8 control_value = CountLeadingZeros(control_empty_before) - 16 + CountTrailingZeros(control_empty_after) < 16? cBucketEmpty : cBucketDeleted;
 
 		// Mark the bucket as empty/deleted
@@ -777,7 +777,7 @@ public:
 		// Loop over all elements that have been 'deleted' and move them to their new spot
 		BVec16 bucket_used = BVec16::Replicate(cBucketUsed);
 		size_type bucket_mask = mMaxSize - 1;
-		uint32 probe_mask = bucket_mask & ~uint32(0b1111); // Mask out lower 4 bits because we test 16 buckets at a time
+		uint32_t probe_mask = bucket_mask & ~uint32_t(0b1111); // Mask out lower 4 bits because we test 16 buckets at a time
 		for (size_type src = 0; src < mMaxSize; ++src)
 			if (mControl[src] == cBucketDeleted)
 				for (;;)
@@ -793,7 +793,7 @@ public:
 					{
 						// Check if any buckets are free
 						BVec16 control_bytes = BVec16::LoadByte16(mControl + dst);
-						uint32 control_free = uint32(BVec16::And(control_bytes, bucket_used).GetTrues()) ^ 0xffff;
+						uint32_t control_free = uint32_t(BVec16::And(control_bytes, bucket_used).GetTrues()) ^ 0xffff;
 						if (control_free != 0)
 						{
 							// Select this bucket as destination

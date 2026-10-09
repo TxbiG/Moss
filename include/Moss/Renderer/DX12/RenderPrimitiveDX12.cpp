@@ -27,7 +27,7 @@ void RenderPrimitiveDX12::ReleaseIndexBuffer()
 	if (mIdxBuffer != nullptr)
 	{
 		if (mIdxBufferInUploadHeap)
-			mRenderer->RecycleD3DResourceOnUploadHeap(mIdxBuffer.Get(), mNumIdx * sizeof(uint32));
+			mRenderer->RecycleD3DResourceOnUploadHeap(mIdxBuffer.Get(), mNumIdx * sizeof(uint32_t));
 		else
 			mRenderer->RecycleD3DObject(mIdxBuffer.Get());
 		mIdxBuffer = nullptr;
@@ -72,11 +72,11 @@ void RenderPrimitiveDX12::UnlockVertexBuffer()
 	mVtxBuffer->Unmap(0, nullptr);
 }
 
-void RenderPrimitiveDX12::CreateIndexBuffer(int inNumIdx, const uint32 *inData)
+void RenderPrimitiveDX12::CreateIndexBuffer(int inNumIdx, const uint32_t *inData)
 {
 	RenderPrimitive::CreateIndexBuffer(inNumIdx, inData);
 
-	uint64 size = uint64(inNumIdx) * sizeof(uint32);
+	uint64 size = uint64(inNumIdx) * sizeof(uint32_t);
 
 	if (inData != nullptr)
 	{
@@ -94,9 +94,9 @@ void RenderPrimitiveDX12::CreateIndexBuffer(int inNumIdx, const uint32 *inData)
 	MOSS_IF_DEBUG(mIdxBuffer->SetName(L"Index Buffer");)
 }
 
-uint32 *RenderPrimitiveDX12::LockIndexBuffer()
+uint32_t *RenderPrimitiveDX12::LockIndexBuffer()
 {
-	uint32 *mapped_resource;
+	uint32_t *mapped_resource;
 	D3D12_RANGE range = { 0, 0 };
 	FatalErrorIfFailed(mIdxBuffer->Map(0, &range, (void **)&mapped_resource));
 	return mapped_resource;
@@ -138,7 +138,7 @@ void RenderPrimitiveDX12::Draw() const
 		// Set index buffer
 		D3D12_INDEX_BUFFER_VIEW ib_view;
 		ib_view.BufferLocation = mIdxBuffer->GetGPUVirtualAddress();
-		ib_view.SizeInBytes = mNumIdxToDraw * sizeof(uint32);
+		ib_view.SizeInBytes = mNumIdxToDraw * sizeof(uint32_t);
 		ib_view.Format = DXGI_FORMAT_R32_UINT;
 		command_list->IASetIndexBuffer(&ib_view);
 

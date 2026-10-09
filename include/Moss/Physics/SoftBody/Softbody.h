@@ -45,8 +45,8 @@ public:
 // Temporary data used by the update of a soft body
 class SoftBodyUpdateContext : public NonCopyable {
 public:
-	static constexpr uint32				cVertexCollisionBatch = 64;					// Number of vertices to process in a batch in DetermineCollisionPlanes
-	static constexpr uint32				cVertexConstraintBatch = 256;				// Number of vertices to group for processing batches of constraints in ApplyEdgeConstraints
+	static constexpr uint32_t				cVertexCollisionBatch = 64;					// Number of vertices to process in a batch in DetermineCollisionPlanes
+	static constexpr uint32_t				cVertexConstraintBatch = 256;				// Number of vertices to group for processing batches of constraints in ApplyEdgeConstraints
 
 	// Input
 	Body*								mBody;										// Body that is being updated
@@ -69,13 +69,13 @@ public:
 
 	// State of the update
 	atomic<EState>						mState { EState::DetermineCollisionPlanes };// Current state of the update
-	atomic<uint32>						mNextCollisionVertex { 0 };					// Next vertex to process for DetermineCollisionPlanes
-	atomic<uint32>						mNumCollisionVerticesProcessed { 0 };		// Number of vertices processed by DetermineCollisionPlanes, used to determine if we can go to the next step
-	atomic<uint32>						mNextSensorIndex { 0 };						// Next sensor to process for DetermineCollisionPlanes
-	atomic<uint32>						mNumSensorsProcessed { 0 };					// Number of sensors processed by DetermineSensorCollisions, used to determine if we can go to the next step
-	atomic<uint32>						mNextIteration { 0 };						// Next simulation iteration to process
-	atomic<uint32>						mNextConstraintGroup { 0 };					// Next constraint group to process
-	atomic<uint32>						mNumConstraintGroupsProcessed { 0 };		// Number of groups processed, used to determine if we can go to the next iteration
+	atomic<uint32_t>						mNextCollisionVertex { 0 };					// Next vertex to process for DetermineCollisionPlanes
+	atomic<uint32_t>						mNumCollisionVerticesProcessed { 0 };		// Number of vertices processed by DetermineCollisionPlanes, used to determine if we can go to the next step
+	atomic<uint32_t>						mNextSensorIndex { 0 };						// Next sensor to process for DetermineCollisionPlanes
+	atomic<uint32_t>						mNumSensorsProcessed { 0 };					// Number of sensors processed by DetermineSensorCollisions, used to determine if we can go to the next step
+	atomic<uint32_t>						mNextIteration { 0 };						// Next simulation iteration to process
+	atomic<uint32_t>						mNextConstraintGroup { 0 };					// Next constraint group to process
+	atomic<uint32_t>						mNumConstraintGroupsProcessed { 0 };		// Number of groups processed, used to determine if we can go to the next iteration
 
 	// Output
 	Vec3								mDeltaPosition;								// Delta position of the body in the current time step, should be applied after the update
@@ -147,13 +147,13 @@ public:
 	}
 
 	// Get the number of sensors that are in contact with the soft body
-	MOSS_INLINE uint32					GetNumSensorContacts() const
+	MOSS_INLINE uint32_t					GetNumSensorContacts() const
 	{
-		return (uint32)mCollidingSensors.size();
+		return (uint32_t)mCollidingSensors.size();
 	}
 
 	// Get the i-th sensor that is in contact with the soft body
-	MOSS_INLINE BodyID				GetSensorContactBodyID(uint32 inIndex) const
+	MOSS_INLINE BodyID				GetSensorContactBodyID(uint32_t inIndex) const
 	{
 		return mCollidingSensors[inIndex].mBodyID;
 	}
@@ -196,8 +196,8 @@ public:
 	TArray<Vertex> &						GetVertices()								{ return mVertices; }
 
 	// Access an individual vertex
-	const Vertex &						GetVertex(uint32 inIndex) const				{ return mVertices[inIndex]; }
-	Vertex &							GetVertex(uint32 inIndex)						{ return mVertices[inIndex]; }
+	const Vertex &						GetVertex(uint32_t inIndex) const				{ return mVertices[inIndex]; }
+	Vertex &							GetVertex(uint32_t inIndex)						{ return mVertices[inIndex]; }
 
 	// Get the materials of the soft body
 	const PhysicsMaterialList &			GetMaterials() const						{ return mSettings->mMaterials; }
@@ -206,11 +206,11 @@ public:
 	const TArray<Face> &					GetFaces() const							{ return mSettings->mFaces; }
 
 	// Access to an individual face
-	const Face &						GetFace(uint32 inIndex) const					{ return mSettings->mFaces[inIndex]; }
+	const Face &						GetFace(uint32_t inIndex) const					{ return mSettings->mFaces[inIndex]; }
 
 	// Get the number of solver iterations
-	uint32								GetNumIterations() const					{ return mNumIterations; }
-	void								SetNumIterations(uint32 inNumIterations)	{ mNumIterations = inNumIterations; }
+	uint32_t								GetNumIterations() const					{ return mNumIterations; }
+	void								SetNumIterations(uint32_t inNumIterations)	{ mNumIterations = inNumIterations; }
 
 	// Get the pressure of the soft body
 	float								GetPressure() const							{ return mPressure; }
@@ -268,7 +268,7 @@ public:
 	// @param inNumJoints Indicates how large the inJointMatrices array is (used only for validating out of bounds).
 	// @param inHardSkinAll Can be used to position all vertices on the skinned vertices and can be used to hard reset the soft body.
 	// @param ioTempAllocator Allocator.
-	void								SkinVertices(RMat44Arg inCenterOfMassTransform, const Mat44 *inJointMatrices, uint32 inNumJoints, bool inHardSkinAll, TempAllocator &ioTempAllocator);
+	void								SkinVertices(RMat44Arg inCenterOfMassTransform, const Mat44 *inJointMatrices, uint32_t inNumJoints, bool inHardSkinAll, TempAllocator &ioTempAllocator);
 
 	// This function allows you to update the soft body immediately without going through the PhysicsSystem.
 	// This is useful if the soft body is teleported and needs to 'settle' or it can be used if a the soft body
@@ -368,7 +368,7 @@ private:
 	};
 
 	// Do a narrow phase check and determine the closest feature that we can collide with
-	void								DetermineCollisionPlanes(uint32 inVertexStart, uint32 inNumVertices);
+	void								DetermineCollisionPlanes(uint32_t inVertexStart, uint32_t inNumVertices);
 
 	// Do a narrow phase check between a single sensor and the soft body
 	void								DetermineSensorCollisions(CollidingSensor &ioSensor);
@@ -380,19 +380,19 @@ private:
 	void								IntegratePositions(const SoftBodyUpdateContext &inContext);
 
 	// Enforce all bend constraints
-	void								ApplyDihedralBendConstraints(const SoftBodyUpdateContext &inContext, uint32 inStartIndex, uint32 inEndIndex);
+	void								ApplyDihedralBendConstraints(const SoftBodyUpdateContext &inContext, uint32_t inStartIndex, uint32_t inEndIndex);
 
 	// Enforce all volume constraints
-	void								ApplyVolumeConstraints(const SoftBodyUpdateContext &inContext, uint32 inStartIndex, uint32 inEndIndex);
+	void								ApplyVolumeConstraints(const SoftBodyUpdateContext &inContext, uint32_t inStartIndex, uint32_t inEndIndex);
 
 	// Enforce all skin constraints
-	void								ApplySkinConstraints(const SoftBodyUpdateContext &inContext, uint32 inStartIndex, uint32 inEndIndex);
+	void								ApplySkinConstraints(const SoftBodyUpdateContext &inContext, uint32_t inStartIndex, uint32_t inEndIndex);
 
 	// Enforce all edge constraints
-	void								ApplyEdgeConstraints(const SoftBodyUpdateContext &inContext, uint32 inStartIndex, uint32 inEndIndex);
+	void								ApplyEdgeConstraints(const SoftBodyUpdateContext &inContext, uint32_t inStartIndex, uint32_t inEndIndex);
 
 	// Enforce all LRA constraints
-	void								ApplyLRAConstraints(uint32 inStartIndex, uint32 inEndIndex);
+	void								ApplyLRAConstraints(uint32_t inStartIndex, uint32_t inEndIndex);
 
 	// Enforce all collision constraints & update all velocities according the XPBD algorithm
 	void								ApplyCollisionConstraintsAndUpdateVelocities(const SoftBodyUpdateContext &inContext);
@@ -416,7 +416,7 @@ private:
 	EStatus								ParallelApplyConstraints(SoftBodyUpdateContext &ioContext, const PhysicsSettings &inPhysicsSettings);
 
 	// Helper function to update a single group of constraints
-	void								ProcessGroup(const SoftBodyUpdateContext &ioContext, uint32 inGroupIndex);
+	void								ProcessGroup(const SoftBodyUpdateContext &ioContext, uint32_t inGroupIndex);
 
 	// Returns 6 times the volume of the soft body
 	float								GetVolumeTimesSix() const;
@@ -437,8 +437,8 @@ private:
 	TArray<SkinState>					mSkinState;									// List of skinned positions (1-on-1 with mVertices but only those that are used by the skinning constraints are filled in)
 	AABox								mLocalBounds;								// Bounding box of all vertices
 	AABox								mLocalPredictedBounds;						// Predicted bounding box for all vertices using extrapolation of velocity by last step delta time
-	uint32								mNumIterations;								// Number of solver iterations
-	uint32								mNumSensors;								// Workaround for TSAN false positive: store mCollidingSensors.size() in a separate variable.
+	uint32_t								mNumIterations;								// Number of solver iterations
+	uint32_t								mNumSensors;								// Workaround for TSAN false positive: store mCollidingSensors.size() in a separate variable.
 	float								mPressure;									// n * R * T, amount of substance * ideal gas constant * absolute temperature, see https://en.wikipedia.org/wiki/Pressure
 	float								mSkinnedMaxDistanceMultiplier = 1.0f;		// Multiplier applied to Skinned::mMaxDistance to allow tightening or loosening of the skin constraints
 	bool								mUpdatePosition;							// Update the position of the body while simulating (set to false for something that is attached to the static world)
@@ -484,7 +484,7 @@ public:
 	// @param inVertexAttributesLength The length of inVertexAttributes
 	// @param inBendType The type of bend constraint to create
 	// @param inAngleTolerance Shear edges are created when two connected triangles form a quad (are roughly in the same plane and form a square with roughly 90 degree angles). This defines the tolerance (in radians).
-	void				CreateConstraints(const VertexAttributes *inVertexAttributes, uint32 inVertexAttributesLength, EBendType inBendType = EBendType::Distance, float inAngleTolerance = DegreesToRadians(8.0f));
+	void				CreateConstraints(const VertexAttributes *inVertexAttributes, uint32_t inVertexAttributesLength, EBendType inBendType = EBendType::Distance, float inAngleTolerance = DegreesToRadians(8.0f));
 
 	// Calculate the initial lengths of all springs of the edges of this soft body (if you use CreateConstraint, this is already done)
 	void				CalculateEdgeLengths();
@@ -505,11 +505,11 @@ public:
 	// Information about the optimization of the soft body, the indices of certain elements may have changed.
 	class OptimizationResults {
 	public:
-		TArray<uint32>		mEdgeRemap;									// Maps old edge index to new edge index
-		TArray<uint32>		mLRARemap;									// Maps old LRA index to new LRA index
-		TArray<uint32>		mDihedralBendRemap;							// Maps old dihedral bend index to new dihedral bend index
-		TArray<uint32>		mVolumeRemap;								// Maps old volume constraint index to new volume constraint index
-		TArray<uint32>		mSkinnedRemap;								// Maps old skinned constraint index to new skinned constraint index
+		TArray<uint32_t>		mEdgeRemap;									// Maps old edge index to new edge index
+		TArray<uint32_t>		mLRARemap;									// Maps old LRA index to new LRA index
+		TArray<uint32_t>		mDihedralBendRemap;							// Maps old dihedral bend index to new dihedral bend index
+		TArray<uint32_t>		mVolumeRemap;								// Maps old volume constraint index to new volume constraint index
+		TArray<uint32_t>		mSkinnedRemap;								// Maps old skinned constraint index to new skinned constraint index
 	};
 
 	// Optimize the soft body settings for simulation. This will reorder constraints so they can be executed in parallel.
@@ -542,7 +542,7 @@ public:
 	// It will contain edge constraints, volume constraints and faces.
 	// @param inGridSize Number of points along each axis
 	// @param inGridSpacing Distance between points
-	static Ref<SoftBodySharedSettings> sCreateCube(uint32 inGridSize, float inGridSpacing);
+	static Ref<SoftBodySharedSettings> sCreateCube(uint32_t inGridSize, float inGridSpacing);
 
 	// A vertex is a particle, the data in this structure is only used during creation of the soft body and not during simulation
 	struct MOSS_API Vertex {
@@ -563,13 +563,13 @@ public:
 
 		// Constructor
 						Face() = default;
-						Face(uint32 inVertex1, uint32 inVertex2, uint32 inVertex3, uint32 inMaterialIndex = 0) : mVertex { inVertex1, inVertex2, inVertex3 }, mMaterialIndex(inMaterialIndex) { }
+						Face(uint32_t inVertex1, uint32_t inVertex2, uint32_t inVertex3, uint32_t inMaterialIndex = 0) : mVertex { inVertex1, inVertex2, inVertex3 }, mMaterialIndex(inMaterialIndex) { }
 
 		// Check if this is a degenerate face (a face which points to the same vertex twice)
 		bool			IsDegenerate() const						{ return mVertex[0] == mVertex[1] || mVertex[0] == mVertex[2] || mVertex[1] == mVertex[2]; }
 
-		uint32			mVertex[3];									// Indices of the vertices that form the face
-		uint32			mMaterialIndex = 0;							// Index of the material of the face in SoftBodySharedSettings::mMaterials
+		uint32_t			mVertex[3];									// Indices of the vertices that form the face
+		uint32_t			mMaterialIndex = 0;							// Index of the material of the face in SoftBodySharedSettings::mMaterials
 	};
 
 	// An edge keeps two vertices at a constant distance using a spring: |x1 - x2| = rest length
@@ -578,12 +578,12 @@ public:
 
 		// Constructor
 		Edge() = default;
-		Edge(uint32 inVertex1, uint32 inVertex2, float inCompliance = 0.0f) : mVertex { inVertex1, inVertex2 }, mCompliance(inCompliance) { }
+		Edge(uint32_t inVertex1, uint32_t inVertex2, float inCompliance = 0.0f) : mVertex { inVertex1, inVertex2 }, mCompliance(inCompliance) { }
 
 		// Return the lowest vertex index of this constraint
-		uint32			GetMinVertexIndex() const					{ return min(mVertex[0], mVertex[1]); }
+		uint32_t			GetMinVertexIndex() const					{ return min(mVertex[0], mVertex[1]); }
 
-		uint32			mVertex[2];									// Indices of the vertices that form the edge
+		uint32_t			mVertex[2];									// Indices of the vertices that form the edge
 		float			mRestLength = 1.0f;							// Rest length of the spring
 		float			mCompliance = 0.0f;							// Inverse of the stiffness of the spring
 	};
@@ -611,12 +611,12 @@ public:
 
 		// Constructor
 		DihedralBend() = default;
-		DihedralBend(uint32 inVertex1, uint32 inVertex2, uint32 inVertex3, uint32 inVertex4, float inCompliance = 0.0f) : mVertex { inVertex1, inVertex2, inVertex3, inVertex4 }, mCompliance(inCompliance) { }
+		DihedralBend(uint32_t inVertex1, uint32_t inVertex2, uint32_t inVertex3, uint32_t inVertex4, float inCompliance = 0.0f) : mVertex { inVertex1, inVertex2, inVertex3, inVertex4 }, mCompliance(inCompliance) { }
 
 		// Return the lowest vertex index of this constraint
-		uint32			GetMinVertexIndex() const					{ return min(min(mVertex[0], mVertex[1]), min(mVertex[2], mVertex[3])); }
+		uint32_t			GetMinVertexIndex() const					{ return min(min(mVertex[0], mVertex[1]), min(mVertex[2], mVertex[3])); }
 
-		uint32			mVertex[4];									// Indices of the vertices of the 2 triangles that share an edge (the first 2 vertices are the shared edge)
+		uint32_t			mVertex[4];									// Indices of the vertices of the 2 triangles that share an edge (the first 2 vertices are the shared edge)
 		float			mCompliance = 0.0f;							// Inverse of the stiffness of the constraint
 		float			mInitialAngle = 0.0f;						// Initial angle between the normals of the triangles (pi - dihedral angle).
 	};
@@ -627,12 +627,12 @@ public:
 
 		// Constructor
 		Volume() = default;
-		Volume(uint32 inVertex1, uint32 inVertex2, uint32 inVertex3, uint32 inVertex4, float inCompliance = 0.0f) : mVertex { inVertex1, inVertex2, inVertex3, inVertex4 }, mCompliance(inCompliance) { }
+		Volume(uint32_t inVertex1, uint32_t inVertex2, uint32_t inVertex3, uint32_t inVertex4, float inCompliance = 0.0f) : mVertex { inVertex1, inVertex2, inVertex3, inVertex4 }, mCompliance(inCompliance) { }
 
 		// Return the lowest vertex index of this constraint
-		uint32			GetMinVertexIndex() const					{ return min(min(mVertex[0], mVertex[1]), min(mVertex[2], mVertex[3])); }
+		uint32_t			GetMinVertexIndex() const					{ return min(min(mVertex[0], mVertex[1]), min(mVertex[2], mVertex[3])); }
 
-		uint32			mVertex[4];									// Indices of the vertices that form the tetrahedron
+		uint32_t			mVertex[4];									// Indices of the vertices that form the tetrahedron
 		float			mSixRestVolume = 1.0f;						// 6 times the rest volume of the tetrahedron (calculated by CalculateVolumeConstraintVolumes())
 		float			mCompliance = 0.0f;							// Inverse of the stiffness of the constraint
 	};
@@ -644,9 +644,9 @@ public:
 	public:
 		// Constructor
 		InvBind() = default;
-		InvBind(uint32 inJointIndex, Mat44Arg inInvBind) : mJointIndex(inJointIndex), mInvBind(inInvBind) { }
+		InvBind(uint32_t inJointIndex, Mat44Arg inInvBind) : mJointIndex(inJointIndex), mInvBind(inInvBind) { }
 
-		uint32			mJointIndex = 0;							// Joint index to which this is attached
+		uint32_t			mJointIndex = 0;							// Joint index to which this is attached
 		Mat44			mInvBind = Mat44Identity();				// The inverse bind matrix, this takes a vertex in its bind pose (Vertex::mPosition) to joint local space
 	};
 
@@ -656,9 +656,9 @@ public:
 	public:
 		// Constructor
 		SkinWeight() = default;
-		SkinWeight(uint32 inInvBindIndex, float inWeight) : mInvBindIndex(inInvBindIndex), mWeight(inWeight) { }
+		SkinWeight(uint32_t inInvBindIndex, float inWeight) : mInvBindIndex(inInvBindIndex), mWeight(inWeight) { }
 
-		uint32			mInvBindIndex = 0;							// Index in mInvBindMatrices
+		uint32_t			mInvBindIndex = 0;							// Index in mInvBindMatrices
 		float			mWeight = 0.0f;								// Weight with which it is skinned
 	};
 
@@ -668,7 +668,7 @@ public:
 	public:
 		// Constructor
 		Skinned() = default;
-		Skinned(uint32 inVertex, float inMaxDistance, float inBackStopDistance, float inBackStopRadius) : mVertex(inVertex), mMaxDistance(inMaxDistance), mBackStopDistance(inBackStopDistance), mBackStopRadius(inBackStopRadius) { }
+		Skinned(uint32_t inVertex, float inMaxDistance, float inBackStopDistance, float inBackStopRadius) : mVertex(inVertex), mMaxDistance(inMaxDistance), mBackStopDistance(inBackStopDistance), mBackStopRadius(inBackStopRadius) { }
 
 		// Normalize the weights so that they add up to 1
 		void NormalizeWeights() {
@@ -684,14 +684,14 @@ public:
 		}
 
 		// Maximum number of skin weights
-		static constexpr uint32 cMaxSkinWeights = 4;
+		static constexpr uint32_t cMaxSkinWeights = 4;
 
-		uint32			mVertex = 0;								// Index in mVertices which indicates which vertex is being skinned
+		uint32_t			mVertex = 0;								// Index in mVertices which indicates which vertex is being skinned
 		SkinWeight		mWeights[cMaxSkinWeights];					// Skin weights, the bind pose of the vertex is assumed to be stored in Vertex::mPosition. The first weight that is zero indicates the end of the list. Weights should add up to 1.
 		float			mMaxDistance = FLT_MAX;						// Maximum distance that this vertex can reach from the skinned vertex, disabled when FLT_MAX. 0 when you want to hard skin the vertex to the skinned vertex.
 		float			mBackStopDistance = FLT_MAX;				// Disabled if mBackStopDistance >= mMaxDistance. The faces surrounding mVertex determine an average normal. mBackStopDistance behind the vertex in the opposite direction of this normal, the back stop sphere starts. The simulated vertex will be pushed out of this sphere and it can be used to approximate the volume of the skinned mesh behind the skinned vertex.
 		float			mBackStopRadius = 40.0f;					// Radius of the backstop sphere. By default this is a fairly large radius so the sphere approximates a plane.
-		uint32			mNormalInfo = 0;							// Information needed to calculate the normal of this vertex, lowest 24 bit is start index in mSkinnedConstraintNormals, highest 8 bit is number of faces (generated by CalculateSkinnedConstraintNormals())
+		uint32_t			mNormalInfo = 0;							// Information needed to calculate the normal of this vertex, lowest 24 bit is start index in mSkinnedConstraintNormals, highest 8 bit is number of faces (generated by CalculateSkinnedConstraintNormals())
 	};
 
 	// A long range attachment constraint, this is a constraint that sets a max distance between a kinematic vertex and a dynamic vertex
@@ -702,12 +702,12 @@ public:
 	public:
 		// Constructor
 						LRA() = default;
-						LRA(uint32 inVertex1, uint32 inVertex2, float inMaxDistance) : mVertex { inVertex1, inVertex2 }, mMaxDistance(inMaxDistance) { }
+						LRA(uint32_t inVertex1, uint32_t inVertex2, float inMaxDistance) : mVertex { inVertex1, inVertex2 }, mMaxDistance(inMaxDistance) { }
 
 		// Return the lowest vertex index of this constraint
-		uint32			GetMinVertexIndex() const					{ return min(mVertex[0], mVertex[1]); }
+		uint32_t			GetMinVertexIndex() const					{ return min(mVertex[0], mVertex[1]); }
 
-		uint32			mVertex[2];									// The vertices that are connected. The first vertex should be kinematic, the 2nd dynamic.
+		uint32_t			mVertex[2];									// The vertices that are connected. The first vertex should be kinematic, the 2nd dynamic.
 		float			mMaxDistance = 0.0f;						// The maximum distance between the vertices
 	};
 
@@ -723,12 +723,12 @@ public:
 
 		/// Constructor
 		RodStretchShear() = default;
-		RodStretchShear(uint32 inVertex1, uint32 inVertex2, float inCompliance = 0.0f) : mVertex { inVertex1, inVertex2 }, mCompliance(inCompliance) { }
+		RodStretchShear(uint32_t inVertex1, uint32_t inVertex2, float inCompliance = 0.0f) : mVertex { inVertex1, inVertex2 }, mCompliance(inCompliance) { }
 
 		/// Return the lowest vertex index of this constraint
-		uint32			GetMinVertexIndex() const					{ return min(mVertex[0], mVertex[1]); }
+		uint32_t			GetMinVertexIndex() const					{ return min(mVertex[0], mVertex[1]); }
 
-		uint32			mVertex[2];									///< Indices of the vertices that form the rod
+		uint32_t			mVertex[2];									///< Indices of the vertices that form the rod
 		float			mLength = 1.0f;								///< Fixed length of the rod, calculated by CalculateRodProperties
 		float			mInvMass = 1.0f;							///< Inverse of the mass of the rod (0 for static rods), calculated by CalculateRodProperties but can be overridden afterwards
 		float			mCompliance = 0.0f;							///< Inverse of the stiffness of the rod
@@ -741,9 +741,9 @@ public:
 
 		/// Constructor
 		RodBendTwist() = default;
-		RodBendTwist(uint32 inRod1, uint32 inRod2, float inCompliance = 0.0f) : mRod { inRod1, inRod2 }, mCompliance(inCompliance) { }
+		RodBendTwist(uint32_t inRod1, uint32_t inRod2, float inCompliance = 0.0f) : mRod { inRod1, inRod2 }, mCompliance(inCompliance) { }
 
-		uint32			mRod[2];									///< Indices of rods that are constrained (index in mRodStretchShearConstraints)
+		uint32_t			mRod[2];									///< Indices of rods that are constrained (index in mRodStretchShearConstraints)
 		float			mCompliance = 0.0f;							///< Inverse of the stiffness of the rod
 		Quat			mOmega0 = Quat::Zero();					///< The initial rotation between the rods: rod1.mBishop.Conjugated() * rod2.mBishop, calculated by CalculateRodProperties
 	};
@@ -771,22 +771,22 @@ private:
 
 	// Tracks the closest kinematic vertex
 	struct ClosestKinematic {
-		uint32			mVertex = 0xffffffff;						// Vertex index of closest kinematic vertex
+		uint32_t			mVertex = 0xffffffff;						// Vertex index of closest kinematic vertex
 		float			mDistance = FLT_MAX;						// Distance to the closest kinematic vertex
 	};
 
 	// Tracks the end indices of the various constraint groups
 	struct UpdateGroup {
-		uint32			mEdgeEndIndex;								// The end index of the edge constraints in this group
-		uint32			mLRAEndIndex;								// The end index of the LRA constraints in this group
-		uint32			mDihedralBendEndIndex;						// The end index of the dihedral bend constraints in this group
-		uint32			mVolumeEndIndex;							// The end index of the volume constraints in this group
-		uint32			mSkinnedEndIndex;							// The end index of the skinned constraints in this group
+		uint32_t			mEdgeEndIndex;								// The end index of the edge constraints in this group
+		uint32_t			mLRAEndIndex;								// The end index of the LRA constraints in this group
+		uint32_t			mDihedralBendEndIndex;						// The end index of the dihedral bend constraints in this group
+		uint32_t			mVolumeEndIndex;							// The end index of the volume constraints in this group
+		uint32_t			mSkinnedEndIndex;							// The end index of the skinned constraints in this group
 	};
 
 	TArray<ClosestKinematic> mClosestKinematic;						// The closest kinematic vertex to each vertex in mVertices
 	TArray<UpdateGroup>	mUpdateGroups;								// The end indices for each group of constraints that can be updated in parallel
-	TArray<uint32>		mSkinnedConstraintNormals;					// A list of indices in the mFaces array used by mSkinnedConstraints, calculated by CalculateSkinnedConstraintNormals()
+	TArray<uint32_t>		mSkinnedConstraintNormals;					// A list of indices in the mFaces array used by mSkinnedConstraints, calculated by CalculateSkinnedConstraintNormals()
 };
 
 class MOSS_API SoftBodyCreationSettings {
@@ -829,7 +829,7 @@ public:
 	ObjectLayer			mObjectLayer = 0;					// The collision layer this body belongs to (determines if two objects can collide)
 	CollisionGroup		mCollisionGroup;					// The collision group this body belongs to (determines if two objects can collide)
 
-	uint32				mNumIterations = 5;					// Number of solver iterations
+	uint32_t				mNumIterations = 5;					// Number of solver iterations
 	float				mLinearDamping = 0.1f;				// Linear damping: dv/dt = -mLinearDamping * v
 	float				mMaxLinearVelocity = 500.0f;		// Maximum linear velocity that a vertex can reach (m/s)
 	float				mRestitution = 0.0f;				// Restitution when colliding
@@ -925,8 +925,8 @@ public:
 	float					mMaxLinearVelocity = 500.0f;									// Maximum linear velocity that this body can reach (m/s)
 	float					mMaxAngularVelocity = 0.25f * MOSS_PI * 60.0f;					// Maximum angular velocity that this body can reach (rad/s)
 	float					mGravityFactor = 1.0f;											// Value to multiply gravity with for this body
-	uint32					mNumVelocityStepsOverride = 0;									// Used only when this body is dynamic and colliding. Override for the number of solver velocity iterations to run, 0 means use the default in PhysicsSettings::mNumVelocitySteps. The number of iterations to use is the max of all contacts and constraints in the island.
-	uint32					mNumPositionStepsOverride = 0;									// Used only when this body is dynamic and colliding. Override for the number of solver position iterations to run, 0 means use the default in PhysicsSettings::mNumPositionSteps. The number of iterations to use is the max of all contacts and constraints in the island.
+	uint32_t					mNumVelocityStepsOverride = 0;									// Used only when this body is dynamic and colliding. Override for the number of solver velocity iterations to run, 0 means use the default in PhysicsSettings::mNumVelocitySteps. The number of iterations to use is the max of all contacts and constraints in the island.
+	uint32_t					mNumPositionStepsOverride = 0;									// Used only when this body is dynamic and colliding. Override for the number of solver position iterations to run, 0 means use the default in PhysicsSettings::mNumPositionSteps. The number of iterations to use is the max of all contacts and constraints in the island.
 
 	//@name Mass properties of the body (by default calculated by the shape)
 	EOverrideMassProperties	mOverrideMassProperties = EOverrideMassProperties::CalculateMassAndInertia; // Determines how mMassPropertiesOverride will be used
@@ -952,7 +952,7 @@ public:
 	uint							GetSubShapeIDBits() const;
 
 	/// Convert a sub shape ID back to a face index
-	uint32							GetFaceIndex(const SubShapeID &inSubShapeID) const;
+	uint32_t							GetFaceIndex(const SubShapeID &inSubShapeID) const;
 
 	// See Shape
 	virtual bool					MustBeStatic() const override							{ return false; }

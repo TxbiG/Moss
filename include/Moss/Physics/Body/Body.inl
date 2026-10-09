@@ -44,7 +44,7 @@ inline bool Body::FindCollidingPairsCanCollide(const Body &inBody1, const Body &
 		return false;
 
 	// Check that body 1 is active
-	uint32 body1_index_in_active_bodies = inBody1.GetIndexInActiveBodiesInternal();
+	uint32_t body1_index_in_active_bodies = inBody1.GetIndexInActiveBodiesInternal();
 	MOSS_ASSERT(!inBody1.IsStatic() && body1_index_in_active_bodies != Body::cInactiveIndex, "This function assumes that Body 1 is active");
 
 	// If the pair A, B collides we need to ensure that the pair B, A does not collide or else we will handle the collision twice.
@@ -56,7 +56,7 @@ inline bool Body::FindCollidingPairsCanCollide(const Body &inBody1, const Body &
 	//	- A is active and B is active, we require a condition that makes A, B collide and B, A not (5)
 	//
 	// In order to implement this we use the index in the active body list and make use of the fact that
-	// a body not in the active list has Body.Index = 0xffffffff which is the highest possible value for an uint32.
+	// a body not in the active list has Body.Index = 0xffffffff which is the highest possible value for an uint32_t.
 	//
 	// Because we know that A is active we know that A.Index != 0xffffffff:
 	// (1) Because A.Index != 0xffffffff, if A.Index = B.Index then A = B, so to collide A.Index != B.Index

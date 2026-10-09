@@ -28,7 +28,7 @@ public:
 	/// Initializes the constraint priorities so that constraints near the leaves of the ragdoll have a lower priority
 	/// than constraints near the root of the ragdoll.
 	/// @param inBasePriority The lowest priority that will be used in the ragdoll.
-	void								CalculateConstraintPriorities(uint32 inBasePriority = 0);
+	void								CalculateConstraintPriorities(uint32_t inBasePriority = 0);
 
 	/// After the ragdoll has been fully configured, call this function to automatically create and add a GroupFilterTable collision filter to all bodies
 	/// and configure them so that parent and children don't collide.

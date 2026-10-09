@@ -31,16 +31,16 @@ DebugRenderer::Batch DebugRendererRecorder::CreateTriangleBatch(const Triangle *
 
 	mStream.Write(ECommand::CreateBatch);
 
-	uint32 batch_id = mNextBatchID++;
+	uint32_t batch_id = mNextBatchID++;
 	MOSS_ASSERT(batch_id != 0);
 	mStream.Write(batch_id);
-	mStream.Write((uint32)inTriangleCount);
+	mStream.Write((uint32_t)inTriangleCount);
 	mStream.WriteBytes(inTriangles, inTriangleCount * sizeof(Triangle));
 
 	return new BatchImpl(batch_id);
 }
 
-DebugRenderer::Batch DebugRendererRecorder::CreateTriangleBatch(const Vertex *inVertices, int inVertexCount, const uint32 *inIndices, int inIndexCount)
+DebugRenderer::Batch DebugRendererRecorder::CreateTriangleBatch(const Vertex *inVertices, int inVertexCount, const uint32_t *inIndices, int inIndexCount)
 {
 	if (inVertices == nullptr || inVertexCount == 0 || inIndices == nullptr || inIndexCount == 0)
 		return new BatchImpl(0);
@@ -49,13 +49,13 @@ DebugRenderer::Batch DebugRendererRecorder::CreateTriangleBatch(const Vertex *in
 
 	mStream.Write(ECommand::CreateBatchIndexed);
 
-	uint32 batch_id = mNextBatchID++;
+	uint32_t batch_id = mNextBatchID++;
 	MOSS_ASSERT(batch_id != 0);
 	mStream.Write(batch_id);
-	mStream.Write((uint32)inVertexCount);
+	mStream.Write((uint32_t)inVertexCount);
 	mStream.WriteBytes(inVertices, inVertexCount * sizeof(Vertex));
-	mStream.Write((uint32)inIndexCount);
-	mStream.WriteBytes(inIndices, inIndexCount * sizeof(uint32));
+	mStream.Write((uint32_t)inIndexCount);
+	mStream.WriteBytes(inIndices, inIndexCount * sizeof(uint32_t));
 
 	return new BatchImpl(batch_id);
 }
@@ -65,7 +65,7 @@ void DebugRendererRecorder::DrawGeometry(RMat44Arg inModelMatrix, const AABox &i
 	lock_guard lock(mMutex);
 
 	// See if this geometry was used before
-	uint32 &geometry_id = mGeometries[inGeometry];
+	uint32_t &geometry_id = mGeometries[inGeometry];
 	if (geometry_id == 0)
 	{
 		mStream.Write(ECommand::CreateGeometry);
@@ -80,7 +80,7 @@ void DebugRendererRecorder::DrawGeometry(RMat44Arg inModelMatrix, const AABox &i
 		mStream.Write(inGeometry->mBounds.mMax);
 
 		// Save the LODs
-		mStream.Write((uint32)inGeometry->mLODs.size());
+		mStream.Write((uint32_t)inGeometry->mLODs.size());
 		for (const LOD & lod : inGeometry->mLODs)
 		{
 			mStream.Write(lod.mDistance);
@@ -105,7 +105,7 @@ void DebugRendererRecorder::EndFrame()
 	mStream.Write(ECommand::EndFrame);
 
 	// Write all lines
-	mStream.Write((uint32)mCurrentFrame.mLines.size());
+	mStream.Write((uint32_t)mCurrentFrame.mLines.size());
 	for (const LineBlob &line : mCurrentFrame.mLines)
 	{
 		mStream.Write(line.mFrom);
@@ -115,7 +115,7 @@ void DebugRendererRecorder::EndFrame()
 	mCurrentFrame.mLines.clear();
 
 	// Write all triangles
-	mStream.Write((uint32)mCurrentFrame.mTriangles.size());
+	mStream.Write((uint32_t)mCurrentFrame.mTriangles.size());
 	for (const TriangleBlob &triangle : mCurrentFrame.mTriangles)
 	{
 		mStream.Write(triangle.mV1);
@@ -127,7 +127,7 @@ void DebugRendererRecorder::EndFrame()
 	mCurrentFrame.mTriangles.clear();
 
 	// Write all texts
-	mStream.Write((uint32)mCurrentFrame.mTexts.size());
+	mStream.Write((uint32_t)mCurrentFrame.mTexts.size());
 	for (const TextBlob &text : mCurrentFrame.mTexts)
 	{
 		mStream.Write(text.mPosition);
@@ -138,7 +138,7 @@ void DebugRendererRecorder::EndFrame()
 	mCurrentFrame.mTexts.clear();
 
 	// Write all geometries
-	mStream.Write((uint32)mCurrentFrame.mGeometries.size());
+	mStream.Write((uint32_t)mCurrentFrame.mGeometries.size());
 	for (const GeometryBlob &geom : mCurrentFrame.mGeometries)
 	{
 		mStream.Write(geom.mModelMatrix);

@@ -19,7 +19,7 @@ MOSS_SUPPRESS_WARNINGS_BEGIN
 
 #ifdef MOSS_SHARED_LIBRARY
 /// Functions called when a profiler measurement starts or stops, need to be overridden by the user.
-using ProfileStartMeasurementFunction = void (*)(const char *inName, uint32 inColor, uint8 *ioUserData);
+using ProfileStartMeasurementFunction = void (*)(const char *inName, uint32_t inColor, uint8 *ioUserData);
 using ProfileEndMeasurementFunction = void (*)(uint8 *ioUserData);
 
 MOSS_API extern ProfileStartMeasurementFunction ProfileStartMeasurement;
@@ -36,10 +36,10 @@ class alignas(16) ExternalProfileMeasurement : public NonCopyable
 public:
 	/// Constructor
 #ifdef MOSS_SHARED_LIBRARY
-	MOSS_INLINE						ExternalProfileMeasurement(const char *inName, uint32 inColor = 0) { ProfileStartMeasurement(inName, inColor, mUserData); }
+	MOSS_INLINE						ExternalProfileMeasurement(const char *inName, uint32_t inColor = 0) { ProfileStartMeasurement(inName, inColor, mUserData); }
 	MOSS_INLINE						~ExternalProfileMeasurement() { ProfileEndMeasurement(mUserData); }
 #else
-									ExternalProfileMeasurement(const char *inName, uint32 inColor = 0);
+									ExternalProfileMeasurement(const char *inName, uint32_t inColor = 0);
 									~ExternalProfileMeasurement();
 #endif
 
@@ -151,7 +151,7 @@ private:
 		const char *			mName;																///< User defined name of this item
 
 		/// Statistics
-		uint32					mCallCounter = 0;													///< Number of times AccumulateMeasurement was called
+		uint32_t					mCallCounter = 0;													///< Number of times AccumulateMeasurement was called
 		uint64					mTotalCyclesInCallWithChildren = 0;									///< Total amount of cycles spent in this scope
 		uint64					mMinCyclesInCallWithChildren = 0xffffffffffffffffUL;				///< Minimum amount of cycles spent per call
 		uint64					mMaxCyclesInCallWithChildren = 0;									///< Maximum amount of cycles spent per call
@@ -162,7 +162,7 @@ private:
 	using KeyToAggregator = TMap<const char *, size_t>;
 
 	/// Helper function to aggregate profile sample data
-	static void					sAggregate(int inDepth, uint32 inColor, ProfileSample *&ioSample, const ProfileSample *inEnd, Aggregators &ioAggregators, KeyToAggregator &ioKeyToAggregator);
+	static void					sAggregate(int inDepth, uint32_t inColor, ProfileSample *&ioSample, const ProfileSample *inEnd, Aggregators &ioAggregators, KeyToAggregator &ioKeyToAggregator);
 
 	/// We measure the amount of ticks per second, this function resets the reference time point
 	void						UpdateReferenceTime();
@@ -189,7 +189,7 @@ public:
 	MOSS_OVERRIDE_NEW_DELETE
 
 	const char *				mName;																///< User defined name of this item
-	uint32						mColor;																///< Color to use for this sample
+	uint32_t						mColor;																///< Color to use for this sample
 	uint8						mDepth;																///< Calculated depth
 	uint8						mUnused[3];
 	uint64						mStartCycle;														///< Cycle counter at start of measurement
@@ -206,11 +206,11 @@ public:
 	inline						ProfileThread(const string_view &inThreadName);
 	inline						~ProfileThread();
 
-	static const uint32 cMaxSamples = 65536;
+	static const uint32_t cMaxSamples = 65536;
 
 	String						mThreadName;														///< Name of the thread that we're collecting information for
 	ProfileSample				mSamples[cMaxSamples];												///< Buffer of samples
-	uint32						mCurrentSample = 0;													///< Next position to write a sample to
+	uint32_t						mCurrentSample = 0;													///< Next position to write a sample to
 
 #ifdef MOSS_SHARED_LIBRARY
 	MOSS_API static void		sSetInstance(ProfileThread *inInstance);
@@ -229,7 +229,7 @@ class MOSS_API ProfileMeasurement : public NonCopyable
 {
 public:
 	/// Constructor
-	inline						ProfileMeasurement(const char *inName, uint32 inColor = 0);
+	inline						ProfileMeasurement(const char *inName, uint32_t inColor = 0);
 	inline						~ProfileMeasurement();
 
 private:

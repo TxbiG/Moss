@@ -16,7 +16,7 @@ RendererVK::~RendererVK()
 	vkDeviceWaitIdle(mDevice);
 
 	// Trace allocation stats
-	Trace("VK: Max allocations: %u, max size: %u MB", mMaxNumAllocations, uint32(mMaxTotalAllocated >> 20));
+	Trace("VK: Max allocations: %u, max size: %u MB", mMaxNumAllocations, uint32_t(mMaxTotalAllocated >> 20));
 
 	// Destroy the shadow map
 	mShadowMap = nullptr;
@@ -103,14 +103,14 @@ void RendererVK::Initialize(Moss_Window* window) {
 #endif
 
 	// Query supported instance extensions
-	uint32 instance_extension_count = 0;
+	uint32_t instance_extension_count = 0;
 	//FatalErrorIfFailed(vkEnumerateInstanceExtensionProperties(nullptr, &instance_extension_count, nullptr));
 	TArray<VkExtensionProperties> instance_extensions;
 	instance_extensions.resize(instance_extension_count);
 	//FatalErrorIfFailed(vkEnumerateInstanceExtensionProperties(nullptr, &instance_extension_count, instance_extensions.data()));
 
 	// Query supported validation layers
-	uint32 validation_layer_count;
+	uint32_t validation_layer_count;
 	vkEnumerateInstanceLayerProperties(&validation_layer_count, nullptr);
 	TArray<VkLayerProperties> validation_layers(validation_layer_count);
 	vkEnumerateInstanceLayerProperties(&validation_layer_count, validation_layers.data());
@@ -148,7 +148,7 @@ void RendererVK::Initialize(Moss_Window* window) {
 		}
 #endif
 
-	instance_create_info.enabledExtensionCount = (uint32)extensions.size();
+	instance_create_info.enabledExtensionCount = (uint32_t)extensions.size();
 	instance_create_info.ppEnabledExtensionNames = extensions.data();
 	//FatalErrorIfFailed(vkCreateInstance(&instance_create_info, nullptr, &mInstance));
 
@@ -164,7 +164,7 @@ void RendererVK::Initialize(Moss_Window* window) {
     //FatalErrorIfFailed(vkCreateWin32SurfaceKHR(mInstance, &surface_create_info, nullptr, &mSurface));
 
 	// Select device
-	uint32 device_count = 0;
+	uint32_t device_count = 0;
 	//FatalErrorIfFailed(vkEnumeratePhysicalDevices(mInstance, &device_count, nullptr));
 	TArray<VkPhysicalDevice> devices;
 	devices.resize(device_count);
@@ -174,8 +174,8 @@ void RendererVK::Initialize(Moss_Window* window) {
 		VkPhysicalDevice		mPhysicalDevice;
 		String					mName;
 		VkSurfaceFormatKHR		mFormat;
-		uint32					mGraphicsQueueIndex;
-		uint32					mPresentQueueIndex;
+		uint32_t					mGraphicsQueueIndex;
+		uint32_t					mPresentQueueIndex;
 		int						mScore;
 	};
 	TArray<Device> available_devices;
@@ -207,7 +207,7 @@ void RendererVK::Initialize(Moss_Window* window) {
 		}
 
 		// Check if the device supports all our required extensions
-		uint32 device_extension_count;
+		uint32_t device_extension_count;
 		vkEnumerateDeviceExtensionProperties(device, nullptr, &device_extension_count, nullptr);
 		TArray<VkExtensionProperties> available_extensions;
 		available_extensions.resize(device_extension_count);
@@ -224,14 +224,14 @@ void RendererVK::Initialize(Moss_Window* window) {
 			continue;
 
 		// Find the right queues
-		uint32 queue_family_count = 0;
+		uint32_t queue_family_count = 0;
 		vkGetPhysicalDeviceQueueFamilyProperties(device, &queue_family_count, nullptr);
 		TArray<VkQueueFamilyProperties> queue_families;
 		queue_families.resize(queue_family_count);
 		vkGetPhysicalDeviceQueueFamilyProperties(device, &queue_family_count, queue_families.data());
-		uint32 graphics_queue = ~uint32(0);
-		uint32 present_queue = ~uint32(0);
-		for (uint32 i = 0; i < uint32(queue_families.size()); ++i)
+		uint32_t graphics_queue = ~uint32_t(0);
+		uint32_t present_queue = ~uint32_t(0);
+		for (uint32_t i = 0; i < uint32_t(queue_families.size()); ++i)
 		{
 			if (queue_families[i].queueFlags & VK_QUEUE_GRAPHICS_BIT)
 				graphics_queue = i;
@@ -241,10 +241,10 @@ void RendererVK::Initialize(Moss_Window* window) {
 			if (present_support)
 				present_queue = i;
 
-			if (graphics_queue != ~uint32(0) && present_queue != ~uint32(0))
+			if (graphics_queue != ~uint32_t(0) && present_queue != ~uint32_t(0))
 				break;
 		}
-		if (graphics_queue == ~uint32(0) || present_queue == ~uint32(0))
+		if (graphics_queue == ~uint32_t(0) || present_queue == ~uint32_t(0))
 			continue;
 
 		// Select surface format
@@ -295,7 +295,7 @@ void RendererVK::Initialize(Moss_Window* window) {
 	device_create_info.pQueueCreateInfos = queue_create_info;
 	device_create_info.enabledLayerCount = instance_create_info.enabledLayerCount;
 	device_create_info.ppEnabledLayerNames = instance_create_info.ppEnabledLayerNames;
-	device_create_info.enabledExtensionCount = uint32(required_device_extensions.size());
+	device_create_info.enabledExtensionCount = uint32_t(required_device_extensions.size());
 	device_create_info.ppEnabledExtensionNames = required_device_extensions.data();
 	device_create_info.pEnabledFeatures = &device_features;
 	//FatalErrorIfFailed(vkCreateDevice(selected_device.mPhysicalDevice, &device_create_info, nullptr, &mDevice));
@@ -317,17 +317,17 @@ void RendererVK::Initialize(Moss_Window* window) {
 	command_buffer_info.commandPool = mCommandPool;
 	command_buffer_info.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
 	command_buffer_info.commandBufferCount = 1;
-	for (uint32 i = 0; i < cFrameCount; ++i)
+	for (uint32_t i = 0; i < cFrameCount; ++i)
 		//FatalErrorIfFailed(vkAllocateCommandBuffers(mDevice, &command_buffer_info, &mCommandBuffers[i]));
 
 	VkFenceCreateInfo fence_info = {};
 	fence_info.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
 	fence_info.flags = VK_FENCE_CREATE_SIGNALED_BIT;
-	for (uint32 i = 0; i < cFrameCount; ++i)
+	for (uint32_t i = 0; i < cFrameCount; ++i)
 		//FatalErrorIfFailed(vkCreateFence(mDevice, &fence_info, nullptr, &mInFlightFences[i]));
 
 	// Create constant buffer. One per frame to avoid overwriting the constant buffer while the GPU is still using it.
-	for (uint32 n = 0; n < cFrameCount; ++n)
+	for (uint32_t n = 0; n < cFrameCount; ++n)
 	{
 		mVertexShaderConstantBufferProjection[n] = CreateConstantBuffer(sizeof(VertexShaderConstantBuffer));
 		mVertexShaderConstantBufferOrtho[n] = CreateConstantBuffer(sizeof(VertexShaderConstantBuffer));
@@ -391,7 +391,7 @@ void RendererVK::Initialize(Moss_Window* window) {
 	descriptor_set_alloc_info.descriptorSetCount = cFrameCount;
 	descriptor_set_alloc_info.pSetLayouts = layouts.data();
 	//FatalErrorIfFailed(vkAllocateDescriptorSets(mDevice, &descriptor_set_alloc_info, mDescriptorSets));
-	for (uint32 i = 0; i < cFrameCount; i++)
+	for (uint32_t i = 0; i < cFrameCount; i++)
 	{
 		VkDescriptorBufferInfo vs_buffer_info = {};
 		vs_buffer_info.buffer = mVertexShaderConstantBufferProjection[i]->GetBuffer();
@@ -419,7 +419,7 @@ void RendererVK::Initialize(Moss_Window* window) {
 
 	// Allocate descriptor sets for 2d rendering
 	//FatalErrorIfFailed(vkAllocateDescriptorSets(mDevice, &descriptor_set_alloc_info, mDescriptorSetsOrtho));
-	for (uint32 i = 0; i < cFrameCount; i++)
+	for (uint32_t i = 0; i < cFrameCount; i++)
 	{
 		VkDescriptorBufferInfo vs_buffer_info = {};
 		vs_buffer_info.buffer = mVertexShaderConstantBufferOrtho[i]->GetBuffer();
@@ -562,7 +562,7 @@ void RendererVK::Initialize(Moss_Window* window) {
 
 VkSurfaceFormatKHR RendererVK::SelectFormat(VkPhysicalDevice inDevice)
 {
-	uint32 format_count;
+	uint32_t format_count;
 	vkGetPhysicalDeviceSurfaceFormatsKHR(inDevice, mSurface, &format_count, nullptr);
 	if (format_count == 0)
 		return { VK_FORMAT_UNDEFINED, VK_COLOR_SPACE_SRGB_NONLINEAR_KHR };
@@ -603,7 +603,7 @@ void RendererVK::CreateSwapChain(VkPhysicalDevice inDevice)
 	vkGetPhysicalDeviceSurfaceCapabilitiesKHR(inDevice, mSurface, &capabilities);
 	mSwapChainExtent = capabilities.currentExtent;
 	if (mSwapChainExtent.width == UINT32_MAX || mSwapChainExtent.height == UINT32_MAX)
-		mSwapChainExtent = { uint32(mWindow->GetWindowWidth()), uint32(mWindow->GetWindowHeight()) };
+		mSwapChainExtent = { uint32_t(mWindow->GetWindowWidth()), uint32_t(mWindow->GetWindowHeight()) };
 	mSwapChainExtent.width = Clamp(mSwapChainExtent.width, capabilities.minImageExtent.width, capabilities.maxImageExtent.width);
 	mSwapChainExtent.height = Clamp(mSwapChainExtent.height, capabilities.minImageExtent.height, capabilities.maxImageExtent.height);
 	Trace("VK: Create swap chain %ux%u", mSwapChainExtent.width, mSwapChainExtent.height);
@@ -613,7 +613,7 @@ void RendererVK::CreateSwapChain(VkPhysicalDevice inDevice)
 		return;
 
 	// Create the swap chain
-	uint32 desired_image_count = max(min(cFrameCount, capabilities.maxImageCount), capabilities.minImageCount);
+	uint32_t desired_image_count = max(min(cFrameCount, capabilities.maxImageCount), capabilities.minImageCount);
 	VkSwapchainCreateInfoKHR swapchain_create_info = {};
 	swapchain_create_info.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
 	swapchain_create_info.surface = mSurface;
@@ -623,7 +623,7 @@ void RendererVK::CreateSwapChain(VkPhysicalDevice inDevice)
 	swapchain_create_info.imageExtent = mSwapChainExtent;
 	swapchain_create_info.imageTArrayLayers = 1;
 	swapchain_create_info.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
-	uint32 queue_family_indices[] = { mGraphicsQueueIndex, mPresentQueueIndex };
+	uint32_t queue_family_indices[] = { mGraphicsQueueIndex, mPresentQueueIndex };
 	if (mGraphicsQueueIndex != mPresentQueueIndex)
 	{
 		swapchain_create_info.imageSharingMode = VK_SHARING_MODE_CONCURRENT;
@@ -642,7 +642,7 @@ void RendererVK::CreateSwapChain(VkPhysicalDevice inDevice)
 	//FatalErrorIfFailed(vkCreateSwapchainKHR(mDevice, &swapchain_create_info, nullptr, &mSwapChain));
 
 	// Get the actual swap chain image count
-	uint32 image_count;
+	uint32_t image_count;
 	//FatalErrorIfFailed(vkGetSwapchainImagesKHR(mDevice, mSwapChain, &image_count, nullptr));
 
 	// Get the swap chain images
@@ -651,7 +651,7 @@ void RendererVK::CreateSwapChain(VkPhysicalDevice inDevice)
 
 	// Create image views
 	mSwapChainImageViews.resize(image_count);
-	for (uint32 i = 0; i < image_count; ++i)
+	for (uint32_t i = 0; i < image_count; ++i)
 		mSwapChainImageViews[i] = CreateImageView(mSwapChainImages[i], mSwapChainImageFormat, VK_IMAGE_ASPECT_COLOR_BIT);
 
 	// Create depth buffer
@@ -699,7 +699,7 @@ void RendererVK::CreateSwapChain(VkPhysicalDevice inDevice)
 
 	// Allocate the render finished semaphores
 	mRenderFinishedSemaphores.resize(image_count, VK_NULL_HANDLE);
-	for (uint32 i = 0; i < image_count; ++i)
+	for (uint32_t i = 0; i < image_count; ++i)
 		mRenderFinishedSemaphores[i] = AllocateSemaphore();
 }
 
@@ -969,7 +969,7 @@ Ref<VertexShader> RendererVK::CreateVertexShader(const char *inName)
 	VkShaderModuleCreateInfo create_info = {};
 	create_info.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
 	create_info.codeSize = data.size();
-	create_info.pCode = reinterpret_cast<const uint32 *>(data.data());
+	create_info.pCode = reinterpret_cast<const uint32_t *>(data.data());
 	VkShaderModule shader_module;
 	//FatalErrorIfFailed(vkCreateShaderModule(mDevice, &create_info, nullptr, &shader_module));
 
@@ -983,14 +983,14 @@ Ref<PixelShader> RendererVK::CreatePixelShader(const char *inName)
 	VkShaderModuleCreateInfo create_info = {};
 	create_info.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
 	create_info.codeSize = data.size();
-	create_info.pCode = reinterpret_cast<const uint32 *>(data.data());
+	create_info.pCode = reinterpret_cast<const uint32_t *>(data.data());
 	VkShaderModule shader_module;
 	//FatalErrorIfFailed(vkCreateShaderModule(mDevice, &create_info, nullptr, &shader_module));
 
 	return new PixelShaderVK(mDevice, shader_module);
 }
 
-unique_ptr<PipelineState> RendererVK::CreatePipelineState(const VertexShader *inVertexShader, const PipelineState::EInputDescription *inInputDescription, uint32 inInputDescriptionCount, const PixelShader *inPixelShader, PipelineState::EDrawPass inDrawPass, PipelineState::EFillMode inFillMode, PipelineState::ETopology inTopology, PipelineState::EDepthTest inDepthTest, PipelineState::EBlendMode inBlendMode, PipelineState::ECullMode inCullMode)
+unique_ptr<PipelineState> RendererVK::CreatePipelineState(const VertexShader *inVertexShader, const PipelineState::EInputDescription *inInputDescription, uint32_t inInputDescriptionCount, const PixelShader *inPixelShader, PipelineState::EDrawPass inDrawPass, PipelineState::EFillMode inFillMode, PipelineState::ETopology inTopology, PipelineState::EDepthTest inDepthTest, PipelineState::EBlendMode inBlendMode, PipelineState::ECullMode inCullMode)
 {
 	return make_unique<PipelineStateVK>(this, static_cast<const VertexShaderVK *>(inVertexShader), inInputDescription, inInputDescriptionCount, static_cast<const PixelShaderVK *>(inPixelShader), inDrawPass, inFillMode, inTopology, inDepthTest, inBlendMode, inCullMode);
 }
@@ -1005,9 +1005,9 @@ RenderInstances *RendererVK::CreateRenderInstances()
 	return new RenderInstancesVK(this);
 }
 
-uint32 RendererVK::FindMemoryType(uint32 inTypeFilter, VkMemoryPropertyFlags inProperties)
+uint32_t RendererVK::FindMemoryType(uint32_t inTypeFilter, VkMemoryPropertyFlags inProperties)
 {
-	for (uint32 i = 0; i < mMemoryProperties.memoryTypeCount; i++)
+	for (uint32_t i = 0; i < mMemoryProperties.memoryTypeCount; i++)
 		if ((inTypeFilter & (1 << i))
 			&& (mMemoryProperties.memoryTypes[i].propertyFlags & inProperties) == inProperties)
 			return i;
@@ -1015,7 +1015,7 @@ uint32 RendererVK::FindMemoryType(uint32 inTypeFilter, VkMemoryPropertyFlags inP
 	FatalError("Failed to find memory type!");
 }
 
-void RendererVK::AllocateMemory(VkDeviceSize inSize, uint32 inMemoryTypeBits, VkMemoryPropertyFlags inProperties, VkDeviceMemory &outMemory)
+void RendererVK::AllocateMemory(VkDeviceSize inSize, uint32_t inMemoryTypeBits, VkMemoryPropertyFlags inProperties, VkDeviceMemory &outMemory)
 {
 	VkMemoryAllocateInfo alloc_info = {};
 	alloc_info.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
@@ -1077,7 +1077,7 @@ void RendererVK::CreateBuffer(VkDeviceSize inSize, VkBufferUsageFlags inUsage, V
 	else
 	{
 		// Round allocation to the next power of 2 so that we can use a simple block based allocator
-		outBuffer.mAllocatedSize = max(VkDeviceSize(GetNextPowerOf2(uint32(mem_requirements.size))), cMinAllocSize);
+		outBuffer.mAllocatedSize = max(VkDeviceSize(GetNextPowerOf2(uint32_t(mem_requirements.size))), cMinAllocSize);
 
 		// Ensure that we have memory available from the right pool
 		TArray<Memory> &mem_array = mMemoryCache[{ outBuffer.mAllocatedSize, outBuffer.mUsage, outBuffer.mProperties }];
@@ -1209,7 +1209,7 @@ VkImageView RendererVK::CreateImageView(VkImage inImage, VkFormat inFormat, VkIm
 	return image_view;
 }
 
-void RendererVK::CreateImage(uint32 inWidth, uint32 inHeight, VkFormat inFormat, VkImageTiling inTiling, VkImageUsageFlags inUsage, VkMemoryPropertyFlags inProperties, VkImage &outImage, VkDeviceMemory &outMemory)
+void RendererVK::CreateImage(uint32_t inWidth, uint32_t inHeight, VkFormat inFormat, VkImageTiling inTiling, VkImageUsageFlags inUsage, VkMemoryPropertyFlags inProperties, VkImage &outImage, VkDeviceMemory &outMemory)
 {
 	VkImageCreateInfo image_info = {};
 	image_info.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
@@ -1245,7 +1245,7 @@ void RendererVK::DestroyImage(VkImage inImage, VkDeviceMemory inMemory)
 	FreeMemory(inMemory, mem_requirements.size);
 }
 
-void RendererVK::UpdateViewPortAndScissorRect(uint32 inWidth, uint32 inHeight)
+void RendererVK::UpdateViewPortAndScissorRect(uint32_t inWidth, uint32_t inHeight)
 {
 	VkCommandBuffer command_buffer = GetCommandBuffer();
 

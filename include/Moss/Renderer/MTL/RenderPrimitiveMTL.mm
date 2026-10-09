@@ -42,20 +42,20 @@ void RenderPrimitiveMTL::UnlockVertexBuffer()
 {
 }
 
-void RenderPrimitiveMTL::CreateIndexBuffer(int inNumIdx, const uint32 *inData)
+void RenderPrimitiveMTL::CreateIndexBuffer(int inNumIdx, const uint32_t *inData)
 {
 	RenderPrimitive::CreateIndexBuffer(inNumIdx, inData);
 
-	NSUInteger size = NSUInteger(inNumIdx) * sizeof(uint32);
+	NSUInteger size = NSUInteger(inNumIdx) * sizeof(uint32_t);
 	if (inData != nullptr)
 		mIndexBuffer = [mRenderer->GetDevice() newBufferWithBytes: inData length: size options: MTLResourceCPUCacheModeDefaultCache | MTLResourceStorageModeManaged | MTLResourceHazardTrackingModeTracked];
 	else
 		mIndexBuffer = [mRenderer->GetDevice() newBufferWithLength: size options: MTLResourceCPUCacheModeDefaultCache | MTLResourceStorageModeShared | MTLResourceHazardTrackingModeTracked];
 }
 
-uint32 *RenderPrimitiveMTL::LockIndexBuffer()
+uint32_t *RenderPrimitiveMTL::LockIndexBuffer()
 {
-	return (uint32 *)mIndexBuffer.contents;
+	return (uint32_t *)mIndexBuffer.contents;
 }
 
 void RenderPrimitiveMTL::UnlockIndexBuffer()

@@ -41,11 +41,11 @@ const RTTI *RTTI::GetBaseClass(int inIdx) const
 	return mBaseClasses[inIdx].mRTTI;
 }
 
-uint32 RTTI::GetHash() const
+uint32_t RTTI::GetHash() const
 {
 	// Perform diffusion step to get from 64 to 32 bits (see https://en.wikipedia.org/wiki/Fowler%E2%80%93Noll%E2%80%93Vo_hash_function)
 	uint64 hash = HashString(mName);
-	return (uint32)(hash ^ (hash >> 32));
+	return (uint32_t)(hash ^ (hash >> 32));
 }
 
 void *RTTI::CreateObject() const

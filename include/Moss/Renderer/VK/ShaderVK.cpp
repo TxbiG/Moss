@@ -188,22 +188,22 @@ void Shader::SetUniformUint4(const char *name, unsigned int value0, unsigned int
 
 }
 
-void Shader::SetUniformInt(const char *name, int count, uint32 *value)
+void Shader::SetUniformInt(const char *name, int count, uint32_t *value)
 {
 
 }
 
-void Shader::SetUniformInt2(const char *name, int count, uint32 *value)
+void Shader::SetUniformInt2(const char *name, int count, uint32_t *value)
 {
 
 }
 
-void Shader::SetUniformInt3(const char *name, int count, uint32 *value)
+void Shader::SetUniformInt3(const char *name, int count, uint32_t *value)
 {
 
 }
 
-void Shader::SetUniformInt4(const char *name, int count, uint32 *value)
+void Shader::SetUniformInt4(const char *name, int count, uint32_t *value)
 {
 
 }

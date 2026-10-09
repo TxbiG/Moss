@@ -4,7 +4,7 @@
 
 MOSS_SUPPRESS_WARNINGS_BEGIN
 
-UVec4::UVec4(uint32 inX, uint32 inY, uint32 inZ, uint32 inW)
+UVec4::UVec4(uint32_t inX, uint32_t inY, uint32_t inZ, uint32_t inW)
 {
 #if defined(MOSS_SIMD_SSE)
 	mValue = _mm_set_epi32(int(inW), int(inZ), int(inY), int(inX));
@@ -24,7 +24,7 @@ bool UVec4::operator == (const UVec4 inV2) const {
 	return Equals(*this, inV2).TestAllTrue();
 }
 
-template<uint32 SwizzleX, uint32 SwizzleY, uint32 SwizzleZ, uint32 SwizzleW>
+template<uint32_t SwizzleX, uint32_t SwizzleY, uint32_t SwizzleZ, uint32_t SwizzleW>
 UVec4 UVec4::Swizzle() const {
 	static_assert(SwizzleX <= 3, "SwizzleX template parameter out of range");
 	static_assert(SwizzleY <= 3, "SwizzleY template parameter out of range");
@@ -51,7 +51,7 @@ UVec4 UVec4::Zero()
 #endif
 }
 
-UVec4 UVec4::Replicate(uint32 inV)
+UVec4 UVec4::Replicate(uint32_t inV)
 {
 #if defined(MOSS_SIMD_SSE)
 	return _mm_set1_epi32(int(inV));
@@ -62,7 +62,7 @@ UVec4 UVec4::Replicate(uint32 inV)
 #endif
 }
 
-UVec4 UVec4::LoadInt(const uint32 *inV)
+UVec4 UVec4::LoadInt(const uint32_t *inV)
 {
 #if defined(MOSS_SIMD_SSE)
 	return _mm_castps_si128(_mm_load_ss(reinterpret_cast<const float*>(inV)));
@@ -73,7 +73,7 @@ UVec4 UVec4::LoadInt(const uint32 *inV)
 #endif
 }
 
-UVec4 UVec4::LoadInt4(const uint32 *inV)
+UVec4 UVec4::LoadInt4(const uint32_t *inV)
 {
 #if defined(MOSS_SIMD_SSE)
 	return _mm_loadu_si128(reinterpret_cast<const __m128i *>(inV));
@@ -84,7 +84,7 @@ UVec4 UVec4::LoadInt4(const uint32 *inV)
 #endif
 }
 
-UVec4 UVec4::LoadInt4Aligned(const uint32 *inV)
+UVec4 UVec4::LoadInt4Aligned(const uint32_t *inV)
 {
 #if defined(MOSS_SIMD_SSE)
 	return _mm_load_si128(reinterpret_cast<const __m128i *>(inV));
@@ -96,16 +96,16 @@ UVec4 UVec4::LoadInt4Aligned(const uint32 *inV)
 }
 
 template <const int Scale>
-UVec4 UVec4::GatherInt4(const uint32 *inBase, const UVec4 inOffsets)
+UVec4 UVec4::GatherInt4(const uint32_t *inBase, const UVec4 inOffsets)
 {
 #ifdef MOSS_SIMD_AVX2
 	return _mm_i32gather_epi32(reinterpret_cast<const int *>(inBase), inOffsets.mValue, Scale);
 #else
 	const uint8 *base = reinterpret_cast<const uint8 *>(inBase);
-	uint32 x = *reinterpret_cast<const uint32 *>(base + inOffsets.GetX() * Scale);
-	uint32 y = *reinterpret_cast<const uint32 *>(base + inOffsets.GetY() * Scale);
-	uint32 z = *reinterpret_cast<const uint32 *>(base + inOffsets.GetZ() * Scale);
-	uint32 w = *reinterpret_cast<const uint32 *>(base + inOffsets.GetW() * Scale);
+	uint32_t x = *reinterpret_cast<const uint32_t *>(base + inOffsets.GetX() * Scale);
+	uint32_t y = *reinterpret_cast<const uint32_t *>(base + inOffsets.GetY() * Scale);
+	uint32_t z = *reinterpret_cast<const uint32_t *>(base + inOffsets.GetZ() * Scale);
+	uint32_t w = *reinterpret_cast<const uint32_t *>(base + inOffsets.GetW() * Scale);
 	return UVec4(x, y, z, w);
 #endif
 }
@@ -346,7 +346,7 @@ Vec4 UVec4::ReinterpretAsFloat() const
 #endif
 }
 
-void UVec4::StoreInt4(uint32 *outV) const
+void UVec4::StoreInt4(uint32_t *outV) const
 {
 #if defined(MOSS_SIMD_SSE)
 	_mm_storeu_si128(reinterpret_cast<__m128i *>(outV), mValue);
@@ -358,7 +358,7 @@ void UVec4::StoreInt4(uint32 *outV) const
 #endif
 }
 
-void UVec4::StoreInt4Aligned(uint32 *outV) const
+void UVec4::StoreInt4Aligned(uint32_t *outV) const
 {
 #if defined(MOSS_SIMD_SSE)
 	_mm_store_si128(reinterpret_cast<__m128i *>(outV), mValue);
@@ -413,7 +413,7 @@ bool UVec4::TestAllXYZTrue() const
 	return (GetTrues() & 0b111) == 0b111;
 }
 
-template <const uint32 Count>
+template <const uint32_t Count>
 UVec4 UVec4::LogicalShiftLeft() const
 {
 	static_assert(Count <= 31, "Invalid shift");
@@ -427,7 +427,7 @@ UVec4 UVec4::LogicalShiftLeft() const
 #endif
 }
 
-template <const uint32 Count>
+template <const uint32_t Count>
 UVec4 UVec4::LogicalShiftRight() const
 {
 	static_assert(Count <= 31, "Invalid shift");
@@ -441,7 +441,7 @@ UVec4 UVec4::LogicalShiftRight() const
 #endif
 }
 
-template <const uint32 Count>
+template <const uint32_t Count>
 UVec4 UVec4::ArithmeticShiftRight() const
 {
 	static_assert(Count <= 31, "Invalid shift");
@@ -451,10 +451,10 @@ UVec4 UVec4::ArithmeticShiftRight() const
 #elif defined(MOSS_SIMD_NEON)
 	return vreinterpretq_u32_s32(vshrq_n_s32(vreinterpretq_s32_u32(mValue), Count));
 #else
-	return UVec4(uint32(int32_t(mU32[0]) >> Count),
-				 uint32(int32_t(mU32[1]) >> Count),
-				 uint32(int32_t(mU32[2]) >> Count),
-				 uint32(int32_t(mU32[3]) >> Count));
+	return UVec4(uint32_t(int32_t(mU32[0]) >> Count),
+				 uint32_t(int32_t(mU32[1]) >> Count),
+				 uint32_t(int32_t(mU32[2]) >> Count),
+				 uint32_t(int32_t(mU32[3]) >> Count));
 #endif
 }
 
@@ -553,7 +553,7 @@ UVec4 UVec4::Expand4Byte12() const
 UVec4 UVec4::ShiftComponents4Minus(int inCount) const
 {
 #if defined(MOSS_SIMD_SSE4_1) || defined(MOSS_SIMD_NEON)
-	alignas(UVec4) static constexpr uint32 FourMinusXShuffle[5][4] =
+	alignas(UVec4) static constexpr uint32_t FourMinusXShuffle[5][4] =
 	{
 		{ 0xffffffff, 0xffffffff, 0xffffffff, 0xffffffff },
 		{ 0x0f0e0d0c, 0xffffffff, 0xffffffff, 0xffffffff },

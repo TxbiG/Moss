@@ -132,10 +132,10 @@ public:
 	MOSS_INLINE void			Set(float inX, float inY, float inZ)			{ *this = Vec3(inX, inY, inZ); }
 
 	/// Get float component by index
-	MOSS_INLINE float			operator [] (uint32 inCoordinate) const			{ MOSS_ASSERT(inCoordinate < 3); return mF32[inCoordinate]; }
+	MOSS_INLINE float			operator [] (uint32_t inCoordinate) const			{ MOSS_ASSERT(inCoordinate < 3); return mF32[inCoordinate]; }
 
 	/// Set float component by index
-	MOSS_INLINE void			SetComponent(uint32 inCoordinate, float inValue)	{ MOSS_ASSERT(inCoordinate < 3); mF32[inCoordinate] = inValue; mValue = FixW(mValue); } // Assure Z and W are the same
+	MOSS_INLINE void			SetComponent(uint32_t inCoordinate, float inValue)	{ MOSS_ASSERT(inCoordinate < 3); mF32[inCoordinate] = inValue; mValue = FixW(mValue); } // Assure Z and W are the same
 
 	/// Comparison
 	MOSS_INLINE bool			operator == (Vec2Arg inV2) const;
@@ -193,7 +193,7 @@ public:
 	MOSS_INLINE iVec2			operator / (Vec2Arg inV2) const;
 
 	/// Swizzle the elements in inV
-	template<uint32 SwizzleX, uint32 SwizzleY, uint32 SwizzleZ>
+	template<uint32_t SwizzleX, uint32_t SwizzleY, uint32_t SwizzleZ>
 	MOSS_INLINE iVec2			Swizzle() const;
 
 	/// Replicate the X component to all components

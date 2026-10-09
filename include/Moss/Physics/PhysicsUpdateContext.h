@@ -34,16 +34,16 @@ public:
 
 	struct BodyPairQueue
 	{
-		atomic<uint32>		mWriteIdx { 0 };										// Next index to write in mBodyPair array (need to add thread index * mMaxBodyPairsPerQueue and modulo mMaxBodyPairsPerQueue)
-		uint8				mPadding1[MOSS_CACHE_LINE_SIZE - sizeof(atomic<uint32>)];// Moved to own cache line to avoid conflicts with consumer jobs
+		atomic<uint32_t>		mWriteIdx { 0 };										// Next index to write in mBodyPair array (need to add thread index * mMaxBodyPairsPerQueue and modulo mMaxBodyPairsPerQueue)
+		uint8				mPadding1[MOSS_CACHE_LINE_SIZE - sizeof(atomic<uint32_t>)];// Moved to own cache line to avoid conflicts with consumer jobs
 
-		atomic<uint32>		mReadIdx { 0 };											// Next index to read in mBodyPair array (need to add thread index * mMaxBodyPairsPerQueue and modulo mMaxBodyPairsPerQueue)
-		uint8				mPadding2[MOSS_CACHE_LINE_SIZE - sizeof(atomic<uint32>)];// Moved to own cache line to avoid conflicts with producer/consumer jobs
+		atomic<uint32_t>		mReadIdx { 0 };											// Next index to read in mBodyPair array (need to add thread index * mMaxBodyPairsPerQueue and modulo mMaxBodyPairsPerQueue)
+		uint8				mPadding2[MOSS_CACHE_LINE_SIZE - sizeof(atomic<uint32_t>)];// Moved to own cache line to avoid conflicts with producer/consumer jobs
 	};
 
 	using BodyPairQueues = TStaticArray<BodyPairQueue, cMaxConcurrency>;
 
-	using JobMask = uint32;															// A mask that has as many bits as we can have concurrent jobs
+	using JobMask = uint32_t;															// A mask that has as many bits as we can have concurrent jobs
 	static_assert(sizeof(JobMask) * 8 >= cMaxConcurrency);
 
 	/// Structure that contains data needed for each collision step.
@@ -59,37 +59,37 @@ public:
 
 		BroadPhase::UpdateState	mBroadPhaseUpdateState;								// Handle returned by Broadphase::UpdatePrepare
 
-		uint32				mNumActiveBodiesAtStepStart;							// Number of bodies that were active at the start of the physics update step. Only these bodies will receive gravity (they are the first N in the active body list).
+		uint32_t				mNumActiveBodiesAtStepStart;							// Number of bodies that were active at the start of the physics update step. Only these bodies will receive gravity (they are the first N in the active body list).
 
-		atomic<uint32>		mDetermineActiveConstraintReadIdx { 0 };				// Next constraint for determine active constraints
-		uint8				mPadding1[MOSS_CACHE_LINE_SIZE - sizeof(atomic<uint32>)];// Padding to avoid sharing cache line with the next atomic
+		atomic<uint32_t>		mDetermineActiveConstraintReadIdx { 0 };				// Next constraint for determine active constraints
+		uint8				mPadding1[MOSS_CACHE_LINE_SIZE - sizeof(atomic<uint32_t>)];// Padding to avoid sharing cache line with the next atomic
 
-		atomic<uint32>		mNumActiveConstraints { 0 };							// Number of constraints in the mActiveConstraints array
-		uint8				mPadding2[MOSS_CACHE_LINE_SIZE - sizeof(atomic<uint32>)];// Padding to avoid sharing cache line with the next atomic
+		atomic<uint32_t>		mNumActiveConstraints { 0 };							// Number of constraints in the mActiveConstraints array
+		uint8				mPadding2[MOSS_CACHE_LINE_SIZE - sizeof(atomic<uint32_t>)];// Padding to avoid sharing cache line with the next atomic
 
-		atomic<uint32>		mSetupVelocityConstraintsReadIdx { 0 };					// Next constraint for setting up velocity constraints
-		uint8				mPadding3[MOSS_CACHE_LINE_SIZE - sizeof(atomic<uint32>)];// Padding to avoid sharing cache line with the next atomic
+		atomic<uint32_t>		mSetupVelocityConstraintsReadIdx { 0 };					// Next constraint for setting up velocity constraints
+		uint8				mPadding3[MOSS_CACHE_LINE_SIZE - sizeof(atomic<uint32_t>)];// Padding to avoid sharing cache line with the next atomic
 
-		atomic<uint32>		mStepListenerReadIdx { 0 };								// Next step listener to call
-		uint8				mPadding4[MOSS_CACHE_LINE_SIZE - sizeof(atomic<uint32>)];// Padding to avoid sharing cache line with the next atomic
+		atomic<uint32_t>		mStepListenerReadIdx { 0 };								// Next step listener to call
+		uint8				mPadding4[MOSS_CACHE_LINE_SIZE - sizeof(atomic<uint32_t>)];// Padding to avoid sharing cache line with the next atomic
 
-		atomic<uint32>		mApplyGravityReadIdx { 0 };								// Next body to apply gravity to
-		uint8				mPadding5[MOSS_CACHE_LINE_SIZE - sizeof(atomic<uint32>)];// Padding to avoid sharing cache line with the next atomic
+		atomic<uint32_t>		mApplyGravityReadIdx { 0 };								// Next body to apply gravity to
+		uint8				mPadding5[MOSS_CACHE_LINE_SIZE - sizeof(atomic<uint32_t>)];// Padding to avoid sharing cache line with the next atomic
 
-		atomic<uint32>		mActiveBodyReadIdx { 0 };								// Index of fist active body that has not yet been processed by the broadphase
-		uint8				mPadding6[MOSS_CACHE_LINE_SIZE - sizeof(atomic<uint32>)];// Padding to avoid sharing cache line with the next atomic
+		atomic<uint32_t>		mActiveBodyReadIdx { 0 };								// Index of fist active body that has not yet been processed by the broadphase
+		uint8				mPadding6[MOSS_CACHE_LINE_SIZE - sizeof(atomic<uint32_t>)];// Padding to avoid sharing cache line with the next atomic
 
 		BodyPairQueues		mBodyPairQueues;										// Queues in which to put body pairs that need to be tested by the narrowphase
 
-		uint32				mMaxBodyPairsPerQueue;									// Amount of body pairs that we can queue per queue
+		uint32_t				mMaxBodyPairsPerQueue;									// Amount of body pairs that we can queue per queue
 
 		atomic<JobMask>		mActiveFindCollisionJobs;								// A bitmask that indicates which jobs are still active
 
-		atomic<uint32>		mNumBodyPairs { 0 };									// The number of body pairs found in this step (used to size the contact cache in the next step)
-		atomic<uint32>		mNumManifolds { 0 };									// The number of manifolds found in this step (used to size the contact cache in the next step)
+		atomic<uint32_t>		mNumBodyPairs { 0 };									// The number of body pairs found in this step (used to size the contact cache in the next step)
+		atomic<uint32_t>		mNumManifolds { 0 };									// The number of manifolds found in this step (used to size the contact cache in the next step)
 
-		atomic<uint32>		mSolveVelocityConstraintsNextIsland { 0 };				// Next island that needs to be processed for the solve velocity constraints step (doesn't need own cache line since position jobs don't run at same time)
-		atomic<uint32>		mSolvePositionConstraintsNextIsland { 0 };				// Next island that needs to be processed for the solve position constraints step (doesn't need own cache line since velocity jobs don't run at same time)
+		atomic<uint32_t>		mSolveVelocityConstraintsNextIsland { 0 };				// Next island that needs to be processed for the solve velocity constraints step (doesn't need own cache line since position jobs don't run at same time)
+		atomic<uint32_t>		mSolvePositionConstraintsNextIsland { 0 };				// Next island that needs to be processed for the solve position constraints step (doesn't need own cache line since velocity jobs don't run at same time)
 
 		/// Contains the information needed to cast a body through the scene to do continuous collision detection
 		struct CCDBody
@@ -108,13 +108,13 @@ public:
 			float			mMaxPenetration;										// Maximum allowed penetration (determined by inner radius of shape)
 			ContactSettings	mContactSettings;										// The contact settings for this contact
 		};
-		atomic<uint32>		mIntegrateVelocityReadIdx { 0 };						// Next active body index to take when integrating velocities
+		atomic<uint32_t>		mIntegrateVelocityReadIdx { 0 };						// Next active body index to take when integrating velocities
 		CCDBody *			mCCDBodies = nullptr;									// List of bodies that need to do continuous collision detection
-		uint32				mCCDBodiesCapacity = 0;									// Capacity of the mCCDBodies list
-		atomic<uint32>		mNumCCDBodies = 0;										// Number of CCD bodies in mCCDBodies
-		atomic<uint32>		mNextCCDBody { 0 };										// Next unprocessed body index in mCCDBodies
+		uint32_t				mCCDBodiesCapacity = 0;									// Capacity of the mCCDBodies list
+		atomic<uint32_t>		mNumCCDBodies = 0;										// Number of CCD bodies in mCCDBodies
+		atomic<uint32_t>		mNextCCDBody { 0 };										// Next unprocessed body index in mCCDBodies
 		int *				mActiveBodyToCCDBody = nullptr;							// A mapping between an index in BodyManager::mActiveBodies and the index in mCCDBodies
-		uint32				mNumActiveBodyToCCDBody = 0;							// Number of indices in mActiveBodyToCCDBody
+		uint32_t				mNumActiveBodyToCCDBody = 0;							// Number of indices in mActiveBodyToCCDBody
 
 		// Jobs in order of execution (some run in parallel)
 		JobHandle			mBroadPhasePrepare;										// Prepares the new tree in the background
@@ -153,7 +153,7 @@ public:
 
 	float					mStepDeltaTime;											// Delta time for a simulation step (collision step)
 	float					mWarmStartImpulseRatio;									// Ratio of this step delta time vs last step
-	atomic<uint32>			mErrors { 0 };											// Errors that occurred during the update, actual type is EPhysicsUpdateError
+	atomic<uint32_t>			mErrors { 0 };											// Errors that occurred during the update, actual type is EPhysicsUpdateError
 
 	Constraint**			mActiveConstraints = nullptr;							// Constraints that were active at the start of the physics update step (activating bodies can activate constraints and we need a consistent snapshot). Only these constraints will be resolved.
 
@@ -163,9 +163,9 @@ public:
 
 	Steps					mSteps;
 
-	uint32					mNumSoftBodies;											// Number of active soft bodies in the simulation
+	uint32_t					mNumSoftBodies;											// Number of active soft bodies in the simulation
 	SoftBodyUpdateContext *	mSoftBodyUpdateContexts = nullptr;						// Contexts for updating soft bodies
-	atomic<uint32>			mSoftBodyToCollide { 0 };								// Next soft body to take when running SoftBodyCollide jobs
+	atomic<uint32_t>			mSoftBodyToCollide { 0 };								// Next soft body to take when running SoftBodyCollide jobs
 };
 
 MOSS_SUPPRESS_WARNINGS_END

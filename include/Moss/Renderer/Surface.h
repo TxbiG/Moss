@@ -9,7 +9,7 @@
 #include <Moss/Core/StringTools.h>
 
 /// Possible lock modes of a Surface
-enum class ESurfaceLockMode : uint32
+enum class ESurfaceLockMode : uint32_t
 {
 	None						= 0 << 0,															///< Not locked, cannot be used as a parameter
 	Read						= 1 << 0,
@@ -18,7 +18,7 @@ enum class ESurfaceLockMode : uint32
 };
 
 /// Possible surface formats, most significant bit (MSB) first
-enum class ESurfaceFormat : uint32
+enum class ESurfaceFormat : uint32_t
 {
 	A4L4,																							///< 4 bit alpha, 4 bit luminance (grayscale)
 	L8,																								///< 8 bit luminance (grayscale)
@@ -44,7 +44,7 @@ class FormatDescription
 {
 public:
 	/// Constructor
-								FormatDescription(const char *inFormatName, int inBitsPerPixel, int inNumberOfComponents, ESurfaceFormat inClosest8BitFormat, ESurfaceFormat inClosestAlphaFormat, uint32 inRedMask, uint32 inGreenMask, uint32 inBlueMask, uint32 inAlphaMask);
+								FormatDescription(const char *inFormatName, int inBitsPerPixel, int inNumberOfComponents, ESurfaceFormat inClosest8BitFormat, ESurfaceFormat inClosestAlphaFormat, uint32_t inRedMask, uint32_t inGreenMask, uint32_t inBlueMask, uint32_t inAlphaMask);
 
 	/// General properties
 	const string_view &			GetFormatName() const												{ return mFormatName; }
@@ -62,15 +62,15 @@ public:
 	int							GetComponentBitCount(int inComponent) const							{ return CountBits(GetComponentMask(inComponent)); }
 
 	/// Bitmasks indicating the various components of the image
-	uint32						GetRedMask() const													{ return mRedMask; }
-	uint32						GetGreenMask() const												{ return mGreenMask; }
-	uint32						GetBlueMask() const													{ return mBlueMask; }
-	uint32						GetAlphaMask() const												{ return mAlphaMask; }
-	uint32						GetComponentMask(int inComponent) const								{ return *(&mRedMask + inComponent); }
+	uint32_t						GetRedMask() const													{ return mRedMask; }
+	uint32_t						GetGreenMask() const												{ return mGreenMask; }
+	uint32_t						GetBlueMask() const													{ return mBlueMask; }
+	uint32_t						GetAlphaMask() const												{ return mAlphaMask; }
+	uint32_t						GetComponentMask(int inComponent) const								{ return *(&mRedMask + inComponent); }
 
 	/// Convert a single color
-	uint32						Encode(ColorArg inColor) const;
-	const Color					Decode(uint32 inColor) const;
+	uint32_t						Encode(ColorArg inColor) const;
+	const Color					Decode(uint32_t inColor) const;
 
 private:
 	string_view					mFormatName;														///< User displayable String describing the format
@@ -79,10 +79,10 @@ private:
 	ESurfaceFormat				mClosest8BitFormat;													///< Closest matching format that has 8 bit color components
 	ESurfaceFormat				mClosestAlphaFormat;												///< Closest matching format that has an alpha channel
 
-	uint32						mRedMask;															///< Bitmasks indicating which bits are used by which color components
-	uint32						mGreenMask;
-	uint32						mBlueMask;
-	uint32						mAlphaMask;
+	uint32_t						mRedMask;															///< Bitmasks indicating which bits are used by which color components
+	uint32_t						mGreenMask;
+	uint32_t						mBlueMask;
+	uint32_t						mAlphaMask;
 };
 
 /// Get the description for a specific surface format
@@ -111,11 +111,11 @@ public:
 	int							GetAlphaBitsPerPixel() const										{ return GetFormatDescription().GetAlphaBitsPerPixel(); }
 	int							GetComponentBitCount(int inComponent) const							{ return GetFormatDescription().GetComponentBitCount(inComponent); }
 
-	uint32						GetRedMask() const													{ return GetFormatDescription().GetRedMask(); }
-	uint32						GetGreenMask() const												{ return GetFormatDescription().GetGreenMask(); }
-	uint32						GetBlueMask() const													{ return GetFormatDescription().GetBlueMask(); }
-	uint32						GetAlphaMask() const												{ return GetFormatDescription().GetAlphaMask(); }
-	uint32						GetComponentMask(int inComponent) const								{ return GetFormatDescription().GetComponentMask(inComponent); }
+	uint32_t						GetRedMask() const													{ return GetFormatDescription().GetRedMask(); }
+	uint32_t						GetGreenMask() const												{ return GetFormatDescription().GetGreenMask(); }
+	uint32_t						GetBlueMask() const													{ return GetFormatDescription().GetBlueMask(); }
+	uint32_t						GetAlphaMask() const												{ return GetFormatDescription().GetAlphaMask(); }
+	uint32_t						GetComponentMask(int inComponent) const								{ return GetFormatDescription().GetComponentMask(inComponent); }
 
 	/// Get properties of this surface
 	inline ESurfaceFormat		GetFormat() const													{ return mFormat; }
@@ -132,8 +132,8 @@ public:
 	/// Current lock state
 	inline ESurfaceLockMode		GetLockMode() const													{ return mLockMode; }
 	inline bool					IsLocked() const													{ return mLockMode != ESurfaceLockMode::None; }
-	inline bool					IsLockedForRead() const												{ return (uint32(mLockMode) & uint32(ESurfaceLockMode::Read)) != 0; }
-	inline bool					IsLockedForWrite() const											{ return (uint32(mLockMode) & uint32(ESurfaceLockMode::Write)) != 0; }
+	inline bool					IsLockedForRead() const												{ return (uint32_t(mLockMode) & uint32_t(ESurfaceLockMode::Read)) != 0; }
+	inline bool					IsLockedForWrite() const											{ return (uint32_t(mLockMode) & uint32_t(ESurfaceLockMode::Write)) != 0; }
 	inline bool					IsLockedForReadWrite() const										{ return IsLockedForRead() && IsLockedForWrite(); }
 
 	/// Access to the image data

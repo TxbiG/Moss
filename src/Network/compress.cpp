@@ -326,7 +326,7 @@ size_t enet_range_coder_compress (void * context, const ENetBuffer * inBuffers, 
     ENetRangeCoder * rangeCoder = (ENetRangeCoder *) context;
     uint8* outStart = outData, * outEnd = & outData [outLimit];
     const uint8 * inData, * inEnd;
-    uint32 encodeLow = 0, encodeRange = ~0;
+    uint32_t encodeLow = 0, encodeRange = ~0;
     ENetSymbol * root;
     uint16 predicted = 0;
     size_t order = 0, nextSymbol = 0;
@@ -424,7 +424,7 @@ size_t enet_range_coder_decompress (void* context, const uint8* inData, size_t i
     ENetRangeCoder * rangeCoder = (ENetRangeCoder*) context;
     uint8* outStart = outData, * outEnd = &outData [outLimit];
     const uint8* inEnd = & inData [inLimit];
-    uint32 decodeLow = 0, decodeCode = 0, decodeRange = ~0;
+    uint32_t decodeLow = 0, decodeCode = 0, decodeRange = ~0;
     ENetSymbol* root;
     uint16 predicted = 0;
     size_t order = 0, nextSymbol = 0;

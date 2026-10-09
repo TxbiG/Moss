@@ -15,7 +15,7 @@ MOSS_SUPPRESS_WARNINGS_BEGIN
 namespace StreamUtils {
 
 template <class Type>
-using ObjectToIDMap = TMap<const Type *, uint32>;
+using ObjectToIDMap = TMap<const Type *, uint32_t>;
 
 template <class Type>
 using IDToObjectMap = TArray<Ref<Type>>;
@@ -27,7 +27,7 @@ Result<Ref<Type>>	RestoreObject(StreamIn &inStream, void (Type::*inRestoreBinary
 	Result<Ref<Type>> result;
 
 	// Read the hash of the type
-	uint32 hash;
+	uint32_t hash;
 	inStream.Read(hash);
 	if (inStream.IsEOF() || inStream.IsFailed())
 	{
@@ -63,7 +63,7 @@ void				SaveObjectReference(StreamOut &inStream, const Type *inObject, ObjectToI
 	if (ioObjectToIDMap == nullptr || inObject == nullptr)
 	{
 		// Write null ID
-		inStream.Write(~uint32(0));
+		inStream.Write(~uint32_t(0));
 	}
 	else
 	{
@@ -76,7 +76,7 @@ void				SaveObjectReference(StreamOut &inStream, const Type *inObject, ObjectToI
 		else
 		{
 			// New object, write the ID
-			uint32 new_id = uint32(ioObjectToIDMap->size());
+			uint32_t new_id = uint32_t(ioObjectToIDMap->size());
 			(*ioObjectToIDMap)[inObject] = new_id;
 			inStream.Write(new_id);
 
@@ -93,11 +93,11 @@ Result<Ref<Type>>	RestoreObjectReference(StreamIn &inStream, IDToObjectMap<Type>
 	Result<Ref<Type>> result;
 
 	// Read id
-	uint32 id = ~uint32(0);
+	uint32_t id = ~uint32_t(0);
 	inStream.Read(id);
 
 	// Check null
-	if (id == ~uint32(0))
+	if (id == ~uint32_t(0))
 	{
 		result.Set(nullptr);
 		return result;
@@ -126,7 +126,7 @@ Result<Ref<Type>>	RestoreObjectReference(StreamIn &inStream, IDToObjectMap<Type>
 template <class ArrayType, class ValueType>
 void				SaveObjectArray(StreamOut &inStream, const ArrayType &inArray, ObjectToIDMap<ValueType> *ioObjectToIDMap)
 {
-	uint32 len = uint32(inArray.size());
+	uint32_t len = uint32_t(inArray.size());
 	inStream.Write(len);
 	for (const ValueType *value: inArray)
 		SaveObjectReference(inStream, value, ioObjectToIDMap);
@@ -138,7 +138,7 @@ Result<ArrayType>	RestoreObjectArray(StreamIn &inStream, IDToObjectMap<ValueType
 {
 	Result<ArrayType> result;
 
-	uint32 len;
+	uint32_t len;
 	inStream.Read(len);
 	if (inStream.IsEOF() || inStream.IsFailed())
 	{

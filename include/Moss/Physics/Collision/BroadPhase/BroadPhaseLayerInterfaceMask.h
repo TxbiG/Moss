@@ -4,27 +4,23 @@
 
 #pragma once
 
-#include <Moss/Physics/Collision/BroadPhase/BroadPhaseLayer.h>
+#include <Moss/Physics/Collision/BroadPhase/BroadPhase.h>
 #include <Moss/Physics/Collision/ObjectLayerPairFilterMask.h>
 
 MOSS_SUPPRESS_WARNINGS_BEGIN
 
 /// Class that determines if an object layer can collide with a broadphase layer.
 /// This implementation works together with BroadPhaseLayerInterfaceMask and ObjectLayerPairFilterMask
-class ObjectVsBroadPhaseLayerFilterMask : public ObjectVsBroadPhaseLayerFilter
-{
+class ObjectVsBroadPhaseLayerFilterMask : public ObjectVsBroadPhaseLayerFilter {
 public:
 	MOSS_OVERRIDE_NEW_DELETE
 
 /// Constructor
-					ObjectVsBroadPhaseLayerFilterMask(const BroadPhaseLayerInterfaceMask &inBroadPhaseLayerInterface) :
-		mBroadPhaseLayerInterface(inBroadPhaseLayerInterface)
-	{
-	}
+	ObjectVsBroadPhaseLayerFilterMask(const BroadPhaseLayerInterfaceMask &inBroadPhaseLayerInterface) :
+		mBroadPhaseLayerInterface(inBroadPhaseLayerInterface) { }
 
 	/// Returns true if an object layer should collide with a broadphase layer
-	virtual bool	ShouldCollide(ObjectLayer inLayer1, BroadPhaseLayer inLayer2) const override
-	{
+	virtual bool ShouldCollide(ObjectLayer inLayer1, BroadPhaseLayer inLayer2) const override {
 		// Just defer to BroadPhaseLayerInterface
 		return mBroadPhaseLayerInterface.ShouldCollide(inLayer1, inLayer2);
 	}
@@ -42,8 +38,7 @@ class BroadPhaseLayerInterfaceMask : public BroadPhaseLayerInterface {
 public:
 	MOSS_OVERRIDE_NEW_DELETE
 
-	explicit				BroadPhaseLayerInterfaceMask(uint32 inNumBroadPhaseLayers)
-	{
+	explicit BroadPhaseLayerInterfaceMask(uint32_t inNumBroadPhaseLayers) {
 		MOSS_ASSERT(inNumBroadPhaseLayers > 0);
 		mMapping.resize(inNumBroadPhaseLayers);
 
@@ -53,23 +48,18 @@ public:
 	}
 
 	// Configures a broadphase layer.
-	void					ConfigureLayer(BroadPhaseLayer inBroadPhaseLayer, uint32 inGroupsToInclude, uint32 inGroupsToExclude)
-	{
-		MOSS_ASSERT((BroadPhaseLayer::Type)inBroadPhaseLayer < (uint32)mMapping.size());
+	void ConfigureLayer(BroadPhaseLayer inBroadPhaseLayer, uint32_t inGroupsToInclude, uint32_t inGroupsToExclude) {
+		MOSS_ASSERT((BroadPhaseLayer::Type)inBroadPhaseLayer < (uint32_t)mMapping.size());
 		Mapping &m = mMapping[(BroadPhaseLayer::Type)inBroadPhaseLayer];
 		m.mGroupsToInclude = inGroupsToInclude;
 		m.mGroupsToExclude = inGroupsToExclude;
 	}
 
-	virtual uint32			GetNumBroadPhaseLayers() const override
-	{
-		return (uint32)mMapping.size();
-	}
+	virtual uint32_t GetNumBroadPhaseLayers() const override { return (uint32_t)mMapping.size(); }
 
-	virtual BroadPhaseLayer	GetBroadPhaseLayer(ObjectLayer inLayer) const override
-	{
+	virtual BroadPhaseLayer	GetBroadPhaseLayer(ObjectLayer inLayer) const override {
 		// Try to find the first broadphase layer that matches
-		uint32 group = ObjectLayerPairFilterMask::GetGroup(inLayer);
+		uint32_t group = ObjectLayerPairFilterMask::GetGroup(inLayer);
 		for (const Mapping &m : mMapping)
 			if ((group & m.mGroupsToInclude) != 0 && (group & m.mGroupsToExclude) == 0)
 				return BroadPhaseLayer(BroadPhaseLayer::Type(&m - mMapping.data()));
@@ -79,19 +69,15 @@ public:
 	}
 
 	/// Returns true if an object layer should collide with a broadphase layer, this function is being called from ObjectVsBroadPhaseLayerFilterMask
-	inline bool				ShouldCollide(ObjectLayer inLayer1, BroadPhaseLayer inLayer2) const
-	{
-		uint32 mask = ObjectLayerPairFilterMask::GetMask(inLayer1);
+	inline bool ShouldCollide(ObjectLayer inLayer1, BroadPhaseLayer inLayer2) const {
+		uint32_t mask = ObjectLayerPairFilterMask::GetMask(inLayer1);
 		const Mapping &m = mMapping[(BroadPhaseLayer::Type)inLayer2];
 		return &m == &mMapping.back() // Last layer may collide with anything
 			|| (m.mGroupsToInclude & mask) != 0; // Mask allows it to collide with objects that could reside in this layer
 	}
 
 #if defined(MOSS_EXTERNAL_PROFILE) || defined(MOSS_PROFILE_ENABLED)
-	void					SetBroadPhaseLayerName(BroadPhaseLayer inLayer, const char *inName)
-	{
-		mBroadPhaseLayerNames[(BroadPhaseLayer::Type)inLayer] = inName;
-	}
+	void SetBroadPhaseLayerName(BroadPhaseLayer inLayer, const char *inName) { mBroadPhaseLayerNames[(BroadPhaseLayer::Type)inLayer] = inName; }
 
 	virtual const char *	GetBroadPhaseLayerName(BroadPhaseLayer inLayer) const override
 	{
@@ -100,15 +86,14 @@ public:
 #endif // MOSS_EXTERNAL_PROFILE || MOSS_PROFILE_ENABLED
 
 private:
-	struct Mapping
-	{
-		uint32				mGroupsToInclude = 0;
-		uint32				mGroupsToExclude = ~uint32(0);
+	struct Mapping {
+		uint32_t mGroupsToInclude = 0;
+		uint32_t mGroupsToExclude = ~uint32_t(0);
 	};
-	TArray<Mapping>			mMapping;
+	TArray<Mapping> mMapping;
 
 #if defined(MOSS_EXTERNAL_PROFILE) || defined(MOSS_PROFILE_ENABLED)
-	TArray<const char *>		mBroadPhaseLayerNames;
+	TArray<const char*> mBroadPhaseLayerNames;
 #endif // MOSS_EXTERNAL_PROFILE || MOSS_PROFILE_ENABLED
 };
 
@@ -117,45 +102,38 @@ class BroadPhaseLayerInterfaceTable : public BroadPhaseLayerInterface {
 public:
 	MOSS_OVERRIDE_NEW_DELETE
 
-							BroadPhaseLayerInterfaceTable(uint32 inNumObjectLayers, uint32 inNumBroadPhaseLayers) :
-		mNumBroadPhaseLayers(inNumBroadPhaseLayers)
-	{
+	BroadPhaseLayerInterfaceTable(uint32_t inNumObjectLayers, uint32_t inNumBroadPhaseLayers) : mNumBroadPhaseLayers(inNumBroadPhaseLayers) {
 		mObjectToBroadPhase.resize(inNumObjectLayers, BroadPhaseLayer(0));
 #if defined(MOSS_EXTERNAL_PROFILE) || defined(MOSS_PROFILE_ENABLED)
 		mBroadPhaseLayerNames.resize(inNumBroadPhaseLayers, "Undefined");
 #endif // MOSS_EXTERNAL_PROFILE || MOSS_PROFILE_ENABLED
 	}
 
-	void					MapObjectToBroadPhaseLayer(ObjectLayer inObjectLayer, BroadPhaseLayer inBroadPhaseLayer)
-	{
+	void MapObjectToBroadPhaseLayer(ObjectLayer inObjectLayer, BroadPhaseLayer inBroadPhaseLayer) {
 		MOSS_ASSERT((BroadPhaseLayer::Type)inBroadPhaseLayer < mNumBroadPhaseLayers);
 		mObjectToBroadPhase[inObjectLayer] = inBroadPhaseLayer;
 	}
 
-	virtual uint32			GetNumBroadPhaseLayers() const override
-	{
+	virtual uint32_t GetNumBroadPhaseLayers() const override {
 		return mNumBroadPhaseLayers;
 	}
 
-	virtual BroadPhaseLayer	GetBroadPhaseLayer(ObjectLayer inLayer) const override
-	{
+	virtual BroadPhaseLayer	GetBroadPhaseLayer(ObjectLayer inLayer) const override {
 		return mObjectToBroadPhase[inLayer];
 	}
 
 #if defined(MOSS_EXTERNAL_PROFILE) || defined(MOSS_PROFILE_ENABLED)
-	void					SetBroadPhaseLayerName(BroadPhaseLayer inLayer, const char *inName)
-	{
+	void SetBroadPhaseLayerName(BroadPhaseLayer inLayer, const char *inName) {
 		mBroadPhaseLayerNames[(BroadPhaseLayer::Type)inLayer] = inName;
 	}
 
-	virtual const char *	GetBroadPhaseLayerName(BroadPhaseLayer inLayer) const override
-	{
+	virtual const char*	GetBroadPhaseLayerName(BroadPhaseLayer inLayer) const override {
 		return mBroadPhaseLayerNames[(BroadPhaseLayer::Type)inLayer];
 	}
 #endif // MOSS_EXTERNAL_PROFILE || MOSS_PROFILE_ENABLED
 
 private:
-	uint32					mNumBroadPhaseLayers;
+	uint32_t					mNumBroadPhaseLayers;
 	TArray<BroadPhaseLayer>	mObjectToBroadPhase;
 #if defined(MOSS_EXTERNAL_PROFILE) || defined(MOSS_PROFILE_ENABLED)
 	TArray<const char *>		mBroadPhaseLayerNames;
@@ -169,8 +147,7 @@ class ObjectVsBroadPhaseLayerFilterTable : public ObjectVsBroadPhaseLayerFilter
 {
 private:
 	/// Get which bit corresponds to the pair (inLayer1, inLayer2)
-	uint32					GetBit(ObjectLayer inLayer1, BroadPhaseLayer inLayer2) const
-	{
+	uint32_t GetBit(ObjectLayer inLayer1, BroadPhaseLayer inLayer2) const {
 		// Calculate at which bit the entry for this pair resides
 		return inLayer1 * mNumBroadPhaseLayers + (BroadPhaseLayer::Type)inLayer2;
 	}
@@ -183,38 +160,34 @@ public:
 	/// @param inNumBroadPhaseLayers Number of broad phase layers
 	/// @param inObjectLayerPairFilter The object layer pair filter that determines which object layers can collide
 	/// @param inNumObjectLayers Number of object layers
-							ObjectVsBroadPhaseLayerFilterTable(const BroadPhaseLayerInterface &inBroadPhaseLayerInterface, uint32 inNumBroadPhaseLayers, const ObjectLayerPairFilter &inObjectLayerPairFilter, uint32 inNumObjectLayers) :
-		mNumBroadPhaseLayers(inNumBroadPhaseLayers)
-	{
+	ObjectVsBroadPhaseLayerFilterTable(const BroadPhaseLayerInterface &inBroadPhaseLayerInterface, uint32_t inNumBroadPhaseLayers, const ObjectLayerPairFilter &inObjectLayerPairFilter, uint32_t inNumObjectLayers) :
+		mNumBroadPhaseLayers(inNumBroadPhaseLayers) {
 		// Resize table and set all entries to false
 		mTable.resize((inNumBroadPhaseLayers * inNumObjectLayers + 7) / 8, 0);
 
 		// Loop over all object layer pairs
 		for (ObjectLayer o1 = 0; o1 < inNumObjectLayers; ++o1)
-			for (ObjectLayer o2 = 0; o2 < inNumObjectLayers; ++o2)
-			{
+			for (ObjectLayer o2 = 0; o2 < inNumObjectLayers; ++o2) {
 				// Get the broad phase layer for the second object layer
 				BroadPhaseLayer b2 = inBroadPhaseLayerInterface.GetBroadPhaseLayer(o2);
 				MOSS_ASSERT((BroadPhaseLayer::Type)b2 < inNumBroadPhaseLayers);
 
 				// If the object layers collide then so should the object and broadphase layer
-				if (inObjectLayerPairFilter.ShouldCollide(o1, o2))
-				{
-					uint32 bit = GetBit(o1, b2);
+				if (inObjectLayerPairFilter.ShouldCollide(o1, o2)) {
+					uint32_t bit = GetBit(o1, b2);
 					mTable[bit >> 3] |= 1 << (bit & 0b111);
 				}
 			}
 	}
 
 	/// Returns true if an object layer should collide with a broadphase layer
-	virtual bool			ShouldCollide(ObjectLayer inLayer1, BroadPhaseLayer inLayer2) const override
-	{
-		uint32 bit = GetBit(inLayer1, inLayer2);
+	virtual bool ShouldCollide(ObjectLayer inLayer1, BroadPhaseLayer inLayer2) const override {
+		uint32_t bit = GetBit(inLayer1, inLayer2);
 		return (mTable[bit >> 3] & (1 << (bit & 0b111))) != 0;
 	}
 
 private:
-	uint32			mNumBroadPhaseLayers;		// The total number of broadphase layers
+	uint32_t			mNumBroadPhaseLayers;		// The total number of broadphase layers
 	TArray<uint8>	mTable;						// The table of bits that indicates which layers collide
 };
 

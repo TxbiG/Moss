@@ -60,7 +60,7 @@ public:
 	/// Information about where a hair strand is attached to the scalp mesh
 	struct MOSS_API SkinPoint : public MOSS_HairSkinPoint { MOSS_DECLARE_SERIALIZABLE_NON_VIRTUAL(MOSS_API, SkinPoint) };
 
-	static constexpr uint32 cNoInfluence = ~uint32(0);
+	static constexpr uint32_t cNoInfluence = ~uint32_t(0);
 
 	/// Describes how a render vertex is influenced by a simulated vertex
 	struct MOSS_API SVertexInfluence : public MOSS_HairSVertexInfluence {
@@ -99,19 +99,19 @@ public:
 
 		/// Constructor
 		RStrand() = default;
-		RStrand(uint32 inStartVtx, uint32 inEndVtx) : mStartVtx(inStartVtx), mEndVtx(inEndVtx) { }
+		RStrand(uint32_t inStartVtx, uint32_t inEndVtx) : mStartVtx(inStartVtx), mEndVtx(inEndVtx) { }
 
-		uint32 VertexCount() const							{ return mEndVtx - mStartVtx; }
+		uint32_t VertexCount() const							{ return mEndVtx - mStartVtx; }
 
 		float MeasureLength(const TArray<SVertex> &inVertices) const {
 			float length = 0.0f;
-			for (uint32 v = mStartVtx; v < mEndVtx - 1; ++v)
+			for (uint32_t v = mStartVtx; v < mEndVtx - 1; ++v)
 				length += (Vec3(inVertices[v + 1].mPosition) - Vec3(inVertices[v].mPosition)).Length();
 			return length;
 		}
 
-		uint32			mStartVtx;
-		uint32			mEndVtx;
+		uint32_t			mStartVtx;
+		uint32_t			mEndVtx;
 	};
 
 	/// A hair simulation strand
@@ -120,9 +120,9 @@ public:
 		MOSS_DECLARE_SERIALIZABLE_NON_VIRTUAL(MOSS_API, SStrand)
 
 						SStrand() = default;
-						SStrand(uint32 inStartVtx, uint32 inEndVtx, uint32 inMaterialIndex) : RStrand(inStartVtx, inEndVtx), mMaterialIndex(inMaterialIndex) { }
+						SStrand(uint32_t inStartVtx, uint32_t inEndVtx, uint32_t inMaterialIndex) : RStrand(inStartVtx, inEndVtx), mMaterialIndex(inMaterialIndex) { }
 
-		uint32			mMaterialIndex = 0;							// Index in mMaterials
+		uint32_t			mMaterialIndex = 0;							// Index in mMaterials
 	};
 
 	/// Gradient along a hair strand of a value, e.g. compliance, friction, etc.
@@ -174,7 +174,7 @@ public:
 
 		/// Sample the value along the strand
 		inline float Sample(float inFraction) const { return min(mMax, max(mMin, mOffset + inFraction * mMultiplier)); }
-		inline float Sample(const SStrand &inStrand, uint32 inVertex) const { return Sample(float(inVertex - inStrand.mStartVtx) / float(inStrand.VertexCount() - 1)); }
+		inline float Sample(const SStrand &inStrand, uint32_t inVertex) const { return Sample(float(inVertex - inStrand.mStartVtx) / float(inStrand.VertexCount() - 1)); }
 		/// Convert to Float4 to pass to shader
 		inline Float4	ToFloat4() const { return Float4(mMultiplier, mOffset, mMin, mMax); }
 
@@ -198,7 +198,7 @@ public:
 		/// Calculate the bend compliance at a fraction along the strand
 		float			GetBendCompliance(float inStrandFraction) const {
 			float fraction = inStrandFraction * 3.0f;
-			uint32 idx = min(uint32(fraction), 2u);
+			uint32_t idx = min(uint32_t(fraction), 2u);
 			fraction = fraction - float(idx);
 			MOSS_ASSERT(fraction >= 0.0f && fraction <= 1.0f);
 			float multiplier = mBendComplianceMultiplier[idx] * (1.0f - fraction) + mBendComplianceMultiplier[idx + 1] * fraction;
@@ -234,7 +234,7 @@ public:
 	void InitRenderAndSimulationStrands(const TArray<SVertex> &inVertices, const TArray<SStrand> &inStrands);
 
 	/// Resample the hairs to a new fixed number of vertices per strand. Must be called prior to Init if desired.
-	static void			sResample(TArray<SVertex> &ioVertices, TArray<SStrand> &ioStrands, uint32 inNumVerticesPerStrand);
+	static void			sResample(TArray<SVertex> &ioVertices, TArray<SStrand> &ioStrands, uint32_t inNumVerticesPerStrand);
 
 	/// Initialize the structure, calculating simulation bounds and vertex properties
 	/// @param outMaxDistSqHairToScalp Maximum distance^2 the root vertex of a hair is from the scalp, can be used to check if the hair matched the scalp correctly
@@ -244,14 +244,14 @@ public:
 	void InitCompute(ComputeSystem *inComputeSystem);
 
 	/// Sample the neutral density at a grid position
-	float GetNeutralDensity(uint32 inX, uint32 inY, uint32 inZ) const {
+	float GetNeutralDensity(uint32_t inX, uint32_t inY, uint32_t inZ) const {
 		MOSS_ASSERT(inX < mGridSize.GetX() && inY < mGridSize.GetY() && inZ < mGridSize.GetZ());
 		return mNeutralDensity[inX + inY * mGridSize.GetX() + inZ * mGridSize.GetX() * mGridSize.GetY()];
 	}
 
 	/// Get the number of vertices in the vertex buffers padded to a multiple of mMaxVerticesPerStrand.
-	inline uint32 GetNumVerticesPadded() const {
-		return uint32(mSimStrands.size()) * mMaxVerticesPerStrand;
+	inline uint32_t GetNumVerticesPadded() const {
+		return uint32_t(mSimStrands.size()) * mMaxVerticesPerStrand;
 	}
 
 	/// @brief Calculates the pose used for skinning the scalp
@@ -297,11 +297,11 @@ public:
 			Vec3 fraction[] = { Vec3::Replicate(1.0f) - inFraction, inFraction };
 
 			// Sample the grid
-			for (uint32 z = 0; z < 2; ++z)
-				for (uint32 y = 0; y < 2; ++y)
-					for (uint32 x = 0; x < 2; ++x)
+			for (uint32_t z = 0; z < 2; ++z)
+				for (uint32_t y = 0; y < 2; ++y)
+					for (uint32_t x = 0; x < 2; ++x)
 					{
-						uint32 index = mGridStride.Dot(inIndex + UVec4(x, y, z, 0));
+						uint32_t index = mGridStride.Dot(inIndex + UVec4(x, y, z, 0));
 						float combined_fraction = fraction[x].GetX() * fraction[y].GetY() * fraction[z].GetZ();
 						inFunc(index, combined_fraction);
 					}
@@ -322,7 +322,7 @@ public:
 		Vec3			mScale;
 	};
 
-	static constexpr uint32 cDefaultIterationsPerSecond = 360;
+	static constexpr uint32_t cDefaultIterationsPerSecond = 360;
 
 	TArray<SVertex>		mSimVertices;								// Simulated vertices. Used by mSimStrands.
 	TArray<SStrand>		mSimStrands;								// Defines the start and end of each simulated strand.
@@ -334,9 +334,9 @@ public:
 	TArray<IndexedTriangleNoMaterial> mScalpTriangles;				// Triangles of the scalp mesh.
 	TArray<Mat44>		mScalpInverseBindPose;						// Inverse bind pose of the scalp mesh, joints are in model space
 	TArray<SkinWeight>	mScalpSkinWeights;							// Skin weights of the scalp mesh, for each vertex we have mScalpNumSkinWeightsPerVertex entries
-	uint32				mScalpNumSkinWeightsPerVertex = 0;			// Number of skin weights per vertex
+	uint32_t				mScalpNumSkinWeightsPerVertex = 0;			// Number of skin weights per vertex
 
-	uint32				mNumIterationsPerSecond = cDefaultIterationsPerSecond;
+	uint32_t				mNumIterationsPerSecond = cDefaultIterationsPerSecond;
 	float				mMaxDeltaTime = 1.0f / 30.0f;				// Maximum delta time for the simulation step (to avoid running an excessively long step, note that this will effectively slow down time)
 	UVec4				mGridSize { 32, 32, 32, 0 };				// Number of grid cells used to simulate the hair. W unused.
 	Vec3				mSimulationBoundsPadding = Vec3::Replicate(0.1f); // Padding around the simulation bounds to ensure that the grid is large enough and that we detect collisions with the hairs. This is added on all sides after calculating the bounds in the neutral pose.
@@ -348,7 +348,7 @@ public:
 	AABox				mSimulationBounds { Vec3::Zero(), 1.0f };	// Bounds that the simulation is supposed to fit in
 	TArray<float>		mNeutralDensity;							// Neutral density grid used to apply forces to keep the hair in place
 	float				mDensityScale = 0.0f;						// Highest density value in the neutral density grid, used to scale the density for rendering
-	uint32				mMaxVerticesPerStrand = 0;					// Maximum number of vertices per strand, used for padding the compute buffers
+	uint32_t				mMaxVerticesPerStrand = 0;					// Maximum number of vertices per strand, used for padding the compute buffers
 
 	// Compute data
 	Ref<ComputeBuffer>	mScalpVerticesCB;
@@ -408,7 +408,7 @@ public:
 	void								SetScalpToHead(Mat44Arg inMat)					{ mScalpToHead = inMat; }
 
 	/// Function that converts the render positions buffer to Float3 vertices for debugging purposes. It maps an application defined format to Float3. Third parameter is the number of vertices.
-	using RenderPositionsToFloat3 = std::function<void(ComputeBuffer *, Float3 *, uint32)>;
+	using RenderPositionsToFloat3 = std::function<void(ComputeBuffer *, Float3 *, uint32_t)>;
 
 	/// Enable externally set render vertices buffer (with potentially different vertex layout). Note that this also requires replacing the HairCalculateRenderPositions shader.
 	void								OverrideRenderPositionsCB(const RenderPositionsToFloat3 &inRenderPositionsToFloat3) { MOSS_ASSERT(mRenderPositionsCB == nullptr, "Must be called before Init"); mRenderPositionsOverridden = true; mRenderPositionsToFloat3 = inRenderPositionsToFloat3; }
@@ -465,8 +465,8 @@ public:
 	struct DrawSettings
 	{
 		/// This specifies the range of simulation strands to draw, when drawing render strands we only draw the strands that belong to these simulation strands.
-		uint32							mSimulationStrandBegin = 0;
-		uint32							mSimulationStrandEnd = UINT_MAX;
+		uint32_t							mSimulationStrandBegin = 0;
+		uint32_t							mSimulationStrandEnd = UINT_MAX;
 
 		bool							mDrawRods = true;								// Draws the simulated rods
 		bool							mDrawUnloadedRods = false;						// Draw rods in their unloaded pose. This pose is obtained by removing gravity influence from the modeled pose.
@@ -507,7 +507,7 @@ protected:
 	{
 		Mat44							mDeltaTransform;								// Transforms positions from the old hair transform to the new
 		Quat							mDeltaTransformQuat;							// Rotation part of mDeltaTransform
-		uint32							mNumIterations;									// Number of iterations to run the solver for
+		uint32_t							mNumIterations;									// Number of iterations to run the solver for
 		bool							mNeedsCollision;								// If collision detection should be performed
 		bool							mNeedsGrid;										// If the grid should be calculated
 		bool							mGlobalPoseOnly;								// If no simulation is needed and only the global pose needs to be applied

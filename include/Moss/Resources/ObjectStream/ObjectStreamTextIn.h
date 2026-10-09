@@ -23,12 +23,12 @@ public:
 	virtual bool				ReadDataType(EOSDataType &outType) override;
 	virtual bool				ReadName(String &outName) override;
 	virtual bool				ReadIdentifier(Identifier &outIdentifier) override;
-	virtual bool				ReadCount(uint32 &outCount) override;
+	virtual bool				ReadCount(uint32_t &outCount) override;
 
 	virtual bool				ReadPrimitiveData(uint8 &outPrimitive) override;
 	virtual bool				ReadPrimitiveData(uint16 &outPrimitive) override;
 	virtual bool				ReadPrimitiveData(int &outPrimitive) override;
-	virtual bool				ReadPrimitiveData(uint32 &outPrimitive) override;
+	virtual bool				ReadPrimitiveData(uint32_t &outPrimitive) override;
 	virtual bool				ReadPrimitiveData(uint64 &outPrimitive) override;
 	virtual bool				ReadPrimitiveData(float &outPrimitive) override;
 	virtual bool				ReadPrimitiveData(double &outPrimitive) override;

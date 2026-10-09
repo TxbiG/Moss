@@ -34,7 +34,7 @@ void RenderPrimitive::CreateVertexBuffer(int inNumVtx, int inVtxSize, const void
 	mVtxSize = inVtxSize;
 }
 
-void RenderPrimitive::CreateIndexBuffer(int inNumIdx, const uint32 *inData)
+void RenderPrimitive::CreateIndexBuffer(int inNumIdx, const uint32_t *inData)
 {
 	ReleaseIndexBuffer();
 

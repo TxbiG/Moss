@@ -19,7 +19,7 @@ public:
 #elif defined(MOSS_SIMD_NEON)
 	using Type = uint32x4_t;
 #else
-	using Type = struct { uint32 mData[4]; };
+	using Type = struct { uint32_t mData[4]; };
 #endif
 
 	/// Constructor
@@ -29,34 +29,34 @@ public:
 	MOSS_INLINE					UVec4(Type inRHS) : mValue(inRHS)					{ }
 
 	/// Create a vector from 4 integer components
-	MOSS_INLINE					UVec4(uint32 inX, uint32 inY, uint32 inZ, uint32 inW);
+	MOSS_INLINE					UVec4(uint32_t inX, uint32_t inY, uint32_t inZ, uint32_t inW);
 
 	/// Comparison
 	MOSS_INLINE bool				operator == (UVec4Arg inV2) const;
 	MOSS_INLINE bool				operator != (UVec4Arg inV2) const					{ return !(*this == inV2); }
 
 	/// Swizzle the elements in inV
-	template<uint32 SwizzleX, uint32 SwizzleY, uint32 SwizzleZ, uint32 SwizzleW>
+	template<uint32_t SwizzleX, uint32_t SwizzleY, uint32_t SwizzleZ, uint32_t SwizzleW>
 	MOSS_INLINE UVec4			Swizzle() const;
 
 	/// Vector with all zeros
 	static MOSS_INLINE UVec4	Zero();
 
 	/// Replicate int inV across all components
-	static MOSS_INLINE UVec4	Replicate(uint32 inV);
+	static MOSS_INLINE UVec4	Replicate(uint32_t inV);
 
 	/// Load 1 int from memory and place it in the X component, zeros Y, Z and W
-	static MOSS_INLINE UVec4	LoadInt(const uint32 *inV);
+	static MOSS_INLINE UVec4	LoadInt(const uint32_t *inV);
 
 	/// Load 4 ints from memory
-	static MOSS_INLINE UVec4	LoadInt4(const uint32 *inV);
+	static MOSS_INLINE UVec4	LoadInt4(const uint32_t *inV);
 
 	/// Load 4 ints from memory, aligned to 16 bytes
-	static MOSS_INLINE UVec4	LoadInt4Aligned(const uint32 *inV);
+	static MOSS_INLINE UVec4	LoadInt4Aligned(const uint32_t *inV);
 
 	/// Gather 4 ints from memory at inBase + inOffsets[i] * Scale
 	template <const int Scale>
-	static MOSS_INLINE UVec4	GatherInt4(const uint32 *inBase, UVec4Arg inOffsets);
+	static MOSS_INLINE UVec4	GatherInt4(const uint32_t *inBase, UVec4Arg inOffsets);
 
 	/// Return the minimum value of each of the components
 	static MOSS_INLINE UVec4	Min(UVec4Arg inV1, UVec4Arg inV2);
@@ -89,31 +89,31 @@ public:
 
 	/// Get individual components
 #if defined(MOSS_SIMD_SSE)
-	MOSS_INLINE uint32			GetX() const										{ return uint32(_mm_cvtsi128_si32(mValue)); }
-	MOSS_INLINE uint32			GetY() const										{ return mU32[1]; }
-	MOSS_INLINE uint32			GetZ() const										{ return mU32[2]; }
-	MOSS_INLINE uint32			GetW() const										{ return mU32[3]; }
+	MOSS_INLINE uint32_t			GetX() const										{ return uint32_t(_mm_cvtsi128_si32(mValue)); }
+	MOSS_INLINE uint32_t			GetY() const										{ return mU32[1]; }
+	MOSS_INLINE uint32_t			GetZ() const										{ return mU32[2]; }
+	MOSS_INLINE uint32_t			GetW() const										{ return mU32[3]; }
 #elif defined(MOSS_SIMD_NEON)
-	MOSS_INLINE uint32			GetX() const										{ return vgetq_lane_u32(mValue, 0); }
-	MOSS_INLINE uint32			GetY() const										{ return vgetq_lane_u32(mValue, 1); }
-	MOSS_INLINE uint32			GetZ() const										{ return vgetq_lane_u32(mValue, 2); }
-	MOSS_INLINE uint32			GetW() const										{ return vgetq_lane_u32(mValue, 3); }
+	MOSS_INLINE uint32_t			GetX() const										{ return vgetq_lane_u32(mValue, 0); }
+	MOSS_INLINE uint32_t			GetY() const										{ return vgetq_lane_u32(mValue, 1); }
+	MOSS_INLINE uint32_t			GetZ() const										{ return vgetq_lane_u32(mValue, 2); }
+	MOSS_INLINE uint32_t			GetW() const										{ return vgetq_lane_u32(mValue, 3); }
 #else
-	MOSS_INLINE uint32			GetX() const										{ return mU32[0]; }
-	MOSS_INLINE uint32			GetY() const										{ return mU32[1]; }
-	MOSS_INLINE uint32			GetZ() const										{ return mU32[2]; }
-	MOSS_INLINE uint32			GetW() const										{ return mU32[3]; }
+	MOSS_INLINE uint32_t			GetX() const										{ return mU32[0]; }
+	MOSS_INLINE uint32_t			GetY() const										{ return mU32[1]; }
+	MOSS_INLINE uint32_t			GetZ() const										{ return mU32[2]; }
+	MOSS_INLINE uint32_t			GetW() const										{ return mU32[3]; }
 #endif
 
 	/// Set individual components
-	MOSS_INLINE void			SetX(uint32 inX)									{ mU32[0] = inX; }
-	MOSS_INLINE void			SetY(uint32 inY)									{ mU32[1] = inY; }
-	MOSS_INLINE void			SetZ(uint32 inZ)									{ mU32[2] = inZ; }
-	MOSS_INLINE void			SetW(uint32 inW)									{ mU32[3] = inW; }
+	MOSS_INLINE void			SetX(uint32_t inX)									{ mU32[0] = inX; }
+	MOSS_INLINE void			SetY(uint32_t inY)									{ mU32[1] = inY; }
+	MOSS_INLINE void			SetZ(uint32_t inZ)									{ mU32[2] = inZ; }
+	MOSS_INLINE void			SetW(uint32_t inW)									{ mU32[3] = inW; }
 
 	/// Get component by index
-	//MOSS_INLINE uint32			operator [] (uint32 inCoordinate) const				{ MOSS_ASSERT(inCoordinate < 4); return mU32[inCoordinate]; }
-	//MOSS_INLINE uint32 &		operator [] (uint32 inCoordinate)						{ MOSS_ASSERT(inCoordinate < 4); return mU32[inCoordinate]; }
+	//MOSS_INLINE uint32_t			operator [] (uint32_t inCoordinate) const				{ MOSS_ASSERT(inCoordinate < 4); return mU32[inCoordinate]; }
+	//MOSS_INLINE uint32_t &		operator [] (uint32_t inCoordinate)						{ MOSS_ASSERT(inCoordinate < 4); return mU32[inCoordinate]; }
 
 	/// Multiplies each of the 4 integer components with an integer (discards any overflow)
 	MOSS_INLINE UVec4			operator * (UVec4Arg inV2) const;
@@ -143,10 +143,10 @@ public:
 	MOSS_INLINE Vec4			ReinterpretAsFloat() const;
 
 	/// Store 4 ints to memory
-	MOSS_INLINE void			StoreInt4(uint32 *outV) const;
+	MOSS_INLINE void			StoreInt4(uint32_t *outV) const;
 
 	/// Store 4 ints to memory, aligned to 16 bytes
-	MOSS_INLINE void			StoreInt4Aligned(uint32 *outV) const;
+	MOSS_INLINE void			StoreInt4Aligned(uint32_t *outV) const;
 
 	/// Test if any of the components are true (true is when highest bit of component is set)
 	MOSS_INLINE bool			TestAnyTrue() const;
@@ -167,15 +167,15 @@ public:
 	MOSS_INLINE int				GetTrues() const;
 
 	/// Shift all components by Count bits to the left (filling with zeros from the left)
-	template <const uint32 Count>
+	template <const uint32_t Count>
 	MOSS_INLINE UVec4			LogicalShiftLeft() const;
 
 	/// Shift all components by Count bits to the right (filling with zeros from the right)
-	template <const uint32 Count>
+	template <const uint32_t Count>
 	MOSS_INLINE UVec4			LogicalShiftRight() const;
 
 	/// Shift all components by Count bits to the right (shifting in the value of the highest bit)
-	template <const uint32 Count>
+	template <const uint32_t Count>
 	MOSS_INLINE UVec4			ArithmeticShiftRight() const;
 
 	/// Takes the lower 4 16 bits and expands them to X, Y, Z and W
@@ -206,7 +206,7 @@ public:
 		return inStream;
 	}
 
-	MOSS_INLINE uint32 operator[](int inCoordinate) const {
+	MOSS_INLINE uint32_t operator[](int inCoordinate) const {
     	MOSS_ASSERT(inCoordinate >= 0 && inCoordinate < 4);
 		switch (inCoordinate) {
 			case 0: return GetX();
@@ -219,7 +219,7 @@ public:
 	union
 	{
 		Type					mValue;
-		uint32					mU32[4];
+		uint32_t					mU32[4];
 	};
 };
 

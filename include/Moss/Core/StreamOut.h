@@ -32,7 +32,7 @@ public:
 	template <class T, class A, std::enable_if_t<std::is_trivially_copyable_v<T>, bool> = true>
 	void				Write(const TArray<T, A> &inT)
 	{
-		uint32 len = uint32(inT.size());
+		uint32_t len = uint32_t(inT.size());
 		Write(len);
 		if (!IsFailed())
 		{
@@ -54,7 +54,7 @@ public:
 	template <class Type, class Traits, class Allocator>
 	void				Write(const std::basic_string<Type, Traits, Allocator> &inString)
 	{
-		uint32 len = uint32(inString.size());
+		uint32_t len = uint32_t(inString.size());
 		Write(len);
 		if (!IsFailed())
 			WriteBytes(inString.data(), len * sizeof(Type));
@@ -64,7 +64,7 @@ public:
 	template <class T, class A, typename F>
 	void				Write(const TArray<T, A> &inT, const F &inWriteElement)
 	{
-		uint32 len = uint32(inT.size());
+		uint32_t len = uint32_t(inT.size());
 		Write(len);
 		if (!IsFailed())
 			for (typename TArray<T, A>::size_type i = 0; i < len; ++i)

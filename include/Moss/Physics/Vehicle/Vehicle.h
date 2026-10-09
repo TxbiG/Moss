@@ -278,7 +278,7 @@ public:
 	virtual void				WarmStartVelocityConstraint(float inWarmStartImpulseRatio) override;
 	virtual bool				SolveVelocityConstraint(float inDeltaTime) override;
 	virtual bool				SolvePositionConstraint(float inDeltaTime, float inBaumgarte) override;
-	virtual void				BuildIslands(uint32 inConstraintIndex, IslandBuilder& ioBuilder, BodyManager& inBodyManager) override;
+	virtual void				BuildIslands(uint32_t inConstraintIndex, IslandBuilder& ioBuilder, BodyManager& inBodyManager) override;
 	virtual uint8				BuildIslandSplits(LargeIslandSplitter& ioSplitter) const override;
 #ifndef MOSS_DEBUG_RENDERER
 	virtual void				DrawConstraint(DebugRenderer*inRenderer) const override;

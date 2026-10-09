@@ -30,7 +30,7 @@ typedef signed long long int64;
 
 typedef unsigned char uint8;
 typedef unsigned short uint16;
-typedef unsigned int uint32;
+typedef unsigned int uint32_t;
 typedef unsigned long long uint64;
 ```
 ## Signed Integers & Unsigned Integers
@@ -43,7 +43,7 @@ typedef signed long long int64;
 
 typedef unsigned char uint8;
 typedef unsigned short uint16;
-typedef unsigned int uint32;
+typedef unsigned int uint32_t;
 typedef unsigned long long uint64;
 ```
 #### Macros
@@ -60,11 +60,11 @@ typedef unsigned long long uint64;
 
 #define MAX_UINT8   ((uint8)(0xFF))
 #define MAX_UINT16  ((uint16)(0xFFFF))
-#define MAX_UINT32  ((uint32)(0xFFFFFFFFu))
+#define MAX_UINT32  ((uint32_t)(0xFFFFFFFFu))
 #define MAX_UINT64  ((uint64)(0xFFFFFFFFFFFFFFFF))
 #define MIN_UINT8   ((uint8)0x00)
 #define MIN_UINT16  ((uint16)0x0000)
-#define MIN_UINT32  ((uint32)0x00000000)
+#define MIN_UINT32  ((uint32_t)0x00000000)
 #define MIN_UINT64  ((uint64)(0x0000000000000000))
 ```
 ## Geometry Types

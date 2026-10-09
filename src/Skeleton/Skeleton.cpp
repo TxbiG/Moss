@@ -76,7 +76,7 @@ bool Skeleton::AreJointsCorrectlyOrdered() const
 
 void Skeleton::SaveBinaryState(StreamOut &inStream) const
 {
-	inStream.Write((uint32)mJoints.size());
+	inStream.Write((uint32_t)mJoints.size());
 	for (const Joint &j : mJoints)
 	{
 		inStream.Write(j.mName);
@@ -89,7 +89,7 @@ Skeleton::SkeletonResult Skeleton::sRestoreFromBinaryState(StreamIn &inStream)
 {
 	Ref<Skeleton> skeleton = new Skeleton;
 
-	uint32 len = 0;
+	uint32_t len = 0;
 	inStream.Read(len);
 	skeleton->mJoints.resize(len);
 	for (Joint &j : skeleton->mJoints)
@@ -485,12 +485,12 @@ void SkeletalAnimation::Sample(float inTime, SkeletonPose &ioPose) const
 
 void SkeletalAnimation::SaveBinaryState(StreamOut &inStream) const
 {
-	inStream.Write((uint32)mAnimatedJoints.size());
+	inStream.Write((uint32_t)mAnimatedJoints.size());
 	for (const AnimatedJoint &j : mAnimatedJoints)
 	{
 		// Write Joint name and number of keyframes
 		inStream.Write(j.mJointName);
-		inStream.Write((uint32)j.mKeyframes.size());
+		inStream.Write((uint32_t)j.mKeyframes.size());
 		for (const Keyframe &k : j.mKeyframes)
 		{
 			inStream.Write(k.mTime);
@@ -510,7 +510,7 @@ SkeletalAnimation::AnimationResult SkeletalAnimation::sRestoreFromBinaryState(St
 	Ref<SkeletalAnimation> animation = new SkeletalAnimation;
 
 	// Restore animated joints
-	uint32 len = 0;
+	uint32_t len = 0;
 	inStream.Read(len);
 	animation->mAnimatedJoints.resize(len);
 	for (AnimatedJoint &j : animation->mAnimatedJoints)

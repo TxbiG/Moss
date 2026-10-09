@@ -142,7 +142,7 @@ struct Hash<type>											\
 /// Commonly used types
 MOSS_DEFINE_TRIVIAL_HASH(char)
 MOSS_DEFINE_TRIVIAL_HASH(int)
-MOSS_DEFINE_TRIVIAL_HASH(uint32)
+MOSS_DEFINE_TRIVIAL_HASH(uint32_t)
 MOSS_DEFINE_TRIVIAL_HASH(uint64)
 
 /// Helper function that hashes a single value into ioSeed

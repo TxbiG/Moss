@@ -41,7 +41,7 @@ struct CompoundShape::CastRayVisitor
 	}
 
 	/// Test the ray against a single subshape
-	MOSS_INLINE void		VisitShape(const SubShape &inSubShape, uint32 inSubShapeIndex)
+	MOSS_INLINE void		VisitShape(const SubShape &inSubShape, uint32_t inSubShapeIndex)
 	{
 		// Create ID for sub shape
 		SubShapeIDCreator shape2_sub_shape_id = mSubShapeIDCreator.PushID(inSubShapeIndex, mSubShapeBits);
@@ -57,7 +57,7 @@ struct CompoundShape::CastRayVisitor
 	const RayCast &		mRay;
 	RayCastResult &		mHit;
 	SubShapeIDCreator	mSubShapeIDCreator;
-	uint32				mSubShapeBits;
+	uint32_t				mSubShapeBits;
 	bool				mReturnValue = false;
 };
 
@@ -88,7 +88,7 @@ struct CompoundShape::CastRayVisitorCollector
 	}
 
 	/// Test the ray against a single subshape
-	MOSS_INLINE void		VisitShape(const SubShape &inSubShape, uint32 inSubShapeIndex)
+	MOSS_INLINE void		VisitShape(const SubShape &inSubShape, uint32_t inSubShapeIndex)
 	{
 		// Create ID for sub shape
 		SubShapeIDCreator shape2_sub_shape_id = mSubShapeIDCreator.PushID(inSubShapeIndex, mSubShapeBits);
@@ -103,7 +103,7 @@ struct CompoundShape::CastRayVisitorCollector
 	const RayCast &		mRay;
 	CastRayCollector &	mCollector;
 	SubShapeIDCreator	mSubShapeIDCreator;
-	uint32				mSubShapeBits;
+	uint32_t				mSubShapeBits;
 	RayCastSettings		mRayCastSettings;
 	const ShapeFilter &	mShapeFilter;
 };
@@ -132,7 +132,7 @@ struct CompoundShape::CollidePointVisitor
 	}
 
 	/// Test the point against a single subshape
-	MOSS_INLINE void		VisitShape(const SubShape &inSubShape, uint32 inSubShapeIndex)
+	MOSS_INLINE void		VisitShape(const SubShape &inSubShape, uint32_t inSubShapeIndex)
 	{
 		// Create ID for sub shape
 		SubShapeIDCreator shape2_sub_shape_id = mSubShapeIDCreator.PushID(inSubShapeIndex, mSubShapeBits);
@@ -145,7 +145,7 @@ struct CompoundShape::CollidePointVisitor
 	Vec3						mPoint;
 	SubShapeIDCreator			mSubShapeIDCreator;
 	CollidePointCollector &		mCollector;
-	uint32						mSubShapeBits;
+	uint32_t						mSubShapeBits;
 	const ShapeFilter &			mShapeFilter;
 };
 
@@ -189,7 +189,7 @@ struct CompoundShape::CastShapeVisitor
 	}
 
 	/// Test the cast shape against a single subshape
-	MOSS_INLINE void		VisitShape(const SubShape &inSubShape, uint32 inSubShapeIndex)
+	MOSS_INLINE void		VisitShape(const SubShape &inSubShape, uint32_t inSubShapeIndex)
 	{
 		MOSS_ASSERT(inSubShape.IsValidScale(mScale));
 
@@ -219,7 +219,7 @@ struct CompoundShape::CastShapeVisitor
 	Mat44						mCenterOfMassTransform2;
 	SubShapeIDCreator			mSubShapeIDCreator1;
 	SubShapeIDCreator			mSubShapeIDCreator2;
-	uint32						mSubShapeBits;
+	uint32_t						mSubShapeBits;
 };
 
 struct CompoundShape::CollectTransformedShapesVisitor {
@@ -252,7 +252,7 @@ struct CompoundShape::CollectTransformedShapesVisitor {
 	}
 
 	/// Collect the transformed sub shapes for a single subshape
-	MOSS_INLINE void		VisitShape(const SubShape &inSubShape, uint32 inSubShapeIndex)
+	MOSS_INLINE void		VisitShape(const SubShape &inSubShape, uint32_t inSubShapeIndex)
 	{
 		MOSS_ASSERT(inSubShape.IsValidScale(mScale));
 
@@ -274,7 +274,7 @@ struct CompoundShape::CollectTransformedShapesVisitor {
 	Vec3							mScale;
 	SubShapeIDCreator				mSubShapeIDCreator;
 	TransformedShapeCollector &		mCollector;
-	uint32							mSubShapeBits;
+	uint32_t							mSubShapeBits;
 	const ShapeFilter &				mShapeFilter;
 };
 
@@ -318,7 +318,7 @@ struct CompoundShape::CollideCompoundVsShapeVisitor
 	}
 
 	/// Test the shape against a single subshape
-	MOSS_INLINE void		VisitShape(const SubShape &inSubShape, uint32 inSubShapeIndex)
+	MOSS_INLINE void		VisitShape(const SubShape &inSubShape, uint32_t inSubShapeIndex)
 	{
 		// Get world transform of 1
 		Mat44 transform1 = mTransform1 * inSubShape.GetLocalTransformNoScale(mScale1);
@@ -339,7 +339,7 @@ struct CompoundShape::CollideCompoundVsShapeVisitor
 	AABox							mBoundsOf2InSpaceOf1;
 	SubShapeIDCreator				mSubShapeIDCreator1;
 	SubShapeIDCreator				mSubShapeIDCreator2;
-	uint32							mSubShapeBits;
+	uint32_t							mSubShapeBits;
 	const ShapeFilter &				mShapeFilter;
 };
 
@@ -384,7 +384,7 @@ struct CompoundShape::CollideShapeVsCompoundVisitor
 	}
 
 	/// Test the shape against a single subshape
-	MOSS_INLINE void		VisitShape(const SubShape &inSubShape, uint32 inSubShapeIndex)
+	MOSS_INLINE void		VisitShape(const SubShape &inSubShape, uint32_t inSubShapeIndex)
 	{
 		// Create ID for sub shape
 		SubShapeIDCreator shape2_sub_shape_id = mSubShapeIDCreator2.PushID(inSubShapeIndex, mSubShapeBits);
@@ -405,14 +405,14 @@ struct CompoundShape::CollideShapeVsCompoundVisitor
 	AABox							mBoundsOf1InSpaceOf2;
 	SubShapeIDCreator				mSubShapeIDCreator1;
 	SubShapeIDCreator				mSubShapeIDCreator2;
-	uint32							mSubShapeBits;
+	uint32_t							mSubShapeBits;
 	const ShapeFilter &				mShapeFilter;
 };
 
 template <class BoxType>
 struct CompoundShape::GetIntersectingSubShapesVisitor
 {
-	MOSS_INLINE			GetIntersectingSubShapesVisitor(const BoxType &inBox, uint32 *outSubShapeIndices, int inMaxSubShapeIndices) :
+	MOSS_INLINE			GetIntersectingSubShapesVisitor(const BoxType &inBox, uint32_t *outSubShapeIndices, int inMaxSubShapeIndices) :
 		mBox(inBox),
 		mSubShapeIndices(outSubShapeIndices),
 		mMaxSubShapeIndices(inMaxSubShapeIndices)
@@ -433,7 +433,7 @@ struct CompoundShape::GetIntersectingSubShapesVisitor
 	}
 
 	/// Records a hit
-	MOSS_INLINE void		VisitShape([[maybe_unused]] const SubShape &inSubShape, uint32 inSubShapeIndex)
+	MOSS_INLINE void		VisitShape([[maybe_unused]] const SubShape &inSubShape, uint32_t inSubShapeIndex)
 	{
 		MOSS_ASSERT(mNumResults < mMaxSubShapeIndices);
 		*mSubShapeIndices++ = inSubShapeIndex;
@@ -448,7 +448,7 @@ struct CompoundShape::GetIntersectingSubShapesVisitor
 
 private:
 	BoxType				mBox;
-	uint32 *				mSubShapeIndices;
+	uint32_t *				mSubShapeIndices;
 	int					mMaxSubShapeIndices;
 	int					mNumResults = 0;
 };

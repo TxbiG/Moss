@@ -3,7 +3,7 @@
 #include <Renderer/VK/FatalErrorIfFailedVK.h>
 #include <Renderer/VK/RendererVK.h>
 
-PipelineStateVK::PipelineStateVK(RendererVK *inRenderer, const VertexShaderVK *inVertexShader, const EInputDescription *inInputDescription, uint32 inInputDescriptionCount, const PixelShaderVK *inPixelShader, EDrawPass inDrawPass, EFillMode inFillMode, ETopology inTopology, EDepthTest inDepthTest, EBlendMode inBlendMode, ECullMode inCullMode) :
+PipelineStateVK::PipelineStateVK(RendererVK *inRenderer, const VertexShaderVK *inVertexShader, const EInputDescription *inInputDescription, uint32_t inInputDescriptionCount, const PixelShaderVK *inPixelShader, EDrawPass inDrawPass, EFillMode inFillMode, ETopology inTopology, EDepthTest inDepthTest, EBlendMode inBlendMode, ECullMode inCullMode) :
 	mRenderer(inRenderer), mVertexShader(inVertexShader), mPixelShader(inPixelShader) {
 	VkPipelineShaderStageCreateInfo shader_stages[] = { inVertexShader->mStageInfo, inPixelShader->mStageInfo };
 
@@ -11,8 +11,8 @@ PipelineStateVK::PipelineStateVK(RendererVK *inRenderer, const VertexShaderVK *i
 	TArray<VkVertexInputAttributeDescription> attribute_descriptions;
 	VkVertexInputAttributeDescription temp_vtx = { }, temp_instance = { };
 	temp_instance.binding = 1;
-	uint32 instance_alignment = 1;
-	for (uint32 i = 0; i < inInputDescriptionCount; ++i)
+	uint32_t instance_alignment = 1;
+	for (uint32_t i = 0; i < inInputDescriptionCount; ++i)
 		switch (inInputDescription[i])
 		{
 		case EInputDescription::Position:
@@ -53,7 +53,7 @@ PipelineStateVK::PipelineStateVK(RendererVK *inRenderer, const VertexShaderVK *i
 			break;
 		}
 
-	for (uint32 i = 0; i < uint32(attribute_descriptions.size()); ++i)
+	for (uint32_t i = 0; i < uint32_t(attribute_descriptions.size()); ++i)
 		attribute_descriptions[i].location = i;
 
 	VkVertexInputBindingDescription binding_description[2];
@@ -68,7 +68,7 @@ PipelineStateVK::PipelineStateVK(RendererVK *inRenderer, const VertexShaderVK *i
 	vertex_input_info.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
 	vertex_input_info.vertexBindingDescriptionCount = temp_instance.offset > 0? 2 : 1;
 	vertex_input_info.pVertexBindingDescriptions = binding_description;
-	vertex_input_info.vertexAttributeDescriptionCount = uint32(attribute_descriptions.size());
+	vertex_input_info.vertexAttributeDescriptionCount = uint32_t(attribute_descriptions.size());
 	vertex_input_info.pVertexAttributeDescriptions = attribute_descriptions.data();
 
 	VkPipelineInputAssemblyStateCreateInfo input_assembly = {};
