@@ -903,7 +903,7 @@ public:
 	void								Parse(StreamIn &inStream);
 
 	/// Get the number of parsed frames
-	uint32_t								GetNumFrames() const				{ return (uint32_t)mFrames.size(); }
+	uint32_t							GetNumFrames() const				{ return (uint32_t)mFrames.size(); }
 
 	/// Draw a frame
 	void								DrawFrame(uint32_t inFrameNumber) const;
@@ -959,6 +959,35 @@ MOSS_API void Moss_RendererDrawPolygonShape2D(Moss_Renderer* renderer, const Vec
 MOSS_API void Moss_RendererDrawGizmo2D(Moss_Renderer* renderer, const RMat44* transform, float size);
 
 //===========================================================
+// 2D Debug/Utils Batch
+//===========================================================
+/*! @brief Queue many 2D debug lines in one call. @param renderer Renderer receiving the lines. @param entries Line entries. @param count Number of entries. @ingroup Renderer Debug/Utils. */
+MOSS_API void Moss_RendererDrawLineBatch2D(Moss_Renderer* renderer, RMat44 transform* transform, Color& Colour, uint32_t count);
+/*! @brief Queue many 2D debug boxes in one call. @param renderer Renderer receiving the boxes. @param entries Box entries. @param count Number of entries. @ingroup Renderer Debug/Utils. */
+MOSS_API void Moss_RendererDrawBoxBatch2D(Moss_Renderer* renderer, RMat44 transform* transform, Color& Colour, uint32_t count);
+/*! @brief Queue many 2D debug circles in one call. @param renderer Renderer receiving the circles. @param entries Circle entries. @param count Number of entries. @ingroup Renderer Debug/Utils. */
+MOSS_API void Moss_RendererDrawCircleBatch2D(Moss_Renderer* renderer, RMat44 transform* transform, Color& Colour, uint32_t count);
+/*! @brief Queue many 2D debug arrows in one call. @param renderer Renderer receiving the arrows. @param entries Arrow entries. @param count Number of entries. @ingroup Renderer Debug/Utils. */
+MOSS_API void Moss_RendererDrawArrowBatch2D(Moss_Renderer* renderer, RMat44 transform* transform, Color& Colour, uint32_t count);
+/*! @brief Queue many 2D cross markers in one call. @param renderer Renderer receiving the markers. @param entries Marker entries. @param count Number of entries. @ingroup Renderer Debug/Utils. */
+MOSS_API void Moss_RendererDrawMarkerBatch2D(Moss_Renderer* renderer, RMat44 transform* transform, Color& Colour, uint32_t count);
+
+//===========================================================
+// 2D Debug/Utils Instancing
+//===========================================================
+/*! @brief Queue many instances of one 2D debug box. @param renderer Renderer receiving the boxes. @param size Shared box width and height (unit-scale before instance transform). @param instances Per-instance transform and color. @param count Number of instances. @ingroup Renderer Debug/Utils. */
+MOSS_API void Moss_RendererDrawBoxInstanced2D(Moss_Renderer* renderer, const Vec2* size, RMat44 transform* transform, Color& Colour, uint32_t count);
+/*! @brief Queue many instances of one 2D debug circle. @param renderer Renderer receiving the circles. @param radius Shared circle radius. @param instances Per-instance transform and color. @param count Number of instances. @ingroup Renderer Debug/Utils. */
+MOSS_API void Moss_RendererDrawCircleInstanced2D(Moss_Renderer* renderer, float radius, RMat44 transform* transform, Color& Colour, uint32_t count);
+/*! @brief Queue many instances of one 2D debug capsule. @param renderer Renderer receiving the capsules. @param halfHeightOfCylinder Shared half height of the straight section. @param radius Shared capsule radius. @param instances Per-instance transform and color. @param count Number of instances. @ingroup Renderer Debug/Utils. */
+MOSS_API void Moss_RendererDrawCapsuleInstanced2D(Moss_Renderer* renderer, float halfHeightOfCylinder, float radius, RMat44 transform* transform, Color& Colour, uint32_t count);
+/*! @brief Queue many instances of one 2D cross marker. @param renderer Renderer receiving the markers. @param size Shared marker size. @param instances Per-instance transform and color. @param count Number of instances. @ingroup Renderer Debug/Utils. */
+MOSS_API void Moss_RendererDrawMarkerInstanced2D(Moss_Renderer* renderer, float size, RMat44 transform* transform, Color& Colour, uint32_t count);
+/*! @brief Queue many instances of one 2D transform gizmo. @param renderer Renderer receiving the gizmos. @param size Shared axis size. @param instances Per-instance transform (color is ignored; axes use fixed colors). @param count Number of instances. @ingroup Renderer Debug/Utils. */
+MOSS_API void Moss_RendererDrawGizmoInstanced2D(Moss_Renderer* renderer, float size, RMat44 transform* transform, uint32_t count);
+
+
+//===========================================================
 // 3D Debug/Utils Rendering
 //===========================================================
 /*! @brief Queue a 3D debug line. @param renderer Renderer receiving the line. @param from Start point. @param to End point. @param color Line color. @param thickness Line thickness in pixels. @ingroup Renderer Debug/Utils. */
@@ -995,7 +1024,54 @@ MOSS_API void Moss_RendererDrawConvexHull3D(Moss_Renderer* renderer, const Vec3*
 MOSS_API void Moss_RendererDrawPolygonShape3D(Moss_Renderer* renderer, const Vec3* points, uint32_t point_count, Color color);
 /*! @brief Queue a 3D transform gizmo. @param renderer Renderer receiving the gizmo. @param transform Gizmo transform. @param size Axis size. @ingroup Renderer Debug/Utils. */
 MOSS_API void Moss_RendererDrawGizmo3D(Moss_Renderer* renderer, const RMat44* transform, float size);
+
+//===========================================================
+// 3D Debug/Utils Batch
+//===========================================================
+/*! @brief Queue many 3D debug lines in one call. @param renderer Renderer receiving the lines. @param entries Line entries. @param count Number of entries. @ingroup Renderer Debug/Utils. */
+MOSS_API void Moss_RendererDrawLineBatch3D(Moss_Renderer* renderer, RMat44 transform* transform, Color& Colour, uint32_t count);
+/*! @brief Queue many 3D debug boxes in one call. @param renderer Renderer receiving the boxes. @param entries Box entries. @param count Number of entries. @ingroup Renderer Debug/Utils. */
+MOSS_API void Moss_RendererDrawBoxBatch3D(Moss_Renderer* renderer, RMat44 transform* transform, Color& Colour, uint32_t count);
+/*! @brief Queue many 3D debug spheres in one call. @param renderer Renderer receiving the spheres. @param entries Sphere entries. @param count Number of entries. @ingroup Renderer Debug/Utils. */
+MOSS_API void Moss_RendererDrawSphereBatch3D(Moss_Renderer* renderer, RMat44 transform* transform, Color& Colour, uint32_t count);
+/*! @brief Queue many 3D debug arrows in one call. @param renderer Renderer receiving the arrows. @param entries Arrow entries. @param count Number of entries. @ingroup Renderer Debug/Utils. */
+MOSS_API void Moss_RendererDrawArrowBatch3D(Moss_Renderer* renderer, RMat44 transform* transform, Color& Colour, uint32_t count);
+/*! @brief Queue many 3D cross markers in one call. @param renderer Renderer receiving the markers. @param entries Marker entries. @param count Number of entries. @ingroup Renderer Debug/Utils. */
+MOSS_API void Moss_RendererDrawMarkerBatch3D(Moss_Renderer* renderer, RMat44 transform* transform, Color& Colour, uint32_t count);
+
+//===========================================================
+// 3D Debug/Utils Instancing
+//===========================================================
+/*! @brief Queue many instances of one 3D debug box. @param renderer Renderer receiving the boxes. @param size Shared box dimensions (unit-scale before instance transform). @param instances Per-instance transform and color. @param count Number of instances. @ingroup Renderer Debug/Utils. */
+MOSS_API void Moss_RendererDrawBoxInstanced3D(Moss_Renderer* renderer, const Vec3* size, RMat44 transform* transform, Color& Colour, uint32_t count);
+/*! @brief Queue many instances of one 3D debug sphere. @param renderer Renderer receiving the spheres. @param radius Shared sphere radius. @param instances Per-instance transform and color. @param count Number of instances. @ingroup Renderer Debug/Utils. */
+MOSS_API void Moss_RendererDrawSphereInstanced3D(Moss_Renderer* renderer, float radius, RMat44 transform* transform, Color& Colour, uint32_t count);
+/*! @brief Queue many instances of one 3D capsule outline. @param renderer Renderer receiving the capsules. @param halfHeightOfCylinder Shared half height of the straight section. @param radius Shared capsule radius. @param instances Per-instance transform and color. @param count Number of instances. @ingroup Renderer Debug/Utils. */
+MOSS_API void Moss_RendererDrawCapsuleInstanced3D(Moss_Renderer* renderer, float halfHeightOfCylinder, float radius, RMat44 transform* transform, Color& Colour, uint32_t count);
+/*! @brief Queue many instances of one 3D cylinder outline (axis along local Y). @param renderer Renderer receiving the cylinders. @param halfHeight Shared half height. @param radius Shared radius. @param instances Per-instance transform and color. @param count Number of instances. @ingroup Renderer Debug/Utils. */
+MOSS_API void Moss_RendererDrawCylinderInstanced3D(Moss_Renderer* renderer, float halfHeight, float radius, RMat44 transform* transform, Color& Colour, uint32_t count);
+/*! @brief Queue many instances of one 3D cone outline (axis along local Y, tip at +Y). @param renderer Renderer receiving the cones. @param height Shared cone height. @param radius Shared base radius. @param instances Per-instance transform and color. @param count Number of instances. @ingroup Renderer Debug/Utils. */
+MOSS_API void Moss_RendererDrawConeInstanced3D(Moss_Renderer* renderer, float height, float radius, RMat44 transform* transform, Color& Colour, uint32_t count);
+/*! @brief Queue many instances of one 3D cross marker. @param renderer Renderer receiving the markers. @param size Shared marker size. @param instances Per-instance transform and color. @param count Number of instances. @ingroup Renderer Debug/Utils. */
+MOSS_API void Moss_RendererDrawMarkerInstanced3D(Moss_Renderer* renderer, float size, RMat44 transform* transform, Color& Colour, uint32_t count);
+/*! @brief Queue many instances of one 3D transform gizmo. @param renderer Renderer receiving the gizmos. @param size Shared axis size. @param instances Per-instance transform (color is ignored; axes use fixed colors). @param count Number of instances. @ingroup Renderer Debug/Utils. */
+MOSS_API void Moss_RendererDrawGizmoInstanced3D(Moss_Renderer* renderer, float size, RMat44 transform* transform, uint32_t count);
 #endif
+
+//===========================================================
+// Record
+//===========================================================
+struct Moss_RendererRecorder;
+
+//===========================================================
+// Playback
+//===========================================================
+struct Moss_RendererPlayback;
+Moss_RendererPlayback* Moss_RendererPlaybackCreate();
+void Moss_RendererPlaybackDestory(Moss_RendererPlayback& playback);
+void RendererPlaybackParse(Moss_RendererPlayback& playback StreamIn &inStream);
+uint32_t RendererPlaybackGetNumFrames(Moss_RendererPlayback& playback);
+void DrawFrame(Moss_RendererPlayback& playback);
 
 
 // GPU APIs / Tools
@@ -1054,24 +1130,11 @@ MOSS_API uint32_t Moss_DX_GetShaderModel(void);      /* Info */
 #endif // MOSS_GRAPHICS_DIRECTX
 
 #if defined(MOSS_GRAPHICS_METAL)
-#ifdef __OBJC__
-    @class MTKView;
-#else
-    class MTKView; // Clean forward declaration for plain C++ compiler modules
-#endif
+class MTKView;
 
-#ifdef __OBJC__
-    // When included by Objective-C / Objective-C++ (.mm files)
-    #import <Metal/Metal.h>
-    MOSS_API MTKView*                       Moss_MetalGetView(Moss_Renderer* renderer);
-    MOSS_API id<MTLDevice>                  Moss_MetalGetDevice(Moss_Renderer* renderer);
-    MOSS_API id<MTLRenderCommandEncoder>    Moss_MetalGetRenderEncoder(Moss_Renderer* renderer);
-#else
-    // When included by plain C++ (.cpp files)
-    MOSS_API MTKView*                       Moss_MetalGetView(Moss_Renderer* renderer);
-    MOSS_API void*                          Moss_MetalGetDevice(Moss_Renderer* renderer);
-    MOSS_API void*                          Moss_MetalGetRenderEncoder(Moss_Renderer* renderer);
-#endif
+MOSS_API MTKView*                       Moss_MetalGetView(Moss_Renderer* renderer);
+MOSS_API void*                          Moss_MetalGetDevice(Moss_Renderer* renderer);
+MOSS_API void*                          Moss_MetalGetRenderEncoder(Moss_Renderer* renderer);
 
 MOSS_API bool Moss_Metal_CompileMSL(const char* inputPath, const char* outputPath); /* Shader tools */
 MOSS_API bool Moss_Metal_SupportsFamily(uint32_t family); /* Capabilities */

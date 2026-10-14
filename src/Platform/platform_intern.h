@@ -202,5 +202,14 @@ struct Moss_GamepadBinding {
     } output;
 };
 
+struct Moss_GamepadSensorState
+{
+    bool supported[2] = {};
+    bool enabled[2] = {};
+    bool has_sample[2] = {};
+
+    Moss_GamepadSensorData latest[2] = {};
+};
+
 
 #endif // MOSS_PLATFORM_INTERNAL_H

@@ -31,11 +31,11 @@ public:
         Vec4 point(p.GetX(), p.GetY(), p.GetX(), p.GetY());
 
         // Min for lower half, Max for upper half
-        mBox = Vec4( std::min(mBox.GetX(), point.GetX()), std::min(mBox.GetY(), point.GetY()), std::max(mBox.GetZ(), point.GetZ()), std::max(mBox.GetW(), point.GetW()));
+        mBox = Vec4( min(mBox.GetX(), point.GetX()), min(mBox.GetY(), point.GetY()), max(mBox.GetZ(), point.GetZ()), max(mBox.GetW(), point.GetW()));
     }
 
-    void Encapsulate(const AABB2 &other) { mBox = Vec4(std::min(mBox.GetX(), other.mBox.GetX()), std::min(mBox.GetY(), other.mBox.GetY()), std::max(mBox.GetZ(), 
-		other.mBox.GetZ()), std::max(mBox.GetW(), other.mBox.GetW())); }
+    void Encapsulate(const AABB2 &other) { mBox = Vec4(min(mBox.GetX(), other.mBox.GetX()), min(mBox.GetY(), other.mBox.GetY()), max(mBox.GetZ(), 
+		other.mBox.GetZ()), max(mBox.GetW(), other.mBox.GetW())); }
 
     // Query
     bool Contains(RVec2 p) const { return (p.GetX() >= mBox.GetX() && p.GetY() >= mBox.GetY()) && (p.GetX() <= mBox.GetZ() && p.GetY() <= mBox.GetW()); }
@@ -47,7 +47,7 @@ public:
     RVec2 GetSize() const { return RVec2(mBox.GetZ() - mBox.GetX(), mBox.GetW() - mBox.GetY()); }
     float GetArea() const { RVec2 size = GetSize(); return size.GetX() * size.GetY(); }
 
-    RVec2 GetClosestPoint(RVec2 p) const { return RVec2( std::clamp(p.GetX(), mBox.GetX(), mBox.GetZ()), std::clamp(p.GetY(), mBox.GetY(), mBox.GetW())); }
+    RVec2 GetClosestPoint(RVec2 p) const { return RVec2(clamp(p.GetX(), mBox.GetX(), mBox.GetZ()), clamp(p.GetY(), mBox.GetY(), mBox.GetW())); }
     float GetSqDistanceTo(RVec2 p) const { RVec2 delta = GetClosestPoint(p) - p; return delta.LengthSq(); }
 
     // Grow/shrink

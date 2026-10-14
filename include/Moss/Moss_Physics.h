@@ -118,9 +118,8 @@ Building a Physics Engine with C++ and Simulating Machines - https://youtu.be/Tt
 
 // 2. Interfaces and Managers (Prerequisites for Bodies and Shapes)
 #include <Moss/Physics/Collision/BroadPhase/BroadPhase.h>
-#include <Moss/Renderer/DebugRenderer.h>
 
-// 3. Collision Shapes (Uses DebugRenderer and Base Math)
+// 3. Collision Shapes
 #include <Moss/Physics/Collision/Shape/Shapes.h>
 
 // 4. Concrete Physical Instances (Uses Shapes, BodyID, LockInterfaces, and Managers)
@@ -192,8 +191,6 @@ class GroupFilterTable;  /* Inherits GroupFilter */
 
 class BodyActivationListener;
 class BodyDrawFilter;
-
-typedef struct DebugRenderer                    DebugRenderer;
 
 /* Enums */
 enum class EPhysicsUpdateError : uint32_t {

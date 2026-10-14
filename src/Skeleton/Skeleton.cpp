@@ -85,8 +85,7 @@ void Skeleton::SaveBinaryState(StreamOut &inStream) const
 	}
 }
 
-Skeleton::SkeletonResult Skeleton::sRestoreFromBinaryState(StreamIn &inStream)
-{
+Skeleton::SkeletonResult Skeleton::sRestoreFromBinaryState(StreamIn &inStream) {
 	Ref<Skeleton> skeleton = new Skeleton;
 
 	uint32_t len = 0;
@@ -133,10 +132,8 @@ void SkeletonPose::CalculateJointMatrices()
 	}
 }
 
-void SkeletonPose::CalculateJointStates()
-{
-	for (int i = 0; i < (int)mJoints.size(); ++i)
-	{
+void SkeletonPose::CalculateJointStates() {
+	for (int i = 0; i < (int)mJoints.size(); ++i) {
 		Mat44 local_transform;
 		int parent = mSkeleton->GetJoint(i).mParentJointIndex;
 		if (parent >= 0)
@@ -150,15 +147,13 @@ void SkeletonPose::CalculateJointStates()
 	}
 }
 
-void SkeletonPose::CalculateLocalSpaceJointMatrices(Mat44 *outMatrices) const
-{
+void SkeletonPose::CalculateLocalSpaceJointMatrices(Mat44 *outMatrices) const {
 	for (int i = 0; i < (int)mJoints.size(); ++i)
 		outMatrices[i] = mJoints[i].ToMatrix();
 }
 
 #ifndef MOSS_DEBUG_RENDERER
-void SkeletonPose::Draw(const DrawSettings &inDrawSettings, DebugRenderer *inRenderer, RMat44Arg inOffset) const
-{
+void SkeletonPose::Draw(const DrawSettings &inDrawSettings, DebugRenderer *inRenderer, RMat44Arg inOffset) const {
 	RMat44 offset = inOffset * RMat44::Translation(mRootOffset);
 
 	const Skeleton::JointVector &joints = mSkeleton->GetJoints();
@@ -172,6 +167,7 @@ void SkeletonPose::Draw(const DrawSettings &inDrawSettings, DebugRenderer *inRen
 			int parent = joints[b].mParentJointIndex;
 			if (parent >= 0)
 				inRenderer->DrawLine(offset * mJointMatrices[parent].GetTranslation(), joint_transform.GetTranslation(), Color::Green);
+				//Moss_RendererDrawLine3D(inRenderer, offset * mJointMatrices[parent].GetTranslation(), joint_transform.GetTranslation(), Color::Green, 1.0f);
 		}
 
 		if (inDrawSettings.mDrawJointOrientations)

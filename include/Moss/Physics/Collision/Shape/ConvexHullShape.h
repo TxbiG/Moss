@@ -112,24 +112,23 @@ public:
 	const TArray<Plane> &	GetPlanes() const													{ return mPlanes; }
 
 	/// Get the number of vertices in this convex hull
-	inline uint32_t				GetNumPoints() const												{ return uint32_t(mPoints.size()); }
+	inline uint32_t			GetNumPoints() const												{ return uint32_t(mPoints.size()); }
 
 	/// Get a vertex of this convex hull relative to the center of mass
-	inline Vec3				GetPoint(uint32_t inIndex) const										{ return mPoints[inIndex].mPosition; }
+	inline Vec3				GetPoint(uint32_t inIndex) const									{ return mPoints[inIndex].mPosition; }
 
 	/// Get the number of faces in this convex hull
-	inline uint32_t				GetNumFaces() const													{ return uint32_t(mFaces.size()); }
+	inline uint32_t			GetNumFaces() const													{ return uint32_t(mFaces.size()); }
 
 	/// Get the number of vertices in a face
-	inline uint32_t				GetNumVerticesInFace(uint32_t inFaceIndex) const						{ return mFaces[inFaceIndex].mNumVertices; }
+	inline uint32_t			GetNumVerticesInFace(uint32_t inFaceIndex) const					{ return mFaces[inFaceIndex].mNumVertices; }
 
 	/// Get the vertices indices of a face
 	/// @param inFaceIndex Index of the face.
 	/// @param inMaxVertices Maximum number of vertices to return.
 	/// @param outVertices TArray of vertices indices, must be at least inMaxVertices in size, the vertices are returned in counter clockwise order and the positions can be obtained using GetPoint(index).
 	/// @return Number of vertices in face, if this is bigger than inMaxVertices, not all vertices were retrieved.
-	inline uint32_t				GetFaceVertices(uint32_t inFaceIndex, uint32_t inMaxVertices, uint32_t *outVertices) const
-	{
+	inline uint32_t				GetFaceVertices(uint32_t inFaceIndex, uint32_t inMaxVertices, uint32_t *outVertices) const {
 		const Face &face = mFaces[inFaceIndex];
 		const uint8 *first_vertex = mVertexIdx.data() + face.mFirstVertex;
 		uint32_t num_vertices = min<uint32_t>(face.mNumVertices, inMaxVertices);
@@ -162,8 +161,7 @@ private:
 	class					HullWithConvex;
 	class					HullWithConvexScaled;
 
-	struct Face
-	{
+	struct Face {
 		uint16				mFirstVertex;				// First index in mVertexIdx to use
 		uint16				mNumVertices = 0;			// Number of vertices in the mVertexIdx to use
 	};
@@ -171,8 +169,7 @@ private:
 	static_assert(sizeof(Face) == 4, "Unexpected size");
 	static_assert(alignof(Face) == 2, "Unexpected alignment");
 
-	struct Point
-	{
+	struct Point {
 		Vec3				mPosition;					// Position of vertex
 		int					mNumFaces = 0;				// Number of faces in the face TArray below
 		int					mFaces[3] = { -1, -1, -1 };	// Indices of 3 neighboring faces with the biggest difference in normal (used to shift vertices for convex radius)
@@ -185,7 +182,7 @@ private:
 	Mat44					mInertia;					// Inertia matrix assuming density is 1 (needs to be multiplied by density)
 	AABox					mLocalBounds;				// Local bounding box for the convex hull
 	TArray<Point>			mPoints;					// Points on the convex hull surface
-	TArray<Face>				mFaces;						// Faces of the convex hull surface
+	TArray<Face>				mFaces;					// Faces of the convex hull surface
 	TArray<Plane>			mPlanes;					// Planes for the faces (1-on-1 with mFaces TArray, separate because they need to be 16 byte aligned)
 	TArray<uint8>			mVertexIdx;					// A list of vertex indices (indexing in mPoints) for each of the faces
 	float					mConvexRadius = 0.0f;		// Convex radius

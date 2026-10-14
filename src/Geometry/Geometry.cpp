@@ -1598,9 +1598,9 @@ void ConvexHullBuilder::DrawState(bool inDrawConflictList) const
 
 			// First line
 			DebugRenderer::sInstance->DrawLine(p1, p2, Color::Grey);
+			//Moss_RendererDrawLine3D(renderer, p1, p2, Color::Grey);
 
-			do
-			{
+			do {
 				// Third point
 				e = e->mNextEdge;
 				RVec3 p3 = cDrawScale * (mOffset + mPositions[e->mStartIdx]);
@@ -1608,6 +1608,7 @@ void ConvexHullBuilder::DrawState(bool inDrawConflictList) const
 				DebugRenderer::sInstance->DrawTriangle(p1, p2, p3, iteration_color);
 
 				DebugRenderer::sInstance->DrawLine(p2, p3, Color::Grey);
+				//Moss_RendererDrawLine3D(renderer, p2, p3, Color::Grey);
 
 				p2 = p3;
 			}

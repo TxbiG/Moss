@@ -366,6 +366,12 @@ enum class Moss_HapticEffectType {
     CUSTOM 
 };
 
+
+enum class Moss_GamepadSensorType : uint8_t {
+    ACCELEROMETER,
+    GYROSCOPE
+};
+
 ////////////////////////////////////////////////////////////////
 // Window
 ////////////////////////////////////////////////////////////////
@@ -541,6 +547,16 @@ struct Moss_Locale {
     char* language;
 };
 
+struct Moss_GamepadSensorData
+{
+    float x = 0.0f;
+    float y = 0.0f;
+    float z = 0.0f;
+
+    // Monotonic timestamp in nanoseconds.
+    // Use the same clock source for all samples.
+    uint64_t timestamp_ns = 0;
+};
 
 enum class Moss_PenInputFlags {
     UNKNOWN = 0
@@ -912,6 +928,15 @@ MOSS_API const char* Moss_GetTouchDeviceName(Moss_TouchID touchID);
 MOSS_API Moss_TouchID* Moss_GetTouchDevices(int* count);
 MOSS_API Moss_TouchDeviceType Moss_GetTouchDeviceType(Moss_TouchID touchID);
 MOSS_API Moss_Finger** Moss_GetTouchFingers(Moss_TouchID touchID, int* count);
+
+/*! @brief Determines whether a gamepad supports the specified motion sensor. @param[in] gp The gamepad to query. @param[in] sensor The motion sensor to check. @return `true` if the gamepad supports the specified sensor; otherwise, `false`. */
+MOSS_API bool Moss_GamepadHasSensor(Moss_Gamepad* gp, Moss_GamepadSensorType sensor);
+
+/*! @brief Enables or disables a supported gamepad motion sensor. @param[in] gpThe gamepad whose sensor state is to be changed. @param[in] sensor  The motion sensor to enable or disable. @param[in] enabled `true` to enable the sensor; `false` to disable it. */
+MOSS_API bool Moss_SetGamepadSensorEnabled(Moss_Gamepad* gp, Moss_GamepadSensorType sensor, bool enabled);
+
+/*! @brief Retrieves the latest available data from a gamepad motion sensor. @param[in] gpThe gamepad to query.* @param[in] sensor The motion sensor from which to retrieve data. @param[out] data Receives the latest valid sensor sample on success. @return `true` if valid sensor data is retrieved; otherwise, `false`. @remarks Returns `false` if the sensor is unavailable or no valid sample has been received. */
+MOSS_API bool Moss_GetGamepadSensorData(Moss_Gamepad* gp, Moss_GamepadSensorType sensor, Moss_GamepadSensorData* data);
 
 /*            Haptic Feedback          */
 /*! @brief X. @param X X.*/
