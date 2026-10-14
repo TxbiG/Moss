@@ -1069,7 +1069,7 @@ struct Moss_RendererRecorder;
 struct Moss_RendererPlayback;
 Moss_RendererPlayback* Moss_RendererPlaybackCreate();
 void Moss_RendererPlaybackDestory(Moss_RendererPlayback& playback);
-void RendererPlaybackParse(Moss_RendererPlayback& playback StreamIn &inStream);
+void RendererPlaybackParse(Moss_RendererPlayback& playback, StreamIn &inStream);
 uint32_t RendererPlaybackGetNumFrames(Moss_RendererPlayback& playback);
 void DrawFrame(Moss_RendererPlayback& playback);
 
