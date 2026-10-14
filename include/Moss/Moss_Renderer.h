@@ -1062,7 +1062,7 @@ MOSS_API void Moss_RendererDrawGizmoInstanced3D(Moss_Renderer* renderer, float s
 // Record
 //===========================================================
 struct Moss_RendererRecorder;
-
+class StreamIn;
 //===========================================================
 // Playback
 //===========================================================
