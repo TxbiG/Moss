@@ -67,31 +67,35 @@ bool SetGamepadSensorEnabled(Moss_Gamepad* gp, Moss_GamepadSensorType sensor, bo
 
     SensorState previous;
 
-    std::lock_guard<std::mutex> lock(g_sensorMutex);
+    {   // Lock #1: snapshot + prepare the cache
+        std::lock_guard<std::mutex> lock(g_sensorMutex);
 
-    SensorState& state = g_gamepadSensors[gp][index];
-    previous = state;
+        SensorState& state = g_gamepadSensors[gp][index];
+        previous = state;
+        state.enabled = enabled;
 
-    // Prepare the cache before enabling the native sensor.
-    state.enabled = enabled;
+        if (enabled && !previous.enabled)
+            ClearSample(state);
+    }   // released before calling native code
 
-    if (enabled && !previous.enabled)
-        ClearSample(state);
-
-    // Do not hold the cache mutex while invoking native code.
     const bool success = Moss_BackendSetGamepadSensorEnabled(gp, sensor, enabled);
 
+    {   // Lock #2: commit or roll back
         std::lock_guard<std::mutex> lock(g_sensorMutex);
 
         SensorState& state = g_gamepadSensors[gp][index];
 
-        if (!success) { state = previous; return false; }
+        if (!success) {
+            state = previous;
+            return false;
+        }
 
         state.supported = true;
         state.enabled = enabled;
 
         if (!enabled)
             ClearSample(state);
+    }
 
     return true;
 }
