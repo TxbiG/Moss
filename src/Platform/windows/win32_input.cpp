@@ -6,6 +6,8 @@
 #include <cmath>
 #include <cstring>
 #include <cstdlib>
+#include <algorithm>
+#include <array>
 
 #pragma comment(lib, "xinput9_1_0.lib")
 #pragma comment(lib, "hid.lib")

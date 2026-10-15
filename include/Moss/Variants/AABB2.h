@@ -1,5 +1,6 @@
 #pragma once
 
+#include <algorithm>
 #include <Moss/Variants/Vector/Vec4.h>
 
 MOSS_SUPPRESS_WARNINGS_BEGIN
@@ -47,7 +48,7 @@ public:
     RVec2 GetSize() const { return RVec2(mBox.GetZ() - mBox.GetX(), mBox.GetW() - mBox.GetY()); }
     float GetArea() const { RVec2 size = GetSize(); return size.GetX() * size.GetY(); }
 
-    RVec2 GetClosestPoint(RVec2 p) const { return RVec2(clamp(p.GetX(), mBox.GetX(), mBox.GetZ()), clamp(p.GetY(), mBox.GetY(), mBox.GetW())); }
+    RVec2 GetClosestPoint(RVec2 p) const { return RVec2(std::clamp(p.GetX(), mBox.GetX(), mBox.GetZ()), std::clamp(p.GetY(), mBox.GetY(), mBox.GetW())); }
     float GetSqDistanceTo(RVec2 p) const { RVec2 delta = GetClosestPoint(p) - p; return delta.LengthSq(); }
 
     // Grow/shrink
