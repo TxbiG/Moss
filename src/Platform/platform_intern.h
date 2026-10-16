@@ -203,8 +203,7 @@ struct Moss_GamepadBinding {
     } output;
 };
 
-struct Moss_GamepadSensorState
-{
+struct Moss_GamepadSensorState {
     bool supported[2] = {};
     bool enabled[2] = {};
     bool has_sample[2] = {};
@@ -318,15 +317,12 @@ struct MossMotionTracker {
 
 extern INPUT_STATE io;
 extern KeyState* keyboardState;
+extern std::mutex g_sensorMutex;
 extern std::map<Moss_Gamepad*, Moss_GamepadSensorState[2]> g_gamepadSensors;
 
 typedef void (*Moss_CaptureFrameResult)(Moss_Capture *device, Moss_Surface *frame, uint64_t *timestampNS, float *rotation);
 
-inline void Moss_InternalProcessSensorFusion(Moss_GamepadSensorState& state, 
-                                      float gyroX, float gyroY, float gyroZ, 
-                                      float accelX, float accelY, float accelZ, 
-                                      float deltaTime) 
-{
+inline void Moss_InternalProcessSensorFusion(Moss_GamepadSensorState& state, float gyroX, float gyroY, float gyroZ, float accelX, float accelY, float accelZ, float deltaTime)  {
     // Hardcoded framework-level filter defaults
     const float ShortSteadinessHalfTime = 0.25f;
     const float GravityCorrectionStillSpeed = 1.0f;
@@ -412,17 +408,11 @@ void PublishGamepadSensorSample(Moss_Gamepad* gp, Moss_GamepadSensorType sensor,
     state.latest = sample;
     state.hasSample = true;
 
-    // --- EXECUTE THE NEW INLINE SENSOR FUSION ENGINE HERE ---
-    // Extract a reference to our updated mathematical tracking engine state blocks
-    auto& trackingState = g_gamepadSensors[gp]; // References the GamepadSensorStates container
-    
     // Pass along both sensor data tracking arrays seamlessly
-    Moss_InternalProcessSensorFusion(
-        trackingState, // Pass the tracker array block 
+    Moss_InternalProcessSensorFusion(g_gamepadSensors[gp], 
         g_gamepadSensors[gp][1].latest.x, g_gamepadSensors[gp][1].latest.y, g_gamepadSensors[gp][1].latest.z, // Gyro readings
         g_gamepadSensors[gp][0].latest.x, g_gamepadSensors[gp][0].latest.y, g_gamepadSensors[gp][0].latest.z, // Accel readings
-        deltaTime
-    );
+        deltaTime);
 }
 
 inline void UpdateControllerInput(Moss_Gamepad* activeGamepad, MossMotionTracker& motionTracker, float deltaTime) {
