@@ -4,6 +4,8 @@
 #include <vector>
 #include <string>
 #include <cstring>
+#include <cstdlib>
+ 
 
 // -----------------------------
 // Speaker device representation
@@ -25,46 +27,18 @@ static bool g_SpeakerPaused = false;
 bool Moss_IsSpeakerDeviceReady() { return g_PCM != nullptr; }
 
 void Moss_AudioSpeakerOpen() {
-    if (g_PCM)
-        return true;
+    if (g_PCM) { return true; }
+    if (snd_pcm_open(&g_PCM, "default", SND_PCM_STREAM_PLAYBACK, 0) < 0) { return false; }
 
-    if (snd_pcm_open(&g_PCM, "default", SND_PCM_STREAM_PLAYBACK, 0) < 0)
-        return false;
-
-    snd_pcm_set_params(
-        g_PCM,
-        SND_PCM_FORMAT_S16_LE,
-        SND_PCM_ACCESS_RW_INTERLEAVED,
-        2,        // channels
-        48000,    // sample rate
-        1,
-        500000    // latency in µs
-    );
+    snd_pcm_set_params(g_PCM, SND_PCM_FORMAT_S16_LE, SND_PCM_ACCESS_RW_INTERLEAVED, 2, 48000, 1, 500000);
 
     return true;
 }
 
-void Moss_AudioSpeakerPause() {
-    if (g_PCM) {
-        snd_pcm_pause(g_PCM, 1);
-        g_SpeakerPaused = true;
-    }
-}
-
-void Moss_AudioSpeakerResume() {
-    if (g_PCM && g_SpeakerPaused) {
-        snd_pcm_pause(g_PCM, 0);
-        g_SpeakerPaused = false;
-    }
-}
-
-bool Moss_AudioSpeakerIsPaused() {
-    return g_SpeakerPaused;
-}
-
-int Moss_AudioSpeakerID() {
-    return g_PCM ? 0 : -1;
-}
+void Moss_AudioSpeakerPause() { if (g_PCM) { snd_pcm_pause(g_PCM, 1); g_SpeakerPaused = true; } }
+void Moss_AudioSpeakerResume() { if (g_PCM && g_SpeakerPaused) { snd_pcm_pause(g_PCM, 0); g_SpeakerPaused = false; } }
+bool Moss_AudioSpeakerIsPaused() { return g_SpeakerPaused; }
+int Moss_AudioSpeakerID() { return g_PCM ? 0 : -1; }
 
 // -----------------------------
 // Device enumeration
@@ -80,8 +54,7 @@ void Moss_EnumerateSpeakers() {
         char* desc = snd_device_name_get_hint(*n, "DESC");
 
         if (!name || strcmp(name, "null") == 0) {
-            if (name) free(name);
-            if (desc) free(desc);
+            if (name) free(name); if (desc) free(desc);
             continue;
         }
 
@@ -93,7 +66,7 @@ void Moss_EnumerateSpeakers() {
         g_SpeakerDevices.push_back(speaker);
 
         free(name);
-        if (desc) free(desc);
+        if (desc) { free(desc); }
     }
 
     snd_device_name_free_hint(hints);
@@ -103,48 +76,27 @@ void Moss_EnumerateSpeakers() {
 // Device selection
 // -----------------------------
 bool Moss_SelectSpeakerDevice(int id) {
-    if (id < 0 || id >= static_cast<int>(g_SpeakerDevices.size()))
-        return false;
+    if (id < 0 || id >= static_cast<int>(g_SpeakerDevices.size())) { return false; }
 
-    if (g_PCM) {
-        snd_pcm_close(g_PCM);
-        g_PCM = nullptr;
-    }
+    if (g_PCM) { snd_pcm_close(g_PCM); g_PCM = nullptr; return false; }
 
     const char* deviceName = g_SpeakerDevices[id].alsaName.c_str();
 
-    if (snd_pcm_open(&g_PCM, deviceName, SND_PCM_STREAM_PLAYBACK, 0) < 0) {
-        g_PCM = nullptr;
-        return false;
-    }
-
-    snd_pcm_set_params(
-        g_PCM,
-        SND_PCM_FORMAT_S16_LE,
-        SND_PCM_ACCESS_RW_INTERLEAVED,
-        2,
-        48000,
-        1,
-        500000
-    );
+    if (snd_pcm_open(&g_PCM, deviceName, SND_PCM_STREAM_PLAYBACK, 0) < 0) { g_PCM = nullptr; return false; }
+    snd_pcm_set_params(g_PCM, SND_PCM_FORMAT_S16_LE, SND_PCM_ACCESS_RW_INTERLEAVED, 2, 48000, 1, 500000);
 
     g_CurrentSpeakerID = id;
     return true;
 }
 
-int Moss_GetCurrentSpeakerDeviceID() {
-    return g_CurrentSpeakerID;
-}
+int Moss_GetCurrentSpeakerDeviceID() { return g_CurrentSpeakerID; }
 
 // -----------------------------
 // Helper functions
 // -----------------------------
-int Moss_ListSpeakerDevices() {
-    return static_cast<int>(g_SpeakerDevices.size());
-}
+int Moss_ListSpeakerDevices() { return static_cast<int>(g_SpeakerDevices.size()); }
 
 const char* Moss_GetSpeakerDeviceName(int id) {
-    if (id < 0 || id >= static_cast<int>(g_SpeakerDevices.size()))
-        return nullptr;
+    if (id < 0 || id >= static_cast<int>(g_SpeakerDevices.size())) { return nullptr; }
     return g_SpeakerDevices[id].name.c_str();
 }

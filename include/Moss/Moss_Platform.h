@@ -896,7 +896,10 @@ MOSS_API bool Moss_IsGamepadButtonPressed(Moss_Gamepad* gp, Moss_GamepadButton b
 MOSS_API bool Moss_IsGamepadButtonJustPressed(Moss_Gamepad* gp, Moss_GamepadButton button);
 MOSS_API bool Moss_IsGamepadButtonJustReleased(Moss_Gamepad* gp, Moss_GamepadButton button);
 MOSS_API float Moss_GetGamepadAxis(Moss_Gamepad* gp, GamepadAxis axis);
-
+MOSS_API bool Moss_GetGamepadOrientation(Moss_Gamepad* gp, float* w, float* x, float* y, float* z);
+MOSS_API void Moss_GetGamepadPlayerSpaceGyro(Moss_Gamepad* gp, float* outX, float* outY, const float yawRelaxFactor = 1.41f);
+MOSS_API void Moss_GetGamepadWorldSpaceGyro(Moss_Gamepad* gp, float* outX, float* outY, const float sideReductionThreshold = 0.125f);
+MOSS_API void Moss_ResetGamepadCalibration(Moss_Gamepad* gp);
 
 void Moss_SetGamepadAxisDeadzone(GamepadAxis axis, float dz);
 

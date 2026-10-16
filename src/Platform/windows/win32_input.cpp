@@ -110,6 +110,40 @@ static void Moss_DecodeSonyHat(GamepadState& pad, uint8_t hat) {
     pad.buttons[static_cast<size_t>(Gamepad::GAMEPAD_BUTTON_DPAD_LEFT)] = hat == 5 || hat == 6 || hat == 7;
 }
 
+static void Moss_ParseHardwareIMU(Moss_Gamepad* gp, const uint8_t* data, uint64_t timestamp) {
+    // 1. Unpack Raw Data Matrices (Sony treats data as 16-bit signed shorts)
+    int16_t rawGyroX = (int16_t)(data[0] | (data[1] << 8));
+    int16_t rawGyroY = (int16_t)(data[2] | (data[3] << 8));
+    int16_t rawGyroZ = (int16_t)(data[4] | (data[5] << 8));
+    
+    int16_t rawAccX  = (int16_t)(data[6] | (data[7] << 8));
+    int16_t rawAccY  = (int16_t)(data[8] | (data[9] << 8));
+    int16_t rawAccZ  = (int16_t)(data[10] | (data[11] << 8));
+
+    // 2. Hardware Normalization Constants to match Julian's SI requirements
+    // Gyro: convert hardware scale to Degrees Per Second 
+    // Accel: convert hardware scale to G-Force values (~1.0g at rest)
+    const float GyroScale  = 2000.0f / 32768.0f; 
+    const float AccelScale = 1.0f / 8192.0f;     
+
+    Moss_GamepadSensorData gyroSample;
+    gyroSample.x = (float)rawGyroX * GyroScale;
+    gyroSample.y = (float)rawGyroY * GyroScale;
+    gyroSample.z = (float)rawGyroZ * GyroScale;
+    gyroSample.timestamp_ns = timestamp;
+
+    Moss_GamepadSensorData accelSample;
+    accelSample.x = (float)rawAccX * AccelScale;
+    accelSample.y = (float)rawAccY * AccelScale;
+    accelSample.z = (float)rawAccZ * AccelScale;
+    accelSample.timestamp_ns = timestamp;
+
+    // Send data upstream to framework calculation pipelines
+    extern void PublishGamepadSensorSample(Moss_Gamepad* gp, Moss_GamepadSensorType sensor, const Moss_GamepadSensorData& sample);
+    PublishGamepadSensorSample(gp, Moss_GamepadSensorType::GYROSCOPE, gyroSample);
+    PublishGamepadSensorSample(gp, Moss_GamepadSensorType::ACCELEROMETER, accelSample);
+}
+
 static void Moss_DecodeSonyHIDInput(Moss_Gamepad* gp, const uint8_t* report, DWORD report_size) {
     if (!gp || !report || report_size < 10) return;
     GamepadState& pad = io.pads[gp->index];
@@ -166,6 +200,15 @@ static void Moss_DecodeSonyHIDInput(Moss_Gamepad* gp, const uint8_t* report, DWO
         pad.buttons[static_cast<size_t>(Gamepad::GAMEPAD_BUTTON_RIGHT_THUMB)] = (b1 & 0x80) != 0;
         pad.buttons[static_cast<size_t>(Gamepad::GAMEPAD_BUTTON_GUIDE)] = (b2 & 0x01) != 0;
     }
+
+    LARGE_INTEGER qpc, freq;
+    QueryPerformanceCounter(&qpc);
+    QueryPerformanceFrequency(&freq);
+    uint64_t timestamp_ns = (uint64_t)(qpc.QuadPart * 1e9 / freq.QuadPart);
+
+    // 3. Inject raw byte offsets based on active controller reporting standards
+    if (gp->type == Moss_GamepadType::PS4 && report[0] == 0x01) { Moss_ParseHardwareIMU(gp, &report[13], timestamp_ns); } // DS4 Standard USB data report places the IMU segment starting at byte index 13
+    else if (gp->type == Moss_GamepadType::PS5 && report[0] == 0x31) { Moss_ParseHardwareIMU(gp, &report[16], timestamp_ns); } // DualSense complex input reports place the IMU tracking grid at byte index 16
 }
 
 static void Moss_UpdateHIDGamepad(Moss_Gamepad* gp) {
@@ -715,6 +758,6 @@ bool Moss_BackendHasGamepadSensor(Moss_Gamepad* gp, Moss_GamepadSensorType senso
 }
 
 bool Moss_BackendSetGamepadSensorEnabled(Moss_Gamepad* gp, Moss_GamepadSensorType sensor, bool enabled) {
-    (void)gp; (void)sensor; (void)enabled;
-    return false;
+    (void)sensor; (void)enabled;
+    return gp && gp->backend == Moss_GamepadBackend::HID;
 }

@@ -939,7 +939,7 @@ inline MossAssertInitializer gMossAssertInitializer;
 #elif defined(__linux__) || defined(__APPLE__)
     #define DEBUG_BREAK() __builtin_trap()
 #else
-    #define DEBUG_BREAK() ((void)0)
+    #error Unsupported OS
 #endif
 
 // Helper to support optional message
@@ -972,6 +972,7 @@ inline bool MossAssertHelper(const char* expr, const char* file, uint32_t line, 
 	#define MOSS_ASSERT(...)  			((void)0)
 
 	#define MOSS_IF_ENABLE_ASSERTS(...)
+	#define DEBUG_BREAK() ((void)0)
 #endif
 
 // Shorthand for #ifdef MOSS_FLOATING_POINT_EXCEPTIONS_ENABLED / #endif
