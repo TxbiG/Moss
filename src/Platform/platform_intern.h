@@ -1,6 +1,10 @@
 #ifndef MOSS_PLATFORM_INTERNAL_H
 #define MOSS_PLATFORM_INTERNAL_H
 
+#ifndef NOMINMAX
+#define NOMINMAX
+#endif
+
 // 1. Forward-declare structures so line 105 knows they exist
 struct Moss_Capture;
 struct Moss_Surface;
@@ -12,9 +16,19 @@ struct Moss_Image;
 #include <cstdint>
 #include <cmath>
 #include <algorithm>
+#include <mutex>
+#include <map>
 
 #include <Moss/Moss_stdinc.h>
 #include <Moss/Moss_Platform.h>
+
+#if defined(MOSS_PLATFORM_WINDOWS)
+#define WIN32_LEAN_AND_MEAN
+#include <windows.h>
+#include <mfapi.h>     // If using Media Foundation types
+#include <mfidl.h>     // If using Media Foundation interfaces
+#include <shlwapi.h>
+#endif // MOSS_PLATFORM_WINDOWS
 
 struct SurfaceList {
     Moss_Surface* surface = nullptr;
@@ -30,17 +44,6 @@ enum class Moss_GamepadBindingType {
     HAT
 };
 
-
-#if defined(MOSS_PLATFORM_WINDOWS)
-#ifndef NOMINMAX
-#define NOMINMAX
-#endif
-#define WIN32_LEAN_AND_MEAN
-#include <windows.h>
-#include <mfapi.h>     // If using Media Foundation types
-#include <mfidl.h>     // If using Media Foundation interfaces
-#include <shlwapi.h>
-#endif // MOSS_PLATFORM_WINDOWS
 
 enum class Moss_GamepadBackend {
     UNKNOWN = 0,
@@ -105,12 +108,6 @@ struct INPUT_STATE {
     // gamepads (XInput)
     GAMEPAD_STATE pads[4]{};
 };
-
-extern INPUT_STATE io;
-extern KeyState* keyboardState;
-
-typedef void (*Moss_CaptureFrameResult)(Moss_Capture *device, Moss_Surface *frame, uint64_t *timestampNS, float *rotation);
-
 
 struct Moss_Storage {
     /* The version of this interface */
@@ -318,6 +315,12 @@ struct MossMotionTracker {
         orientationW /= qMag; orientationX /= qMag; orientationY /= qMag; orientationZ /= qMag;
     }
 };
+
+extern INPUT_STATE io;
+extern KeyState* keyboardState;
+extern std::map<Moss_Gamepad*, Moss_GamepadSensorState[2]> g_gamepadSensors;
+
+typedef void (*Moss_CaptureFrameResult)(Moss_Capture *device, Moss_Surface *frame, uint64_t *timestampNS, float *rotation);
 
 inline void Moss_InternalProcessSensorFusion(Moss_GamepadSensorState& state, 
                                       float gyroX, float gyroY, float gyroZ, 
