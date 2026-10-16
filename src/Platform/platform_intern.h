@@ -32,7 +32,9 @@ enum class Moss_GamepadBindingType {
 
 
 #if defined(MOSS_PLATFORM_WINDOWS)
+#ifndef NOMINMAX
 #define NOMINMAX
+#endif
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #include <mfapi.h>     // If using Media Foundation types
@@ -385,6 +387,9 @@ inline void Moss_InternalProcessSensorFusion(Moss_GamepadSensorState& state,
     float qMag = std::sqrt(state.orientation[0]*state.orientation[0] + state.orientation[1]*state.orientation[1] + state.orientation[2]*state.orientation[2] + state.orientation[3]*state.orientation[3]);
     state.orientation[0] /= qMag; state.orientation[1] /= qMag; state.orientation[2] /= qMag; state.orientation[3] /= qMag;
 }
+
+bool GetSensorIndex(Moss_GamepadSensorType sensor, std::size_t& outIndex);
+bool IsValidSample(const Moss_GamepadSensorData& sample);
 
 void PublishGamepadSensorSample(Moss_Gamepad* gp, Moss_GamepadSensorType sensor, const Moss_GamepadSensorData& sample) {
     std::size_t index = 0;
