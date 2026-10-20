@@ -944,7 +944,7 @@ MOSS_API void Moss_RendererDrawArrow2D(Moss_Renderer* renderer, const Vec2* from
 /*! @brief Queue a 2D cross marker. @param renderer Renderer receiving the marker. @param position Marker center. @param color Line color. @param size Marker size. @ingroup Renderer Debug/Utils. */
 MOSS_API void Moss_RendererDrawMarker2D(Moss_Renderer* renderer, const Vec2* position, Color color, float size);
 /*! @brief Queue a 2D bone axis line from a transform. @param renderer Renderer receiving the bone. @param transform Bone transform. @param length Bone length. @param color Line color. @ingroup Renderer Debug/Utils. */
-MOSS_API void Moss_RendererDrawBone2D(Moss_Renderer* renderer, const RMat44* transform, float length, Color color);
+MOSS_API void Moss_RendererDrawBone2D(Moss_Renderer* renderer, RMat44* transform, float length, Color color);
 /*! @brief Queue 2D coordinate axes from a transform. @param renderer Renderer receiving the axes. @param matrix Axis transform. @param size Axis length. @ingroup Renderer Debug/Utils. */
 MOSS_API void Moss_RendererDrawCoordinateSystem2D(Moss_Renderer* renderer, const RMat44* matrix, float size);
 /*! @brief Queue a 2D capsule outline. @param renderer Renderer receiving the capsule. @param matrix Capsule transform. @param halfHeightOfCylinder Half height of the straight section. @param radius Capsule radius. @param color Line color. @ingroup Renderer Debug/Utils. */
@@ -956,7 +956,7 @@ MOSS_API void Moss_RendererDrawConvexHull2D(Moss_Renderer* renderer, const Vec2*
 /*! @brief Queue a 2D polygon outline. @param renderer Renderer receiving the polygon. @param points Polygon points. @param point_count Number of points. @param color Line color. @ingroup Renderer Debug/Utils. */
 MOSS_API void Moss_RendererDrawPolygonShape2D(Moss_Renderer* renderer, const Vec2* points, uint32_t point_count, Color color);
 /*! @brief Queue a 2D transform gizmo. @param renderer Renderer receiving the gizmo. @param transform Gizmo transform. @param size Axis size. @ingroup Renderer Debug/Utils. */
-MOSS_API void Moss_RendererDrawGizmo2D(Moss_Renderer* renderer, const RMat44* transform, float size);
+MOSS_API void Moss_RendererDrawGizmo2D(Moss_Renderer* renderer, RMat44* transform, float size);
 
 //===========================================================
 // 2D Debug/Utils Batch
@@ -1011,7 +1011,7 @@ MOSS_API void Moss_RendererDrawMarker3D(Moss_Renderer* renderer, const Vec3* pos
 /*! @brief Queue a 3D debug plane outline. @param renderer Renderer receiving the plane. @param center Plane center. @param normal Plane normal. @param size Plane size. @param color Line color. @ingroup Renderer Debug/Utils. */
 MOSS_API void Moss_RendererDrawPlane3D(Moss_Renderer* renderer, const Vec3* center, const Vec3* normal, float size, Color color);
 /*! @brief Queue a 3D bone axis line from a transform. @param renderer Renderer receiving the bone. @param transform Bone transform. @param length Bone length. @param color Line color. @ingroup Renderer Debug/Utils. */
-MOSS_API void Moss_RendererDrawBone3D(Moss_Renderer* renderer, const RMat44* transform, float length, Color color);
+MOSS_API void Moss_RendererDrawBone3D(Moss_Renderer* renderer, RMat44* transform, float length, Color color);
 /*! @brief Queue 3D coordinate axes from a transform. @param renderer Renderer receiving the axes. @param matrix Axis transform. @param size Axis length. @ingroup Renderer Debug/Utils. */
 MOSS_API void Moss_RendererDrawCoordinateSystem3D(Moss_Renderer* renderer, const RMat44* matrix, float size);
 /*! @brief Queue a 3D capsule outline. @param renderer Renderer receiving the capsule. @param matrix Capsule transform. @param halfHeightOfCylinder Half height of the straight section. @param radius Capsule radius. @param color Line color. @ingroup Renderer Debug/Utils. */
@@ -1023,7 +1023,7 @@ MOSS_API void Moss_RendererDrawConvexHull3D(Moss_Renderer* renderer, const Vec3*
 /*! @brief Queue a 3D polygon outline. @param renderer Renderer receiving the polygon. @param points Polygon points. @param point_count Number of points. @param color Line color. @ingroup Renderer Debug/Utils. */
 MOSS_API void Moss_RendererDrawPolygonShape3D(Moss_Renderer* renderer, const Vec3* points, uint32_t point_count, Color color);
 /*! @brief Queue a 3D transform gizmo. @param renderer Renderer receiving the gizmo. @param transform Gizmo transform. @param size Axis size. @ingroup Renderer Debug/Utils. */
-MOSS_API void Moss_RendererDrawGizmo3D(Moss_Renderer* renderer, const RMat44* transform, float size);
+MOSS_API void Moss_RendererDrawGizmo3D(Moss_Renderer* renderer, RMat44* transform, float size);
 
 //===========================================================
 // 3D Debug/Utils Batch
