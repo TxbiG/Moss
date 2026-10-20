@@ -821,25 +821,66 @@ typedef bool (*Moss_EnumerateDirectoryCallback)(const Moss_PathInfo* info, const
 
 
 //void Moss_WindowHint(int hint, int value);
-/*! @brief Creates a window. @param title window title. @param width window width. @param height window height. @param monitor monitor in which the window presents. @param Moss_Window* shared window. @ingroup window */
+/**
+ * @brief Creates a window with the requested title, dimensions, monitor, and optional shared context.
+ * @param title Window or dialog title.
+ * @param width Width in pixels or screen coordinates, as applicable.
+ * @param height Height in pixels or screen coordinates, as applicable.
+ * @param monitor Monitor associated with the operation.
+ * @param share Value for `share`.
+ * @return A handle to the created or opened resource, or `nullptr` on failure.
+ */
 MOSS_API Moss_Window* Moss_CreateWindow(const char* title, int width, int height, Moss_Monitor* monitor, Moss_Window* share);
-/*! @brief Destorys the window. @param Moss_Window* window. @ingroup window */
+/**
+ * @brief Destroys a window and releases its associated platform resources.
+ * @param window Window handle affected by this operation.
+ */
 MOSS_API void Moss_TerminateWindow(Moss_Window* window);
-/*! @brief Creates a window popup. @param title popup window title. @param message message inside the popup @param flags Popup window flags. e.g. | ABORT_ENTRY_IGNORE | CANCEL_TRY_CONTINUE | HELP | OK | OK_CANCEL | RETRY_CANCEL | YES_NO | YES_NO_CANCEL.  @param Moss_Window* window. @ingroup window */
+/**
+ * @brief Displays a message box associated with a window.
+ * @param title Window or dialog title.
+ * @param message Value for `message`.
+ * @param flags Options controlling the operation.
+ * @param window Window handle affected by this operation.
+ * @return `true` if the operation succeeds or the queried condition is met; otherwise, `false`.
+ */
 MOSS_API bool Moss_CreateMessageBox(const char* title, const char* message, Moss_MessageBoxFlags flags, Moss_Window* window);
-/*! @brief Used in while loop if window should close. @param X X. @ingroup window */
+/**
+ * @brief Checks whether the window has been requested to close.
+ * @param window Window handle affected by this operation.
+ * @return `true` if the operation succeeds or the queried condition is met; otherwise, `false`.
+ */
 MOSS_API bool Moss_ShouldWindowClose(Moss_Window* window);
-/*! @brief Pollevents. @ingroup window */
+/**
+ * @brief Processes pending platform events and updates input and window state.
+ */
 MOSS_API void Moss_PollEvents(void);
-/*! @brief X. @param X X.*/
+/**
+ * @brief Returns the current window width.
+ * @return The requested value.
+ */
 MOSS_API int Moss_GetWindowWidth();
-/*! @brief X. @param X X.*/
+/**
+ * @brief Returns the current window height.
+ * @return The requested value.
+ */
 MOSS_API int Moss_GetWindowHeight();
-/*! @brief X. @param X X @ingroup Window */
+/**
+ * @brief sets the window title.
+ * @param window Window handle affected by this operation.
+ * @param title Window or dialog title.
+ */
 MOSS_API void Moss_SetWindowTitle(Moss_Window* window, const char* title);
-/*! @brief X. @param X X @ingroup Window */
+/**
+ * @brief sets the window icon.
+ * @param window Window handle affected by this operation.
+ * @param image Value for `image`.
+ */
 MOSS_API void Moss_SetWindowIcon(Moss_Window* window, Moss_Image image);
-/*! @brief This is to call for closing a window. @param Moss_Window* window @ingroup Window */
+/**
+ * @brief Requests that the specified window close.
+ * @param window Window handle affected by this operation.
+ */
 MOSS_API void Moss_CloseWindow(Moss_Window* window);
 
 //MOSS_API void Moss_WindowShow(Moss_Window* window, bool show); 
@@ -847,241 +888,898 @@ MOSS_API void Moss_CloseWindow(Moss_Window* window);
 //MOSS_API void Moss_WindowSetOpacity(Moss_Window* window, float opacity);
 
 
-/*! @brief X. @param X X @ingroup Monitor */
+/**
+ * @brief Returns the primary monitor, if available.
+ * @return A pointer to the requested resource, or `nullptr` if unavailable.
+ */
 MOSS_API Moss_Monitor* Moss_MonitorGetPrimary();
-/*! @brief X. @param X X @ingroup Monitor @returns returns monitor unless if theres not a second will return nullptr. */
+/**
+ * @brief Returns the secondary monitor, if available.
+ * @return A pointer to the requested resource, or `nullptr` if unavailable.
+ * @note Returns `nullptr` when a secondary monitor is not available.
+ */
 MOSS_API Moss_Monitor* Moss_MonitorGetSecondary();
-/*! @brief X. @param X X @ingroup Monitor */
+/**
+ * @brief Retrieves or configures the monitor get physical size.
+ * @param monitor Monitor associated with the operation.
+ * @param width_mm Destination for monitor width in millimetres.
+ * @param height_mm Destination for monitor height in millimetres.
+ */
 MOSS_API void Moss_MonitorGetPhysicalSize(Moss_Monitor* monitor, int* width_mm, int* height_mm);
-/*! @brief X. @param X X @ingroup Monitor */
+/**
+ * @brief Retrieves or configures the monitor get content scale.
+ * @param monitor Monitor associated with the operation.
+ * @param xscale Horizontal content scale factor.
+ * @param yscale Vertical content scale factor.
+ */
 MOSS_API void Moss_MonitorGetContentScale(Moss_Monitor* monitor, float* xscale, float* yscale);
-/*! @brief X. @param X X @ingroup Monitor */
+/**
+ * @brief Retrieves or configures the monitor get position.
+ * @param monitor Monitor associated with the operation.
+ * @param x X coordinate or output value.
+ * @param y Y coordinate or output value.
+ */
 MOSS_API void Moss_MonitorGetPosition(Moss_Monitor* monitor, int* x, int* y);
-/*! @brief X. @param X X @ingroup Monitor */
+/**
+ * @brief Retrieves or configures the monitor get name.
+ * @param monitor Monitor associated with the operation.
+ * @return A pointer to the requested string, or `nullptr` if unavailable.
+ */
 MOSS_API const char* Moss_MonitorGetName(Moss_Monitor* monitor);
-/*! @brief X. @param X X @ingroup Monitor */
+/**
+ * @brief Retrieves or configures the monitor set gamma ramp.
+ * @param monitor Monitor associated with the operation.
+ * @param gammaRamp Value for `gammaRamp`.
+ */
 MOSS_API void Moss_MonitorSetGammaRamp(Moss_Monitor* monitor, const Moss_GammaRamp* gammaRamp);
-/*! @brief X. @param X X @ingroup Monitor */
+/**
+ * @brief Retrieves or configures the monitor get gamma ramp.
+ * @param monitor Monitor associated with the operation.
+ * @return A pointer to the requested resource, or `nullptr` if unavailable.
+ */
 MOSS_API Moss_GammaRamp* Moss_MonitorGetGammaRamp(Moss_Monitor* monitor);
-/*! @brief X. @param X X @ingroup Monitor */
+/**
+ * @brief Retrieves or configures the monitor set gamma.
+ * @param monitor Monitor associated with the operation.
+ * @param gamma Gamma correction value.
+ */
 MOSS_API void Moss_MonitorSetGamma(Moss_Monitor* monitor, float gamma);
 
 
 
+/**
+ * @brief Checks whether a keyboard key is currently pressed.
+ * @param key Keyboard key to query.
+ * @return `true` if the operation succeeds or the queried condition is met; otherwise, `false`.
+ */
 MOSS_API bool Moss_IsKeyPressed(Keyboard  key);
+/**
+ * @brief Checks whether a keyboard key is currently released.
+ * @param key Keyboard key to query.
+ * @return `true` if the operation succeeds or the queried condition is met; otherwise, `false`.
+ */
 MOSS_API bool Moss_IsReleased(Keyboard  key);
+/**
+ * @brief Checks whether a keyboard key transitioned to the pressed state.
+ * @param key Keyboard key to query.
+ * @return `true` if the operation succeeds or the queried condition is met; otherwise, `false`.
+ */
 MOSS_API bool Moss_IsKeyJustPressed(Keyboard  key);
+/**
+ * @brief Checks whether a keyboard key transitioned to the released state.
+ * @param key Keyboard key to query.
+ * @return `true` if the operation succeeds or the queried condition is met; otherwise, `false`.
+ */
 MOSS_API bool Moss_IsKeyJustReleased(Keyboard  key);
+/**
+ * @brief Returns the keyboard key reported by the current input state.
+ * @return The value or handle requested by the function.
+ */
 MOSS_API Keyboard Moss_InputGetKey();
 
+/**
+ * @brief Checks whether a mouse button is currently pressed.
+ * @param button Input button to query.
+ * @return `true` if the operation succeeds or the queried condition is met; otherwise, `false`.
+ */
 MOSS_API bool Moss_IsMousePressed(Mouse button);
+/**
+ * @brief Checks whether a mouse button is currently released.
+ * @param button Input button to query.
+ * @return `true` if the operation succeeds or the queried condition is met; otherwise, `false`.
+ */
 MOSS_API bool Moss_IsMouseReleased(Mouse button);
+/**
+ * @brief Checks whether a mouse button transitioned to the pressed state.
+ * @param button Input button to query.
+ * @return `true` if the operation succeeds or the queried condition is met; otherwise, `false`.
+ */
 MOSS_API bool Moss_IsMouseJustPressed(Mouse button);
+/**
+ * @brief Checks whether a mouse button transitioned to the released state.
+ * @param button Input button to query.
+ * @return `true` if the operation succeeds or the queried condition is met; otherwise, `false`.
+ */
 MOSS_API bool Moss_IsMouseJustReleased(Mouse button);
+/**
+ * @brief Returns the mouse button reported by the current input state.
+ * @return The value or handle requested by the function.
+ */
 MOSS_API Mouse Moss_InputGetMouseButton();
+/**
+ * @brief Retrieves the mouse position.
+ * @param x X coordinate or output value.
+ * @param y Y coordinate or output value.
+ */
 MOSS_API void Moss_GetMousePosition(int* x, int* y);
+/**
+ * @brief sets the mouse position.
+ * @param x X coordinate or output value.
+ * @param y Y coordinate or output value.
+ */
 MOSS_API void Moss_SetMousePosition(int x, int y);
+/**
+ * @brief sets the mouse visible.
+ * @param visible Whether the mouse cursor should be visible.
+ */
 MOSS_API void Moss_SetMouseVisible(bool visible);
 
 
 // Gamepad management
+/**
+ * @brief Returns the number of gamepads currently known to the platform layer.
+ * @return The requested value.
+ */
 MOSS_API int Moss_GetNumGamepads(void);
+/**
+ * @brief Opens a gamepad by its identifier.
+ * @param id Identifier of the requested device or resource.
+ * @return A handle to the created or opened resource, or `nullptr` on failure.
+ */
 MOSS_API Moss_Gamepad* Moss_OpenGamepad(Moss_GamepadID id);
+/**
+ * @brief Closes a previously opened gamepad handle.
+ * @param gp Gamepad handle used by this operation.
+ */
 MOSS_API void Moss_CloseGamepad(Moss_Gamepad* gp);
+/**
+ * @brief Checks whether the specified gamepad is connected.
+ * @param gp Gamepad handle used by this operation.
+ * @return `true` if the operation succeeds or the queried condition is met; otherwise, `false`.
+ */
 MOSS_API bool Moss_GamepadConnected(Moss_Gamepad* gp);
+/**
+ * @brief Refreshes the platform's gamepad state.
+ */
 MOSS_API void Moss_UpdateGamepads(void); // poll / refresh all gamepads
 
 // Button & axis
+/**
+ * @brief Checks whether gamepad button pressed.
+ * @param gp Gamepad handle used by this operation.
+ * @param button Input button to query.
+ * @return `true` if the operation succeeds or the queried condition is met; otherwise, `false`.
+ */
 MOSS_API bool Moss_IsGamepadButtonPressed(Moss_Gamepad* gp, Moss_GamepadButton button);
+/**
+ * @brief Checks whether gamepad button just pressed.
+ * @param gp Gamepad handle used by this operation.
+ * @param button Input button to query.
+ * @return `true` if the operation succeeds or the queried condition is met; otherwise, `false`.
+ */
 MOSS_API bool Moss_IsGamepadButtonJustPressed(Moss_Gamepad* gp, Moss_GamepadButton button);
+/**
+ * @brief Checks whether gamepad button just released.
+ * @param gp Gamepad handle used by this operation.
+ * @param button Input button to query.
+ * @return `true` if the operation succeeds or the queried condition is met; otherwise, `false`.
+ */
 MOSS_API bool Moss_IsGamepadButtonJustReleased(Moss_Gamepad* gp, Moss_GamepadButton button);
+/**
+ * @brief Retrieves the gamepad axis.
+ * @param gp Gamepad handle used by this operation.
+ * @param axis Gamepad axis to query or configure.
+ * @return The value or handle requested by the function.
+ */
 MOSS_API float Moss_GetGamepadAxis(Moss_Gamepad* gp, GamepadAxis axis);
+/**
+ * @brief Retrieves the gamepad orientation.
+ * @param gp Gamepad handle used by this operation.
+ * @param w Output or destination for `w`.
+ * @param x X coordinate or output value.
+ * @param y Y coordinate or output value.
+ * @param z Output or destination for `z`.
+ * @return `true` if the operation succeeds or the queried condition is met; otherwise, `false`.
+ */
 MOSS_API bool Moss_GetGamepadOrientation(Moss_Gamepad* gp, float* w, float* x, float* y, float* z);
+/**
+ * @brief Retrieves the gamepad player space gyro.
+ * @param gp Gamepad handle used by this operation.
+ * @param outX Destination for the X-axis result.
+ * @param outY Destination for the Y-axis result.
+ * @param yawRelaxFactor Output or destination for `yawRelaxFactor`.
+ */
 MOSS_API void Moss_GetGamepadPlayerSpaceGyro(Moss_Gamepad* gp, float* outX, float* outY, const float yawRelaxFactor = 1.41f);
+/**
+ * @brief Retrieves the gamepad world space gyro.
+ * @param gp Gamepad handle used by this operation.
+ * @param outX Destination for the X-axis result.
+ * @param outY Destination for the Y-axis result.
+ * @param sideReductionThreshold Value for `sideReductionThreshold`.
+ */
 MOSS_API void Moss_GetGamepadWorldSpaceGyro(Moss_Gamepad* gp, float* outX, float* outY, const float sideReductionThreshold = 0.125f);
+/**
+ * @brief Resets the reset gamepad calibration.
+ * @param gp Gamepad handle used by this operation.
+ */
 MOSS_API void Moss_ResetGamepadCalibration(Moss_Gamepad* gp);
 
+/**
+ * @brief sets the gamepad axis deadzone.
+ * @param axis Gamepad axis to query or configure.
+ * @param dz Value for `dz`.
+ */
 void Moss_SetGamepadAxisDeadzone(GamepadAxis axis, float dz);
 
+/**
+ * @brief sets the gamepad axis inverted.
+ * @param axis Gamepad axis to query or configure.
+ * @param inverted Value for `inverted`.
+ */
 void Moss_SetGamepadAxisInverted(GamepadAxis axis, bool inverted);
 // Rumble / LED
+/**
+ * @brief Triggers rumble on the rumble gamepad.
+ * @param gp Gamepad handle used by this operation.
+ * @param low Low-frequency motor intensity.
+ * @param high High-frequency motor intensity.
+ * @param duration_ms Rumble duration in milliseconds.
+ * @return `true` if the operation succeeds or the queried condition is met; otherwise, `false`.
+ */
 MOSS_API bool Moss_RumbleGamepad(Moss_Gamepad* gp, uint16_t low, uint16_t high, uint32_t duration_ms);
+/**
+ * @brief Triggers rumble on the rumble gamepad triggers.
+ * @param gp Gamepad handle used by this operation.
+ * @param left Left-side intensity or value.
+ * @param right Right-side intensity or value.
+ * @param duration_ms Rumble duration in milliseconds.
+ * @return `true` if the operation succeeds or the queried condition is met; otherwise, `false`.
+ */
 MOSS_API bool Moss_RumbleGamepadTriggers(Moss_Gamepad* gp, uint16_t left, uint16_t right, uint32_t duration_ms);
+/**
+ * @brief sets the gamepad led.
+ * @param gp Gamepad handle used by this operation.
+ * @param r Red color component.
+ * @param g Green color component.
+ * @param b Blue color component.
+ * @return `true` if the operation succeeds or the queried condition is met; otherwise, `false`.
+ */
 MOSS_API bool Moss_SetGamepadLED(Moss_Gamepad* gp, uint8_t r, uint8_t g, uint8_t b);
 
 // Metadata
+/**
+ * @brief Retrieves the gamepad name.
+ * @param gp Gamepad handle used by this operation.
+ * @return A pointer to the requested string, or `nullptr` if unavailable.
+ */
 MOSS_API const char* Moss_GetGamepadName(Moss_Gamepad* gp);
+/**
+ * @brief Retrieves the gamepad id.
+ * @param gp Gamepad handle used by this operation.
+ * @return The value or handle requested by the function.
+ */
 MOSS_API Moss_GamepadID Moss_GetGamepadID(Moss_Gamepad* gp);
+/**
+ * @brief Retrieves the gamepad player index.
+ * @param gp Gamepad handle used by this operation.
+ * @return The value or handle requested by the function.
+ */
 MOSS_API int Moss_GetGamepadPlayerIndex(Moss_Gamepad* gp);
+/**
+ * @brief Retrieves the gamepad power info.
+ * @param gp Gamepad handle used by this operation.
+ * @param percent Destination for the battery percentage.
+ * @return The value or handle requested by the function.
+ */
 MOSS_API Moss_PowerState Moss_GetGamepadPowerInfo(Moss_Gamepad* gp, int* percent);
+/**
+ * @brief Retrieves the num gamepad touchpads.
+ * @param gp Gamepad handle used by this operation.
+ * @return The value or handle requested by the function.
+ */
 MOSS_API int Moss_GetNumGamepadTouchpads(Moss_Gamepad* gp);
+/**
+ * @brief Retrieves the num gamepad touchpad fingers.
+ * @param gp Gamepad handle used by this operation.
+ * @return The value or handle requested by the function.
+ */
 MOSS_API int Moss_GetNumGamepadTouchpadFingers(Moss_Gamepad* gp);
+/**
+ * @brief Retrieves the gamepad touchpad finger.
+ * @param gp Gamepad handle used by this operation.
+ * @param pad Output or destination for `pad`.
+ * @param finger Value for `finger`.
+ * @param down Value for `down`.
+ * @param x X coordinate or output value.
+ * @param y Y coordinate or output value.
+ * @param pressure Output or destination for `pressure`.
+ * @return `true` if the operation succeeds or the queried condition is met; otherwise, `false`.
+ */
 MOSS_API bool Moss_GetGamepadTouchpadFinger(Moss_Gamepad* gp, int pad, int finger, bool* down, float* x, float* y, float* pressure);
 
 // Mapping & type
+/**
+ * @brief Retrieves the gamepad mapping.
+ * @param gp Gamepad handle used by this operation.
+ * @return A pointer to the requested string, or `nullptr` if unavailable.
+ */
 MOSS_API const char* Moss_GetGamepadMapping(Moss_Gamepad* gp);
+/**
+ * @brief sets the gamepad mapping.
+ * @param gp Gamepad handle used by this operation.
+ * @param mapping Value for `mapping`.
+ * @return `true` if the operation succeeds or the queried condition is met; otherwise, `false`.
+ */
 MOSS_API bool Moss_SetGamepadMapping(Moss_Gamepad* gp, const char* mapping);
+/**
+ * @brief Reloads the reload gamepad mappings.
+ */
 MOSS_API void Moss_ReloadGamepadMappings(void);
 
+/**
+ * @brief Retrieves the current the input get gamepad button.
+ * @return The value or handle requested by the function.
+ */
 MOSS_API Moss_GamepadButton Moss_InputGetGamepadButton();
+/**
+ * @brief Retrieves the current the input get gamepad axis.
+ * @return The value or handle requested by the function.
+ */
 MOSS_API GamepadAxis Moss_InputGetGamepadAxis();
 
+/**
+ * @brief Retrieves the pen device type.
+ * @param instance_id Value for `instance_id`.
+ * @return The value or handle requested by the function.
+ */
 MOSS_API Moss_PenDeviceType Moss_GetPenDeviceType(Moss_PenID instance_id);
+/**
+ * @brief Retrieves the touch device name.
+ * @param touchID Value for `touchID`.
+ * @return A pointer to the requested string, or `nullptr` if unavailable.
+ */
 MOSS_API const char* Moss_GetTouchDeviceName(Moss_TouchID touchID);
+/**
+ * @brief Retrieves the touch devices.
+ * @param count Destination for the number of returned items.
+ * @return A pointer to the requested resource, or `nullptr` if unavailable.
+ * @note The lifetime and ownership of returned data depend on the platform implementation; consult the implementation before retaining the pointer.
+ */
 MOSS_API Moss_TouchID* Moss_GetTouchDevices(int* count);
+/**
+ * @brief Retrieves the touch device type.
+ * @param touchID Value for `touchID`.
+ * @return The value or handle requested by the function.
+ */
 MOSS_API Moss_TouchDeviceType Moss_GetTouchDeviceType(Moss_TouchID touchID);
+/**
+ * @brief Retrieves the touch fingers.
+ * @param touchID Value for `touchID`.
+ * @param count Destination for the number of returned items.
+ * @return A pointer to the requested resource, or `nullptr` if unavailable.
+ * @note The lifetime and ownership of returned data depend on the platform implementation; consult the implementation before retaining the pointer.
+ */
 MOSS_API Moss_Finger** Moss_GetTouchFingers(Moss_TouchID touchID, int* count);
 
-/*! @brief Determines whether a gamepad supports the specified motion sensor. @param[in] gp The gamepad to query. @param[in] sensor The motion sensor to check. @return `true` if the gamepad supports the specified sensor; otherwise, `false`. */
+/**
+ * @brief Determines whether a gamepad supports the specified motion sensor.
+ * @param gp Gamepad handle used by this operation.
+ * @param sensor Motion sensor to query or configure.
+ * @return `true` if the operation succeeds or the queried condition is met; otherwise, `false`.
+ */
 MOSS_API bool Moss_GamepadHasSensor(Moss_Gamepad* gp, Moss_GamepadSensorType sensor);
 
-/*! @brief Enables or disables a supported gamepad motion sensor. @param[in] gpThe gamepad whose sensor state is to be changed. @param[in] sensor  The motion sensor to enable or disable. @param[in] enabled `true` to enable the sensor; `false` to disable it. */
+/**
+ * @brief Enables or disables a supported gamepad motion sensor.
+ * @param gp Gamepad handle used by this operation.
+ * @param sensor Motion sensor to query or configure.
+ * @param enabled Whether the feature should be enabled.
+ * @return `true` if the operation succeeds or the queried condition is met; otherwise, `false`.
+ */
 MOSS_API bool Moss_SetGamepadSensorEnabled(Moss_Gamepad* gp, Moss_GamepadSensorType sensor, bool enabled);
 
-/*! @brief Retrieves the latest available data from a gamepad motion sensor. @param[in] gpThe gamepad to query.* @param[in] sensor The motion sensor from which to retrieve data. @param[out] data Receives the latest valid sensor sample on success. @return `true` if valid sensor data is retrieved; otherwise, `false`. @remarks Returns `false` if the sensor is unavailable or no valid sample has been received. */
+/**
+ * @brief Retrieves the latest available data from a gamepad motion sensor.
+ * @param gp Gamepad handle used by this operation.
+ * @param sensor Motion sensor to query or configure.
+ * @param data Data structure used to receive or provide values.
+ * @return `true` if the operation succeeds or the queried condition is met; otherwise, `false`.
+ * @note Returns `false` when the sensor is unavailable or no valid sample has been received.
+ */
 MOSS_API bool Moss_GetGamepadSensorData(Moss_Gamepad* gp, Moss_GamepadSensorType sensor, Moss_GamepadSensorData* data);
 
 /*            Haptic Feedback          */
-/*! @brief X. @param X X.*/
+/**
+ * @brief Opens the haptic.
+ * @param id Identifier of the requested device or resource.
+ * @return A handle to the created or opened resource, or `nullptr` on failure.
+ */
 MOSS_API Moss_Haptic* Moss_OpenHaptic(Moss_HapticID id);
-/*! @brief X. @param X X.*/
+/**
+ * @brief Closes the haptic.
+ * @param haptic Haptic device handle used by this operation.
+ */
 MOSS_API void Moss_CloseHaptic(Moss_Haptic* haptic);
-/*! @brief X. @param X X.*/
+/**
+ * @brief Creates the haptic effect.
+ * @param haptic Haptic device handle used by this operation.
+ * @return The value or handle requested by the function.
+ */
 MOSS_API Moss_HapticID Moss_CreateHapticEffect(Moss_Haptic* haptic);
-/*! @brief X. @param X X.*/
+/**
+ * @brief Destroys the haptic effect.
+ * @param haptic Haptic device handle used by this operation.
+ */
 MOSS_API void Moss_DestroyHapticEffect(Moss_Haptic* haptic);
-/*! @brief X. @param X X.*/
+/**
+ * @brief Retrieves the haptic effect status.
+ * @param haptic Haptic device handle used by this operation.
+ * @return `true` if the operation succeeds or the queried condition is met; otherwise, `false`.
+ */
 MOSS_API bool Moss_GetHapticEffectStatus(Moss_Haptic* haptic);
-/*! @brief X. @param X X.*/
+/**
+ * @brief Retrieves the haptic features.
+ * @param haptic Haptic device handle used by this operation.
+ * @return The value or handle requested by the function.
+ */
 MOSS_API uint32_t Moss_GetHapticFeatures(Moss_Haptic* haptic);
-/*! @brief X. @param X X.*/
+/**
+ * @brief Retrieves the haptic from id.
+ * @param haptic Haptic device handle used by this operation.
+ * @return A pointer to the requested resource, or `nullptr` if unavailable.
+ */
 MOSS_API Moss_Haptic* Moss_GetHapticFromID(Moss_Haptic* haptic);
-/*! @brief X. @param X X.*/
+/**
+ * @brief Retrieves the haptic id.
+ * @param haptic Haptic device handle used by this operation.
+ * @return A pointer to the requested resource, or `nullptr` if unavailable.
+ */
 MOSS_API Moss_HapticID* Moss_GetHapticID(Moss_Haptic* haptic);
-/*! @brief X. @param X X.*/
+/**
+ * @brief Retrieves the haptic name.
+ * @param haptic Haptic device handle used by this operation.
+ * @return A pointer to the requested string, or `nullptr` if unavailable.
+ */
 MOSS_API const char* Moss_GetHapticName(Moss_Haptic* haptic);
-/*! @brief X. @param X X.*/
+/**
+ * @brief Retrieves the haptic name for id.
+ * @param haptic Haptic device handle used by this operation.
+ * @return A pointer to the requested string, or `nullptr` if unavailable.
+ */
 MOSS_API const char* Moss_GetHapticNameForID(Moss_Haptic* haptic);
-/*! @brief X. @param X X.*/
+/**
+ * @brief Retrieves the haptics.
+ * @param haptic Haptic device handle used by this operation.
+ * @return A pointer to the requested resource, or `nullptr` if unavailable.
+ */
 MOSS_API Moss_HapticID* Moss_GetHaptics(Moss_Haptic* haptic);
-/*! @brief X. @param X X.*/
+/**
+ * @brief Retrieves the max haptic effects.
+ * @param haptic Haptic device handle used by this operation.
+ * @return The value or handle requested by the function.
+ */
 MOSS_API int Moss_GetMaxHapticEffects(Moss_Haptic* haptic);
-/*! @brief X. @param X X.*/
+/**
+ * @brief Retrieves the max haptic effects playing.
+ * @param haptic Haptic device handle used by this operation.
+ * @return The value or handle requested by the function.
+ */
 MOSS_API int Moss_GetMaxHapticEffectsPlaying(Moss_Haptic* haptic);
-/*! @brief X. @param X X.*/
+/**
+ * @brief Retrieves the num haptic axes.
+ * @param haptic Haptic device handle used by this operation.
+ * @return The value or handle requested by the function.
+ */
 MOSS_API int Moss_GetNumHapticAxes(Moss_Haptic* haptic);
-/*! @brief X. @param X X.*/
+/**
+ * @brief Performs the haptic effect supported.
+ * @param haptic Haptic device handle used by this operation.
+ * @return `true` if the operation succeeds or the queried condition is met; otherwise, `false`.
+ */
 MOSS_API bool Moss_HapticEffectSupported(Moss_Haptic* haptic);
-/*! @brief X. @param X X.*/
+/**
+ * @brief Performs the haptic rumble supported.
+ * @param haptic Haptic device handle used by this operation.
+ * @return `true` if the operation succeeds or the queried condition is met; otherwise, `false`.
+ */
 MOSS_API bool Moss_HapticRumbleSupported(Moss_Haptic* haptic);
-/*! @brief X. @param X X.*/
+/**
+ * @brief Performs the init haptic rumble.
+ * @param joystick Joystick or gamepad handle used by this operation.
+ * @return `true` if the operation succeeds or the queried condition is met; otherwise, `false`.
+ */
 MOSS_API bool Moss_InitHapticRumble(Moss_Haptic* joystick);
-/*! @brief X. @param X X.*/
+/**
+ * @brief Checks whether joystick haptic.
+ * @param joystick Joystick or gamepad handle used by this operation.
+ * @return `true` if the operation succeeds or the queried condition is met; otherwise, `false`.
+ */
 MOSS_API bool Moss_IsJoystickHaptic(Moss_Gamepad* joystick);
-/*! @brief X. @param X X.*/
+/**
+ * @brief Checks whether mouse haptic.
+ * @return `true` if the operation succeeds or the queried condition is met; otherwise, `false`.
+ */
 MOSS_API bool Moss_IsMouseHaptic(void);
-/*! @brief X. @param X X.*/
+/**
+ * @brief Opens the haptic from joystick.
+ * @param joystick Joystick or gamepad handle used by this operation.
+ * @return A pointer to the requested resource, or `nullptr` if unavailable.
+ */
 MOSS_API Moss_Haptic* Moss_OpenHapticFromJoystick(Moss_Gamepad* joystick);
-/*! @brief X. @param X X.*/
+/**
+ * @brief Opens the haptic from mouse.
+ * @return A pointer to the requested resource, or `nullptr` if unavailable.
+ */
 MOSS_API Moss_Haptic* Moss_OpenHapticFromMouse(void);
-/*! @brief X. @param X X.*/
+/**
+ * @brief Pauses the pause haptic.
+ * @param haptic Haptic device handle used by this operation.
+ * @return `true` if the operation succeeds or the queried condition is met; otherwise, `false`.
+ */
 MOSS_API bool Moss_PauseHaptic(Moss_Haptic* haptic);
-/*! @brief X. @param X X.*/
+/**
+ * @brief Starts playback of the play haptic rumble.
+ * @param haptic Haptic device handle used by this operation.
+ * @param strength Rumble strength.
+ * @param length Number of bytes or duration, as indicated by the parameter type.
+ * @return `true` if the operation succeeds or the queried condition is met; otherwise, `false`.
+ */
 MOSS_API bool Moss_PlayHapticRumble(Moss_Haptic* haptic, float strength, uint32_t length);
-/*! @brief X. @param X X.*/
+/**
+ * @brief Resumes the resume haptic.
+ * @param haptic Haptic device handle used by this operation.
+ * @return `true` if the operation succeeds or the queried condition is met; otherwise, `false`.
+ */
 MOSS_API bool Moss_ResumeHaptic(Moss_Haptic* haptic);
-/*! @brief X. @param X X.*/
+/**
+ * @brief Runs the run haptic effect.
+ * @param haptic Haptic device handle used by this operation.
+ * @param iterations Value for `iterations`.
+ * @return `true` if the operation succeeds or the queried condition is met; otherwise, `false`.
+ */
 MOSS_API bool Moss_RunHapticEffect(Moss_Haptic* haptic, uint32_t iterations);
-/*! @brief X. @param X X.*/
+/**
+ * @brief sets the haptic autocenter.
+ * @param haptic Haptic device handle used by this operation.
+ * @param center Value for `center`.
+ * @return `true` if the operation succeeds or the queried condition is met; otherwise, `false`.
+ */
 MOSS_API bool Moss_SetHapticAutocenter(Moss_Haptic* haptic, int center);
-/*! @brief X. @param X X.*/
+/**
+ * @brief sets the haptic gain.
+ * @param haptic Haptic device handle used by this operation.
+ * @param gain Value for `gain`.
+ * @return `true` if the operation succeeds or the queried condition is met; otherwise, `false`.
+ */
 MOSS_API bool Moss_SetHapticGain(Moss_Haptic* haptic, int gain);
-/*! @brief X. @param X X.*/
+/**
+ * @brief Stops the stop haptic effect.
+ * @param haptic Haptic device handle used by this operation.
+ * @param effect Value for `effect`.
+ * @return `true` if the operation succeeds or the queried condition is met; otherwise, `false`.
+ */
 MOSS_API bool Moss_StopHapticEffect(Moss_Haptic* haptic, Moss_HapticEffectID effect);
-/*! @brief X. @param X X.*/
+/**
+ * @brief Stops the stop haptic effects.
+ * @param haptic Haptic device handle used by this operation.
+ * @return `true` if the operation succeeds or the queried condition is met; otherwise, `false`.
+ */
 MOSS_API bool Moss_StopHapticEffects(Moss_Haptic* haptic);
-/*! @brief X. @param X X.*/
+/**
+ * @brief Stops the stop haptic rumble.
+ * @param haptic Haptic device handle used by this operation.
+ * @return `true` if the operation succeeds or the queried condition is met; otherwise, `false`.
+ */
 MOSS_API bool Moss_StopHapticRumble(Moss_Haptic* haptic);
-/*! @brief X. @param X X.*/
+/**
+ * @brief Updates the update haptic effect.
+ * @param haptic Haptic device handle used by this operation.
+ * @param effect Value for `effect`.
+ * @param data Data structure used to receive or provide values.
+ * @return `true` if the operation succeeds or the queried condition is met; otherwise, `false`.
+ */
 MOSS_API bool Moss_UpdateHapticEffect(Moss_Haptic* haptic, Moss_HapticEffectID effect, const Moss_HapticEffect* data);
 
 
 /*              CPU Info          */
-/*! @brief Get the number of logical CPU cores available. @ingroup Platform Misc. */
+/**
+ * @brief Returns the number of logical CPU cores available.
+ * @return The requested value.
+ */
 MOSS_API int Moss_GetAvailableCPUCores(void);
-/*! @brief Determine the L1 cache line size of the CPU. @ingroup Platform Misc. */
+/**
+ * @brief Returns the CPU cache-line size in bytes.
+ * @return The requested value.
+ */
 MOSS_API int Moss_GetCPUCacheLineSize(void);
-/*! @brief Get the amount of RAM configured in the system. @ingroup Platform Misc. */
+/**
+ * @brief Returns the amount of system RAM, in the unit defined by the implementation.
+ * @return The requested value.
+ */
 MOSS_API int Moss_GetSystemRAM(void);
 
 
 /*             OS Spesific        */
-/*! @brief URL to a website link. Supported on PC and mobile. @param url URL link. @ingroup Platform Misc. */
+/**
+ * @brief Opens a URL using the platform's default handler.
+ * @param url URL to open.
+ * @return `true` if the operation succeeds or the queried condition is met; otherwise, `false`.
+ */
 MOSS_API bool Moss_OpenURL(const char* url);
-/*! @brief Get Locale of the Operating system. @return Country "UK" for United Kingdom and language "en" for English. @ingroup Platform Misc. */
+/**
+ * @brief Retrieves the operating system locale information.
+ * @return Pointer to locale information, or `nullptr` if unavailable.
+ */
 MOSS_API Moss_Locale* Moss_GetLocale();
-/*! @brief */
+/**
+ * @brief Retrieves the system power state and, when available, battery information.
+ * @param seconds Destination for the estimated remaining battery time in seconds.
+ * @param percent Destination for the battery percentage.
+ * @return The value or handle requested by the function.
+ */
 MOSS_API Moss_PowerState Moss_GetPowerInfo(int *seconds, int *percent);
-/*! @brief Detct if an executible is running. @param executable_path exe name - e.g. obs.exe. */
+/**
+ * @brief Checks whether a process with the specified executable name is running.
+ * @param executable_path Value for `executable_path`.
+ * @return `true` if the operation succeeds or the queried condition is met; otherwise, `false`.
+ */
 MOSS_API bool Moss_IsProcessRunningByName(const char* executable_path);
-/*! @brief Loads a dynamic library from the given path. @param lib_path Path to the library file. @return Handle to the loaded library, or NULL on failure. @note The returned handle must be released using Moss_UnloadDynamicLibrary(). @ingroup Platform Misc.*/
+/**
+ * @brief Loads a dynamic library from the specified path.
+ * @param lib_path Path to the dynamic library.
+ * @return The requested handle or symbol address, or `nullptr` on failure.
+ */
 MOSS_API void* Moss_LoadDynamicLibrary(const char* lib_path);
-/*! @brief Retrieves a symbol from a loaded library. @param handle Handle to the loaded library. @param symbol_name Name of the symbol to retrieve. @return Pointer to the symbol, or NULL if not found.  @return A pointer to the requested symbol, or NULL if not found.  @warning The returned pointer must be cast to the appropriate function or data type. @ingroup Platform Misc.*/
+/**
+ * @brief Looks up a symbol in a loaded dynamic library.
+ * @param handle Handle to the loaded library or platform resource.
+ * @param symbol_name Name of the symbol to look up.
+ * @return The requested handle or symbol address, or `nullptr` on failure.
+ */
 MOSS_API void* Moss_GetLibrarySymbol(void* handle, const char* symbol_name);
-/*! @brief Unloads a previously loaded dynamic library. @param handle Handle to the library to unload. @note After unloading, the handle should not be used again. @ingroup Platform Misc. */
+/**
+ * @brief Unloads a dynamic library previously loaded by Moss.
+ * @param handle Handle to the loaded library or platform resource.
+ */
 MOSS_API void Moss_UnloadDynamicLibrary(void* handle);
 
 // =================================================
 //              Callback Registration API
 // =================================================
 
-/*! @brief Sets the framebuffer resize callback. @param callback Pointer to a function to be invoked when framebuffer size changes. @ingroup Window */
+/**
+ * @brief sets the framebuffer resize callback.
+ * @param callback Callback function to register or invoke.
+ */
 MOSS_API void Moss_SetFramebufferResizeCallback(Moss_FramebufferResizeCallback callback);
-/*! @brief Sets the window size callback. @param callback Pointer to a function invoked when the window size changes. @ingroup Window */
+/**
+ * @brief sets the window size callback.
+ * @param callback Callback function to register or invoke.
+ */
 MOSS_API void Moss_SetWindowSizeCallback(Moss_WindowSizeCallback callback);
-/*! @brief Sets the window resize callback (platform-level, e.g. minimize/maximize). @param callback Pointer to a function invoked when window resizing events occur. @ingroup Window */
+/**
+ * @brief sets the window resize callback.
+ * @param callback Callback function to register or invoke.
+ */
 MOSS_API void Moss_SetWindowResizeCallback(Moss_WindowResizeCallback callback);
-/*! @brief Sets the window position callback. @param callback Pointer to a function invoked when the window position changes. @ingroup Window */
+/**
+ * @brief sets the window position callback.
+ * @param callback Callback function to register or invoke.
+ */
 MOSS_API void Moss_SetWindowPositionCallback(Moss_WindowPositionCallback callback);
-/*! @brief Sets the window focus callback. @param callback Pointer to a function invoked when the window focus changes. @ingroup Window */
+/**
+ * @brief sets the window focus callback.
+ * @param callback Callback function to register or invoke.
+ */
 MOSS_API void Moss_SetWindowFocusCallback(Moss_WindowFocusCallback callback);
-/*! @brief Sets the window content scale callback (for HiDPI / Retina support). @param callback Pointer to a function invoked when the content scale changes. @ingroup Window */
+/**
+ * @brief sets the window content scale callback.
+ * @param callback Callback function to register or invoke.
+ */
 MOSS_API void Moss_SetWindowContentScaleCallback(Moss_WindowContentScaleCallback callback);
-/*! @brief Sets the monitor connection or configuration callback. @param callback Pointer to a function invoked when a monitor is connected or disconnected. @ingroup Monitor */
+/**
+ * @brief sets the monitor callback.
+ * @param callback Callback function to register or invoke.
+ */
 MOSS_API void Moss_SetMonitorCallback(Moss_MonitorCallback callback);
 
 
+/**
+ * @brief Returns the available camera identifiers.
+ * @param count Destination for the number of returned items.
+ * @return A pointer to the requested resource, or `nullptr` if unavailable.
+ * @note The lifetime and ownership of returned data depend on the platform implementation; consult the implementation before retaining the pointer.
+ */
 MOSS_API Moss_CameraID* Moss_GetCameras(int* count);
 /* Returned array valid until next call or shutdown */
+/**
+ * @brief Retrieves the camera name.
+ * @param camera_id Identifier of the camera.
+ * @return A pointer to the requested string, or `nullptr` if unavailable.
+ */
 MOSS_API const char* Moss_GetCameraName(Moss_CameraID camera_id);
+/**
+ * @brief Retrieves the camera position.
+ * @param camera_id Identifier of the camera.
+ * @return The value or handle requested by the function.
+ */
 MOSS_API Moss_CameraPosition Moss_GetCameraPosition(Moss_CameraID camera_id);
+/**
+ * @brief Retrieves the current camera driver.
+ * @return A pointer to the requested string, or `nullptr` if unavailable.
+ */
 MOSS_API const char* Moss_GetCurrentCameraDriver(void);
+/**
+ * @brief Retrieves the num camera drivers.
+ * @return The value or handle requested by the function.
+ */
 MOSS_API int Moss_GetNumCameraDrivers(void);
+/**
+ * @brief Returns the supported capture formats for a camera.
+ * @param camera_id Identifier of the camera.
+ * @param count Destination for the number of returned items.
+ * @return A pointer to the requested resource, or `nullptr` if unavailable.
+ * @note The lifetime and ownership of returned data depend on the platform implementation; consult the implementation before retaining the pointer.
+ */
 MOSS_API const Moss_CameraSpec* Moss_GetCameraSupportedFormats(Moss_CameraID camera_id, int* count);
+/**
+ * @brief Acquires a frame from an opened camera capture.
+ * @param camera Camera capture handle.
+ * @param timestamp_ns Destination for the frame timestamp in nanoseconds.
+ * @return A pointer to the requested resource, or `nullptr` if unavailable.
+ * @note Release a successfully acquired frame with `Moss_ReleaseCameraFrame()`.
+ */
 MOSS_API Moss_Surface* Moss_AcquireCameraFrame(Moss_Capture* camera, uint64_t* timestamp_ns);
+/**
+ * @brief Releases a previously acquired camera frame.
+ * @param camera Camera capture handle.
+ * @param frame Frame handle to release.
+ */
 MOSS_API void Moss_ReleaseCameraFrame(Moss_Capture* camera, Moss_Surface* frame);
+/**
+ * @brief Retrieves the camera format.
+ * @param camera Camera capture handle.
+ * @param out_spec Destination for the camera format specification.
+ * @return `true` if the operation succeeds or the queried condition is met; otherwise, `false`.
+ */
 MOSS_API bool Moss_GetCameraFormat(Moss_Capture* camera, Moss_CameraSpec* out_spec);
+/**
+ * @brief Retrieves the camera permission state.
+ * @param camera Camera capture handle.
+ * @return The value or handle requested by the function.
+ */
 MOSS_API Moss_CameraPermissionState Moss_GetCameraPermissionState(Moss_Capture* camera);
+/**
+ * @brief Retrieves the camera properties.
+ * @param camera Camera capture handle.
+ * @return The value or handle requested by the function.
+ */
 MOSS_API Moss_PropertiesID Moss_GetCameraProperties(Moss_Capture* camera);
+/**
+ * @brief Closes the camera.
+ * @param camera Camera capture handle.
+ */
 MOSS_API void Moss_CloseCamera(Moss_Capture* camera);
+/**
+ * @brief Retrieves the camera id.
+ * @param camera Camera capture handle.
+ * @return The value or handle requested by the function.
+ */
 MOSS_API Moss_CameraID Moss_GetCameraID(Moss_Capture* camera);
+/**
+ * @brief Retrieves the camera properties.
+ * @param camera Camera capture handle.
+ * @return The value or handle requested by the function.
+ */
 MOSS_API Moss_PropertiesID Moss_GetCameraProperties(Moss_Capture* camera);
+/**
+ * @brief Opens a camera capture using the requested format.
+ * @param id Identifier of the requested device or resource.
+ * @param spec Requested camera capture format.
+ * @return A handle to the created or opened resource, or `nullptr` on failure.
+ */
 MOSS_API Moss_Capture* Moss_OpenCapture(Moss_CameraID id, const Moss_CameraSpec* spec);
 
 
+/**
+ * @brief Copies a file from a source path to a destination path.
+ * @param src_path Source file path.
+ * @param dst_path Destination file path.
+ * @param overwrite Whether an existing destination may be overwritten.
+ * @return `true` if the operation succeeds or the queried condition is met; otherwise, `false`.
+ */
 MOSS_API bool Moss_CopyFile(const char* src_path, const char* dst_path, bool overwrite);
+/**
+ * @brief Creates a directory at the specified path.
+ * @param path Path to the file-system entry.
+ * @param recursive Whether to include or process nested entries recursively.
+ * @return `true` if the operation succeeds or the queried condition is met; otherwise, `false`.
+ */
 MOSS_API bool Moss_CreateDirectory(const char* path, bool recursive);
+/**
+ * @brief Removes a file or directory at the specified path.
+ * @param path Path to the file-system entry.
+ * @param recursive Whether to include or process nested entries recursively.
+ * @return `true` if the operation succeeds or the queried condition is met; otherwise, `false`.
+ */
 MOSS_API bool Moss_RemovePath(const char* path, bool recursive);
+/**
+ * @brief Renames or moves a path to a new destination.
+ * @param old_path Existing path.
+ * @param new_path Destination path.
+ * @param overwrite Whether an existing destination may be overwritten.
+ * @return `true` if the operation succeeds or the queried condition is met; otherwise, `false`.
+ */
 MOSS_API bool Moss_RenamePath(const char* old_path, const char* new_path, bool overwrite);
 
 
+/**
+ * @brief Retrieves metadata for a file-system path.
+ * @param path Path to the file-system entry.
+ * @param out_info Destination for the path metadata.
+ * @return `true` if the operation succeeds or the queried condition is met; otherwise, `false`.
+ */
 MOSS_API bool Moss_GetPathInfo(const char* path, Moss_PathInfo* out_info);
+/**
+ * @brief Writes the current working directory to the supplied buffer.
+ * @param out_path Destination buffer for the resulting path.
+ * @param max_len Capacity of the destination buffer.
+ * @return `true` if the operation succeeds or the queried condition is met; otherwise, `false`.
+ */
 MOSS_API bool Moss_GetCurrentDirectory(char* out_path, int max_len);
+/**
+ * @brief Writes the application base path to the supplied buffer.
+ * @param out_path Destination buffer for the resulting path.
+ * @param max_len Capacity of the destination buffer.
+ * @return `true` if the operation succeeds or the queried condition is met; otherwise, `false`.
+ */
 MOSS_API bool Moss_GetBasePath(char* out_path, int max_len);
 
+/**
+ * @brief Retrieves the path to a standard user folder.
+ * @param folder Value for `folder`.
+ * @param out_path Destination buffer for the resulting path.
+ * @param max_len Capacity of the destination buffer.
+ * @return `true` if the operation succeeds or the queried condition is met; otherwise, `false`.
+ */
 MOSS_API bool Moss_GetUserFolder(Moss_UserFolder folder, char* out_path, int max_len);
+/**
+ * @brief Retrieves the application-specific preference or configuration path.
+ * @param org_name Organization name used to form the preference path.
+ * @param app_name Application name used to form the preference path.
+ * @param out_path Destination buffer for the resulting path.
+ * @param max_len Capacity of the destination buffer.
+ * @return `true` if the operation succeeds or the queried condition is met; otherwise, `false`.
+ */
 MOSS_API bool Moss_GetPrefPath(const char* org_name, const char* app_name, char* out_path, int max_len);
+/**
+ * @brief Enumerates entries in a directory and invokes a callback for each entry.
+ * @param path Path to the file-system entry.
+ * @param recursive Whether to include or process nested entries recursively.
+ * @param callback Callback function to register or invoke.
+ * @param user_data User-defined data passed to the callback.
+ * @return `true` if the operation succeeds or the queried condition is met; otherwise, `false`.
+ * @note The callback return value and traversal behavior should be checked against the implementation.
+ */
 MOSS_API bool Moss_EnumerateDirectory( const char* path, bool recursive, Moss_DirectoryIterateFn callback, void* user_data);
+/**
+ * @brief Finds directory entries matching a glob pattern.
+ * @param pattern Pattern used to match entries.
+ * @param callback Callback function to register or invoke.
+ * @param user_data User-defined data passed to the callback.
+ * @return `true` if the operation succeeds or the queried condition is met; otherwise, `false`.
+ * @note The callback return value and traversal behavior should be checked against the implementation.
+ */
 MOSS_API bool Moss_GlobDirectory(const char* pattern, Moss_DirectoryIterateFn callback, void* user_data);
 
 
@@ -1091,9 +1789,43 @@ struct Moss_DialogFileFilter {
     const char* pattern;
 };
 
+/**
+ * @brief Displays a file dialog configured with the supplied properties and filters.
+ * @param callback Callback function to register or invoke.
+ * @param userdata User data passed through to the callback.
+ * @param window Window handle affected by this operation.
+ * @param filters Available file-dialog filters.
+ * @param nfilters Number of entries in the filters array.
+ * @param default_location Initial directory or path shown by the dialog.
+ */
 MOSS_API void Moss_ShowFileDialogWithProperties(Moss_DialogFileCallback callback, void* userdata, Moss_Window* window, const Moss_DialogFileFilter* filters, int nfilters, const char* default_location);
+/**
+ * @brief Displays a dialog for selecting one or more folders.
+ * @param callback Callback function to register or invoke.
+ * @param userdata User data passed through to the callback.
+ * @param window Window handle affected by this operation.
+ * @param filters Available file-dialog filters.
+ * @param nfilters Number of entries in the filters array.
+ * @param default_location Initial directory or path shown by the dialog.
+ * @param allow_many Whether multiple selections are allowed.
+ */
 MOSS_API void Moss_ShowOpenFolderDialog(Moss_DialogFileCallback callback, void* userdata, Moss_Window* window, const Moss_DialogFileFilter* filters, int nfilters, const char* default_location, bool allow_many);
+/**
+ * @brief Displays a dialog for selecting one or more files.
+ * @param callback Callback function to register or invoke.
+ * @param userdata User data passed through to the callback.
+ * @param window Window handle affected by this operation.
+ * @param default_location Initial directory or path shown by the dialog.
+ * @param allow_many Whether multiple selections are allowed.
+ */
 MOSS_API void Moss_ShowOpenFileDialog(Moss_DialogFileCallback callback, void* userdata, Moss_Window* window, const char* default_location, bool allow_many);
+/**
+ * @brief Displays a save-file dialog.
+ * @param type Value for `type`.
+ * @param callback Callback function to register or invoke.
+ * @param userdata User data passed through to the callback.
+ * @param props Properties handle used to configure the operation.
+ */
 MOSS_API void Moss_ShowSaveFileDialog(Moss_FileDialogType type, Moss_DialogFileCallback callback, void* userdata, Moss_PropertiesID props);
 
 
@@ -1117,69 +1849,258 @@ enum class Moss_GlobFlags : uint32_t {
 inline Moss_GlobFlags operator|(Moss_GlobFlags a, Moss_GlobFlags b) { return static_cast<Moss_GlobFlags>(static_cast<unsigned int>(a) | static_cast<unsigned int>(b)); }
 inline Moss_GlobFlags operator&(Moss_GlobFlags a, Moss_GlobFlags b) { return static_cast<Moss_GlobFlags>(static_cast<unsigned int>(a) & static_cast<unsigned int>(b)); }
 
+/**
+ * @brief Closes the storage.
+ * @param storage Value for `storage`.
+ * @return `true` if the operation succeeds or the queried condition is met; otherwise, `false`.
+ */
 MOSS_API bool Moss_CloseStorage(Moss_Storage* storage);
+/**
+ * @brief Performs the copy storage file.
+ * @param storage Value for `storage`.
+ * @param oldpath Existing path.
+ * @param newpath Destination path.
+ * @return `true` if the operation succeeds or the queried condition is met; otherwise, `false`.
+ */
 MOSS_API bool Moss_CopyStorageFile(Moss_Storage* storage, const char *oldpath, const char* newpath);
+/**
+ * @brief Creates the storage directory.
+ * @param storage Value for `storage`.
+ * @param path Path to the file-system entry.
+ * @return `true` if the operation succeeds or the queried condition is met; otherwise, `false`.
+ */
 MOSS_API bool Moss_CreateStorageDirectory(Moss_Storage* storage, const char* path);
+/**
+ * @brief Performs the enumerate storage directory.
+ * @param storage Value for `storage`.
+ * @param path Path to the file-system entry.
+ * @param callback Callback function to register or invoke.
+ * @param userdata User data passed through to the callback.
+ * @return `true` if the operation succeeds or the queried condition is met; otherwise, `false`.
+ */
 MOSS_API bool Moss_EnumerateStorageDirectory(Moss_Storage* storage, const char* path, Moss_EnumerateDirectoryCallback callback, void* userdata);
+/**
+ * @brief Retrieves the storage file size.
+ * @param storage Value for `storage`.
+ * @param path Path to the file-system entry.
+ * @param length Number of bytes or duration, as indicated by the parameter type.
+ * @return `true` if the operation succeeds or the queried condition is met; otherwise, `false`.
+ */
 MOSS_API bool Moss_GetStorageFileSize(Moss_Storage* storage, const char *path, uint64* length);
+/**
+ * @brief Retrieves the storage space remaining.
+ * @param storage Value for `storage`.
+ * @return The value or handle requested by the function.
+ */
 MOSS_API uint64_t Moss_GetStorageSpaceRemaining(Moss_Storage* storage);
+/**
+ * @brief Retrieves the storage path info.
+ * @param storage Value for `storage`.
+ * @param path Path to the file-system entry.
+ * @param info Metadata for the current path entry.
+ * @return `true` if the operation succeeds or the queried condition is met; otherwise, `false`.
+ */
 MOSS_API bool Moss_GetStoragePathInfo(Moss_Storage* storage, const char *path, Moss_PathInfo* info);
+/**
+ * @brief Performs the glob storage directory.
+ * @param storage Value for `storage`.
+ * @param path Path to the file-system entry.
+ * @param pattern Pattern used to match entries.
+ * @param flags Options controlling the operation.
+ * @param count Destination for the number of returned items.
+ * @return A pointer to the requested string, or `nullptr` if unavailable.
+ */
 MOSS_API char** Moss_GlobStorageDirectory(Moss_Storage* storage, const char* path, const char* pattern, Moss_GlobFlags flags, int* count);
+/**
+ * @brief Opens the file storage.
+ * @param path Path to the file-system entry.
+ * @return A pointer to the requested resource, or `nullptr` if unavailable.
+ */
 MOSS_API Moss_Storage* Moss_OpenFileStorage(const char* path);
+/**
+ * @brief Opens the storage.
+ * @param iface Value for `iface`.
+ * @param userdata User data passed through to the callback.
+ * @return A pointer to the requested resource, or `nullptr` if unavailable.
+ */
 MOSS_API Moss_Storage* Moss_OpenStorage(const Moss_Storage* iface, void* userdata);
+/**
+ * @brief Opens the title storage.
+ * @param override Value for `override`.
+ * @param props Properties handle used to configure the operation.
+ * @return A pointer to the requested resource, or `nullptr` if unavailable.
+ */
 MOSS_API Moss_Storage* Moss_OpenTitleStorage(const char* override, Moss_PropertiesID props);
+/**
+ * @brief Opens the user storage.
+ * @param org Organization name.
+ * @param app Application name.
+ * @param props Properties handle used to configure the operation.
+ * @return A pointer to the requested resource, or `nullptr` if unavailable.
+ */
 MOSS_API Moss_Storage* Moss_OpenUserStorage(const char* org, const char* app, Moss_PropertiesID props);
+/**
+ * @brief Performs the read storage file.
+ * @param storage Value for `storage`.
+ * @param path Path to the file-system entry.
+ * @param destination Destination buffer for the file contents.
+ * @param length Number of bytes or duration, as indicated by the parameter type.
+ * @return `true` if the operation succeeds or the queried condition is met; otherwise, `false`.
+ */
 MOSS_API bool Moss_ReadStorageFile(Moss_Storage* storage, const char* path, void* destination, uint64 length);
+/**
+ * @brief Performs the remove storage path.
+ * @param storage Value for `storage`.
+ * @param path Path to the file-system entry.
+ * @return `true` if the operation succeeds or the queried condition is met; otherwise, `false`.
+ */
 MOSS_API bool Moss_RemoveStoragePath(Moss_Storage* storage, const char* path);
+/**
+ * @brief Performs the rename storage path.
+ * @param storage Value for `storage`.
+ * @param oldpath Existing path.
+ * @param newpath Destination path.
+ * @return `true` if the operation succeeds or the queried condition is met; otherwise, `false`.
+ */
 MOSS_API bool Moss_RenameStoragePath(Moss_Storage* storage, const char* oldpath, const char* newpath);
+/**
+ * @brief Performs the storage ready.
+ * @param storage Value for `storage`.
+ * @return `true` if the operation succeeds or the queried condition is met; otherwise, `false`.
+ */
 MOSS_API bool Moss_StorageReady(Moss_Storage* storage);
+/**
+ * @brief Performs the write storage file.
+ * @param storage Value for `storage`.
+ * @param path Path to the file-system entry.
+ * @param source Source data or path, depending on the operation.
+ * @param length Number of bytes or duration, as indicated by the parameter type.
+ * @return `true` if the operation succeeds or the queried condition is met; otherwise, `false`.
+ */
 MOSS_API bool Moss_WriteStorageFile(Moss_Storage* storage, const char* path, const void* source, uint64 length);
 
 
 // Mobile Android / IOS App Creation
 #if defined(MOSS_PLATFORM_EMBEDDED)
-/*! @brief Embedded window intended for creating mobile, consoles and tv applications. @param X X. @ingroup window */
+/**
+ * @brief Creates a platform-embedded window for supported mobile or embedded applications.
+ * @return A handle to the created or opened resource, or `nullptr` on failure.
+ */
 MOSS_API Moss_Window* Moss_CreateEmbeddedWindow();
+/**
+ * @brief Terminates the platform-embedded window.
+ */
 MOSS_API void Moss_Terminate_EmbeddedWindow();
+/**
+ * @brief Notifies the embedded platform layer of an orientation or focus-state change.
+ * @param focused Value for `focused`.
+ */
 MOSS_API void Moss_EmbeddedWindow_OnOrientationChanged(bool focused);
+/**
+ * @brief Notifies the embedded platform layer that the application has resumed.
+ */
 MOSS_API void Moss_EmbeddedWindow_OnResume();
+/**
+ * @brief Notifies the embedded platform layer that the application has paused.
+ */
 MOSS_API void Moss_EmbeddedWindow_OnPause();
 #endif
 
 // OpenGL / OpenGL-ES
 #if defined(MOSS_GRAPHICS_OPENGL) || defined(MOSS_GRAPHICS_OPENGLES)
-/*! @brief Sets window as current.  @param X X. @ingroup window */
+/**
+ * @brief Makes the window's graphics context current on the calling thread.
+ * @param window Window handle affected by this operation.
+ */
 MOSS_API void Moss_MakeContextCurrent(Moss_Window* window);
-/*! @brief Swapbuffers used to swapbuffers for opengl. @ingroup window */
+/**
+ * @brief Presents the rendered frame by swapping the graphics buffers.
+ */
 MOSS_API void Moss_SwapBuffers();
-/*! @brief Swapbuffers but with a delay in seconds. @param X X. @ingroup window. */
+/**
+ * @brief Sets the buffer-swap interval.
+ * @param interval Value for `interval`.
+ */
 MOSS_API void Moss_SwapBuffersInterval(int interval);
-/*! @brief X. @param X X. @ingroup window. */
+/**
+ * @brief Retrieves the address of a graphics or platform procedure by name.
+ * @param procname Name of the procedure to look up.
+ * @return The requested handle or symbol address, or `nullptr` on failure.
+ */
 MOSS_API void* Moss_GetProcAddress(const char* procname);
 #endif // MOSS_USE_OPENGL
 
 // Vulkan
 #if defined(MOSS_GRAPHICS_VULKAN)
-/*! @brief Creates the window for vulkan @param X X @ingroup Vulkan. */
+/**
+ * @brief Creates a Vulkan surface for the specified window.
+ * @param window Window handle affected by this operation.
+ * @param vk_instance Vulkan instance used to create the surface.
+ * @param allocator Optional Vulkan allocation callbacks.
+ * @param vk_surface Destination for the created Vulkan surface.
+ * @return The value or handle requested by the function.
+ */
 MOSS_API VkResult Moss_CreateWindowSurface(Moss_Window* window, VkInstance vk_instance, const VkAllocationCallbacks* allocator, VkSurfaceKHR* vk_surface);
-/*! @brief X @param X X @ingroup Vulkan. */
+/**
+ * @brief Checks whether Vulkan is supported by the current platform.
+ * @return The value or handle requested by the function.
+ */
 MOSS_API int Moss_VulkanSupported(void);
-/*! @brief X @param X X @ingroup Vulkan. */
+/*! @brief Initializes the Vulkan loader with the supplied procedure-address function.
+ * @param loader Vulkan loader function used to resolve Vulkan entry points.
+ * @ingroup Vulkan
+ */
 //MOSS_API void Moss_InitVulkanLoader(PFN_vkGetInstanceProcAddr loader);
-/*! @brief X @param X X @ingroup Vulkan. */
+/**
+ * @brief Returns the Vulkan instance extensions required by the platform.
+ * @param count Destination for the number of returned items.
+ * @return A pointer to the requested string, or `nullptr` if unavailable.
+ * @note The lifetime and ownership of returned data depend on the platform implementation; consult the implementation before retaining the pointer.
+ */
 MOSS_API const char** Moss_GetRequiredInstanceExtensions(uint32_t* count);
-/*! @brief X @param X X @ingroup Vulkan. */
+/**
+ * @brief Retrieves a Vulkan instance procedure address by name.
+ * @param instance Value for `instance`.
+ * @param procname Name of the procedure to look up.
+ * @return The requested handle or symbol address, or `nullptr` on failure.
+ */
 MOSS_API void* Moss_GetInstanceProcAddress(VkInstance instance, const char* procname);
-/*! @brief X @param X X @ingroup Vulkan. */
+/**
+ * @brief Checks whether a Vulkan queue family can present to the window.
+ * @param window Window handle affected by this operation.
+ * @param device Vulkan physical device to query.
+ * @param queuefamily Index of the Vulkan queue family to query.
+ * @return The value or handle requested by the function.
+ */
 MOSS_API int Moss_GetPhysicalDevicePresentationSupport(Moss_Window* window, VkPhysicalDevice device, uint32_t queuefamily);
 #endif // MOSS_USE_VULKAN
 
 // Metal
 #if defined(MOSS_GRAPHICS_METAL)
 typedef void* Moss_MetalView;
+/**
+ * @brief Performs the metal_create view.
+ * @param window Window handle affected by this operation.
+ * @return The value or handle requested by the function.
+ */
 MOSS_API Moss_MetalView Moss_Metal_CreateView(Moss_Window *window);
+/**
+ * @brief Performs the metal_destroy view.
+ * @param view Value for `view`.
+ */
 MOSS_API void Moss_Metal_DestroyView(Moss_MetalView view);
+/**
+ * @brief Performs the metal_get layer.
+ * @param view Value for `view`.
+ * @return The value or handle requested by the function.
+ */
 MOSS_API void* Moss_Metal_GetLayer(Moss_MetalView view);
+/**
+ * @brief Performs the metal_resize.
+ * @param handle Handle to the loaded library or platform resource.
+ * @param width Width in pixels or screen coordinates, as applicable.
+ * @param height Height in pixels or screen coordinates, as applicable.
+ */
 MOSS_API void Moss_Metal_Resize(Moss_MetalView handle, uint32_t width, uint32_t height);
 #endif // MOSS_GRAPHICS_METAL
 
