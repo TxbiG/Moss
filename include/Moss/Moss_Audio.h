@@ -221,250 +221,494 @@ struct Moss_AudioRayTraceResult {
     float delay_seconds = 0.0f;
 };
 
-/*!  @brief Initialize the Moss Audio system. Must be called before using any audio functionality. Initializes the audio backend, mixer, and device interfaces. @return 0 on success, non-zero on failure. */
+/**
+ * @brief Initializes the Moss audio subsystem, including its backend and device interfaces.
+ * @return `0` on success; a non-zero value on failure.
+ */
 MOSS_API int Moss_Init_Audio();
-/*! @brief Shut down the Moss Audio system. Stops all playback, releases devices, and frees internal resources. No audio functions may be called after this. */
+/**
+ * @brief Shuts down the Moss audio subsystem and releases its resources. Stop using audio objects after termination.
+ */
 MOSS_API void Moss_Terminate_Audio();
-/*! @brief Update the audio system.  Must be called once per frame. Handles spatialization, streaming, callbacks, and effect updates. @param deltaTime Time elapsed since last update (seconds). */
+/**
+ * @brief Advances audio-system processing for the current frame.
+ * @param deltaTime Elapsed time since the previous update, in seconds.
+ */
 MOSS_API void Moss_AudioUpdate(float deltaTime);
-/*! @brief Load a WAV audio source from a file path. @param filename Path to the WAV file. @return Pointer to a loaded audio source, or null on failure. */
+/**
+ * @brief Loads a WAV file and creates an audio source for it.
+ * @param filename Path to the WAV file.
+ * @return Pointer to the loaded source, or `nullptr` if loading fails.
+ */
 MOSS_API Moss_AudioSource* Moss_AudioLoadWavFile(const char* filename);
-/*! @brief Compatibility wrapper for older code. Prefer Moss_AudioLoadWavFile. @return Always null because no file path is supplied. */
+/**
+ * @brief Legacy compatibility entry point for WAV loading; it accepts no filename.
+ * @return The header's existing comment indicates this returns `nullptr` because no path is provided.
+ */
 MOSS_API Moss_AudioSource* Moss_AudioLoadWav();
-/*! @brief Load an OGG audio source. @param filename Path to the OGG file. @param type Load type (fully loaded or streaming). @return Pointer to a loaded audio source. */
+/**
+ * @brief Loads an OGG audio file using the requested loading mode.
+ * @param filename Path to the OGG file.
+ * @param type Whether audio is fully loaded or streamed.
+ * @return Pointer to the loaded source, or `nullptr` if loading fails.
+ */
 MOSS_API Moss_AudioSource* Moss_AudioLoadOgg(const char* filename, AudioLoadType type);
-/*! @brief Load an MP3 audio source. @param filename Path to the MP3 file. @return Pointer to a loaded audio source. */
+/**
+ * @brief Loads an MP3 file and creates an audio source for it.
+ * @param filename Path to the MP3 file.
+ * @return Pointer to the loaded source, or `nullptr` if loading fails.
+ */
 MOSS_API Moss_AudioSource* Moss_AudioLoadMP3(const char* filename);
 /*! @brief Register a decoder for encoded audio formats such as OGG/Vorbis or MP3. @param format Encoded format handled by the callback. @param callback Decode callback. @param userdata User pointer passed to the callback. @return true when registered. */
 //MOSS_API bool Moss_AudioRegisterDecoder(Moss_AudioEncodedFormat format, Moss_AudioDecodeCallback callback, void* userdata);
-/*! @brief Destroy an audio source created by Moss_AudioLoad* or Moss_AudioCaptureMicrophone. @param source Audio source to release. */
+/**
+ * @brief Destroys an audio source and releases its associated resources.
+ * @param source Source to destroy.
+ */
 MOSS_API void Moss_AudioSourceDestroy(Moss_AudioSource* source);
-/*! @brief Create an audio source from a microphone device. @param mic Microphone device handle. @return Pointer to an audio source capturing microphone input. */
+/**
+ * @brief Creates an audio source from a microphone handle.
+ * @param mic Microphone to capture from.
+ * @return Pointer to the capture source, or `nullptr` if creation fails.
+ */
 MOSS_API Moss_AudioSource* Moss_AudioCaptureMicrophone(Moss_Microphone* mic);
 
-/*! @brief Create an audio effect. @param type Type of effect to create. @return Created audio effect. */
+/**
+ * @brief Creates an audio effect of the specified type.
+ * @param type Effect type to create.
+ * @return The created effect value.
+ */
 MOSS_API AudioEffect Moss_AudioCreateEffect(AudioEffectType type);
-/*! @brief Set a parameter on an audio effect. @param effect Effect to modify. @param paramName Name of the parameter. @param value Parameter value. */
+/**
+ * @brief Sets a named floating-point parameter on an existing audio effect.
+ * @param effect Effect to modify.
+ * @param paramName Name of the parameter to set.
+ * @param value Value to assign to the parameter.
+ */
 MOSS_API void Moss_AudioCreateEffect(AudioEffect* effect, const char* paramName, float value);
-/*! @brief Remove and destroy an audio effect. @param effect Effect to remove. */
+/**
+ * @brief Removes an audio effect and releases any resources it owns.
+ * @param effect Effect to remove.
+ */
 MOSS_API void Moss_AudioRemoveEffect(AudioEffect* effect);
 
 // Channel
-/*! @brief Create or retrieve an audio channel. @param channel Channel ID. @return Channel ID. */
+/**
+ * @brief Creates or retrieves an audio channel identified by the supplied ID.
+ * @param channel Requested channel identifier.
+ * @return Channel identifier returned by the audio system.
+ */
 MOSS_API ChannelID Moss_AudioCreateChannel(ChannelID channel);
-/*! @brief Remove an audio channel. @param channel Channel ID. */
+/**
+ * @brief Removes the specified audio channel.
+ * @param channel Identifier of the channel to remove.
+ */
 MOSS_API void Audio_RemoveChannel(ChannelID channel);
-/*! @brief Get the master audio channel. @return Master channel ID. */
+/**
+ * @brief Returns the identifier of the master audio channel.
+ * @return Master channel identifier.
+ */
 MOSS_API ChannelID Moss_AudioGetMasterChannel();
-/*! @brief Set channel volume. @param channel Channel ID. @param volume Volume (0.0 – 1.0). */
+/**
+ * @brief Sets the gain of an audio channel.
+ * @param channel Identifier of the channel to modify.
+ * @param volume Requested volume, conventionally in the range `0.0` to `1.0`.
+ */
 MOSS_API void Moss_AudioSetChannelVolume(ChannelID channel, float volume);
-/*! @brief Mute or unmute a channel. @param channel Channel ID. @param mute True to mute. */
+/**
+ * @brief Mutes or unmutes an audio channel.
+ * @param channel Identifier of the channel to modify.
+ * @param mute `true` to mute the channel; `false` to unmute it.
+ */
 MOSS_API void Moss_AudioSetChannelMute(ChannelID channel, bool mute);
-/*! @brief X. */
+/**
+ * @brief Adds an effect to an audio channel's effect chain.
+ * @param channel Identifier of the target channel.
+ * @param effect Effect to add.
+ */
 MOSS_API void Moss_AudioAddChannelEffect(ChannelID channel, AudioEffect* effect);
-/*! @brief X. */
+/**
+ * @brief Removes an effect from an audio channel's effect chain.
+ * @param channel Identifier of the target channel.
+ * @param effect Effect to remove.
+ */
 MOSS_API void Moss_AudioRemoveChannelEffect(ChannelID channel, AudioEffect* effect);
-/*! @brief X. */
+/**
+ * @brief Removes all effects from an audio channel.
+ * @param channel Identifier of the channel to clear.
+ */
 MOSS_API void Moss_AudioRemoveAllChannelEffects(ChannelID channel);
 
-/*! @brief Create a non-spatial audio stream. @return Pointer to the created stream. */
+/**
+ * @brief Creates a non-spatial audio stream.
+ * @return Pointer to the stream, or `nullptr` if creation fails.
+ */
 MOSS_API AudioStream* Moss_AudioStreamCreate();
-/*! @brief Start playback of an audio stream. @param audiostream Stream to play. */
+/**
+ * @brief Starts playback of an audio stream.
+ * @param audiostream Stream to play.
+ */
 MOSS_API void Moss_AudioStreamPlay(AudioStream* audiostream);
-/*! @brief Stop playback of an audio stream. @param audiostream Stream to stop. */
+/**
+ * @brief Stops playback of an audio stream.
+ * @param audiostream Stream to stop.
+ */
 MOSS_API void Moss_AudioStreamStop(AudioStream* audiostream);
-/*! @brief Set stream volume. @param audiostream Stream to modify. @param volume Volume (0.0 – 1.0). */
+/**
+ * @brief Sets the playback volume of an audio stream.
+ * @param audiostream Stream to modify.
+ * @param volume Requested volume, conventionally in the range `0.0` to `1.0`.
+ */
 MOSS_API void Moss_AudioStreamSetVolume(AudioStream* audiostream, float volume);
-/*! @brief X. */
+/**
+ * @brief Sets the pitch multiplier for an audio stream.
+ * @param audiostream Stream to modify.
+ * @param pitch Pitch multiplier; `1.0` conventionally represents the original pitch.
+ */
 MOSS_API void Moss_AudioStreamSetPitch(AudioStream* audiostream, float pitch);
-/*! @brief X. */
+/**
+ * @brief Sets the playback-rate multiplier for an audio stream.
+ * @param audiostream Stream to modify.
+ * @param rate Playback-rate multiplier; `1.0` conventionally represents the original rate.
+ */
 MOSS_API void Moss_AudioStreamSetPlaybackRate(AudioStream* audiostream, float rate);
-/*! @brief X. */
+/**
+ * @brief Sets the stereo pan position of an audio stream.
+ * @param audiostream Stream to modify.
+ * @param pan Pan value; the exact accepted range is implementation-defined.
+ */
 MOSS_API void Moss_AudioStreamSetPan(AudioStream* audiostream, float pan);
-/*! @brief X. */
+/**
+ * @brief Enables or disables looping for an audio stream.
+ * @param audiostream Stream to modify.
+ * @param loop `true` to loop playback; `false` to play without looping.
+ */
 MOSS_API void Moss_AudioStreamSetLoop(AudioStream* audiostream, bool loop);
-/*! @brief X. */
+/**
+ * @brief Removes an audio stream and releases its resources.
+ * @param audiostream Stream to remove.
+ */
 MOSS_API void Moss_AudioStreamRemove(AudioStream* audiostream);
 
-/*! @brief X. */
+/**
+ * @brief Creates a 2D audio stream.
+ * @return Pointer to the stream, or `nullptr` if creation fails.
+ */
 MOSS_API AudioStream2D* Moss_AudioStream2DCreate();
-/*! @brief X. */
+/**
+ * @brief Starts playback of a 2D audio stream.
+ * @param audiostream Stream to play.
+ */
 MOSS_API void Moss_AudioStream2DPlay(AudioStream2D* audiostream);
-/*! @brief X. */
+/**
+ * @brief Stops playback of a 2D audio stream.
+ * @param audiostream Stream to stop.
+ */
 MOSS_API void Moss_AudioStream2DStop(AudioStream2D* audiostream);
-/*! @brief X. */
+/**
+ * @brief Sets the playback volume of a 2D audio stream.
+ * @param audiostream Stream to modify.
+ * @param volume Requested volume, conventionally in the range `0.0` to `1.0`.
+ */
 MOSS_API void Moss_AudioStream2DSetVolume(AudioStream2D* audiostream, float volume);
-/*! @brief X. */
+/**
+ * @brief Sets the pitch multiplier for a 2D audio stream.
+ * @param audiostream Stream to modify.
+ * @param pitch Pitch multiplier; `1.0` conventionally represents the original pitch.
+ */
 MOSS_API void Moss_AudioStream2DSetPitch(AudioStream2D* audiostream, float pitch);
+/**
+ * @brief Sets the playback-rate multiplier for a 2D audio stream.
+ * @param audiostream Stream to modify.
+ * @param rate Playback-rate multiplier; `1.0` conventionally represents the original rate.
+ */
 void Moss_AudioStream2DSetPlaybackRate(AudioStream2D* audiostream, float rate);
+/**
+ * @brief Sets the stereo pan position of a 2D audio stream.
+ * @param audiostream Stream to modify.
+ * @param pan Pan value; the exact accepted range is implementation-defined.
+ */
 MOSS_API void Moss_AudioStream2DSetPan(AudioStream2D* audiostream, float pan);
-/*! @brief X. */
+/**
+ * @brief Enables or disables looping for a 2D audio stream.
+ * @param audiostream Stream to modify.
+ * @param loop `true` to loop playback; `false` to play without looping.
+ */
 MOSS_API void Moss_AudioStream2DSetLoop(AudioStream2D* audiostream, bool loop);
-/*! @brief X. */
+/**
+ * @brief Declaration named for 3D positioning, but currently accepts an `AudioStream2D*` and no position argument.
+ * @param audiostream Stream handle as declared. This signature does not expose a position value; verify whether the parameter type and signature are intended.
+ */
 MOSS_API void Moss_AudioStream3DSetPosition(AudioStream2D* audiostream);
-/*! @brief X. */
+/**
+ * @brief Declaration named for 3D velocity, but currently accepts an `AudioStream2D*` and no velocity argument.
+ * @param audiostream Stream handle as declared. This signature does not expose a velocity value; verify whether the parameter type and signature are intended.
+ */
 MOSS_API void Moss_AudioStream3DSetVelocity(AudioStream2D* audiostream);
-/*! @brief X. */
+/**
+ * @brief Declaration named for 3D maximum distance, but currently accepts an `AudioStream2D*` and no distance argument.
+ * @param audiostream Stream handle as declared. This signature does not expose a distance value; verify whether the parameter type and signature are intended.
+ */
 MOSS_API void Moss_AudioStream3DSetMaxDistance(AudioStream2D* audiostream);
-/*! @brief X. */
+/**
+ * @brief Removes a 2D audio stream and releases its resources.
+ * @param audiostream Stream to remove.
+ */
 MOSS_API void Moss_AudioStream2DRemove(AudioStream2D* audiostream);
 
-/*! @brief X. */
+/**
+ * @brief Creates a 3D spatial audio stream.
+ * @return Pointer to the stream, or `nullptr` if creation fails.
+ */
 MOSS_API AudioStream3D* Moss_AudioStream3DCreate();
-/*! @brief X. */
+/**
+ * @brief Starts playback of a 3D spatial audio stream.
+ * @param audiostream Stream to play.
+ */
 MOSS_API void Moss_AudioStream3DPlay(AudioStream3D* audiostream);
-/*! @brief X. */
+/**
+ * @brief Stops playback of a 3D spatial audio stream.
+ * @param audiostream Stream to stop.
+ */
 MOSS_API void Moss_AudioStream3DStop(AudioStream3D* audiostream);
-/*! @brief X. */
+/**
+ * @brief Sets the playback volume of a 3D audio stream.
+ * @param audiostream Stream to modify.
+ * @param volume Requested volume, conventionally in the range `0.0` to `1.0`.
+ */
 MOSS_API void Moss_AudioStream3DSetVolume(AudioStream3D* audiostream, float volume);
-/*! @brief X. */
+/**
+ * @brief Sets the pitch multiplier for a 3D audio stream.
+ * @param audiostream Stream to modify.
+ * @param pitch Pitch multiplier; `1.0` conventionally represents the original pitch.
+ */
 MOSS_API void Moss_AudioStream3DSetPitch(AudioStream3D* audiostream, float pitch);
-/*! @brief X. */
+/**
+ * @brief Sets the playback-rate multiplier for a 3D audio stream.
+ * @param audiostream Stream to modify.
+ * @param rate Playback-rate multiplier; `1.0` conventionally represents the original rate.
+ */
 MOSS_API void Moss_AudioStream3DSetPlaybackRate(AudioStream3D* audiostream, float rate);
-/*! @brief X. */
+/**
+ * @brief Sets the pan value for a 3D audio stream.
+ * @param audiostream Stream to modify.
+ * @param pan Pan value; the exact accepted range is implementation-defined.
+ */
 MOSS_API void Moss_AudioStream3DSetPan(AudioStream3D* audiostream, float pan);
-/*! @brief X. */
+/** @brief Enables or disables looping for a 3D audio stream. @param audiostream Stream to modify. @param loop `true` to loop playback; `false` to play without looping.
+ */
 MOSS_API void Moss_AudioStream3DSetLoop(AudioStream3D* audiostream, bool loop);
-/*! @brief X. */
+/**
+ * @brief Updates the position of a 3D audio stream. @param audiostream Stream handle. Note: this declaration currently exposes no position argument, so a position cannot be supplied through this signature.
+ */
 MOSS_API void Moss_AudioStream3DSetPosition(AudioStream3D* audiostream);
-/*! @brief X. */
+/**
+ * @brief Updates the velocity of a 3D audio stream. @param audiostream Stream handle. Note: this declaration currently exposes no velocity argument, so a velocity cannot be supplied through this signature.
+ */
 MOSS_API void Moss_AudioStream3DSetVelocity(AudioStream3D* audiostream);
-/*! @brief X. */
+/** @brief Updates the maximum audible distance of a 3D audio stream. @param audiostream Stream handle. Note: this declaration currently exposes no distance argument, so a distance cannot be supplied through this signature.
+ */
 MOSS_API void Moss_AudioStream3DSetMaxDistance(AudioStream3D* audiostream);
-/*! @brief X. */
+/** @brief Sets the distance-attenuation model used by a 3D audio stream. @param stream Stream to modify. @param model Distance model to apply.
+ */
 MOSS_API void Moss_AudioStream3DSetDistanceModel(AudioStream3D* stream, DistanceModel model);
-/*! @brief X. */
+/** @brief Removes a 3D audio stream and releases its resources. @param audiostream Stream to remove.
+ */
 MOSS_API void Moss_AudioStream3DRemove(AudioStream3D* audiostream);
 
 
-/*! @brief X. */
+/** @brief Creates a 2D audio listener at the supplied position. @param position Initial listener position. @return Pointer to the listener, or `nullptr` if creation fails.
+ */
 MOSS_API AudioListener2D* Moss_AudioCreateAudioListener2D(Float2 position);
-/*! @brief Create a 3D audio listener. @return Pointer to the created listener. */
+/** @brief Creates a 3D audio listener at the supplied position. @param position Initial listener position. @return Pointer to the listener, or `nullptr` if creation fails.
+ */
 MOSS_API AudioListener3D* Moss_AudioCreateAudioListener3D(Float3 position);
-/*! @brief  ray-audio listener. Requires ray-audio support from the backend/application.. */
+/** @brief Creates a 2D ray-audio listener at the supplied position. @param position Initial listener position. @return Pointer to the listener, or `nullptr` if creation fails. Requires ray-audio support.
+ */
 MOSS_API RayAudioListener2D* Moss_AudioCreateRayAudioListener2D(Float2 position);
-/*! @brief  ray-audio listener. Requires ray-audio support from the backend/application. */
+/** @brief Creates a 3D ray-audio listener at the supplied position. @param position Initial listener position. @return Pointer to the listener, or `nullptr` if creation fails. Requires ray-audio support.
+ */
 MOSS_API RayAudioListener3D* Moss_AudioCreateRayAudioListener3D(Float3 position);
 
-/*! @brief X. */
+/** @brief Destroys a 2D audio listener. @param listener Listener to remove.
+ */
 MOSS_API void Moss_AudioRemoveAudioListener2D(AudioListener2D* listener);
-/*! @brief X. */
+/** @brief Destroys a 3D audio listener. @param listener Listener to remove.
+ */
 MOSS_API void Moss_AudioRemoveAudioListener3D(AudioListener3D* listener);
-/*! @brief X. */
+/** @brief Destroys a 2D ray-audio listener. @param listener Listener to remove.
+ */
 MOSS_API void Moss_AudioRemoveRayAudioListener2D(RayAudioListener2D* listener);
-/*! @brief X. */
+/** @brief Destroys a 3D ray-audio listener. @param listener Listener to remove.
+ */
 MOSS_API void Moss_AudioRemoveRayAudioListener3D(RayAudioListener3D* listener);
 
-/*! @brief X. */
+/** @brief Activates or deactivates a 2D audio listener. @param listener Listener to update. @param activate `true` to activate it; `false` to deactivate it.
+ */
 MOSS_API void Moss_AudioActivateAudioListener2D(AudioListener2D* listener, bool activate);
-/*! @brief X. */
+/** @brief Activates or deactivates a 3D audio listener. @param listener Listener to update. @param activate `true` to activate it; `false` to deactivate it.
+ */
 MOSS_API void Moss_AudioActivateAudioListener3D(AudioListener3D* listener, bool activate);
-/*! @brief X. */
+/** @brief Activates or deactivates a 2D ray-audio listener. @param listener Listener to update. @param activate `true` to activate it; `false` to deactivate it.
+ */
 MOSS_API void Moss_AudioActivateRayAudioListener2D(RayAudioListener2D* listener, bool activate);
-/*! @brief X. */
+/** @brief Activates or deactivates a 3D ray-audio listener. @param listener Listener to update. @param activate `true` to activate it; `false` to deactivate it.
+ */
 MOSS_API void Moss_AudioActivateRayAudioListener3D(RayAudioListener3D* listener, bool activate);
 
-/*! @brief Set listener orientation. @param listener Listener to modify. @param forward Forward direction vector. @param up Up direction vector. */
+/** @brief Sets the orientation vectors for a 3D audio listener. @param listener Listener to modify. @param forward Forward direction vector. @param up Up direction vector.
+ */
 MOSS_API void Moss_AudioListenerSetOrientation(AudioListener3D* listener, const Vec3& forward, const Vec3& up);
-/*! @brief X. */
+/** @brief Configures the physics system and raycast callback used by a 2D ray-audio listener. @param listener Listener to configure. @param physics Physics system supplied to the callback. @param raycast Callback used to query 2D ray intersections. @param user_data User pointer forwarded to the callback.
+ */
 MOSS_API void Moss_AudioRayListener2DSetPhysics(RayAudioListener2D* listener, PhysicsSystem* physics, Moss_AudioRaycast2DCallback raycast, void* user_data);
-/*! @brief X. */
+/** @brief Configures the physics system and raycast callback used by a 3D ray-audio listener. @param listener Listener to configure. @param physics Physics system supplied to the callback. @param raycast Callback used to query 3D ray intersections. @param user_data User pointer forwarded to the callback.
+ */
 MOSS_API void Moss_AudioRayListener3DSetPhysics(RayAudioListener3D* listener, PhysicsSystem* physics, Moss_AudioRaycast3DCallback raycast, void* user_data);
-/*! @brief X. */
+/** @brief Sets ray-tracing limits for a 2D ray-audio listener. @param listener Listener to configure. @param max_distance Maximum ray-tracing distance. @param reflection_rays Number of rays to use for reflection tracing.
+ */
 MOSS_API void Moss_AudioRayListener2DSetTraceSettings(RayAudioListener2D* listener, float max_distance, uint32_t reflection_rays);
-/*! @brief X. */
+/** @brief Sets ray-tracing limits for a 3D ray-audio listener. @param listener Listener to configure. @param max_distance Maximum ray-tracing distance. @param reflection_rays Number of rays to use for reflection tracing.
+ */
 MOSS_API void Moss_AudioRayListener3DSetTraceSettings(RayAudioListener3D* listener, float max_distance, uint32_t reflection_rays);
-/*! @brief X. */
+/** @brief Traces audio paths in 2D using the supplied description and callback. @param desc Trace configuration, including physics/raycast callback and source/listener positions. @param[out] out_result Receives the computed audibility, occlusion, attenuation, and reflection data. @return `true` if tracing produced a result; otherwise `false`.
+ */
 MOSS_API bool Moss_AudioRayTrace2D(const Moss_AudioRayTrace2DDesc* desc, Moss_AudioRayTraceResult* out_result);
-/*! @brief X. */
+/** @brief Traces audio paths in 3D using the supplied description and callback. @param desc Trace configuration, including physics/raycast callback and source/listener positions. @param[out] out_result Receives the computed audibility, occlusion, attenuation, and reflection data. @return `true` if tracing produced a result; otherwise `false`.
+ */
 MOSS_API bool Moss_AudioRayTrace3D(const Moss_AudioRayTrace3DDesc* desc, Moss_AudioRayTraceResult* out_result);
-/*! @brief X. */
+/** @brief Traces an audio path from a configured 2D ray-audio listener to a source position. @param listener Listener providing the trace configuration. @param source_position Position of the audio source. @param[out] out_result Receives the trace result. @return `true` if tracing produced a result; otherwise `false`.
+ */
 MOSS_API bool Moss_AudioRayTraceFromListener2D(RayAudioListener2D* listener, const Vec2* source_position, Moss_AudioRayTraceResult* out_result);
-/*! @brief X. */
+/** @brief Traces an audio path from a configured 3D ray-audio listener to a source position. @param listener Listener providing the trace configuration. @param source_position Position of the audio source. @param[out] out_result Receives the trace result. @return `true` if tracing produced a result; otherwise `false`.
+ */
 MOSS_API bool Moss_AudioRayTraceFromListener3D(RayAudioListener3D* listener, const Vec3* source_position, Moss_AudioRayTraceResult* out_result);
-/*! @brief X. */
+/** @brief Computes an audio gain value from a ray-trace result. @param result Trace result to evaluate. @return Computed gain; the exact combination of result fields is implementation-defined.
+ */
 MOSS_API float Moss_AudioRayTraceComputeGain(const Moss_AudioRayTraceResult* result);
 
 
-/*! @brief Check if a speaker device is available. @return True if a device is ready. */
+/** @brief Reports whether a speaker output device is ready. @return `true` if speaker output is ready; otherwise `false`.
+ */
 MOSS_API bool Moss_IsSpeakerDeviceReady();
-/*! @brief Open the current speaker device. */
+/** @brief Opens or initializes the selected speaker output device.
+ */
 MOSS_API void Moss_AudioSpeakerOpen();
 
-/*! @brief Pause audio output. */
+/** @brief Pauses speaker audio output.
+ */
 MOSS_API void Moss_AudioSpeakerPause();
-/*! @brief Resume audio output. */
+/** @brief Resumes speaker audio output.
+ */
 MOSS_API void Moss_AudioSpeakerResume();
-/*! @brief X. */
+/** @brief Reports whether speaker output is paused. @return `true` if output is paused; otherwise `false`.
+ */
 MOSS_API bool Moss_AudioSpeakerIsPaused();
-/*! @brief X. @param X X. */
+/** @brief Selects the speaker device identified by the supplied index or ID. @param id Speaker device identifier. @return `true` if selection succeeds; otherwise `false`.
+ */
 MOSS_API bool Moss_AudioSelectSpeakerDevice(int id);
-/*! @brief X. */
+/** @brief Returns the identifier of the currently selected speaker device. @return Current speaker device ID, or the implementation-defined sentinel when none is selected.
+ */
 MOSS_API int Moss_GetCurrentSpeakerDeviceID();
-/*! @brief Get the display name for a speaker device. */
+/** @brief Returns the display name of a speaker device. @param id Speaker device identifier. @return Device name, or `nullptr` if the ID is invalid or no name is available.
+ */
 MOSS_API const char* Moss_GetSpeakerDeviceName(int id);
-/*! @brief Return number of speakers. */
+/** @brief Returns the number of available speaker devices. @return Number of enumerated speaker devices.
+ */
 MOSS_API int Moss_ListSpeakerDevices();
 
 // Microphone
-/*! @brief Check if microphone is ready. */
+/** @brief Returns the number of enumerated microphone input devices. @return Number of microphone devices.
+ */
 MOSS_API uint32_t Moss_MicrophoneGetDeviceCount();
-/*! @brief Check if microphone is ready. */
+/** @brief Returns the display name of a microphone input device. @param device_index Zero-based microphone device index. @return Device name, or `nullptr` if the index is invalid or no name is available.
+ */
 MOSS_API const char* Moss_MicrophoneGetDeviceName(uint32_t device_index);
-/*! @brief Check if microphone is ready. */
+/**
+ * @brief Opens a microphone using the supplied capture configuration. @param desc Microphone configuration; must point to a valid descriptor. @return Pointer to the opened microphone, or `nullptr` if opening fails.
+ */
 MOSS_API Moss_Microphone* Moss_MicrophoneOpen(const Moss_MicrophoneDesc* desc);
-/*! @brief Check if microphone is ready. */
+/** @brief Closes a microphone and releases its capture resources. @param microphone Microphone to close.
+ */
 MOSS_API void Moss_MicrophoneClose(Moss_Microphone* microphone);
-/*! @brief Check if microphone is ready. */
+/** @brief Starts microphone capture. @param microphone Microphone to start. @return `true` if capture starts successfully; otherwise `false`.
+ */
 MOSS_API bool Moss_MicrophoneStart(Moss_Microphone* microphone);
-/*! @brief Check if microphone is ready. */
+/** @brief Stops microphone capture. @param microphone Microphone to stop.
+ */
 MOSS_API void Moss_MicrophoneStop(Moss_Microphone* microphone);
-/*! @brief Check if microphone is ready. */
+/** @brief Reads captured microphone samples into the supplied buffer. @param microphone Microphone to read from. @param[out] out_samples Destination sample buffer. @param max_frames Maximum number of frames to read, according to the API's frame convention. @return Number of frames read.
+ */
 MOSS_API uint32_t Moss_MicrophoneRead(Moss_Microphone* microphone, float* out_samples, uint32_t max_frames);
-/*! @brief Check if microphone is ready. */
+/** @brief Sets the input gain for a microphone. @param microphone Microphone to modify. @param gain Requested input gain.
+ */
 MOSS_API void Moss_MicrophoneSetGain(Moss_Microphone* microphone, float gain);
-/*! @brief Check if microphone is ready. */
+/** @brief Returns the configured sample rate of a microphone. @param microphone Microphone to query. @return Sample rate in samples per second.
+ */
 MOSS_API uint32_t Moss_MicrophoneGetSampleRate(Moss_Microphone* microphone);
-/*! @brief Check if microphone is ready. */
+/** @brief Returns the number of audio channels configured for a microphone. @param microphone Microphone to query. @return Number of channels.
+ */
 MOSS_API uint32_t Moss_MicrophoneGetChannels(Moss_Microphone* microphone);
-/*! @brief Set a microphone capture callback. @param mic Microphone device. @param callback Callback function. @param userData User-defined pointer. */
+/** @brief Sets the callback invoked with captured microphone samples. @param microphone Microphone to configure. @param callback Callback to receive sample data, or `nullptr` to clear it if supported. @param userData User pointer passed to the callback.
+ */
 MOSS_API void Moss_MicrophoneSetCallback(Moss_Microphone* microphone, MicrophoneCallback callback, void* userData);
-/*! @brief Check if microphone is ready. */
+/** @brief Returns the current microphone level metrics. @param microphone Microphone to query. @return RMS, peak, smoothed-volume, and voice-activity measurements.
+ */
 MOSS_API Moss_MicrophoneLevels Moss_MicrophoneGetLevels(Moss_Microphone* microphone);
-/*! @brief Check if microphone is ready. */
+/** @brief Returns the microphone's root-mean-square level. @param microphone Microphone to query. @return RMS level.
+ */
 MOSS_API float Moss_MicrophoneGetLevelRMS(Moss_Microphone* microphone);
-/*! @brief Check if microphone is ready. */
+/** @brief Returns the microphone's peak level. @param microphone Microphone to query. @return Peak level.
+ */
 MOSS_API float Moss_MicrophoneGetLevelPeak(Moss_Microphone* microphone);
-/*! @brief Check if microphone is ready. */
+/**
+ * @brief Returns the microphone's smoothed volume measurement. @param microphone Microphone to query. @return Smoothed volume value.
+ */
 MOSS_API float Moss_MicrophoneGetSmoothedVolume(Moss_Microphone* microphone);
-/*! @brief Check if microphone is ready. */
+/** @brief Returns the microphone's voice-activity measurement. @param microphone Microphone to query. @return Voice-activity value.
+ */
 MOSS_API float Moss_MicrophoneGetVoiceActivity(Moss_Microphone* microphone);
-/*! @brief Check if microphone is ready. */
+/** @brief Reports whether a microphone input device is ready. @return `true` if microphone input is ready; otherwise `false`.
+ */
 MOSS_API bool Moss_IsMicrophoneDeviceReady();
-/*! @brief Initialize microphone. */
+/** @brief Opens the default or currently selected microphone through the legacy audio interface. @return The existing header does not specify a return value convention; verify the implementation before relying on a status code.
+ */
 MOSS_API int Moss_AudioMicrophoneOpen();
-/*! @brief Terminate microphone. */
+/** @brief Closes the microphone opened through the legacy audio interface.
+ */
 MOSS_API void Moss_AudioMicrophoneClose();
-/*! @brief Start capture. */
+/** @brief Starts microphone capture through the legacy audio interface.
+ */
 MOSS_API void Moss_AudioMicrophonePlay();
-/*! @brief Stop capture. */
+/** @brief Stops microphone capture through the legacy audio interface.
+ */
 MOSS_API void Moss_AudioMicrophoneStop();
-/*! @brief Get default microphone ID. */
+/** @brief Returns the ID of the default or currently selected microphone. @return Microphone device ID, or an implementation-defined sentinel when unavailable.
+ */
 MOSS_API int Moss_AudioMicrophoneID();
-/*! @brief X. @param X X. */
+/** @brief Selects the microphone device identified by the supplied ID. @param id Microphone device identifier. @return `true` if selection succeeds; otherwise `false`.
+ */
 MOSS_API bool Moss_AudioSelectMicrophoneDevice(int id);
-/*! @brief Get microphone name. */
+/** @brief Returns the display name of a microphone device. @param index Microphone device index. @return Device name, or `nullptr` if the index is invalid or no name is available.
+ */
 MOSS_API const char* Moss_GetMicrophoneDeviceName(int index);
-/*! @brief Return number of microphones. */
+/** @brief Returns the number of available microphone devices. @return Number of enumerated microphone devices.
+ */
 MOSS_API int Moss_ListMicrophoneDevices();
-/*! @brief X. */
+/** @brief Sets the gain for the specified microphone. @param microphone Microphone to modify. @param gain Requested input gain.
+ */
 MOSS_API void Moss_AudioMicrophoneSetGain(Moss_Microphone* microphone, float gain);
-/*! @brief X. */
+/**
+ * @brief Returns the sample rate configured for the specified microphone. @param microphone Microphone to query. @return Sample rate in samples per second.
+ */
 MOSS_API int Moss_AudioMicrophoneGetSampleRate(Moss_Microphone* microphone);
-/*! @brief X. */
+/** @brief Returns the number of channels configured for the specified microphone. @param microphone Microphone to query. @return Number of channels.
+ */
 MOSS_API int Moss_AudioMicrophoneGetChannels(Moss_Microphone* microphone);
 
-/*! @brief Open the microphone device. @return 0 on success, non-zero on failure. */
+/**
+ * @brief Sets the callback used to supply audio-stream samples. @param stream Stream to configure. @param callback Callback that fills the requested audio buffer, or `nullptr` to clear it if supported. @param userData User pointer passed to the callback.
+ */
 MOSS_API void Moss_AudioStreamSetCallback(AudioStream* stream, AudioStreamCallback callback, void* userData);
 /*! @brief Set a microphone capture callback. @param mic Microphone device. @param callback Callback function. @param userData User-defined pointer. */
 
