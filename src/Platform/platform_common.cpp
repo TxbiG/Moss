@@ -122,42 +122,6 @@ bool GetGamepadSensorData(Moss_Gamepad* gp, Moss_GamepadSensorType sensor, Moss_
     return true;
 }
 
-// Stores a new sample received from a native backend.
-void PublishGamepadSensorSample(Moss_Gamepad* gp, Moss_GamepadSensorType sensor, const Moss_GamepadSensorData& sample) {
-    std::size_t index = 0;
-    if (gp == nullptr || !GetSensorIndex(sensor, index) || !IsValidSample(sample)) { return; }
-
-    std::lock_guard<std::mutex> lock(g_sensorMutex);
-    const auto gamepadIt = g_gamepadSensors.find(gp);
-    if (gamepadIt == g_gamepadSensors.end()) return;
-
-    SensorState& state = gamepadIt->second[index];
-    if (!state.supported || !state.enabled) return;
-    if (state.hasSample && sample.timestamp_ns < state.latest.timestamp_ns) { return; }
-
-    float deltaTime = (state.latest.timestamp_ns > 0) ? (float)(sample.timestamp_ns - state.latest.timestamp_ns) / 1e9f : 0.016f;
-
-    state.latest = sample;
-    state.hasSample = true;
-
-    // Grab context blocks across the tracking matrices
-    auto& trackingState = g_gamepadSensors[gp]; 
-    
-    float rawG[3] = { g_gamepadSensors[gp][1].latest.x, g_gamepadSensors[gp][1].latest.y, g_gamepadSensors[gp][1].latest.z };
-    float rawA[3] = { g_gamepadSensors[gp][0].latest.x, g_gamepadSensors[gp][0].latest.y, g_gamepadSensors[gp][0].latest.z };
-
-    // 1. Continuously evaluate movements to optimize active background filters
-    Moss_ProcessStillnessCalibration(trackingState, rawG[0], rawG[1], rawG[2], rawA[0], rawA[1], rawA[2], deltaTime);
-
-    // 2. Subtract calibration baseline errors to completely remove sensor drift
-    float cleanGyroX = rawG[0] - trackingState.calibration_offset[0];
-    float cleanGyroY = rawG[1] - trackingState.calibration_offset[1];
-    float cleanGyroZ = rawG[2] - trackingState.calibration_offset[2];
-
-    // 3. Forward cleaned numbers down into final projection space equations
-    Moss_InternalProcessSensorFusion(trackingState, cleanGyroX, cleanGyroY, cleanGyroZ, rawA[0], rawA[1], rawA[2], deltaTime);
-}
-
 // Clears cached data when a gamepad disconnects or is destroyed.
 // Stop native sensor callbacks before calling this function.
 void ResetGamepadSensorState(Moss_Gamepad* gp) {
