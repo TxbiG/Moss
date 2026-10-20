@@ -310,42 +310,70 @@ struct MossXR_Capabilities {
 /* ======================================================
  * Instance
  * =================================================== */
-/*! @brief X */
+/**
+ * @brief Initializes the Moss XR subsystem using the supplied Moss renderer. @param renderer Renderer used to integrate XR rendering with Moss. Must remain valid as required by the implementation. @return `true` if XR initialization succeeds; otherwise `false`.
+ */
 MOSS_API bool Moss_XR_Initialize(Moss_Renderer* renderer);
-/*! @brief X */
+/**
+ * @brief Shuts down the Moss XR subsystem and releases its owned resources. Call when XR functionality is no longer needed.
+ */
 MOSS_API void Moss_XR_Shutdown(void);
 
-/*! @brief X @param X */
+/**
+ * @brief Returns the capabilities reported by the initialized XR subsystem. @return Pointer to the capability description, or `nullptr` if no capability data is available. The returned pointer is owned by the subsystem.
+ */
 MOSS_API const MossXR_Capabilities* Moss_XR_GetCapabilities(void);
-/*! @brief X @param X */
+/**
+ * @brief Enables OpenXR validation layers when supported by the runtime and build configuration. @return `true` if validation layers are enabled; otherwise `false`.
+ */
 MOSS_API bool Moss_XR_EnableValidationLayers();
 /* ======================================================
  * Session
  * =================================================== */
-/*! @brief X */
+/**
+ * @brief Creates an XR session for the active XR instance. @return Pointer to the created session, or `nullptr` if session creation fails.
+ */
 MOSS_API MossXR_Session* Moss_XR_CreateSession(void);
-/*! @brief X @param X */
+/**
+ * @brief Destroys an XR session and releases resources owned by it. @param session Session to destroy. A null pointer should be treated as invalid unless the implementation explicitly permits it.
+ */
 MOSS_API void Moss_XR_DestroySession(MossXR_Session* session);
-/*! @brief X @param X */
+/*! @brief Returns the current lifecycle state of an XR session. @param session Session whose state is queried. @return Current session state, or `MossXR_SessionState::Unknown` when the state cannot be determined.
+ */
 MOSS_API MossXR_SessionState Moss_XR_GetSessionState(MossXR_Session* session);
 
 // Frame Loop
-/*! @brief X @param X */
+/**
+ * @brief Begins an XR frame and performs the frame-start synchronization required by the runtime.
+ * @param session Session for which to begin the frame. @return `true` if the frame can proceed; otherwise `false`.
+ */
 MOSS_API bool Moss_XR_BeginFrame(MossXR_Session* session);
-/*! @brief X @param X */
+/**
+ * @brief Ends the current XR frame and submits frame completion to the runtime. @param session Session whose current frame is being ended.
+ */
 MOSS_API void Moss_XR_EndFrame(MossXR_Session* session);
-/*! @brief X @param X */
+/**
+ * @brief Gets the predicted display time for the session's current frame. @param session Session whose predicted display time is requested. @return Predicted display time in the XR time representation used by this API.
+ */
 MOSS_API MossXR_Time Moss_XR_GetPredictedDisplayTime(MossXR_Session* session);
-/*! @brief X @return */
+/**
+ * @brief Returns the XR frame delta time in seconds. @return Frame delta time in seconds.
+ */
 MOSS_API float Moss_XR_GetDeltaSeconds(void);
 
-/*! @brief XR Poll events */
+/**
+ * @brief Polls and processes pending XR runtime events for the session. @param session Session whose events should be handled.
+ */
 MOSS_API void Moss_XR_HandleEvents(MossXR_Session* session);
 
 // Views
-/*! @brief X @param X */
+/**
+ * @brief Returns the number of views configured for the session. @param session Session to query. @return Number of views, such as the views used for mono or stereo rendering.
+ */
 MOSS_API uint32_t Moss_XR_GetViewCount(MossXR_Session* session);
-/*! @brief X @param X */
+/*! @brief Retrieves the pose, field of view, and view/projection matrices for one XR view. @param session Session to query.
+ * @param index Zero-based index of the requested view. @param outView Output structure that receives the view data; must point to writable storage. @return `true` if the view data was retrieved; otherwise `false`.
+ */
 MOSS_API bool Moss_XR_GetView(MossXR_Session* session, uint32_t index, MossXR_View* outView);
 
 
@@ -353,107 +381,150 @@ MOSS_API bool Moss_XR_GetView(MossXR_Session* session, uint32_t index, MossXR_Vi
  * Layers
  * =================================================== */
 // Swapchains
-/*! @brief X @param X */
-MOSS_API MossXR_Swapchain* Moss_XR_CreateSwapchain(MossXR_Session* session, uint32_t width, uint32_t height, ETextureFormat format);
-/*! @brief X @param X */
-MOSS_API void Moss_XR_DestroySwapchain(MossXR_Swapchain* swapchain);
-/*! @brief X @param X */
-MOSS_API void* Moss_XR_AcquireSwapchainImage(MossXR_Swapchain* swapchain, uint32_t* outImageIndex);
-/*! @brief X @param X */
-MOSS_API void Moss_XR_ReleaseSwapchainImage(MossXR_Swapchain* swapchain, uint32_t imageIndex);
-
-// Anchors
-/*! @brief X @param X */
-MOSS_API MossXR_Anchor* Moss_XR_CreateAnchor(const MossXR_Pose* pose);
-/*! @brief X @param X */
-MOSS_API void Moss_XR_DestroyAnchor(MossXR_Anchor* anchor);
-/*! @brief X @param X */
-MOSS_API bool Moss_XR_LocateAnchor( MossXR_Anchor* anchor, MossXR_Time time, MossXR_Pose* outPose);
-
-// Composition Layers
-/*! @brief X @param X */
-MOSS_API MossXR_Layer* Moss_XR_CreateProjectionLayer(MossXR_Swapchain* swapchain);
-/*! @brief X @param X */
-MOSS_API MossXR_Layer* Moss_XR_CreateQuadLayer(MossXR_Swapchain* swapchain, const MossXR_Pose* pose, Vec2 size);
-/*! @brief X @param X */
-MOSS_API void Moss_XR_DestroyLayer(MossXR_Layer* layer);
-/*! @brief X @param X */
-MOSS_API void Moss_XR_SubmitLayers(MossXR_Session* session, uint32_t layerCount, MossXR_Layer** layers);
 
 /* ======================================================
  * Actions
  * =================================================== */
-/*! @brief X @param X */
+/**
+ * @brief Creates an action set with the supplied name. @param name Name identifying the action set. @return Pointer to the created action set, or `nullptr` if creation fails.
+ */
 MOSS_API MossXR_ActionSet* Moss_XR_CreateActionSet(const char* name);
-/*! @brief X @param X */
+/** @brief Destroys an action set and releases its resources. @param set Action set to destroy.
+ */
 MOSS_API void Moss_XR_DestroyActionSet(MossXR_ActionSet* set);
-/*! @brief X @param X */
+/**
+ * @brief Creates an action of the specified type in an action set. @param set Action set that will contain the action.
+ * @param name Name identifying the action. @param type Value type and interaction category of the action.
+ * @return Pointer to the created action, or `nullptr` if creation fails.
+ */
 MOSS_API MossXR_Action* Moss_XR_CreateAction(MossXR_ActionSet* set, const char* name, MossXR_ActionType type);
-/*! @brief X @param X */
+/**
+ * @brief Destroys an action and releases its resources. @param action Action to destroy.
+ */
 MOSS_API void Moss_XR_DestroyAction(MossXR_Action* action);
-/*! @brief X @param X */
+/**
+ * @brief Attaches an action set to a session so its actions can be used by that session. @param session Session to which the action set is attached. @param set Action set to attach.
+ */
 MOSS_API void Moss_XR_AttachActionSet(MossXR_Session* session, MossXR_ActionSet* set);
-/*! @brief X @param X */
+/*! @brief Synchronizes the session's attached actions with the current XR input state. @param session Session whose actions should be synchronized.
+ */
 MOSS_API void Moss_XR_SyncActions(MossXR_Session* session);
-/*! @brief X @param X */
+/**
+ * @brief Reads the current Boolean value of an action. @param action Boolean action to query. @return Current action value. The declaration does not expose a separate error status.
+ */
 MOSS_API bool  Moss_XR_GetActionBoolean(MossXR_Action* action);
-/*! @brief X @param X */
+/**
+ * @brief Reads the current floating-point value of an action. @param action Float action to query. @return Current action value. The declaration does not expose a separate error status.
+ */
 MOSS_API float Moss_XR_GetActionFloat(MossXR_Action* action);
-/*! @brief X @param X */
+/**
+ * @brief Retrieves the current pose associated with a pose action.
+ * @param action Pose action to query. @param[out] outPose Receives the action pose when available. @return `true` if a pose was retrieved; otherwise `false`.
+ */
 MOSS_API bool  Moss_XR_GetActionPose(MossXR_Action* action, MossXR_Pose* outPose);
-/*! @brief X @param X */
+/**
+ * @brief Plays haptic feedback for an action and the specified hand.
+ * @param action Haptic action used to issue the feedback. @param hand OpenXR path identifying the hand or subaction receiving feedback.
+ * @param amplitude Requested vibration amplitude, according to the backend's supported range. @param durationSeconds Requested feedback duration in seconds.
+ * @note This declaration is currently commented out and is not part of the compiled API.
+ */
 //MOSS_API void Moss_XR_PlayHaptic(MossXR_Action* action, XrPath hand, float amplitude, float durationSeconds);
-/*! @brief X @param X */
+/**
+ * @brief Stops haptic output associated with an action.
+ * @param action Haptic action whose output should be stopped.
+ */
 MOSS_API void Moss_XR_StopHaptic(MossXR_Action* action);
 
 /* ======================================================
  * Tracking Objects
  * =================================================== */
-/*! @brief X @return X*/
+/**
+ * @brief Creates a hand-tracking modifier or handle. @return Pointer to the created hand object, or `nullptr` if creation fails.
+ */
 MOSS_API MossXR_HandModifier* Moss_XR_CreateHand(void);
-/*! @brief X @param X */
+/**
+ * @brief Retrieves the tracked pose of a specified hand joint.
+ * @param hand Hand-tracking object to query. @param joint Joint whose pose is requested. @param[out] outPose Receives the joint pose when available.
+ * @return `true` if the joint pose was retrieved; otherwise `false`.
+ */
 MOSS_API bool Moss_XR_GetHandJointPose(MossXR_HandModifier* hand, XRHandJoint joint, MossXR_Pose* outPose);
-/*! @brief X @param X */
+/**
+ * @brief Destroys a hand-tracking object and releases its resources.
+ * @param hand Hand object to destroy.
+ */
 MOSS_API void Moss_XR_DestroyHand(MossXR_HandModifier* hand);
-/*! @brief X @param X */
+/**
+ * @brief Retrieves the overall pose reported for a tracked hand.
+ * @param hand Hand-tracking object to query. @param[out] outPose Receives the hand pose when available.
+ * @return `true` if the pose was retrieved; otherwise `false`.
+ */
 MOSS_API bool Moss_XR_GetHandPose(MossXR_HandModifier* hand, MossXR_Pose* outPose);
-/*! @brief X @return X*/
+/**
+ * @brief Creates a body-tracking modifier or handle. @return Pointer to the created body object, or `nullptr` if creation fails.
+ */
 MOSS_API MossXR_BodyModifier* Moss_XR_CreateBody(void);
-/*! @brief X @param X */
+/**
+ * @brief Retrieves the tracked pose of a specified body joint.
+ * @param body Body-tracking object to query. @param joint Body joint whose pose is requested.
+ * @param[out] outPose Receives the joint pose when available. @return `true` if the joint pose was retrieved; otherwise `false`.
+ */
 MOSS_API bool Moss_XR_GetBodyJointPose(MossXR_BodyModifier* body, XRBodyJoint joint, MossXR_Pose* outPose);
-/*! @brief X @param X */
+/**
+ * @brief Destroys a body-tracking object and releases its resources.
+ * @param body Body object to destroy.
+ */
 MOSS_API void Moss_XR_DestroyBody(MossXR_BodyModifier* body);
-/*! @brief X @return X*/
+/**
+ * @brief Creates a face-tracking modifier or handle.
+ * @return Pointer to the created face object, or `nullptr` if creation fails.
+ */
 MOSS_API MossXR_FaceModifier* Moss_XR_CreateFace(void);
-/*! @brief X @param X */
+/**
+ * @brief Destroys a face-tracking object and releases its resources.
+ * @param face Face object to destroy.
+ */
 MOSS_API void Moss_XR_DestroyFace(MossXR_FaceModifier* face);
-/*! @brief X @param X */
+/**
+ * @brief Updates body-tracking data for the session.
+ * @param session Session whose body-tracking state should be updated.
+ */
 MOSS_API void Moss_XR_UpdateBodyTracking(MossXR_Session* session);
-/*! @brief X @param X */
+/**
+ * @brief Updates hand-tracking data for the session.
+ * @param session Session whose hand-tracking state should be updated.
+ */
 MOSS_API void Moss_XR_UpdateHandTracking(MossXR_Session* session);
 
 /* ======================================================
  * Passthrough & Foveation
  * =================================================== */
-/*! @brief X @param X */
+/*! @brief Enables or disables XR passthrough, if supported by the active runtime. @param enable `true` to request passthrough; `false` to disable it. @return `true` if the requested state is supported and applied; otherwise `false`.
+ */
 MOSS_API bool Moss_XR_EnablePassthrough(bool enable);
-/*! @brief X @param X */
+/**
+ * @brief Enables or disables foveated rendering, if supported by the active runtime and renderer. @param enable `true` to request foveated rendering; `false` to disable it.
+ * @return `true` if the requested state is supported and applied; otherwise `false`.
+ */
 MOSS_API bool Moss_XR_EnableFoveatedRendering(bool enable);
 
 /* ======================================================
  * Backend
  * =================================================== */
-/*! @brief X @return X*/
+/**
+ * @brief Returns the name of the active XR backend. @return Null-terminated backend name, or `nullptr` if no backend name is available. The returned string is owned by the subsystem.
+ */
 MOSS_API const char* Moss_XR_GetBackendName(void);
-/*! @brief X @return X*/
+/**
+ * @brief Returns the version number reported by the active XR backend. @return Backend version encoded according to the implementation's versioning convention.
+ */
 MOSS_API uint32_t Moss_XR_GetBackendVersion(void);
 
 /* ======================================================
  * Debug
  * =================================================== */
-/*! @brief X @param X */
+/*! @brief Begins a debug label scope for XR operations, when supported by the backend. @param label Human-readable label for the scope. */
 MOSS_API void Moss_XR_BeginDebugLabel(const char* label);
-/*! @brief X */
+/*! @brief Ends the most recently begun XR debug label scope, when supported by the backend. */
 MOSS_API void Moss_XR_EndDebugLabel(void);
 
 #endif // MOSS_XR_H
