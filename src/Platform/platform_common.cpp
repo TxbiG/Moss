@@ -140,18 +140,18 @@ void PublishGamepadSensorSample(Moss_Gamepad* gp, Moss_GamepadSensorType sensor,
     const auto gamepadIt = g_gamepadSensors.find(gp);
     if (gamepadIt == g_gamepadSensors.end()) return;
 
-    // Fix: gamepadIt->second gives us a Moss_GamepadSensorState[2] array.
-    // We isolate our specific active sensor structure via [index].
-    Moss_GamepadSensorState& state = gamepadIt->second[index];
-    if (!state.supported[index] || !state.enabled[index]) return;
-    if (state.has_sample[index] && sample.timestamp_ns < state.latest[index].timestamp_ns) { return; }
+    // Use the alias uniform type declared at the top of the file
+    SensorState& state = gamepadIt->second[index];
+    
+    // Read properties directly out of the singular state object (no [index] sub-indexing needed)
+    if (!state.supported || !state.enabled) return;
+    if (state.hasSample && sample.timestamp_ns < state.latest.timestamp_ns) { return; }
 
-    float deltaTime = (state.latest[index].timestamp_ns > 0) ? (float)(sample.timestamp_ns - state.latest[index].timestamp_ns) / 1e9f : 0.016f;
-    state.latest[index] = sample;
-    state.has_sample[index] = true;
+    float deltaTime = (state.latest.timestamp_ns > 0) ? (float)(sample.timestamp_ns - state.latest.timestamp_ns) / 1e9f : 0.016f;
+    state.latest = sample;
+    state.hasSample = true;
 
-    // Fix: Extract explicit struct array indexes from the map pointer reference block.
-    // Index [1] holds Gyro telemetry data, Index [0] holds Accelerometer telemetry data.
+    // Extract the raw elements for the fusion engine pass
     auto& gyroStruct  = gamepadIt->second[1];
     auto& accelStruct = gamepadIt->second[0];
 

@@ -17,7 +17,8 @@ struct Moss_Image;
 #include <cmath>
 #include <algorithm>
 #include <mutex>
-#include <map>
+#include <unordered_map>
+#include <array>
 
 #include <Moss/Moss_stdinc.h>
 #include <Moss/Moss_Platform.h>
@@ -264,7 +265,8 @@ struct MossMotionTracker {
 extern INPUT_STATE io;
 extern KeyState* keyboardState;
 extern std::mutex g_sensorMutex;
-extern std::map<Moss_Gamepad*, Moss_GamepadSensorState[2]> g_gamepadSensors;
+using GamepadSensorStates = std::array<SensorState, SensorCount>;
+std::unordered_map<Moss_Gamepad*, GamepadSensorStates> g_gamepadSensors;
 
 typedef void (*Moss_CaptureFrameResult)(Moss_Capture *device, Moss_Surface *frame, uint64_t *timestampNS, float *rotation);
 
