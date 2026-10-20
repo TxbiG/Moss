@@ -936,7 +936,7 @@ MOSS_API void Moss_RendererDrawBox2D(Moss_Renderer* renderer, const Vec2* center
 /*! @brief Queue a 2D debug circle. @param renderer Renderer receiving the circle. @param center Circle center. @param radius Circle radius. @param color Line color. @ingroup Renderer Debug/Utils. */
 MOSS_API void Moss_RendererDrawCircle2D(Moss_Renderer* renderer, const Vec2* center, float radius, Color color);
 /*! @brief Queue a 2D capsule/cylinder outline from a transform. @param renderer Renderer receiving the shape. @param matrix Shape transform. @param halfHeight Half cylinder height. @param radius End radius. @param color Line color. @ingroup Renderer Debug/Utils. */
-MOSS_API void Moss_RendererDrawCylinder2D(Moss_Renderer* renderer, const RMat44* matrix, float halfHeight, float radius, Color color);
+MOSS_API void Moss_RendererDrawCylinder2D(Moss_Renderer* renderer, RMat44* matrix, float halfHeight, float radius, Color color);
 /*! @brief Queue a 2D debug triangle outline. @param renderer Renderer receiving the triangle. @param p0 First point. @param p1 Second point. @param p2 Third point. @param color Line color. @ingroup Renderer Debug/Utils. */
 MOSS_API void Moss_RendererDrawTriangle2D(Moss_Renderer* renderer, const Vec2* p0, const Vec2* p1, const Vec2* p2, Color color);
 /*! @brief Queue a 2D debug arrow. @param renderer Renderer receiving the arrow. @param from Tail point. @param to Tip point. @param color Line color. @param headSize Arrow head size. @ingroup Renderer Debug/Utils. */
@@ -946,9 +946,9 @@ MOSS_API void Moss_RendererDrawMarker2D(Moss_Renderer* renderer, const Vec2* pos
 /*! @brief Queue a 2D bone axis line from a transform. @param renderer Renderer receiving the bone. @param transform Bone transform. @param length Bone length. @param color Line color. @ingroup Renderer Debug/Utils. */
 MOSS_API void Moss_RendererDrawBone2D(Moss_Renderer* renderer, RMat44* transform, float length, Color color);
 /*! @brief Queue 2D coordinate axes from a transform. @param renderer Renderer receiving the axes. @param matrix Axis transform. @param size Axis length. @ingroup Renderer Debug/Utils. */
-MOSS_API void Moss_RendererDrawCoordinateSystem2D(Moss_Renderer* renderer, const RMat44* matrix, float size);
+MOSS_API void Moss_RendererDrawCoordinateSystem2D(Moss_Renderer* renderer, RMat44* matrix, float size);
 /*! @brief Queue a 2D capsule outline. @param renderer Renderer receiving the capsule. @param matrix Capsule transform. @param halfHeightOfCylinder Half height of the straight section. @param radius Capsule radius. @param color Line color. @ingroup Renderer Debug/Utils. */
-MOSS_API void Moss_RendererDrawCapsule2D(Moss_Renderer* renderer, const RMat44* matrix, float halfHeightOfCylinder, float radius, Color color);
+MOSS_API void Moss_RendererDrawCapsule2D(Moss_Renderer* renderer, RMat44* matrix, float halfHeightOfCylinder, float radius, Color color);
 /*! @brief Queue a 2D convex polygon outline. @param renderer Renderer receiving the polygon. @param points Polygon points. @param point_count Number of points. @param color Line color. @ingroup Renderer Debug/Utils. */
 MOSS_API void Moss_RendererDrawConvex2D(Moss_Renderer* renderer, const Vec2* points, uint32_t point_count, Color color);
 /*! @brief Queue a 2D convex hull outline. @param renderer Renderer receiving the hull. @param points Hull points. @param point_count Number of points. @param color Line color. @ingroup Renderer Debug/Utils. */
@@ -995,7 +995,7 @@ MOSS_API void Moss_RendererDrawLine3D(Moss_Renderer* renderer, const Vec3* from,
 /*! @brief Queue connected 3D debug line segments from a point array. @param renderer Renderer receiving the lines. @param positions Points interpreted as pairs or a strip by the backend. @param color Line color. @param thickness Line thickness in pixels. @ingroup Renderer Debug/Utils. */
 MOSS_API void Moss_RendererDrawLines3D(Moss_Renderer* renderer, const TArray<Vec3>* positions, Color color, float thickness);
 /*! @brief Queue a 3D debug box. @param renderer Renderer receiving the box. @param center Box center. @param size Box dimensions. @param rotation Optional orientation transform. @param color Line color. @ingroup Renderer Debug/Utils. */
-MOSS_API void Moss_RendererDrawBox3D(Moss_Renderer* renderer, const Vec3* center, const Vec3* size, const RMat44* rotation, Color color);
+MOSS_API void Moss_RendererDrawBox3D(Moss_Renderer* renderer, const Vec3* center, const Vec3* size, RMat44* rotation, Color color);
 /*! @brief Queue a 3D debug sphere. @param renderer Renderer receiving the sphere. @param center Sphere center. @param radius Sphere radius. @param color Line color. @ingroup Renderer Debug/Utils. */
 MOSS_API void Moss_RendererDrawSphere3D(Moss_Renderer* renderer, const Vec3* center, float radius, Color color);
 /*! @brief Queue a 3D cylinder outline. @param renderer Renderer receiving the cylinder. @param base Base center. @param top Top center. @param radius Cylinder radius. @param color Line color. @ingroup Renderer Debug/Utils. */
@@ -1013,9 +1013,9 @@ MOSS_API void Moss_RendererDrawPlane3D(Moss_Renderer* renderer, const Vec3* cent
 /*! @brief Queue a 3D bone axis line from a transform. @param renderer Renderer receiving the bone. @param transform Bone transform. @param length Bone length. @param color Line color. @ingroup Renderer Debug/Utils. */
 MOSS_API void Moss_RendererDrawBone3D(Moss_Renderer* renderer, RMat44* transform, float length, Color color);
 /*! @brief Queue 3D coordinate axes from a transform. @param renderer Renderer receiving the axes. @param matrix Axis transform. @param size Axis length. @ingroup Renderer Debug/Utils. */
-MOSS_API void Moss_RendererDrawCoordinateSystem3D(Moss_Renderer* renderer, const RMat44* matrix, float size);
+MOSS_API void Moss_RendererDrawCoordinateSystem3D(Moss_Renderer* renderer, RMat44* matrix, float size);
 /*! @brief Queue a 3D capsule outline. @param renderer Renderer receiving the capsule. @param matrix Capsule transform. @param halfHeightOfCylinder Half height of the straight section. @param radius Capsule radius. @param color Line color. @ingroup Renderer Debug/Utils. */
-MOSS_API void Moss_RendererDrawCapsule3D(Moss_Renderer* renderer, const RMat44* matrix, float halfHeightOfCylinder, float radius, Color color);
+MOSS_API void Moss_RendererDrawCapsule3D(Moss_Renderer* renderer, RMat44* matrix, float halfHeightOfCylinder, float radius, Color color);
 /*! @brief Queue a 3D convex polygon outline. @param renderer Renderer receiving the polygon. @param points Polygon points. @param point_count Number of points. @param color Line color. @ingroup Renderer Debug/Utils. */
 MOSS_API void Moss_RendererDrawConvex3D(Moss_Renderer* renderer, const Vec3* points, uint32_t point_count, Color color);
 /*! @brief Queue a 3D convex hull outline. @param renderer Renderer receiving the hull. @param points Hull points. @param point_count Number of points. @param color Line color. @ingroup Renderer Debug/Utils. */
