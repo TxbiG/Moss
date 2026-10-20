@@ -13,8 +13,8 @@ struct SensorState {
 using GamepadSensorStates = std::array<SensorState, SensorCount>;
 
 std::mutex g_sensorMutex;
-
-std::unordered_map<Moss_Gamepad*, GamepadSensorStates> g_gamepadSensors;
+std::map<Moss_Gamepad*, Moss_GamepadSensorState[2]> g_gamepadSensors;
+std::unordered_map<Moss_Gamepad*, std::array<Moss_GamepadSensorState, 2>> 
 
 bool GetSensorIndex(Moss_GamepadSensorType sensor, std::size_t& index) {
     switch (sensor) {

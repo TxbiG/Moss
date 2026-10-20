@@ -139,7 +139,6 @@ static void Moss_ParseHardwareIMU(Moss_Gamepad* gp, const uint8_t* data, uint64_
     accelSample.timestamp_ns = timestamp;
 
     // Send data upstream to framework calculation pipelines
-    extern void PublishGamepadSensorSample(Moss_Gamepad* gp, Moss_GamepadSensorType sensor, const Moss_GamepadSensorData& sample);
     PublishGamepadSensorSample(gp, Moss_GamepadSensorType::GYROSCOPE, gyroSample);
     PublishGamepadSensorSample(gp, Moss_GamepadSensorType::ACCELEROMETER, accelSample);
 }
