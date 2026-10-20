@@ -132,6 +132,40 @@ void ResetGamepadSensorState(Moss_Gamepad* gp) {
     g_gamepadSensors.erase(gp);
 }
 
+void PublishGamepadSensorSample(Moss_Gamepad* gp, Moss_GamepadSensorType sensor, const Moss_GamepadSensorData& sample) {
+    std::size_t index = 0;
+    if (gp == nullptr || !GetSensorIndex(sensor, index) || !IsValidSample(sample)) { return; }
+    
+    std::lock_guard<std::mutex> lock(g_sensorMutex);
+    const auto gamepadIt = g_gamepadSensors.find(gp);
+    if (gamepadIt == g_gamepadSensors.end()) return;
+
+    // Fix: gamepadIt->second gives us a Moss_GamepadSensorState[2] array.
+    // We isolate our specific active sensor structure via [index].
+    Moss_GamepadSensorState& state = gamepadIt->second[index];
+    if (!state.supported[index] || !state.enabled[index]) return;
+    if (state.has_sample[index] && sample.timestamp_ns < state.latest[index].timestamp_ns) { return; }
+
+    float deltaTime = (state.latest[index].timestamp_ns > 0) ? (float)(sample.timestamp_ns - state.latest[index].timestamp_ns) / 1e9f : 0.016f;
+    state.latest[index] = sample;
+    state.has_sample[index] = true;
+
+    // Fix: Extract explicit struct array indexes from the map pointer reference block.
+    // Index [1] holds Gyro telemetry data, Index [0] holds Accelerometer telemetry data.
+    auto& gyroStruct  = gamepadIt->second[1];
+    auto& accelStruct = gamepadIt->second[0];
+
+    // Pass the state variable structure alongside the individual data elements
+    // to cleanly conform to Moss_InternalProcessSensorFusion's arguments signature.
+    Moss_InternalProcessSensorFusion(
+        state,
+        gyroStruct.latest[index].x,  gyroStruct.latest[index].y,  gyroStruct.latest[index].z,   // Gyro elements
+        accelStruct.latest[index].x, accelStruct.latest[index].y, accelStruct.latest[index].z,  // Accel elements
+        deltaTime
+    );
+}
+
+
 // Public Moss API implementations.
 
 bool Moss_GamepadHasSensor(Moss_Gamepad* gp, Moss_GamepadSensorType sensor) { return GamepadHasSensor(gp, sensor); }
