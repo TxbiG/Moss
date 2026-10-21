@@ -132,19 +132,19 @@ HRESULT STDMETHODCALLTYPE BufferCB(double Time, char* pBuffer, long Len) {
 }
 
 
-Moss_CameraID* Moss_GetCameras(int* count) {}
-const char* Moss_GetCameraName(Moss_CameraID camera_id) {}
-Moss_CameraPosition Moss_GetCameraPosition(Moss_CameraID camera_id) {}
-const char* Moss_GetCurrentCameraDriver(void) {}
-int Moss_GetNumCameraDrivers(void) {}
-const Moss_CameraSpec* Moss_GetCameraSupportedFormats(Moss_CameraID camera_id, int* count) {}
-Moss_Surface* Moss_AcquireCameraFrame(Moss_Capture* camera, uint64_t* timestamp_ns) {}
-void Moss_ReleaseCameraFrame(Moss_Capture* camera, Moss_Surface* frame) {}
-bool Moss_GetCameraFormat(Moss_Capture* camera, Moss_CameraSpec* out_spec) {}
-Moss_CameraPermissionState Moss_GetCameraPermissionState(Moss_Capture* camera) {}
-Moss_PropertiesID Moss_GetCameraProperties(Moss_Capture* camera) {}
-void Moss_CloseCamera(Moss_Capture *camera) {}
-Moss_CameraID Moss_GetCameraID(Moss_Capture *camera) {}
+//Moss_CameraID* Moss_GetCameras(int* count) {}
+//const char* Moss_GetCameraName(Moss_CameraID camera_id) {}
+//Moss_CameraPosition Moss_GetCameraPosition(Moss_CameraID camera_id) {}
+//const char* Moss_GetCurrentCameraDriver(void) {}
+//int Moss_GetNumCameraDrivers(void) {}
+//const Moss_CameraSpec* Moss_GetCameraSupportedFormats(Moss_CameraID camera_id, int* count) {}
+//Moss_Surface* Moss_AcquireCameraFrame(Moss_Capture* camera, uint64_t* timestamp_ns) {}
+//void Moss_ReleaseCameraFrame(Moss_Capture* camera, Moss_Surface* frame) {}
+//bool Moss_GetCameraFormat(Moss_Capture* camera, Moss_CameraSpec* out_spec) {}
+//Moss_CameraPermissionState Moss_GetCameraPermissionState(Moss_Capture* camera) {}
+//Moss_PropertiesID Moss_GetCameraProperties(Moss_Capture* camera) {}
+//void Moss_CloseCamera(Moss_Capture *camera) {}
+//Moss_CameraID Moss_GetCameraID(Moss_Capture *camera) {}
 //Moss_PropertiesID Moss_GetCameraProperties(Moss_Capture *camera) {}
 
 Moss_Capture* Moss_OpenCapture(Moss_CameraID captureID, const Moss_CameraSpec* spec) {

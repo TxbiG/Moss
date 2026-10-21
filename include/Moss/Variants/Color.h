@@ -5,6 +5,7 @@
 #pragma once
 
 #include <Moss/Moss_stdinc.h>
+#include <Moss/Variants/Vector/Vec4.h>
 
 MOSS_SUPPRESS_WARNINGS_BEGIN
 
@@ -32,7 +33,7 @@ public:
     Color operator*(float intensity) const { return Color(r * intensity, g * intensity, b * intensity, a); }
 
     // Convert to Vec4 (assuming Vec4 uses floats)
-    Vec4 ToVec4() const { return Vec4(r, g, b, a); }
+    inline Vec4 ToVec4() const { return Vec4(r, g, b, a); }
 
     // Grayscale intensity (luminance approx)
     float GetIntensity() const { return 0.2126f * r + 0.7152f * g + 0.0722f * b; } // standard Rec. 709 weights
