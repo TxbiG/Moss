@@ -66,19 +66,6 @@ Comprehensive documentation is available in the [`docs/`](./docs/README.md) dire
 - CMake 3.20 or newer.
 - C++ 17.
 
-## Design Philosophy
-- Modularity: systems are separable and replaceable.
-- Performance: real-time systems stay explicit and low overhead.
-- Portability: public APIs avoid backend ownership leaks where practical.
-- Control: callers can choose low-level GPU/platform paths or higher-level renderer/component helpers.
-- Incremental stability: new public APIs favor C-like handles and descriptors while older C++ drafts are migrated.
-
-## Current Focus
-- Make CMake configuration and install/export reliable.
-- Finish backend parity across renderer/GPU, audio, platform, XR, and GUI.
-- Continue shrinking large public headers behind simpler Moss-level APIs.
-- Expand tests and examples for every stable public subsystem.
-
 ## Repository Structure
 ```text
 .
