@@ -14,13 +14,12 @@ public:
 
 	Double4() = default; 						// Intentionally not initialized for performance reasons
 	Double4(const Double4 &inRHS) = default;
-	Double4(double inX, double inY, double inZ, double inw) : x(inX), y(inY), z(inZ) w(inW) { }
+	Double4(double inX, double inY, double inZ, double inw) : x(inX), y(inY), z(inZ), w(inW) { }
 
 
 	Double4&	operator = (const Double4 &inRHS) = default;
 
-	double		operator [] (int inCoordinate) const
-	{
+	double		operator [] (int inCoordinate) const {
 		MOSS_ASSERT(inCoordinate < 3);
 		return *(&x + inCoordinate);
 	}
