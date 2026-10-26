@@ -39,9 +39,9 @@
 // Goal: To make GUI Easy, Vercitile and Optimised.
 
 // Forward Declorations
-typedef struct Moss_Style Moss_Style;
-typedef struct Moss_Theme Moss_Theme;
-typedef struct Moss_GUI Moss_GUI;
+struct Moss_Style Moss_Style;
+struct Moss_Theme Moss_Theme;
+struct Moss_GUI Moss_GUI;
 
 struct Style {
     float  windowRounding = 4.0f;
@@ -61,10 +61,12 @@ struct DrawListSharedData;        // Data shared among multiple draw lists (typi
 struct DrawListSplitter;          // Helper to split a draw list into different layers which can be drawn into out of order, then flattened back.
 struct DrawVert;                  // A single vertex (pos + uv + col = 20 bytes by default. Override layout with Moss_GUI_OVERRIDE_DRAWVERT_STRUCT_LAYOUT)
 
-typedef int Moss_GuiWindowFlags;
-typedef int Moss_GuiChildFlags;
+enum Moss_GuiWindowFlags;
+enum Moss_GuiChildFlags;
 enum Moss_ButtonFlags {Pressed, Released};
-
+enum Moss_GuiSliderFlags;
+enum Moss_GuiDataType;
+enum Moss_GuiInputTextFlags;
 struct GuiContext;
 
 // struct Dialouge; < This should also be put into platform.h

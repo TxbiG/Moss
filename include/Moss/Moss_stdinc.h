@@ -102,6 +102,7 @@
  * MOSS_PLATFORM_VITA
  * MOSS_PLATFORM_WINGDK
  * MOSS_PLATFORM_EMBEDDED
+ * MOSS_PLATFORM_TERRARIUM
  * ```
  *
  * ---
@@ -243,6 +244,23 @@
     #define MOSS_PLATFORM_OS2
 #elif defined(__EMSCRIPTEN__)
 	#define MOSS_PLATFORM_WASM
+#elif defined(__terrarium__)
+	#define MOSS_PLATFORM_TERRARIUM
+
+	#if   defined(TERRARIUM_DEVICE_RPI)
+		#define MOSS_PLATFORM_EMBEDDED
+		#define MOSS_LOW_MEMORY
+	#elif defined(TERRARIUM_DEVICE_CONSOLE)
+		#define MOSS_DEVICE_TERRARIUM_CONSOL
+	#elif defined(TERRARIUM_DEVICE_TABLET)
+		#define MOSS_PLATFORM_TERRARIUM_TABLET
+	#elif defined(TERRARIUM_DEVICE_TV)
+		#define MOSS_PLATFORM_TERRARIUM_TV
+	#elif defined(TERRARIUM_DEVICE_XR)
+		#define MOSS_PLATFORM_TERRARIUM_XR
+	#else
+		#error "Unknown TerrariumOS build macro"
+	#endif
 #endif
 
 // Platform helper macros
