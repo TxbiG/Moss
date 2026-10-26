@@ -30,9 +30,9 @@
 #define MOSS_GUI_H
 
 #include <Moss/Moss_Renderer.h>
-#include <Moss/Varients/Vector/Int3.h>
-#include <Moss/Varients/Vector/Int4.h>
-#include <Moss/Varients/Vector/Double4.h>
+#include <Moss/Variants/Vector/Int3.h>
+#include <Moss/Variants/Vector/Int4.h>
+#include <Moss/Variants/Vector/Double4.h>
 
 // - Plot Graphs 2D & 3D (https://github.com/epezent/Moss_plot) (https://github.com/brenocq/Moss_plot3d)
 // - Bezier Curve (https://github.com/ocornut/Moss_gui/issues/786)
