@@ -30,6 +30,9 @@
 #define MOSS_GUI_H
 
 #include <Moss/Moss_Renderer.h>
+#include <Moss/Varients/Vector/Int3.h>
+#include <Moss/Varients/Vector/Int4.h>
+#include <Moss/Varients/Vector/Double4.h>
 
 // - Plot Graphs 2D & 3D (https://github.com/epezent/Moss_plot) (https://github.com/brenocq/Moss_plot3d)
 // - Bezier Curve (https://github.com/ocornut/Moss_gui/issues/786)
@@ -39,9 +42,19 @@
 // Goal: To make GUI Easy, Vercitile and Optimised.
 
 // Forward Declorations
-struct Moss_Style Moss_Style;
-struct Moss_Theme Moss_Theme;
-struct Moss_GUI Moss_GUI;
+struct Moss_Style;
+struct Moss_Theme;
+struct Moss_GUI;
+struct GuiContext;
+
+typedef int Moss_GuiWindowFlags;
+typedef int Moss_GuiChildFlags;
+typedef int Moss_GuiSliderFlags;
+typedef int Moss_GuiInputTextFlags;
+typedef int Moss_GuiDataType;
+
+struct Moss_GuiInputTextCallbackData;
+typedef int (*Moss_GuiInputTextCallback)(Moss_GuiInputTextCallbackData* data);
 
 struct Style {
     float  windowRounding = 4.0f;
@@ -61,13 +74,12 @@ struct DrawListSharedData;        // Data shared among multiple draw lists (typi
 struct DrawListSplitter;          // Helper to split a draw list into different layers which can be drawn into out of order, then flattened back.
 struct DrawVert;                  // A single vertex (pos + uv + col = 20 bytes by default. Override layout with Moss_GUI_OVERRIDE_DRAWVERT_STRUCT_LAYOUT)
 
-enum Moss_GuiWindowFlags;
-enum Moss_GuiChildFlags;
-enum Moss_ButtonFlags {Pressed, Released};
-enum Moss_GuiSliderFlags;
-enum Moss_GuiDataType;
-enum Moss_GuiInputTextFlags;
-struct GuiContext;
+//enum Moss_GuiWindowFlags;
+//enum Moss_GuiChildFlags;
+enum Moss_ButtonFlags : uint8_t { Pressed, Released };
+//enum Moss_GuiSliderFlags;
+//enum Moss_GuiDataType;
+//enum Moss_GuiInputTextFlags;
 
 // struct Dialouge; < This should also be put into platform.h
 /*
@@ -162,8 +174,8 @@ MOSS_API void          SliderDouble(double min_value, double max_value, double v
 MOSS_API void          SliderInt(int min_value, int max_value, int value);
 
 MOSS_API void          SliderFloat2(Float2 min_value, Float2 max_value, Float2 value);
-MOSS_API void          SliderDouble2(Float2 min_value, Float2 max_value, Float2 value);
-MOSS_API void          SliderInt2(Float2 min_value, Float2 max_value, Float2 value);
+MOSS_API void          SliderDouble2(Double2 min_value, Double2 max_value, Double2 value);
+MOSS_API void          SliderInt2(Int2 min_value, Int2 max_value, Int2 value);
 
 MOSS_API void          SliderFloat3(Float3 min_value, Float3 max_value, Float3 value);
 MOSS_API void          SliderDouble3(Double3 min_value, Double3 max_value, Double3 value);
