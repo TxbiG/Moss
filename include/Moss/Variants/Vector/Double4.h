@@ -7,14 +7,13 @@
 MOSS_SUPPRESS_WARNINGS_BEGIN
 
 /// Class that holds 3 doubles. Used as a storage class. Convert to DVec3 for calculations.
-class [[nodiscard]] Double4
-{
+class [[nodiscard]] Double4 {
 public:
 	MOSS_OVERRIDE_NEW_DELETE
 
 	Double4() = default; 						// Intentionally not initialized for performance reasons
 	Double4(const Double4 &inRHS) = default;
-	Double4(double inX, double inY, double inZ, double inw) : x(inX), y(inY), z(inZ), w(inW) { }
+	Double4(double X, double Y, double Z, double W) : x(X), y(Y), z(Z), w(W) { }
 
 
 	Double4&	operator = (const Double4 &inRHS) = default;
