@@ -40,6 +40,8 @@ class BodyDrawFilter;
 
 static constexpr uint32_t cBodyTypeCount = 2;
 
+using MutexMask = uint64_t;
+
 enum class EBodyType : uint8_t {
     RigidBody,
     SoftBody
@@ -202,47 +204,6 @@ struct alignas(uint64) BodyPair {
 };
 
 static_assert(sizeof(BodyPair) == sizeof(uint64), "Mismatch in class size");
-
-// Base class interface for locking a body. Usually you will use BodyLockRead / BodyLockWrite / BodyLockMultiRead / BodyLockMultiWrite instead.
-class BodyLockInterface : public NonCopyable {
-public:
-	// Redefine MutexMask
-	using BodyMutexMask = uint64_t;
-	using MutexMask = BodyMutexMask;
-
-	// Constructor
-	explicit					BodyLockInterface(BodyManager &inBodyManager)		: mBodyManager(inBodyManager) { }
-	virtual						~BodyLockInterface() = default;
-
-	//@name Locking functions
-
-	virtual SharedMutex *		LockRead(const BodyID &inBodyID) const = 0;
-	virtual void				UnlockRead(SharedMutex *inMutex) const = 0;
-	virtual SharedMutex *		LockWrite(const BodyID &inBodyID) const = 0;
-	virtual void				UnlockWrite(SharedMutex *inMutex) const = 0;
-
-
-	// Get the mask needed to lock all bodies
-	inline MutexMask			GetAllBodiesMutexMask() const
-	{
-		return mBodyManager.GetAllBodiesMutexMask();
-	}
-
-	//@name Batch locking functions
-
-	virtual MutexMask			GetMutexMask(const BodyID *inBodies, int inNumber) const = 0;
-	virtual void				LockRead(MutexMask inMutexMask) const = 0;
-	virtual void				UnlockRead(MutexMask inMutexMask) const = 0;
-	virtual void				LockWrite(MutexMask inMutexMask) const = 0;
-	virtual void				UnlockWrite(MutexMask inMutexMask) const = 0;
-
-
-	// Convert body ID to body
-	inline Body *				TryGetBody(const BodyID &inBodyID) const			{ return mBodyManager.TryGetBody(inBodyID); }
-
-protected:
-	BodyManager &				mBodyManager;
-};
 
 template <bool Write, class BodyType>
 class BodyLockBase : public NonCopyable {
@@ -694,8 +655,6 @@ private:
 class MOSS_API BodyManager : public NonCopyable {
 public:
 	MOSS_OVERRIDE_NEW_DELETE
-	
-	using MutexMask = BodyMutexMask;
 
 	// Destructor
 	~BodyManager();
@@ -1020,6 +979,45 @@ private:
 };
 
 
+// Base class interface for locking a body. Usually you will use BodyLockRead / BodyLockWrite / BodyLockMultiRead / BodyLockMultiWrite instead.
+class BodyLockInterface : public NonCopyable {
+public:
+	// Redefine MutexMask
+
+	// Constructor
+	explicit					BodyLockInterface(BodyManager &inBodyManager)		: mBodyManager(inBodyManager) { }
+	virtual						~BodyLockInterface() = default;
+
+	//@name Locking functions
+
+	virtual SharedMutex *		LockRead(const BodyID &inBodyID) const = 0;
+	virtual void				UnlockRead(SharedMutex *inMutex) const = 0;
+	virtual SharedMutex *		LockWrite(const BodyID &inBodyID) const = 0;
+	virtual void				UnlockWrite(SharedMutex *inMutex) const = 0;
+
+
+	// Get the mask needed to lock all bodies
+	inline MutexMask			GetAllBodiesMutexMask() const
+	{
+		return mBodyManager.GetAllBodiesMutexMask();
+	}
+
+	//@name Batch locking functions
+
+	virtual MutexMask			GetMutexMask(const BodyID *inBodies, int inNumber) const = 0;
+	virtual void				LockRead(MutexMask inMutexMask) const = 0;
+	virtual void				UnlockRead(MutexMask inMutexMask) const = 0;
+	virtual void				LockWrite(MutexMask inMutexMask) const = 0;
+	virtual void				UnlockWrite(MutexMask inMutexMask) const = 0;
+
+
+	// Convert body ID to body
+	inline Body *				TryGetBody(const BodyID &inBodyID) const			{ return mBodyManager.TryGetBody(inBodyID); }
+
+protected:
+	BodyManager &				mBodyManager;
+};
+
 // Implementation that performs no locking (assumes the lock has already been taken)
 class BodyLockInterfaceNoLock final : public BodyLockInterface {
 public:
@@ -1243,6 +1241,7 @@ class BodyLockMultiRead : public BodyLockMultiBase<false, const Body> { using Bo
 // Specialization that locks multiple bodies for writing to. @see BodyLockMultiRead for usage patterns.
 class BodyLockMultiWrite : public BodyLockMultiBase<true, Body> { using BodyLockMultiBase::BodyLockMultiBase; };
 
+/*
 class MOSS_API MassProperties {
 	MOSS_DECLARE_SERIALIZABLE_NON_VIRTUAL(MOSS_API, MassProperties)
 public:
@@ -1288,7 +1287,7 @@ public:
 	// Inertia tensor of the shape (kg m^2)
 	Mat44 mInertia = Mat44::Zero();
 };
-
+*/
 
 //--------------------------------------------------------------------------------------------------
 // MotionProperties
@@ -1823,7 +1822,7 @@ public:
 	inline Vec3				GetWorldSpaceSurfaceNormal(const SubShapeID &inSubShapeID, RVec3Arg inPosition) const;
 
 	// Get the transformed shape of this body, which can be used to do collision detection outside of a body lock
-	inline TransformedShape	GetTransformedShape() const										{ MOSS_ASSERT(BodyAccess::CheckRights(BodyAccess::PositionAccess(), BodyAccess::EAccess::Read)); return TransformedShape(mPosition, mRotation, mShape, mID); }
+	inline TransformedShape	GetTransformedShape() const	{ MOSS_ASSERT(BodyAccess::CheckRights(BodyAccess::PositionAccess(), BodyAccess::EAccess::Read)); return TransformedShape(mPosition, mRotation, mShape, mID); }
 
 	// Debug function to convert a body back to a body creation settings object to be able to save/recreate the body later
 	BodyCreationSettings	GetBodyCreationSettings() const;
@@ -1943,18 +1942,6 @@ private:
 	atomic<uint8_t>			mFlags = 0;														// See EFlags for possible flags
 
 	// 122 bytes up to here (64-bit mode, single precision, 16-bit ObjectLayer)
-};
-
-class BodyFilter : public NonCopyable {
-public:
-	// Destructor
-	virtual					~BodyFilter() = default;
-
-	// Filter function. Returns true if we should collide with inBodyID
-	virtual bool			ShouldCollide([[maybe_unused]] const BodyID &inBodyID) const { return true; }
-
-	// Filter function. Returns true if we should collide with inBody (this is called after the body is locked and makes it possible to filter based on body members)
-	virtual bool			ShouldCollideLocked([[maybe_unused]] const Body &inBody) const { return true; }
 };
 
 MOSS_API void EstimateCollisionResponse(const Body* body1, const Body* body2, const ContactManifold* manifold, float combinedFriction, float combinedRestitution, float minVelocityForRestitution, uint32_t numIterations, CollisionEstimationResult* result);

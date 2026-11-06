@@ -9,23 +9,6 @@
 
 MOSS_SUPPRESS_WARNINGS_BEGIN
 
-/// Class that determines if an object layer can collide with a broadphase layer.
-/// This implementation works together with BroadPhaseLayerInterfaceMask and ObjectLayerPairFilterMask
-class ObjectVsBroadPhaseLayerFilterMask : public ObjectVsBroadPhaseLayerFilter {
-public:
-	MOSS_OVERRIDE_NEW_DELETE
-
-/// Constructor
-	ObjectVsBroadPhaseLayerFilterMask(const BroadPhaseLayerInterfaceMask &inBroadPhaseLayerInterface) : mBroadPhaseLayerInterface(inBroadPhaseLayerInterface) { }
-
-	/// Returns true if an object layer should collide with a broadphase layer
-	bool ShouldCollide(ObjectLayer inLayer1, BroadPhaseLayer inLayer2) const override {
-		return mBroadPhaseLayerInterface.ShouldCollide(inLayer1, inLayer2);	// Just defer to BroadPhaseLayerInterface
-	}
-
-private:
-	const BroadPhaseLayerInterfaceMask &mBroadPhaseLayerInterface;
-};
 
 /// BroadPhaseLayerInterface implementation.
 /// This defines a mapping between object and broadphase layers.
@@ -95,6 +78,21 @@ private:
 #endif // MOSS_EXTERNAL_PROFILE || MOSS_PROFILE_ENABLED
 };
 
+/// Class that determines if an object layer can collide with a broadphase layer.
+/// This implementation works together with BroadPhaseLayerInterfaceMask and ObjectLayerPairFilterMask
+class ObjectVsBroadPhaseLayerFilterMask : public ObjectVsBroadPhaseLayerFilter {
+public:
+	MOSS_OVERRIDE_NEW_DELETE
+
+/// Constructor
+	ObjectVsBroadPhaseLayerFilterMask(const BroadPhaseLayerInterfaceMask& inBroadPhaseLayerInterface) : mBroadPhaseLayerInterface(inBroadPhaseLayerInterface) { }
+
+	/// Returns true if an object layer should collide with a broadphase layer
+	bool ShouldCollide(ObjectLayer inLayer1, BroadPhaseLayer inLayer2) const override { return mBroadPhaseLayerInterface.ShouldCollide(inLayer1, inLayer2); } // Just defer to BroadPhaseLayerInterface
+
+private:
+	const BroadPhaseLayerInterfaceMask& mBroadPhaseLayerInterface;
+};
 
 class BroadPhaseLayerInterfaceTable : public BroadPhaseLayerInterface {
 public:

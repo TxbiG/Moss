@@ -18,6 +18,10 @@
 #include <cctype>
 #include <limits>
 #include <cstring>
+#include <cstdint>
+#ifdef _MSC_VER
+    #include <intrin.h>
+#endif
 
 // Add Encryption
 
@@ -169,6 +173,17 @@ private:
         while (s < end && (*s==' ' || *s=='\t' || *s=='\n' || *s=='\r')) ++s;
     }
 
+    static int count_trailing_zeros(uint32_t value) {
+        // The caller must ensure value is non-zero.
+    #ifdef _MSC_VER
+        unsigned long index = 0;
+        _BitScanForward(&index, static_cast<unsigned long>(value));
+        return static_cast<int>(index);
+    #else
+        return __builtin_ctz(value);
+    #endif
+    }
+
     // SIMD-accelerated whitespace skip (AVX2/SSE2), falls back to scalar.
     static void skip_ws_simd(const char*& s, const char* end) {
     #if defined(__AVX2__)
@@ -184,7 +199,7 @@ private:
             // mask bit=1 for whitespace
             uint32_t mask = _mm256_movemask_epi8(m);
             if (mask != 0xFFFFFFFFu) { // some non-ws encountered
-                int first_non = __builtin_ctz(~mask);
+                int first_non = count_trailing_zeros(~mask);
                 s += first_non;
                 return;
             }
@@ -198,12 +213,10 @@ private:
         const __m128i lf   = _mm_set1_epi8('\n');
         while (s + 16 <= end) {
             __m128i v = _mm_loadu_si128(reinterpret_cast<const __m128i*>(s));
-            __m128i m = _mm_or_si128(
-                        _mm_or_si128(_mm_cmpeq_epi8(v, sp), _mm_cmpeq_epi8(v, tab)),
-                        _mm_or_si128(_mm_cmpeq_epi8(v, cr), _mm_cmpeq_epi8(v, lf)));
+            __m128i m = _mm_or_si128(_mm_or_si128(_mm_cmpeq_epi8(v, sp), _mm_cmpeq_epi8(v, tab)), _mm_or_si128(_mm_cmpeq_epi8(v, cr), _mm_cmpeq_epi8(v, lf)));
             uint32_t mask = static_cast<uint32_t>(_mm_movemask_epi8(m));
             if (mask != 0xFFFFu) {
-                int first_non = __builtin_ctz(~mask);
+                int first_non = count_trailing_zeros((~mask) & 0xFFFFu);
                 s += first_non;
                 return;
             }
