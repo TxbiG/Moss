@@ -1,0 +1,96 @@
+name: Moss Determinism Build Check
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: moss-determinism-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  deterministic-build:
+    name: Deterministic build (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - windows-2022
+          - ubuntu-latest
+          - macos-latest
+
+    steps:
+      - name: Check out Moss
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Install Linux build dependencies
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            ninja-build \
+            libasound2-dev \
+            libx11-dev \
+            libxrandr-dev \
+            libxinerama-dev \
+            libxcursor-dev \
+            libxi-dev \
+            libxext-dev \
+            libwayland-dev \
+            libxkbcommon-dev \
+            libvulkan-dev \
+            mesa-vulkan-drivers \
+            libgl1-mesa-dev
+
+      - name: Install macOS build tools
+        if: runner.os == 'macOS'
+        run: brew install ninja
+
+      - name: Configure deterministic build (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: >-
+          cmake -S . -B build
+          -G "Visual Studio 17 2022"
+          -A x64
+          -DCROSS_PLATFORM_DETERMINISTIC=ON
+          -DINTERPROCEDURAL_OPTIMIZATION=OFF
+          -DTARGET_PERFORMANCE_TEST=OFF
+          -DTARGET_SAMPLES=OFF
+
+      - name: Configure deterministic build (Linux/macOS)
+        if: runner.os != 'Windows'
+        run: >-
+          cmake -S . -B build
+          -G Ninja
+          -DCMAKE_BUILD_TYPE=Release
+          -DCROSS_PLATFORM_DETERMINISTIC=ON
+          -DINTERPROCEDURAL_OPTIMIZATION=OFF
+          -DTARGET_PERFORMANCE_TEST=OFF
+          -DTARGET_SAMPLES=OFF
+
+      - name: Verify deterministic mode is enabled (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          $cache = Get-Content build/CMakeCache.txt -Raw
+          if ($cache -notmatch '(?m)^CROSS_PLATFORM_DETERMINISTIC:BOOL=ON$') {
+            Write-Error 'CROSS_PLATFORM_DETERMINISTIC was not enabled in the CMake cache.'
+            exit 1
+          }
+
+      - name: Verify deterministic mode is enabled (Linux/macOS)
+        if: runner.os != 'Windows'
+        run: |
+          grep -qx 'CROSS_PLATFORM_DETERMINISTIC:BOOL=ON' build/CMakeCache.txt
+
+      - name: Build Moss
+        run: cmake --build build --config Release --parallel --target Moss

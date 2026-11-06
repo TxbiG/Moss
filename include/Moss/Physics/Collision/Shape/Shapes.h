@@ -24,16 +24,10 @@
 #include <Moss/Physics/Collision/SortReverseAndStore.h>
 #include <Moss/Physics/Body/BodyID.h>
 #include <Moss/Renderer/DebugRenderer.h>                // Fixes the incomplete type GeometryRef error
+#include <Moss/Core/StreamUtils.h>
 
-
-using ShapeToIDMap = StreamUtils::ObjectToIDMap<Shape>;
-using IDToShapeMap = StreamUtils::IDToObjectMap<Shape>;
-using MaterialToIDMap = StreamUtils::ObjectToIDMap<PhysicsMaterial>;
-using IDToMaterialMap = StreamUtils::IDToObjectMap<PhysicsMaterial>;
 
 MOSS_SUPPRESS_WARNINGS_BEGIN
-
-constexpr float cDefaultConvexRadius = 0.05f;
 
 class MassProperties;
 class CollideShapeSettings;
@@ -59,6 +53,13 @@ class StreamIn;
 #ifndef MOSS_DEBUG_RENDERER
 class DebugRenderer;
 #endif // MOSS_DEBUG_RENDERER
+
+using ShapeToIDMap = StreamUtils::ObjectToIDMap<Shape>;
+using IDToShapeMap = StreamUtils::IDToObjectMap<Shape>;
+using MaterialToIDMap = StreamUtils::ObjectToIDMap<PhysicsMaterial>;
+using IDToMaterialMap = StreamUtils::IDToObjectMap<PhysicsMaterial>;
+
+constexpr float cDefaultConvexRadius = 0.05f;
 
 using CastRayCollector = CollisionCollector<RayCastResult, CollisionCollectorTraitsCastRay>;
 using CastShapeCollector = CollisionCollector<ShapeCastResult, CollisionCollectorTraitsCastShape>;

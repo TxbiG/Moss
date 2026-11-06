@@ -15,10 +15,13 @@
 #include <Moss/Physics/Collision/Shape/Shapes.h>
 #include <Moss/Physics/Collision/BroadPhase/BroadPhaseLayerInterfaceMask.h>
 #include <Moss/Physics/Body/BodyID.h>
+#include <Moss/Physics/StateRecorder.h>
+#include <Moss/Physics/PhysicsLock.h>
 
 MOSS_SUPPRESS_WARNINGS_BEGIN
 
 // Classes
+class Body;
 class BodyCreationSettings;
 class SoftBodyCreationSettings;
 class BodyActivationListener;
@@ -35,14 +38,11 @@ class DebugRenderer;
 class BodyDrawFilter;
 #endif // MOSS_DEBUG_RENDERER
 
-
 static constexpr uint32_t cBodyTypeCount = 2;
 
-class Body;
-
-enum class EBodyType : uint8_t { 
-	Rigid, 
-	Soft 
+enum class EBodyType : uint8_t {
+    RigidBody,
+    SoftBody
 };
 enum class EMotionType : uint8_t { 
 	Static, 
@@ -207,7 +207,8 @@ static_assert(sizeof(BodyPair) == sizeof(uint64), "Mismatch in class size");
 class BodyLockInterface : public NonCopyable {
 public:
 	// Redefine MutexMask
-	using MutexMask = BodyManager::MutexMask;
+	using BodyMutexMask = uint64_t;
+	using MutexMask = BodyMutexMask;
 
 	// Constructor
 	explicit					BodyLockInterface(BodyManager &inBodyManager)		: mBodyManager(inBodyManager) { }
@@ -693,6 +694,8 @@ private:
 class MOSS_API BodyManager : public NonCopyable {
 public:
 	MOSS_OVERRIDE_NEW_DELETE
+	
+	using MutexMask = BodyMutexMask;
 
 	// Destructor
 	~BodyManager();
@@ -823,9 +826,6 @@ public:
 	// Access the mutex for a single body
 	SharedMutex& GetMutexForBody(const BodyID &inID) const	{ return mBodyMutexes.GetMutexByObjectIndex(inID.GetIndex()); }
 
-	// Bodies are protected using an array of mutexes (so a fixed number, not 1 per body). Each bit in this mask indicates a locked mutex.
-	using MutexMask = uint64;
-
 	//@name Batch body mutex access (do not use directly)
 
 	MutexMask						GetAllBodiesMutexMask() const				{ return mBodyMutexes.GetNumMutexes() == sizeof(MutexMask) * 8? ~MutexMask(0) : (MutexMask(1) << mBodyMutexes.GetNumMutexes()) - 1; }
@@ -917,18 +917,16 @@ public:
 			SetOverrideAllowActivation(inAllowActivation);
 
 			MOSS_ASSERT(!sGetOverrideAllowDeactivation());
-			sSetOverrideAllowDeactivation(inAllowDeactivation);
+			SetOverrideAllowDeactivation(inAllowDeactivation);
 		}
 
 		inline ~GrantActiveBodiesAccess()
 		{
 			SetOverrideAllowActivation(false);
-			sSetOverrideAllowDeactivation(false);
+			SetOverrideAllowDeactivation(false);
 		}
 	};
-#endif
 
-#ifdef MOSS_DEBUG
 	// Validate if the cached bounding boxes are correct for all active bodies
 	void							ValidateActiveBodyBounds();
 #endif // MOSS_DEBUG

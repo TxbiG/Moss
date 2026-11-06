@@ -26,7 +26,7 @@ The framework supports modern graphics APIs and is structured for scalability fr
 
 ## Documentation
 
-Comprehensive documentation is available in the [`docs/`](./docs/README.md) directory:
+Comprehensive documentation is available in the [`docs/`](docs/README.md) directory:
 
 * Architecture overview
 * Rendering system design
@@ -38,6 +38,7 @@ Comprehensive documentation is available in the [`docs/`](./docs/README.md) dire
 * Performance guidelines
 
 - [API cheatsheet](docs/Cheatsheet.md)
+- [API Reference](docs/API_Reference.md)
 - [Roadmap](docs/README.md#roadmap)
 
 

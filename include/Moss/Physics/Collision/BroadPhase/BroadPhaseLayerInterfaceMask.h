@@ -16,13 +16,11 @@ public:
 	MOSS_OVERRIDE_NEW_DELETE
 
 /// Constructor
-	ObjectVsBroadPhaseLayerFilterMask(const BroadPhaseLayerInterfaceMask &inBroadPhaseLayerInterface) :
-		mBroadPhaseLayerInterface(inBroadPhaseLayerInterface) { }
+	ObjectVsBroadPhaseLayerFilterMask(const BroadPhaseLayerInterfaceMask &inBroadPhaseLayerInterface) : mBroadPhaseLayerInterface(inBroadPhaseLayerInterface) { }
 
 	/// Returns true if an object layer should collide with a broadphase layer
-	virtual bool ShouldCollide(ObjectLayer inLayer1, BroadPhaseLayer inLayer2) const override {
-		// Just defer to BroadPhaseLayerInterface
-		return mBroadPhaseLayerInterface.ShouldCollide(inLayer1, inLayer2);
+	bool ShouldCollide(ObjectLayer inLayer1, BroadPhaseLayer inLayer2) const override {
+		return mBroadPhaseLayerInterface.ShouldCollide(inLayer1, inLayer2);	// Just defer to BroadPhaseLayerInterface
 	}
 
 private:

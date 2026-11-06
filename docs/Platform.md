@@ -30,12 +30,12 @@ Working with any other platform not specified here will require manual creation,
 | ------------- | -------------                | -------| -------------  | -------------    | -------------         |
 | Supported     | OpenGL, Vulkan, DirectX 12 or 12 | Metal  | OpenGL, Vulkan | OpenGL ES, Metal | OpenGL ES, Vulkan | 
 
-- [Overview](/docs/Platform.md#overview)
-    - [Window](/docs/Platform.md#window), [Monitor](/docs/Platform.md#monitor)
-    - [Input](/docs/Platform.md#input), [Haptic Feedback](/docs/Platform.md#haptic-feedback)
-    - [VideoCapture](/docs/Platform.md#videocapture)
-    - [Miscellaneous](/docs/Platform.md#miscellaneous)
-    - [Graphics API Specific](/docs/Platform.md#graphics-api-specific)
+- [Overview](#overview)
+    - [Window](#window), [Monitor](#monitor)
+    - [Input](#input), [Haptic Feedback](#haptic-feedback)
+    - [VideoCapture](#videocapture)
+    - [Miscellaneous](#miscellaneous)
+    - [Graphics API Specific](#graphics-api-specific)
 
 ## Enums
 ```cpp

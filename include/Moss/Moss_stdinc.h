@@ -247,7 +247,7 @@
 #elif defined(__terrarium__)
 	#define MOSS_PLATFORM_TERRARIUM
 
-	#if   defined(TERRARIUM_DEVICE_RPI)
+	#if defined(TERRARIUM_DEVICE_RPI)
 		#define MOSS_PLATFORM_EMBEDDED
 		#define MOSS_LOW_MEMORY
 	#elif defined(TERRARIUM_DEVICE_CONSOLE)
@@ -286,7 +286,6 @@
 
 // Detect CPU architecture
 #if defined(__x86_64__) || defined(_M_X64) || defined(__i386__) || defined(_M_IX86)
-	#include <immintrin.h> // Pulls in SSE, AVX, AVX2, TZCNT, LZCNT
 	// X86 CPU architecture
 	#define MOSS_CPU_X86
 	#if defined(__x86_64__) || defined(_M_X64)
@@ -465,6 +464,12 @@
 	#endif
 #else
 	#error Unsupported CPU architecture
+#endif
+
+#if defined(MOSS_SIMD_AVX) || defined(MOSS_SIMD_AVX2)
+    #include <immintrin.h> // Pulls in SSE, AVX, AVX2, TZCNT, LZCNT
+#elif defined(__SSE__) || defined(_M_AMD64) || defined(_M_X64)
+    #include <xmmintrin.h>
 #endif
 
 // If this define is set, Moss is compiled as a shared library
@@ -912,6 +917,7 @@ static inline void Moss_Log(const char* prefix, const char* msg, const char* col
     vprintf(formatBuffer, args);
     va_end(args);
 }
+#define MOSS_LOG(msg, ...) 	 Moss_Log("LOG:   ", msg, "\x1b[37m", ##__VA_ARGS__); // White
 #define MOSS_TRACE(msg, ...) Moss_Log("TRACE: ", msg, "\x1b[37m", ##__VA_ARGS__); // White
 #define MOSS_INFO(msg, ...)  Moss_Log("INFO:  ", msg, "\x1b[32m", ##__VA_ARGS__); // Green
 #define MOSS_WARN(msg, ...)  Moss_Log("WARN:  ", msg, "\x1b[33m", ##__VA_ARGS__); // Yellow
@@ -980,6 +986,7 @@ inline bool MossAssertHelper(const char* expr, const char* file, uint32_t line, 
 
 #define MOSS_IF_ENABLE_ASSERTS(...)  __VA_ARGS_
 #else
+	#define MOSS_LOG(msg, ...)  		((void)0)
 	#define MOSS_TRACE(msg, ...)  		((void)0)
 	#define MOSS_DEBUG(msg, ...)  		((void)0)
 	#define MOSS_INFO(msg, ...)  		((void)0)
@@ -1660,9 +1667,7 @@ bool AtomicMax(atomic<T> &ioAtomic, const T inValue, const memory_order inMemory
 	// Shuffle a vector
 	#define MOSS_NEON_SHUFFLE_F32x4(vec1, vec2, index1, index2, index3, index4) __builtin_shufflevector(vec1, vec2, index1, index2, index3, index4)
 	#define MOSS_NEON_SHUFFLE_U32x4(vec1, vec2, index1, index2, index3, index4) __builtin_shufflevector(vec1, vec2, index1, index2, index3, index4)
-#endif
 
-#if defined(MOSS_COMPILER_MSVC) || (defined(MOSS_COMPILER_GCC) && __GNUC__ < 12)
 // Generic shuffle vector template
 template <unsigned I1, unsigned I2, unsigned I3, unsigned I4>
 MOSS_INLINE float32x4_t NeonShuffleFloat32x4(float32x4_t inV1, float32x4_t inV2) {
@@ -1673,7 +1678,7 @@ MOSS_INLINE float32x4_t NeonShuffleFloat32x4(float32x4_t inV1, float32x4_t inV2)
 	ret = vsetq_lane_f32(vgetq_lane_f32(I4 >= 4? inV2 : inV1, I4 & 0b11), ret, 3);
 	return ret;
 }
-
+#endif // MOSS_COMPILER_MSVC || MOSS_COMPILER_GCC
 	// Specializations
 template <>
 MOSS_INLINE float32x4_t NeonShuffleFloat32x4<0, 1, 2, 2>(float32x4_t inV1, float32x4_t inV2) { return vcombine_f32(vget_low_f32(inV1), vdup_lane_f32(vget_high_f32(inV1), 0)); }
@@ -1703,17 +1708,15 @@ MOSS_INLINE float32x4_t NeonShuffleFloat32x4<1, 2, 0, 0>(float32x4_t inV1, float
 // Shuffle a vector
 #define MOSS_NEON_SHUFFLE_F32x4(vec1, vec2, index1, index2, index3, index4) NeonShuffleFloat32x4<index1, index2, index3, index4>(vec1, vec2)
 #define MOSS_NEON_SHUFFLE_U32x4(vec1, vec2, index1, index2, index3, index4) vreinterpretq_u32_f32((NeonShuffleFloat32x4<index1, index2, index3, index4>(vreinterpretq_f32_u32(vec1), vreinterpretq_f32_u32(vec2))))
-
-
-void Moss_Create_BumpAlloc(BumpAlloc* alloc, size_t size)
-{
+#endif // MOSS_SIMD_NEON
+/*
+void Moss_Create_BumpAlloc(BumpAlloc* alloc, size_t size) {
     alloc->buffer = (char*)malloc(size);
     alloc->offset = 0;
     alloc->capacity = size;
 }
 
-void* Moss_BumpAlloc(BumpAlloc* ba, size_t size)
-{
+void* Moss_BumpAlloc(BumpAlloc* ba, size_t size) {
     if (alloc->offset + size > alloc->capacity) return NULL;
     void* ptr = alloc->buffer + alloc->offset;
     alloc->offset += size;
@@ -1725,8 +1728,7 @@ void free_BumpAlloc(BumpAlloc* alloc) { free(alloc->buffer); }
 
 
 
-long long Moss_get_FileTimeStamp(char* file)
-{
+long long Moss_GetFileTimeStamp(char* file) {
     struct stat file_stat = {};
     stat(file, &file_stat);
     return file_stat.st_mtime;
@@ -1744,7 +1746,7 @@ bool Moss_FileExists(char* filepath)
     return true;
 }
 
-long Moss_get_FileSize(char* filepath)
+long Moss_GetFileSize(char* filepath)
 {
     MOSS_ERROR(filepath, "No filepath supplied.");
 
@@ -1761,11 +1763,9 @@ long Moss_get_FileSize(char* filepath)
     return fileSize;
 }
 
-/*
-* Reads a file into a supplied buffer. We manage our own
-* memory and therefore want more control over where it 
-* is allocated
-*/
+
+// Reads a file into a supplied buffer. We manage our own memory and therefore want more control over where it is allocated
+
 char* Moss_FileRead(char* filepath, int fileSize, char* buffer) {
     MOSS_ERROR(filePath, "No filePath supplied!");
     MOSS_ERROR(fileSize, "No fileSize supplied!");
@@ -1773,8 +1773,7 @@ char* Moss_FileRead(char* filepath, int fileSize, char* buffer) {
 
     *fileSize = 0;
     auto file = fopen(filePath, "rb");
-    if(!file)
-    {
+    if(!file) {
         MOSS_ERROR("Failed opening File: %s", filePath);
         return nullptr;
     }
@@ -1792,28 +1791,24 @@ char* Moss_FileRead(char* filepath, int fileSize, char* buffer) {
 }
 
 
-char* read_file(const char* filePath, int* fileSize, BumpAlloc* BumpAlloc)
-{
-  char* file = nullptr;
-  long fileSize2 = get_file_size(filePath);
+char* read_file(const char* filePath, int* fileSize, BumpAlloc* BumpAlloc) {
+	char* file = nullptr;
+	long fileSize2 = get_file_size(filePath);
 
-  if(fileSize2)
-  {
-    char* buffer = bump_alloc(BumpAlloc, fileSize2 + 1);
+	if(fileSize2) {
+		char* buffer = bump_alloc(BumpAlloc, fileSize2 + 1);
 
-    file = read_file(filePath, fileSize, buffer);
-  }
+		file = read_file(filePath, fileSize, buffer);
+	}
 
-  return file; 
+	return file; 
 }
 
-void Moss_FileWrite(char* filepath, char* buffer, int size)
-{
+void Moss_FileWrite(char* filepath, char* buffer, int size) {
     MOSS_ERROR(filePath, "No filePath supplied!");
     MOSS_ERROR(buffer, "No buffer supplied!");
     auto file = fopen(filePath, "wb");
-    if(!file)
-    {
+    if(!file) {
         MOSS_ERROR("Failed opening File: %s", filePath);
         return;
     }
@@ -1824,48 +1819,43 @@ void Moss_FileWrite(char* filepath, char* buffer, int size)
 
 
 
-bool copy_file(const char* fileName, const char* outputName, char* buffer)
-{
-  int fileSize = 0;
-  char* data = read_file(fileName, &fileSize, buffer);
+bool Moss_CopyFile(const char* fileName, const char* outputName, char* buffer) {
+	int fileSize = 0;
+	char* data = read_file(fileName, &fileSize, buffer);
 
-  auto outputFile = fopen(outputName, "wb");
-  if(!outputFile)
-  {
-    MOSS_ERROR("Failed opening File: %s", outputName);
-    return false;
-  }
+	auto outputFile = fopen(outputName, "wb");
+	if(!outputFile)
+	{
+		MOSS_ERROR("Failed opening File: %s", outputName);
+		return false;
+	}
 
-  int result = fwrite(data, sizeof(char), fileSize, outputFile);
-  if(!result)
-  {
-    MOSS_ERROR("Failed opening File: %s", outputName);
-    return false;
-  }
-  
-  fclose(outputFile);
+	int result = fwrite(data, sizeof(char), fileSize, outputFile);
+	if(!result) {
+		MOSS_ERROR("Failed opening File: %s", outputName);
+		return false;
+	}
+	
+	fclose(outputFile);
 
-  return true;
+	return true;
 }
 
-bool copy_file(const char* fileName, const char* outputName, BumpAlloc* BumpAlloc)
-{
-  char* file = 0;
-  long fileSize2 = get_file_size(fileName);
+bool copy_file(const char* fileName, const char* outputName, BumpAlloc* BumpAlloc) {
+	char* file = 0;
+	long fileSize2 = get_file_size(fileName);
 
-  if(fileSize2)
-  {
-    char* buffer = bump_alloc(BumpAlloc, fileSize2 + 1);
+	if(fileSize2)
+	{
+		char* buffer = bump_alloc(BumpAlloc, fileSize2 + 1);
 
-    return copy_file(fileName, outputName, buffer);
-  }
+		return copy_file(fileName, outputName, buffer);
+	}
 
-  return false;
+  	return false;
 }
 
 MOSS_SUPPRESS_WARNINGS_END
-
-#endif // MOSS_STDINC_H
 
 
 // Find the roots of \f$inA \: x^2 + inB \: x + inC = 0\f$.
@@ -1900,7 +1890,6 @@ inline int FindRoot(const T inA, const T inB, const T inC, T &outX1, T &outX2) {
 	return 2;
 }
 
-/*
 MOSS_SUPPRESS_WARNINGS_BEGIN
 #include <cstdlib>
 MOSS_SUPPRESS_WARNINGS_END
@@ -1978,117 +1967,6 @@ void RegisterDefaultAllocator()
 #endif // MOSS_DISABLE_CUSTOM_ALLOCATOR
 
 
-
-
-using std::expf;
-using std::itoa;
-using std::lltoa;
-using std::asprintf;
-using std::inff;
-using std::ltoa;
-bsearch
-bsearch_r
-copysign
-copysignf
-crc16
-crc32
-getenv
-getenv_unsafe
-GetMemoryFunctions
-GetNumAllocations
-GetOriginalMemoryFunctions
-iconv
-iconv_close
-iconv_open
-iconv_string
-isalnum
-isalpha
-isblank
-iscntrl
-isdigit
-isgraph
-islower
-isprint
-ispunct
-isspace
-isupper
-isxdigit
-murmur3_32
-qsort_r
-rand
-rand_bits
-rand_bits_r
-rand_r
-randf
-randf_r
-realloc
-round
-roundf
-scalbn
-scalbnf
-setenv_unsafe
-SetMemoryFunctions
-size_add_check_overflow
-size_mul_check_overflow
-snprintf
-StepBackUTF8
-StepUTF8
-strcasecmp
-strcasestr
-strchr
-strcmp
-strdup
-strlcat
-strlcpy
-strlen
-strlwr
-strncasecmp
-strncmp
-strndup
-strnlen
-strnstr
-strpbrk
-strrchr
-strrev
-strstr
-strtod
-strtok_r
-strtol
-strtoll
-strtoul
-strtoull
-strupr
-swprintf
-tolower
-toupper
-trunc
-truncf
-UCS4ToUTF8
-uitoa
-ulltoa
-ultoa
-unsetenv_unsafe
-utf8strlcpy
-utf8strlen
-utf8strnlen
-vasprintf
-vsnprintf
-vsscanf
-vswprintf
-wcscasecmp
-wcscmp
-wcsdup
-wcslcat
-wcslcpy
-wcslen
-wcsncasecmp
-wcsncmp
-wcsnlen
-wcsnstr
-wcsstr
-wcstol
-
-
 typedef int64 Moss_Time;
 #define MOSS_MAX_TIME MOSS_MAX_SINT64
 #define MOSS_MIN_TIME MOSS_MIN_SINT64
@@ -2148,7 +2026,146 @@ void Moss_MemoryBarrierReleaseFunction(void);
 bool Moss_TryLockSpinlock(Moss_SpinLock *lock);
 Uint32 Moss_SetAtomicU32(Moss_AtomicU32 *a, Uint32 v);
 void Moss_UnlockSpinlock(Moss_SpinLock *lock);
+
+
+// ============================================================================
+// Boolean & Bitwise Masks (_b / 1-bit per flag)
+// ============================================================================
+
+// Performs bitwise AND across 128 raw bit-flags (16 bytes input data)
+void Moss_Simd_b_And(const uint8_t* a, const uint8_t* b, uint8_t* result);
+
+// Performs bitwise OR across 128 raw bit-flags (16 bytes input data)
+void Moss_Simd_b_Or(const uint8_t* a, const uint8_t* b, uint8_t* result);
+
+// Performs bitwise XOR across 128 raw bit-flags (16 bytes input data)
+void Moss_Simd_b_Xor(const uint8_t* a, const uint8_t* b, uint8_t* result);
+
+// Performs bitwise NOT inversion across 128 raw bit-flags (16 bytes input data)
+void Moss_Simd_b_Not(const uint8_t* src, uint8_t* result);
+
+// Compares if elements in a < b, and extracts the results into a scalar 4-bit integer mask
+int Moss_Simd_f_Movemask(const float* a, const float* b);
+
+
+// ============================================================================
+// 8-Bit Integers / Characters (_c / 16 elements per 128-bit loop)
+// ============================================================================
+
+// Component-wise signed 8-bit addition with standard wrapping
+void Moss_Simd_c_Add(const int8_t* a, const int8_t* b, int8_t* result);
+
+// Component-wise signed 8-bit subtraction with standard wrapping
+void Moss_Simd_c_Sub(const int8_t* a, const int8_t* b, int8_t* result);
+
+// Unsigned 8-bit saturating addition (Clamps automatically at 255. Perfect for RGBA)
+void Moss_Simd_c_AddSat(const uint8_t* a, const uint8_t* b, uint8_t* result);
+
+// Unsigned 8-bit saturating subtraction (Clamps automatically at 0)
+void Moss_Simd_c_SubSat(const uint8_t* a, const uint8_t* b, uint8_t* result);
+
+// Selects the minimum value component-by-component across 16 elements
+void Moss_Simd_c_Min(const uint8_t* a, const uint8_t* b, uint8_t* result);
+
+// Selects the maximum value component-by-component across 16 elements
+void Moss_Simd_c_Max(const uint8_t* a, const uint8_t* b, uint8_t* result);
+
+
+// ============================================================================
+// 16-Bit Integers / Shorts (_s / 8 elements per 128-bit loop)
+// ============================================================================
+
+// Component-wise signed 16-bit addition
+void Moss_Simd_s_Add(const int16_t* a, const int16_t* b, int16_t* result);
+
+// Component-wise signed 16-bit subtraction
+void Moss_Simd_s_Sub(const int16_t* a, const int16_t* b, int16_t* result);
+
+// Component-wise signed 16-bit multiplication (Useful for audio processing)
+void Moss_Simd_s_Mul(const int16_t* a, const int16_t* b, int16_t* result);
+
+// Shifts 8 packed 16-bit integers left by a constant count value
+void Moss_Simd_s_ShiftLeft(const int16_t* src, int count, int16_t* result);
+
+// Shifts 8 packed 16-bit integers right by a constant count value
+void Moss_Simd_s_ShiftRight(const int16_t* src, int count, int16_t* result);
+
+
+// ============================================================================
+// 32-Bit Integers (_i / 4 elements per 128-bit loop)
+// ============================================================================
+
+// Component-wise signed 32-bit addition (Useful for ECS Entities / Identifiers)
+void Moss_Simd_i_Add(const int32_t* a, const int32_t* b, int32_t* result);
+
+// Component-wise signed 32-bit subtraction
+void Moss_Simd_i_Sub(const int32_t* a, const int32_t* b, int32_t* result);
+
+// Component-wise signed 32-bit multiplication
+void Moss_Simd_i_Mul(const int32_t* a, const int32_t* b, int32_t* result);
+
+// Compares if elements equal each other. Outputs 0xFFFFFFFF or 0x00000000 per index lane
+void Moss_Simd_i_Cmpeq(const int32_t* a, const int32_t* b, int32_t* result_mask);
+
+
+// ============================================================================
+// 32-Bit Floating Point (_f / 4 elements per 128-bit loop)
+// ============================================================================
+
+// Component-wise 32-bit floating point addition
+void Moss_Simd_f_Add(const float* a, const float* b, float* result);
+
+// Component-wise 32-bit floating point subtraction
+void Moss_Simd_f_Sub(const float* a, const float* b, float* result);
+
+// Component-wise 32-bit floating point multiplication
+void Moss_Simd_f_Mul(const float* a, const float* b, float* result);
+
+// Component-wise 32-bit floating point division
+void Moss_Simd_f_Div(const float* a, const float* b, float* result);
+
+// Component-wise square root on 4 floating point variables
+void Moss_Simd_f_Sqrt(const float* src, float* result);
+
+// Fused Multiply-Add operation: Computes (a * b) + c with single-cycle rounding precision
+void Moss_Simd_f_FMA(const float* a, const float* b, const float* c, float* result);
+
+// Calculates a high-speed vector dot product across 3 active float dimensions
+float Moss_Simd_f_Dot3(const float* a, const float* b);
+
+// Selectively blends data blocks from a or b dynamically based on condition bits
+void Moss_Simd_f_Blend(const float* a, const float* b, const int32_t* mask, float* result);
+
+
+// ============================================================================
+// 64-Bit Floating Point / Doubles (_d / 2 elements per 128-bit loop)
+// ============================================================================
+
+// Component-wise 64-bit precision floating point addition
+void Moss_Simd_d_Add(const double* a, const double* b, double* result);
+
+// Component-wise 64-bit precision floating point subtraction
+void Moss_Simd_d_Sub(const double* a, const double* b, double* result);
+
+// Component-wise 64-bit precision floating point multiplication
+void Moss_Simd_d_Mul(const double* a, const double* b, double* result);
+
+// Component-wise 64-bit precision floating point division
+void Moss_Simd_d_Div(const double* a, const double* b, double* result);
+
+
+// ============================================================================
+// High-End Register Scales (256-Bit / AVX2 Variations)
+// ============================================================================
+
+// Processes 8 signed integers simultaneously using 256-bit pipelines
+void Moss_Simd256_i_Add(const int32_t* a, const int32_t* b, int32_t* result);
+
+// Processes 8 floats simultaneously using 256-bit pipelines
+void Moss_Simd256_f_Add(const float* a, const float* b, float* result);
+
+// Processes 4 doubles simultaneously using 256-bit pipelines
+void Moss_Simd256_d_Add(const double* a, const double* b, double* result);
 */
 
-#endif
-#endif // MOSS_SIMD_NEON
+#endif // MOSS_STDINC_H

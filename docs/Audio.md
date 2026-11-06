@@ -6,12 +6,12 @@ Supported Audio - ```XAudio2 / WASAPI```, ```CoreAudio```, ```ALSA```.
 
 Supports ```Mono```, ```Stereo```, ```Quadraphonic```, ```4.1 Surround```, ```5.1 Surround```, ```6.1 Surround```, ```7.1 Surround```, ```Spatial```
 
-- [Overview](/docs/Audio.md#overview)
-  - [Channels](/docs/Audio.md#channels), [Effects](/docs/Audio.md#effects)
-  - [AudioStream](/docs/Audio.md#audiostream), [AudioStream2](/docs/Audio.md#audiostream2), [AudioStream3](/docs/Audio.md#audiostream3)
-  - [AudioListener2](/docs/Audio.md#audiolistener2), [AudioListener3](/docs/Audio.md#audiolistener3)
-  - [Speaker](/docs/Audio.md#speaker), [Microphone](/docs/Audio.md#microphone)
-  - [RayTrace Audio](/docs/Audio.md#raytraceaudio)
+- [Overview](#overview)
+  - [Channels](#channels), [Effects](#effects)
+  - [AudioStream](#audiostream), [AudioStream2](#audiostream2), [AudioStream3](#audiostream3)
+  - [AudioListener2](#audiolistener2), [AudioListener3](#audiolistener3)
+  - [Speaker](#speaker), [Microphone](#microphone)
+  - [RayTrace Audio](#raytraceaudio)
 
 ## Enums
 ```cpp

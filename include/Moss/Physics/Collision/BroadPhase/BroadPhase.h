@@ -35,8 +35,31 @@ using RayCastBodyCollector = CollisionCollector<BroadPhaseCastResult, CollisionC
 using CastShapeBodyCollector = CollisionCollector<BroadPhaseCastResult, CollisionCollectorTraitsCastShape>;
 using CollideShapeBodyCollector = CollisionCollector<BodyID, CollisionCollectorTraitsCollideShape>;
 
+class BroadPhaseLayer {
+public:
+	using Type = uint8;
 
-/// Filter class for broadphase layers
+	MOSS_INLINE						BroadPhaseLayer() = default;
+	MOSS_INLINE explicit constexpr	BroadPhaseLayer(Type inValue) : mValue(inValue) { }
+	MOSS_INLINE constexpr			BroadPhaseLayer(const BroadPhaseLayer &) = default;
+
+	MOSS_INLINE BroadPhaseLayer &	operator = (const BroadPhaseLayer &) = default;
+	MOSS_INLINE constexpr bool		operator == (const BroadPhaseLayer &inRHS) const { return mValue == inRHS.mValue; }
+	MOSS_INLINE constexpr bool		operator != (const BroadPhaseLayer &inRHS) const { return mValue != inRHS.mValue; }
+	MOSS_INLINE constexpr bool		operator < (const BroadPhaseLayer &inRHS) const { return mValue < inRHS.mValue; }
+	MOSS_INLINE explicit constexpr	operator Type() const { return mValue; }
+
+	MOSS_INLINE Type					GetValue() const { return mValue; }
+
+private:
+	Type							mValue;
+};
+
+
+/// Constant value used to indicate an invalid broad phase layer
+static constexpr BroadPhaseLayer cBroadPhaseLayerInvalid(0xff);
+
+// Filter class for broadphase layers
 class MOSS_API BroadPhaseLayerFilter : public NonCopyable {
 public:
 	/// Destructor
@@ -71,47 +94,6 @@ public:
 	/// Cast a box and add any hits to ioCollector
 	virtual void		CastAABox(const AABoxCast &inBox, CastShapeBodyCollector &ioCollector, const BroadPhaseLayerFilter &inBroadPhaseLayerFilter = { }, const ObjectLayerFilter &inObjectLayerFilter = { }) const = 0;
 };
-
-class BroadPhaseLayer {
-public:
-	using Type = uint8;
-
-	MOSS_INLINE						BroadPhaseLayer() = default;
-	MOSS_INLINE explicit constexpr	BroadPhaseLayer(Type inValue) : mValue(inValue) { }
-	MOSS_INLINE constexpr			BroadPhaseLayer(const BroadPhaseLayer &) = default;
-	MOSS_INLINE BroadPhaseLayer &	operator = (const BroadPhaseLayer &) = default;
-
-	MOSS_INLINE constexpr bool		operator == (const BroadPhaseLayer &inRHS) const
-	{
-		return mValue == inRHS.mValue;
-	}
-
-	MOSS_INLINE constexpr bool		operator != (const BroadPhaseLayer &inRHS) const
-	{
-		return mValue != inRHS.mValue;
-	}
-
-	MOSS_INLINE constexpr bool		operator < (const BroadPhaseLayer &inRHS) const
-	{
-		return mValue < inRHS.mValue;
-	}
-
-	MOSS_INLINE explicit constexpr	operator Type() const
-	{
-		return mValue;
-	}
-
-	MOSS_INLINE Type					GetValue() const
-	{
-		return mValue;
-	}
-
-private:
-	Type							mValue;
-};
-
-/// Constant value used to indicate an invalid broad phase layer
-static constexpr BroadPhaseLayer cBroadPhaseLayerInvalid(0xff);
 
 /// Interface that the application should implement to allow mapping object layers to broadphase layers
 class MOSS_API BroadPhaseLayerInterface : public NonCopyable
