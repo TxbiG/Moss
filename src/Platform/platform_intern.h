@@ -267,7 +267,7 @@ extern INPUT_STATE io;
 extern KeyState* keyboardState;
 extern std::mutex g_sensorMutex;
 extern std::map<Moss_Gamepad*, Moss_GamepadSensorState[2]> g_gamepadSensors;
-extern std::unordered_map<Moss_Gamepad*, std::array<Moss_GamepadSensorState, 2>> 
+//extern std::unordered_map<Moss_Gamepad*, std::array<Moss_GamepadSensorState, 2>> 
 
 typedef void (*Moss_CaptureFrameResult)(Moss_Capture *device, Moss_Surface *frame, uint64_t *timestampNS, float *rotation);
 
