@@ -19,6 +19,7 @@ struct Moss_Image;
 #include <mutex>
 #include <unordered_map>
 #include <array>
+#include <map>
 
 #include <Moss/Moss_stdinc.h>
 #include <Moss/Moss_Platform.h>
