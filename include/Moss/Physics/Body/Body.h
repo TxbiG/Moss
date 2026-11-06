@@ -205,6 +205,371 @@ struct alignas(uint64) BodyPair {
 
 static_assert(sizeof(BodyPair) == sizeof(uint64), "Mismatch in class size");
 
+// Class that contains all bodies
+class MOSS_API BodyManager : public NonCopyable {
+public:
+	MOSS_OVERRIDE_NEW_DELETE
+
+	// Destructor
+	~BodyManager();
+
+	// Initialize the manager
+	void	Init(uint32_t inMaxBodies, uint32_t inNumBodyMutexes, const BroadPhaseLayerInterface &inLayerInterface);
+
+	// Gets the current amount of bodies that are in the body manager
+	uint32_t	GetNumBodies() const;
+
+	// Gets the max bodies that we can support
+	uint32_t	GetMaxBodies() const						{ return uint32_t(mBodies.capacity()); }
+
+	// Helper struct that counts the number of bodies of each type
+	struct BodyStats {
+		uint32_t	mNumBodies					= 0;	// Total number of bodies in the body manager
+		uint32_t	mMaxBodies					= 0;	// Max allowed number of bodies in the body manager (as configured in Init(...))
+
+		uint32_t	mNumBodiesStatic			= 0;	// Number of static bodies
+
+		uint32_t	mNumBodiesDynamic			= 0;	// Number of dynamic bodies
+		uint32_t	mNumActiveBodiesDynamic		= 0;	// Number of dynamic bodies that are currently active
+
+		uint32_t	mNumBodiesKinematic			= 0;	// Number of kinematic bodies
+		uint32_t	mNumActiveBodiesKinematic	= 0;	// Number of kinematic bodies that are currently active
+
+		uint32_t	mNumSoftBodies				= 0;	// Number of soft bodies
+		uint32_t	mNumActiveSoftBodies		= 0;	// Number of soft bodies that are currently active
+	};
+
+	// Get stats about the bodies in the body manager (slow, iterates through all bodies)
+	BodyStats	GetBodyStats() const;
+
+	// Create a body using creation settings. The returned body will not be part of the body manager yet.
+	Body*	AllocateBody(const BodyCreationSettings &inBodyCreationSettings) const;
+
+	// Create a soft body using creation settings. The returned body will not be part of the body manager yet.
+	Body*	AllocateSoftBody(const SoftBodyCreationSettings &inSoftBodyCreationSettings) const;
+
+	// Free a body that has not been added to the body manager yet (if it has, use DestroyBodies).
+	void	FreeBody(Body *inBody) const;
+
+	// Add a body to the body manager, assigning it the next available ID. Returns false if no more IDs are available.
+	bool	AddBody(Body *ioBody);
+
+	// Add a body to the body manager, assigning it a custom ID. Returns false if the ID is not valid.
+	bool	AddBodyWithCustomID(Body *ioBody, const BodyID &inBodyID);
+
+	// Remove a list of bodies from the body manager
+	void	RemoveBodies(const BodyID *inBodyIDs, int inNumber, Body **outBodies);
+
+	// Remove a set of bodies from the body manager and frees them.
+	void	DestroyBodies(const BodyID *inBodyIDs, int inNumber);
+
+	// Activate a list of bodies.
+	// This function should only be called when an exclusive lock for the bodies are held.
+	void	ActivateBodies(const BodyID *inBodyIDs, int inNumber);
+
+	// Deactivate a list of bodies.
+	// This function should only be called when an exclusive lock for the bodies are held.
+	void	DeactivateBodies(const BodyID *inBodyIDs, int inNumber);
+
+	// Update the motion quality for a body
+	void	SetMotionQuality(Body &ioBody, EMotionQuality inMotionQuality);
+
+	// Get copy of the list of active bodies under protection of a lock.
+	void	GetActiveBodies(EBodyType inType, BodyIDVector &outBodyIDs) const;
+
+	// Get the list of active bodies. Note: Not thread safe. The active bodies list can change at any moment.
+	const BodyID *					GetActiveBodiesUnsafe(EBodyType inType) const { return mActiveBodies[int(inType)]; }
+
+	// Get the number of active bodies.
+	uint32_t							GetNumActiveBodies(EBodyType inType) const	{ return mNumActiveBodies[int(inType)].load(memory_order_acquire); }
+
+	// Get the number of active bodies that are using continuous collision detection
+	uint32_t							GetNumActiveCCDBodies() const				{ return mNumActiveCCDBodies; }
+
+	// Listener that is notified whenever a body is activated/deactivated
+	void							SetBodyActivationListener(BodyActivationListener *inListener);
+	BodyActivationListener*		GetBodyActivationListener() const			{ return mActivationListener; }
+
+	// Check if this is a valid body pointer. When a body is freed the memory that the pointer occupies is reused to store a freelist.
+	static inline bool IsValidBodyPointer(const Body *inBody)		{ return (uintptr_t(inBody) & cIsFreedBody) == 0; }
+
+	// Get all bodies. Note that this can contain invalid body pointers, call IsValidBodyPointer to check.
+	const BodyVector&			GetBodies() const							{ return mBodies; }
+
+	// Get all bodies. Note that this can contain invalid body pointers, call IsValidBodyPointer to check.
+	BodyVector&					GetBodies()									{ return mBodies; }
+
+	// Get all body IDs under the protection of a lock
+	void						GetBodyIDs(BodyIDVector &outBodies) const;
+
+	// Access a body (not protected by lock)
+	const Body&					GetBody(const BodyID &inID) const			{ return *mBodies[inID.GetIndex()]; }
+
+	// Access a body (not protected by lock)
+	Body &							GetBody(const BodyID &inID)					{ return *mBodies[inID.GetIndex()]; }
+
+	// Access a body, will return a nullptr if the body ID is no longer valid (not protected by lock)
+	inline Body* TryGetBody(const BodyID &inID) const {
+		uint32_t idx = inID.GetIndex();
+		if (idx >= mBodies.size())
+			return nullptr;
+
+		const Body *body = mBodies[idx];
+		if (IsValidBodyPointer(body) && body->GetID() == inID)
+			return body;
+
+		return nullptr;
+	}
+
+	// Access a body, will return a nullptr if the body ID is no longer valid (not protected by lock)
+	inline Body* TryGetBody(const BodyID &inID) {
+		uint32_t idx = inID.GetIndex();
+		if (idx >= mBodies.size())
+			return nullptr;
+
+		Body *body = mBodies[idx];
+		if (IsValidBodyPointer(body) && body->GetID() == inID)
+			return body;
+
+		return nullptr;
+	}
+
+	// Access the mutex for a single body
+	SharedMutex& GetMutexForBody(const BodyID &inID) const	{ return mBodyMutexes.GetMutexByObjectIndex(inID.GetIndex()); }
+
+	//@name Batch body mutex access (do not use directly)
+
+	MutexMask						GetAllBodiesMutexMask() const				{ return mBodyMutexes.GetNumMutexes() == sizeof(MutexMask) * 8? ~MutexMask(0) : (MutexMask(1) << mBodyMutexes.GetNumMutexes()) - 1; }
+	MutexMask						GetMutexMask(const BodyID *inBodies, int inNumber) const;
+	void							LockRead(MutexMask inMutexMask) const;
+	void							UnlockRead(MutexMask inMutexMask) const;
+	void							LockWrite(MutexMask inMutexMask) const;
+	void							UnlockWrite(MutexMask inMutexMask) const;
+
+
+	// Lock all bodies. This should only be done during PhysicsSystem::Update().
+	void							LockAllBodies() const;
+
+	// Unlock all bodies. This should only be done during PhysicsSystem::Update().
+	void							UnlockAllBodies() const;
+
+	// Function to update body's layer (should only be called by the BodyInterface since it also requires updating the broadphase)
+	inline void SetBodyObjectLayerInternal(Body &ioBody, ObjectLayer inLayer) const { ioBody.mObjectLayer = inLayer; ioBody.mBroadPhaseLayer = mBroadPhaseLayerInterface->GetBroadPhaseLayer(inLayer); }
+
+	// Set the Body::EFlags::InvalidateContactCache flag for the specified body. This means that the collision cache is invalid for any body pair involving that body until the next physics step.
+	void							InvalidateContactCacheForBody(Body &ioBody);
+
+	// Reset the Body::EFlags::InvalidateContactCache flag for all bodies. All contact pairs in the contact cache will now by valid again.
+	void							ValidateContactCacheForAllBodies();
+
+	// Saving state for replay
+	void							SaveState(StateRecorder &inStream, const StateRecorderFilter *inFilter) const;
+
+	// Restoring state for replay. Returns false if failed.
+	bool							RestoreState(StateRecorder &inStream);
+
+	// Save the state of a single body for replay
+	void							SaveBodyState(const Body &inBody, StateRecorder &inStream) const;
+
+	// Save the state of a single body for replay
+	void							RestoreBodyState(Body &inBody, StateRecorder &inStream);
+
+#ifndef MOSS_DEBUG_RENDERER
+	enum class EShapeColor
+	{
+		InstanceColor,				// Random color per instance
+		ShapeTypeColor,				// Convex = green, scaled = yellow, compound = orange, mesh = red
+		MotionTypeColor,			// Static = grey, keyframed = green, dynamic = random color per instance
+		SleepColor,					// Static = grey, keyframed = green, dynamic = yellow, sleeping = red
+		IslandColor,				// Static = grey, active = random color per island, sleeping = light grey
+		MaterialColor,				// Color as defined by the PhysicsMaterial of the shape
+	};
+
+	// Draw settings
+	struct DrawSettings {
+		bool						mDrawGetSupportFunction = false;				// Draw the GetSupport() function, used for convex collision detection
+		bool						mDrawSupportDirection = false;					// When drawing the support function, also draw which direction mapped to a specific support point
+		bool						mDrawGetSupportingFace = false;					// Draw the faces that were found colliding during collision detection
+		bool						mDrawShape = true;								// Draw the shapes of all bodies
+		bool						mDrawShapeWireframe = false;					// When mDrawShape is true and this is true, the shapes will be drawn in wireframe instead of solid.
+		EShapeColor					mDrawShapeColor = EShapeColor::MotionTypeColor; // Coloring scheme to use for shapes
+		bool						mDrawBoundingBox = false;						// Draw a bounding box per body
+		bool						mDrawCenterOfMassTransform = false;				// Draw the center of mass for each body
+		bool						mDrawWorldTransform = false;					// Draw the world transform (which can be different than the center of mass) for each body
+		bool						mDrawVelocity = false;							// Draw the velocity vector for each body
+		bool						mDrawMassAndInertia = false;					// Draw the mass and inertia (as the box equivalent) for each body
+		bool						mDrawSleepStats = false;						// Draw stats regarding the sleeping algorithm of each body
+		bool						mDrawSoftBodyVertices = false;					// Draw the vertices of soft bodies
+		bool						mDrawSoftBodyVertexVelocities = false;			// Draw the velocities of the vertices of soft bodies
+		bool						mDrawSoftBodyEdgeConstraints = false;			// Draw the edge constraints of soft bodies
+		bool						mDrawSoftBodyBendConstraints = false;			// Draw the bend constraints of soft bodies
+		bool						mDrawSoftBodyVolumeConstraints = false;			// Draw the volume constraints of soft bodies
+		bool						mDrawSoftBodySkinConstraints = false;			// Draw the skin constraints of soft bodies
+		bool						mDrawSoftBodyLRAConstraints = false;			// Draw the LRA constraints of soft bodies
+		bool						mDrawSoftBodyPredictedBounds = false;			// Draw the predicted bounds of soft bodies
+		ESoftBodyConstraintColor	mDrawSoftBodyConstraintColor = ESoftBodyConstraintColor::ConstraintType; // Coloring scheme to use for soft body constraints
+	};
+
+	// Draw the state of the bodies (debugging purposes)
+	void							Draw(const DrawSettings &inSettings, const PhysicsSettings &inPhysicsSettings, DebugRenderer *inRenderer, const BodyDrawFilter *inBodyFilter = nullptr);
+#endif // MOSS_DEBUG_RENDERER
+
+#ifdef MOSS_DEBUG
+	// Lock the active body list, asserts when Activate/DeactivateBody is called.
+	void							SetActiveBodiesLocked(bool inLocked)		{ mActiveBodiesLocked = inLocked; }
+
+	// Per thread override of the locked state, to be used by the PhysicsSystem only!
+	class GrantActiveBodiesAccess
+	{
+	public:
+		inline GrantActiveBodiesAccess(bool inAllowActivation, bool inAllowDeactivation)
+		{
+			MOSS_ASSERT(!sGetOverrideAllowActivation());
+			SetOverrideAllowActivation(inAllowActivation);
+
+			MOSS_ASSERT(!sGetOverrideAllowDeactivation());
+			SetOverrideAllowDeactivation(inAllowDeactivation);
+		}
+
+		inline ~GrantActiveBodiesAccess()
+		{
+			SetOverrideAllowActivation(false);
+			SetOverrideAllowDeactivation(false);
+		}
+	};
+
+	// Validate if the cached bounding boxes are correct for all active bodies
+	void							ValidateActiveBodyBounds();
+#endif // MOSS_DEBUG
+
+private:
+	// Increment and get the sequence number of the body
+#ifdef MOSS_COMPILER_CLANG
+	__attribute__((no_sanitize("implicit-conversion"))) // We intentionally overflow the uint8_t sequence number
+#endif
+	inline uint8_t					GetNextSequenceNumber(int inBodyIndex)		{ return ++mBodySequenceNumbers[inBodyIndex]; }
+
+	// Add a single body to mActiveBodies, note doesn't lock the active body mutex!
+	inline void						AddBodyToActiveBodies(Body &ioBody);
+
+	// Remove a single body from mActiveBodies, note doesn't lock the active body mutex!
+	inline void						RemoveBodyFromActiveBodies(Body &ioBody);
+
+	// Helper function to remove a body from the manager
+	MOSS_INLINE Body *				RemoveBodyInternal(const BodyID &inBodyID);
+
+	// Helper function to delete a body (which could actually be a BodyWithMotionProperties)
+	inline static void DeleteBody(Body *inBody);
+
+#if defined(MOSS_DEBUG)
+	// Function to check that the free list is not corrupted
+	void							ValidateFreeList() const;
+#endif // defined(MOSS_DEBUG)
+
+	// List of pointers to all bodies. Contains invalid pointers for deleted bodies, check with IsValidBodyPointer. Note that this array is reserved to the max bodies that is passed in the Init function so that adding bodies will not reallocate the array.
+	BodyVector						mBodies;
+
+	// Current number of allocated bodies
+	uint32_t							mNumBodies = 0;
+
+	// Indicates that there are no more freed body IDs
+	static constexpr uintptr_t		cBodyIDFreeListEnd = ~uintptr_t(0);
+
+	// Bit that indicates a pointer in mBodies is actually the index of the next freed body. We use the lowest bit because we know that Bodies need to be 16 byte aligned so addresses can never end in a 1 bit.
+	static constexpr uintptr_t		cIsFreedBody = uintptr_t(1);
+
+	// Amount of bits to shift to get an index to the next freed body
+	static constexpr uint32_t			cFreedBodyIndexShift = 1;
+
+	// Index of first entry in mBodies that is unused
+	uintptr_t						mBodyIDFreeListStart = cBodyIDFreeListEnd;
+
+	// Protects mBodies array (but not the bodies it points to), mNumBodies and mBodyIDFreeListStart
+	mutable Mutex					mBodiesMutex;
+
+	// An array of mutexes protecting the bodies in the mBodies array
+	using BodyMutexes = MutexArray<SharedMutex>;
+	mutable BodyMutexes				mBodyMutexes;
+
+	// List of next sequence number for a body ID
+	TArray<uint8_t>					mBodySequenceNumbers;
+
+	// Mutex that protects the mActiveBodies array
+	mutable Mutex					mActiveBodiesMutex;
+
+	// List of all active dynamic bodies (size is equal to max amount of bodies)
+	BodyID *						mActiveBodies[cBodyTypeCount] = { };
+
+	// How many bodies there are in the list of active bodies
+	atomic<uint32_t>					mNumActiveBodies[cBodyTypeCount] = { };
+
+	// How many of the active bodies have continuous collision detection enabled
+	uint32_t							mNumActiveCCDBodies = 0;
+
+	// Mutex that protects the mBodiesCacheInvalid array
+	mutable Mutex					mBodiesCacheInvalidMutex;
+
+	// List of all bodies that should have their cache invalidated
+	BodyIDVector					mBodiesCacheInvalid;
+
+	// Listener that is notified whenever a body is activated/deactivated
+	BodyActivationListener *		mActivationListener = nullptr;
+
+	// Cached broadphase layer interface
+	const BroadPhaseLayerInterface *mBroadPhaseLayerInterface = nullptr;
+
+#ifdef MOSS_DEBUG
+	static bool		 GetOverrideAllowActivation();
+	static void		 SetOverrideAllowActivation(bool inValue);
+
+	static bool		 GetOverrideAllowDeactivation();
+	static void		 SetOverrideAllowDeactivation(bool inValue);
+
+	// Debug system that tries to limit changes to active bodies during the PhysicsSystem::Update()
+	bool							mActiveBodiesLocked = false;
+#endif
+};
+
+
+// Base class interface for locking a body. Usually you will use BodyLockRead / BodyLockWrite / BodyLockMultiRead / BodyLockMultiWrite instead.
+class BodyLockInterface : public NonCopyable {
+public:
+	// Redefine MutexMask
+
+	// Constructor
+	explicit					BodyLockInterface(BodyManager &inBodyManager)		: mBodyManager(inBodyManager) { }
+	virtual						~BodyLockInterface() = default;
+
+	//@name Locking functions
+
+	virtual SharedMutex *		LockRead(const BodyID &inBodyID) const = 0;
+	virtual void				UnlockRead(SharedMutex *inMutex) const = 0;
+	virtual SharedMutex *		LockWrite(const BodyID &inBodyID) const = 0;
+	virtual void				UnlockWrite(SharedMutex *inMutex) const = 0;
+
+
+	// Get the mask needed to lock all bodies
+	inline MutexMask			GetAllBodiesMutexMask() const
+	{
+		return mBodyManager.GetAllBodiesMutexMask();
+	}
+
+	//@name Batch locking functions
+
+	virtual MutexMask			GetMutexMask(const BodyID *inBodies, int inNumber) const = 0;
+	virtual void				LockRead(MutexMask inMutexMask) const = 0;
+	virtual void				UnlockRead(MutexMask inMutexMask) const = 0;
+	virtual void				LockWrite(MutexMask inMutexMask) const = 0;
+	virtual void				UnlockWrite(MutexMask inMutexMask) const = 0;
+
+
+	// Convert body ID to body
+	inline Body *				TryGetBody(const BodyID &inBodyID) const			{ return mBodyManager.TryGetBody(inBodyID); }
+
+protected:
+	BodyManager &				mBodyManager;
+};
+
 template <bool Write, class BodyType>
 class BodyLockBase : public NonCopyable {
 public:
@@ -651,373 +1016,6 @@ private:
 	BroadPhase *				mBroadPhase = nullptr;
 };
 
-// Class that contains all bodies
-class MOSS_API BodyManager : public NonCopyable {
-public:
-	MOSS_OVERRIDE_NEW_DELETE
-
-	// Destructor
-	~BodyManager();
-
-	// Initialize the manager
-	void	Init(uint32_t inMaxBodies, uint32_t inNumBodyMutexes, const BroadPhaseLayerInterface &inLayerInterface);
-
-	// Gets the current amount of bodies that are in the body manager
-	uint32_t	GetNumBodies() const;
-
-	// Gets the max bodies that we can support
-	uint32_t	GetMaxBodies() const						{ return uint32_t(mBodies.capacity()); }
-
-	// Helper struct that counts the number of bodies of each type
-	struct BodyStats {
-		uint32_t	mNumBodies					= 0;	// Total number of bodies in the body manager
-		uint32_t	mMaxBodies					= 0;	// Max allowed number of bodies in the body manager (as configured in Init(...))
-
-		uint32_t	mNumBodiesStatic			= 0;	// Number of static bodies
-
-		uint32_t	mNumBodiesDynamic			= 0;	// Number of dynamic bodies
-		uint32_t	mNumActiveBodiesDynamic		= 0;	// Number of dynamic bodies that are currently active
-
-		uint32_t	mNumBodiesKinematic			= 0;	// Number of kinematic bodies
-		uint32_t	mNumActiveBodiesKinematic	= 0;	// Number of kinematic bodies that are currently active
-
-		uint32_t	mNumSoftBodies				= 0;	// Number of soft bodies
-		uint32_t	mNumActiveSoftBodies		= 0;	// Number of soft bodies that are currently active
-	};
-
-	// Get stats about the bodies in the body manager (slow, iterates through all bodies)
-	BodyStats	GetBodyStats() const;
-
-	// Create a body using creation settings. The returned body will not be part of the body manager yet.
-	Body*	AllocateBody(const BodyCreationSettings &inBodyCreationSettings) const;
-
-	// Create a soft body using creation settings. The returned body will not be part of the body manager yet.
-	Body*	AllocateSoftBody(const SoftBodyCreationSettings &inSoftBodyCreationSettings) const;
-
-	// Free a body that has not been added to the body manager yet (if it has, use DestroyBodies).
-	void	FreeBody(Body *inBody) const;
-
-	// Add a body to the body manager, assigning it the next available ID. Returns false if no more IDs are available.
-	bool	AddBody(Body *ioBody);
-
-	// Add a body to the body manager, assigning it a custom ID. Returns false if the ID is not valid.
-	bool	AddBodyWithCustomID(Body *ioBody, const BodyID &inBodyID);
-
-	// Remove a list of bodies from the body manager
-	void	RemoveBodies(const BodyID *inBodyIDs, int inNumber, Body **outBodies);
-
-	// Remove a set of bodies from the body manager and frees them.
-	void	DestroyBodies(const BodyID *inBodyIDs, int inNumber);
-
-	// Activate a list of bodies.
-	// This function should only be called when an exclusive lock for the bodies are held.
-	void	ActivateBodies(const BodyID *inBodyIDs, int inNumber);
-
-	// Deactivate a list of bodies.
-	// This function should only be called when an exclusive lock for the bodies are held.
-	void	DeactivateBodies(const BodyID *inBodyIDs, int inNumber);
-
-	// Update the motion quality for a body
-	void	SetMotionQuality(Body &ioBody, EMotionQuality inMotionQuality);
-
-	// Get copy of the list of active bodies under protection of a lock.
-	void	GetActiveBodies(EBodyType inType, BodyIDVector &outBodyIDs) const;
-
-	// Get the list of active bodies. Note: Not thread safe. The active bodies list can change at any moment.
-	const BodyID *					GetActiveBodiesUnsafe(EBodyType inType) const { return mActiveBodies[int(inType)]; }
-
-	// Get the number of active bodies.
-	uint32_t							GetNumActiveBodies(EBodyType inType) const	{ return mNumActiveBodies[int(inType)].load(memory_order_acquire); }
-
-	// Get the number of active bodies that are using continuous collision detection
-	uint32_t							GetNumActiveCCDBodies() const				{ return mNumActiveCCDBodies; }
-
-	// Listener that is notified whenever a body is activated/deactivated
-	void							SetBodyActivationListener(BodyActivationListener *inListener);
-	BodyActivationListener*		GetBodyActivationListener() const			{ return mActivationListener; }
-
-	// Check if this is a valid body pointer. When a body is freed the memory that the pointer occupies is reused to store a freelist.
-	static inline bool IsValidBodyPointer(const Body *inBody)		{ return (uintptr_t(inBody) & cIsFreedBody) == 0; }
-
-	// Get all bodies. Note that this can contain invalid body pointers, call IsValidBodyPointer to check.
-	const BodyVector&			GetBodies() const							{ return mBodies; }
-
-	// Get all bodies. Note that this can contain invalid body pointers, call IsValidBodyPointer to check.
-	BodyVector&					GetBodies()									{ return mBodies; }
-
-	// Get all body IDs under the protection of a lock
-	void						GetBodyIDs(BodyIDVector &outBodies) const;
-
-	// Access a body (not protected by lock)
-	const Body&					GetBody(const BodyID &inID) const			{ return *mBodies[inID.GetIndex()]; }
-
-	// Access a body (not protected by lock)
-	Body &							GetBody(const BodyID &inID)					{ return *mBodies[inID.GetIndex()]; }
-
-	// Access a body, will return a nullptr if the body ID is no longer valid (not protected by lock)
-	const Body *					TryGetBody(const BodyID &inID) const
-	{
-		uint32_t idx = inID.GetIndex();
-		if (idx >= mBodies.size())
-			return nullptr;
-
-		const Body *body = mBodies[idx];
-		if (IsValidBodyPointer(body) && body->GetID() == inID)
-			return body;
-
-		return nullptr;
-	}
-
-	// Access a body, will return a nullptr if the body ID is no longer valid (not protected by lock)
-	Body *							TryGetBody(const BodyID &inID)
-	{
-		uint32_t idx = inID.GetIndex();
-		if (idx >= mBodies.size())
-			return nullptr;
-
-		Body *body = mBodies[idx];
-		if (IsValidBodyPointer(body) && body->GetID() == inID)
-			return body;
-
-		return nullptr;
-	}
-
-	// Access the mutex for a single body
-	SharedMutex& GetMutexForBody(const BodyID &inID) const	{ return mBodyMutexes.GetMutexByObjectIndex(inID.GetIndex()); }
-
-	//@name Batch body mutex access (do not use directly)
-
-	MutexMask						GetAllBodiesMutexMask() const				{ return mBodyMutexes.GetNumMutexes() == sizeof(MutexMask) * 8? ~MutexMask(0) : (MutexMask(1) << mBodyMutexes.GetNumMutexes()) - 1; }
-	MutexMask						GetMutexMask(const BodyID *inBodies, int inNumber) const;
-	void							LockRead(MutexMask inMutexMask) const;
-	void							UnlockRead(MutexMask inMutexMask) const;
-	void							LockWrite(MutexMask inMutexMask) const;
-	void							UnlockWrite(MutexMask inMutexMask) const;
-
-
-	// Lock all bodies. This should only be done during PhysicsSystem::Update().
-	void							LockAllBodies() const;
-
-	// Unlock all bodies. This should only be done during PhysicsSystem::Update().
-	void							UnlockAllBodies() const;
-
-	// Function to update body's layer (should only be called by the BodyInterface since it also requires updating the broadphase)
-	inline void						SetBodyObjectLayerInternal(Body &ioBody, ObjectLayer inLayer) const { ioBody.mObjectLayer = inLayer; ioBody.mBroadPhaseLayer = mBroadPhaseLayerInterface->GetBroadPhaseLayer(inLayer); }
-
-	// Set the Body::EFlags::InvalidateContactCache flag for the specified body. This means that the collision cache is invalid for any body pair involving that body until the next physics step.
-	void							InvalidateContactCacheForBody(Body &ioBody);
-
-	// Reset the Body::EFlags::InvalidateContactCache flag for all bodies. All contact pairs in the contact cache will now by valid again.
-	void							ValidateContactCacheForAllBodies();
-
-	// Saving state for replay
-	void							SaveState(StateRecorder &inStream, const StateRecorderFilter *inFilter) const;
-
-	// Restoring state for replay. Returns false if failed.
-	bool							RestoreState(StateRecorder &inStream);
-
-	// Save the state of a single body for replay
-	void							SaveBodyState(const Body &inBody, StateRecorder &inStream) const;
-
-	// Save the state of a single body for replay
-	void							RestoreBodyState(Body &inBody, StateRecorder &inStream);
-
-#ifndef MOSS_DEBUG_RENDERER
-	enum class EShapeColor
-	{
-		InstanceColor,				// Random color per instance
-		ShapeTypeColor,				// Convex = green, scaled = yellow, compound = orange, mesh = red
-		MotionTypeColor,			// Static = grey, keyframed = green, dynamic = random color per instance
-		SleepColor,					// Static = grey, keyframed = green, dynamic = yellow, sleeping = red
-		IslandColor,				// Static = grey, active = random color per island, sleeping = light grey
-		MaterialColor,				// Color as defined by the PhysicsMaterial of the shape
-	};
-
-	// Draw settings
-	struct DrawSettings {
-		bool						mDrawGetSupportFunction = false;				// Draw the GetSupport() function, used for convex collision detection
-		bool						mDrawSupportDirection = false;					// When drawing the support function, also draw which direction mapped to a specific support point
-		bool						mDrawGetSupportingFace = false;					// Draw the faces that were found colliding during collision detection
-		bool						mDrawShape = true;								// Draw the shapes of all bodies
-		bool						mDrawShapeWireframe = false;					// When mDrawShape is true and this is true, the shapes will be drawn in wireframe instead of solid.
-		EShapeColor					mDrawShapeColor = EShapeColor::MotionTypeColor; // Coloring scheme to use for shapes
-		bool						mDrawBoundingBox = false;						// Draw a bounding box per body
-		bool						mDrawCenterOfMassTransform = false;				// Draw the center of mass for each body
-		bool						mDrawWorldTransform = false;					// Draw the world transform (which can be different than the center of mass) for each body
-		bool						mDrawVelocity = false;							// Draw the velocity vector for each body
-		bool						mDrawMassAndInertia = false;					// Draw the mass and inertia (as the box equivalent) for each body
-		bool						mDrawSleepStats = false;						// Draw stats regarding the sleeping algorithm of each body
-		bool						mDrawSoftBodyVertices = false;					// Draw the vertices of soft bodies
-		bool						mDrawSoftBodyVertexVelocities = false;			// Draw the velocities of the vertices of soft bodies
-		bool						mDrawSoftBodyEdgeConstraints = false;			// Draw the edge constraints of soft bodies
-		bool						mDrawSoftBodyBendConstraints = false;			// Draw the bend constraints of soft bodies
-		bool						mDrawSoftBodyVolumeConstraints = false;			// Draw the volume constraints of soft bodies
-		bool						mDrawSoftBodySkinConstraints = false;			// Draw the skin constraints of soft bodies
-		bool						mDrawSoftBodyLRAConstraints = false;			// Draw the LRA constraints of soft bodies
-		bool						mDrawSoftBodyPredictedBounds = false;			// Draw the predicted bounds of soft bodies
-		ESoftBodyConstraintColor	mDrawSoftBodyConstraintColor = ESoftBodyConstraintColor::ConstraintType; // Coloring scheme to use for soft body constraints
-	};
-
-	// Draw the state of the bodies (debugging purposes)
-	void							Draw(const DrawSettings &inSettings, const PhysicsSettings &inPhysicsSettings, DebugRenderer *inRenderer, const BodyDrawFilter *inBodyFilter = nullptr);
-#endif // MOSS_DEBUG_RENDERER
-
-#ifdef MOSS_DEBUG
-	// Lock the active body list, asserts when Activate/DeactivateBody is called.
-	void							SetActiveBodiesLocked(bool inLocked)		{ mActiveBodiesLocked = inLocked; }
-
-	// Per thread override of the locked state, to be used by the PhysicsSystem only!
-	class GrantActiveBodiesAccess
-	{
-	public:
-		inline GrantActiveBodiesAccess(bool inAllowActivation, bool inAllowDeactivation)
-		{
-			MOSS_ASSERT(!sGetOverrideAllowActivation());
-			SetOverrideAllowActivation(inAllowActivation);
-
-			MOSS_ASSERT(!sGetOverrideAllowDeactivation());
-			SetOverrideAllowDeactivation(inAllowDeactivation);
-		}
-
-		inline ~GrantActiveBodiesAccess()
-		{
-			SetOverrideAllowActivation(false);
-			SetOverrideAllowDeactivation(false);
-		}
-	};
-
-	// Validate if the cached bounding boxes are correct for all active bodies
-	void							ValidateActiveBodyBounds();
-#endif // MOSS_DEBUG
-
-private:
-	// Increment and get the sequence number of the body
-#ifdef MOSS_COMPILER_CLANG
-	__attribute__((no_sanitize("implicit-conversion"))) // We intentionally overflow the uint8_t sequence number
-#endif
-	inline uint8_t					GetNextSequenceNumber(int inBodyIndex)		{ return ++mBodySequenceNumbers[inBodyIndex]; }
-
-	// Add a single body to mActiveBodies, note doesn't lock the active body mutex!
-	inline void						AddBodyToActiveBodies(Body &ioBody);
-
-	// Remove a single body from mActiveBodies, note doesn't lock the active body mutex!
-	inline void						RemoveBodyFromActiveBodies(Body &ioBody);
-
-	// Helper function to remove a body from the manager
-	MOSS_INLINE Body *				RemoveBodyInternal(const BodyID &inBodyID);
-
-	// Helper function to delete a body (which could actually be a BodyWithMotionProperties)
-	inline static void DeleteBody(Body *inBody);
-
-#if defined(MOSS_DEBUG)
-	// Function to check that the free list is not corrupted
-	void							ValidateFreeList() const;
-#endif // defined(MOSS_DEBUG)
-
-	// List of pointers to all bodies. Contains invalid pointers for deleted bodies, check with IsValidBodyPointer. Note that this array is reserved to the max bodies that is passed in the Init function so that adding bodies will not reallocate the array.
-	BodyVector						mBodies;
-
-	// Current number of allocated bodies
-	uint32_t							mNumBodies = 0;
-
-	// Indicates that there are no more freed body IDs
-	static constexpr uintptr_t		cBodyIDFreeListEnd = ~uintptr_t(0);
-
-	// Bit that indicates a pointer in mBodies is actually the index of the next freed body. We use the lowest bit because we know that Bodies need to be 16 byte aligned so addresses can never end in a 1 bit.
-	static constexpr uintptr_t		cIsFreedBody = uintptr_t(1);
-
-	// Amount of bits to shift to get an index to the next freed body
-	static constexpr uint32_t			cFreedBodyIndexShift = 1;
-
-	// Index of first entry in mBodies that is unused
-	uintptr_t						mBodyIDFreeListStart = cBodyIDFreeListEnd;
-
-	// Protects mBodies array (but not the bodies it points to), mNumBodies and mBodyIDFreeListStart
-	mutable Mutex					mBodiesMutex;
-
-	// An array of mutexes protecting the bodies in the mBodies array
-	using BodyMutexes = MutexArray<SharedMutex>;
-	mutable BodyMutexes				mBodyMutexes;
-
-	// List of next sequence number for a body ID
-	TArray<uint8_t>					mBodySequenceNumbers;
-
-	// Mutex that protects the mActiveBodies array
-	mutable Mutex					mActiveBodiesMutex;
-
-	// List of all active dynamic bodies (size is equal to max amount of bodies)
-	BodyID *						mActiveBodies[cBodyTypeCount] = { };
-
-	// How many bodies there are in the list of active bodies
-	atomic<uint32_t>					mNumActiveBodies[cBodyTypeCount] = { };
-
-	// How many of the active bodies have continuous collision detection enabled
-	uint32_t							mNumActiveCCDBodies = 0;
-
-	// Mutex that protects the mBodiesCacheInvalid array
-	mutable Mutex					mBodiesCacheInvalidMutex;
-
-	// List of all bodies that should have their cache invalidated
-	BodyIDVector					mBodiesCacheInvalid;
-
-	// Listener that is notified whenever a body is activated/deactivated
-	BodyActivationListener *		mActivationListener = nullptr;
-
-	// Cached broadphase layer interface
-	const BroadPhaseLayerInterface *mBroadPhaseLayerInterface = nullptr;
-
-#ifdef MOSS_DEBUG
-	static bool		 GetOverrideAllowActivation();
-	static void		 SetOverrideAllowActivation(bool inValue);
-
-	static bool		 GetOverrideAllowDeactivation();
-	static void		 SetOverrideAllowDeactivation(bool inValue);
-
-	// Debug system that tries to limit changes to active bodies during the PhysicsSystem::Update()
-	bool							mActiveBodiesLocked = false;
-#endif
-};
-
-
-// Base class interface for locking a body. Usually you will use BodyLockRead / BodyLockWrite / BodyLockMultiRead / BodyLockMultiWrite instead.
-class BodyLockInterface : public NonCopyable {
-public:
-	// Redefine MutexMask
-
-	// Constructor
-	explicit					BodyLockInterface(BodyManager &inBodyManager)		: mBodyManager(inBodyManager) { }
-	virtual						~BodyLockInterface() = default;
-
-	//@name Locking functions
-
-	virtual SharedMutex *		LockRead(const BodyID &inBodyID) const = 0;
-	virtual void				UnlockRead(SharedMutex *inMutex) const = 0;
-	virtual SharedMutex *		LockWrite(const BodyID &inBodyID) const = 0;
-	virtual void				UnlockWrite(SharedMutex *inMutex) const = 0;
-
-
-	// Get the mask needed to lock all bodies
-	inline MutexMask			GetAllBodiesMutexMask() const
-	{
-		return mBodyManager.GetAllBodiesMutexMask();
-	}
-
-	//@name Batch locking functions
-
-	virtual MutexMask			GetMutexMask(const BodyID *inBodies, int inNumber) const = 0;
-	virtual void				LockRead(MutexMask inMutexMask) const = 0;
-	virtual void				UnlockRead(MutexMask inMutexMask) const = 0;
-	virtual void				LockWrite(MutexMask inMutexMask) const = 0;
-	virtual void				UnlockWrite(MutexMask inMutexMask) const = 0;
-
-
-	// Convert body ID to body
-	inline Body *				TryGetBody(const BodyID &inBodyID) const			{ return mBodyManager.TryGetBody(inBodyID); }
-
-protected:
-	BodyManager &				mBodyManager;
-};
-
 // Implementation that performs no locking (assumes the lock has already been taken)
 class BodyLockInterfaceNoLock final : public BodyLockInterface {
 public:
@@ -1160,9 +1158,6 @@ public:
 template <bool Write, class BodyType>
 class BodyLockMultiBase : public NonCopyable {
 public:
-	// Redefine MutexMask
-	using MutexMask = BodyLockInterface::MutexMask;
-
 	// Constructor will lock the bodies
 	BodyLockMultiBase(const BodyLockInterface &inBodyLockInterface, const BodyID *inBodyIDs, int inNumber) :
 		mBodyLockInterface(inBodyLockInterface), mMutexMask(inBodyLockInterface.GetMutexMask(inBodyIDs, inNumber)),

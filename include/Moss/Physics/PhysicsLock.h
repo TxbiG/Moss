@@ -33,16 +33,16 @@ class MOSS_API PhysicsLock {
 public:
 #ifdef MOSS_DEBUG
 	/// Call before taking the lock
-	static inline void sCheckLock(PhysicsLockContext inContext, EPhysicsLockTypes inType) {
-		uint32_t &mutexes = sGetLockedMutexes(inContext);
+	static inline void CheckLock(PhysicsLockContext inContext, EPhysicsLockTypes inType) {
+		uint32_t &mutexes = GetLockedMutexes(inContext);
 		MOSS_ASSERT(uint32_t(inType) > mutexes, "A lock of same or higher priority was already taken, this can create a deadlock!");
 		mutexes = mutexes | uint32_t(inType);
 	}
 
 	/// Call after releasing the lock
-	static inline void sCheckUnlock(PhysicsLockContext inContext, EPhysicsLockTypes inType)
+	static inline void CheckUnlock(PhysicsLockContext inContext, EPhysicsLockTypes inType)
 	{
-		uint32_t &mutexes = sGetLockedMutexes(inContext);
+		uint32_t &mutexes = GetLockedMutexes(inContext);
 		MOSS_ASSERT((mutexes & uint32_t(inType)) != 0, "Mutex was not locked!");
 		mutexes = mutexes & ~uint32_t(inType);
 	}
@@ -50,37 +50,37 @@ public:
 
 	template <class LockType>
 	static inline void Lock(LockType &inMutex MOSS_IF_ENABLE_ASSERTS(, PhysicsLockContext inContext, EPhysicsLockTypes inType)) {
-		MOSS_IF_ENABLE_ASSERTS(sCheckLock(inContext, inType);)
+		MOSS_IF_ENABLE_ASSERTS(CheckLock(inContext, inType);)
 		inMutex.lock();
 	}
 
 	template <class LockType>
 	static inline void Unlock(LockType &inMutex MOSS_IF_ENABLE_ASSERTS(, PhysicsLockContext inContext, EPhysicsLockTypes inType)) {
-		MOSS_IF_ENABLE_ASSERTS(sCheckUnlock(inContext, inType);)
+		MOSS_IF_ENABLE_ASSERTS(CheckUnlock(inContext, inType);)
 		inMutex.unlock();
 	}
 
 	template <class LockType>
 	static inline void LockShared(LockType &inMutex MOSS_IF_ENABLE_ASSERTS(, PhysicsLockContext inContext, EPhysicsLockTypes inType)) {
-		MOSS_IF_ENABLE_ASSERTS(sCheckLock(inContext, inType);)
+		MOSS_IF_ENABLE_ASSERTS(CheckLock(inContext, inType);)
 		inMutex.lock_shared();
 	}
 
 	template <class LockType>
 	static inline void UnlockShared(LockType &inMutex MOSS_IF_ENABLE_ASSERTS(, PhysicsLockContext inContext, EPhysicsLockTypes inType)) {
-		MOSS_IF_ENABLE_ASSERTS(sCheckUnlock(inContext, inType);)
+		MOSS_IF_ENABLE_ASSERTS(CheckUnlock(inContext, inType);)
 		inMutex.unlock_shared();
 	}
 
 #ifdef MOSS_DEBUG
 private:
 	struct LockData {
-		uint32_t					mLockedMutexes = 0;
+		uint32_t				mLockedMutexes = 0;
 		PhysicsLockContext		mContext = nullptr;
 	};
 
 	// Helper function to find the locked mutexes for a particular context
-	static uint32_t &				GetLockedMutexes(PhysicsLockContext inContext) {
+	static uint32_t& GetLockedMutexes(PhysicsLockContext inContext) {
 		static thread_local LockData sLocks[4];
 
 		// If we find a matching context we can use it
@@ -105,18 +105,27 @@ private:
 template <class LockType>
 class UniqueLock : public NonCopyable {
 public:
-	explicit UniqueLock(LockType &inLock MOSS_IF_ENABLE_ASSERTS(, PhysicsLockContext inContext, EPhysicsLockTypes inType)) :
-		mLock(inLock)
 #ifdef MOSS_DEBUG
-		, mContext(inContext), mType(inType)
-#endif // MOSS_DEBUG
-	{
-		PhysicsLock::Lock(mLock MOSS_IF_ENABLE_ASSERTS(, mContext, mType));
-	}
+    explicit UniqueLock(LockType& inLock, PhysicsLockContext inContext, EPhysicsLockTypes inType) : mLock(inLock), mContext(inContext), mType(inType)
+#else
+    explicit UniqueLock(LockType& inLock) : mLock(inLock)
+#endif
+    {
+#ifdef MOSS_DEBUG
+        PhysicsLock::sLock(mLock, mContext, mType);
+#else
+        PhysicsLock::sLock(mLock);
+#endif
+    }
 
-	~UniqueLock() {
-		PhysicsLock::Unlock(mLock MOSS_IF_ENABLE_ASSERTS(, mContext, mType));
-	}
+    ~UniqueLock()
+    {
+#ifdef MOSS_DEBUG
+        PhysicsLock::sUnlock(mLock, mContext, mType);
+#else
+        PhysicsLock::sUnlock(mLock);
+#endif
+    }
 
 private:
 	LockType &					mLock;
@@ -130,18 +139,25 @@ private:
 template <class LockType>
 class SharedLock : public NonCopyable {
 public:
-	explicit SharedLock(LockType &inLock MOSS_IF_ENABLE_ASSERTS(, PhysicsLockContext inContext, EPhysicsLockTypes inType)) : mLock(inLock)
 #ifdef MOSS_DEBUG
-		, mContext(inContext)
-		, mType(inType)
-#endif // MOSS_DEBUG
-	{
-		PhysicsLock::LockShared(mLock MOSS_IF_ENABLE_ASSERTS(, mContext, mType));
-	}
-
-	~SharedLock() {
-		PhysicsLock::UnlockShared(mLock MOSS_IF_ENABLE_ASSERTS(, mContext, mType));
-	}
+	explicit SharedLock(LockType &inLock, PhysicsLockContext inContext, EPhysicsLockTypes inType) : mLock(inLock), mContext(inContext), mType(inType)
+#else
+    explicit SharedLock(LockType& inLock): mLock(inLock)
+#endif // MOSS_DEBUG 
+	{ 
+#ifdef MOSS_DEBUG
+        PhysicsLock::sLockShared(mLock, mContext, mType);
+#else
+        PhysicsLock::sLockShared(mLock);
+#endif
+    }
+	~SharedLock() { 
+#ifdef MOSS_DEBUG
+        PhysicsLock::sUnlockShared(mLock, mContext, mType);
+#else
+        PhysicsLock::sUnlockShared(mLock);
+#endif
+    }
 
 private:
 	LockType& mLock;
