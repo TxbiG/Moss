@@ -49,25 +49,25 @@ public:
 #endif // MOSS_DEBUG
 
 	template <class LockType>
-	static inline void Lock(LockType &inMutex MOSS_IF_ENABLE_ASSERTS(, PhysicsLockContext inContext, EPhysicsLockTypes inType)) {
+	static inline void Lock(LockType &inMutex MOSS_IF_ENABLE_ASSERTS(PhysicsLockContext inContext, EPhysicsLockTypes inType)) {
 		MOSS_IF_ENABLE_ASSERTS(CheckLock(inContext, inType);)
 		inMutex.lock();
 	}
 
 	template <class LockType>
-	static inline void Unlock(LockType &inMutex MOSS_IF_ENABLE_ASSERTS(, PhysicsLockContext inContext, EPhysicsLockTypes inType)) {
+	static inline void Unlock(LockType &inMutex MOSS_IF_ENABLE_ASSERTS(PhysicsLockContext inContext, EPhysicsLockTypes inType)) {
 		MOSS_IF_ENABLE_ASSERTS(CheckUnlock(inContext, inType);)
 		inMutex.unlock();
 	}
 
 	template <class LockType>
-	static inline void LockShared(LockType &inMutex MOSS_IF_ENABLE_ASSERTS(, PhysicsLockContext inContext, EPhysicsLockTypes inType)) {
+	static inline void LockShared(LockType &inMutex MOSS_IF_ENABLE_ASSERTS(PhysicsLockContext inContext, EPhysicsLockTypes inType)) {
 		MOSS_IF_ENABLE_ASSERTS(CheckLock(inContext, inType);)
 		inMutex.lock_shared();
 	}
 
 	template <class LockType>
-	static inline void UnlockShared(LockType &inMutex MOSS_IF_ENABLE_ASSERTS(, PhysicsLockContext inContext, EPhysicsLockTypes inType)) {
+	static inline void UnlockShared(LockType &inMutex MOSS_IF_ENABLE_ASSERTS(PhysicsLockContext inContext, EPhysicsLockTypes inType)) {
 		MOSS_IF_ENABLE_ASSERTS(CheckUnlock(inContext, inType);)
 		inMutex.unlock_shared();
 	}
@@ -112,18 +112,18 @@ public:
 #endif
     {
 #ifdef MOSS_DEBUG
-        PhysicsLock::sLock(mLock, mContext, mType);
+        PhysicsLock::Lock(mLock, mContext, mType);
 #else
-        PhysicsLock::sLock(mLock);
+        PhysicsLock::Lock(mLock);
 #endif
     }
 
     ~UniqueLock()
     {
 #ifdef MOSS_DEBUG
-        PhysicsLock::sUnlock(mLock, mContext, mType);
+        PhysicsLock::Unlock(mLock, mContext, mType);
 #else
-        PhysicsLock::sUnlock(mLock);
+        PhysicsLock::Unlock(mLock);
 #endif
     }
 
@@ -146,16 +146,16 @@ public:
 #endif // MOSS_DEBUG 
 	{ 
 #ifdef MOSS_DEBUG
-        PhysicsLock::sLockShared(mLock, mContext, mType);
+        PhysicsLock::LockShared(mLock, mContext, mType);
 #else
-        PhysicsLock::sLockShared(mLock);
+        PhysicsLock::LockShared(mLock);
 #endif
     }
 	~SharedLock() { 
 #ifdef MOSS_DEBUG
-        PhysicsLock::sUnlockShared(mLock, mContext, mType);
+        PhysicsLock::UnlockShared(mLock, mContext, mType);
 #else
-        PhysicsLock::sUnlockShared(mLock);
+        PhysicsLock::UnlockShared(mLock);
 #endif
     }
 

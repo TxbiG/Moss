@@ -9,6 +9,8 @@
 #include <Moss/Core/StreamOut.h>
 #include <Moss/Core/StreamUtils.h>
 
+#include <Moss/Variants/TArray.h>
+
 #include <Moss/Physics/Collision/CollisionGroup.h>
 #include <Moss/Physics/Collision/ObjectLayer.h>
 #include <Moss/Physics/Collision/PhysicsMaterial.h>
@@ -33,6 +35,7 @@ class BroadPhase;
 class BroadPhaseLayerFilter;
 class TwoBodyConstraint;
 class TwoBodyConstraintSettings;
+class ContactManifold;
 #ifndef MOSS_DEBUG_RENDERER
 class DebugRenderer;
 class BodyDrawFilter;
@@ -41,6 +44,9 @@ class BodyDrawFilter;
 static constexpr uint32_t cBodyTypeCount = 2;
 
 using MutexMask = uint64_t;
+
+using BodyVector = TArray<Body*>;		// Array of bodies
+using BodyIDVector = TArray<BodyID>;	// Array of body ID's
 
 enum class EBodyType : uint8_t {
     RigidBody,
@@ -311,10 +317,11 @@ public:
 	// Access a body, will return a nullptr if the body ID is no longer valid (not protected by lock)
 	inline Body* TryGetBody(const BodyID &inID) const {
 		uint32_t idx = inID.GetIndex();
+
 		if (idx >= mBodies.size())
 			return nullptr;
 
-		const Body *body = mBodies[idx];
+		const Body* body = mBodies[idx];
 		if (IsValidBodyPointer(body) && body->GetID() == inID)
 			return body;
 
@@ -324,10 +331,11 @@ public:
 	// Access a body, will return a nullptr if the body ID is no longer valid (not protected by lock)
 	inline Body* TryGetBody(const BodyID &inID) {
 		uint32_t idx = inID.GetIndex();
+
 		if (idx >= mBodies.size())
 			return nullptr;
 
-		Body *body = mBodies[idx];
+		Body* body = mBodies[idx];
 		if (IsValidBodyPointer(body) && body->GetID() == inID)
 			return body;
 
@@ -564,7 +572,7 @@ public:
 
 
 	// Convert body ID to body
-	inline Body *				TryGetBody(const BodyID &inBodyID) const			{ return mBodyManager.TryGetBody(inBodyID); }
+	inline Body*				TryGetBody(const BodyID &inBodyID) const { return mBodyManager.TryGetBody(inBodyID); }
 
 protected:
 	BodyManager &				mBodyManager;
@@ -767,13 +775,6 @@ public:
 	// At the time of the callback the body inBodyID will be locked and no bodies can be written/activated/deactivated from the callback.
 	virtual void			OnBodyDeactivated(const BodyID &inBodyID, uint64 inBodyUserData) = 0;
 };
-
-
-// Array of bodies
-using BodyVector = TArray<Body*>;
-
-// Array of body ID's
-using BodyIDVector = TArray<BodyID>;
 
 
 /* BodyInterface */

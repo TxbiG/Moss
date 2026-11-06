@@ -176,6 +176,11 @@ public:
 		return ts;
 	}
 
+	inline TransformedShape Body::GetTransformedShape() const {
+    	MOSS_ASSERT(BodyAccess::CheckRights(BodyAccess::PositionAccess(),BodyAccess::EAccess::Read));
+    	return TransformedShape(mPosition,mRotation,mShape,mID);
+	}
+
 	/// Helper function to return the body id from a transformed shape. If the transformed shape is null an invalid body ID will be returned.
 	inline static BodyID		sGetBodyID(const TransformedShape *inTS)	{ return inTS != nullptr? inTS->mBodyID : BodyID(); }
 
