@@ -9,7 +9,7 @@
 #include <string>
 
 #include <Moss/Moss_Audio.h>
-#include <Moss/Moss_Physics.h>
+#include <Moss/Moss.h>
 #include <Moss/Physics/Collision/RayCast.h>
 #include <Moss/Physics/PhysicsSystem.h>
 

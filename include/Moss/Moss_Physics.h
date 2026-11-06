@@ -139,11 +139,11 @@ using CollisionGroupID = uint32_t;
 using CollisionSubGroupID = uint32_t;
 
 /* Forward declarations */
-typedef struct BroadPhaseLayerInterface				BroadPhaseLayerInterface;
-typedef struct ObjectVsBroadPhaseLayerFilter		ObjectVsBroadPhaseLayerFilter;
-typedef struct ObjectLayerPairFilter				ObjectLayerPairFilter;
-typedef struct BroadPhaseLayerFilter				BroadPhaseLayerFilter;
-typedef struct ObjectLayerFilter					ObjectLayerFilter;
+struct BroadPhaseLayerInterface				BroadPhaseLayerInterface;
+struct ObjectVsBroadPhaseLayerFilter		ObjectVsBroadPhaseLayerFilter;
+struct ObjectLayerPairFilter				ObjectLayerPairFilter;
+struct BroadPhaseLayerFilter				BroadPhaseLayerFilter;
+struct ObjectLayerFilter					ObjectLayerFilter;
 class BodyFilter;
 class ShapeFilter;
 class SimShapeFilter;
@@ -397,7 +397,7 @@ struct SoftBodyContactSettings {
 	bool							mIsSensor;							// If the contact should be treated as a sensor vs body contact (no collision response)
 };
 
-typedef struct ContactSettings {
+struct ContactSettings {
 	float				combinedFriction;
 	float				combinedRestitution;
 	float				invMassScale1;
@@ -409,7 +409,7 @@ typedef struct ContactSettings {
 	Vec3				relativeAngularSurfaceVelocity;
 } ContactSettings;
 
-typedef struct CollideSettingsBase {
+struct CollideSettingsBase {
 	// How active edges (edges that a moving object should bump into) are handled
 	EActiveEdgeMode			activeEdgeMode/* = ActiveEdgeMode_CollideOnlyWithActive*/;
 
@@ -427,7 +427,7 @@ typedef struct CollideSettingsBase {
 } CollideSettingsBase;
 
 /* CollideShapeSettings */
-typedef struct CollideShapeSettings {
+struct CollideShapeSettings {
 	CollideSettingsBase     base;    /* Inherits CollideSettingsBase */
 	// When > 0 contacts in the vicinity of the query shape can be found. All nearest contacts that are not further away than this distance will be found (unit: meter)
 	float						maxSeparationDistance/* = 0.0f*/;
@@ -437,7 +437,7 @@ typedef struct CollideShapeSettings {
 } CollideShapeSettings;
 
 /* ShapeCastSettings */
-typedef struct ShapeCastSettings {
+struct ShapeCastSettings {
 	CollideSettingsBase     base;    /* Inherits CollideSettingsBase */
 
 	// How backfacing triangles should be treated (should we report moving from back to front for triangle based shapes, e.g. for MeshShape/HeightFieldShape?)
@@ -453,7 +453,7 @@ typedef struct ShapeCastSettings {
 	bool						returnDeepestPoint/* = false*/;
 } ShapeCastSettings;
 
-typedef struct RayCastSettings {
+struct RayCastSettings {
 	// How backfacing triangles should be treated (should we report back facing hits for triangle based shapes, e.g. MeshShape/HeightFieldShape?)
 	EBackFaceMode backFaceModeTriangles/* = BackFaceMode_IgnoreBackFaces*/;
 
@@ -508,30 +508,30 @@ public:
 	float damping = 0.0f;
 };
 
-typedef struct SubShapeIDPair {
+struct SubShapeIDPair {
 	BodyID     Body1ID;
 	SubShapeID subShapeID1;
 	BodyID     Body2ID;
 	SubShapeID subShapeID2;
 } SubShapeIDPair;
 
-typedef struct BroadPhaseCastResult {
+struct BroadPhaseCastResult {
 	BodyID     bodyID;
 	float      fraction;
 };
 
-typedef struct RayCastResult {
+struct RayCastResult {
 	BodyID     bodyID;
 	float      fraction;
 	SubShapeID subShapeID2;
 } RayCastResult;
 
-typedef struct CollidePointResult {
+struct CollidePointResult {
 	BodyID bodyID;
 	SubShapeID subShapeID2;
 } CollidePointResult;
 
-typedef struct CollideShapeResult {
+struct CollideShapeResult {
 	Vec3		contactPointOn1;
 	Vec3		contactPointOn2;
 	Vec3		penetrationAxis;
@@ -545,7 +545,7 @@ typedef struct CollideShapeResult {
 	Vec3*		shape2Faces;
 } CollideShapeResult;
 
-typedef struct ShapeCastResult {
+struct ShapeCastResult {
 	Vec3           contactPointOn1;
 	Vec3           contactPointOn2;
 	Vec3           penetrationAxis;
@@ -557,7 +557,7 @@ typedef struct ShapeCastResult {
 	bool		   isBackFaceHit;
 } ShapeCastResult;
 
-typedef struct DrawSettings {
+struct DrawSettings {
 	bool						drawGetSupportFunction;				// Draw the GetSupport() function, used for convex collision detection
 	bool						drawSupportDirection;				// When drawing the support function, also draw which direction mapped to a specific support point
 	bool						drawGetSupportingFace;				// Draw the faces that were found colliding during collision detection
@@ -581,38 +581,38 @@ typedef struct DrawSettings {
 	ESoftBodyConstraintColor	drawSoftBodyConstraintColor;        // Coloring scheme to use for soft body constraints
 } DrawSettings;
 
-typedef struct SupportingFace {
+struct SupportingFace {
     uint32_t count;
     Vec3 vertices[32];
 } SupportingFace;
 
-typedef struct CollisionGroup {
+struct CollisionGroup {
 	const GroupFilter*	groupFilter;
 	CollisionGroupID	groupID;
 	CollisionSubGroupID	subGroupID;
 } CollisionGroup;
 
-typedef void CastRayResultCallback(void* context, const RayCastResult* result);
-typedef void RayCastBodyResultCallback(void* context, const BroadPhaseCastResult* result);
-typedef void CollideShapeBodyResultCallback(void* context, const BodyID result);
-typedef void CollidePointResultCallback(void* context, const CollidePointResult* result);
-typedef void CollideShapeResultCallback(void* context, const CollideShapeResult* result);
-typedef void CastShapeResultCallback(void* context, const ShapeCastResult* result);
+void CastRayResultCallback(void* context, const RayCastResult* result);
+void RayCastBodyResultCallback(void* context, const BroadPhaseCastResult* result);
+void CollideShapeBodyResultCallback(void* context, const BodyID result);
+void CollidePointResultCallback(void* context, const CollidePointResult* result);
+void CollideShapeResultCallback(void* context, const CollideShapeResult* result);
+void CastShapeResultCallback(void* context, const ShapeCastResult* result);
 
-typedef float CastRayCollectorCallback(void* context, const RayCastResult* result);
-typedef float RayCastBodyCollectorCallback(void* context, const BroadPhaseCastResult* result);
-typedef float CollideShapeBodyCollectorCallback(void* context, const BodyID result);
-typedef float CollidePointCollectorCallback(void* context, const CollidePointResult* result);
-typedef float CollideShapeCollectorCallback(void* context, const CollideShapeResult* result);
-typedef float CastShapeCollectorCallback(void* context, const ShapeCastResult* result);
+float CastRayCollectorCallback(void* context, const RayCastResult* result);
+float RayCastBodyCollectorCallback(void* context, const BroadPhaseCastResult* result);
+float CollideShapeBodyCollectorCallback(void* context, const BodyID result);
+float CollidePointCollectorCallback(void* context, const CollidePointResult* result);
+float CollideShapeCollectorCallback(void* context, const CollideShapeResult* result);
+float CastShapeCollectorCallback(void* context, const ShapeCastResult* result);
 
-typedef struct CollisionEstimationResultImpulse {
+struct CollisionEstimationResultImpulse {
 	float	contactImpulse;
 	float	frictionImpulse1;
 	float	frictionImpulse2;
 } CollisionEstimationResultImpulse;
 
-typedef struct CollisionEstimationResult {
+struct CollisionEstimationResult {
 	Vec3								linearVelocity1;
 	Vec3								angularVelocity1;
 	Vec3								linearVelocity2;
@@ -625,22 +625,22 @@ typedef struct CollisionEstimationResult {
 	CollisionEstimationResultImpulse*	impulses;
 } CollisionEstimationResult;
 
-typedef struct BodyLockRead {
+struct BodyLockRead {
 	const BodyLockInterface* lockInterface;
 	SharedMutex* mutex;
 	const Body* body;
 } BodyLockRead;
 
-typedef struct BodyLockWrite {
+struct BodyLockWrite {
 	const BodyLockInterface* lockInterface;
 	SharedMutex* mutex;
 	Body* body;
 } BodyLockWrite;
 
-typedef struct BodyLockMultiRead BodyLockMultiRead;
-typedef struct BodyLockMultiWrite BodyLockMultiWrite;
+struct BodyLockMultiRead BodyLockMultiRead;
+struct BodyLockMultiWrite BodyLockMultiWrite;
 
-typedef struct ExtendedUpdateSettings {
+struct ExtendedUpdateSettings {
 	Vec3	stickToFloorStepDown;
 	Vec3	walkStairsStepUp;
 	float	walkStairsMinStepForward;
@@ -651,20 +651,20 @@ typedef struct ExtendedUpdateSettings {
 
 
 
-typedef void(MOSS_CALL* TraceFunc)(const char* message);
-typedef bool(MOSS_CALL* AssertFailureFunc)(const char* expression, const char* message, const char* file, uint32_t line);
+void(MOSS_CALL* TraceFunc)(const char* message);
+bool(MOSS_CALL* AssertFailureFunc)(const char* expression, const char* message, const char* file, uint32_t line);
 
-typedef void JobFunction(void* arg);
-typedef void QueueJobCallback(void* context, JobFunction* job, void* arg);
-typedef void QueueJobsCallback(void* context, JobFunction* job, void** args, uint32_t count);
+void JobFunction(void* arg);
+void QueueJobCallback(void* context, JobFunction* job, void* arg);
+void QueueJobsCallback(void* context, JobFunction* job, void** args, uint32_t count);
 
-typedef struct JobSystemThreadPoolConfig {
+struct JobSystemThreadPoolConfig {
 	uint32_t maxJobs;
 	uint32_t maxBarriers;
 	int32_t numThreads;
 } JobSystemThreadPoolConfig;
 
-typedef struct JobSystemConfig {
+struct JobSystemConfig {
 	void* context;
 	QueueJobCallback* queueJob;
 	QueueJobsCallback* queueJobs;
@@ -672,7 +672,7 @@ typedef struct JobSystemConfig {
 	uint32_t maxBarriers;
 } JobSystemConfig;
 
-typedef struct PhysicsStepListenerContext {
+struct PhysicsStepListenerContext {
 	float				deltaTime;
 	bool				isFirstStep;
 	bool				isLastStep;
@@ -761,28 +761,6 @@ MOSS_API bool CollisionDispatch_CastShapeVsShapeWorldSpace(
 	const ShapeCastSettings* shapeCastSettings,
 	CastShapeCollectorCallback* callback, void* userData,
 	const ShapeFilter* shapeFilter);
-
-
-// Place Skeleton into renderer
-// ===========================================================================================================
-/* Skeleton */
-struct SkeletonJoint {
-	const char*		name;
-	const char*		parentName;
-	int				parentJointIndex;
-} SkeletonJoint;
-
-MOSS_API Skeleton* Skeleton_Create(void);
-MOSS_API void Skeleton_Destroy(Skeleton* skeleton);
-
-MOSS_API uint32_t Skeleton_AddJoint(Skeleton* skeleton, const char* name);
-MOSS_API uint32_t Skeleton_AddJoint2(Skeleton* skeleton, const char* name, int parentIndex);
-MOSS_API uint32_t Skeleton_AddJoint3(Skeleton* skeleton, const char* name, const char* parentName);
-MOSS_API int Skeleton_GetJointCount(const Skeleton* skeleton);
-MOSS_API void Skeleton_GetJoint(const Skeleton* skeleton, int index, SkeletonJoint* joint);
-MOSS_API int Skeleton_GetJointIndex(const Skeleton* skeleton, const char* name);
-MOSS_API void Skeleton_CalculateParentJointIndices(Skeleton* skeleton);
-MOSS_API bool Skeleton_AreJointsCorrectlyOrdered(const Skeleton* skeleton);
 
 
 // These need to be kept vvvvvvv
