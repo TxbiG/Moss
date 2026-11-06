@@ -7,6 +7,8 @@
 #include <Moss/Physics/Body/Body.h>
 #include <Moss/Physics/Collision/ShapeFilter.h>
 #include <Moss/Physics/Collision/BroadPhase/BroadPhase.h>
+#include <Moss/Physics/Collision/RayCast.h>
+#include <Moss/Physics/Collision/ShapeCast.h>
 
 MOSS_SUPPRESS_WARNINGS_BEGIN
 

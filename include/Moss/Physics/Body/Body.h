@@ -36,6 +36,7 @@ class BroadPhaseLayerFilter;
 class TwoBodyConstraint;
 class TwoBodyConstraintSettings;
 class ContactManifold;
+struct CollisionEstimationResult;
 #ifndef MOSS_DEBUG_RENDERER
 class DebugRenderer;
 class BodyDrawFilter;
@@ -447,7 +448,7 @@ public:
 	};
 
 	// Validate if the cached bounding boxes are correct for all active bodies
-	void							ValidateActiveBodyBounds();
+	void	ValidateActiveBodyBounds();
 #endif // MOSS_DEBUG
 
 private:
@@ -506,7 +507,7 @@ private:
 	mutable Mutex					mActiveBodiesMutex;
 
 	// List of all active dynamic bodies (size is equal to max amount of bodies)
-	BodyID *						mActiveBodies[cBodyTypeCount] = { };
+	BodyID*						mActiveBodies[cBodyTypeCount] = { };
 
 	// How many bodies there are in the list of active bodies
 	atomic<uint32_t>					mNumActiveBodies[cBodyTypeCount] = { };

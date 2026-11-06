@@ -93,6 +93,11 @@ enum class EShapeType : uint8 {
 	Empty,							// Used by EmptyShape
 };
 
+enum class EBackFaceMode : uint8_t { 
+	IgnoreBackFaces, 
+	CollideWithBackFaces 
+};
+
 /// This enumerates all shape types, each shape can return its type through Shape::GetSubType
 enum class EShapeSubType : uint8 {
 	// Convex shapes
