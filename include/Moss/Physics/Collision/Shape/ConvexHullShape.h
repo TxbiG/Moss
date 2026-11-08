@@ -5,7 +5,7 @@
 #pragma once
 
 #include <Moss/Physics/Collision/Shape/ConvexShape.h>
-#include <Moss/Physics/PhysicsSettings.h>
+#include <Moss/Physics/PhysicsSystem.h>
 #include <Moss/Physics/Geometry/Plane.h>
 #ifndef MOSS_DEBUG_RENDERER
 	#include <Moss/Renderer/DebugRenderer.h>

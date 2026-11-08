@@ -316,32 +316,10 @@ public:
 	Body &							GetBody(const BodyID &inID)					{ return *mBodies[inID.GetIndex()]; }
 
 	// Access a body, will return a nullptr if the body ID is no longer valid (not protected by lock)
-	inline Body* TryGetBody(const BodyID &inID) const {
-		uint32_t idx = inID.GetIndex();
-
-		if (idx >= mBodies.size())
-			return nullptr;
-
-		const Body* body = mBodies[idx];
-		if (IsValidBodyPointer(body) && body->GetID() == inID)
-			return body;
-
-		return nullptr;
-	}
+	const Body* TryGetBody(const BodyID& inID) const;
 
 	// Access a body, will return a nullptr if the body ID is no longer valid (not protected by lock)
-	inline Body* TryGetBody(const BodyID &inID) {
-		uint32_t idx = inID.GetIndex();
-
-		if (idx >= mBodies.size())
-			return nullptr;
-
-		Body* body = mBodies[idx];
-		if (IsValidBodyPointer(body) && body->GetID() == inID)
-			return body;
-
-		return nullptr;
-	}
+	Body* TryGetBody(const BodyID& inID);
 
 	// Access the mutex for a single body
 	SharedMutex& GetMutexForBody(const BodyID &inID) const	{ return mBodyMutexes.GetMutexByObjectIndex(inID.GetIndex()); }
@@ -363,8 +341,7 @@ public:
 	void							UnlockAllBodies() const;
 
 	// Function to update body's layer (should only be called by the BodyInterface since it also requires updating the broadphase)
-	inline void SetBodyObjectLayerInternal(Body &ioBody, ObjectLayer inLayer) const { ioBody.mObjectLayer = inLayer; ioBody.mBroadPhaseLayer = mBroadPhaseLayerInterface->GetBroadPhaseLayer(inLayer); }
-
+	void SetBodyObjectLayerInternal(Body& ioBody, ObjectLayer inLayer) const;
 	// Set the Body::EFlags::InvalidateContactCache flag for the specified body. This means that the collision cache is invalid for any body pair involving that body until the next physics step.
 	void							InvalidateContactCacheForBody(Body &ioBody);
 
@@ -1478,6 +1455,26 @@ public:
 
 	// Accumulate sleep time and return if a body can go to sleep
 	inline ECanSleep AccumulateSleepTime(float inDeltaTime, float inTimeBeforeSleep);
+
+
+	inline void BodyManager::SetBodyObjectLayerInternal(Body &ioBody, ObjectLayer inLayer) const 
+	{ ioBody.mObjectLayer = inLayer; ioBody.mBroadPhaseLayer = mBroadPhaseLayerInterface->GetBroadPhaseLayer(inLayer); }
+
+	inline const Body* BodyManager::TryGetBody(const BodyID& inID) const {
+		uint32_t idx = inID.GetIndex();
+		if (idx >= mBodies.size()) { return nullptr; }
+		const Body* body = mBodies[idx];
+		if (IsValidBodyPointer(body) && body->GetID() == inID) { return body; }
+		return nullptr;
+	}
+
+	inline Body* BodyManager::TryGetBody(const BodyID& inID) {
+		uint32_t idx = inID.GetIndex();
+		if (idx >= mBodies.size()) { return nullptr; }
+		Body* body = mBodies[idx];
+		if (IsValidBodyPointer(body) && body->GetID() == inID)  { return body; }
+		return nullptr;
+	}
 
 	// Saving state for replay
 	void SaveState(StateRecorder &inStream) const;

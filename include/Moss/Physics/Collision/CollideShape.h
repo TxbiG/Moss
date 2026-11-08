@@ -4,11 +4,13 @@
 
 #pragma once
 
+#include <cstdint>
+
 #include <Moss/Variants/TStaticArray.h>
 
 #include <Moss/Physics/Collision/Shape/SubShapeID.h>
-#include <Moss/Physics/Body/Body.h>
-#include <Moss/Physics/PhysicsSettings.h>
+#include <Moss/Physics/Body/BodyID.h>
+#include <Moss/Physics/PhysicsSystem.h>
 
 MOSS_SUPPRESS_WARNINGS_BEGIN
 
@@ -31,8 +33,7 @@ enum class EBackFaceMode : uint8_t {
 };
 
 /// Class that contains all information of two colliding shapes
-class CollideShapeResult
-{
+class CollideShapeResult {
 public:
 	MOSS_OVERRIDE_NEW_DELETE
 
@@ -40,14 +41,11 @@ public:
 	CollideShapeResult() = default;
 
 	/// Constructor
-	CollideShapeResult(Vec3Arg inContactPointOn1, Vec3Arg inContactPointOn2, Vec3Arg inPenetrationAxis, float inPenetrationDepth, const SubShapeID &inSubShapeID1, const SubShapeID &inSubShapeID2, const BodyID &inBodyID2) :
-		mContactPointOn1(inContactPointOn1),
-		mContactPointOn2(inContactPointOn2),
-		mPenetrationAxis(inPenetrationAxis),
-		mPenetrationDepth(inPenetrationDepth),
-		mSubShapeID1(inSubShapeID1),
-		mSubShapeID2(inSubShapeID2),
-		mBodyID2(inBodyID2) { }
+	CollideShapeResult(Vec3Arg inContactPointOn1, Vec3Arg inContactPointOn2, Vec3Arg inPenetrationAxis, 
+		float inPenetrationDepth, const SubShapeID &inSubShapeID1, const SubShapeID &inSubShapeID2, 
+		const BodyID &inBodyID2) : mContactPointOn1(inContactPointOn1), mContactPointOn2(inContactPointOn2),
+		mPenetrationAxis(inPenetrationAxis), mPenetrationDepth(inPenetrationDepth), mSubShapeID1(inSubShapeID1),
+		mSubShapeID2(inSubShapeID2), mBodyID2(inBodyID2) { }
 
 	/// Function required by the CollisionCollector. A smaller fraction is considered to be a 'better hit'. We use -penetration depth to get the hit with the biggest penetration depth
 	inline float GetEarlyOutFraction() const { return -mPenetrationDepth; }

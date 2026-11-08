@@ -176,10 +176,7 @@ public:
 		return ts;
 	}
 
-	inline TransformedShape Body::GetTransformedShape() const {
-    	MOSS_ASSERT(BodyAccess::CheckRights(BodyAccess::PositionAccess(),BodyAccess::EAccess::Read));
-    	return TransformedShape(mPosition,mRotation,mShape,mID);
-	}
+	TransformedShape GetTransformedShape() const;
 
 	/// Helper function to return the body id from a transformed shape. If the transformed shape is null an invalid body ID will be returned.
 	inline static BodyID		sGetBodyID(const TransformedShape *inTS)	{ return inTS != nullptr? inTS->mBodyID : BodyID(); }
@@ -191,6 +188,11 @@ public:
 	BodyID						mBodyID;									// Optional body ID from which this shape comes
 	SubShapeIDCreator			mSubShapeIDCreator;							// Optional sub shape ID creator for the shape (can be used when expanding compound shapes into multiple transformed shapes)
 };
+
+inline TransformedShape Body::GetTransformedShape() const {
+    MOSS_ASSERT(BodyAccess::CheckRights(BodyAccess::PositionAccess(),BodyAccess::EAccess::Read));
+    return TransformedShape(mPosition,mRotation,mShape,mID);
+}
 
 static_assert(MOSS_CPU_ADDRESS_BITS != 64 || sizeof(TransformedShape) == MOSS_IF_SINGLE_PRECISION_ELSE(64, 96), "Not properly packed");
 static_assert(alignof(TransformedShape) == MOSS_RVECTOR_ALIGNMENT, "Not properly aligned");
