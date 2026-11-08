@@ -70,6 +70,7 @@ Comprehensive documentation is available in the [`docs/`](docs/README.md) direct
 ## Repository Structure
 ```text
 .
+|-- assets/       Resources like shaders and textures
 |-- docs/         Documentation and developer guides
 |-- examples/     Example projects
 |-- external/     Third-party dependencies

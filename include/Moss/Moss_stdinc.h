@@ -1090,13 +1090,13 @@ inline bool MossAssertHelper(const char* expr, const char* file, uint32_t line, 
 #define MOSS_HALF_PI        1.5707963267948966F
 #define MOSS_QUARTER_PI     0.7853981633974483F
 #define MOSS_E        		2.71828182845904523536F   // e
-#define M_LOG2E    			1.44269504088896340736F   // log2(e)
-#define M_LOG10E   			0.434294481903251827651F  // log10(e)
-#define M_LN2      			0.693147180559945309417F  // ln(2)
-#define M_LN10     			2.30258509299404568402F   // ln(10)
-#define M_2_SQRTPI 			1.12837916709551257390F   // 2/sqrt(pi)
-#define M_SQRT2    			1.41421356237309504880F   // sqrt(2)
-#define M_SQRT1_2  			0.707106781186547524401F  // 1/sqrt(2)
+#define MOSS_LOG2E    			1.44269504088896340736F   // log2(e)
+#define MOSS_LOG10E   			0.434294481903251827651F  // log10(e)
+#define MOSS_LN2      			0.693147180559945309417F  // ln(2)
+#define MOSS_LN10     			2.30258509299404568402F   // ln(10)
+#define MOSS_2_SQRTPI 			1.12837916709551257390F   // 2/sqrt(pi)
+#define MOSS_SQRT2    			1.41421356237309504880F   // sqrt(2)
+#define MOSS_SQRT1_2  			0.707106781186547524401F  // 1/sqrt(2)
 #define ATAN_POLY(x)  ((x) * (0.999866 + 0.333331 * (x) * (x)))
 #define MOSS_FLT_EPSILON 	1.1920928955078125e-07F
 

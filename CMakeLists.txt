@@ -106,7 +106,7 @@ option(MOSS_DISABLE_CUSTOM_ALLOCATOR "Disable support for a custom memory alloca
 option(USE_STD_VECTOR "Use std::vector instead of own Array class" OFF)
 
 # Setting this option will compile the ObjectStream class and RTTI attribute information
-option(MOSS_ENABLE_OBJECT_STREAM "Compile the ObjectStream class and RTTI attribute information" ON)
+option(ENABLE_OBJECT_STREAM "Compile the ObjectStream class and RTTI attribute information" ON)
 
 # Enable installation
 option(ENABLE_INSTALL "Generate installation target"  ON)

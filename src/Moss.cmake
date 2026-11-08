@@ -145,8 +145,8 @@ elseif(APPLE)
 		"${MOSS_ROOT}/Platform/apple/mac/*.mm"
 	)
 	file(GLOB_RECURSE MOSS_AUDIO_PLATFORM_FILES CONFIGURE_DEPENDS
-		"${MOSS_ROOT}/audio/macos/*.h"
-		"${MOSS_ROOT}/audio/macos/*.cpp"
+		"${MOSS_ROOT}/Audio/macos/*.h"
+		"${MOSS_ROOT}/Audio/macos/*.cpp"
 	)
 	list(APPEND MOSS_SRC_FILES
 		${MOSS_PLATFORM_FILES}
