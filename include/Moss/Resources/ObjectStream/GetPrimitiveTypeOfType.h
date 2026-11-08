@@ -40,7 +40,7 @@ const RTTI *GetPrimitiveTypeOfType(TArray<T, A> *)
 }
 
 template <class T, uint32_t N>
-const RTTI *GetPrimitiveTypeOfType(StaticArray<T, N> *)
+const RTTI *GetPrimitiveTypeOfType(TStaticArray<T, N> *)
 {
 	return GetPrimitiveTypeOfType((T *)nullptr);
 }

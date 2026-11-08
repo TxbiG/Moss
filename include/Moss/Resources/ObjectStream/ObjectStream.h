@@ -132,7 +132,7 @@ bool OSIsType(TArray<T, A> *, int inArrayDepth, EOSDataType inDataType, const ch
 }
 
 template <class T, uint32_t N>
-bool OSIsType(StaticArray<T, N> *, int inArrayDepth, EOSDataType inDataType, const char *inClassName)
+bool OSIsType(TStaticArray<T, N> *, int inArrayDepth, EOSDataType inDataType, const char *inClassName)
 {
 	return (inArrayDepth > 0 && OSIsType(static_cast<T *>(nullptr), inArrayDepth - 1, inDataType, inClassName));
 }
@@ -179,7 +179,7 @@ bool OSReadData(IObjectStreamIn &ioStream, TArray<T, A> &inArray)
 
 /// Define serialization templates for static arrays
 template <class T, uint32_t N>
-bool OSReadData(IObjectStreamIn &ioStream, StaticArray<T, N> &inArray)
+bool OSReadData(IObjectStreamIn &ioStream, TStaticArray<T, N> &inArray)
 {
 	bool continue_reading = true;
 
@@ -259,14 +259,14 @@ void OSWriteData(IObjectStreamOut &ioStream, const TArray<T, A> &inArray)
 
 /// Define serialization templates for static arrays
 template <class T, uint32_t N>
-void OSWriteDataType(IObjectStreamOut &ioStream, StaticArray<T, N> *)
+void OSWriteDataType(IObjectStreamOut &ioStream, TStaticArray<T, N> *)
 {
 	ioStream.WriteDataType(EOSDataType::Array);
 	OSWriteDataType(ioStream, static_cast<T *>(nullptr));
 }
 
 template <class T, uint32_t N>
-void OSWriteData(IObjectStreamOut &ioStream, const StaticArray<T, N> &inArray)
+void OSWriteData(IObjectStreamOut &ioStream, const TStaticArray<T, N> &inArray)
 {
 	// Write size of array
 	ioStream.HintNextItem();
@@ -274,7 +274,7 @@ void OSWriteData(IObjectStreamOut &ioStream, const StaticArray<T, N> &inArray)
 
 	// Write data in array
 	ioStream.HintIndentUp();
-	for (const typename StaticArray<T, N>::value_type &v : inArray)
+	for (const typename TStaticArray<T, N>::value_type &v : inArray)
 		OSWriteData(ioStream, v);
 	ioStream.HintIndentDown();
 }
