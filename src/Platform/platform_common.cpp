@@ -128,10 +128,20 @@ void ResetGamepadSensorState(Moss_Gamepad* gp) {
     g_gamepadSensors.erase(gp);
 }
 
-void PublishGamepadSensorSample(Moss_Gamepad* gp, Moss_GamepadSensorType sensor, const Moss_GamepadSensorData& sample) {
+void PublishGamepadSensorSample(
+    Moss_Gamepad* gp,
+    Moss_GamepadSensorType sensor,
+    const Moss_GamepadSensorData& sample)
+{
     std::size_t index = 0;
 
-    if (gp == nullptr || !GetSensorIndex(sensor, index) || index >= 2 || !IsValidSample(sample)) { return; }
+    if (gp == nullptr ||
+        !GetSensorIndex(sensor, index) ||
+        index >= 2 ||
+        !IsValidSample(sample))
+    {
+        return;
+    }
 
     std::lock_guard<std::mutex> lock(g_sensorMutex);
 
@@ -149,25 +159,49 @@ void PublishGamepadSensorSample(Moss_Gamepad* gp, Moss_GamepadSensorType sensor,
     // Retrieve the previous sample for this sensor.
     Moss_GamepadSensorData& previous = state.latest[index];
 
-    if (state.has_sample[index] && sample.timestamp_ns < previous.timestamp_ns) { return; }
+    if (state.has_sample[index] &&
+        sample.timestamp_ns < previous.timestamp_ns)
+    {
+        return;
+    }
 
-    const float deltaTime = state.has_sample[index] && previous.timestamp_ns > 0 ? 
-    static_cast<float>(sample.timestamp_ns - previous.timestamp_ns) / 1.0e9f : 0.016f;
+    const float deltaTime =
+        state.has_sample[index] && previous.timestamp_ns > 0
+        ? static_cast<float>(
+            sample.timestamp_ns - previous.timestamp_ns
+          ) / 1.0e9f
+        : 0.016f;
 
     // Update the sensor sample.
     state.latest[index] = sample;
     state.has_sample[index] = true;
 
-    // Sensor indices must match GetSensorIndex().
-    constexpr std::size_t GyroIndex = 0;
-    constexpr std::size_t AccelIndex = 1;
+    // Match GetSensorIndex().
+    constexpr std::size_t AccelIndex = 0;
+    constexpr std::size_t GyroIndex = 1;
 
     // Wait until both sensors have supplied valid samples.
-    if (!state.has_sample[GyroIndex] || !state.has_sample[AccelIndex]) { return; }
+    if (!state.has_sample[GyroIndex] ||
+        !state.has_sample[AccelIndex])
+    {
+        return;
+    }
 
     // Process gyroscope and accelerometer independently.
-    Moss_InternalProcessSensorFusion(state, state.latest[GyroIndex].x, state.latest[GyroIndex].y, state.latest[GyroIndex].z,
-        state.latest[AccelIndex].x, state.latest[AccelIndex].y, state.latest[AccelIndex].z, deltaTime
+    Moss_InternalProcessSensorFusion(
+        state,
+
+        // Gyroscope
+        state.latest[GyroIndex].x,
+        state.latest[GyroIndex].y,
+        state.latest[GyroIndex].z,
+
+        // Accelerometer
+        state.latest[AccelIndex].x,
+        state.latest[AccelIndex].y,
+        state.latest[AccelIndex].z,
+
+        deltaTime
     );
 }
 
