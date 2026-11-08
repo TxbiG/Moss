@@ -58,9 +58,6 @@ inline EPhysicsUpdateError operator & (EPhysicsUpdateError inA, EPhysicsUpdateEr
 /// If objects are closer than this distance, they are considered to be colliding (used for GJK) (unit: meter)
 constexpr float cDefaultCollisionTolerance = 1.0e-4f;
 
-/// A factor that determines the accuracy of the penetration depth calculation. If the change of the squared distance is less than tolerance * current_penetration_depth^2 the algorithm will terminate. (unit: dimensionless)
-constexpr float cDefaultPenetrationTolerance = 1.0e-4f; ///< Stop when there's less than 1% change
-
 /// How much padding to add around objects
 constexpr float cDefaultConvexRadius = 0.05f;
 

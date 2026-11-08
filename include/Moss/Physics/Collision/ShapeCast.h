@@ -6,7 +6,7 @@
 
 #include <Moss/Variants/AABB3.h>
 #include <Moss/Physics/Collision/CollideShape.h>
-#include <Moss/Physics/Collision/Shape/Shape.h>
+#include <Moss/Physics/Collision/Shape/Shapes.h>
 
 MOSS_SUPPRESS_WARNINGS_BEGIN
 

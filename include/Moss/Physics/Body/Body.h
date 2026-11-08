@@ -1456,26 +1456,6 @@ public:
 	// Accumulate sleep time and return if a body can go to sleep
 	inline ECanSleep AccumulateSleepTime(float inDeltaTime, float inTimeBeforeSleep);
 
-
-	inline void BodyManager::SetBodyObjectLayerInternal(Body &ioBody, ObjectLayer inLayer) const 
-	{ ioBody.mObjectLayer = inLayer; ioBody.mBroadPhaseLayer = mBroadPhaseLayerInterface->GetBroadPhaseLayer(inLayer); }
-
-	inline const Body* BodyManager::TryGetBody(const BodyID& inID) const {
-		uint32_t idx = inID.GetIndex();
-		if (idx >= mBodies.size()) { return nullptr; }
-		const Body* body = mBodies[idx];
-		if (IsValidBodyPointer(body) && body->GetID() == inID) { return body; }
-		return nullptr;
-	}
-
-	inline Body* BodyManager::TryGetBody(const BodyID& inID) {
-		uint32_t idx = inID.GetIndex();
-		if (idx >= mBodies.size()) { return nullptr; }
-		Body* body = mBodies[idx];
-		if (IsValidBodyPointer(body) && body->GetID() == inID)  { return body; }
-		return nullptr;
-	}
-
 	// Saving state for replay
 	void SaveState(StateRecorder &inStream) const;
 
@@ -1816,8 +1796,7 @@ public:
 	inline Vec3				GetWorldSpaceSurfaceNormal(const SubShapeID &inSubShapeID, RVec3Arg inPosition) const;
 
 	// Get the transformed shape of this body, which can be used to do collision detection outside of a body lock
-	inline TransformedShape	GetTransformedShape() const	{ MOSS_ASSERT(BodyAccess::CheckRights(BodyAccess::PositionAccess(), BodyAccess::EAccess::Read)); return TransformedShape(mPosition, mRotation, mShape, mID); }
-
+	TransformedShape		GetTransformedShape() const;
 	// Debug function to convert a body back to a body creation settings object to be able to save/recreate the body later
 	BodyCreationSettings	GetBodyCreationSettings() const;
 
@@ -1939,6 +1918,26 @@ private:
 };
 
 MOSS_API void EstimateCollisionResponse(const Body* body1, const Body* body2, const ContactManifold* manifold, float combinedFriction, float combinedRestitution, float minVelocityForRestitution, uint32_t numIterations, CollisionEstimationResult* result);
+
+
+inline void BodyManager::SetBodyObjectLayerInternal(Body &ioBody, ObjectLayer inLayer) const 
+{ ioBody.mObjectLayer = inLayer; ioBody.mBroadPhaseLayer = mBroadPhaseLayerInterface->GetBroadPhaseLayer(inLayer); }
+
+inline const Body* BodyManager::TryGetBody(const BodyID& inID) const {
+	uint32_t idx = inID.GetIndex();
+	if (idx >= mBodies.size()) { return nullptr; }
+	const Body* body = mBodies[idx];
+	if (IsValidBodyPointer(body) && body->GetID() == inID) { return body; }
+	return nullptr;
+}
+
+inline Body* BodyManager::TryGetBody(const BodyID& inID) {
+	uint32_t idx = inID.GetIndex();
+	if (idx >= mBodies.size()) { return nullptr; }
+	Body* body = mBodies[idx];
+	if (IsValidBodyPointer(body) && body->GetID() == inID)  { return body; }
+	return nullptr;
+}
 
 MOSS_SUPPRESS_WARNINGS_END
 

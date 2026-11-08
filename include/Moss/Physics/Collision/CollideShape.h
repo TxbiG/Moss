@@ -14,6 +14,10 @@
 
 MOSS_SUPPRESS_WARNINGS_BEGIN
 
+
+/// A factor that determines the accuracy of the penetration depth calculation. If the change of the squared distance is less than tolerance * current_penetration_depth^2 the algorithm will terminate. (unit: dimensionless)
+constexpr float cDefaultPenetrationTolerance = 1.0e-4f; ///< Stop when there's less than 1% change
+
 // How active and inactive collision edges are handled.
 enum class EActiveEdgeMode : uint8_t {
     CollideOnlyWithActive,
