@@ -2,10 +2,6 @@
 
 > Practical entry points for the public Moss headers. This document is a quick guide, not a replacement for the complete declaration index in [API Reference](API_Reference.md).
 
-## Source scope
-
-Prepared from the header tree supplied for this update. The archive contains **270 `.h` headers**, **19 `.inl` implementation headers**, and **60 `.cpp` files** under the `Moss/` include tree. The header inventory and export-marked declaration listing are in the API Reference. Backend-specific declarations remain conditional on the macros and platform configuration used by the build.
-
 ## 1. Include Moss
 
 For a framework-level include:
@@ -50,12 +46,7 @@ This Platform-only sample uses declarations from `Moss_Platform.h`. It was synta
 
 int main()
 {
-    Moss_Window* window = Moss_CreateWindow(
-        "Moss application",
-        1280,
-        720,
-        nullptr,
-        nullptr);
+    Moss_Window* window = Moss_CreateWindow("Moss application",1280,720,nullptr,nullptr);
 
     if (window == nullptr)
         return 1;
@@ -90,8 +81,7 @@ The signatures above are present in `Moss_Renderer.h`; renderer usage is not pre
 ### Platform and input
 
 ```cpp
-Moss_Window* Moss_CreateWindow(const char* title, int width, int height,
-                               Moss_Monitor* monitor, Moss_Window* share);
+Moss_Window* Moss_CreateWindow(const char* title, int width, int height, Moss_Monitor* monitor, Moss_Window* share);
 bool Moss_ShouldWindowClose(Moss_Window* window);
 void Moss_PollEvents(void);
 void Moss_TerminateWindow(Moss_Window* window);
@@ -209,18 +199,3 @@ The project uses global declarations in many public headers rather than placing 
 - `Variants/`: vector/matrix/math types, bounds, colors and generic containers.
 
 For exact header paths and an index of export-marked signatures, see [API Reference](API_Reference.md).
-
-## 8. Declaration review notes from this header snapshot
-
-These are observations about the supplied declarations, not speculative corrections:
-
-1. `Moss_AudioStream2DSetPlaybackRate(AudioStream2D*, float)` is declared without the `MOSS_API` marker, while neighbouring stream functions carry it. Check symbol visibility when building/consuming a shared library.
-2. `Moss_AudioStream3DSetPosition`, `Moss_AudioStream3DSetVelocity`, and `Moss_AudioStream3DSetMaxDistance` have overloads declared with `AudioStream2D*` and also overloads with `AudioStream3D*`; neither form accepts the position, velocity, or distance value. The signatures therefore do not expose those settings as parameters.
-3. `Color.h` describes `Color` as 8-bit-per-component, but its public storage is four `float` members (`r`, `g`, `b`, `a`). The implementation layout should be treated as authoritative until the comment is corrected.
-4. `Moss_Navigation.h` primarily exposes class methods and typedefs rather than `MOSS_API`-prefixed free functions. The export-signature appendix therefore cannot be used as its sole API index; consult the class declarations in that header.
-5. `Moss.h` includes the main subsystem headers but not every specialised header in the 270-file tree. A symbol being present in the ZIP does not mean it is transitively included by `Moss.h`.
-6. A standalone syntax check of several top-level headers fails in this snapshot. See the compiler-check results in the API Reference; do not assume the umbrella include is currently a clean, self-contained include until those issues have been corrected or the project's required pre-include/build configuration is documented.
-
----
-
-The API Reference is the declaration-level companion to this cheatsheet. Update both when public headers change.

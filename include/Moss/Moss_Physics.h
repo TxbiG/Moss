@@ -297,18 +297,7 @@ enum class EOverrideMassProperties {
 	CalculateInertia, 
 	MassAndInertiaProvided 
 };
-enum class EBackFaceMode : uint8 { 
-	IgnoreBackFaces, 
-	CollideWithBackFaces 
-};
-enum class EActiveEdgeMode : uint8 { 
-	CollideOnlyWithActive, 
-	CollideWithAll 
-};
-enum class ECollectFacesMode : uint8 { 
-	CollectFaces, 
-	NoFaces 
-};
+
 enum class EMotorState : uint8 { 
 	Off, 
 	Velocity, 

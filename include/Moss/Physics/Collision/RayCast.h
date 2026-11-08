@@ -4,6 +4,8 @@
 
 #pragma once
 
+#include <Moss/Physics/Collision/CollideShape.h>
+
 MOSS_SUPPRESS_WARNINGS_BEGIN
 
 /// Structure that holds a single ray cast
@@ -39,16 +41,10 @@ struct RRayCast : public RayCastT<RVec3, RMat44, RRayCast> {
 	using RayCastT<RVec3, RMat44, RRayCast>::RayCastT;
 
 	/// Convert from RayCast, converts single to double precision
-	explicit					RRayCast(const RayCast &inRay) :
-		RRayCast(RVec3(inRay.mOrigin), inRay.mDirection)
-	{
-	}
+	explicit RRayCast(const RayCast &inRay) : RRayCast(RVec3(inRay.mOrigin), inRay.mDirection) { }
 
 	/// Convert to RayCast, which implies casting from double precision to single precision
-	explicit					operator RayCast() const
-	{
-		return RayCast(Vec3(mOrigin), mDirection);
-	}
+	explicit operator RayCast() const { return RayCast(Vec3(mOrigin), mDirection); }
 };
 
 /// Settings to be passed with a ray cast
@@ -60,13 +56,13 @@ public:
 	void SetBackFaceMode(EBackFaceMode inMode) { mBackFaceModeTriangles = mBackFaceModeConvex = inMode; }
 
 	/// How backfacing triangles should be treated (should we report back facing hits for triangle based shapes, e.g. MeshShape/HeightFieldShape?)
-	EBackFaceMode				mBackFaceModeTriangles		= EBackFaceMode::IgnoreBackFaces;
+	EBackFaceMode mBackFaceModeTriangles = EBackFaceMode::IgnoreBackFaces;
 
 	/// How backfacing convex objects should be treated (should we report back facing hits for convex shapes?)
-	EBackFaceMode				mBackFaceModeConvex			= EBackFaceMode::IgnoreBackFaces;
+	EBackFaceMode mBackFaceModeConvex = EBackFaceMode::IgnoreBackFaces;
 
 	/// If convex shapes should be treated as solid. When true, a ray starting inside a convex shape will generate a hit at fraction 0.
-	bool						mTreatConvexAsSolid			= true;
+	bool mTreatConvexAsSolid = true;
 };
 
 MOSS_SUPPRESS_WARNINGS_END

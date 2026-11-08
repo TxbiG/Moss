@@ -326,13 +326,6 @@ struct Moss_Camera3DDesc {
     float far_plane = 1000.0f;
 };
 
-struct Moss_EditorCameraDesc {
-    Moss_Camera3DDesc camera;
-    float move_speed = 5.0f;
-    float look_sensitivity = 0.2f;
-    bool orbit_mode = false;
-};
-
 struct Moss_ShadowMapDesc {
     uint32_t width = 2048;
     uint32_t height = 2048;
@@ -681,9 +674,16 @@ MOSS_API int Moss_DebugDrawPhysicsContact(Moss_DebugDrawList* list, const Moss_D
 MOSS_API void Moss_RendererDrawDebugList(Moss_Renderer* renderer, const Moss_DebugDrawList* list);
 
 MOSS_API Moss_Camera* Moss_CameraCreate2D(const Moss_Camera2DDesc* desc);
+MOSS_API void Moss_CameraSetPosition2D(Moss_Camera camera, Vec2 position);
+MOSS_API void Moss_CameraSetTarget2D(Moss_Camera camera, Vec2 target);
+MOSS_API void Moss_CameraFollow2D(Moss_Camera camera, Vec2 target);
+MOSS_API void Moss_CameraDestroy2D(Moss_Camera2DDesc* camera);
+
 MOSS_API Moss_Camera* Moss_CameraCreate3D(const Moss_Camera3DDesc* desc);
-MOSS_API Moss_Camera* Moss_CameraCreateEditor(const Moss_EditorCameraDesc* desc);
-MOSS_API void Moss_CameraDestroy(Moss_Camera* camera);
+MOSS_API void Moss_CameraSetPosition3D(Moss_Camera camera, Vec3 position);
+MOSS_API void Moss_CameraSetTarget3D(Moss_Camera camera, Vec3 target);
+MOSS_API void Moss_CameraFollow3D(Moss_Camera camera, Vec3 target);
+MOSS_API void Moss_CameraDestroy3D(Moss_Camera3DDesc* camera);
 MOSS_API void Moss_RendererSetCamera(Moss_Renderer* renderer, Moss_Camera* camera);
 
 MOSS_API Moss_ShadowMap* Moss_RendererCreateShadowMap(Moss_Renderer* renderer, const Moss_ShadowMapDesc* desc);

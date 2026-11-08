@@ -2,21 +2,6 @@
 
 > Declaration index generated from the Moss header archive supplied for this documentation update. The source files in the archive map to `include/Moss/` in the repository.
 
-## Scope and reading guide
-
-- **270** `.h` headers inventoried.
-- **19** `.inl` companion implementation headers inventoried.
-- **60** `.cpp` implementation files were present in the archive (not reproduced as API signatures here).
-- **1101** active lines beginning with `MOSS_API` were extracted as export-marked declarations across **22** headers. This count includes exported class/struct declarations where they use that prefix as well as function declarations.
-
-This reference has two complementary indexes:
-1. The **complete header inventory** lists every `.h` and `.inl` path found in the supplied tree.
-2. The **export-marked declaration index** reproduces declarations that begin with `MOSS_API`, preserving their source spelling and linking to the source line.
-
-Many C++ APIs are class members, templates, inline methods, typedefs, or declarations decorated as `class MOSS_API` / `[[nodiscard]] MOSS_API`. They do not necessarily begin a source line with `MOSS_API`, so they are not duplicated in the free-function export list. Use the linked source header as the authoritative reference for those members. Declarations inside preprocessor branches are conditional on the selected platform/build macros.
-
-No API namespace, parameter, ownership rule, default argument, or implementation status is inferred where it is not stated in the header.
-
 ## Umbrella headers
 
 | Header | Responsibility |
@@ -366,22 +351,6 @@ Math, geometry and container value types.
 | [`Variants/Vector/iVec2.h`](https://github.com/TxbiG/Moss/blob/main/include/Moss/Variants/Vector/iVec2.h) | 1 |
 | [`Variants/Vector/iVec3.h`](https://github.com/TxbiG/Moss/blob/main/include/Moss/Variants/Vector/iVec3.h) | 1 |
 | [`Variants/Vector/iVec4.h`](https://github.com/TxbiG/Moss/blob/main/include/Moss/Variants/Vector/iVec4.h) | 1 |
-
-### Top-level subsystem headers (11 headers)
-
-| Header | Export-marked declarations |
-|---|---:|
-| [`Moss.h](https://github.com/TxbiG/Moss/blob/main/include/Moss/Moss.h)` | 0 |
-| [`Moss_Audio.h](https://github.com/TxbiG/Moss/blob/main/include/Moss/Moss_Audio.h)` | 113 |
-| [`Moss_GPU.h](https://github.com/TxbiG/Moss/blob/main/include/Moss/Moss_GPU.h)` | 241 |
-| [`Moss_GUI.h](https://github.com/TxbiG/Moss/blob/main/include/Moss/Moss_GUI.h)` | 73 |
-| [`Moss_Navigation.h](https://github.com/TxbiG/Moss/blob/main/include/Moss/Moss_Navigation.h)` | 0 |
-| [`Moss_Network.h](https://github.com/TxbiG/Moss/blob/main/include/Moss/Moss_Network.h)` | 146 |
-| [`Moss_Physics.h](https://github.com/TxbiG/Moss/blob/main/include/Moss/Moss_Physics.h)` | 39 |
-| [`Moss_Platform.h](https://github.com/TxbiG/Moss/blob/main/include/Moss/Moss_Platform.h)` | 181 |
-| [`Moss_Renderer.h](https://github.com/TxbiG/Moss/blob/main/include/Moss/Moss_Renderer.h)` | 195 |
-| [`Moss_XR.h](https://github.com/TxbiG/Moss/blob/main/include/Moss/Moss_XR.h)` | 41 |
-| [`Moss_stdinc.h](https://github.com/TxbiG/Moss/blob/main/include/Moss/Moss_stdinc.h)` | 34 |
 
 ## Export-marked declaration index
 
@@ -1512,68 +1481,3 @@ MOSS_API uint32_t Moss_XR_GetBackendVersion(void);
 MOSS_API void Moss_XR_BeginDebugLabel(const char* label);
 MOSS_API void Moss_XR_EndDebugLabel(void);
 ```
-
-
-## Inline implementation header inventory (19 files)
-
-These files provide inline/template definitions or companion implementation details. They are included here because the public API surface cannot be understood from declarations alone when these files contain required definitions.
-
-| Inline header |
-|---|
-| [`Core/FixedSizeFreeList.inl`](https://github.com/TxbiG/Moss/blob/main/include/Moss/Core/FixedSizeFreeList.inl) |
-| [`Core/JobSystem.inl`](https://github.com/TxbiG/Moss/blob/main/include/Moss/Core/JobSystem.inl) |
-| [`Core/LockFreeHashMap.inl`](https://github.com/TxbiG/Moss/blob/main/include/Moss/Core/LockFreeHashMap.inl) |
-| [`Core/Profiler.inl`](https://github.com/TxbiG/Moss/blob/main/include/Moss/Core/Profiler.inl) |
-| [`Physics/Body/Body.inl`](https://github.com/TxbiG/Moss/blob/main/include/Moss/Physics/Body/Body.inl) |
-| [`Variants/Matrix/DMat44.inl`](https://github.com/TxbiG/Moss/blob/main/include/Moss/Variants/Matrix/DMat44.inl) |
-| [`Variants/Matrix/Mat44.inl`](https://github.com/TxbiG/Moss/blob/main/include/Moss/Variants/Matrix/Mat44.inl) |
-| [`Variants/Quat.inl`](https://github.com/TxbiG/Moss/blob/main/include/Moss/Variants/Quat.inl) |
-| [`Variants/Vector/BVec16.inl`](https://github.com/TxbiG/Moss/blob/main/include/Moss/Variants/Vector/BVec16.inl) |
-| [`Variants/Vector/DVec2.inl`](https://github.com/TxbiG/Moss/blob/main/include/Moss/Variants/Vector/DVec2.inl) |
-| [`Variants/Vector/DVec3.inl`](https://github.com/TxbiG/Moss/blob/main/include/Moss/Variants/Vector/DVec3.inl) |
-| [`Variants/Vector/DVec4.inl`](https://github.com/TxbiG/Moss/blob/main/include/Moss/Variants/Vector/DVec4.inl) |
-| [`Variants/Vector/UVec4.inl`](https://github.com/TxbiG/Moss/blob/main/include/Moss/Variants/Vector/UVec4.inl) |
-| [`Variants/Vector/Vec2.inl`](https://github.com/TxbiG/Moss/blob/main/include/Moss/Variants/Vector/Vec2.inl) |
-| [`Variants/Vector/Vec3.inl`](https://github.com/TxbiG/Moss/blob/main/include/Moss/Variants/Vector/Vec3.inl) |
-| [`Variants/Vector/Vec4.inl`](https://github.com/TxbiG/Moss/blob/main/include/Moss/Variants/Vector/Vec4.inl) |
-| [`Variants/Vector/iVec2.inl`](https://github.com/TxbiG/Moss/blob/main/include/Moss/Variants/Vector/iVec2.inl) |
-| [`Variants/Vector/iVec3.inl`](https://github.com/TxbiG/Moss/blob/main/include/Moss/Variants/Vector/iVec3.inl) |
-| [`Variants/Vector/iVec4.inl`](https://github.com/TxbiG/Moss/blob/main/include/Moss/Variants/Vector/iVec4.inl) |
-
-## Header syntax-check results
-
-A lightweight standalone header syntax check was run with **Clang 17**, `-std=c++20`, `-fsyntax-only`, and the supplied `Moss/` directory as the include root. Each top-level header was compiled as its own translation unit with warnings suppressed; no project-specific feature definitions or external project build configuration were supplied. This is a diagnostic probe, not a substitute for the repository's full CMake build.
-
-| Header | Result | Diagnostics |
-|---|---|---:|
-| `Moss_stdinc.h` | Pass | 0 errors |
-| `Moss_Platform.h` | Pass | 0 errors |
-| `Moss_GPU.h` | Pass | 0 errors |
-| `Moss_Network.h` | Pass | 0 errors |
-| `Moss_Audio.h` | Fail | 118 errors |
-| `Moss_Renderer.h` | Fail | 39 errors |
-| `Moss_GUI.h` | Fail | 39 errors |
-| `Moss_Physics.h` | Fail | 174 errors |
-| `Moss_Navigation.h` | Fail | 207 errors |
-| `Moss_XR.h` | Fail | 42 errors |
-| `Moss.h` (umbrella) | Fail | 168 errors |
-
-The diagnostic set includes missing or incomplete declarations and type-order/dependency errors. Examples seen in the umbrella/physics include chain include an unresolved `BroadPhaseLayer`, missing `StreamUtils` declarations used by shape serialization, and an incomplete `BodyManager` when `Body.h` is parsed. Renderer-related diagnostics include incomplete `QuatArg`/`Mat44` use from `DMat44.h`. Some errors may be affected by build-specific feature definitions or required include ordering; the source archive does not include the project's compile command or CMake configuration, so the root cause has not been proven.
-
-**Documentation consequence:** the Platform-only event-loop sample in the cheatsheet passed this check. The full umbrella include and renderer/physics examples should not be advertised as compile-ready until the header dependency failures have been resolved and retested in the project's real build configuration.
-
-## Snapshot-specific declaration checks
-
-These points are worth reviewing in the headers before treating the declarations as settled API. They are recorded as findings, not silently corrected in the documentation.
-
-1. **2D audio playback-rate export marker:** `Moss_AudioStream2DSetPlaybackRate(AudioStream2D*, float)` is declared without `MOSS_API`, unlike neighbouring stream functions. This may matter for shared-library symbol visibility.
-2. **3D audio stream setters:** `Moss_AudioStream3DSetPosition`, `Moss_AudioStream3DSetVelocity`, and `Moss_AudioStream3DSetMaxDistance` each have declarations taking only a stream pointer and no value parameter. In the same header there are forms taking `AudioStream2D*` as well as `AudioStream3D*`. The signatures do not provide a position, velocity, or distance argument.
-3. **Color storage comment/layout mismatch:** `Variants/Color.h` describes an 8-bit-per-component color, while the actual public union stores `float r`, `float g`, `float b`, and `float a`.
-4. **Navigation export style:** `Moss_Navigation.h` exposes most of its functionality as class methods, typedefs, and structs rather than free functions with a leading `MOSS_API`; its class definitions are the authoritative interface.
-5. **Umbrella coverage:** `Moss.h` includes the subsystem headers, but not every specialized header under `Core/`, `Physics/`, `Renderer/`, `Resources/`, `Geometry/`, `Skeleton/`, `TriangleSplitter/`, and `Variants/`.
-6. **Backend conditionals:** Vulkan, DirectX 12, Metal, OpenGL, and platform-specific declarations appear under feature/platform guards. The declaration listing does not imply that all backend types are available in every build.
-7. **Header dependency check:** the isolated Clang syntax-check failures above show that several high-level headers, including the umbrella `Moss.h`, are not self-contained under the tested include configuration. Fix the missing prerequisites/include order and add standalone header compile tests before treating the umbrella header as a verified integration point.
-
----
-
-Generated from the supplied source archive, not from a live Git checkout. Before publishing, compare the current branch with this snapshot and regenerate after public-header changes.

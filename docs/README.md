@@ -66,4 +66,95 @@ Moss Framework is built around:
 ---
 
 # Roadmap
-X
+# Moss Framework – Development Roadmap
+
+## Phase 1 – Core Foundation (v1.0–v1.1)
+
+- [ ] Finalise core framework architecture.
+- [ ] Stabilise memory management.
+- [ ] Improve resource management.
+- [ ] Improve application lifecycle management.
+- [ ] Improve threading and job systems.
+- [ ] Improve event handling.
+- [ ] Improve logging and diagnostics.
+- [ ] Improve error handling.
+- [ ] Finalise platform abstraction.
+- [ ] Establish automated testing.
+- [ ] Establish continuous integration (CI/CD).
+- [ ] Complete API documentation.
+
+## Phase 2 – 2D Development (v1.2)
+
+- [ ] Improve 2D rendering.
+- [ ] Implement sprite rendering and batching.
+- [ ] Implement sprite animation system.
+- [ ] Implement tilemap system.
+- [ ] Optimise tilemap rendering.
+- [ ] Implement 2D camera system.
+- [ ] Implement parallax scrolling.
+- [ ] Improve 2D collision detection.
+- [ ] Integrate 2D physics.
+- [ ] Implement particle system.
+- [ ] Improve text rendering.
+- [ ] Improve UI rendering.
+- [ ] Improve 2D audio integration.
+- [ ] Create 2D development examples.
+
+## Phase 3 – Asset and Resource Management (v1.3)
+
+- [ ] Implement centralised asset management.
+- [ ] Implement texture loading and management.
+- [ ] Implement audio resource management.
+- [ ] Implement model and mesh importing.
+- [ ] Implement material management.
+- [ ] Implement asset caching.
+- [ ] Implement asset dependency tracking.
+- [ ] Implement asset packaging.
+- [ ] Implement hot reloading.
+- [ ] Implement asset metadata.
+- [ ] Develop asset import pipeline.
+- [ ] Optimise resource management.
+
+## Phase 4 – Developer Tools (v1.4)
+
+- [ ] Implement performance profiler.
+- [ ] Implement memory profiler.
+- [ ] Implement rendering debugger.
+- [ ] Implement physics debugger.
+- [ ] Implement collision visualisation.
+- [ ] Implement logging console.
+- [ ] Implement resource inspector.
+- [ ] Improve application diagnostics.
+- [ ] Implement crash reporting.
+- [ ] Implement automated testing utilities.
+- [ ] Implement benchmarking tools.
+
+## Phase 5 – 3D Development (v1.5)
+
+- [ ] Improve 3D rendering.
+- [ ] Implement mesh management.
+- [ ] Implement material system.
+- [ ] Implement lighting system.
+- [ ] Implement shadow rendering.
+- [ ] Implement 3D camera system.
+- [ ] Improve transform system.
+- [ ] Implement skeletal animation.
+- [ ] Integrate 3D physics.
+- [ ] Implement environment rendering.
+- [ ] Implement post-processing.
+- [ ] Improve particle systems.
+- [ ] Create 3D development examples.
+
+## Phase 6 – Platform Expansion (v1.6)
+
+- [ ] Improve Windows support.
+- [ ] Improve Linux support.
+- [ ] Add macOS support.
+- [ ] Add Android support.
+- [ ] Add iOS support.
+- [ ] Improve WebAssembly support.
+- [ ] Implement platform-specific input handling.
+- [ ] Improve platform-specific window management.
+- [ ] Implement cross-platform build presets.
+- [ ] Establish platform compatibility testing.
+- [ ] Establish long-term support releases.

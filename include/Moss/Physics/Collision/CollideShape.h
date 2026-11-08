@@ -5,13 +5,30 @@
 #pragma once
 
 #include <Moss/Variants/TStaticArray.h>
-#include <Moss/Physics/Collision/ActiveEdgeMode.h>
-#include <Moss/Physics/Collision/CollectFacesMode.h>
+
 #include <Moss/Physics/Collision/Shape/SubShapeID.h>
 #include <Moss/Physics/Body/Body.h>
 #include <Moss/Physics/PhysicsSettings.h>
 
 MOSS_SUPPRESS_WARNINGS_BEGIN
+
+// How active and inactive collision edges are handled.
+enum class EActiveEdgeMode : uint8_t {
+    CollideOnlyWithActive,
+    CollideWithAll
+};
+
+// Whether collision queries collect face information.
+enum class ECollectFacesMode : uint8_t {
+    CollectFaces,
+    NoFaces
+};
+
+// How back-facing triangles are handled.
+enum class EBackFaceMode : uint8_t {
+    IgnoreBackFaces,
+    CollideWithBackFaces
+};
 
 /// Class that contains all information of two colliding shapes
 class CollideShapeResult
