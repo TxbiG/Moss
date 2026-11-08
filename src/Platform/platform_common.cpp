@@ -1,19 +1,8 @@
 #include "platform_intern.h"
 
-constexpr std::size_t SensorCount = 2;
-
-struct SensorState {
-    bool supported = false;
-    bool enabled = false;
-    bool hasSample = false;
-
-    Moss_GamepadSensorData latest{};
-};
-
-using GamepadSensorStates = std::array<SensorState, SensorCount>;
 
 std::mutex g_sensorMutex;
-std::map<Moss_Gamepad*, Moss_GamepadSensorState[2]> g_gamepadSensors;
+std::map<Moss_Gamepad*, Moss_GamepadSensorState> g_gamepadSensors;
 std::unordered_map<Moss_Gamepad*, std::array<Moss_GamepadSensorState, 2>> 
 
 bool GetSensorIndex(Moss_GamepadSensorType sensor, std::size_t& index) {
@@ -21,9 +10,11 @@ bool GetSensorIndex(Moss_GamepadSensorType sensor, std::size_t& index) {
         case Moss_GamepadSensorType::ACCELEROMETER:
             index = 0;
             return true;
+
         case Moss_GamepadSensorType::GYROSCOPE:
             index = 1;
             return true;
+
         default:
             return false;
     }
@@ -31,7 +22,13 @@ bool GetSensorIndex(Moss_GamepadSensorType sensor, std::size_t& index) {
 
 bool IsValidSample(const Moss_GamepadSensorData& sample) { return std::isfinite(sample.x) && std::isfinite(sample.y) && std::isfinite(sample.z); }
 
-void ClearSample(SensorState& state) { state.hasSample = false; state.latest = {}; }
+static void ClearSensorSample(Moss_GamepadSensorState& state, std::size_t index) {
+    if (index >= 2)
+        return;
+
+    state.has_sample[index] = false;
+    state.latest[index] = Moss_GamepadSensorData{};
+}
 
 // Checks whether the requested sensor is supported.
 bool GamepadHasSensor(Moss_Gamepad* gp, Moss_GamepadSensorType sensor) {
@@ -44,12 +41,13 @@ bool GamepadHasSensor(Moss_Gamepad* gp, Moss_GamepadSensorType sensor) {
 
     std::lock_guard<std::mutex> lock(g_sensorMutex);
 
-    SensorState& state = g_gamepadSensors[gp][index];
-    state.supported = supported;
+    Moss_GamepadSensorState& state = g_gamepadSensors[gp];
+    state.supported[index] = supported;
 
     if (!supported) {
-        state.enabled = false;
-        ClearSample(state);
+        state.enabled[index] = false;
+        state.has_sample[index] = false;
+        state.latest[index] = Moss_GamepadSensorData{};
     }
 
     return supported;
@@ -65,17 +63,17 @@ bool SetGamepadSensorEnabled(Moss_Gamepad* gp, Moss_GamepadSensorType sensor, bo
     if (!GamepadHasSensor(gp, sensor))
         return false;
 
-    SensorState previous;
+    Moss_GamepadSensorState previous;
 
     {   // Lock #1: snapshot + prepare the cache
         std::lock_guard<std::mutex> lock(g_sensorMutex);
 
-        SensorState& state = g_gamepadSensors[gp][index];
+        Moss_GamepadSensorState& state = g_gamepadSensors[gp];
         previous = state;
-        state.enabled = enabled;
+        state.enabled[index] = enabled;
 
         if (enabled && !previous.enabled)
-            ClearSample(state);
+            ClearSensorSample(state, index);
     }   // released before calling native code
 
     const bool success = Moss_BackendSetGamepadSensorEnabled(gp, sensor, enabled);
@@ -83,18 +81,18 @@ bool SetGamepadSensorEnabled(Moss_Gamepad* gp, Moss_GamepadSensorType sensor, bo
     {   // Lock #2: commit or roll back
         std::lock_guard<std::mutex> lock(g_sensorMutex);
 
-        SensorState& state = g_gamepadSensors[gp][index];
+        Moss_GamepadSensorState& state = g_gamepadSensors[gp];
 
         if (!success) {
             state = previous;
             return false;
         }
 
-        state.supported = true;
-        state.enabled = enabled;
+        state.supported[index] = true;
+        state.enabled[index] = enabled;
 
         if (!enabled)
-            ClearSample(state);
+            ClearSensorSample(state, index);
     }
 
     return true;
@@ -109,16 +107,14 @@ bool GetGamepadSensorData(Moss_Gamepad* gp, Moss_GamepadSensorType sensor, Moss_
     std::lock_guard<std::mutex> lock(g_sensorMutex);
 
     const auto gamepadIt = g_gamepadSensors.find(gp);
-
     if (gamepadIt == g_gamepadSensors.end())
         return false;
 
-    const SensorState& state = gamepadIt->second[index];
+    const Moss_GamepadSensorState& state = gamepadIt->second;
+    if (!state.supported[index] || !state.enabled[index] || !state.has_sample[index]) { return false; }
 
-    if (!state.supported || !state.enabled || !state.hasSample)
-        return false;
+    *data = state.latest[index];
 
-    *data = state.latest;
     return true;
 }
 
@@ -134,34 +130,44 @@ void ResetGamepadSensorState(Moss_Gamepad* gp) {
 
 void PublishGamepadSensorSample(Moss_Gamepad* gp, Moss_GamepadSensorType sensor, const Moss_GamepadSensorData& sample) {
     std::size_t index = 0;
-    if (gp == nullptr || !GetSensorIndex(sensor, index) || !IsValidSample(sample)) { return; }
-    
+
+    if (gp == nullptr || !GetSensorIndex(sensor, index) || index >= 2 || !IsValidSample(sample)) { return; }
+
     std::lock_guard<std::mutex> lock(g_sensorMutex);
+
     const auto gamepadIt = g_gamepadSensors.find(gp);
-    if (gamepadIt == g_gamepadSensors.end()) return;
 
-    // Use the alias uniform type declared at the top of the file
-    SensorState& state = gamepadIt->second[index];
-    
-    // Read properties directly out of the singular state object (no [index] sub-indexing needed)
-    if (!state.supported || !state.enabled) return;
-    if (state.hasSample && sample.timestamp_ns < state.latest.timestamp_ns) { return; }
+    if (gamepadIt == g_gamepadSensors.end())
+        return;
 
-    float deltaTime = (state.latest.timestamp_ns > 0) ? (float)(sample.timestamp_ns - state.latest.timestamp_ns) / 1e9f : 0.016f;
-    state.latest = sample;
-    state.hasSample = true;
+    Moss_GamepadSensorState& state = gamepadIt->second;
 
-    // Extract the raw elements for the fusion engine pass
-    auto& gyroStruct  = gamepadIt->second[1];
-    auto& accelStruct = gamepadIt->second[0];
+    // Check whether this particular sensor is supported and enabled.
+    if (!state.supported[index] || !state.enabled[index])
+        return;
 
-    // Pass the state variable structure alongside the individual data elements
-    // to cleanly conform to Moss_InternalProcessSensorFusion's arguments signature.
-    Moss_InternalProcessSensorFusion(
-        state,
-        gyroStruct.latest[index].x,  gyroStruct.latest[index].y,  gyroStruct.latest[index].z,   // Gyro elements
-        accelStruct.latest[index].x, accelStruct.latest[index].y, accelStruct.latest[index].z,  // Accel elements
-        deltaTime
+    // Retrieve the previous sample for this sensor.
+    Moss_GamepadSensorData& previous = state.latest[index];
+
+    if (state.has_sample[index] && sample.timestamp_ns < previous.timestamp_ns) { return; }
+
+    const float deltaTime = state.has_sample[index] && previous.timestamp_ns > 0 ? 
+    static_cast<float>(sample.timestamp_ns - previous.timestamp_ns) / 1.0e9f : 0.016f;
+
+    // Update the sensor sample.
+    state.latest[index] = sample;
+    state.has_sample[index] = true;
+
+    // Sensor indices must match GetSensorIndex().
+    constexpr std::size_t GyroIndex = 0;
+    constexpr std::size_t AccelIndex = 1;
+
+    // Wait until both sensors have supplied valid samples.
+    if (!state.has_sample[GyroIndex] || !state.has_sample[AccelIndex]) { return; }
+
+    // Process gyroscope and accelerometer independently.
+    Moss_InternalProcessSensorFusion(state, state.latest[GyroIndex].x, state.latest[GyroIndex].y, state.latest[GyroIndex].z,
+        state.latest[AccelIndex].x, state.latest[AccelIndex].y, state.latest[AccelIndex].z, deltaTime
     );
 }
 
@@ -174,69 +180,116 @@ bool Moss_GetGamepadSensorData(Moss_Gamepad* gp, Moss_GamepadSensorType sensor, 
 bool Moss_GetGamepadOrientation(Moss_Gamepad* gp, float* w, float* x, float* y, float* z) {
     if (gp == nullptr || w == nullptr || x == nullptr || y == nullptr || z == nullptr) return false;
     std::lock_guard<std::mutex> lock(g_sensorMutex);
-    
+
     const auto it = g_gamepadSensors.find(gp);
-    if (it == g_gamepadSensors.end()) return false;
-    
-    *w = it->second[1].orientation[0]; // Retain W from the active state tracking matrix
-    *x = it->second[1].orientation[1];
-    *y = it->second[1].orientation[2];
-    *z = it->second[1].orientation[3];
+    if (it == g_gamepadSensors.end())
+        return false;
+
+    const Moss_GamepadSensorState& state = it->second;
+
+    *w = state.orientation[0];
+    *x = state.orientation[1];
+    *y = state.orientation[2];
+    *z = state.orientation[3];
+
     return true;
 }
+
 void Moss_GetGamepadPlayerSpaceGyro(Moss_Gamepad* gp, float* outX, float* outY, const float yawRelaxFactor) {
     if (gp == nullptr || outX == nullptr || outY == nullptr) return;
     
-    Moss_GamepadSensorData gyroData{};
+    *outX = 0.0f;
+    *outY = 0.0f;
+
+    constexpr std::size_t GyroIndex = 1;
+
     std::lock_guard<std::mutex> lock(g_sensorMutex);
-    
+
     const auto it = g_gamepadSensors.find(gp);
-    if (it == g_gamepadSensors.end()) return;
-    
-    // Index 1 = Gyroscope, Index 0 = Accelerometer
-    gyroData = it->second[1].latest; 
-    const float* grav = it->second[0].gravity; 
-    
-    // Compute Player Space projection matching Julian Smart's engine tracking matrix
+
+    if (it == g_gamepadSensors.end())
+        return;
+
+    const Moss_GamepadSensorState& state = it->second;
+
+    if (!state.has_sample[GyroIndex])
+        return;
+
+    const Moss_GamepadSensorData& gyroData = state.latest[GyroIndex];
+
+    const float* grav = state.gravity;
+
     const float worldYaw = -(grav[1] * gyroData.y + grav[2] * gyroData.z);
-    const float worldYawSign = (worldYaw < 0.f) ? -1.f : 1.f;
+
+    const float worldYawSign = worldYaw < 0.0f ? -1.0f : 1.0f;
+
     const float gyroMagnitude = std::sqrt(gyroData.y * gyroData.y + gyroData.z * gyroData.z);
-    
+
     *outX = gyroData.x;
-    *outY = worldYawSign * std::min(std::abs(worldYaw) * yawRelaxFactor, gyroMagnitude);
+
+    *outY = worldYawSign * std::min(
+        std::abs(worldYaw) * yawRelaxFactor,
+        gyroMagnitude
+    );
 }
 
 void Moss_GetGamepadWorldSpaceGyro(Moss_Gamepad* gp, float* outX, float* outY, const float sideReductionThreshold) {
     if (gp == nullptr || outX == nullptr || outY == nullptr) return;
     
+    *outX = 0.0f;
+    *outY = 0.0f;
+
+    constexpr std::size_t GyroIndex = 1;
+
     std::lock_guard<std::mutex> lock(g_sensorMutex);
+
     const auto it = g_gamepadSensors.find(gp);
-    if (it == g_gamepadSensors.end()) return;
-    
-    const float* grav = it->second[0].gravity;
-    const Moss_GamepadSensorData& gyro = it->second[1].latest;
-    
-    const float worldYaw = -grav[0] * gyro.x - grav[1] * gyro.y - grav[2] * gyro.z;
+
+    if (it == g_gamepadSensors.end())
+        return;
+
+    const Moss_GamepadSensorState& state = it->second;
+
+    if (!state.has_sample[GyroIndex])
+        return;
+
+    const float* grav = state.gravity;
+    const Moss_GamepadSensorData& gyro = state.latest[GyroIndex];
+
+    const float worldYaw =
+        -grav[0] * gyro.x
+        -grav[1] * gyro.y
+        -grav[2] * gyro.z;
+
     const float gravDotPitchAxis = grav[0];
-    
+
     float pitchAxisX = 1.0f - grav[0] * gravDotPitchAxis;
     float pitchAxisY = -grav[1] * gravDotPitchAxis;
     float pitchAxisZ = -grav[2] * gravDotPitchAxis;
-    
-    float pLenSq = pitchAxisX*pitchAxisX + pitchAxisY*pitchAxisY + pitchAxisZ*pitchAxisZ;
+
+    const float pLenSq =
+        pitchAxisX * pitchAxisX +
+        pitchAxisY * pitchAxisY +
+        pitchAxisZ * pitchAxisZ;
+
     if (pLenSq > 0.0f) {
-        float pLen = std::sqrt(pLenSq);
-        pitchAxisX /= pLen; pitchAxisY /= pLen; pitchAxisZ /= pLen;
-        
-        float flatness = std::abs(grav[1]);
-        float upness = std::abs(grav[2]);
-        float maxAxis = std::max(flatness, upness);
-        
-        float sideReduction = (sideReductionThreshold <= 0.f) ? 1.f : 
-            std::clamp((maxAxis - sideReductionThreshold) / sideReductionThreshold, 0.f, 1.f);
-            
+        const float pLen = std::sqrt(pLenSq);
+
+        pitchAxisX /= pLen;
+        pitchAxisY /= pLen;
+        pitchAxisZ /= pLen;
+
+        const float flatness = std::abs(grav[1]);
+        const float upness = std::abs(grav[2]);
+
+        const float maxAxis = std::max(flatness, upness);
+
+        const float sideReduction = sideReductionThreshold <= 
+        0.0f ? 1.0f : std::clamp((maxAxis - sideReductionThreshold) / sideReductionThreshold, 0.0f, 1.0f);
+
         *outX = sideReduction * (pitchAxisX * gyro.x + pitchAxisY * gyro.y + pitchAxisZ * gyro.z);
-    } else { *outX = 0.0f; }
+    }
+
     *outY = worldYaw;
 }
 
@@ -361,5 +414,23 @@ void Moss_ResetGamepadCalibration(Moss_Gamepad* gp) {
         state.orientation[1] = 0.0f; // X
         state.orientation[2] = 0.0f; // Y
         state.orientation[3] = 0.0f; // Z
+    }
+}
+
+static void Moss_ResetStillnessWindow(Moss_GamepadSensorState& state) {
+    state.window_samples = 0;
+    state.window_time = 0.0f;
+    state.steady_time = 0.0f;
+
+    for (std::size_t i = 0; i < 3; ++i) {
+        // Gyroscope statistics
+        state.min_gyro[i] = std::numeric_limits<float>::max();
+        state.max_gyro[i] = std::numeric_limits<float>::lowest();
+        state.mean_gyro[i] = 0.0f;
+
+        // Accelerometer statistics
+        state.min_accel[i] = std::numeric_limits<float>::max();
+        state.max_accel[i] = std::numeric_limits<float>::lowest();
+        state.mean_accel[i] = 0.0f;
     }
 }

@@ -266,8 +266,7 @@ struct MossMotionTracker {
 extern INPUT_STATE io;
 extern KeyState* keyboardState;
 extern std::mutex g_sensorMutex;
-extern std::map<Moss_Gamepad*, Moss_GamepadSensorState[2]> g_gamepadSensors;
-//extern std::unordered_map<Moss_Gamepad*, std::array<Moss_GamepadSensorState, 2>> 
+extern std::map<Moss_Gamepad*, Moss_GamepadSensorState> g_gamepadSensors;
 
 typedef void (*Moss_CaptureFrameResult)(Moss_Capture *device, Moss_Surface *frame, uint64_t *timestampNS, float *rotation);
 
@@ -328,6 +327,10 @@ inline void Moss_InternalProcessSensorFusion(Moss_GamepadSensorState& state, flo
 
 bool GetSensorIndex(Moss_GamepadSensorType sensor, std::size_t& outIndex);
 bool IsValidSample(const Moss_GamepadSensorData& sample);
+bool Moss_BackendHasGamepadSensor(Moss_Gamepad* gp, Moss_GamepadSensorType sensor);
+bool Moss_BackendSetGamepadSensorEnabled(Moss_Gamepad* gp, Moss_GamepadSensorType sensor, bool enabled);
+
+void Moss_ResetStillnessWindow(Moss_GamepadSensorState& state);
 
 void PublishGamepadSensorSample(Moss_Gamepad* gp, Moss_GamepadSensorType sensor, const Moss_GamepadSensorData& sample);
 inline void UpdateControllerInput(Moss_Gamepad* activeGamepad, MossMotionTracker& motionTracker, float deltaTime) {
