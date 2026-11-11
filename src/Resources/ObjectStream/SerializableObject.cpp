@@ -2,14 +2,12 @@
 // SPDX-FileCopyrightText: 2021 Jorrit Rouwe
 // SPDX-License-Identifier: MIT
 
-#include <Jolt/Jolt.h>
+#include <Moss/Resources/ObjectStream/SerializableObject.h>
 
-#include <Jolt/ObjectStream/SerializableObject.h>
+MOSS_SUPPRESS_WARNINGS_END
 
-JPH_NAMESPACE_BEGIN
-
-JPH_IMPLEMENT_SERIALIZABLE_ABSTRACT(SerializableObject)
+MOSS_IMPLEMENT_SERIALIZABLE_ABSTRACT(SerializableObject)
 {
 }
 
-JPH_NAMESPACE_END
+MOSS_SUPPRESS_WARNINGS_END

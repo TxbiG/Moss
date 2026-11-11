@@ -2,14 +2,12 @@
 // SPDX-FileCopyrightText: 2021 Jorrit Rouwe
 // SPDX-License-Identifier: MIT
 
-#include <Jolt/Jolt.h>
+#ifdef MOSS_OBJECT_STREAM
 
-#ifdef JPH_OBJECT_STREAM
+#include <Moss/Resources/ObjectStream/ObjectStreamBinaryOut.h>
+#include <Moss/Core/StringTools.h>
 
-#include <Jolt/ObjectStream/ObjectStreamBinaryOut.h>
-#include <Jolt/Core/StringTools.h>
-
-JPH_NAMESPACE_BEGIN
+MOSS_SUPPRESS_WARNINGS_END
 
 ObjectStreamBinaryOut::ObjectStreamBinaryOut(ostream &inStream) :
 	ObjectStreamOut(inStream)
@@ -159,7 +157,7 @@ void ObjectStreamBinaryOut::WritePrimitiveData(const DMat44 &inPrimitive)
 	WritePrimitiveData(inPrimitive.GetTranslation());
 }
 
-JPH_NAMESPACE_END
+MOSS_SUPPRESS_WARNINGS_END
 
-#endif // JPH_OBJECT_STREAM
+#endif // MOSS_OBJECT_STREAM
 

@@ -2,18 +2,16 @@
 // SPDX-FileCopyrightText: 2021 Jorrit Rouwe
 // SPDX-License-Identifier: MIT
 
-#include <Jolt/Jolt.h>
+#ifdef MOSS_OBJECT_STREAM
 
-#ifdef JPH_OBJECT_STREAM
+#include <Moss/Resources/ObjectStream/ObjectStreamIn.h>
+#include <Moss/Core/Factory.h>
+#include <Moss/Core/UnorderedSet.h>
+#include <Moss/Resources/ObjectStream/ObjectStreamTextIn.h>
+#include <Moss/Resources/ObjectStream/ObjectStreamBinaryIn.h>
+#include <Moss/Resources/ObjectStream/SerializableObject.h>
 
-#include <Jolt/ObjectStream/ObjectStreamIn.h>
-#include <Jolt/Core/Factory.h>
-#include <Jolt/Core/UnorderedSet.h>
-#include <Jolt/ObjectStream/ObjectStreamTextIn.h>
-#include <Jolt/ObjectStream/ObjectStreamBinaryIn.h>
-#include <Jolt/ObjectStream/SerializableObject.h>
-
-JPH_NAMESPACE_BEGIN
+MOSS_SUPPRESS_WARNINGS_END
 
 ObjectStreamIn::ObjectStreamIn(istream &inStream) :
 	mStream(inStream)
@@ -35,7 +33,7 @@ bool ObjectStreamIn::GetInfo(istream &inStream, EStreamType &outType, int &outVe
 		{
 		case 'T':	outType = ObjectStream::EStreamType::Text;		break;
 		case 'B':	outType = ObjectStream::EStreamType::Binary;	break;
-		default:	JPH_ASSERT(false);								break;
+		default:	MOSS_ASSERT(false);								break;
 		}
 
 		// Extract version and revision
@@ -65,7 +63,7 @@ ObjectStreamIn *ObjectStreamIn::Open(istream &inStream)
 			{
 			case EStreamType::Text:		return new ObjectStreamTextIn(inStream);
 			case EStreamType::Binary:	return new ObjectStreamBinaryIn(inStream);
-			default:					JPH_ASSERT(false);
+			default:					MOSS_ASSERT(false);
 			}
 		}
 		else
@@ -388,7 +386,7 @@ bool ObjectStreamIn::ReadClassData(const ClassDescription &inClassDesc, void *in
 			}
 			else
 			{
-				JPH_ASSERT(false); // Unknown conversion
+				MOSS_ASSERT(false); // Unknown conversion
 				continue_reading = SkipAttributeData(attr_desc.mArrayDepth, attr_desc.mSourceType, attr_desc.mClassName.c_str());
 			}
 		}
@@ -630,6 +628,6 @@ bool ObjectStreamIn::SkipAttributeData(int inArrayDepth, EOSDataType inDataType,
 	return continue_reading;
 }
 
-JPH_NAMESPACE_END
+MOSS_SUPPRESS_WARNINGS_END
 
-#endif // JPH_OBJECT_STREAM
+#endif // MOSS_OBJECT_STREAM
