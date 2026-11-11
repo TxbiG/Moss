@@ -7,7 +7,7 @@
 #define MOSS_MAX_BINDINGS 16
 
 struct Moss_Renderer {
-    Moss_Window* mWindow;
+    Moss_Window* window;
 
     // Core DX12
     ComPtr<IDXGIFactory4>           mDXGIFactory;
@@ -79,6 +79,8 @@ struct Moss_Renderer {
     Ref<TextureDX12>                   lightIndexTexture;
     ComPtr<ID3D12Resource>             lightGridBuffer;
     uint32_t                            numLights = 0;
+#endif
+#ifdef MOSS_DEBUG
 #endif
 };
 

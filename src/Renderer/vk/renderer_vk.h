@@ -30,7 +30,7 @@ struct PhysicalDevice {
 };
 
 struct Moss_Renderer {
-    Moss_Window& m_window;
+    Moss_Window* m_window;
 
     // Vulkan
     VkInstance m_instance   = VK_NULL_HANDLE;          // An object that contains all the information the implementation needs to work.

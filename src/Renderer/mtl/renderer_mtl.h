@@ -3,6 +3,7 @@
 
 #include "../renderer_intern.h"
 struct Moss_Renderer {
+    Moss_Window* m_window;
     MTKView*                     mView;
     id<MTLDevice>                mDevice;
     id<MTLLibrary>               mShaderLibrary;
@@ -45,11 +46,16 @@ struct Moss_Renderer {
     Ref<TextureMTL> msaaResolveTexture;
 
 
+#if defined(MOSS_RENDERER_MOBILE)
+#endif
+
 #if defined(MOSS_RENDERER_FORWARD)
     bool enableFSR2;
     Ref<TextureMTL> lightIndexTexture;
     id<MTLBuffer>  lightGridBuffer;
     uint32_t       numLights;
+#endif
+#ifdef MOSS_DEBUG
 #endif
 };
 

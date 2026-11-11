@@ -48,6 +48,9 @@ struct Moss_Renderer {
 
     // Fullscreen / debug
     GLuint fullscreenVAO = 0;
+
+#ifdef MOSS_DEBUG
+#endif
 };
 /*
 struct Moss_Renderer {
