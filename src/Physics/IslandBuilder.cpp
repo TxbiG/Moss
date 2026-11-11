@@ -27,18 +27,18 @@ IslandBuilder::~IslandBuilder()
 	delete [] mBodyLinks;
 }
 
-void IslandBuilder::Init(uint32 inMaxActiveBodies)
+void IslandBuilder::Init(uint32_t inMaxActiveBodies)
 {
 	mMaxActiveBodies = inMaxActiveBodies;
 
 	// Link each body to itself, BuildBodyIslands() will restore this so that we don't need to do this each step
 	MOSS_ASSERT(mBodyLinks == nullptr);
 	mBodyLinks = new BodyLink [mMaxActiveBodies];
-	for (uint32 i = 0; i < mMaxActiveBodies; ++i)
+	for (uint32_t i = 0; i < mMaxActiveBodies; ++i)
 		mBodyLinks[i].mLinkedTo.store(i, memory_order_relaxed);
 }
 
-void IslandBuilder::PrepareContactConstraints(uint32 inMaxContacts, TempAllocator *inTempAllocator)
+void IslandBuilder::PrepareContactConstraints(uint32_t inMaxContacts, TempAllocator *inTempAllocator)
 {
 	MOSS_PROFILE_FUNCTION();
 
@@ -51,7 +51,7 @@ void IslandBuilder::PrepareContactConstraints(uint32 inMaxContacts, TempAllocato
 
 	// Create contact link buffer, not initialized so each contact needs to be explicitly set
 	MOSS_ASSERT(mContactLinks == nullptr);
-	mContactLinks = (uint32 *)inTempAllocator->Allocate(inMaxContacts * sizeof(uint32));
+	mContactLinks = (uint32_t *)inTempAllocator->Allocate(inMaxContacts * sizeof(uint32_t));
 	mMaxContacts = inMaxContacts;
 
 #ifdef MOSS_VALIDATE_ISLAND_BUILDER
@@ -62,7 +62,7 @@ void IslandBuilder::PrepareContactConstraints(uint32 inMaxContacts, TempAllocato
 #endif
 }
 
-void IslandBuilder::PrepareNonContactConstraints(uint32 inNumConstraints, TempAllocator *inTempAllocator)
+void IslandBuilder::PrepareNonContactConstraints(uint32_t inNumConstraints, TempAllocator *inTempAllocator)
 {
 	MOSS_PROFILE_FUNCTION();
 
@@ -77,15 +77,15 @@ void IslandBuilder::PrepareNonContactConstraints(uint32 inNumConstraints, TempAl
 
 	// Create constraint link buffer, not initialized so each constraint needs to be explicitly set
 	MOSS_ASSERT(mConstraintLinks == nullptr);
-	mConstraintLinks = (uint32 *)inTempAllocator->Allocate(inNumConstraints * sizeof(uint32));
+	mConstraintLinks = (uint32_t *)inTempAllocator->Allocate(inNumConstraints * sizeof(uint32_t));
 }
 
-uint32 IslandBuilder::GetLowestBodyIndex(uint32 inActiveBodyIndex) const
+uint32_t IslandBuilder::GetLowestBodyIndex(uint32_t inActiveBodyIndex) const
 {
-	uint32 index = inActiveBodyIndex;
+	uint32_t index = inActiveBodyIndex;
 	for (;;)
 	{
-		uint32 link_to = mBodyLinks[index].mLinkedTo.load(memory_order_relaxed);
+		uint32_t link_to = mBodyLinks[index].mLinkedTo.load(memory_order_relaxed);
 		if (link_to == index)
 			break;
 		index = link_to;
@@ -93,7 +93,7 @@ uint32 IslandBuilder::GetLowestBodyIndex(uint32 inActiveBodyIndex) const
 	return index;
 }
 
-void IslandBuilder::LinkBodies(uint32 inFirst, uint32 inSecond)
+void IslandBuilder::LinkBodies(uint32_t inFirst, uint32_t inSecond)
 {
 	MOSS_PROFILE_FUNCTION();
 
@@ -103,15 +103,15 @@ void IslandBuilder::LinkBodies(uint32 inFirst, uint32 inSecond)
 
 #ifdef MOSS_VALIDATE_ISLAND_BUILDER
 	// Add link to the validation list
-	if (mNumLinkValidation < uint32(mMaxContacts))
+	if (mNumLinkValidation < uint32_t(mMaxContacts))
 		mLinkValidation[mNumLinkValidation++] = { inFirst, inSecond };
 	else
 		MOSS_ASSERT(false, "Out of links");
 #endif
 
 	// Start the algorithm with the two bodies
-	uint32 first_link_to = inFirst;
-	uint32 second_link_to = inSecond;
+	uint32_t first_link_to = inFirst;
+	uint32_t second_link_to = inSecond;
 
 	for (;;)
 	{
@@ -147,24 +147,24 @@ void IslandBuilder::LinkBodies(uint32 inFirst, uint32 inSecond)
 		// to prevent this we attempt to update the link of the bodies that were passed in to directly point
 		// to the lowest index that we found. If the value became lower than our lowest link, some other
 		// thread must have relinked these bodies in the mean time so we won't update the value.
-		uint32 lowest_link_to = min(first_link_to, second_link_to);
+		uint32_t lowest_link_to = min(first_link_to, second_link_to);
 		AtomicMin(mBodyLinks[inFirst].mLinkedTo, lowest_link_to, memory_order_relaxed);
 		AtomicMin(mBodyLinks[inSecond].mLinkedTo, lowest_link_to, memory_order_relaxed);
 		break;
 	}
 }
 
-void IslandBuilder::LinkConstraint(uint32 inConstraintIndex, uint32 inFirst, uint32 inSecond)
+void IslandBuilder::LinkConstraint(uint32_t inConstraintIndex, uint32_t inFirst, uint32_t inSecond)
 {
 	LinkBodies(inFirst, inSecond);
 
 	MOSS_ASSERT(inConstraintIndex < mNumConstraints);
-	uint32 min_value = min(inFirst, inSecond); // Use fact that invalid index is 0xffffffff, we want the active body of two
+	uint32_t min_value = min(inFirst, inSecond); // Use fact that invalid index is 0xffffffff, we want the active body of two
 	MOSS_ASSERT(min_value != Body::cInactiveIndex); // At least one of the bodies must be active
 	mConstraintLinks[inConstraintIndex] = min_value;
 }
 
-void IslandBuilder::LinkContact(uint32 inContactIndex, uint32 inFirst, uint32 inSecond)
+void IslandBuilder::LinkContact(uint32_t inContactIndex, uint32_t inFirst, uint32_t inSecond)
 {
 	MOSS_ASSERT(inContactIndex < mMaxContacts);
 	mContactLinks[inContactIndex] = min(inFirst, inSecond); // Use fact that invalid index is 0xffffffff, we want the active body of two
@@ -172,12 +172,12 @@ void IslandBuilder::LinkContact(uint32 inContactIndex, uint32 inFirst, uint32 in
 
 #ifdef MOSS_VALIDATE_ISLAND_BUILDER
 
-void IslandBuilder::ValidateIslands(uint32 inNumActiveBodies) const
+void IslandBuilder::ValidateIslands(uint32_t inNumActiveBodies) const
 {
 	MOSS_PROFILE_FUNCTION();
 
 	// Go through all links so far
-	for (uint32 i = 0; i < mNumLinkValidation; ++i)
+	for (uint32_t i = 0; i < mNumLinkValidation; ++i)
 	{
 		// If the bodies in this link ended up in different groups we have a problem
 		if (mBodyLinks[mLinkValidation[i].mFirst].mIslandIndex != mBodyLinks[mLinkValidation[i].mSecond].mIslandIndex)
@@ -185,17 +185,17 @@ void IslandBuilder::ValidateIslands(uint32 inNumActiveBodies) const
 			MOSS_TRACE("Fail: %u, %u", mLinkValidation[i].mFirst, mLinkValidation[i].mSecond);
 			MOSS_TRACE("Num Active: %u", inNumActiveBodies);
 
-			for (uint32 j = 0; j < mNumLinkValidation; ++j)
+			for (uint32_t j = 0; j < mNumLinkValidation; ++j)
 				MOSS_TRACE("builder.Link(%u, %u);", mLinkValidation[j].mFirst, mLinkValidation[j].mSecond);
 
 			IslandBuilder tmp;
 			tmp.Init(inNumActiveBodies);
-			for (uint32 j = 0; j < mNumLinkValidation; ++j)
+			for (uint32_t j = 0; j < mNumLinkValidation; ++j)
 			{
 				MOSS_TRACE("Link %u -> %u", mLinkValidation[j].mFirst, mLinkValidation[j].mSecond);
 				tmp.LinkBodies(mLinkValidation[j].mFirst, mLinkValidation[j].mSecond);
-				for (uint32 t = 0; t < inNumActiveBodies; ++t)
-					MOSS_TRACE("%u -> %u", t, (uint32)tmp.mBodyLinks[t].mLinkedTo);
+				for (uint32_t t = 0; t < inNumActiveBodies; ++t)
+					MOSS_TRACE("%u -> %u", t, (uint32_t)tmp.mBodyLinks[t].mLinkedTo);
 			}
 
 			MOSS_ASSERT(false, "IslandBuilder validation failed");
@@ -205,7 +205,7 @@ void IslandBuilder::ValidateIslands(uint32 inNumActiveBodies) const
 
 #endif
 
-void IslandBuilder::BuildBodyIslands(const BodyID *inActiveBodies, uint32 inNumActiveBodies, TempAllocator *inTempAllocator)
+void IslandBuilder::BuildBodyIslands(const BodyID *inActiveBodies, uint32_t inNumActiveBodies, TempAllocator *inTempAllocator)
 {
 	MOSS_PROFILE_FUNCTION();
 
@@ -218,22 +218,22 @@ void IslandBuilder::BuildBodyIslands(const BodyID *inActiveBodies, uint32 inNumA
 
 	// Create output array for start index of each island. At this point we don't know how many islands there will be, but we know it cannot be more than inNumActiveBodies.
 	// Note: We allocate 1 extra entry because we always increment the count of the next island.
-	uint32 *body_island_starts = (uint32 *)inTempAllocator->Allocate((inNumActiveBodies + 1) * sizeof(uint32));
+	uint32_t *body_island_starts = (uint32_t *)inTempAllocator->Allocate((inNumActiveBodies + 1) * sizeof(uint32_t));
 
 	// First island always starts at 0
 	body_island_starts[0] = 0;
 
 	// Calculate island index for all bodies
 	MOSS_ASSERT(mNumIslands == 0);
-	for (uint32 i = 0; i < inNumActiveBodies; ++i)
+	for (uint32_t i = 0; i < inNumActiveBodies; ++i)
 	{
 		BodyLink &link = mBodyLinks[i];
-		uint32 s = link.mLinkedTo.load(memory_order_relaxed);
+		uint32_t s = link.mLinkedTo.load(memory_order_relaxed);
 		if (s != i)
 		{
 			// Links to another body, take island index from other body (this must have been filled in already since we're looping from low to high)
-			MOSS_ASSERT(s < uint32(i));
-			uint32 island_index = mBodyLinks[s].mIslandIndex;
+			MOSS_ASSERT(s < uint32_t(i));
+			uint32_t island_index = mBodyLinks[s].mIslandIndex;
 			link.mIslandIndex = island_index;
 
 			// Increment the start of the next island
@@ -255,16 +255,16 @@ void IslandBuilder::BuildBodyIslands(const BodyID *inActiveBodies, uint32 inNumA
 #endif
 
 	// Make the start array absolute (so far we only counted)
-	for (uint32 island = 1; island < mNumIslands; ++island)
+	for (uint32_t island = 1; island < mNumIslands; ++island)
 		body_island_starts[island] += body_island_starts[island - 1];
 
 	// Convert the to a linear list grouped by island
-	for (uint32 i = 0; i < inNumActiveBodies; ++i)
+	for (uint32_t i = 0; i < inNumActiveBodies; ++i)
 	{
 		BodyLink &link = mBodyLinks[i];
 
 		// Copy the body to the correct location in the array and increment it
-		uint32 &start = body_island_starts[link.mIslandIndex];
+		uint32_t &start = body_island_starts[link.mIslandIndex];
 		mBodyIslands[start] = inActiveBodies[i];
 		start++;
 
@@ -280,7 +280,7 @@ void IslandBuilder::BuildBodyIslands(const BodyID *inActiveBodies, uint32 inNumA
 	mBodyIslandEnds = body_island_starts;
 }
 
-void IslandBuilder::BuildConstraintIslands(const uint32 *inConstraintToBody, uint32 inNumConstraints, uint32 *&outConstraints, uint32 *&outConstraintsEnd, TempAllocator *inTempAllocator) const
+void IslandBuilder::BuildConstraintIslands(const uint32_t *inConstraintToBody, uint32_t inNumConstraints, uint32_t *&outConstraints, uint32_t *&outConstraintsEnd, TempAllocator *inTempAllocator) const
 {
 	MOSS_PROFILE_FUNCTION();
 
@@ -290,31 +290,31 @@ void IslandBuilder::BuildConstraintIslands(const uint32 *inConstraintToBody, uin
 
 	// Create output arrays for constraints
 	// Note: For the end indices we allocate 1 extra entry so we don't have to do an if in the inner loop
-	uint32 *constraints = (uint32 *)inTempAllocator->Allocate(inNumConstraints * sizeof(uint32));
-	uint32 *constraint_ends = (uint32 *)inTempAllocator->Allocate((mNumIslands + 1) * sizeof(uint32));
+	uint32_t *constraints = (uint32_t *)inTempAllocator->Allocate(inNumConstraints * sizeof(uint32_t));
+	uint32_t *constraint_ends = (uint32_t *)inTempAllocator->Allocate((mNumIslands + 1) * sizeof(uint32_t));
 
 	// Reset sizes
-	for (uint32 island = 0; island < mNumIslands; ++island)
+	for (uint32_t island = 0; island < mNumIslands; ++island)
 		constraint_ends[island] = 0;
 
 	// Loop over array and increment start relative position for the next island
-	for (uint32 constraint = 0; constraint < inNumConstraints; ++constraint)
+	for (uint32_t constraint = 0; constraint < inNumConstraints; ++constraint)
 	{
-		uint32 body_idx = inConstraintToBody[constraint];
-		uint32 next_island_idx = mBodyLinks[body_idx].mIslandIndex + 1;
+		uint32_t body_idx = inConstraintToBody[constraint];
+		uint32_t next_island_idx = mBodyLinks[body_idx].mIslandIndex + 1;
 		MOSS_ASSERT(next_island_idx <= mNumIslands);
 		constraint_ends[next_island_idx]++;
 	}
 
 	// Make start positions absolute
-	for (uint32 island = 1; island < mNumIslands; ++island)
+	for (uint32_t island = 1; island < mNumIslands; ++island)
 		constraint_ends[island] += constraint_ends[island - 1];
 
 	// Loop over array and collect constraints
-	for (uint32 constraint = 0; constraint < inNumConstraints; ++constraint)
+	for (uint32_t constraint = 0; constraint < inNumConstraints; ++constraint)
 	{
-		uint32 body_idx = inConstraintToBody[constraint];
-		uint32 island_idx = mBodyLinks[body_idx].mIslandIndex;
+		uint32_t body_idx = inConstraintToBody[constraint];
+		uint32_t island_idx = mBodyLinks[body_idx].mIslandIndex;
 		constraints[constraint_ends[island_idx]++] = constraint;
 	}
 
@@ -332,45 +332,45 @@ void IslandBuilder::SortIslands(TempAllocator *inTempAllocator)
 	{
 		// Allocate mapping table
 		MOSS_ASSERT(mIslandsSorted == nullptr);
-		mIslandsSorted = (uint32 *)inTempAllocator->Allocate(mNumIslands * sizeof(uint32));
+		mIslandsSorted = (uint32_t *)inTempAllocator->Allocate(mNumIslands * sizeof(uint32_t));
 
 		// Initialize index
-		for (uint32 island = 0; island < mNumIslands; ++island)
+		for (uint32_t island = 0; island < mNumIslands; ++island)
 			mIslandsSorted[island] = island;
 
 		// Determine the sum of contact constraints / constraints per island
-		uint32 *num_constraints = (uint32 *)inTempAllocator->Allocate(mNumIslands * sizeof(uint32));
+		uint32_t *num_constraints = (uint32_t *)inTempAllocator->Allocate(mNumIslands * sizeof(uint32_t));
 		if (mNumContacts > 0 && mNumConstraints > 0)
 		{
 			num_constraints[0] = mConstraintIslandEnds[0] + mContactIslandEnds[0];
-			for (uint32 island = 1; island < mNumIslands; ++island)
+			for (uint32_t island = 1; island < mNumIslands; ++island)
 				num_constraints[island] = mConstraintIslandEnds[island] - mConstraintIslandEnds[island - 1]
 										+ mContactIslandEnds[island] - mContactIslandEnds[island - 1];
 		}
 		else if (mNumContacts > 0)
 		{
 			num_constraints[0] = mContactIslandEnds[0];
-			for (uint32 island = 1; island < mNumIslands; ++island)
+			for (uint32_t island = 1; island < mNumIslands; ++island)
 				num_constraints[island] = mContactIslandEnds[island] - mContactIslandEnds[island - 1];
 		}
 		else
 		{
 			num_constraints[0] = mConstraintIslandEnds[0];
-			for (uint32 island = 1; island < mNumIslands; ++island)
+			for (uint32_t island = 1; island < mNumIslands; ++island)
 				num_constraints[island] = mConstraintIslandEnds[island] - mConstraintIslandEnds[island - 1];
 		}
 
 		// Sort so the biggest islands go first, this means that the jobs that take longest will be running
 		// first which improves the chance that all jobs finish at the same time.
-		QuickSort(mIslandsSorted, mIslandsSorted + mNumIslands, [num_constraints](uint32 inLHS, uint32 inRHS) {
+		QuickSort(mIslandsSorted, mIslandsSorted + mNumIslands, [num_constraints](uint32_t inLHS, uint32_t inRHS) {
 			return num_constraints[inLHS] > num_constraints[inRHS];
 		});
 
-		inTempAllocator->Free(num_constraints, mNumIslands * sizeof(uint32));
+		inTempAllocator->Free(num_constraints, mNumIslands * sizeof(uint32_t));
 	}
 }
 
-void IslandBuilder::Finalize(const BodyID *inActiveBodies, uint32 inNumActiveBodies, uint32 inNumContacts, TempAllocator *inTempAllocator)
+void IslandBuilder::Finalize(const BodyID *inActiveBodies, uint32_t inNumActiveBodies, uint32_t inNumContacts, TempAllocator *inTempAllocator)
 {
 	MOSS_PROFILE_FUNCTION();
 
@@ -381,18 +381,18 @@ void IslandBuilder::Finalize(const BodyID *inActiveBodies, uint32 inNumActiveBod
 	BuildConstraintIslands(mContactLinks, mNumContacts, mContactIslands, mContactIslandEnds, inTempAllocator);
 	SortIslands(inTempAllocator);
 
-	mNumPositionSteps = (uint8 *)inTempAllocator->Allocate(mNumIslands * sizeof(uint8));
+	mNumPositionSteps = (uint8_t *)inTempAllocator->Allocate(mNumIslands * sizeof(uint8_t));
 }
 
-void IslandBuilder::GetBodiesInIsland(uint32 inIslandIndex, BodyID *&outBodiesBegin, BodyID *&outBodiesEnd) const
+void IslandBuilder::GetBodiesInIsland(uint32_t inIslandIndex, BodyID *&outBodiesBegin, BodyID *&outBodiesEnd) const
 {
 	MOSS_ASSERT(inIslandIndex < mNumIslands);
-	uint32 sorted_index = mIslandsSorted != nullptr? mIslandsSorted[inIslandIndex] : inIslandIndex;
+	uint32_t sorted_index = mIslandsSorted != nullptr? mIslandsSorted[inIslandIndex] : inIslandIndex;
 	outBodiesBegin = sorted_index > 0? mBodyIslands + mBodyIslandEnds[sorted_index - 1] : mBodyIslands;
 	outBodiesEnd = mBodyIslands + mBodyIslandEnds[sorted_index];
 }
 
-bool IslandBuilder::GetConstraintsInIsland(uint32 inIslandIndex, uint32 *&outConstraintsBegin, uint32 *&outConstraintsEnd) const
+bool IslandBuilder::GetConstraintsInIsland(uint32_t inIslandIndex, uint32_t *&outConstraintsBegin, uint32_t *&outConstraintsEnd) const
 {
 	MOSS_ASSERT(inIslandIndex < mNumIslands);
 	if (mNumConstraints == 0)
@@ -403,14 +403,14 @@ bool IslandBuilder::GetConstraintsInIsland(uint32 inIslandIndex, uint32 *&outCon
 	}
 	else
 	{
-		uint32 sorted_index = mIslandsSorted[inIslandIndex];
+		uint32_t sorted_index = mIslandsSorted[inIslandIndex];
 		outConstraintsBegin = sorted_index > 0? mConstraintIslands + mConstraintIslandEnds[sorted_index - 1] : mConstraintIslands;
 		outConstraintsEnd = mConstraintIslands + mConstraintIslandEnds[sorted_index];
 		return outConstraintsBegin != outConstraintsEnd;
 	}
 }
 
-bool IslandBuilder::GetContactsInIsland(uint32 inIslandIndex, uint32 *&outContactsBegin, uint32 *&outContactsEnd) const
+bool IslandBuilder::GetContactsInIsland(uint32_t inIslandIndex, uint32_t *&outContactsBegin, uint32_t *&outContactsEnd) const
 {
 	MOSS_ASSERT(inIslandIndex < mNumIslands);
 	if (mNumContacts == 0)
@@ -421,7 +421,7 @@ bool IslandBuilder::GetContactsInIsland(uint32 inIslandIndex, uint32 *&outContac
 	}
 	else
 	{
-		uint32 sorted_index = mIslandsSorted[inIslandIndex];
+		uint32_t sorted_index = mIslandsSorted[inIslandIndex];
 		outContactsBegin = sorted_index > 0? mContactIslands + mContactIslandEnds[sorted_index - 1] : mContactIslands;
 		outContactsEnd = mContactIslands + mContactIslandEnds[sorted_index];
 		return outContactsBegin != outContactsEnd;
@@ -432,36 +432,36 @@ void IslandBuilder::ResetIslands(TempAllocator *inTempAllocator)
 {
 	MOSS_PROFILE_FUNCTION();
 
-	inTempAllocator->Free(mNumPositionSteps, mNumIslands * sizeof(uint8));
+	inTempAllocator->Free(mNumPositionSteps, mNumIslands * sizeof(uint8_t));
 
 	if (mIslandsSorted != nullptr)
 	{
-		inTempAllocator->Free(mIslandsSorted, mNumIslands * sizeof(uint32));
+		inTempAllocator->Free(mIslandsSorted, mNumIslands * sizeof(uint32_t));
 		mIslandsSorted = nullptr;
 	}
 
 	if (mContactIslands != nullptr)
 	{
-		inTempAllocator->Free(mContactIslandEnds, (mNumIslands + 1) * sizeof(uint32));
+		inTempAllocator->Free(mContactIslandEnds, (mNumIslands + 1) * sizeof(uint32_t));
 		mContactIslandEnds = nullptr;
-		inTempAllocator->Free(mContactIslands, mNumContacts * sizeof(uint32));
+		inTempAllocator->Free(mContactIslands, mNumContacts * sizeof(uint32_t));
 		mContactIslands = nullptr;
 	}
 
 	if (mConstraintIslands != nullptr)
 	{
-		inTempAllocator->Free(mConstraintIslandEnds, (mNumIslands + 1) * sizeof(uint32));
+		inTempAllocator->Free(mConstraintIslandEnds, (mNumIslands + 1) * sizeof(uint32_t));
 		mConstraintIslandEnds = nullptr;
-		inTempAllocator->Free(mConstraintIslands, mNumConstraints * sizeof(uint32));
+		inTempAllocator->Free(mConstraintIslands, mNumConstraints * sizeof(uint32_t));
 		mConstraintIslands = nullptr;
 	}
 
-	inTempAllocator->Free(mBodyIslandEnds, (mNumActiveBodies + 1) * sizeof(uint32));
+	inTempAllocator->Free(mBodyIslandEnds, (mNumActiveBodies + 1) * sizeof(uint32_t));
 	mBodyIslandEnds = nullptr;
-	inTempAllocator->Free(mBodyIslands, mNumActiveBodies * sizeof(uint32));
+	inTempAllocator->Free(mBodyIslands, mNumActiveBodies * sizeof(uint32_t));
 	mBodyIslands = nullptr;
 
-	inTempAllocator->Free(mConstraintLinks, mNumConstraints * sizeof(uint32));
+	inTempAllocator->Free(mConstraintLinks, mNumConstraints * sizeof(uint32_t));
 	mConstraintLinks = nullptr;
 
 #ifdef MOSS_VALIDATE_ISLAND_BUILDER
@@ -469,7 +469,7 @@ void IslandBuilder::ResetIslands(TempAllocator *inTempAllocator)
 	mLinkValidation = nullptr;
 #endif
 
-	inTempAllocator->Free(mContactLinks, mMaxContacts * sizeof(uint32));
+	inTempAllocator->Free(mContactLinks, mMaxContacts * sizeof(uint32_t));
 	mContactLinks = nullptr;
 
 	mNumActiveBodies = 0;

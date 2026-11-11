@@ -83,7 +83,7 @@ static inline const NarrowPhaseQuery &sGetNarrowPhaseQuery(const PhysicsSystem *
 	return inLockBodies? inSystem->GetNarrowPhaseQuery() : inSystem->GetNarrowPhaseQueryNoLock();
 }
 
-Character::Character(const CharacterSettings *inSettings, RVec3Arg inPosition, QuatArg inRotation, uint64 inUserData, PhysicsSystem *inSystem) : CharacterBase(inSettings, inSystem), mLayer(inSettings->mLayer) {
+Character::Character(const CharacterSettings *inSettings, RVec3Arg inPosition, QuatArg inRotation, uint64_t inUserData, PhysicsSystem *inSystem) : CharacterBase(inSettings, inSystem), mLayer(inSettings->mLayer) {
 	// Construct rigid body
 	BodyCreationSettings settings(mShape, inPosition, inRotation, EMotionType::Dynamic, mLayer);
 	settings.mAllowedDOFs = inSettings->mAllowedDOFs;
@@ -398,7 +398,7 @@ void CharacterVsCharacterCollisionSimple::CollideCharacter(const CharacterVirtua
 				continue;
 
 			// Collector needs to know which character we're colliding with
-			ioCollector.SetUserData(reinterpret_cast<uint64>(c));
+			ioCollector.SetUserData(reinterpret_cast<uint64_t>(c));
 
 			// Note that this collides against the character's shape without padding, this will be corrected for in CharacterVirtual::GetContactsAtPosition
 			CollisionDispatch::CollideShapeVsShape(shape1, shape2, Vec3::One(), Vec3::One(), transform1, transform2, SubShapeIDCreator(), SubShapeIDCreator(), settings, ioCollector);
@@ -434,7 +434,7 @@ void CharacterVsCharacterCollisionSimple::CastCharacter(const CharacterVirtual *
 				continue;
 
 			// Collector needs to know which character we're colliding with
-			ioCollector.SetUserData(reinterpret_cast<uint64>(c));
+			ioCollector.SetUserData(reinterpret_cast<uint64_t>(c));
 
 			// Note that this collides against the character's shape without padding, this will be corrected for in CharacterVirtual::GetFirstContactForSweep
 			CollisionDispatch::CastShapeVsShapeWorldSpace(shape_cast, inShapeCastSettings, shape2, Vec3::One(), { }, transform2, SubShapeIDCreator(), SubShapeIDCreator(), ioCollector);
@@ -444,7 +444,7 @@ void CharacterVsCharacterCollisionSimple::CastCharacter(const CharacterVirtual *
 	ioCollector.SetUserData(0);
 }
 
-CharacterVirtual::CharacterVirtual(const CharacterVirtualSettings *inSettings, RVec3Arg inPosition, QuatArg inRotation, uint64 inUserData, PhysicsSystem *inSystem) :
+CharacterVirtual::CharacterVirtual(const CharacterVirtualSettings *inSettings, RVec3Arg inPosition, QuatArg inRotation, uint64_t inUserData, PhysicsSystem *inSystem) :
 	CharacterBase(inSettings, inSystem),
 	mID(inSettings->mID),
 	mBackFaceMode(inSettings->mBackFaceMode),
@@ -1113,7 +1113,7 @@ void CharacterVirtual::SolveConstraints(Vec3Arg inVelocity, float inDeltaTime, f
 	int num_previous_contacts = 0;
 
 	// Loop for a max amount of iterations
-	for (uint32 iteration = 0; iteration < mMaxConstraintIterations; iteration++)
+	for (uint32_t iteration = 0; iteration < mMaxConstraintIterations; iteration++)
 	{
 		// Calculate time of impact for all constraints
 		for (Constraint &c : ioConstraints)
@@ -1534,7 +1534,7 @@ void CharacterVirtual::MoveShape(RVec3 &ioPosition, Vec3Arg inVelocity, float in
 	Vec3 movement_direction = inVelocity.NormalizedOr(Vec3::Zero());
 
 	float time_remaining = inDeltaTime;
-	for (uint32 iteration = 0; iteration < mMaxCollisionIterations && time_remaining >= mMinTimeRemaining; iteration++)
+	for (uint32_t iteration = 0; iteration < mMaxCollisionIterations && time_remaining >= mMinTimeRemaining; iteration++)
 	{
 		MOSS_DET_LOG("iter: " << iteration << " time: " << time_remaining);
 
@@ -1609,7 +1609,7 @@ void CharacterVirtual::MoveShape(RVec3 &ioPosition, Vec3Arg inVelocity, float in
 	}
 }
 
-void CharacterVirtual::SetUserData(uint64 inUserData) {
+void CharacterVirtual::SetUserData(uint64_t inUserData) {
 	mUserData = inUserData;
 
 	if (!mInnerBodyID.IsInvalid())
@@ -2166,7 +2166,7 @@ void CharacterVirtual::SaveState(StateRecorder &inStream) const {
 	inStream.Write(mMaxHitsExceeded);
 
 	// Store contacts that had collision, we're using it at the beginning of the step in CancelVelocityTowardsSteepSlopes
-	uint32 num_contacts = 0;
+	uint32_t num_contacts = 0;
 	for (const Contact &c : mActiveContacts)
 		if (c.mHadCollision)
 			++num_contacts;
@@ -2191,7 +2191,7 @@ void CharacterVirtual::RestoreState(StateRecorder &inStream) {
 			if (!mActiveContacts[i].mHadCollision)
 				mActiveContacts.erase(mActiveContacts.begin() + i);
 
-	uint32 num_contacts = (uint32)mActiveContacts.size();
+	uint32_t num_contacts = (uint32_t)mActiveContacts.size();
 	inStream.Read(num_contacts);
 	mActiveContacts.resize(num_contacts);
 	for (Contact &c : mActiveContacts)

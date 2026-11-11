@@ -9,7 +9,7 @@ void Moss_TerminateRenderer(Moss_Renderer* renderer) {
 	vkDeviceWaitIdle(mDevice);
 
 	// Trace allocation stats
-	Trace("VK: Max allocations: %u, max size: %u MB", mMaxNumAllocations, uint32(mMaxTotalAllocated >> 20));
+	Trace("VK: Max allocations: %u, max size: %u MB", mMaxNumAllocations, uint32_t(mMaxTotalAllocated >> 20));
 
 	// Destroy the shadow map
 	mShadowMap = nullptr;
@@ -339,7 +339,7 @@ void CreateSwapChain(VkPhysicalDevice inDevice) {
 	vkGetPhysicalDeviceSurfaceCapabilitiesKHR(inDevice, mSurface, &capabilities);
 	mSwapChainExtent = capabilities.currentExtent;
 	if (mSwapChainExtent.width == UINT32_MAX || mSwapChainExtent.height == UINT32_MAX)
-		mSwapChainExtent = { uint32(mWindow->GetWindowWidth()), uint32(mWindow->GetWindowHeight()) };
+		mSwapChainExtent = { uint32_t(mWindow->GetWindowWidth()), uint32_t(mWindow->GetWindowHeight()) };
 	mSwapChainExtent.width = Clamp(mSwapChainExtent.width, capabilities.minImageExtent.width, capabilities.maxImageExtent.width);
 	mSwapChainExtent.height = Clamp(mSwapChainExtent.height, capabilities.minImageExtent.height, capabilities.maxImageExtent.height);
 	Trace("VK: Create swap chain %ux%u", mSwapChainExtent.width, mSwapChainExtent.height);
@@ -349,7 +349,7 @@ void CreateSwapChain(VkPhysicalDevice inDevice) {
 		return;
 
 	// Create the swap chain
-	uint32 desired_image_count = max(min(cFrameCount, capabilities.maxImageCount), capabilities.minImageCount);
+	uint32_t desired_image_count = max(min(cFrameCount, capabilities.maxImageCount), capabilities.minImageCount);
 	VkSwapchainCreateInfoKHR swapchain_create_info = {};
 	swapchain_create_info.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
 	swapchain_create_info.surface = mSurface;
@@ -359,7 +359,7 @@ void CreateSwapChain(VkPhysicalDevice inDevice) {
 	swapchain_create_info.imageExtent = mSwapChainExtent;
 	swapchain_create_info.imageTArrayLayers = 1;
 	swapchain_create_info.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
-	uint32 queue_family_indices[] = { mGraphicsQueueIndex, mPresentQueueIndex };
+	uint32_t queue_family_indices[] = { mGraphicsQueueIndex, mPresentQueueIndex };
 	if (mGraphicsQueueIndex != mPresentQueueIndex)
 	{
 		swapchain_create_info.imageSharingMode = VK_SHARING_MODE_CONCURRENT;
@@ -378,7 +378,7 @@ void CreateSwapChain(VkPhysicalDevice inDevice) {
 	//FatalErrorIfFailed(vkCreateSwapchainKHR(mDevice, &swapchain_create_info, nullptr, &mSwapChain));
 
 	// Get the actual swap chain image count
-	uint32 image_count;
+	uint32_t image_count;
 	//FatalErrorIfFailed(vkGetSwapchainImagesKHR(mDevice, mSwapChain, &image_count, nullptr));
 
 	// Get the swap chain images
@@ -387,7 +387,7 @@ void CreateSwapChain(VkPhysicalDevice inDevice) {
 
 	// Create image views
 	mSwapChainImageViews.resize(image_count);
-	for (uint32 i = 0; i < image_count; ++i)
+	for (uint32_t i = 0; i < image_count; ++i)
 		mSwapChainImageViews[i] = CreateImageView(mSwapChainImages[i], mSwapChainImageFormat, VK_IMAGE_ASPECT_COLOR_BIT);
 
 	// Create depth buffer
@@ -435,7 +435,7 @@ void CreateSwapChain(VkPhysicalDevice inDevice) {
 
 	// Allocate the render finished semaphores
 	mRenderFinishedSemaphores.resize(image_count, VK_NULL_HANDLE);
-	for (uint32 i = 0; i < image_count; ++i)
+	for (uint32_t i = 0; i < image_count; ++i)
 		mRenderFinishedSemaphores[i] = AllocateSemaphore();
 }
 

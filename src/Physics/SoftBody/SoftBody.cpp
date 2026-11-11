@@ -177,7 +177,7 @@ void SoftBodyCreationSettings::SaveWithChildren(StreamOut &inStream, SharedSetti
 	if (ioSharedSettingsMap != nullptr && ioMaterialMap != nullptr)
 		mSettings->SaveWithMaterials(inStream, *ioSharedSettingsMap, *ioMaterialMap);
 	else
-		inStream.Write(~uint32(0));
+		inStream.Write(~uint32_t(0));
 
 	// Save group filter
 	StreamUtils::SaveObjectReference(inStream, mCollisionGroup.GetGroupFilter(), ioGroupFilterMap);
@@ -219,17 +219,17 @@ SoftBodyCreationSettings::SBCSResult SoftBodyCreationSettings::RestoreWithChildr
 }
 
 
-uint32 SoftBodyShape::GetSubShapeIDBits() const
+uint32_t SoftBodyShape::GetSubShapeIDBits() const
 {
 	// Ensure we have enough bits to encode our shape [0, n - 1]
-	uint32 n = (uint32)mSoftBodyMotionProperties->GetFaces().size() - 1;
+	uint32_t n = (uint32_t)mSoftBodyMotionProperties->GetFaces().size() - 1;
 	return 32 - CountLeadingZeros(n);
 }
 
-uint32 SoftBodyShape::GetFaceIndex(const SubShapeID &inSubShapeID) const
+uint32_t SoftBodyShape::GetFaceIndex(const SubShapeID &inSubShapeID) const
 {
 	SubShapeID remainder;
-	uint32 face_index = inSubShapeID.PopID(GetSubShapeIDBits(), remainder);
+	uint32_t face_index = inSubShapeID.PopID(GetSubShapeIDBits(), remainder);
 	MOSS_ASSERT(remainder.IsEmpty());
 	return face_index;
 }
@@ -243,8 +243,8 @@ bool SoftBodyShape::CastRay(const RayCast &inRay, const SubShapeIDCreator &inSub
 {
 	MOSS_PROFILE_FUNCTION();
 
-	uint32 num_triangle_bits = GetSubShapeIDBits();
-	uint32 triangle_idx = uint32(-1);
+	uint32_t num_triangle_bits = GetSubShapeIDBits();
+	uint32_t triangle_idx = uint32_t(-1);
 
 	const TArray<SoftBodyVertex> &vertices = mSoftBodyMotionProperties->GetVertices();
 	for (const SoftBodyMotionProperties::Face &f : mSoftBodyMotionProperties->GetFaces())
@@ -260,11 +260,11 @@ bool SoftBodyShape::CastRay(const RayCast &inRay, const SubShapeIDCreator &inSub
 			ioHit.mFraction = fraction;
 
 			// Store triangle index
-			triangle_idx = uint32(&f - mSoftBodyMotionProperties->GetFaces().data());
+			triangle_idx = uint32_t(&f - mSoftBodyMotionProperties->GetFaces().data());
 		}
 	}
 
-	if (triangle_idx == uint32(-1))
+	if (triangle_idx == uint32_t(-1))
 		return false;
 
 	ioHit.mSubShapeID2 = inSubShapeIDCreator.PushID(triangle_idx, num_triangle_bits).GetID();
@@ -279,7 +279,7 @@ void SoftBodyShape::CastRay(const RayCast &inRay, const RayCastSettings &inRayCa
 	if (!inShapeFilter.ShouldCollide(this, inSubShapeIDCreator.GetID()))
 		return;
 
-	uint32 num_triangle_bits = GetSubShapeIDBits();
+	uint32_t num_triangle_bits = GetSubShapeIDBits();
 
 	const TArray<SoftBodyVertex> &vertices = mSoftBodyMotionProperties->GetVertices();
 	for (const SoftBodyMotionProperties::Face &f : mSoftBodyMotionProperties->GetFaces())
@@ -300,7 +300,7 @@ void SoftBodyShape::CastRay(const RayCast &inRay, const RayCastSettings &inRayCa
 			RayCastResult hit;
 			hit.mBodyID = TransformedShape::GetBodyID(ioCollector.GetContext());
 			hit.mFraction = fraction;
-			hit.mSubShapeID2 = inSubShapeIDCreator.PushID(uint32(&f - mSoftBodyMotionProperties->GetFaces().data()), num_triangle_bits).GetID();
+			hit.mSubShapeID2 = inSubShapeIDCreator.PushID(uint32_t(&f - mSoftBodyMotionProperties->GetFaces().data()), num_triangle_bits).GetID();
 			ioCollector.AddHit(hit);
 		}
 	}
@@ -311,7 +311,7 @@ void SoftBodyShape::CollidePoint(Vec3Arg inPoint, const SubShapeIDCreator &inSub
 	sCollidePointUsingRayCast(*this, inPoint, inSubShapeIDCreator, ioCollector, inShapeFilter);
 }
 
-void SoftBodyShape::CollideSoftBodyVertices(Mat44Arg inCenterOfMassTransform, Vec3Arg inScale, const CollideSoftBodyVertexIterator &inVertices, uint32 inNumVertices, int inCollidingShapeIndex) const
+void SoftBodyShape::CollideSoftBodyVertices(Mat44Arg inCenterOfMassTransform, Vec3Arg inScale, const CollideSoftBodyVertexIterator &inVertices, uint32_t inNumVertices, int inCollidingShapeIndex) const
 {
 	/* Not implemented */
 }
@@ -319,7 +319,7 @@ void SoftBodyShape::CollideSoftBodyVertices(Mat44Arg inCenterOfMassTransform, Ve
 const PhysicsMaterial *SoftBodyShape::GetMaterial(const SubShapeID &inSubShapeID) const
 {
 	SubShapeID remainder;
-	uint32 triangle_idx = inSubShapeID.PopID(GetSubShapeIDBits(), remainder);
+	uint32_t triangle_idx = inSubShapeID.PopID(GetSubShapeIDBits(), remainder);
 	MOSS_ASSERT(remainder.IsEmpty());
 
 	const SoftBodyMotionProperties::Face &f = mSoftBodyMotionProperties->GetFace(triangle_idx);
@@ -329,7 +329,7 @@ const PhysicsMaterial *SoftBodyShape::GetMaterial(const SubShapeID &inSubShapeID
 Vec3 SoftBodyShape::GetSurfaceNormal(const SubShapeID &inSubShapeID, Vec3Arg inLocalSurfacePosition) const
 {
 	SubShapeID remainder;
-	uint32 triangle_idx = inSubShapeID.PopID(GetSubShapeIDBits(), remainder);
+	uint32_t triangle_idx = inSubShapeID.PopID(GetSubShapeIDBits(), remainder);
 	MOSS_ASSERT(remainder.IsEmpty());
 
 	const SoftBodyMotionProperties::Face &f = mSoftBodyMotionProperties->GetFace(triangle_idx);
@@ -345,13 +345,13 @@ Vec3 SoftBodyShape::GetSurfaceNormal(const SubShapeID &inSubShapeID, Vec3Arg inL
 void SoftBodyShape::GetSupportingFace(const SubShapeID &inSubShapeID, Vec3Arg inDirection, Vec3Arg inScale, Mat44Arg inCenterOfMassTransform, SupportingFace &outVertices) const
 {
 	SubShapeID remainder;
-	uint32 triangle_idx = inSubShapeID.PopID(GetSubShapeIDBits(), remainder);
+	uint32_t triangle_idx = inSubShapeID.PopID(GetSubShapeIDBits(), remainder);
 	MOSS_ASSERT(remainder.IsEmpty());
 
 	const SoftBodyMotionProperties::Face &f = mSoftBodyMotionProperties->GetFace(triangle_idx);
 	const TArray<SoftBodyVertex> &vertices = mSoftBodyMotionProperties->GetVertices();
 
-	for (uint32 i : f.mVertex)
+	for (uint32_t i : f.mVertex)
 		outVertices.push_back(inCenterOfMassTransform * (inScale * vertices[i].mPosition));
 }
 
@@ -423,7 +423,7 @@ int SoftBodyShape::GetTrianglesNext(GetTrianglesContext &ioContext, int inMaxTri
 
 Shape::Stats SoftBodyShape::GetStats() const
 {
-	return Stats(sizeof(*this), (uint32)mSoftBodyMotionProperties->GetFaces().size());
+	return Stats(sizeof(*this), (uint32_t)mSoftBodyMotionProperties->GetFaces().size());
 }
 
 float SoftBodyShape::GetVolume() const
@@ -440,7 +440,7 @@ void SoftBodyShape::CollideConvexVsSoftBody(const Shape *inShape1, const Shape *
 
 	const TArray<SoftBodyVertex> &vertices = shape2->mSoftBodyMotionProperties->GetVertices();
 	const TArray<SoftBodyMotionProperties::Face> &faces = shape2->mSoftBodyMotionProperties->GetFaces();
-	uint32 num_triangle_bits = shape2->GetSubShapeIDBits();
+	uint32_t num_triangle_bits = shape2->GetSubShapeIDBits();
 
 	CollideConvexVsTriangles collider(shape1, inScale1, inScale2, inCenterOfMassTransform1, inCenterOfMassTransform2, inSubShapeIDCreator1.GetID(), inCollideShapeSettings, ioCollector);
 	for (const SoftBodyMotionProperties::Face &f : faces)
@@ -449,7 +449,7 @@ void SoftBodyShape::CollideConvexVsSoftBody(const Shape *inShape1, const Shape *
 		Vec3 x2 = vertices[f.mVertex[1]].mPosition;
 		Vec3 x3 = vertices[f.mVertex[2]].mPosition;
 
-		collider.Collide(x1, x2, x3, 0b111, inSubShapeIDCreator2.PushID(uint32(&f - faces.data()), num_triangle_bits).GetID());
+		collider.Collide(x1, x2, x3, 0b111, inSubShapeIDCreator2.PushID(uint32_t(&f - faces.data()), num_triangle_bits).GetID());
 	}
 }
 
@@ -462,7 +462,7 @@ void SoftBodyShape::CollideSphereVsSoftBody(const Shape *inShape1, const Shape *
 
 	const TArray<SoftBodyVertex> &vertices = shape2->mSoftBodyMotionProperties->GetVertices();
 	const TArray<SoftBodyMotionProperties::Face> &faces = shape2->mSoftBodyMotionProperties->GetFaces();
-	uint32 num_triangle_bits = shape2->GetSubShapeIDBits();
+	uint32_t num_triangle_bits = shape2->GetSubShapeIDBits();
 
 	CollideSphereVsTriangles collider(shape1, inScale1, inScale2, inCenterOfMassTransform1, inCenterOfMassTransform2, inSubShapeIDCreator1.GetID(), inCollideShapeSettings, ioCollector);
 	for (const SoftBodyMotionProperties::Face &f : faces)
@@ -471,7 +471,7 @@ void SoftBodyShape::CollideSphereVsSoftBody(const Shape *inShape1, const Shape *
 		Vec3 x2 = vertices[f.mVertex[1]].mPosition;
 		Vec3 x3 = vertices[f.mVertex[2]].mPosition;
 
-		collider.Collide(x1, x2, x3, 0b111, inSubShapeIDCreator2.PushID(uint32(&f - faces.data()), num_triangle_bits).GetID());
+		collider.Collide(x1, x2, x3, 0b111, inSubShapeIDCreator2.PushID(uint32_t(&f - faces.data()), num_triangle_bits).GetID());
 	}
 }
 
@@ -482,7 +482,7 @@ void SoftBodyShape::CastConvexVsSoftBody(const ShapeCast &inShapeCast, const Sha
 
 	const TArray<SoftBodyVertex> &vertices = shape->mSoftBodyMotionProperties->GetVertices();
 	const TArray<SoftBodyMotionProperties::Face> &faces = shape->mSoftBodyMotionProperties->GetFaces();
-	uint32 num_triangle_bits = shape->GetSubShapeIDBits();
+	uint32_t num_triangle_bits = shape->GetSubShapeIDBits();
 
 	CastConvexVsTriangles caster(inShapeCast, inShapeCastSettings, inScale, inCenterOfMassTransform2, inSubShapeIDCreator1, ioCollector);
 	for (const SoftBodyMotionProperties::Face &f : faces)
@@ -491,7 +491,7 @@ void SoftBodyShape::CastConvexVsSoftBody(const ShapeCast &inShapeCast, const Sha
 		Vec3 x2 = vertices[f.mVertex[1]].mPosition;
 		Vec3 x3 = vertices[f.mVertex[2]].mPosition;
 
-		caster.Cast(x1, x2, x3, 0b111, inSubShapeIDCreator2.PushID(uint32(&f - faces.data()), num_triangle_bits).GetID());
+		caster.Cast(x1, x2, x3, 0b111, inSubShapeIDCreator2.PushID(uint32_t(&f - faces.data()), num_triangle_bits).GetID());
 	}
 }
 
@@ -502,7 +502,7 @@ void SoftBodyShape::CastSphereVsSoftBody(const ShapeCast &inShapeCast, const Sha
 
 	const TArray<SoftBodyVertex> &vertices = shape->mSoftBodyMotionProperties->GetVertices();
 	const TArray<SoftBodyMotionProperties::Face> &faces = shape->mSoftBodyMotionProperties->GetFaces();
-	uint32 num_triangle_bits = shape->GetSubShapeIDBits();
+	uint32_t num_triangle_bits = shape->GetSubShapeIDBits();
 
 	CastSphereVsTriangles caster(inShapeCast, inShapeCastSettings, inScale, inCenterOfMassTransform2, inSubShapeIDCreator1, ioCollector);
 	for (const SoftBodyMotionProperties::Face &f : faces)
@@ -511,7 +511,7 @@ void SoftBodyShape::CastSphereVsSoftBody(const ShapeCast &inShapeCast, const Sha
 		Vec3 x2 = vertices[f.mVertex[1]].mPosition;
 		Vec3 x3 = vertices[f.mVertex[2]].mPosition;
 
-		caster.Cast(x1, x2, x3, 0b111, inSubShapeIDCreator2.PushID(uint32(&f - faces.data()), num_triangle_bits).GetID());
+		caster.Cast(x1, x2, x3, 0b111, inSubShapeIDCreator2.PushID(uint32_t(&f - faces.data()), num_triangle_bits).GetID());
 	}
 }
 
@@ -546,7 +546,7 @@ void SoftBodySharedSettings::CalculateClosestKinematic()
 	mClosestKinematic.resize(mVertices.size());
 
 	// Create a list of connected vertices
-	TArray<TArray<uint32>> connectivity;
+	TArray<TArray<uint32_t>> connectivity;
 	connectivity.resize(mVertices.size());
 	for (const Edge &e : mEdgeConstraints)
 	{
@@ -566,13 +566,13 @@ void SoftBodySharedSettings::CalculateClosestKinematic()
 			return mDistance > inRHS.mDistance;
 		}
 
-		uint32	mVertex;
+		uint32_t	mVertex;
 		float	mDistance;
 	};
 
 	// Start with all kinematic elements
 	TArray<Open> to_visit;
-	for (uint32 v = 0; v < mVertices.size(); ++v)
+	for (uint32_t v = 0; v < mVertices.size(); ++v)
 		if (mVertices[v].mInvMass == 0.0f)
 		{
 			mClosestKinematic[v].mVertex = v;
@@ -593,7 +593,7 @@ void SoftBodySharedSettings::CalculateClosestKinematic()
 		MOSS_IF_ENABLE_ASSERTS(last_closest = current.mDistance;)
 
 		// Loop through all of its connected vertices
-		for (uint32 v : connectivity[current.mVertex])
+		for (uint32_t v : connectivity[current.mVertex])
 		{
 			// Calculate distance from the current vertex to this target vertex and check if it is smaller
 			float new_distance = current.mDistance + (Vec3(mVertices[v].mPosition) - Vec3(mVertices[current.mVertex].mPosition)).Length();
@@ -609,12 +609,12 @@ void SoftBodySharedSettings::CalculateClosestKinematic()
 	}
 }
 
-void SoftBodySharedSettings::CreateConstraints(const VertexAttributes *inVertexAttributes, uint32 inVertexAttributesLength, EBendType inBendType, float inAngleTolerance)
+void SoftBodySharedSettings::CreateConstraints(const VertexAttributes *inVertexAttributes, uint32_t inVertexAttributesLength, EBendType inBendType, float inAngleTolerance)
 {
 	struct EdgeHelper
 	{
-		uint32	mVertex[2];
-		uint32	mEdgeIdx;
+		uint32_t	mVertex[2];
+		uint32_t	mEdgeIdx;
 	};
 
 	// Create list of all edges
@@ -623,13 +623,13 @@ void SoftBodySharedSettings::CreateConstraints(const VertexAttributes *inVertexA
 	for (const Face &f : mFaces)
 		for (int i = 0; i < 3; ++i)
 		{
-			uint32 v0 = f.mVertex[i];
-			uint32 v1 = f.mVertex[(i + 1) % 3];
+			uint32_t v0 = f.mVertex[i];
+			uint32_t v1 = f.mVertex[(i + 1) % 3];
 
 			EdgeHelper e;
 			e.mVertex[0] = min(v0, v1);
 			e.mVertex[1] = max(v0, v1);
-			e.mEdgeIdx = uint32(&f - mFaces.data()) * 3 + i;
+			e.mEdgeIdx = uint32_t(&f - mFaces.data()) * 3 + i;
 			edges.push_back(e);
 		}
 
@@ -637,7 +637,7 @@ void SoftBodySharedSettings::CreateConstraints(const VertexAttributes *inVertexA
 	QuickSort(edges.begin(), edges.end(), [](const EdgeHelper &inLHS, const EdgeHelper &inRHS) { return inLHS.mVertex[0] < inRHS.mVertex[0] || (inLHS.mVertex[0] == inRHS.mVertex[0] && inLHS.mVertex[1] < inRHS.mVertex[1]); });
 
 	// Only add edges if one of the vertices is movable
-	auto add_edge = [this](uint32 inVtx1, uint32 inVtx2, float inCompliance1, float inCompliance2) {
+	auto add_edge = [this](uint32_t inVtx1, uint32_t inVtx2, float inCompliance1, float inCompliance2) {
 		if ((mVertices[inVtx1].mInvMass > 0.0f || mVertices[inVtx2].mInvMass > 0.0f)
 			&& inCompliance1 < FLT_MAX && inCompliance2 < FLT_MAX)
 		{
@@ -652,7 +652,7 @@ void SoftBodySharedSettings::CreateConstraints(const VertexAttributes *inVertexA
 	};
 
 	// Helper function to get the attributes of a vertex
-	auto attr = [inVertexAttributes, inVertexAttributesLength](uint32 inVertex) {
+	auto attr = [inVertexAttributes, inVertexAttributesLength](uint32_t inVertex) {
 		return inVertexAttributes[min(inVertex, inVertexAttributesLength - 1)];
 	};
 
@@ -681,8 +681,8 @@ void SoftBodySharedSettings::CreateConstraints(const VertexAttributes *inVertexA
 				// Get opposing vertices
 				const Face &f0 = mFaces[e0.mEdgeIdx / 3];
 				const Face &f1 = mFaces[e1.mEdgeIdx / 3];
-				uint32 vopposite0 = f0.mVertex[(e0.mEdgeIdx + 2) % 3];
-				uint32 vopposite1 = f1.mVertex[(e1.mEdgeIdx + 2) % 3];
+				uint32_t vopposite0 = f0.mVertex[(e0.mEdgeIdx + 2) % 3];
+				uint32_t vopposite1 = f1.mVertex[(e1.mEdgeIdx + 2) % 3];
 				const VertexAttributes &a_opposite0 = attr(vopposite0);
 				const VertexAttributes &a_opposite1 = attr(vopposite1);
 
@@ -758,11 +758,11 @@ void SoftBodySharedSettings::CreateConstraints(const VertexAttributes *inVertexA
 		CalculateClosestKinematic();
 
 		// Find non-kinematic vertices
-		for (uint32 v = 0; v < (uint32)mVertices.size(); ++v)
+		for (uint32_t v = 0; v < (uint32_t)mVertices.size(); ++v)
 			if (mVertices[v].mInvMass > 0.0f)
 			{
 				// Check if a closest vertex was found
-				uint32 closest = mClosestKinematic[v].mVertex;
+				uint32_t closest = mClosestKinematic[v].mVertex;
 				if (closest != 0xffffffff)
 				{
 					// Check which LRA constraint to create
@@ -869,41 +869,41 @@ void SoftBodySharedSettings::CalculateSkinnedConstraintNormals()
 		return;
 
 	// First collect all vertices that are skinned
-	using VertexIndexSet = TSet<uint32>;
+	using VertexIndexSet = TSet<uint32_t>;
 	VertexIndexSet skinned_vertices;
 	skinned_vertices.reserve(VertexIndexSet::size_type(mSkinnedConstraints.size()));
 	for (const Skinned &s : mSkinnedConstraints)
 		skinned_vertices.insert(s.mVertex);
 
 	// Now collect all faces that connect only to skinned vertices
-	using ConnectedFacesMap = TMap<uint32, VertexIndexSet>;
+	using ConnectedFacesMap = TMap<uint32_t, VertexIndexSet>;
 	ConnectedFacesMap connected_faces;
 	connected_faces.reserve(ConnectedFacesMap::size_type(mVertices.size()));
 	for (const Face &f : mFaces)
 	{
 		// Must connect to only skinned vertices
 		bool valid = true;
-		for (uint32 v : f.mVertex)
+		for (uint32_t v : f.mVertex)
 			valid &= skinned_vertices.find(v) != skinned_vertices.end();
 		if (!valid)
 			continue;
 
 		// Store faces that connect to vertices
-		for (uint32 v : f.mVertex)
-			connected_faces[v].insert(uint32(&f - mFaces.data()));
+		for (uint32_t v : f.mVertex)
+			connected_faces[v].insert(uint32_t(&f - mFaces.data()));
 	}
 
 	// Populate the list of connecting faces per skinned vertex
 	mSkinnedConstraintNormals.reserve(mFaces.size());
 	for (Skinned &s : mSkinnedConstraints)
 	{
-		uint32 start = uint32(mSkinnedConstraintNormals.size());
+		uint32_t start = uint32_t(mSkinnedConstraintNormals.size());
 		MOSS_ASSERT((start >> 24) == 0);
 		ConnectedFacesMap::const_iterator connected_faces_it = connected_faces.find(s.mVertex);
 		if (connected_faces_it != connected_faces.cend())
 		{
 			const VertexIndexSet &faces = connected_faces_it->second;
-			uint32 num = uint32(faces.size());
+			uint32_t num = uint32_t(faces.size());
 			MOSS_ASSERT(num < 256);
 			mSkinnedConstraintNormals.insert(mSkinnedConstraintNormals.end(), faces.begin(), faces.end());
 			QuickSort(mSkinnedConstraintNormals.begin() + start, mSkinnedConstraintNormals.begin() + start + num);
@@ -923,12 +923,12 @@ void SoftBodySharedSettings::Optimize(OptimizationResults &outResults)
 	// Create a list of connected vertices
 	struct Connection
 	{
-		uint32	mVertex;
-		uint32	mCount;
+		uint32_t	mVertex;
+		uint32_t	mCount;
 	};
 	TArray<TArray<Connection>> connectivity;
 	connectivity.resize(mVertices.size());
-	auto add_connection = [&connectivity](uint32 inV1, uint32 inV2) {
+	auto add_connection = [&connectivity](uint32_t inV1, uint32_t inV2) {
 			for (int i = 0; i < 2; ++i)
 			{
 				bool found = false;
@@ -975,14 +975,14 @@ void SoftBodySharedSettings::Optimize(OptimizationResults &outResults)
 
 	// Which group we are currently filling and its vertices
 	int current_group_idx = 0;
-	TArray<uint32> current_group;
+	TArray<uint32_t> current_group;
 
 	// Start greedy algorithm to group vertices
 	for (;;)
 	{
 		// Find the bounding box of the ungrouped vertices
 		AABox bounds;
-		for (uint32 i = 0; i < (uint32)mVertices.size(); ++i)
+		for (uint32_t i = 0; i < (uint32_t)mVertices.size(); ++i)
 			if (group_idx[i] == -1)
 				bounds.Encapsulate(Vec3(mVertices[i].mPosition));
 
@@ -992,16 +992,16 @@ void SoftBodySharedSettings::Optimize(OptimizationResults &outResults)
 
 		// Determine longest and shortest axis
 		Vec3 bounds_size = bounds.GetSize();
-		uint32 max_axis = bounds_size.GetHighestComponentIndex();
-		uint32 min_axis = bounds_size.GetLowestComponentIndex();
+		uint32_t max_axis = bounds_size.GetHighestComponentIndex();
+		uint32_t min_axis = bounds_size.GetLowestComponentIndex();
 		if (min_axis == max_axis)
 			min_axis = (min_axis + 1) % 3;
-		uint32 mid_axis = 3 - min_axis - max_axis;
+		uint32_t mid_axis = 3 - min_axis - max_axis;
 
 		// Find the vertex that has the lowest value on the axis with the largest extent
-		uint32 current_vertex = UINT_MAX;
+		uint32_t current_vertex = UINT_MAX;
 		Float3 current_vertex_position { FLT_MAX, FLT_MAX, FLT_MAX };
-		for (uint32 i = 0; i < (uint32)mVertices.size(); ++i)
+		for (uint32_t i = 0; i < (uint32_t)mVertices.size(); ++i)
 			if (group_idx[i] == -1)
 			{
 				const Float3 &vertex_position = mVertices[i].mPosition;
@@ -1030,17 +1030,17 @@ void SoftBodySharedSettings::Optimize(OptimizationResults &outResults)
 		for (;;)
 		{
 			// Find the vertex that is most connected to the current group
-			uint32 best_vertex = UINT_MAX;
-			uint32 best_num_connections = 0;
+			uint32_t best_vertex = UINT_MAX;
+			uint32_t best_num_connections = 0;
 			float best_dist_sq = FLT_MAX;
-			for (uint32 i = 0; i < (uint32)current_group.size(); ++i) // For all vertices in the current group
+			for (uint32_t i = 0; i < (uint32_t)current_group.size(); ++i) // For all vertices in the current group
 				for (const Connection &c : connectivity[current_group[i]]) // For all connections to other vertices
 				{
-					uint32 v = c.mVertex;
+					uint32_t v = c.mVertex;
 					if (group_idx[v] == -1) // Ungrouped vertices only
 					{
 						// Count the number of connections to this group
-						uint32 num_connections = 0;
+						uint32_t num_connections = 0;
 						for (const Connection &v2 : connectivity[v])
 							if (group_idx[v2.mVertex] == current_group_idx)
 								num_connections += v2.mCount;
@@ -1096,16 +1096,16 @@ void SoftBodySharedSettings::Optimize(OptimizationResults &outResults)
 	// Assign the constraints to their groups
 	struct Group
 	{
-		uint32			GetSize() const
+		uint32_t			GetSize() const
 		{
-			return (uint32)mEdgeConstraints.size() + (uint32)mLRAConstraints.size() + (uint32)mDihedralBendConstraints.size() + (uint32)mVolumeConstraints.size() + (uint32)mSkinnedConstraints.size();
+			return (uint32_t)mEdgeConstraints.size() + (uint32_t)mLRAConstraints.size() + (uint32_t)mDihedralBendConstraints.size() + (uint32_t)mVolumeConstraints.size() + (uint32_t)mSkinnedConstraints.size();
 		}
 
-		TArray<uint32>		mEdgeConstraints;
-		TArray<uint32>		mLRAConstraints;
-		TArray<uint32>		mDihedralBendConstraints;
-		TArray<uint32>		mVolumeConstraints;
-		TArray<uint32>		mSkinnedConstraints;
+		TArray<uint32_t>		mEdgeConstraints;
+		TArray<uint32_t>		mLRAConstraints;
+		TArray<uint32_t>		mDihedralBendConstraints;
+		TArray<uint32_t>		mVolumeConstraints;
+		TArray<uint32_t>		mSkinnedConstraints;
 	};
 	TArray<Group> groups;
 	groups.resize(current_group_idx + 1); // + non parallel group
@@ -1115,9 +1115,9 @@ void SoftBodySharedSettings::Optimize(OptimizationResults &outResults)
 		int g2 = group_idx[e.mVertex[1]];
 		MOSS_ASSERT(g1 >= 0 && g2 >= 0);
 		if (g1 == g2) // In the same group
-			groups[g1].mEdgeConstraints.push_back(uint32(&e - mEdgeConstraints.data()));
+			groups[g1].mEdgeConstraints.push_back(uint32_t(&e - mEdgeConstraints.data()));
 		else // In different groups -> parallel group
-			groups.back().mEdgeConstraints.push_back(uint32(&e - mEdgeConstraints.data()));
+			groups.back().mEdgeConstraints.push_back(uint32_t(&e - mEdgeConstraints.data()));
 	}
 	for (const LRA &l : mLRAConstraints)
 	{
@@ -1125,9 +1125,9 @@ void SoftBodySharedSettings::Optimize(OptimizationResults &outResults)
 		int g2 = group_idx[l.mVertex[1]];
 		MOSS_ASSERT(g1 >= 0 && g2 >= 0);
 		if (g1 == g2) // In the same group
-			groups[g1].mLRAConstraints.push_back(uint32(&l - mLRAConstraints.data()));
+			groups[g1].mLRAConstraints.push_back(uint32_t(&l - mLRAConstraints.data()));
 		else // In different groups -> parallel group
-			groups.back().mLRAConstraints.push_back(uint32(&l - mLRAConstraints.data()));
+			groups.back().mLRAConstraints.push_back(uint32_t(&l - mLRAConstraints.data()));
 	}
 	for (const DihedralBend &d : mDihedralBendConstraints)
 	{
@@ -1137,9 +1137,9 @@ void SoftBodySharedSettings::Optimize(OptimizationResults &outResults)
 		int g4 = group_idx[d.mVertex[3]];
 		MOSS_ASSERT(g1 >= 0 && g2 >= 0 && g3 >= 0 && g4 >= 0);
 		if (g1 == g2 && g1 == g3 && g1 == g4) // In the same group
-			groups[g1].mDihedralBendConstraints.push_back(uint32(&d - mDihedralBendConstraints.data()));
+			groups[g1].mDihedralBendConstraints.push_back(uint32_t(&d - mDihedralBendConstraints.data()));
 		else // In different groups -> parallel group
-			groups.back().mDihedralBendConstraints.push_back(uint32(&d - mDihedralBendConstraints.data()));
+			groups.back().mDihedralBendConstraints.push_back(uint32_t(&d - mDihedralBendConstraints.data()));
 	}
 	for (const Volume &v : mVolumeConstraints)
 	{
@@ -1149,15 +1149,15 @@ void SoftBodySharedSettings::Optimize(OptimizationResults &outResults)
 		int g4 = group_idx[v.mVertex[3]];
 		MOSS_ASSERT(g1 >= 0 && g2 >= 0 && g3 >= 0 && g4 >= 0);
 		if (g1 == g2 && g1 == g3 && g1 == g4) // In the same group
-			groups[g1].mVolumeConstraints.push_back(uint32(&v - mVolumeConstraints.data()));
+			groups[g1].mVolumeConstraints.push_back(uint32_t(&v - mVolumeConstraints.data()));
 		else // In different groups -> parallel group
-			groups.back().mVolumeConstraints.push_back(uint32(&v - mVolumeConstraints.data()));
+			groups.back().mVolumeConstraints.push_back(uint32_t(&v - mVolumeConstraints.data()));
 	}
 	for (const Skinned &s : mSkinnedConstraints)
 	{
 		int g1 = group_idx[s.mVertex];
 		MOSS_ASSERT(g1 >= 0);
-		groups[g1].mSkinnedConstraints.push_back(uint32(&s - mSkinnedConstraints.data()));
+		groups[g1].mSkinnedConstraints.push_back(uint32_t(&s - mSkinnedConstraints.data()));
 	}
 
 	// Sort the parallel groups from big to small (this means the big groups will be scheduled first and have more time to complete)
@@ -1170,7 +1170,7 @@ void SoftBodySharedSettings::Optimize(OptimizationResults &outResults)
 	for (Group &group : groups)
 	{
 		// Sort the edge constraints
-		QuickSort(group.mEdgeConstraints.begin(), group.mEdgeConstraints.end(), [this](uint32 inLHS, uint32 inRHS)
+		QuickSort(group.mEdgeConstraints.begin(), group.mEdgeConstraints.end(), [this](uint32_t inLHS, uint32_t inRHS)
 			{
 				const Edge &e1 = mEdgeConstraints[inLHS];
 				const Edge &e2 = mEdgeConstraints[inRHS];
@@ -1183,8 +1183,8 @@ void SoftBodySharedSettings::Optimize(OptimizationResults &outResults)
 
 				// Order the edges so that the ones with the smallest index go first (hoping to get better cache locality when we process the edges).
 				// Note we could also re-order the vertices but that would be much more of a burden to the end user
-				uint32 m1 = e1.GetMinVertexIndex();
-				uint32 m2 = e2.GetMinVertexIndex();
+				uint32_t m1 = e1.GetMinVertexIndex();
+				uint32_t m2 = e2.GetMinVertexIndex();
 				if (m1 != m2)
 					return m1 < m2;
 
@@ -1192,7 +1192,7 @@ void SoftBodySharedSettings::Optimize(OptimizationResults &outResults)
 			});
 
 		// Sort the LRA constraints
-		QuickSort(group.mLRAConstraints.begin(), group.mLRAConstraints.end(), [this](uint32 inLHS, uint32 inRHS)
+		QuickSort(group.mLRAConstraints.begin(), group.mLRAConstraints.end(), [this](uint32_t inLHS, uint32_t inRHS)
 			{
 				const LRA &l1 = mLRAConstraints[inLHS];
 				const LRA &l2 = mLRAConstraints[inRHS];
@@ -1204,8 +1204,8 @@ void SoftBodySharedSettings::Optimize(OptimizationResults &outResults)
 					return l1.mMaxDistance > l2.mMaxDistance;
 
 				// Order constraints so that the ones with the smallest index go first
-				uint32 m1 = l1.GetMinVertexIndex();
-				uint32 m2 = l2.GetMinVertexIndex();
+				uint32_t m1 = l1.GetMinVertexIndex();
+				uint32_t m2 = l2.GetMinVertexIndex();
 				if (m1 != m2)
 					return m1 < m2;
 
@@ -1213,7 +1213,7 @@ void SoftBodySharedSettings::Optimize(OptimizationResults &outResults)
 			});
 
 		// Sort the dihedral bend constraints
-		QuickSort(group.mDihedralBendConstraints.begin(), group.mDihedralBendConstraints.end(), [this](uint32 inLHS, uint32 inRHS)
+		QuickSort(group.mDihedralBendConstraints.begin(), group.mDihedralBendConstraints.end(), [this](uint32_t inLHS, uint32_t inRHS)
 		{
 			const DihedralBend &b1 = mDihedralBendConstraints[inLHS];
 			const DihedralBend &b2 = mDihedralBendConstraints[inRHS];
@@ -1229,8 +1229,8 @@ void SoftBodySharedSettings::Optimize(OptimizationResults &outResults)
 				return d1 < d2;
 
 			// Order constraints so that the ones with the smallest index go first
-			uint32 m1 = b1.GetMinVertexIndex();
-			uint32 m2 = b2.GetMinVertexIndex();
+			uint32_t m1 = b1.GetMinVertexIndex();
+			uint32_t m2 = b2.GetMinVertexIndex();
 			if (m1 != m2)
 				return m1 < m2;
 
@@ -1238,7 +1238,7 @@ void SoftBodySharedSettings::Optimize(OptimizationResults &outResults)
 		});
 
 		// Sort the volume constraints
-		QuickSort(group.mVolumeConstraints.begin(), group.mVolumeConstraints.end(), [this](uint32 inLHS, uint32 inRHS)
+		QuickSort(group.mVolumeConstraints.begin(), group.mVolumeConstraints.end(), [this](uint32_t inLHS, uint32_t inRHS)
 		{
 			const Volume &v1 = mVolumeConstraints[inLHS];
 			const Volume &v2 = mVolumeConstraints[inRHS];
@@ -1254,8 +1254,8 @@ void SoftBodySharedSettings::Optimize(OptimizationResults &outResults)
 				return d1 < d2;
 
 			// Order constraints so that the ones with the smallest index go first
-			uint32 m1 = v1.GetMinVertexIndex();
-			uint32 m2 = v2.GetMinVertexIndex();
+			uint32_t m1 = v1.GetMinVertexIndex();
+			uint32_t m2 = v2.GetMinVertexIndex();
 			if (m1 != m2)
 				return m1 < m2;
 
@@ -1263,7 +1263,7 @@ void SoftBodySharedSettings::Optimize(OptimizationResults &outResults)
 		});
 
 		// Sort the skinned constraints
-		QuickSort(group.mSkinnedConstraints.begin(), group.mSkinnedConstraints.end(), [this](uint32 inLHS, uint32 inRHS)
+		QuickSort(group.mSkinnedConstraints.begin(), group.mSkinnedConstraints.end(), [this](uint32_t inLHS, uint32_t inRHS)
 			{
 				const Skinned &s1 = mSkinnedConstraints[inLHS];
 				const Skinned &s2 = mSkinnedConstraints[inRHS];
@@ -1306,42 +1306,42 @@ void SoftBodySharedSettings::Optimize(OptimizationResults &outResults)
 	for (const Group &group : groups)
 	{
 		// Reorder edge constraints for this group
-		for (uint32 idx : group.mEdgeConstraints)
+		for (uint32_t idx : group.mEdgeConstraints)
 		{
 			mEdgeConstraints.push_back(temp_edges[idx]);
 			outResults.mEdgeRemap.push_back(idx);
 		}
 
 		// Reorder LRA constraints for this group
-		for (uint32 idx : group.mLRAConstraints)
+		for (uint32_t idx : group.mLRAConstraints)
 		{
 			mLRAConstraints.push_back(temp_lra[idx]);
 			outResults.mLRARemap.push_back(idx);
 		}
 
 		// Reorder dihedral bend constraints for this group
-		for (uint32 idx : group.mDihedralBendConstraints)
+		for (uint32_t idx : group.mDihedralBendConstraints)
 		{
 			mDihedralBendConstraints.push_back(temp_dihedral_bend[idx]);
 			outResults.mDihedralBendRemap.push_back(idx);
 		}
 
 		// Reorder volume constraints for this group
-		for (uint32 idx : group.mVolumeConstraints)
+		for (uint32_t idx : group.mVolumeConstraints)
 		{
 			mVolumeConstraints.push_back(temp_volume[idx]);
 			outResults.mVolumeRemap.push_back(idx);
 		}
 
 		// Reorder skinned constraints for this group
-		for (uint32 idx : group.mSkinnedConstraints)
+		for (uint32_t idx : group.mSkinnedConstraints)
 		{
 			mSkinnedConstraints.push_back(temp_skinned[idx]);
 			outResults.mSkinnedRemap.push_back(idx);
 		}
 
 		// Store end indices
-		mUpdateGroups.push_back({ (uint32)mEdgeConstraints.size(), (uint32)mLRAConstraints.size(), (uint32)mDihedralBendConstraints.size(), (uint32)mVolumeConstraints.size(), (uint32)mSkinnedConstraints.size() });
+		mUpdateGroups.push_back({ (uint32_t)mEdgeConstraints.size(), (uint32_t)mLRAConstraints.size(), (uint32_t)mDihedralBendConstraints.size(), (uint32_t)mVolumeConstraints.size(), (uint32_t)mSkinnedConstraints.size() });
 	}
 
 	// Free closest kinematic buffer
@@ -1412,7 +1412,7 @@ void SoftBodySharedSettings::SaveWithMaterials(StreamOut &inStream, SharedSettin
 	if (settings_iter == ioSettingsMap.end())
 	{
 		// Write settings ID
-		uint32 settings_id = ioSettingsMap.size();
+		uint32_t settings_id = ioSettingsMap.size();
 		ioSettingsMap[this] = settings_id;
 		inStream.Write(settings_id);
 
@@ -1434,7 +1434,7 @@ SoftBodySharedSettings::SettingsResult SoftBodySharedSettings::RestoreWithMateri
 	SettingsResult result;
 
 	// Read settings id
-	uint32 settings_id;
+	uint32_t settings_id;
 	inStream.Read(settings_id);
 	if (inStream.IsEOF() || inStream.IsFailed())
 	{
@@ -1443,7 +1443,7 @@ SoftBodySharedSettings::SettingsResult SoftBodySharedSettings::RestoreWithMateri
 	}
 
 	// Check nullptr settings
-	if (settings_id == ~uint32(0))
+	if (settings_id == ~uint32_t(0))
 	{
 		result.Set(nullptr);
 		return result;
@@ -1478,15 +1478,15 @@ SoftBodySharedSettings::SettingsResult SoftBodySharedSettings::RestoreWithMateri
 	return result;
 }
 
-Ref<SoftBodySharedSettings> SoftBodySharedSettings::CreateCube(uint32 inGridSize, float inGridSpacing)
+Ref<SoftBodySharedSettings> SoftBodySharedSettings::CreateCube(uint32_t inGridSize, float inGridSpacing)
 {
 	const Vec3 cOffset = Vec3::Replicate(-0.5f * inGridSpacing * (inGridSize - 1));
 
 	// Create settings
 	SoftBodySharedSettings *settings = new SoftBodySharedSettings;
-	for (uint32 z = 0; z < inGridSize; ++z)
-		for (uint32 y = 0; y < inGridSize; ++y)
-			for (uint32 x = 0; x < inGridSize; ++x)
+	for (uint32_t z = 0; z < inGridSize; ++z)
+		for (uint32_t y = 0; y < inGridSize; ++y)
+			for (uint32_t x = 0; x < inGridSize; ++x)
 			{
 				SoftBodySharedSettings::Vertex v;
 				(cOffset + Vec3::Replicate(inGridSpacing) * Vec3(float(x), float(y), float(z))).StoreFloat3(&v.mPosition);
@@ -1494,15 +1494,15 @@ Ref<SoftBodySharedSettings> SoftBodySharedSettings::CreateCube(uint32 inGridSize
 			}
 
 	// Function to get the vertex index of a point on the cube
-	auto vertex_index = [inGridSize](uint32 inX, uint32 inY, uint32 inZ)
+	auto vertex_index = [inGridSize](uint32_t inX, uint32_t inY, uint32_t inZ)
 	{
 		return inX + inY * inGridSize + inZ * inGridSize * inGridSize;
 	};
 
 	// Create edges
-	for (uint32 z = 0; z < inGridSize; ++z)
-		for (uint32 y = 0; y < inGridSize; ++y)
-			for (uint32 x = 0; x < inGridSize; ++x)
+	for (uint32_t z = 0; z < inGridSize; ++z)
+		for (uint32_t y = 0; y < inGridSize; ++y)
+			for (uint32_t x = 0; x < inGridSize; ++x)
 			{
 				SoftBodySharedSettings::Edge e;
 				e.mVertex[0] = vertex_index(x, y, z);
@@ -1535,13 +1535,13 @@ Ref<SoftBodySharedSettings> SoftBodySharedSettings::CreateCube(uint32 inGridSize
 	};
 
 	// Create volume constraints
-	for (uint32 z = 0; z < inGridSize - 1; ++z)
-		for (uint32 y = 0; y < inGridSize - 1; ++y)
-			for (uint32 x = 0; x < inGridSize - 1; ++x)
-				for (uint32 t = 0; t < 6; ++t)
+	for (uint32_t z = 0; z < inGridSize - 1; ++z)
+		for (uint32_t y = 0; y < inGridSize - 1; ++y)
+			for (uint32_t x = 0; x < inGridSize - 1; ++x)
+				for (uint32_t t = 0; t < 6; ++t)
 				{
 					SoftBodySharedSettings::Volume v;
-					for (uint32 i = 0; i < 4; ++i)
+					for (uint32_t i = 0; i < 4; ++i)
 						v.mVertex[i] = vertex_index(x + tetra_indices[t][i][0], y + tetra_indices[t][i][1], z + tetra_indices[t][i][2]);
 					settings->mVolumeConstraints.push_back(v);
 				}
@@ -1549,8 +1549,8 @@ Ref<SoftBodySharedSettings> SoftBodySharedSettings::CreateCube(uint32 inGridSize
 	settings->CalculateVolumeConstraintVolumes();
 
 	// Create faces
-	for (uint32 y = 0; y < inGridSize - 1; ++y)
-		for (uint32 x = 0; x < inGridSize - 1; ++x)
+	for (uint32_t y = 0; y < inGridSize - 1; ++y)
+		for (uint32_t x = 0; x < inGridSize - 1; ++x)
 		{
 			SoftBodySharedSettings::Face f;
 
@@ -1836,10 +1836,10 @@ void SoftBodyMotionProperties::DetermineCollidingShapes(const SoftBodyUpdateCont
 	DefaultBroadPhaseLayerFilter broadphase_layer_filter = inSystem.GetDefaultBroadPhaseLayerFilter(layer);
 	DefaultObjectLayerFilter object_layer_filter = inSystem.GetDefaultLayerFilter(layer);
 	inSystem.GetBroadPhaseQuery().CollideAABox(world_bounds, collector, broadphase_layer_filter, object_layer_filter);
-	mNumSensors = uint32(mCollidingSensors.size()); // Workaround for TSAN false positive: store mCollidingSensors.size() in a separate variable.
+	mNumSensors = uint32_t(mCollidingSensors.size()); // Workaround for TSAN false positive: store mCollidingSensors.size() in a separate variable.
 }
 
-void SoftBodyMotionProperties::DetermineCollisionPlanes(uint32 inVertexStart, uint32 inNumVertices)
+void SoftBodyMotionProperties::DetermineCollisionPlanes(uint32_t inVertexStart, uint32_t inNumVertices)
 {
 	MOSS_PROFILE_FUNCTION();
 
@@ -1865,7 +1865,7 @@ void SoftBodyMotionProperties::DetermineSensorCollisions(CollidingSensor &ioSens
 		StridedPtr<float>(&largest_penetration, 0),
 		StridedPtr<int>(&colliding_shape_idx, 0));
 	for (const LeafShape &shape : ioSensor.mShapes)
-		shape.mShape->CollideSoftBodyVertices(shape.mTransform, shape.mScale, vertex_iterator, uint32(mVertices.size()), 0);
+		shape.mShape->CollideSoftBodyVertices(shape.mTransform, shape.mScale, vertex_iterator, uint32_t(mVertices.size()), 0);
 	ioSensor.mHasContact = largest_penetration > 0.0f;
 
 	// We need a contact callback if one of the sensors collided
@@ -1897,7 +1897,7 @@ void SoftBodyMotionProperties::ApplyPressure(const SoftBodyUpdateContext &inCont
 				Vec3 x3 = mVertices[f.mVertex[2]].mPosition;
 
 				Vec3 impulse = coefficient * (x2 - x1).Cross(x3 - x1); // Area is half the cross product so need to still divide by 2
-				for (uint32 i : f.mVertex)
+				for (uint32_t i : f.mVertex)
 				{
 					Vertex &v = mVertices[i];
 					v.mVelocity += v.mInvMass * impulse; // Want to divide by 3 because we spread over 3 vertices
@@ -1938,7 +1938,7 @@ void SoftBodyMotionProperties::IntegratePositions(const SoftBodyUpdateContext &i
 		}
 }
 
-void SoftBodyMotionProperties::ApplyDihedralBendConstraints(const SoftBodyUpdateContext &inContext, uint32 inStartIndex, uint32 inEndIndex)
+void SoftBodyMotionProperties::ApplyDihedralBendConstraints(const SoftBodyUpdateContext &inContext, uint32_t inStartIndex, uint32_t inEndIndex)
 {
 	MOSS_PROFILE_FUNCTION();
 
@@ -2029,7 +2029,7 @@ void SoftBodyMotionProperties::ApplyDihedralBendConstraints(const SoftBodyUpdate
 	}
 }
 
-void SoftBodyMotionProperties::ApplyVolumeConstraints(const SoftBodyUpdateContext &inContext, uint32 inStartIndex, uint32 inEndIndex)
+void SoftBodyMotionProperties::ApplyVolumeConstraints(const SoftBodyUpdateContext &inContext, uint32_t inStartIndex, uint32_t inEndIndex)
 {
 	MOSS_PROFILE_FUNCTION();
 
@@ -2080,7 +2080,7 @@ void SoftBodyMotionProperties::ApplyVolumeConstraints(const SoftBodyUpdateContex
 	}
 }
 
-void SoftBodyMotionProperties::ApplySkinConstraints(const SoftBodyUpdateContext &inContext, uint32 inStartIndex, uint32 inEndIndex)
+void SoftBodyMotionProperties::ApplySkinConstraints(const SoftBodyUpdateContext &inContext, uint32_t inStartIndex, uint32_t inEndIndex)
 {
 	// Early out if nothing to do
 	if (mSettings->mSkinnedConstraints.empty() || !mEnableSkinConstraints)
@@ -2144,7 +2144,7 @@ void SoftBodyMotionProperties::ApplySkinConstraints(const SoftBodyUpdateContext 
 	}
 }
 
-void SoftBodyMotionProperties::ApplyEdgeConstraints(const SoftBodyUpdateContext &inContext, uint32 inStartIndex, uint32 inEndIndex)
+void SoftBodyMotionProperties::ApplyEdgeConstraints(const SoftBodyUpdateContext &inContext, uint32_t inStartIndex, uint32_t inEndIndex)
 {
 	MOSS_PROFILE_FUNCTION();
 
@@ -2174,7 +2174,7 @@ void SoftBodyMotionProperties::ApplyEdgeConstraints(const SoftBodyUpdateContext 
 	}
 }
 
-void SoftBodyMotionProperties::ApplyLRAConstraints(uint32 inStartIndex, uint32 inEndIndex)
+void SoftBodyMotionProperties::ApplyLRAConstraints(uint32_t inStartIndex, uint32_t inEndIndex)
 {
 	MOSS_PROFILE_FUNCTION();
 
@@ -2459,7 +2459,7 @@ void SoftBodyMotionProperties::StartNextIteration(const SoftBodyUpdateContext &i
 void SoftBodyMotionProperties::StartFirstIteration(SoftBodyUpdateContext &ioContext)
 {
 	// Start the first iteration
-	MOSS_IF_ENABLE_ASSERTS(uint32 iteration =) ioContext.mNextIteration.fetch_add(1, memory_order_relaxed);
+	MOSS_IF_ENABLE_ASSERTS(uint32_t iteration =) ioContext.mNextIteration.fetch_add(1, memory_order_relaxed);
 	MOSS_ASSERT(iteration == 0);
 	StartNextIteration(ioContext);
 	ioContext.mState.store(SoftBodyUpdateContext::EState::ApplyConstraints, memory_order_release);
@@ -2468,17 +2468,17 @@ void SoftBodyMotionProperties::StartFirstIteration(SoftBodyUpdateContext &ioCont
 SoftBodyMotionProperties::EStatus SoftBodyMotionProperties::ParallelDetermineCollisionPlanes(SoftBodyUpdateContext &ioContext)
 {
 	// Do a relaxed read first to see if there is any work to do (this prevents us from doing expensive atomic operations and also prevents us from continuously incrementing the counter and overflowing it)
-	uint32 num_vertices = (uint32)mVertices.size();
+	uint32_t num_vertices = (uint32_t)mVertices.size();
 	if (ioContext.mNextCollisionVertex.load(memory_order_relaxed) < num_vertices)
 	{
 		// Fetch next batch of vertices to process
-		uint32 next_vertex = ioContext.mNextCollisionVertex.fetch_add(SoftBodyUpdateContext::cVertexCollisionBatch, memory_order_acquire);
+		uint32_t next_vertex = ioContext.mNextCollisionVertex.fetch_add(SoftBodyUpdateContext::cVertexCollisionBatch, memory_order_acquire);
 		if (next_vertex < num_vertices)
 		{
 			// Process collision planes
-			uint32 num_vertices_to_process = min(SoftBodyUpdateContext::cVertexCollisionBatch, num_vertices - next_vertex);
+			uint32_t num_vertices_to_process = min(SoftBodyUpdateContext::cVertexCollisionBatch, num_vertices - next_vertex);
 			DetermineCollisionPlanes(next_vertex, num_vertices_to_process);
-			uint32 vertices_processed = ioContext.mNumCollisionVerticesProcessed.fetch_add(SoftBodyUpdateContext::cVertexCollisionBatch, memory_order_acq_rel) + num_vertices_to_process;
+			uint32_t vertices_processed = ioContext.mNumCollisionVerticesProcessed.fetch_add(SoftBodyUpdateContext::cVertexCollisionBatch, memory_order_acq_rel) + num_vertices_to_process;
 			if (vertices_processed >= num_vertices)
 			{
 				// Determine next state
@@ -2500,14 +2500,14 @@ SoftBodyMotionProperties::EStatus SoftBodyMotionProperties::ParallelDetermineSen
 	if (ioContext.mNextSensorIndex.load(memory_order_relaxed) < mNumSensors)
 	{
 		// Fetch next sensor to process
-		uint32 sensor_index = ioContext.mNextSensorIndex.fetch_add(1, memory_order_acquire);
+		uint32_t sensor_index = ioContext.mNextSensorIndex.fetch_add(1, memory_order_acquire);
 		if (sensor_index < mNumSensors)
 		{
 			// Process this sensor
 			DetermineSensorCollisions(mCollidingSensors[sensor_index]);
 
 			// Determine next state
-			uint32 sensors_processed = ioContext.mNumSensorsProcessed.fetch_add(1, memory_order_acq_rel) + 1;
+			uint32_t sensors_processed = ioContext.mNumSensorsProcessed.fetch_add(1, memory_order_acq_rel) + 1;
 			if (sensors_processed >= mNumSensors)
 				StartFirstIteration(ioContext);
 			return EStatus::DidWork;
@@ -2517,7 +2517,7 @@ SoftBodyMotionProperties::EStatus SoftBodyMotionProperties::ParallelDetermineSen
 	return EStatus::NoWork;
 }
 
-void SoftBodyMotionProperties::ProcessGroup(const SoftBodyUpdateContext &ioContext, uint32 inGroupIndex)
+void SoftBodyMotionProperties::ProcessGroup(const SoftBodyUpdateContext &ioContext, uint32_t inGroupIndex)
 {
 	// Determine start and end
 	SoftBodySharedSettings::UpdateGroup start { 0, 0, 0, 0, 0 };
@@ -2542,19 +2542,19 @@ void SoftBodyMotionProperties::ProcessGroup(const SoftBodyUpdateContext &ioConte
 
 SoftBodyMotionProperties::EStatus SoftBodyMotionProperties::ParallelApplyConstraints(SoftBodyUpdateContext &ioContext, const PhysicsSettings &inPhysicsSettings)
 {
-	uint32 num_groups = (uint32)mSettings->mUpdateGroups.size();
+	uint32_t num_groups = (uint32_t)mSettings->mUpdateGroups.size();
 	MOSS_ASSERT(num_groups > 0, "SoftBodySharedSettings::Optimize should have been called!");
 	--num_groups; // Last group is the non-parallel group, we don't want to execute it in parallel
 
 	// Do a relaxed read first to see if there is any work to do (this prevents us from doing expensive atomic operations and also prevents us from continuously incrementing the counter and overflowing it)
-	uint32 next_group = ioContext.mNextConstraintGroup.load(memory_order_relaxed);
+	uint32_t next_group = ioContext.mNextConstraintGroup.load(memory_order_relaxed);
 	if (next_group < num_groups || (num_groups == 0 && next_group == 0))
 	{
 		// Fetch the next group process
 		next_group = ioContext.mNextConstraintGroup.fetch_add(1, memory_order_acquire);
 		if (next_group < num_groups || (num_groups == 0 && next_group == 0))
 		{
-			uint32 num_groups_processed = 0;
+			uint32_t num_groups_processed = 0;
 			if (num_groups > 0)
 			{
 				// Process this group
@@ -2574,7 +2574,7 @@ SoftBodyMotionProperties::EStatus SoftBodyMotionProperties::ParallelApplyConstra
 
 				ApplyCollisionConstraintsAndUpdateVelocities(ioContext);
 
-				uint32 iteration = ioContext.mNextIteration.fetch_add(1, memory_order_relaxed);
+				uint32_t iteration = ioContext.mNextIteration.fetch_add(1, memory_order_relaxed);
 				if (iteration < mNumIterations)
 				{
 					// Start a new iteration
@@ -2622,11 +2622,11 @@ SoftBodyMotionProperties::EStatus SoftBodyMotionProperties::ParallelUpdate(SoftB
 	}
 }
 
-void SoftBodyMotionProperties::SkinVertices([[maybe_unused]] RMat44Arg inCenterOfMassTransform, const Mat44 *inJointMatrices, [[maybe_unused]] uint32 inNumJoints, bool inHardSkinAll, TempAllocator &ioTempAllocator)
+void SoftBodyMotionProperties::SkinVertices([[maybe_unused]] RMat44Arg inCenterOfMassTransform, const Mat44 *inJointMatrices, [[maybe_unused]] uint32_t inNumJoints, bool inHardSkinAll, TempAllocator &ioTempAllocator)
 {
 	// Calculate the skin matrices
-	uint32 num_skin_matrices = uint32(mSettings->mInvBindMatrices.size());
-	uint32 skin_matrices_size = num_skin_matrices * sizeof(Mat44);
+	uint32_t num_skin_matrices = uint32_t(mSettings->mInvBindMatrices.size());
+	uint32_t skin_matrices_size = num_skin_matrices * sizeof(Mat44);
 	Mat44 *skin_matrices = (Mat44 *)ioTempAllocator.Allocate(skin_matrices_size);
 	MOSS_SCOPE_EXIT([&ioTempAllocator, skin_matrices, skin_matrices_size]{ ioTempAllocator.Free(skin_matrices, skin_matrices_size); });
 	const Mat44 *skin_matrices_end = skin_matrices + num_skin_matrices;
@@ -2639,7 +2639,7 @@ void SoftBodyMotionProperties::SkinVertices([[maybe_unused]] RMat44Arg inCenterO
 
 	// Skin the vertices
 	MOSS_IF_DEBUG_RENDERER(mSkinStateTransform = inCenterOfMassTransform;)
-	MOSS_IF_ENABLE_ASSERTS(uint32 num_vertices = uint32(mSettings->mVertices.size());)
+	MOSS_IF_ENABLE_ASSERTS(uint32_t num_vertices = uint32_t(mSettings->mVertices.size());)
 	MOSS_ASSERT(mSkinState.size() == num_vertices);
 	const SoftBodySharedSettings::Vertex *in_vertices = mSettings->mVertices.data();
 	for (const Skinned &s : mSettings->mSkinnedConstraints)
@@ -2668,12 +2668,12 @@ void SoftBodyMotionProperties::SkinVertices([[maybe_unused]] RMat44Arg inCenterO
 	for (const Skinned &s : mSettings->mSkinnedConstraints)
 	{
 		Vec3 normal = Vec3::Zero();
-		uint32 num_faces = s.mNormalInfo >> 24;
+		uint32_t num_faces = s.mNormalInfo >> 24;
 		if (num_faces > 0)
 		{
 			// Calculate normal
-			const uint32 *f = &mSettings->mSkinnedConstraintNormals[s.mNormalInfo & 0xffffff];
-			const uint32 *f_end = f + num_faces;
+			const uint32_t *f = &mSettings->mSkinnedConstraintNormals[s.mNormalInfo & 0xffffff];
+			const uint32_t *f_end = f + num_faces;
 			while (f < f_end)
 			{
 				const Face &face = mSettings->mFaces[*f];
@@ -2758,18 +2758,18 @@ void SoftBodyMotionProperties::DrawVertexVelocities(DebugRenderer *inRenderer, R
 template <typename GetEndIndex, typename DrawConstraint>
 inline void SoftBodyMotionProperties::DrawConstraints(ESoftBodyConstraintColor inConstraintColor, const GetEndIndex &inGetEndIndex, const DrawConstraint &inDrawConstraint, ColorArg inBaseColor) const
 {
-	uint32 start = 0;
-	for (uint32 i = 0; i < (uint32)mSettings->mUpdateGroups.size(); ++i)
+	uint32_t start = 0;
+	for (uint32_t i = 0; i < (uint32_t)mSettings->mUpdateGroups.size(); ++i)
 	{
-		uint32 end = inGetEndIndex(mSettings->mUpdateGroups[i]);
+		uint32_t end = inGetEndIndex(mSettings->mUpdateGroups[i]);
 
 		Color base_color;
 		if (inConstraintColor != ESoftBodyConstraintColor::ConstraintType)
-			base_color = Color::GetDistinctColor((uint32)mSettings->mUpdateGroups.size() - i - 1); // Ensure that color 0 is always the last group
+			base_color = Color::GetDistinctColor((uint32_t)mSettings->mUpdateGroups.size() - i - 1); // Ensure that color 0 is always the last group
 		else
 			base_color = inBaseColor;
 
-		for (uint32 idx = start; idx < end; ++idx)
+		for (uint32_t idx = start; idx < end; ++idx)
 		{
 			Color color = inConstraintColor == ESoftBodyConstraintColor::ConstraintOrder? base_color * (float(idx - start) / (end - start)) : base_color;
 			inDrawConstraint(idx, color);
@@ -2785,7 +2785,7 @@ void SoftBodyMotionProperties::DrawEdgeConstraints(DebugRenderer *inRenderer, RM
 		[](const SoftBodySharedSettings::UpdateGroup &inGroup) {
 			return inGroup.mEdgeEndIndex;
 		},
-		[this, inRenderer, &inCenterOfMassTransform](uint32 inIndex, ColorArg inColor) {
+		[this, inRenderer, &inCenterOfMassTransform](uint32_t inIndex, ColorArg inColor) {
 			const Edge &e = mSettings->mEdgeConstraints[inIndex];
 			inRenderer->DrawLine(inCenterOfMassTransform * mVertices[e.mVertex[0]].mPosition, inCenterOfMassTransform * mVertices[e.mVertex[1]].mPosition, inColor);
 		},
@@ -2798,7 +2798,7 @@ void SoftBodyMotionProperties::DrawBendConstraints(DebugRenderer *inRenderer, RM
 		[](const SoftBodySharedSettings::UpdateGroup &inGroup) {
 			return inGroup.mDihedralBendEndIndex;
 		},
-		[this, inRenderer, &inCenterOfMassTransform](uint32 inIndex, ColorArg inColor) {
+		[this, inRenderer, &inCenterOfMassTransform](uint32_t inIndex, ColorArg inColor) {
 			const DihedralBend &b = mSettings->mDihedralBendConstraints[inIndex];
 
 			RVec3 x0 = inCenterOfMassTransform * mVertices[b.mVertex[0]].mPosition;
@@ -2822,7 +2822,7 @@ void SoftBodyMotionProperties::DrawVolumeConstraints(DebugRenderer *inRenderer, 
 		[](const SoftBodySharedSettings::UpdateGroup &inGroup) {
 			return inGroup.mVolumeEndIndex;
 		},
-		[this, inRenderer, &inCenterOfMassTransform](uint32 inIndex, ColorArg inColor) {
+		[this, inRenderer, &inCenterOfMassTransform](uint32_t inIndex, ColorArg inColor) {
 			const Volume &v = mSettings->mVolumeConstraints[inIndex];
 
 			RVec3 x1 = inCenterOfMassTransform * mVertices[v.mVertex[0]].mPosition;
@@ -2844,7 +2844,7 @@ void SoftBodyMotionProperties::DrawSkinConstraints(DebugRenderer *inRenderer, RM
 		[](const SoftBodySharedSettings::UpdateGroup &inGroup) {
 			return inGroup.mSkinnedEndIndex;
 		},
-		[this, inRenderer, &inCenterOfMassTransform](uint32 inIndex, ColorArg inColor) {
+		[this, inRenderer, &inCenterOfMassTransform](uint32_t inIndex, ColorArg inColor) {
 			const Skinned &s = mSettings->mSkinnedConstraints[inIndex];
 			const SkinState &skin_state = mSkinState[s.mVertex];
 			inRenderer->DrawArrow(mSkinStateTransform * skin_state.mPosition, mSkinStateTransform * (skin_state.mPosition + 0.1f * skin_state.mNormal), inColor, 0.01f);
@@ -2859,7 +2859,7 @@ void SoftBodyMotionProperties::DrawLRAConstraints(DebugRenderer *inRenderer, RMa
 		[](const SoftBodySharedSettings::UpdateGroup &inGroup) {
 			return inGroup.mLRAEndIndex;
 		},
-		[this, inRenderer, &inCenterOfMassTransform](uint32 inIndex, ColorArg inColor) {
+		[this, inRenderer, &inCenterOfMassTransform](uint32_t inIndex, ColorArg inColor) {
 			const LRA &l = mSettings->mLRAConstraints[inIndex];
 			inRenderer->DrawLine(inCenterOfMassTransform * mVertices[l.mVertex[0]].mPosition, inCenterOfMassTransform * mVertices[l.mVertex[1]].mPosition, inColor);
 		},

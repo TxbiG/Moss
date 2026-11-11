@@ -79,8 +79,8 @@ void MotionProperties::SetMassProperties(EAllowedDOFs inAllowedDOFs, const MassP
 	mAllowedDOFs = inAllowedDOFs;
 
 	// Decompose DOFs
-	uint32 allowed_translation_axis = uint32(inAllowedDOFs) & 0b111;
-	uint32 allowed_rotation_axis = (uint32(inAllowedDOFs) >> 3) & 0b111;
+	uint32_t allowed_translation_axis = uint32_t(inAllowedDOFs) & 0b111;
+	uint32_t allowed_rotation_axis = (uint32_t(inAllowedDOFs) >> 3) & 0b111;
 
 	// Set inverse mass
 	if (allowed_translation_axis == 0)
@@ -793,12 +793,12 @@ BodyManager::~BodyManager()
 		delete [] active_bodies;
 }
 
-void BodyManager::Init(uint32 inMaxBodies, uint32 inNumBodyMutexes, const BroadPhaseLayerInterface &inLayerInterface)
+void BodyManager::Init(uint32_t inMaxBodies, uint32_t inNumBodyMutexes, const BroadPhaseLayerInterface &inLayerInterface)
 {
 	UniqueLock lock(mBodiesMutex MOSS_IF_ENABLE_ASSERTS(, this, EPhysicsLockTypes::BodiesList));
 
 	// Num body mutexes must be a power of two and not bigger than our MutexMask
-	uint32 num_body_mutexes = Clamp<uint32>(GetNextPowerOf2(inNumBodyMutexes == 0? 2 * thread::hardware_concurrency() : inNumBodyMutexes), 1, sizeof(MutexMask) * 8);
+	uint32_t num_body_mutexes = Clamp<uint32_t>(GetNextPowerOf2(inNumBodyMutexes == 0? 2 * thread::hardware_concurrency() : inNumBodyMutexes), 1, sizeof(MutexMask) * 8);
 #ifdef MOSS_TSAN_ENABLED
 	num_body_mutexes = min(num_body_mutexes, 32U); // TSAN errors out when locking too many mutexes on the same thread, see: https://github.com/google/sanitizers/issues/950
 #endif
@@ -823,7 +823,7 @@ void BodyManager::Init(uint32 inMaxBodies, uint32 inNumBodyMutexes, const BroadP
 	mBroadPhaseLayerInterface = &inLayerInterface;
 }
 
-uint32 BodyManager::GetNumBodies() const
+uint32_t BodyManager::GetNumBodies() const
 {
 	UniqueLock lock(mBodiesMutex MOSS_IF_ENABLE_ASSERTS(, this, EPhysicsLockTypes::BodiesList));
 
@@ -836,7 +836,7 @@ BodyManager::BodyStats BodyManager::GetBodyStats() const
 
 	BodyStats stats;
 	stats.mNumBodies = mNumBodies;
-	stats.mMaxBodies = uint32(mBodies.capacity());
+	stats.mMaxBodies = uint32_t(mBodies.capacity());
 
 	for (const Body *body : mBodies)
 		if (sIsValidBodyPointer(body))
@@ -983,7 +983,7 @@ bool BodyManager::AddBody(Body *ioBody)
 		return false;
 
 	// Determine next free index
-	uint32 idx;
+	uint32_t idx;
 	{
 		UniqueLock lock(mBodiesMutex MOSS_IF_ENABLE_ASSERTS(, this, EPhysicsLockTypes::BodiesList));
 
@@ -991,7 +991,7 @@ bool BodyManager::AddBody(Body *ioBody)
 		{
 			// Pop an item from the freelist
 			MOSS_ASSERT(mBodyIDFreeListStart & cIsFreedBody);
-			idx = uint32(mBodyIDFreeListStart >> cFreedBodyIndexShift);
+			idx = uint32_t(mBodyIDFreeListStart >> cFreedBodyIndexShift);
 			MOSS_ASSERT(!sIsValidBodyPointer(mBodies[idx]));
 			mBodyIDFreeListStart = uintptr_t(mBodies[idx]);
 			mBodies[idx] = ioBody;
@@ -1001,7 +1001,7 @@ bool BodyManager::AddBody(Body *ioBody)
 			if (mBodies.size() < mBodies.capacity())
 			{
 				// Allocate a new entry, note that the array should not actually resize since we've reserved it at init time
-				idx = uint32(mBodies.size());
+				idx = uint32_t(mBodies.size());
 				mBodies.push_back(ioBody);
 			}
 			else
@@ -1016,7 +1016,7 @@ bool BodyManager::AddBody(Body *ioBody)
 	}
 
 	// Get next sequence number and assign the ID
-	uint8 seq_no = GetNextSequenceNumber(idx);
+	uint8_t seq_no = GetNextSequenceNumber(idx);
 	ioBody->mID = BodyID(idx, seq_no);
 	return true;
 }
@@ -1031,7 +1031,7 @@ bool BodyManager::AddBodyWithCustomID(Body *ioBody, const BodyID &inBodyID)
 		UniqueLock lock(mBodiesMutex MOSS_IF_ENABLE_ASSERTS(, this, EPhysicsLockTypes::BodiesList));
 
 		// Check if index is beyond the max body ID
-		uint32 idx = inBodyID.GetIndex();
+		uint32_t idx = inBodyID.GetIndex();
 		if (idx >= mBodies.capacity())
 			return false; // Return error
 
@@ -1094,7 +1094,7 @@ bool BodyManager::AddBodyWithCustomID(Body *ioBody, const BodyID &inBodyID)
 Body *BodyManager::RemoveBodyInternal(const BodyID &inBodyID)
 {
 	// Get body
-	uint32 idx = inBodyID.GetIndex();
+	uint32_t idx = inBodyID.GetIndex();
 	Body *body = mBodies[idx];
 
 	// Validate that it can be removed
@@ -1134,7 +1134,7 @@ void BodyManager::RemoveBodies(const BodyID *inBodyIDs, int inNumber, Body **out
 	UniqueLock lock(mBodiesMutex MOSS_IF_ENABLE_ASSERTS(, this, EPhysicsLockTypes::BodiesList));
 
 	// Update cached number of bodies
-	MOSS_ASSERT(mNumBodies >= (uint32)inNumber);
+	MOSS_ASSERT(mNumBodies >= (uint32_t)inNumber);
 	mNumBodies -= inNumber;
 
 	for (const BodyID *b = inBodyIDs, *b_end = inBodyIDs + inNumber; b < b_end; b++)
@@ -1167,7 +1167,7 @@ void BodyManager::DestroyBodies(const BodyID *inBodyIDs, int inNumber)
 	UniqueLock lock(mBodiesMutex MOSS_IF_ENABLE_ASSERTS(, this, EPhysicsLockTypes::BodiesList));
 
 	// Update cached number of bodies
-	MOSS_ASSERT(mNumBodies >= (uint32)inNumber);
+	MOSS_ASSERT(mNumBodies >= (uint32_t)inNumber);
 	mNumBodies -= inNumber;
 
 	for (const BodyID *b = inBodyIDs, *b_end = inBodyIDs + inNumber; b < b_end; b++)
@@ -1188,11 +1188,11 @@ void BodyManager::AddBodyToActiveBodies(Body &ioBody)
 {
 	// Select the correct array to use
 	int type = (int)ioBody.GetBodyType();
-	atomic<uint32> &num_active_bodies = mNumActiveBodies[type];
+	atomic<uint32_t> &num_active_bodies = mNumActiveBodies[type];
 	BodyID *active_bodies = mActiveBodies[type];
 
 	MotionProperties *mp = ioBody.mMotionProperties;
-	uint32 num_active_bodies_val = num_active_bodies.load(memory_order_relaxed);
+	uint32_t num_active_bodies_val = num_active_bodies.load(memory_order_relaxed);
 	mp->mIndexInActiveBodies = num_active_bodies_val;
 	MOSS_ASSERT(num_active_bodies_val < GetMaxBodies());
 	active_bodies[num_active_bodies_val] = ioBody.GetID();
@@ -1207,10 +1207,10 @@ void BodyManager::RemoveBodyFromActiveBodies(Body &ioBody)
 {
 	// Select the correct array to use
 	int type = (int)ioBody.GetBodyType();
-	atomic<uint32> &num_active_bodies = mNumActiveBodies[type];
+	atomic<uint32_t> &num_active_bodies = mNumActiveBodies[type];
 	BodyID *active_bodies = mActiveBodies[type];
 
-	uint32 last_body_index = num_active_bodies.load(memory_order_relaxed) - 1;
+	uint32_t last_body_index = num_active_bodies.load(memory_order_relaxed) - 1;
 	MotionProperties *mp = ioBody.mMotionProperties;
 	if (mp->mIndexInActiveBodies != last_body_index)
 	{
@@ -1382,7 +1382,7 @@ BodyManager::MutexMask BodyManager::GetMutexMask(const BodyID *inBodies, int inN
 		for (const BodyID *b = inBodies, *b_end = inBodies + inNumber; b < b_end; ++b)
 			if (!b->IsInvalid())
 			{
-				uint32 index = mBodyMutexes.GetMutexIndex(b->GetIndex());
+				uint32_t index = mBodyMutexes.GetMutexIndex(b->GetIndex());
 				mask |= (MutexMask(1) << index);
 			}
 		return mask;
@@ -1458,7 +1458,7 @@ void BodyManager::SaveState(StateRecorder &inStream, const StateRecorderFilter *
 				bodies.push_back(b);
 
 		// Write state of bodies
-		uint32 num_bodies = (uint32)bodies.size();
+		uint32_t num_bodies = (uint32_t)bodies.size();
 		inStream.Write(num_bodies);
 		for (const Body *b : bodies)
 		{
@@ -1481,11 +1481,11 @@ bool BodyManager::RestoreState(StateRecorder &inStream)
 		if (inStream.IsValidating())
 		{
 			// Read state of bodies, note this reads it in a way to be consistent with validation
-			uint32 old_num_bodies = 0;
+			uint32_t old_num_bodies = 0;
 			for (const Body *b : mBodies)
 				if (sIsValidBodyPointer(b) && b->IsInBroadPhase())
 					++old_num_bodies;
-			uint32 num_bodies = old_num_bodies; // Initialize to current value for validation
+			uint32_t num_bodies = old_num_bodies; // Initialize to current value for validation
 			inStream.Read(num_bodies);
 			if (num_bodies != old_num_bodies)
 			{
@@ -1520,11 +1520,11 @@ bool BodyManager::RestoreState(StateRecorder &inStream)
 		else
 		{
 			// Not validating, we can be a bit more loose, read number of bodies
-			uint32 num_bodies = 0;
+			uint32_t num_bodies = 0;
 			inStream.Read(num_bodies);
 
 			// Iterate over the stored bodies and restore their state
-			for (uint32 idx = 0; idx < num_bodies; ++idx)
+			for (uint32_t idx = 0; idx < num_bodies; ++idx)
 			{
 				BodyID body_id;
 				inStream.Read(body_id);
@@ -1684,7 +1684,7 @@ void BodyManager::Draw(const DrawSettings &inDrawSettings, const PhysicsSettings
 					case EMotionType::Kinematic:
 					case EMotionType::Dynamic:
 						{
-							uint32 idx = body->GetMotionProperties()->GetIslandIndexInternal();
+							uint32_t idx = body->GetMotionProperties()->GetIslandIndexInternal();
 							color = idx != Body::cInactiveIndex? Color::GetDistinctColor(idx) : Color::LightGrey;
 						}
 						break;
@@ -1765,7 +1765,7 @@ void BodyManager::Draw(const DrawSettings &inDrawSettings, const PhysicsSettings
 			{
 				// Draw stats to know which bodies could go to sleep
 				String text = StringFormat("t: %.1f", (double)body->mMotionProperties->mSleepTestTimer);
-				uint8 g = uint8(Clamp(255.0f * body->mMotionProperties->mSleepTestTimer / inPhysicsSettings.mTimeBeforeSleep, 0.0f, 255.0f));
+				uint8_t g = uint8_t(Clamp(255.0f * body->mMotionProperties->mSleepTestTimer / inPhysicsSettings.mTimeBeforeSleep, 0.0f, 255.0f));
 				Color sleep_color = Color(0, 255 - g, g);
 				inRenderer->DrawText3D(body->GetCenterOfMassPosition(), text, sleep_color, 0.2f);
 				for (int i = 0; i < 3; ++i)
@@ -1836,7 +1836,7 @@ void BodyManager::ValidateActiveBodyBounds()
 {
 	UniqueLock lock(mActiveBodiesMutex MOSS_IF_ENABLE_ASSERTS(, this, EPhysicsLockTypes::ActiveBodiesList));
 
-	for (uint32 type = 0; type < cBodyTypeCount; ++type)
+	for (uint32_t type = 0; type < cBodyTypeCount; ++type)
 		for (BodyID *id = mActiveBodies[type], *id_end = mActiveBodies[type] + mNumActiveBodies[type].load(memory_order_relaxed); id < id_end; ++id)
 		{
 			const Body *body = mBodies[id->GetIndex()];
@@ -1991,7 +1991,7 @@ void BodyCreationSettings::SaveWithChildren(StreamOut &inStream, ShapeToIDMap *i
 	if (ioShapeMap != nullptr && ioMaterialMap != nullptr)
 		GetShape()->SaveWithChildren(inStream, *ioShapeMap, *ioMaterialMap);
 	else
-		inStream.Write(~uint32(0));
+		inStream.Write(~uint32_t(0));
 
 	// Save group filter
 	StreamUtils::SaveObjectReference(inStream, mCollisionGroup.GetGroupFilter(), ioGroupFilterMap);
@@ -3031,7 +3031,7 @@ TransformedShape BodyInterface::GetTransformedShape(const BodyID &inBodyID) cons
 		return TransformedShape();
 }
 
-uint64 BodyInterface::GetUserData(const BodyID &inBodyID) const
+uint64_t BodyInterface::GetUserData(const BodyID &inBodyID) const
 {
 	BodyLockRead lock(*mBodyLockInterface, inBodyID);
 	if (lock.Succeeded())
@@ -3040,7 +3040,7 @@ uint64 BodyInterface::GetUserData(const BodyID &inBodyID) const
 		return 0;
 }
 
-void BodyInterface::SetUserData(const BodyID &inBodyID, uint64 inUserData) const
+void BodyInterface::SetUserData(const BodyID &inBodyID, uint64_t inUserData) const
 {
 	BodyLockWrite lock(*mBodyLockInterface, inBodyID);
 	if (lock.Succeeded())

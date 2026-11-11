@@ -28,7 +28,7 @@ void PhysicsScene::AddBody(const BodyCreationSettings &inBody)
 	mBodies.push_back(inBody);
 }
 
-void PhysicsScene::AddConstraint(const TwoBodyConstraintSettings *inConstraint, uint32 inBody1, uint32 inBody2)
+void PhysicsScene::AddConstraint(const TwoBodyConstraintSettings *inConstraint, uint32_t inBody1, uint32_t inBody2)
 {
 	mConstraints.emplace_back(inConstraint, inBody1, inBody2);
 }
@@ -115,12 +115,12 @@ void PhysicsScene::SaveBinaryState(StreamOut &inStream, bool inSaveShapes, bool 
 	SoftBodyCreationSettings::SharedSettingsToIDMap settings_to_id;
 
 	// Save bodies
-	inStream.Write((uint32)mBodies.size());
+	inStream.Write((uint32_t)mBodies.size());
 	for (const BodyCreationSettings &b : mBodies)
 		b.SaveWithChildren(inStream, inSaveShapes? &shape_to_id : nullptr, inSaveShapes? &material_to_id : nullptr, inSaveGroupFilter? &group_filter_to_id : nullptr);
 
 	// Save constraints
-	inStream.Write((uint32)mConstraints.size());
+	inStream.Write((uint32_t)mConstraints.size());
 	for (const ConnectedConstraint &cc : mConstraints)
 	{
 		cc.mSettings->SaveBinaryState(inStream);
@@ -129,7 +129,7 @@ void PhysicsScene::SaveBinaryState(StreamOut &inStream, bool inSaveShapes, bool 
 	}
 
 	// Save soft bodies
-	inStream.Write((uint32)mSoftBodies.size());
+	inStream.Write((uint32_t)mSoftBodies.size());
 	for (const SoftBodyCreationSettings &b : mSoftBodies)
 		b.SaveWithChildren(inStream, &settings_to_id, &material_to_id, inSaveGroupFilter? &group_filter_to_id : nullptr);
 }
@@ -152,7 +152,7 @@ PhysicsScene::PhysicsSceneResult PhysicsScene::RestoreFromBinaryState(StreamIn &
 	id_to_group_filter.reserve(128);
 
 	// Read bodies
-	uint32 len = 0;
+	uint32_t len = 0;
 	inStream.Read(len);
 	scene->mBodies.resize(len);
 	for (BodyCreationSettings &b : scene->mBodies)
@@ -207,7 +207,7 @@ PhysicsScene::PhysicsSceneResult PhysicsScene::RestoreFromBinaryState(StreamIn &
 void PhysicsScene::FromPhysicsSystem(const PhysicsSystem *inSystem)
 {
 	// This map will track where each body went in mBodies
-	using BodyIDToIdxMap = TMap<BodyID, uint32>;
+	using BodyIDToIdxMap = TMap<BodyID, uint32_t>;
 	BodyIDToIdxMap body_id_to_idx;
 
 	// Map invalid ID
@@ -225,7 +225,7 @@ void PhysicsScene::FromPhysicsSystem(const PhysicsSystem *inSystem)
 		if (lock.Succeeded())
 		{
 			// Store location of body
-			body_id_to_idx[id] = (uint32)mBodies.size();
+			body_id_to_idx[id] = (uint32_t)mBodies.size();
 
 			const Body &body = lock.GetBody();
 

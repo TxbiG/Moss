@@ -39,7 +39,7 @@ struct Moss_Renderer {
     // Synchronization
     HANDLE                           mFenceEvent;
     ComPtr<ID3D12Fence>              mFence;
-    UINT64                            mFenceValues[cFrameCount] = {};
+    uint64_t                            mFenceValues[cFrameCount] = {};
     uint32_t                          mFrameIndex = 0;
 
     // Post-processing / FSR

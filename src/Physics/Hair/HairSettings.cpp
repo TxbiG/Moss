@@ -129,31 +129,31 @@ void HairSettings::InitRenderAndSimulationStrands(const Array<SVertex> &inVertic
 {
 	// Copy original strands to render strands
 	mRenderVertices.resize(inVertices.size());
-	for (uint32 i = 0, n = uint32(inVertices.size()); i < n; ++i)
+	for (uint32_t i = 0, n = uint32_t(inVertices.size()); i < n; ++i)
 		mRenderVertices[i].mPosition = inVertices[i].mPosition;
 	mRenderStrands.resize(inStrands.size());
-	for (uint32 i = 0, n = uint32(inStrands.size()); i < n; ++i)
+	for (uint32_t i = 0, n = uint32_t(inStrands.size()); i < n; ++i)
 		mRenderStrands[i] = RStrand(inStrands[i].mStartVtx, inStrands[i].mEndVtx);
 
 	// Create buffer that holds indices to the strands
-	Array<uint32> indices_shuffle;
+	Array<uint32_t> indices_shuffle;
 	indices_shuffle.resize(inStrands.size());
-	for (uint32 i = 0, n = uint32(inStrands.size()); i < n; ++i)
+	for (uint32_t i = 0, n = uint32_t(inStrands.size()); i < n; ++i)
 		indices_shuffle[i] = i;
 
 	// Order on material index
-	QuickSort(indices_shuffle.begin(), indices_shuffle.end(), [&inStrands](uint32 inLHS, uint32 inRHS) {
+	QuickSort(indices_shuffle.begin(), indices_shuffle.end(), [&inStrands](uint32_t inLHS, uint32_t inRHS) {
 		return inStrands[inLHS].mMaterialIndex < inStrands[inRHS].mMaterialIndex;
 	});
 
 	// Loop over all materials
-	Array<uint32>::iterator begin_material = indices_shuffle.begin();
+	Array<uint32_t>::iterator begin_material = indices_shuffle.begin();
 	while (begin_material < indices_shuffle.end())
 	{
-		uint32 material_index = inStrands[*begin_material].mMaterialIndex;
+		uint32_t material_index = inStrands[*begin_material].mMaterialIndex;
 
 		// Find end of this material
-		Array<uint32>::iterator end_material = begin_material;
+		Array<uint32_t>::iterator end_material = begin_material;
 		do
 			++end_material;
 		while (end_material < indices_shuffle.end() && inStrands[*end_material].mMaterialIndex == material_index);
@@ -162,18 +162,18 @@ void HairSettings::InitRenderAndSimulationStrands(const Array<SVertex> &inVertic
 		std::mt19937 random;
 		std::shuffle(begin_material, end_material, random);
 		size_t num_simulated = max<size_t>(size_t(ceil(double(mMaterials[material_index].mSimulationStrandsFraction) * double(end_material - begin_material))), 1);
-		Array<uint32>::iterator end_simulation = begin_material + num_simulated;
-		QuickSort(begin_material, end_simulation, std::less<uint32>()); // Sort simulated strands back to original order
-		for (Array<uint32>::const_iterator idx = begin_material; idx < end_simulation; ++idx)
+		Array<uint32_t>::iterator end_simulation = begin_material + num_simulated;
+		QuickSort(begin_material, end_simulation, std::less<uint32_t>()); // Sort simulated strands back to original order
+		for (Array<uint32_t>::const_iterator idx = begin_material; idx < end_simulation; ++idx)
 		{
 			// Add simulation strand
 			const HairSettings::SStrand &sim_strand = inStrands[*idx];
-			mSimStrands.push_back(HairSettings::SStrand((uint32)mSimVertices.size(), (uint32)mSimVertices.size() + sim_strand.VertexCount(), sim_strand.mMaterialIndex));
+			mSimStrands.push_back(HairSettings::SStrand((uint32_t)mSimVertices.size(), (uint32_t)mSimVertices.size() + sim_strand.VertexCount(), sim_strand.mMaterialIndex));
 
-			for (uint32 v = sim_strand.mStartVtx; v < sim_strand.mEndVtx; ++v)
+			for (uint32_t v = sim_strand.mStartVtx; v < sim_strand.mEndVtx; ++v)
 			{
 				// Link render vertex to simulation vertex
-				mRenderVertices[v].mInfluences[0].mVertexIndex = uint32(mSimVertices.size());
+				mRenderVertices[v].mInfluences[0].mVertexIndex = uint32_t(mSimVertices.size());
 
 				// Add simulation vertex
 				mSimVertices.push_back(inVertices[v]);
@@ -181,26 +181,26 @@ void HairSettings::InitRenderAndSimulationStrands(const Array<SVertex> &inVertic
 		}
 
 		// Get influences for remaining strands
-		for (Array<uint32>::const_iterator idx = end_simulation; idx < end_material; ++idx)
+		for (Array<uint32_t>::const_iterator idx = end_simulation; idx < end_material; ++idx)
 		{
 			const HairSettings::SStrand &render_strand = inStrands[*idx];
 
 			// Find closest simulation strand
 			float closest_d_sq = FLT_MAX;
-			uint32 closest_strand_idx = 0;
+			uint32_t closest_strand_idx = 0;
 			for (const HairSettings::SStrand &sim_strand : mSimStrands)
 				if (sim_strand.mMaterialIndex == render_strand.mMaterialIndex)
 				{
 					// Get the first 2 vertices of the simulation strand
-					uint32 v_max = sim_strand.mEndVtx - 1;
-					uint32 v = sim_strand.mStartVtx, v_next = min(v + 1, v_max);
+					uint32_t v_max = sim_strand.mEndVtx - 1;
+					uint32_t v = sim_strand.mStartVtx, v_next = min(v + 1, v_max);
 					Vec3 v_pos(mSimVertices[v].mPosition), v_next_pos(mSimVertices[v_next].mPosition);
 
 					// Track total error when selecting this sim strand as parent for the render strand
 					float d_sq_total = 0.0f;
 
 					// Loop over the render strand
-					for (uint32 rv = render_strand.mStartVtx; rv < render_strand.mEndVtx; ++rv)
+					for (uint32_t rv = render_strand.mStartVtx; rv < render_strand.mEndVtx; ++rv)
 					{
 						Vec3 rv_pos(mRenderVertices[rv].mPosition);
 
@@ -233,19 +233,19 @@ void HairSettings::InitRenderAndSimulationStrands(const Array<SVertex> &inVertic
 					if (d_sq_total < closest_d_sq)
 					{
 						closest_d_sq = d_sq_total;
-						closest_strand_idx = uint32(&sim_strand - mSimStrands.data());
+						closest_strand_idx = uint32_t(&sim_strand - mSimStrands.data());
 					}
 				}
 			const HairSettings::SStrand &closest_strand = mSimStrands[closest_strand_idx];
 
 			// Link render vertices to simulation vertices
-			for (uint32 v = render_strand.mStartVtx; v < render_strand.mEndVtx; ++v)
+			for (uint32_t v = render_strand.mStartVtx; v < render_strand.mEndVtx; ++v)
 			{
 				HairSettings::RVertex &rv = mRenderVertices[v];
 
 				// Find closest simulated vertex
 				closest_d_sq = FLT_MAX;
-				for (uint32 cv = closest_strand.mStartVtx; cv < closest_strand.mEndVtx; ++cv)
+				for (uint32_t cv = closest_strand.mStartVtx; cv < closest_strand.mEndVtx; ++cv)
 				{
 					float d_sq = (Vec3(mSimVertices[cv].mPosition) - Vec3(rv.mPosition)).LengthSq();
 					if (d_sq < closest_d_sq)
@@ -262,7 +262,7 @@ void HairSettings::InitRenderAndSimulationStrands(const Array<SVertex> &inVertic
 	}
 }
 
-void HairSettings::Resample(Array<SVertex> &ioVertices, Array<SStrand> &ioStrands, uint32 inNumVerticesPerStrand)
+void HairSettings::Resample(Array<SVertex> &ioVertices, Array<SStrand> &ioStrands, uint32_t inNumVerticesPerStrand)
 {
 	Array<SVertex> vertices;
 	ioVertices.swap(vertices);
@@ -273,7 +273,7 @@ void HairSettings::Resample(Array<SVertex> &ioVertices, Array<SStrand> &ioStrand
 	{
 		// Determine output strand
 		SStrand out_strand;
-		out_strand.mStartVtx = (uint32)ioVertices.size();
+		out_strand.mStartVtx = (uint32_t)ioVertices.size();
 		out_strand.mEndVtx = out_strand.mStartVtx + inNumVerticesPerStrand;
 		out_strand.mMaterialIndex = strand.mMaterialIndex;
 		ioStrands.push_back(out_strand);
@@ -289,7 +289,7 @@ void HairSettings::Resample(Array<SVertex> &ioVertices, Array<SStrand> &ioStrand
 		const SVertex *v0 = &vertices[strand.mStartVtx];
 		const SVertex *v1 = &vertices[strand.mStartVtx + 1];
 		float segment_length = (Vec3(v1->mPosition) - Vec3(v0->mPosition)).Length();
-		for (uint32 resampled_point = 1; resampled_point < inNumVerticesPerStrand - 1; ++resampled_point)
+		for (uint32_t resampled_point = 1; resampled_point < inNumVerticesPerStrand - 1; ++resampled_point)
 		{
 			float desired_len = resampled_point * length / (inNumVerticesPerStrand - 1);
 
@@ -298,7 +298,7 @@ void HairSettings::Resample(Array<SVertex> &ioVertices, Array<SStrand> &ioStrand
 				cur_length += segment_length;
 				++v0;
 				++v1;
-				JPH_ASSERT(uint32(v1 - vertices.data()) < strand.mEndVtx);
+				JPH_ASSERT(uint32_t(v1 - vertices.data()) < strand.mEndVtx);
 				segment_length = (Vec3(v1->mPosition) - Vec3(v0->mPosition)).Length();
 			}
 
@@ -312,7 +312,7 @@ void HairSettings::Resample(Array<SVertex> &ioVertices, Array<SStrand> &ioStrand
 		// Add the last vertex of the strand
 		ioVertices.push_back(vertices[strand.mEndVtx - 1]);
 
-		JPH_ASSERT(uint32(ioVertices.size()) == out_strand.mEndVtx);
+		JPH_ASSERT(uint32_t(ioVertices.size()) == out_strand.mEndVtx);
 	}
 }
 
@@ -349,7 +349,7 @@ static void sHairSettingsFindClosestTriangle(Vec3Arg inPoint, const AABBTreeBuil
 			Vec3 v2 = Vec3(inScalpVertices[t->mIdx[2]]) - inPoint;
 
 			// Check if it is the closest triangle
-			uint32 set;
+			uint32_t set;
 			Vec3 closest_point = ClosestPoint::GetClosestPointOnTriangle(v0, v1, v2, set);
 			float dist_sq = closest_point.LengthSq();
 			if (dist_sq < ioClosestDistSq)
@@ -375,7 +375,7 @@ void HairSettings::Init(float &outMaxDistSqHairToScalp)
 		IndexedTriangleList triangles;
 		triangles.reserve(mScalpTriangles.size());
 		for (const IndexedTriangleNoMaterial &t : mScalpTriangles)
-			triangles.push_back(IndexedTriangle(t.mIdx[0], t.mIdx[1], t.mIdx[2], uint32(&t - mScalpTriangles.data())));
+			triangles.push_back(IndexedTriangle(t.mIdx[0], t.mIdx[1], t.mIdx[2], uint32_t(&t - mScalpTriangles.data())));
 		TriangleSplitterBinning splitter(mScalpVertices, triangles);
 		AABBTreeBuilder builder(splitter, 8);
 		AABBTreeBuilderStats builder_stats;
@@ -419,13 +419,13 @@ void HairSettings::Init(float &outMaxDistSqHairToScalp)
 	for (const SStrand &strand : mSimStrands)
 	{
 		// Calculate max number of vertices per strand
-		uint32 vertex_count = strand.VertexCount();
+		uint32_t vertex_count = strand.VertexCount();
 		mMaxVerticesPerStrand = max(mMaxVerticesPerStrand, vertex_count);
 
 		// Calculate strand fraction for each vertex
 		float total_length = strand.MeasureLength(mSimVertices);
 		float cur_length = 0.0f;
-		for (uint32 i = strand.mStartVtx; i < strand.mEndVtx - 1; ++i)
+		for (uint32_t i = strand.mStartVtx; i < strand.mEndVtx - 1; ++i)
 		{
 			SVertex &v = mSimVertices[i];
 			v.mStrandFraction = cur_length / total_length;
@@ -465,7 +465,7 @@ void HairSettings::Init(float &outMaxDistSqHairToScalp)
 
 		const HairSettings::Material &material = mMaterials[strand.mMaterialIndex];
 		HairSettings::GradientSampler gravity_sampler(material.mGravityFactor);
-		for (uint32 i = 1; i < vertex_count; ++i)
+		for (uint32_t i = 1; i < vertex_count; ++i)
 		{
 			const SVertex &v1 = mSimVertices[strand.mStartVtx + i - 1];
 			const SVertex &v2 = mSimVertices[strand.mStartVtx + i];
@@ -483,7 +483,7 @@ void HairSettings::Init(float &outMaxDistSqHairToScalp)
 			{
 				// Don't modify the 1st vertex since it's fixed
 				// Loop backwards so that we can use the latest value of x[i + 1]
-				for (uint32 i = vertex_count - 1; i >= 1; --i)
+				for (uint32_t i = vertex_count - 1; i >= 1; --i)
 				{
 					// Calculate reference frame for this edge
 					Vec3 frame_x = x[i].Normalized();
@@ -514,7 +514,7 @@ void HairSettings::Init(float &outMaxDistSqHairToScalp)
 		}
 
 		// Calculate the Bishop frames for the rest of the rods in the strand
-		for (uint32 i = 1; i < vertex_count - 1; ++i)
+		for (uint32_t i = 1; i < vertex_count - 1; ++i)
 		{
 			SVertex &v1 = mSimVertices[strand.mStartVtx + i];
 			const SVertex &v2 = mSimVertices[strand.mStartVtx + i + 1];
@@ -593,7 +593,7 @@ void HairSettings::Init(float &outMaxDistSqHairToScalp)
 	for (const SVertex &v : mSimVertices)
 		if (v.mInvMass > 0.0f)
 		{
-			sampler.Sample(Vec3(v.mPosition), [this, &v](uint32 inIndex, float inFraction) {
+			sampler.Sample(Vec3(v.mPosition), [this, &v](uint32_t inIndex, float inFraction) {
 				mNeutralDensity[inIndex] += inFraction / v.mInvMass;
 			});
 		}
@@ -644,7 +644,7 @@ void HairSettings::InitCompute(ComputeSystem *inComputeSystem)
 	// Optional: We can attach the roots of the hairs to the scalp
 	if (!mScalpTriangles.empty() && !mSkinPoints.empty())
 	{
-		mScalpTrianglesCB = inComputeSystem->CreateComputeBuffer(ComputeBuffer::EType::Buffer, mScalpTriangles.size() * 3, sizeof(uint32), mScalpTriangles.data()).Get();
+		mScalpTrianglesCB = inComputeSystem->CreateComputeBuffer(ComputeBuffer::EType::Buffer, mScalpTriangles.size() * 3, sizeof(uint32_t), mScalpTriangles.data()).Get();
 		mSkinPointsCB = inComputeSystem->CreateComputeBuffer(ComputeBuffer::EType::Buffer, mSkinPoints.size(), sizeof(SkinPoint), mSkinPoints.data()).Get();
 
 		// We can skin the scalp or the skinned vertices can be provided externally
@@ -656,44 +656,44 @@ void HairSettings::InitCompute(ComputeSystem *inComputeSystem)
 	}
 
 	// Calculate the number of vertices for every strand
-	Array<uint8> strand_vertex_counts;
-	strand_vertex_counts.resize((mSimStrands.size() + sizeof(uint32) - 1) & ~(sizeof(uint32) - 1), 0); // Make size multiple of sizeof(uint32)
+	Array<uint8_t> strand_vertex_counts;
+	strand_vertex_counts.resize((mSimStrands.size() + sizeof(uint32_t) - 1) & ~(sizeof(uint32_t) - 1), 0); // Make size multiple of sizeof(uint32_t)
 	for (size_t i = 0, n = mSimStrands.size(); i < n; ++i)
 	{
-		uint32 count = mSimStrands[i].VertexCount();
+		uint32_t count = mSimStrands[i].VertexCount();
 		JPH_ASSERT(count < 256);
-		strand_vertex_counts[i] = (uint8)count;
+		strand_vertex_counts[i] = (uint8_t)count;
 	}
 
 	// Calculate material index for every strand
-	Array<uint8> strand_material_indices;
-	strand_material_indices.resize((mSimStrands.size() + sizeof(uint32) - 1) & ~(sizeof(uint32) - 1), 0); // Make size multiple of sizeof(uint32)
+	Array<uint8_t> strand_material_indices;
+	strand_material_indices.resize((mSimStrands.size() + sizeof(uint32_t) - 1) & ~(sizeof(uint32_t) - 1), 0); // Make size multiple of sizeof(uint32_t)
 	for (size_t i = 0, n = mSimStrands.size(); i < n; ++i)
 	{
-		uint32 material_index = mSimStrands[i].mMaterialIndex;
+		uint32_t material_index = mSimStrands[i].mMaterialIndex;
 		JPH_ASSERT(material_index < 256);
-		strand_material_indices[i] = (uint8)material_index;
+		strand_material_indices[i] = (uint8_t)material_index;
 	}
 
 	// Create buffers that contain information about the rest pose of the hair
 	// Rearrange vertices so that the first vertices of all strands are grouped together, then the second vertices, etc.
-	uint32 num_vertices = uint32(mMaxVerticesPerStrand * mSimStrands.size());
+	uint32_t num_vertices = uint32_t(mMaxVerticesPerStrand * mSimStrands.size());
 	Array<Float3> vertices_position;
 	vertices_position.resize(num_vertices);
-	Array<uint32> vertices_bishop;
+	Array<uint32_t> vertices_bishop;
 	vertices_bishop.resize(num_vertices);
-	Array<uint32> vertices_omega0;
+	Array<uint32_t> vertices_omega0;
 	vertices_omega0.resize(num_vertices);
-	Array<uint32> vertices_fixed;
+	Array<uint32_t> vertices_fixed;
 	vertices_fixed.resize((num_vertices + 31) / 32, 0);
 	Array<float> vertices_length;
 	vertices_length.resize(num_vertices);
-	Array<uint32> vertices_strand_fraction;
+	Array<uint32_t> vertices_strand_fraction;
 	vertices_strand_fraction.resize((num_vertices + 3) / 4, 0);
 	for (size_t s = 0, ns = mSimStrands.size(); s < ns; ++s)
 	{
 		const SStrand &strand = mSimStrands[s];
-		for (uint32 v = 0, nv = strand.VertexCount(); v < nv; ++v)
+		for (uint32_t v = 0, nv = strand.VertexCount(); v < nv; ++v)
 		{
 			const SVertex &in_v = mSimVertices[strand.mStartVtx + v];
 			size_t idx = v * mSimStrands.size() + s;
@@ -703,23 +703,23 @@ void HairSettings::InitCompute(ComputeSystem *inComputeSystem)
 			vertices_omega0[idx] = Vec4::LoadFloat4(&in_v.mOmega0).CompressUnitVector();
 			vertices_length[idx] = in_v.mLength;
 			if (in_v.mInvMass <= 0.0f)
-				vertices_fixed[idx >> 5] |= uint32(1 << (idx & 31));
-			vertices_strand_fraction[idx >> 2] |= uint32(in_v.mStrandFraction * 255.0f) << ((idx & 3) << 3);
+				vertices_fixed[idx >> 5] |= uint32_t(1 << (idx & 31));
+			vertices_strand_fraction[idx >> 2] |= uint32_t(in_v.mStrandFraction * 255.0f) << ((idx & 3) << 3);
 		}
 	}
 
 	// Calculate a map from render vertex to strand index
-	Array<uint32> simulation_vertex_to_strand_idx;
-	simulation_vertex_to_strand_idx.resize(mSimVertices.size(), ~uint32(0));
+	Array<uint32_t> simulation_vertex_to_strand_idx;
+	simulation_vertex_to_strand_idx.resize(mSimVertices.size(), ~uint32_t(0));
 	for (const SStrand &strand : mSimStrands)
-		for (uint32 v = strand.mStartVtx; v < strand.mEndVtx; ++v)
-				simulation_vertex_to_strand_idx[v] = uint32(&strand - mSimStrands.data());
+		for (uint32_t v = strand.mStartVtx; v < strand.mEndVtx; ++v)
+				simulation_vertex_to_strand_idx[v] = uint32_t(&strand - mSimStrands.data());
 
 	// Create buffer for simulated vertex influences
 	Array<JPH_HairSVertexInfluence> svertex_influences;
 	svertex_influences.resize(mRenderVertices.size() * cHairNumSVertexInfluences);
 	for (size_t v = 0, n = mRenderVertices.size(); v < n; ++v)
-		for (uint32 a = 0; a < cHairNumSVertexInfluences; ++a)
+		for (uint32_t a = 0; a < cHairNumSVertexInfluences; ++a)
 		{
 			JPH_HairSVertexInfluence &inf = svertex_influences[v * cHairNumSVertexInfluences + a];
 			inf = static_cast<const JPH_HairSVertexInfluence &>(mRenderVertices[v].mInfluences[a]);
@@ -727,9 +727,9 @@ void HairSettings::InitCompute(ComputeSystem *inComputeSystem)
 			// Remap vertex index to reflect the transposing of the position buffer
 			if (inf.mVertexIndex != cNoInfluence)
 			{
-				uint32 strand_idx = simulation_vertex_to_strand_idx[inf.mVertexIndex];
-				uint32 start_vtx = mSimStrands[strand_idx].mStartVtx;
-				inf.mVertexIndex = strand_idx + (inf.mVertexIndex - start_vtx) * uint32(mSimStrands.size());
+				uint32_t strand_idx = simulation_vertex_to_strand_idx[inf.mVertexIndex];
+				uint32_t start_vtx = mSimStrands[strand_idx].mStartVtx;
+				inf.mVertexIndex = strand_idx + (inf.mVertexIndex - start_vtx) * uint32_t(mSimStrands.size());
 			}
 			else
 			{
@@ -739,13 +739,13 @@ void HairSettings::InitCompute(ComputeSystem *inComputeSystem)
 		}
 
 	mVerticesPositionCB = inComputeSystem->CreateComputeBuffer(ComputeBuffer::EType::Buffer, vertices_position.size(), sizeof(Float3), vertices_position.data()).Get();
-	mVerticesBishopCB = inComputeSystem->CreateComputeBuffer(ComputeBuffer::EType::Buffer, vertices_bishop.size(), sizeof(uint32), vertices_bishop.data()).Get();
-	mVerticesOmega0CB = inComputeSystem->CreateComputeBuffer(ComputeBuffer::EType::Buffer, vertices_omega0.size(), sizeof(uint32), vertices_omega0.data()).Get();
+	mVerticesBishopCB = inComputeSystem->CreateComputeBuffer(ComputeBuffer::EType::Buffer, vertices_bishop.size(), sizeof(uint32_t), vertices_bishop.data()).Get();
+	mVerticesOmega0CB = inComputeSystem->CreateComputeBuffer(ComputeBuffer::EType::Buffer, vertices_omega0.size(), sizeof(uint32_t), vertices_omega0.data()).Get();
 	mVerticesLengthCB = inComputeSystem->CreateComputeBuffer(ComputeBuffer::EType::Buffer, vertices_length.size(), sizeof(float), vertices_length.data()).Get();
-	mVerticesFixedCB = inComputeSystem->CreateComputeBuffer(ComputeBuffer::EType::Buffer, vertices_fixed.size(), sizeof(uint32), vertices_fixed.data()).Get();
-	mVerticesStrandFractionCB = inComputeSystem->CreateComputeBuffer(ComputeBuffer::EType::Buffer, vertices_strand_fraction.size(), sizeof(uint32), vertices_strand_fraction.data()).Get();
-	mStrandVertexCountsCB = inComputeSystem->CreateComputeBuffer(ComputeBuffer::EType::Buffer, strand_vertex_counts.size() / sizeof(uint32), sizeof(uint32), strand_vertex_counts.data()).Get();
-	mStrandMaterialIndexCB = inComputeSystem->CreateComputeBuffer(ComputeBuffer::EType::Buffer, strand_material_indices.size() / sizeof(uint32), sizeof(uint32), strand_material_indices.data()).Get();
+	mVerticesFixedCB = inComputeSystem->CreateComputeBuffer(ComputeBuffer::EType::Buffer, vertices_fixed.size(), sizeof(uint32_t), vertices_fixed.data()).Get();
+	mVerticesStrandFractionCB = inComputeSystem->CreateComputeBuffer(ComputeBuffer::EType::Buffer, vertices_strand_fraction.size(), sizeof(uint32_t), vertices_strand_fraction.data()).Get();
+	mStrandVertexCountsCB = inComputeSystem->CreateComputeBuffer(ComputeBuffer::EType::Buffer, strand_vertex_counts.size() / sizeof(uint32_t), sizeof(uint32_t), strand_vertex_counts.data()).Get();
+	mStrandMaterialIndexCB = inComputeSystem->CreateComputeBuffer(ComputeBuffer::EType::Buffer, strand_material_indices.size() / sizeof(uint32_t), sizeof(uint32_t), strand_material_indices.data()).Get();
 	mNeutralDensityCB = inComputeSystem->CreateComputeBuffer(ComputeBuffer::EType::Buffer, mNeutralDensity.size(), sizeof(float), mNeutralDensity.data()).Get();
 	mSVertexInfluencesCB = inComputeSystem->CreateComputeBuffer(ComputeBuffer::EType::Buffer, mRenderVertices.size() * cHairNumSVertexInfluences, sizeof(JPH_HairSVertexInfluence), svertex_influences.data()).Get();
 }
@@ -842,7 +842,7 @@ void HairSettings::RestoreBinaryState(StreamIn &inStream)
 
 void HairSettings::PrepareForScalpSkinning(Mat44Arg inJointToHair, const Mat44 *inJointMatrices, Mat44 *outJointMatrices) const
 {
-	for (uint32 i = 0, n = (uint32)mScalpInverseBindPose.size(); i < n; ++i)
+	for (uint32_t i = 0, n = (uint32_t)mScalpInverseBindPose.size(); i < n; ++i)
 		outJointMatrices[i] = inJointToHair * inJointMatrices[i] * mScalpInverseBindPose[i];
 }
 
@@ -852,11 +852,11 @@ void HairSettings::SkinScalpVertices(Mat44Arg inJointToHair, const Mat44 *inJoin
 
 	// Pre transform all joint matrices
 	Array<Mat44> joint_matrices;
-	joint_matrices.resize((uint32)mScalpInverseBindPose.size());
+	joint_matrices.resize((uint32_t)mScalpInverseBindPose.size());
 	PrepareForScalpSkinning(inJointToHair, inJointMatrices, joint_matrices.data());
 
 	// Skin all vertices
-	for (uint32 i = 0; i < (uint32)mScalpVertices.size(); ++i)
+	for (uint32_t i = 0; i < (uint32_t)mScalpVertices.size(); ++i)
 	{
 		Vec3 &v = outVertices[i];
 		v = Vec3::Zero();

@@ -41,7 +41,7 @@ bool Font::Create(const char *inFontName, int inCharHeight)
 	constexpr int cSpacingV = 2; // Number of pixels to put vertically between characters
 
 	// Read font data
-	Array<uint8> font_data = ReadData((String("Fonts/") + inFontName + ".ttf").c_str());
+	Array<uint8_t> font_data = ReadData((String("Fonts/") + inFontName + ".ttf").c_str());
 
 	// Construct a font info
 	stbtt_fontinfo font;
@@ -104,15 +104,15 @@ try_again:;
 		JPH_ASSERT(x >= 0 && x <= 0xffff);
 		JPH_ASSERT(y >= 0 && y <= 0xffff);
 		JPH_ASSERT(w <= 0xff);
-		mStartU[idx] = uint16(x);
-		mStartV[idx] = uint16(y);
-		mWidth[idx] = uint8(w + 1);
+		mStartU[idx] = uint16_t(x);
+		mStartV[idx] = uint16_t(y);
+		mWidth[idx] = uint8_t(w + 1);
 
 		// Copy the character data
 		for (int y2 = 0; y2 < h; ++y2)
 		{
-			uint8 *src = bitmap + y2 * w;
-			uint8 *dst = surface->GetScanLine(y + yoff + y2) + x + xoff;
+			uint8_t *src = bitmap + y2 * w;
+			uint8_t *dst = surface->GetScanLine(y + yoff + y2) + x + xoff;
 			memcpy(dst, src, w);
 		}
 
@@ -130,7 +130,7 @@ try_again:;
 			int advance;
 			stbtt_GetCodepointHMetrics(&font, c1, &advance, nullptr);
 			int spacing = Clamp(int(scale * (advance + stbtt_GetCodepointKernAdvance(&font, c1, c2))), 0, 0xff);
-			mSpacing[idx1][idx2] = (uint8)spacing;
+			mSpacing[idx1][idx2] = (uint8_t)spacing;
 		}
 
 	// Unlock surface
@@ -171,7 +171,7 @@ Float2 Font::MeasureText(const string_view &inText) const
 	float x = 0;
 
 	// Loop through string
-	for (uint32 i = 0; i < inText.size(); ++i)
+	for (uint32_t i = 0; i < inText.size(); ++i)
 	{
 		// Get character
 		int ch = inText[i];
@@ -215,7 +215,7 @@ bool Font::CreateString(Mat44Arg inTransform, const string_view &inText, ColorAr
 
 	// Count the number of printable chars
 	int printable = 0;
-	for (uint32 i = 0; i < inText.size(); ++i)
+	for (uint32_t i = 0; i < inText.size(); ++i)
 	{
 		int ch = inText[i];
 		static_assert(cBeginChar == ' ', "We skip space in the for loop below");
@@ -235,18 +235,18 @@ bool Font::CreateString(Mat44Arg inTransform, const string_view &inText, ColorAr
 	ioPrimitive.CreateIndexBuffer(idx_size);
 
 	// Current vertex
-	uint32 vtx = 0;
+	uint32_t vtx = 0;
 
 	// Lock buffers
 	FontVertex *font_vtx = (FontVertex *)ioPrimitive.LockVertexBuffer();
-	uint32 *idx_start = ioPrimitive.LockIndexBuffer();
-	uint32 *idx = idx_start;
+	uint32_t *idx_start = ioPrimitive.LockIndexBuffer();
+	uint32_t *idx = idx_start;
 
 	// Current raster position
 	float x = 0, y = -1.0f;
 
 	// Loop through string
-	for (uint32 i = 0; i < inText.size(); ++i)
+	for (uint32_t i = 0; i < inText.size(); ++i)
 	{
 		// Get character
 		int ch = inText[i];
@@ -319,7 +319,7 @@ bool Font::CreateString(Mat44Arg inTransform, const string_view &inText, ColorAr
 	}
 
 	// Check that we completely filled the output buffer
-	JPH_ASSERT(vtx == (uint32)vtx_size);
+	JPH_ASSERT(vtx == (uint32_t)vtx_size);
 	JPH_ASSERT(idx == idx_start + idx_size);
 
 	// Unlock buffers

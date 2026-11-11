@@ -65,8 +65,8 @@ TextureDX12::TextureDX12(RendererDX12 *inRenderer, const Surface *inSurface) :
 
 	// Determine required size of data to copy
 	D3D12_PLACED_SUBRESOURCE_FOOTPRINT footprint;
-	UINT64 row_size_in_bytes;
-	UINT64 required_size = 0;
+	uint64_t row_size_in_bytes;
+	uint64_t required_size = 0;
 	inRenderer->GetDevice()->GetCopyableFootprints(&desc, 0, 1, 0, &footprint, nullptr, &row_size_in_bytes, &required_size);
 
 	// Create the GPU upload buffer
@@ -75,7 +75,7 @@ TextureDX12::TextureDX12(RendererDX12 *inRenderer, const Surface *inSurface) :
 
 	// Copy data to upload texture
 	surface->Lock(ESurfaceLockMode::Read);
-	uint8 *upload_data;
+	uint8_t *upload_data;
 	D3D12_RANGE range = { 0, 0 }; // We're not going to read
 	FatalErrorIfFailed(upload_resource->Map(0, &range, (void **)&upload_data));
 	for (int y = 0; y < mHeight; ++y)

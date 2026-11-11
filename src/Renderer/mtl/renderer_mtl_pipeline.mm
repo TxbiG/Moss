@@ -27,17 +27,17 @@ int Moss_PipelineValidate(Moss_PipelineState* pipeline) { }
 
 
 
-PipelineStateMTL::PipelineStateMTL(RendererMTL *inRenderer, const VertexShaderMTL *inVertexShader, const EInputDescription *inInputDescription, uint32 inInputDescriptionCount, const PixelShaderMTL *inPixelShader, EDrawPass inDrawPass, EFillMode inFillMode, ETopology inTopology, EDepthTest inDepthTest, EBlendMode inBlendMode, ECullMode inCullMode) :
+PipelineStateMTL::PipelineStateMTL(RendererMTL *inRenderer, const VertexShaderMTL *inVertexShader, const EInputDescription *inInputDescription, uint32_t inInputDescriptionCount, const PixelShaderMTL *inPixelShader, EDrawPass inDrawPass, EFillMode inFillMode, ETopology inTopology, EDepthTest inDepthTest, EBlendMode inBlendMode, ECullMode inCullMode) :
 	mRenderer(inRenderer),
 	mVertexShader(inVertexShader),
 	mPixelShader(inPixelShader)
 {
 	// Create a vertex descriptor
 	MTLVertexDescriptor *vertex_descriptor = [[MTLVertexDescriptor alloc] init];
-	uint32 vertex_offset = 0;
-	uint32 instance_offset = 0, instance_alignment = 4;
-	uint32 index = 0;
-	for (uint32 i = 0; i < inInputDescriptionCount; ++i)
+	uint32_t vertex_offset = 0;
+	uint32_t instance_offset = 0, instance_alignment = 4;
+	uint32_t index = 0;
+	for (uint32_t i = 0; i < inInputDescriptionCount; ++i)
 		switch (inInputDescription[i])
 		{
 		case EInputDescription::Position:
@@ -53,7 +53,7 @@ PipelineStateMTL::PipelineStateMTL(RendererMTL *inRenderer, const VertexShaderMT
 			vertex_descriptor.attributes[index].format = MTLVertexFormatUChar4;
 			vertex_descriptor.attributes[index].offset = vertex_offset;
 			vertex_descriptor.attributes[index].bufferIndex = 0;
-			vertex_offset += 4 * sizeof(uint8);
+			vertex_offset += 4 * sizeof(uint8_t);
 			++index;
 			break;
 
@@ -69,7 +69,7 @@ PipelineStateMTL::PipelineStateMTL(RendererMTL *inRenderer, const VertexShaderMT
 			vertex_descriptor.attributes[index].format = MTLVertexFormatUChar4;
 			vertex_descriptor.attributes[index].offset = instance_offset;
 			vertex_descriptor.attributes[index].bufferIndex = 1;
-			instance_offset += 4 * sizeof(uint8);
+			instance_offset += 4 * sizeof(uint8_t);
 			++index;
 			break;
 

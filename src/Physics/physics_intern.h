@@ -25,16 +25,16 @@ class MOSS_EXPORT CharacterID {
 public:
 	MOSS_OVERRIDE_NEW_DELETE
 
-	static constexpr uint32	cInvalidCharacterID = 0xffffffff;	// The value for an invalid character ID
+	static constexpr uint32_t	cInvalidCharacterID = 0xffffffff;	// The value for an invalid character ID
 
 	/// Construct invalid character ID
 	CharacterID() : mID(cInvalidCharacterID) { }
 
 	/// Construct with specific value, make sure you don't use the same value twice!
-	explicit CharacterID(uint32 inID) : mID(inID) { }
+	explicit CharacterID(uint32_t inID) : mID(inID) { }
 
 	/// Get the numeric value of the ID
-	inline uint32 GetValue() const { return mID; }
+	inline uint32_t GetValue() const { return mID; }
 
 	/// Check if the ID is valid
 	inline bool IsInvalid() const { return mID == cInvalidCharacterID; }
@@ -52,23 +52,23 @@ public:
 	inline bool operator > (const CharacterID &inRHS) const { return mID > inRHS.mID; }
 
 	/// Get the hash for this character ID
-	inline uint64 GetHash() const { return Hash<uint32>{} (mID); }
+	inline uint64_t GetHash() const { return Hash<uint32_t>{} (mID); }
 
 	/// Generate the next available character ID
 	static CharacterID sNextCharacterID() {
 		for (;;) {
-			uint32 next = sNextID.fetch_add(1, std::memory_order_relaxed);
+			uint32_t next = sNextID.fetch_add(1, std::memory_order_relaxed);
 			if (next != cInvalidCharacterID)
 				return CharacterID(next);
 		}
 	}
 
 	/// Set the next available character ID, can be used after destroying all character to prepare for a second deterministic run
-	static void sSetNextCharacterID(uint32 inNextValue = 1) { sNextID.store(inNextValue, std::memory_order_relaxed); }
+	static void sSetNextCharacterID(uint32_t inNextValue = 1) { sNextID.store(inNextValue, std::memory_order_relaxed); }
 
 private:
-	inline static atomic<uint32> sNextID = 1;   // Next character ID to be assigned
-	uint32					mID;                // ID value
+	inline static atomic<uint32_t> sNextID = 1;   // Next character ID to be assigned
+	uint32_t					mID;                // ID value
 };
 
 
@@ -77,32 +77,32 @@ class MOSS_EXPORT BodyID {
 public:
 	MOSS_OVERRIDE_NEW_DELETE
 
-	static constexpr uint32	cInvalidBodyID = 0xffffffff;	// The value for an invalid body ID
-	static constexpr uint32	cBroadPhaseBit = 0x80000000;	// This bit is used by the broadphase
-	static constexpr uint32	cMaxBodyIndex = 0x7fffff;		// Maximum value for body index (also the maximum amount of bodies supported - 1)
-	static constexpr uint8	cMaxSequenceNumber = 0xff;		// Maximum value for the sequence number
-	static constexpr uint32	cSequenceNumberShift = 23;		// Number of bits to shift to get the sequence number
+	static constexpr uint32_t	cInvalidBodyID = 0xffffffff;	// The value for an invalid body ID
+	static constexpr uint32_t	cBroadPhaseBit = 0x80000000;	// This bit is used by the broadphase
+	static constexpr uint32_t	cMaxBodyIndex = 0x7fffff;		// Maximum value for body index (also the maximum amount of bodies supported - 1)
+	static constexpr uint8_t	cMaxSequenceNumber = 0xff;		// Maximum value for the sequence number
+	static constexpr uint32_t	cSequenceNumberShift = 23;		// Number of bits to shift to get the sequence number
 
 	/// Construct invalid body ID
 	BodyID() : mID(cInvalidBodyID) {}
 
-	/// Construct from index and sequence number combined in a single uint32 (use with care!)
-	explicit BodyID(uint32 inID) : mID(inID) { MOSS_ASSERT((inID & cBroadPhaseBit) == 0 || inID == cInvalidBodyID); } // Check bit used by broadphase
+	/// Construct from index and sequence number combined in a single uint32_t (use with care!)
+	explicit BodyID(uint32_t inID) : mID(inID) { MOSS_ASSERT((inID & cBroadPhaseBit) == 0 || inID == cInvalidBodyID); } // Check bit used by broadphase
 
 	/// Construct from index and sequence number
-	explicit BodyID(uint32 inID, uint8 inSequenceNumber) : mID((uint32(inSequenceNumber) << cSequenceNumberShift) | inID) { MOSS_ASSERT(inID <= cMaxBodyIndex); } // Should not overlap with broadphase bit or sequence number
+	explicit BodyID(uint32_t inID, uint8_t inSequenceNumber) : mID((uint32_t(inSequenceNumber) << cSequenceNumberShift) | inID) { MOSS_ASSERT(inID <= cMaxBodyIndex); } // Should not overlap with broadphase bit or sequence number
 
 	/// Get index in body array
-	inline uint32 GetIndex() const { return mID & cMaxBodyIndex; }
+	inline uint32_t GetIndex() const { return mID & cMaxBodyIndex; }
 
 	/// Get sequence number of body.
 	/// The sequence number can be used to check if a body ID with the same body index has been reused by another body.
 	/// It is mainly used in multi threaded situations where a body is removed and its body index is immediately reused by a body created from another thread.
 	/// Functions querying the broadphase can (after acquiring a body lock) detect that the body has been removed (we assume that this won't happen more than 128 times in a row).
-	inline uint8 GetSequenceNumber() const { return uint8(mID >> cSequenceNumberShift); }
+	inline uint8_t GetSequenceNumber() const { return uint8_t(mID >> cSequenceNumberShift); }
 
-	/// Returns the index and sequence number combined in an uint32
-	inline uint32 GetIndexAndSequenceNumber() const { return mID; }
+	/// Returns the index and sequence number combined in an uint32_t
+	inline uint32_t GetIndexAndSequenceNumber() const { return mID; }
 
 	/// Check if the ID is valid
 	inline bool	IsInvalid() const { return mID == cInvalidBodyID; }
@@ -120,7 +120,7 @@ public:
 	inline bool	operator > (const BodyID &inRHS) const { return mID > inRHS.mID; }
 
 private:
-	uint32					mID;
+	uint32_t					mID;
 };
 
 
@@ -164,8 +164,8 @@ public:
 	TArray<Vertex> &						GetVertices()								{ return mVertices; }
 
 	/// Access an individual vertex
-	const Vertex &						GetVertex(uint32 inIndex) const				{ return mVertices[inIndex]; }
-	Vertex &							GetVertex(uint32 inIndex)						{ return mVertices[inIndex]; }
+	const Vertex &						GetVertex(uint32_t inIndex) const				{ return mVertices[inIndex]; }
+	Vertex &							GetVertex(uint32_t inIndex)						{ return mVertices[inIndex]; }
 
 	/// Get the materials of the soft body
 	const PhysicsMaterialList &			GetMaterials() const						{ return mSettings->mMaterials; }
@@ -174,11 +174,11 @@ public:
 	const TArray<Face> &					GetFaces() const							{ return mSettings->mFaces; }
 
 	/// Access to an individual face
-	const Face &						GetFace(uint32 inIndex) const					{ return mSettings->mFaces[inIndex]; }
+	const Face &						GetFace(uint32_t inIndex) const					{ return mSettings->mFaces[inIndex]; }
 
 	/// Get the number of solver iterations
-	uint32								GetNumIterations() const					{ return mNumIterations; }
-	void								SetNumIterations(uint32 inNumIterations)	{ mNumIterations = inNumIterations; }
+	uint32_t								GetNumIterations() const					{ return mNumIterations; }
+	void								SetNumIterations(uint32_t inNumIterations)	{ mNumIterations = inNumIterations; }
 
 	/// Get the pressure of the soft body
 	float								GetPressure() const							{ return mPressure; }
@@ -229,7 +229,7 @@ public:
 	/// @param inNumJoints Indicates how large the inJointMatrices array is (used only for validating out of bounds).
 	/// @param inHardSkinAll Can be used to position all vertices on the skinned vertices and can be used to hard reset the soft body.
 	/// @param ioTempAllocator Allocator.
-	void								SkinVertices(RMat44Arg inCenterOfMassTransform, const Mat44 *inJointMatrices, uint32 inNumJoints, bool inHardSkinAll, TempAllocator &ioTempAllocator);
+	void								SkinVertices(RMat44Arg inCenterOfMassTransform, const Mat44 *inJointMatrices, uint32_t inNumJoints, bool inHardSkinAll, TempAllocator &ioTempAllocator);
 
 	/// This function allows you to update the soft body immediately without going through the PhysicsSystem.
 	/// This is useful if the soft body is teleported and needs to 'settle' or it can be used if a the soft body
@@ -326,7 +326,7 @@ private:
 	};
 
 	/// Do a narrow phase check and determine the closest feature that we can collide with
-	void								DetermineCollisionPlanes(uint32 inVertexStart, uint32 inNumVertices);
+	void								DetermineCollisionPlanes(uint32_t inVertexStart, uint32_t inNumVertices);
 
 	/// Do a narrow phase check between a single sensor and the soft body
 	void								DetermineSensorCollisions(CollidingSensor &ioSensor);
@@ -338,19 +338,19 @@ private:
 	void								IntegratePositions(const SoftBodyUpdateContext &inContext);
 
 	/// Enforce all bend constraints
-	void								ApplyDihedralBendConstraints(const SoftBodyUpdateContext &inContext, uint32 inStartIndex, uint32 inEndIndex);
+	void								ApplyDihedralBendConstraints(const SoftBodyUpdateContext &inContext, uint32_t inStartIndex, uint32_t inEndIndex);
 
 	/// Enforce all volume constraints
-	void								ApplyVolumeConstraints(const SoftBodyUpdateContext &inContext, uint32 inStartIndex, uint32 inEndIndex);
+	void								ApplyVolumeConstraints(const SoftBodyUpdateContext &inContext, uint32_t inStartIndex, uint32_t inEndIndex);
 
 	/// Enforce all skin constraints
-	void								ApplySkinConstraints(const SoftBodyUpdateContext &inContext, uint32 inStartIndex, uint32 inEndIndex);
+	void								ApplySkinConstraints(const SoftBodyUpdateContext &inContext, uint32_t inStartIndex, uint32_t inEndIndex);
 
 	/// Enforce all edge constraints
-	void								ApplyEdgeConstraints(const SoftBodyUpdateContext &inContext, uint32 inStartIndex, uint32 inEndIndex);
+	void								ApplyEdgeConstraints(const SoftBodyUpdateContext &inContext, uint32_t inStartIndex, uint32_t inEndIndex);
 
 	/// Enforce all LRA constraints
-	void								ApplyLRAConstraints(uint32 inStartIndex, uint32 inEndIndex);
+	void								ApplyLRAConstraints(uint32_t inStartIndex, uint32_t inEndIndex);
 
 	/// Enforce all collision constraints & update all velocities according the XPBD algorithm
 	void								ApplyCollisionConstraintsAndUpdateVelocities(const SoftBodyUpdateContext &inContext);
@@ -374,7 +374,7 @@ private:
 	EStatus								ParallelApplyConstraints(SoftBodyUpdateContext &ioContext, const PhysicsSettings &inPhysicsSettings);
 
 	/// Helper function to update a single group of constraints
-	void								ProcessGroup(const SoftBodyUpdateContext &ioContext, uint32 inGroupIndex);
+	void								ProcessGroup(const SoftBodyUpdateContext &ioContext, uint32_t inGroupIndex);
 
 	/// Returns 6 times the volume of the soft body
 	float								GetVolumeTimesSix() const;
@@ -394,8 +394,8 @@ private:
 	TArray<SkinState>					mSkinState;									// List of skinned positions (1-on-1 with mVertices but only those that are used by the skinning constraints are filled in)
 	AABox								mLocalBounds;								// Bounding box of all vertices
 	AABox								mLocalPredictedBounds;						// Predicted bounding box for all vertices using extrapolation of velocity by last step delta time
-	uint32								mNumIterations;								// Number of solver iterations
-	uint32								mNumSensors;								// Workaround for TSAN false positive: store mCollidingSensors.size() in a separate variable.
+	uint32_t								mNumIterations;								// Number of solver iterations
+	uint32_t								mNumSensors;								// Workaround for TSAN false positive: store mCollidingSensors.size() in a separate variable.
 	float								mPressure;									// n * R * T, amount of substance * ideal gas constant * absolute temperature, see https://en.wikipedia.org/wiki/Pressure
 	float								mSkinnedMaxDistanceMultiplier = 1.0f;		// Multiplier applied to Skinned::mMaxDistance to allow tightening or loosening of the skin constraints
 	bool								mUpdatePosition;							// Update the position of the body while simulating (set to false for something that is attached to the static world)
@@ -412,16 +412,16 @@ public:
 									SoftBodyShape()											: Shape(EShapeType::SoftBody, EShapeSubType::SoftBody) { }
 
 	/// Determine amount of bits needed to encode sub shape id
-	uint32							GetSubShapeIDBits() const;
+	uint32_t							GetSubShapeIDBits() const;
 
 	/// Convert a sub shape ID back to a face index
-	uint32							GetFaceIndex(const SubShapeID &inSubShapeID) const;
+	uint32_t							GetFaceIndex(const SubShapeID &inSubShapeID) const;
 
 	// See Shape
 	virtual bool					MustBeStatic() const override							{ return false; }
 	virtual Vec3					GetCenterOfMass() const override						{ return Vec3::sZero(); }
 	virtual AABox					GetLocalBounds() const override;
-	virtual uint32					GetSubShapeIDBitsRecursive() const override				{ return GetSubShapeIDBits(); }
+	virtual uint32_t					GetSubShapeIDBitsRecursive() const override				{ return GetSubShapeIDBits(); }
 	virtual float					GetInnerRadius() const override							{ return 0.0f; }
 	virtual MassProperties			GetMassProperties() const override						{ return MassProperties(); }
 	virtual const PhysicsMaterial *	GetMaterial(const SubShapeID &inSubShapeID) const override;
@@ -438,7 +438,7 @@ public:
 	virtual bool					CastRay(const RayCast &inRay, const SubShapeIDCreator &inSubShapeIDCreator, RayCastResult &ioHit) const override;
 	virtual void					CastRay(const RayCast &inRay, const RayCastSettings &inRayCastSettings, const SubShapeIDCreator &inSubShapeIDCreator, CastRayCollector &ioCollector, const ShapeFilter &inShapeFilter = { }) const override;
 	virtual void					CollidePoint(Vec3Arg inPoint, const SubShapeIDCreator &inSubShapeIDCreator, CollidePointCollector &ioCollector, const ShapeFilter &inShapeFilter = { }) const override;
-	virtual void					CollideSoftBodyVertices(Mat44Arg inCenterOfMassTransform, Vec3Arg inScale, const CollideSoftBodyVertexIterator &inVertices, uint32 inNumVertices, int inCollidingShapeIndex) const override;
+	virtual void					CollideSoftBodyVertices(Mat44Arg inCenterOfMassTransform, Vec3Arg inScale, const CollideSoftBodyVertexIterator &inVertices, uint32_t inNumVertices, int inCollidingShapeIndex) const override;
 	virtual void					GetTrianglesStart(GetTrianglesContext &ioContext, const AABox &inBox, Vec3Arg inPositionCOM, QuatArg inRotation, Vec3Arg inScale) const override;
 	virtual int						GetTrianglesNext(GetTrianglesContext &ioContext, int inMaxTrianglesRequested, Float3 *outTriangleVertices, const PhysicsMaterial **outMaterials = nullptr) const override;
 	virtual Stats					GetStats() const override;
@@ -478,9 +478,9 @@ MOSS_SUPPRESS_WARNINGS_STD_END
 /// A simple class that logs the state of the simulation. The resulting text file can be used to diff between platforms and find issues in determinism.
 class DeterminismLog {
 private:
-	MOSS_INLINE uint32 Convert(float inValue) const { return *(uint32 *)&inValue; }
+	MOSS_INLINE uint32_t Convert(float inValue) const { return *(uint32_t *)&inValue; }
 
-	MOSS_INLINE uint64 Convert(double inValue) const { return *(uint64 *)&inValue; }
+	MOSS_INLINE uint64_t Convert(double inValue) const { return *(uint64_t *)&inValue; }
 
 public:
 	DeterminismLog() {
@@ -524,13 +524,13 @@ public:
 		return *this;
 	}
 
-	DeterminismLog &		operator << (uint32 inValue)
+	DeterminismLog &		operator << (uint32_t inValue)
 	{
 		mLog << std::hex << std::setw(8) << inValue;
 		return *this;
 	}
 
-	DeterminismLog &		operator << (uint64 inValue)
+	DeterminismLog &		operator << (uint64_t inValue)
 	{
 		mLog << std::hex << std::setw(16) << inValue;
 		return *this;

@@ -39,7 +39,7 @@ RendererDX12::~RendererDX12()
 void RendererDX12::WaitForGpu()
 {
 	// Schedule a Signal command in the queue
-	UINT64 current_fence_value = mFenceValues[mFrameIndex];
+	uint64_t current_fence_value = mFenceValues[mFrameIndex];
 	FatalErrorIfFailed(mCommandQueue->Signal(mFence.Get(), current_fence_value));
 
 	// Wait until the fence has been processed
@@ -47,7 +47,7 @@ void RendererDX12::WaitForGpu()
 	WaitForSingleObjectEx(mFenceEvent, INFINITE, FALSE);
 
 	// Increment the fence value for all frames
-	for (uint32 n = 0; n < cFrameCount; ++n)
+	for (uint32_t n = 0; n < cFrameCount; ++n)
 		mFenceValues[n] = current_fence_value + 1;
 
 	// Release all used resources
@@ -62,7 +62,7 @@ void RendererDX12::WaitForGpu()
 void RendererDX12::CreateRenderTargets()
 {
 	// Create render targets and views
-	for (uint32 n = 0; n < cFrameCount; ++n)
+	for (uint32_t n = 0; n < cFrameCount; ++n)
 	{
 		mRenderTargetViews[n] = mRTVHeap.Allocate();
 
@@ -215,7 +215,7 @@ void RendererDX12::Initialize(ApplicationWindow *inWindow)
 	FatalErrorIfFailed(mDevice->CreateCommandQueue(&queue_desc, IID_PPV_ARGS(&mCommandQueue)));
 
 	// Create a command allocator for each frame
-	for (uint32 n = 0; n < cFrameCount; n++)
+	for (uint32_t n = 0; n < cFrameCount; n++)
 		FatalErrorIfFailed(mDevice->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(&mCommandAllocators[n])));
 
 	// Describe and create the swap chain
@@ -324,7 +324,7 @@ void RendererDX12::Initialize(ApplicationWindow *inWindow)
 	mUploadQueue.Initialize(mDevice.Get());
 
 	// Create constant buffer. One per frame to avoid overwriting the constant buffer while the GPU is still using it.
-	for (uint32 n = 0; n < cFrameCount; ++n)
+	for (uint32_t n = 0; n < cFrameCount; ++n)
 	{
 		mVertexShaderConstantBufferProjection[n] = CreateConstantBuffer(sizeof(VertexShaderConstantBuffer));
 		mVertexShaderConstantBufferOrtho[n] = CreateConstantBuffer(sizeof(VertexShaderConstantBuffer));
@@ -341,7 +341,7 @@ void RendererDX12::OnWindowResize()
 	WaitForGpu();
 
 	// Free the render targets and views to allow resizing the swap chain
-	for (uint32 n = 0; n < cFrameCount; ++n)
+	for (uint32_t n = 0; n < cFrameCount; ++n)
 	{
 		mRTVHeap.Free(mRenderTargetViews[n]);
 		mRenderTargets[n].Reset();
@@ -354,7 +354,7 @@ void RendererDX12::OnWindowResize()
 	mFrameIndex = mSwapChain->GetCurrentBackBufferIndex();
 
 	// Since we may have switched frame index and we know everything is done, we need to update the fence value for our other frame as completed
-	for (uint32 n = 0; n < cFrameCount; ++n)
+	for (uint32_t n = 0; n < cFrameCount; ++n)
 		if (mFrameIndex != n)
 			mFenceValues[n] = mFence->GetCompletedValue();
 
@@ -472,14 +472,14 @@ void RendererDX12::EndFrame()
 	FatalErrorIfFailed(mSwapChain->Present(1, 0));
 
 	// Schedule a Signal command in the queue
-	UINT64 current_fence_value = mFenceValues[mFrameIndex];
+	uint64_t current_fence_value = mFenceValues[mFrameIndex];
 	FatalErrorIfFailed(mCommandQueue->Signal(mFence.Get(), current_fence_value));
 
 	// Update the frame index
 	mFrameIndex = mSwapChain->GetCurrentBackBufferIndex();
 
 	// If the next frame is not ready to be rendered yet, wait until it is ready
-	UINT64 completed_value = mFence->GetCompletedValue();
+	uint64_t completed_value = mFence->GetCompletedValue();
 	if (completed_value < mFenceValues[mFrameIndex])
 	{
 		FatalErrorIfFailed(mFence->SetEventOnCompletion(mFenceValues[mFrameIndex], mFenceEvent));
@@ -531,12 +531,12 @@ Ref<VertexShader> RendererDX12::CreateVertexShader(const char *inName)
 
 	// Read shader source file
 	String file_name = String("Shaders/DX/") + inName + ".hlsl";
-	Array<uint8> data = ReadData(file_name.c_str());
+	Array<uint8_t> data = ReadData(file_name.c_str());
 
 	// Compile source
 	ComPtr<ID3DBlob> shader_blob, error_blob;
 	HRESULT hr = D3DCompile(&data[0],
-							(uint32)data.size(),
+							(uint32_t)data.size(),
 							(AssetStream::sGetAssetsBasePath() + file_name).c_str(),
 							defines,
 							D3D_COMPILE_STANDARD_FILE_INCLUDE,
@@ -571,12 +571,12 @@ Ref<PixelShader> RendererDX12::CreatePixelShader(const char *inName)
 
 	// Read shader source file
 	String file_name = String("Shaders/DX/") + inName + ".hlsl";
-	Array<uint8> data = ReadData(file_name.c_str());
+	Array<uint8_t> data = ReadData(file_name.c_str());
 
 	// Compile source
 	ComPtr<ID3DBlob> shader_blob, error_blob;
 	HRESULT hr = D3DCompile(&data[0],
-							(uint32)data.size(),
+							(uint32_t)data.size(),
 							(AssetStream::sGetAssetsBasePath() + file_name).c_str(),
 							defines,
 							D3D_COMPILE_STANDARD_FILE_INCLUDE,
@@ -597,12 +597,12 @@ Ref<PixelShader> RendererDX12::CreatePixelShader(const char *inName)
 	return new PixelShaderDX12(shader_blob);
 }
 
-unique_ptr<ConstantBufferDX12> RendererDX12::CreateConstantBuffer(uint32 inBufferSize)
+unique_ptr<ConstantBufferDX12> RendererDX12::CreateConstantBuffer(uint32_t inBufferSize)
 {
 	return make_unique<ConstantBufferDX12>(this, inBufferSize);
 }
 
-unique_ptr<PipelineState> RendererDX12::CreatePipelineState(const VertexShader *inVertexShader, const PipelineState::EInputDescription *inInputDescription, uint32 inInputDescriptionCount, const PixelShader *inPixelShader, PipelineState::EDrawPass inDrawPass, PipelineState::EFillMode inFillMode, PipelineState::ETopology inTopology, PipelineState::EDepthTest inDepthTest, PipelineState::EBlendMode inBlendMode, PipelineState::ECullMode inCullMode)
+unique_ptr<PipelineState> RendererDX12::CreatePipelineState(const VertexShader *inVertexShader, const PipelineState::EInputDescription *inInputDescription, uint32_t inInputDescriptionCount, const PixelShader *inPixelShader, PipelineState::EDrawPass inDrawPass, PipelineState::EFillMode inFillMode, PipelineState::ETopology inTopology, PipelineState::EDepthTest inDepthTest, PipelineState::EBlendMode inBlendMode, PipelineState::ECullMode inCullMode)
 {
 	return make_unique<PipelineStateDX12>(this, static_cast<const VertexShaderDX12 *>(inVertexShader), inInputDescription, inInputDescriptionCount, static_cast<const PixelShaderDX12 *>(inPixelShader), inDrawPass, inFillMode, inTopology, inDepthTest, inBlendMode, inCullMode);
 }
@@ -617,7 +617,7 @@ RenderInstances *RendererDX12::CreateRenderInstances()
 	return new RenderInstancesDX12(this);
 }
 
-ComPtr<ID3D12Resource> RendererDX12::CreateD3DResource(D3D12_HEAP_TYPE inHeapType, D3D12_RESOURCE_STATES inResourceState, uint64 inSize)
+ComPtr<ID3D12Resource> RendererDX12::CreateD3DResource(D3D12_HEAP_TYPE inHeapType, D3D12_RESOURCE_STATES inResourceState, uint64_t inSize)
 {
 	// Create a new resource
 	D3D12_RESOURCE_DESC desc;
@@ -645,7 +645,7 @@ ComPtr<ID3D12Resource> RendererDX12::CreateD3DResource(D3D12_HEAP_TYPE inHeapTyp
 	return resource;
 }
 
-void RendererDX12::CopyD3DResource(ID3D12Resource *inDest, const void *inSrc, uint64 inSize)
+void RendererDX12::CopyD3DResource(ID3D12Resource *inDest, const void *inSrc, uint64_t inSize)
 {
 	// Copy data to destination buffer
 	void *data;
@@ -655,7 +655,7 @@ void RendererDX12::CopyD3DResource(ID3D12Resource *inDest, const void *inSrc, ui
 	inDest->Unmap(0, nullptr);
 }
 
-void RendererDX12::CopyD3DResource(ID3D12Resource *inDest, ID3D12Resource *inSrc, uint64 inSize)
+void RendererDX12::CopyD3DResource(ID3D12Resource *inDest, ID3D12Resource *inSrc, uint64_t inSize)
 {
 	// Start a commandlist for the upload
 	ID3D12GraphicsCommandList *list = mUploadQueue.Start();
@@ -677,7 +677,7 @@ void RendererDX12::CopyD3DResource(ID3D12Resource *inDest, ID3D12Resource *inSrc
 	mUploadQueue.ExecuteAndWait();
 }
 
-ComPtr<ID3D12Resource> RendererDX12::CreateD3DResourceOnDefaultHeap(const void *inData, uint64 inSize)
+ComPtr<ID3D12Resource> RendererDX12::CreateD3DResourceOnDefaultHeap(const void *inData, uint64_t inSize)
 {
 	ComPtr<ID3D12Resource> upload = CreateD3DResourceOnUploadHeap(inSize);
 	ComPtr<ID3D12Resource> resource = CreateD3DResource(D3D12_HEAP_TYPE_DEFAULT, D3D12_RESOURCE_STATE_COMMON, inSize);
@@ -687,7 +687,7 @@ ComPtr<ID3D12Resource> RendererDX12::CreateD3DResourceOnDefaultHeap(const void *
 	return resource;
 }
 
-ComPtr<ID3D12Resource> RendererDX12::CreateD3DResourceOnUploadHeap(uint64 inSize)
+ComPtr<ID3D12Resource> RendererDX12::CreateD3DResourceOnUploadHeap(uint64_t inSize)
 {
 	// Try cache first
 	ResourceCache::iterator i = mResourceCache.find(inSize);
@@ -701,7 +701,7 @@ ComPtr<ID3D12Resource> RendererDX12::CreateD3DResourceOnUploadHeap(uint64 inSize
 	return CreateD3DResource(D3D12_HEAP_TYPE_UPLOAD, D3D12_RESOURCE_STATE_GENERIC_READ, inSize);
 }
 
-void RendererDX12::RecycleD3DResourceOnUploadHeap(ID3D12Resource *inResource, uint64 inSize)
+void RendererDX12::RecycleD3DResourceOnUploadHeap(ID3D12Resource *inResource, uint64_t inSize)
 {
 	if (!mIsExiting)
 		mDelayCached[mFrameIndex][inSize].push_back(inResource);

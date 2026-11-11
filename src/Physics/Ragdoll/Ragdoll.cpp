@@ -187,17 +187,17 @@ bool RagdollSettings::Stabilize()
 	return true;
 }
 
-void RagdollSettings::CalculateConstraintPriorities(uint32 inBasePriority)
+void RagdollSettings::CalculateConstraintPriorities(uint32_t inBasePriority)
 {
-	JPH_ASSERT(inBasePriority + (uint32)mParts.size() > inBasePriority, "Base priority is too high and will cause overflows");
+	JPH_ASSERT(inBasePriority + (uint32_t)mParts.size() > inBasePriority, "Base priority is too high and will cause overflows");
 	JPH_ASSERT(mSkeleton->AreJointsCorrectlyOrdered());
 
 	// Calculate priority for each part. Start with the base priority and increment towards the root
-	Array<uint32> priorities;
+	Array<uint32_t> priorities;
 	priorities.resize(mParts.size(), inBasePriority);
 	for (int i = (int)mParts.size() - 1; i >= 0; --i)
 	{
-		uint32 cur_priority = inBasePriority;
+		uint32_t cur_priority = inBasePriority;
 		int j = i;
 		do
 		{
@@ -296,7 +296,7 @@ void RagdollSettings::SaveBinaryState(StreamOut &inStream, bool inSaveShapes, bo
 	mSkeleton->SaveBinaryState(inStream);
 
 	// Save parts
-	inStream.Write((uint32)mParts.size());
+	inStream.Write((uint32_t)mParts.size());
 	for (const Part &p : mParts)
 	{
 		// Write body creation settings
@@ -309,7 +309,7 @@ void RagdollSettings::SaveBinaryState(StreamOut &inStream, bool inSaveShapes, bo
 	}
 
 	// Save additional constraints
-	inStream.Write((uint32)mAdditionalConstraints.size());
+	inStream.Write((uint32_t)mAdditionalConstraints.size());
 	for (const AdditionalConstraint &c : mAdditionalConstraints)
 	{
 		// Save bodies indices
@@ -346,7 +346,7 @@ RagdollSettings::RagdollResult RagdollSettings::sRestoreFromBinaryState(StreamIn
 	id_to_group_filter.reserve(128);
 
 	// Read parts
-	uint32 len = 0;
+	uint32_t len = 0;
 	inStream.Read(len);
 	ragdoll->mParts.resize(len);
 	for (Part &p : ragdoll->mParts)
@@ -402,7 +402,7 @@ RagdollSettings::RagdollResult RagdollSettings::sRestoreFromBinaryState(StreamIn
 	return result;
 }
 
-Ragdoll *RagdollSettings::CreateRagdoll(CollisionGroup::GroupID inCollisionGroup, uint64 inUserData, PhysicsSystem *inSystem) const
+Ragdoll *RagdollSettings::CreateRagdoll(CollisionGroup::GroupID inCollisionGroup, uint64_t inUserData, PhysicsSystem *inSystem) const
 {
 	Ragdoll *r = new Ragdoll(inSystem);
 	r->mRagdollSettings = this;

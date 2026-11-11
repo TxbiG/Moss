@@ -19,7 +19,7 @@ MOSS_SUPPRESS_WARNINGS_STD_END
 
 MOSS_SUPPRESS_WARNINGS_BEGIN
 
-static constexpr uint8 sClosestFeatureToActiveEdgesMask[] = {
+static constexpr uint8_t sClosestFeatureToActiveEdgesMask[] = {
 	0b000,		// 0b000: Invalid, guarded by an assert
 	0b101,		// 0b001: Vertex 1 -> edge 1 or 3
 	0b011,		// 0b010: Vertex 2 -> edge 1 or 2
@@ -251,7 +251,7 @@ CastConvexVsTriangles::CastConvexVsTriangles(const ShapeCast &inShapeCast, const
 	mScaleSign = ScaleHelpers::IsInsideOut(inScale)? -1.0f : 1.0f;
 }
 
-void CastConvexVsTriangles::Cast(Vec3Arg inV0, Vec3Arg inV1, Vec3Arg inV2, uint8 inActiveEdges, const SubShapeID &inSubShapeID2)
+void CastConvexVsTriangles::Cast(Vec3Arg inV0, Vec3Arg inV1, Vec3Arg inV2, uint8_t inActiveEdges, const SubShapeID &inSubShapeID2)
 {
 	MOSS_PROFILE_FUNCTION();
 
@@ -369,7 +369,7 @@ void CastSphereVsTriangles::AddHit(bool inBackFacing, const SubShapeID &inSubSha
 	mCollector.AddHit(result);
 }
 
-void CastSphereVsTriangles::AddHitWithActiveEdgeDetection(Vec3Arg inV0, Vec3Arg inV1, Vec3Arg inV2, bool inBackFacing, Vec3Arg inTriangleNormal, uint8 inActiveEdges, const SubShapeID &inSubShapeID2, float inFraction, Vec3Arg inContactPointA, Vec3Arg inContactPointB, Vec3Arg inContactNormal)
+void CastSphereVsTriangles::AddHitWithActiveEdgeDetection(Vec3Arg inV0, Vec3Arg inV1, Vec3Arg inV2, bool inBackFacing, Vec3Arg inTriangleNormal, uint8_t inActiveEdges, const SubShapeID &inSubShapeID2, float inFraction, Vec3Arg inContactPointA, Vec3Arg inContactPointB, Vec3Arg inContactNormal)
 {
 	// Check if we have enabled active edge detection
 	Vec3 contact_normal = inContactNormal;
@@ -432,7 +432,7 @@ float CastSphereVsTriangles::RayCylinder(Vec3Arg inRayDirection, Vec3Arg inCylin
 	return t;
 }
 
-void CastSphereVsTriangles::Cast(Vec3Arg inV0, Vec3Arg inV1, Vec3Arg inV2, uint8 inActiveEdges, const SubShapeID &inSubShapeID2)
+void CastSphereVsTriangles::Cast(Vec3Arg inV0, Vec3Arg inV1, Vec3Arg inV2, uint8_t inActiveEdges, const SubShapeID &inSubShapeID2)
 {
 	MOSS_PROFILE_FUNCTION();
 
@@ -458,7 +458,7 @@ void CastSphereVsTriangles::Cast(Vec3Arg inV0, Vec3Arg inV1, Vec3Arg inV2, uint8
 	if (abs(v0.Dot(triangle_normal)) <= mRadius)
 	{
 		// Check if the sphere intersects at the start of the cast
-		uint32 closest_feature;
+		uint32_t closest_feature;
 		Vec3 q = ClosestPoint::GetClosestPointOnTriangle(v0, v1, v2, closest_feature);
 		float q_len_sq = q.LengthSq();
 		if (q_len_sq <= Square(mRadius))
@@ -529,7 +529,7 @@ void CastSphereVsTriangles::Cast(Vec3Arg inV0, Vec3Arg inV1, Vec3Arg inV2, uint8
 		Vec3 p = fraction * mDirection;
 
 		// Get contact point and normal
-		uint32 closest_feature;
+		uint32_t closest_feature;
 		Vec3 q = ClosestPoint::GetClosestPointOnTriangle(v0 - p, v1 - p, v2 - p, closest_feature);
 		Vec3 contact_normal = q.Normalized();
 		Vec3 contact_point_ab = p + q;
@@ -562,7 +562,7 @@ CollideConvexVsTriangles::CollideConvexVsTriangles(const ConvexShape *inShape1, 
 	mScaleSign2 = ScaleHelpers::IsInsideOut(inScale2)? -1.0f : 1.0f;
 }
 
-void CollideConvexVsTriangles::Collide(Vec3Arg inV0, Vec3Arg inV1, Vec3Arg inV2, uint8 inActiveEdges, const SubShapeID &inSubShapeID2)
+void CollideConvexVsTriangles::Collide(Vec3Arg inV0, Vec3Arg inV1, Vec3Arg inV2, uint8_t inActiveEdges, const SubShapeID &inSubShapeID2)
 {
 	MOSS_PROFILE_FUNCTION();
 
@@ -701,7 +701,7 @@ CollideSphereVsTriangles::CollideSphereVsTriangles(const SphereShape *inShape1, 
 	mRadiusPlusMaxSeparationSq = Square(mRadius + inCollideShapeSettings.mMaxSeparationDistance);
 }
 
-void CollideSphereVsTriangles::Collide(Vec3Arg inV0, Vec3Arg inV1, Vec3Arg inV2, uint8 inActiveEdges, const SubShapeID &inSubShapeID2)
+void CollideSphereVsTriangles::Collide(Vec3Arg inV0, Vec3Arg inV1, Vec3Arg inV2, uint8_t inActiveEdges, const SubShapeID &inSubShapeID2)
 {
 	MOSS_PROFILE_FUNCTION();
 
@@ -719,7 +719,7 @@ void CollideSphereVsTriangles::Collide(Vec3Arg inV0, Vec3Arg inV1, Vec3Arg inV2,
 		return;
 
 	// Check if we collide with the sphere
-	uint32 closest_feature;
+	uint32_t closest_feature;
 	Vec3 point2 = ClosestPoint::GetClosestPointOnTriangle(v0, v1, v2, closest_feature);
 	float point2_len_sq = point2.LengthSq();
 	if (point2_len_sq > mRadiusPlusMaxSeparationSq)
@@ -780,8 +780,8 @@ void CollideSphereVsTriangles::Collide(Vec3Arg inV0, Vec3Arg inV1, Vec3Arg inV2,
 
 void CollisionDispatch::Init()
 {
-	for (uint32 i = 0; i < NumSubShapeTypes; ++i)
-		for (uint32 j = 0; j < NumSubShapeTypes; ++j)
+	for (uint32_t i = 0; i < NumSubShapeTypes; ++i)
+		for (uint32_t j = 0; j < NumSubShapeTypes; ++j)
 		{
 			if (sCollideShape[i][j] == nullptr)
 				sCollideShape[i][j] = [](const Shape *, const Shape *, Vec3Arg, Vec3Arg, Mat44Arg, Mat44Arg, const SubShapeIDCreator &, const SubShapeIDCreator &, const CollideShapeSettings &, CollideShapeCollector &, const ShapeFilter &)
@@ -872,7 +872,7 @@ void CollisionDispatch::ReversedCastShape(const ShapeCast &inShapeCast, const Sh
 
 /*													*/
 
-void EstimateCollisionResponse(const Body &inBody1, const Body &inBody2, const ContactManifold &inManifold, CollisionEstimationResult &outResult, float inCombinedFriction, float inCombinedRestitution, float inMinVelocityForRestitution, uint32 inNumIterations)
+void EstimateCollisionResponse(const Body &inBody1, const Body &inBody2, const ContactManifold &inManifold, CollisionEstimationResult &outResult, float inCombinedFriction, float inCombinedRestitution, float inMinVelocityForRestitution, uint32_t inNumIterations)
 {
 	// Note this code is based on AxisConstraintPart, see that class for more comments on the math
 
@@ -1000,7 +1000,7 @@ void EstimateCollisionResponse(const Body &inBody1, const Body &inBody2, const C
 
 	// Initialize the constraint properties
 	Constraint constraints[ContactPoints::Capacity];
-	for (uint32 c = 0; c < num_points; ++c)
+	for (uint32_t c = 0; c < num_points; ++c)
 	{
 		Constraint &constraint = constraints[c];
 
@@ -1040,7 +1040,7 @@ void EstimateCollisionResponse(const Body &inBody1, const Body &inBody2, const C
 	{
 		// Solve friction constraints first
 		if (inCombinedFriction > 0.0f && iteration > 0) // For first iteration the contact impulse is zero so there's no point in applying friction
-			for (uint32 c = 0; c < num_points; ++c)
+			for (uint32_t c = 0; c < num_points; ++c)
 			{
 				const Constraint &constraint = constraints[c];
 				CollisionEstimationResult::Impulse &impulse = outResult.mImpulses[c];
@@ -1068,7 +1068,7 @@ void EstimateCollisionResponse(const Body &inBody1, const Body &inBody2, const C
 			}
 
 		// Solve contact constraints last
-		for (uint32 c = 0; c < num_points; ++c)
+		for (uint32_t c = 0; c < num_points; ++c)
 			constraints[c].mContact.Solve(inManifold.mWorldSpaceNormal, inv_m1, inv_m2, 0.0f, FLT_MAX, outResult.mImpulses[c].mContactImpulse, outResult);
 	}
 }
@@ -1105,9 +1105,9 @@ void PruneContactPoints(Vec3Arg inPenetrationAxis, ContactPoints &ioContactPoint
 
 	// Find the point that is furthest away from the center of mass (its torque will have the biggest influence)
 	// and the point that has the deepest penetration depth. Use the heuristic (distance to center of mass) * (penetration depth) for this.
-	uint32 point1 = 0;
+	uint32_t point1 = 0;
 	float val = max(cMinDistanceSq, projected[0].LengthSq()) * penetration_depth_sq[0];
-	for (uint32 i = 0; i < projected.size(); ++i)
+	for (uint32_t i = 0; i < projected.size(); ++i)
 	{
 		float v = max(cMinDistanceSq, projected[i].LengthSq()) * penetration_depth_sq[i];
 		if (v > val)
@@ -1120,9 +1120,9 @@ void PruneContactPoints(Vec3Arg inPenetrationAxis, ContactPoints &ioContactPoint
 
 	// Find point furthest from the first point forming a line segment with point1. Again combine this with the heuristic
 	// for deepest point as per above.
-	uint32 point2 = uint32(-1);
+	uint32_t point2 = uint32_t(-1);
 	val = -FLT_MAX;
-	for (uint32 i = 0; i < projected.size(); ++i)
+	for (uint32_t i = 0; i < projected.size(); ++i)
 		if (i != point1)
 		{
 			float v = max(cMinDistanceSq, (projected[i] - point1v).LengthSq()) * penetration_depth_sq[i];
@@ -1132,16 +1132,16 @@ void PruneContactPoints(Vec3Arg inPenetrationAxis, ContactPoints &ioContactPoint
 				point2 = i;
 			}
 		}
-	MOSS_ASSERT(point2 != uint32(-1));
+	MOSS_ASSERT(point2 != uint32_t(-1));
 	Vec3 point2v = projected[point2];
 
 	// Find furthest points on both sides of the line segment in order to maximize the area
-	uint32 point3 = uint32(-1);
-	uint32 point4 = uint32(-1);
+	uint32_t point3 = uint32_t(-1);
+	uint32_t point4 = uint32_t(-1);
 	float min_val = 0.0f;
 	float max_val = 0.0f;
 	Vec3 perp = (point2v - point1v).Cross(inPenetrationAxis);
-	for (uint32 i = 0; i < projected.size(); ++i)
+	for (uint32_t i = 0; i < projected.size(); ++i)
 		if (i != point1 && i != point2)
 		{
 			float v = perp.Dot(projected[i] - point1v);
@@ -1161,14 +1161,14 @@ void PruneContactPoints(Vec3Arg inPenetrationAxis, ContactPoints &ioContactPoint
 	TStaticArray<Vec3, 4> points_to_keep_on_1, points_to_keep_on_2;
 	points_to_keep_on_1.push_back(ioContactPointsOn1[point1]);
 	points_to_keep_on_2.push_back(ioContactPointsOn2[point1]);
-	if (point3 != uint32(-1))
+	if (point3 != uint32_t(-1))
 	{
 		points_to_keep_on_1.push_back(ioContactPointsOn1[point3]);
 		points_to_keep_on_2.push_back(ioContactPointsOn2[point3]);
 	}
 	points_to_keep_on_1.push_back(ioContactPointsOn1[point2]);
 	points_to_keep_on_2.push_back(ioContactPointsOn2[point2]);
-	if (point4 != uint32(-1))
+	if (point4 != uint32_t(-1))
 	{
 		MOSS_ASSERT(point3 != point4);
 		points_to_keep_on_1.push_back(ioContactPointsOn1[point4]);
@@ -1735,7 +1735,7 @@ void NarrowPhaseQuery::CollectTransformedShapes(const AABox &inBox, TransformedS
 
 /*													*/
 #ifdef MOSS_TRACK_NARROWPHASE_STATS
-void NarrowPhaseStat::ReportStats(const char *inName, EShapeSubType inType1, EShapeSubType inType2, uint64 inTicks100Pct) const
+void NarrowPhaseStat::ReportStats(const char *inName, EShapeSubType inType1, EShapeSubType inType2, uint64_t inTicks100Pct) const
 {
 	double total_pct = 100.0 * double(mTotalTicks) / double(inTicks100Pct);
 	double total_pct_excl_children = 100.0 * double(mTotalTicks - mChildTicks) / double(inTicks100Pct);
@@ -1749,7 +1749,7 @@ void NarrowPhaseStat::ReportStats()
 {
 	MOSS_TRACE("Query Type, Shape Type 1, Shape Type 2, Num Queries, Total Time (%%), Total Time Excl Children (%%), Total Time Excl. Children / Query (%%), Hits Reported");
 
-	uint64 total_ticks = 0;
+	uint64_t total_ticks = 0;
 	for (EShapeSubType t1 : sAllSubShapeTypes)
 		for (EShapeSubType t2 : sAllSubShapeTypes)
 		{
@@ -1808,13 +1808,13 @@ void BroadPhaseQuadTree::Init(BodyManager *inBodyManager, const BroadPhaseLayerI
 
 	// Init allocator
 	// Estimate the amount of nodes we're going to need
-	uint32 num_leaves = (uint32)(mMaxBodies + 1) / 2; // Assume 50% fill
-	uint32 num_leaves_plus_internal_nodes = num_leaves + (num_leaves + 2) / 3; // = Sum(num_leaves * 4^-i) with i = [0, Inf].
+	uint32_t num_leaves = (uint32_t)(mMaxBodies + 1) / 2; // Assume 50% fill
+	uint32_t num_leaves_plus_internal_nodes = num_leaves + (num_leaves + 2) / 3; // = Sum(num_leaves * 4^-i) with i = [0, Inf].
 	mAllocator.Init(2 * num_leaves_plus_internal_nodes, 256); // We use double the amount of nodes while rebuilding the tree during Update()
 
 	// Init sub trees
 	mLayers = new QuadTree [mNumLayers];
-	for (uint32 l = 0; l < mNumLayers; ++l)
+	for (uint32_t l = 0; l < mNumLayers; ++l)
 	{
 		mLayers[l].Init(mAllocator);
 
@@ -1847,7 +1847,7 @@ void BroadPhaseQuadTree::Optimize()
 
 	LockModifications();
 
-	for (uint32 l = 0; l < mNumLayers; ++l)
+	for (uint32_t l = 0; l < mNumLayers; ++l)
 	{
 		QuadTree &tree = mLayers[l];
 		if (tree.HasBodies())
@@ -1879,7 +1879,7 @@ BroadPhase::UpdateState BroadPhaseQuadTree::UpdatePrepare()
 	UpdateStateImpl *update_state_impl = reinterpret_cast<UpdateStateImpl *>(&update_state);
 
 	// Loop until we've seen all layers
-	for (uint32 iteration = 0; iteration < mNumLayers; ++iteration)
+	for (uint32_t iteration = 0; iteration < mNumLayers; ++iteration)
 	{
 		// Get the layer
 		QuadTree &tree = mLayers[mNextLayerToUpdate];
@@ -1958,7 +1958,7 @@ BroadPhase::AddState BroadPhaseQuadTree::AddBodiesPrepare(BodyID *ioBodies, int 
 		// Keep track in which tree we placed the object
 		for (const BodyID *b = b_start; b < b_mid; ++b)
 		{
-			uint32 index = b->GetIndex();
+			uint32_t index = b->GetIndex();
 			MOSS_ASSERT(bodies[index]->GetID() == *b, "Provided BodyID doesn't match BodyID in body manager");
 			MOSS_ASSERT(!bodies[index]->IsInBroadPhase());
 			Tracking &t = mTracking[index];
@@ -2004,7 +2004,7 @@ void BroadPhaseQuadTree::AddBodiesFinalize(BodyID *ioBodies, int inNumber, AddSt
 			// Mark added to broadphase
 			for (const BodyID *b = l.mBodyStart; b < l.mBodyEnd; ++b)
 			{
-				uint32 index = b->GetIndex();
+				uint32_t index = b->GetIndex();
 				MOSS_ASSERT(bodies[index]->GetID() == *b, "Provided BodyID doesn't match BodyID in body manager");
 				MOSS_ASSERT(mTracking[index].mBroadPhaseLayer == broadphase_layer);
 				MOSS_ASSERT(mTracking[index].mObjectLayer == bodies[index]->GetObjectLayer());
@@ -2043,7 +2043,7 @@ void BroadPhaseQuadTree::AddBodiesAbort(BodyID *ioBodies, int inNumber, AddState
 			// Reset bookkeeping
 			for (const BodyID *b = l.mBodyStart; b < l.mBodyEnd; ++b)
 			{
-				uint32 index = b->GetIndex();
+				uint32_t index = b->GetIndex();
 				MOSS_ASSERT(bodies[index]->GetID() == *b, "Provided BodyID doesn't match BodyID in body manager");
 				MOSS_ASSERT(!bodies[index]->IsInBroadPhase());
 				Tracking &t = mTracking[index];
@@ -2090,7 +2090,7 @@ void BroadPhaseQuadTree::RemoveBodies(BodyID *ioBodies, int inNumber)
 		for (const BodyID *b = b_start; b < b_mid; ++b)
 		{
 			// Reset bookkeeping
-			uint32 index = b->GetIndex();
+			uint32_t index = b->GetIndex();
 			Tracking &t = tracking[index];
 			t.mBroadPhaseLayer = (BroadPhaseLayer::Type)cBroadPhaseLayerInvalid;
 			t.mObjectLayer = cObjectLayerInvalid;
@@ -2158,7 +2158,7 @@ void BroadPhaseQuadTree::NotifyBodiesLayerChanged(BodyID *ioBodies, int inNumber
 	MOSS_ASSERT(mMaxBodies == mBodyManager->GetMaxBodies());
 	for (BodyID *body_id = ioBodies + inNumber - 1; body_id >= ioBodies; --body_id)
 	{
-		uint32 index = body_id->GetIndex();
+		uint32_t index = body_id->GetIndex();
 		MOSS_ASSERT(bodies[index]->GetID() == *body_id, "Provided BodyID doesn't match BodyID in body manager");
 		const Body *body = bodies[index];
 		BroadPhaseLayer::Type broadphase_layer = (BroadPhaseLayer::Type)body->GetBroadPhaseLayer();
@@ -2382,7 +2382,7 @@ void BroadPhaseQuadTree::ReportStats()
 {
 	MOSS_TRACE("Query Type, Filter Description, Tree Name, Num Queries, Total Time (%%), Total Time Excl. Collector (%%), Nodes Visited, Bodies Visited, Hits Reported, Hits Reported vs Bodies Visited (%%), Hits Reported vs Nodes Visited");
 
-	uint64 total_ticks = 0;
+	uint64_t total_ticks = 0;
 	for (BroadPhaseLayer::Type l = 0; l < mNumLayers; ++l)
 		total_ticks += mLayers[l].GetTicks100Pct();
 
@@ -2401,7 +2401,7 @@ void BroadPhaseBruteForce::AddBodiesFinalize(BodyID *ioBodies, int inNumber, Add
 	BodyVector &bodies = mBodyManager->GetBodies();
 
 	// Allocate space
-	uint32 idx = (uint32)mBodyIDs.size();
+	uint32_t idx = (uint32_t)mBodyIDs.size();
 	mBodyIDs.resize(idx + inNumber);
 
 	// Add bodies
@@ -2798,16 +2798,16 @@ bool QuadTree::Node::EncapsulateChildBounds(int inChildIndex, const AABox &inBou
 
 const AABox QuadTree::cInvalidBounds(Vec3::Replicate(cLargeFloat), Vec3::Replicate(-cLargeFloat));
 
-void QuadTree::GetBodyLocation(const TrackingVector &inTracking, BodyID inBodyID, uint32 &outNodeIdx, uint32 &outChildIdx) const
+void QuadTree::GetBodyLocation(const TrackingVector &inTracking, BodyID inBodyID, uint32_t &outNodeIdx, uint32_t &outChildIdx) const
 {
-	uint32 body_location = inTracking[inBodyID.GetIndex()].mBodyLocation;
+	uint32_t body_location = inTracking[inBodyID.GetIndex()].mBodyLocation;
 	MOSS_ASSERT(body_location != Tracking::cInvalidBodyLocation);
 	outNodeIdx = body_location & 0x3fffffff;
 	outChildIdx = body_location >> 30;
 	MOSS_ASSERT(mAllocator->Get(outNodeIdx).mChildNodeID[outChildIdx] == inBodyID, "Make sure that the body is in the node where it should be");
 }
 
-void QuadTree::SetBodyLocation(TrackingVector &ioTracking, BodyID inBodyID, uint32 inNodeIdx, uint32 inChildIdx) const
+void QuadTree::SetBodyLocation(TrackingVector &ioTracking, BodyID inBodyID, uint32_t inNodeIdx, uint32_t inChildIdx) const
 {
 	MOSS_ASSERT(inNodeIdx <= 0x3fffffff);
 	MOSS_ASSERT(inChildIdx < 4);
@@ -2815,7 +2815,7 @@ void QuadTree::SetBodyLocation(TrackingVector &ioTracking, BodyID inBodyID, uint
 	ioTracking[inBodyID.GetIndex()].mBodyLocation = inNodeIdx + (inChildIdx << 30);
 
 #ifdef MOSS_DEBUG
-	uint32 v1, v2;
+	uint32_t v1, v2;
 	GetBodyLocation(ioTracking, inBodyID, v1, v2);
 	MOSS_ASSERT(v1 == inNodeIdx);
 	MOSS_ASSERT(v2 == inChildIdx);
@@ -2849,7 +2849,7 @@ QuadTree::~QuadTree()
 			NodeID node_id = node_stack.back();
 			node_stack.pop_back();
 			MOSS_ASSERT(!node_id.IsBody());
-			uint32 node_idx = node_id.GetNodeIndex();
+			uint32_t node_idx = node_id.GetNodeIndex();
 			const Node &node = mAllocator->Get(node_idx);
 
 			// Recurse and get all child nodes
@@ -2867,9 +2867,9 @@ QuadTree::~QuadTree()
 	mAllocator->DestructObjectBatch(free_batch);
 }
 
-uint32 QuadTree::AllocateNode(bool inIsChanged)
+uint32_t QuadTree::AllocateNode(bool inIsChanged)
 {
-	uint32 index = mAllocator->ConstructObject(inIsChanged);
+	uint32_t index = mAllocator->ConstructObject(inIsChanged);
 	if (index == Allocator::cInvalidObjectIndex)
 	{
 		// If you're running out of nodes, you're most likely adding too many individual bodies to the tree.
@@ -2930,7 +2930,7 @@ void QuadTree::DiscardOldTree()
 
 AABox QuadTree::GetBounds() const
 {
-	uint32 node_idx = GetCurrentRoot().mIndex;
+	uint32_t node_idx = GetCurrentRoot().mIndex;
 	MOSS_ASSERT(node_idx != cInvalidNodeIndex);
 	const Node &node = mAllocator->Get(node_idx);
 
@@ -2981,7 +2981,7 @@ void QuadTree::UpdatePrepare(const BodyVector &inBodies, TrackingVector &ioTrack
 		{
 			// Validate that we're still in the right layer
 		#ifdef MOSS_DEBUG
-			uint32 body_index = node_id.GetBodyID().GetIndex();
+			uint32_t body_index = node_id.GetBodyID().GetIndex();
 			MOSS_ASSERT(ioTracking[body_index].mObjectLayer == inBodies[body_index]->GetObjectLayer());
 		#endif
 
@@ -2992,7 +2992,7 @@ void QuadTree::UpdatePrepare(const BodyVector &inBodies, TrackingVector &ioTrack
 		else
 		{
 			// Process normal node
-			uint32 node_idx = node_id.GetNodeIndex();
+			uint32_t node_idx = node_id.GetNodeIndex();
 			const Node &node = mAllocator->Get(node_idx);
 
 			if (!node.mIsChanged && !inFullRebuild)
@@ -3033,7 +3033,7 @@ void QuadTree::UpdatePrepare(const BodyVector &inBodies, TrackingVector &ioTrack
 	while (top >= 0);
 
 	// Check that our book keeping matches
-	uint32 num_node_ids = uint32(cur_node_id - node_ids);
+	uint32_t num_node_ids = uint32_t(cur_node_id - node_ids);
 	MOSS_ASSERT(inFullRebuild? num_node_ids == mNumBodies : num_node_ids <= mNumBodies);
 
 	// This will be the new root node id
@@ -3045,7 +3045,7 @@ void QuadTree::UpdatePrepare(const BodyVector &inBodies, TrackingVector &ioTrack
 		// those nodes get recreated every time when we rebuild the tree. This balances the amount of
 		// time we spend on rebuilding the tree ('unchanged' nodes will be put in the new tree as a whole)
 		// vs the quality of the built tree.
-		constexpr uint32 cMaxDepthMarkChanged = 5;
+		constexpr uint32_t cMaxDepthMarkChanged = 5;
 
 		// Build new tree
 		AABox root_bounds;
@@ -3053,7 +3053,7 @@ void QuadTree::UpdatePrepare(const BodyVector &inBodies, TrackingVector &ioTrack
 
 		if (root_node_id.IsBody()) {
 			// For a single body we need to allocate a new root node
-			uint32 root_idx = AllocateNode(false);
+			uint32_t root_idx = AllocateNode(false);
 			Node &root = mAllocator->Get(root_idx);
 			root.SetChildBounds(0, root_bounds);
 			root.mChildNodeID[0] = root_node_id;
@@ -3064,7 +3064,7 @@ void QuadTree::UpdatePrepare(const BodyVector &inBodies, TrackingVector &ioTrack
 	else
 	{
 		// Empty tree, create root node
-		uint32 root_idx = AllocateNode(false);
+		uint32_t root_idx = AllocateNode(false);
 		root_node_id = NodeID::FromNodeIndex(root_idx);
 	}
 
@@ -3077,7 +3077,7 @@ void QuadTree::UpdatePrepare(const BodyVector &inBodies, TrackingVector &ioTrack
 void QuadTree::UpdateFinalize([[maybe_unused]] const BodyVector &inBodies, [[maybe_unused]] const TrackingVector &inTracking, const UpdateState &inUpdateState)
 {
 	// Tree building is complete, now we switch the old with the new tree
-	uint32 new_root_idx = mRootNodeIndex ^ 1;
+	uint32_t new_root_idx = mRootNodeIndex ^ 1;
 	RootNode &new_root_node = mRootNode[new_root_idx];
 	{
 		// Note: We don't need to lock here as the old tree stays available so any queries
@@ -3185,7 +3185,7 @@ AABox QuadTree::GetNodeOrBodyBounds(const BodyVector &inBodies, NodeID inNodeID)
 	if (inNodeID.IsNode())
 	{
 		// It is a node
-		uint32 node_idx = inNodeID.GetNodeIndex();
+		uint32_t node_idx = inNodeID.GetNodeIndex();
 		const Node &node = mAllocator->Get(node_idx);
 
 		AABox bounds;
@@ -3199,7 +3199,7 @@ AABox QuadTree::GetNodeOrBodyBounds(const BodyVector &inBodies, NodeID inNodeID)
 	}
 }
 
-QuadTree::NodeID QuadTree::BuildTree(const BodyVector &inBodies, TrackingVector &ioTracking, NodeID *ioNodeIDs, int inNumber, uint32 inMaxDepthMarkChanged, AABox &outBounds)
+QuadTree::NodeID QuadTree::BuildTree(const BodyVector &inBodies, TrackingVector &ioTracking, NodeID *ioNodeIDs, int inNumber, uint32_t inMaxDepthMarkChanged, AABox &outBounds)
 {
 	// Trivial case: No bodies in tree
 	if (inNumber == 0)
@@ -3231,10 +3231,10 @@ QuadTree::NodeID QuadTree::BuildTree(const BodyVector &inBodies, TrackingVector 
 	// The algorithm is a recursive tree build, but to avoid the call overhead we keep track of a stack here
 	struct StackEntry
 	{
-		uint32			mNodeIdx;					// Node index of node that is generated
+		uint32_t			mNodeIdx;					// Node index of node that is generated
 		int				mChildIdx;					// Index of child that we're currently processing
 		int				mSplit[5];					// Indices where the node ID's have been split to form 4 partitions
-		uint32			mDepth;						// Depth of this node in the tree
+		uint32_t			mDepth;						// Depth of this node in the tree
 		Vec3			mNodeBoundsMin;				// Bounding box of this node, accumulated while iterating over children
 		Vec3			mNodeBoundsMax;
 	};
@@ -3320,7 +3320,7 @@ QuadTree::NodeID QuadTree::BuildTree(const BodyVector &inBodies, TrackingVector 
 				// Allocate new node
 				StackEntry &new_stack = stack[++top];
 				MOSS_ASSERT(top < cStackSize / 4);
-				uint32 next_depth = cur_stack.mDepth + 1;
+				uint32_t next_depth = cur_stack.mDepth + 1;
 				new_stack.mNodeIdx = AllocateNode(inMaxDepthMarkChanged > next_depth);
 				new_stack.mChildIdx = -1;
 				new_stack.mDepth = next_depth;
@@ -3342,9 +3342,9 @@ QuadTree::NodeID QuadTree::BuildTree(const BodyVector &inBodies, TrackingVector 
 	return NodeID::FromNodeIndex(stack[0].mNodeIdx);
 }
 
-void QuadTree::MarkNodeAndParentsChanged(uint32 inNodeIndex)
+void QuadTree::MarkNodeAndParentsChanged(uint32_t inNodeIndex)
 {
-	uint32 node_idx = inNodeIndex;
+	uint32_t node_idx = inNodeIndex;
 
 	do
 	{
@@ -3362,9 +3362,9 @@ void QuadTree::MarkNodeAndParentsChanged(uint32 inNodeIndex)
 	while (node_idx != cInvalidNodeIndex);
 }
 
-void QuadTree::WidenAndMarkNodeAndParentsChanged(uint32 inNodeIndex, const AABox &inNewBounds)
+void QuadTree::WidenAndMarkNodeAndParentsChanged(uint32_t inNodeIndex, const AABox &inNewBounds)
 {
-	uint32 node_idx = inNodeIndex;
+	uint32_t node_idx = inNodeIndex;
 
 	for (;;)
 	{
@@ -3373,7 +3373,7 @@ void QuadTree::WidenAndMarkNodeAndParentsChanged(uint32 inNodeIndex, const AABox
 		node.mIsChanged = true;
 
 		// Get our parent
-		uint32 parent_idx = node.mParentNodeIndex;
+		uint32_t parent_idx = node.mParentNodeIndex;
 		if (parent_idx == cInvalidNodeIndex)
 			break;
 
@@ -3410,7 +3410,7 @@ bool QuadTree::TryInsertLeaf(TrackingVector &ioTracking, int inNodeIndex, NodeID
 	bool leaf_is_node = inLeafID.IsNode();
 	if (leaf_is_node)
 	{
-		uint32 leaf_idx = inLeafID.GetNodeIndex();
+		uint32_t leaf_idx = inLeafID.GetNodeIndex();
 		mAllocator->Get(leaf_idx).mParentNodeIndex = inNodeIndex;
 	}
 
@@ -3418,7 +3418,7 @@ bool QuadTree::TryInsertLeaf(TrackingVector &ioTracking, int inNodeIndex, NodeID
 	Node &node = mAllocator->Get(inNodeIndex);
 
 	// Find an empty child
-	for (uint32 child_idx = 0; child_idx < 4; ++child_idx)
+	for (uint32_t child_idx = 0; child_idx < 4; ++child_idx)
 		if (node.mChildNodeID[child_idx].CompareExchange(NodeID::Invalid(), inLeafID)) // Check if we can claim it
 		{
 			// We managed to add it to the node
@@ -3443,14 +3443,14 @@ bool QuadTree::TryInsertLeaf(TrackingVector &ioTracking, int inNodeIndex, NodeID
 	return false;
 }
 
-bool QuadTree::TryCreateNewRoot(TrackingVector &ioTracking, atomic<uint32> &ioRootNodeIndex, NodeID inLeafID, const AABox &inLeafBounds, int inLeafNumBodies)
+bool QuadTree::TryCreateNewRoot(TrackingVector &ioTracking, atomic<uint32_t> &ioRootNodeIndex, NodeID inLeafID, const AABox &inLeafBounds, int inLeafNumBodies)
 {
 	// Fetch old root
-	uint32 root_idx = ioRootNodeIndex;
+	uint32_t root_idx = ioRootNodeIndex;
 	Node &root = mAllocator->Get(root_idx);
 
 	// Create new root, mark this new root as changed as we're not creating a very efficient tree at this point
-	uint32 new_root_idx = AllocateNode(true);
+	uint32_t new_root_idx = AllocateNode(true);
 	Node &new_root = mAllocator->Get(new_root_idx);
 
 	// First child is current root, note that since the tree may be modified concurrently we cannot assume that the bounds of our child will be correct so we set a very large bounding box
@@ -3465,7 +3465,7 @@ bool QuadTree::TryCreateNewRoot(TrackingVector &ioTracking, atomic<uint32> &ioRo
 	bool leaf_is_node = inLeafID.IsNode();
 	if (leaf_is_node)
 	{
-		uint32 leaf_idx = inLeafID.GetNodeIndex();
+		uint32_t leaf_idx = inLeafID.GetNodeIndex();
 		mAllocator->Get(leaf_idx).mParentNodeIndex = new_root_idx;
 	}
 
@@ -3558,7 +3558,7 @@ void QuadTree::AddBodiesAbort(TrackingVector &ioTracking, const AddState &inStat
 		else
 		{
 			// Process normal node
-			uint32 node_idx = child_node_id.GetNodeIndex();
+			uint32_t node_idx = child_node_id.GetNodeIndex();
 			const Node &node = mAllocator->Get(node_idx);
 			for (NodeID sub_child_node_id : node.mChildNodeID)
 				if (sub_child_node_id.IsValid())
@@ -3594,7 +3594,7 @@ void QuadTree::RemoveBodies([[maybe_unused]] const BodyVector &inBodies, Trackin
 		MOSS_ASSERT(inBodies[cur->GetIndex()]->GetID() == *cur, "Provided BodyID doesn't match BodyID in body manager");
 
 		// Get location of body
-		uint32 node_idx, child_idx;
+		uint32_t node_idx, child_idx;
 		GetBodyLocation(ioTracking, *cur, node_idx, child_idx);
 
 		// First we reset our internal bookkeeping
@@ -3631,7 +3631,7 @@ void QuadTree::NotifyBodiesAABBChanged(const BodyVector &inBodies, const Trackin
 		const AABox &new_bounds = body->GetWorldSpaceBounds();
 
 		// Get location of body
-		uint32 node_idx, child_idx;
+		uint32_t node_idx, child_idx;
 		GetBodyLocation(inTracking, *cur, node_idx, child_idx);
 
 		// Widen bounds for node
@@ -3658,9 +3658,9 @@ MOSS_INLINE void QuadTree::WalkTree(const ObjectLayerFilter &inObjectLayerFilter
 	int bodies_visited = 0;
 	int hits_collected = 0;
 	int nodes_visited = 0;
-	uint64 collector_ticks = 0;
+	uint64_t collector_ticks = 0;
 
-	uint64 start = GetProcessorTickCount();
+	uint64_t start = GetProcessorTickCount();
 #endif // MOSS_TRACK_BROADPHASE_STATS
 
 	NodeID node_stack[cStackSize];
@@ -3685,7 +3685,7 @@ MOSS_INLINE void QuadTree::WalkTree(const ObjectLayerFilter &inObjectLayerFilter
 				MOSS_IF_TRACK_BROADPHASE_STATS(++hits_collected;)
 
 				// Start track time the collector takes
-				MOSS_IF_TRACK_BROADPHASE_STATS(uint64 collector_start = GetProcessorTickCount();)
+				MOSS_IF_TRACK_BROADPHASE_STATS(uint64_t collector_start = GetProcessorTickCount();)
 
 				// We found a body we collide with, call our visitor
 				ioVisitor.VisitBody(body_id, top);
@@ -3718,11 +3718,11 @@ MOSS_INLINE void QuadTree::WalkTree(const ObjectLayerFilter &inObjectLayerFilter
 				Vec4 bounds_maxz = Vec4::LoadFloat4Aligned((const Float4 *)&node.mBoundsMaxZ);
 
 				// Load ids for 4 children
-				UVec4 child_ids = UVec4::LoadInt4Aligned((const uint32 *)&node.mChildNodeID[0]);
+				UVec4 child_ids = UVec4::LoadInt4Aligned((const uint32_t *)&node.mChildNodeID[0]);
 
 				// Check which sub nodes to visit
 				int num_results = ioVisitor.VisitNodes(bounds_minx, bounds_miny, bounds_minz, bounds_maxx, bounds_maxy, bounds_maxz, child_ids, top);
-				child_ids.StoreInt4((uint32 *)&node_stack[top]);
+				child_ids.StoreInt4((uint32_t *)&node_stack[top]);
 				top += num_results;
 			}
 			else
@@ -3740,7 +3740,7 @@ MOSS_INLINE void QuadTree::WalkTree(const ObjectLayerFilter &inObjectLayerFilter
 
 #ifdef MOSS_TRACK_BROADPHASE_STATS
 	// Calculate total time the broadphase walk took
-	uint64 total_ticks = GetProcessorTickCount() - start;
+	uint64_t total_ticks = GetProcessorTickCount() - start;
 
 	// Update stats under lock protection (slow!)
 	{
@@ -4138,7 +4138,7 @@ void QuadTree::FindCollidingPairs(const BodyVector &inBodies, const BodyID *inAc
 				if (num_results > 0)
 				{
 					// Load ids for 4 children
-					UVec4 child_ids = UVec4::LoadInt4Aligned((const uint32 *)&node.mChildNodeID[0]);
+					UVec4 child_ids = UVec4::LoadInt4Aligned((const uint32_t *)&node.mChildNodeID[0]);
 
 					// Sort so that overlaps are first
 					child_ids = UVec4::Sort4True(overlap, child_ids);
@@ -4146,7 +4146,7 @@ void QuadTree::FindCollidingPairs(const BodyVector &inBodies, const BodyID *inAc
 					// Push them onto the stack
 					if (top + 4 < cStackSize)
 					{
-						child_ids.StoreInt4((uint32 *)&node_stack[top]);
+						child_ids.StoreInt4((uint32_t *)&node_stack[top]);
 						top += num_results;
 					}
 					else
@@ -4168,7 +4168,7 @@ void QuadTree::FindCollidingPairs(const BodyVector &inBodies, const BodyID *inAc
 
 #ifdef MOSS_DEBUG
 
-void QuadTree::ValidateTree(const BodyVector &inBodies, const TrackingVector &inTracking, uint32 inNodeIndex, uint32 inNumExpectedBodies) const
+void QuadTree::ValidateTree(const BodyVector &inBodies, const TrackingVector &inTracking, uint32_t inNodeIndex, uint32_t inNumExpectedBodies) const
 {
 	MOSS_PROFILE_FUNCTION();
 
@@ -4181,17 +4181,17 @@ void QuadTree::ValidateTree(const BodyVector &inBodies, const TrackingVector &in
 	struct StackEntry
 	{
 						StackEntry() = default;
-		inline			StackEntry(uint32 inNodeIndex, uint32 inParentNodeIndex) : mNodeIndex(inNodeIndex), mParentNodeIndex(inParentNodeIndex) { }
+		inline			StackEntry(uint32_t inNodeIndex, uint32_t inParentNodeIndex) : mNodeIndex(inNodeIndex), mParentNodeIndex(inParentNodeIndex) { }
 
-		uint32			mNodeIndex;
-		uint32			mParentNodeIndex;
+		uint32_t			mNodeIndex;
+		uint32_t			mParentNodeIndex;
 	};
 	MOSS_SUPPRESS_WARNING_POP
 	TArray<StackEntry, STLLocalAllocator<StackEntry, cStackSize>> stack;
 	stack.reserve(cStackSize);
 	stack.emplace_back(inNodeIndex, cInvalidNodeIndex);
 
-	uint32 num_bodies = 0;
+	uint32_t num_bodies = 0;
 
 	do
 	{
@@ -4207,7 +4207,7 @@ void QuadTree::ValidateTree(const BodyVector &inBodies, const TrackingVector &in
 		MOSS_ASSERT(cur_stack.mParentNodeIndex == cInvalidNodeIndex || mAllocator->Get(cur_stack.mParentNodeIndex).mIsChanged || !node.mIsChanged);
 
 		// Loop children
-		for (uint32 i = 0; i < 4; ++i)
+		for (uint32_t i = 0; i < 4; ++i)
 		{
 			NodeID child_node_id = node.mChildNodeID[i];
 			if (child_node_id.IsValid())
@@ -4215,7 +4215,7 @@ void QuadTree::ValidateTree(const BodyVector &inBodies, const TrackingVector &in
 				if (child_node_id.IsNode())
 				{
 					// Child is a node, recurse
-					uint32 child_idx = child_node_id.GetNodeIndex();
+					uint32_t child_idx = child_node_id.GetNodeIndex();
 					stack.emplace_back(child_idx, cur_stack.mNodeIndex);
 
 					// Validate that the bounding box is bigger or equal to the bounds in the tree
@@ -4232,7 +4232,7 @@ void QuadTree::ValidateTree(const BodyVector &inBodies, const TrackingVector &in
 					++num_bodies;
 
 					// Check if tracker matches position of body
-					uint32 node_idx, child_idx;
+					uint32_t node_idx, child_idx;
 					GetBodyLocation(inTracking, child_node_id.GetBodyID(), node_idx, child_idx);
 					MOSS_ASSERT(node_idx == cur_stack.mNodeIndex);
 					MOSS_ASSERT(child_idx == i);
@@ -4288,7 +4288,7 @@ void QuadTree::DumpTree(const NodeID &inRoot, const char *inFileNamePrefix) cons
 		else
 		{
 			// Process normal node
-			uint32 node_idx = node_id.GetNodeIndex();
+			uint32_t node_idx = node_id.GetNodeIndex();
 			const Node &node = mAllocator->Get(node_idx);
 
 			// Get bounding box
@@ -4330,15 +4330,15 @@ void QuadTree::DumpTree(const NodeID &inRoot, const char *inFileNamePrefix) cons
 
 #ifdef MOSS_TRACK_BROADPHASE_STATS
 
-uint64 QuadTree::GetTicks100Pct(const LayerToStats &inLayer) const
+uint64_t QuadTree::GetTicks100Pct(const LayerToStats &inLayer) const
 {
-	uint64 total_ticks = 0;
+	uint64_t total_ticks = 0;
 	for (const LayerToStats::value_type &kv : inLayer)
 		total_ticks += kv.second.mTotalTicks;
 	return total_ticks;
 }
 
-void QuadTree::ReportStats(const char *inName, const LayerToStats &inLayer, uint64 inTicks100Pct) const
+void QuadTree::ReportStats(const char *inName, const LayerToStats &inLayer, uint64_t inTicks100Pct) const
 {
 	for (const LayerToStats::value_type &kv : inLayer)
 	{
@@ -4353,9 +4353,9 @@ void QuadTree::ReportStats(const char *inName, const LayerToStats &inLayer, uint
 	}
 }
 
-uint64 QuadTree::GetTicks100Pct() const
+uint64_t QuadTree::GetTicks100Pct() const
 {
-	uint64 total_ticks = 0;
+	uint64_t total_ticks = 0;
 	total_ticks += GetTicks100Pct(mCastRayStats);
 	total_ticks += GetTicks100Pct(mCollideAABoxStats);
 	total_ticks += GetTicks100Pct(mCollideSphereStats);
@@ -4365,7 +4365,7 @@ uint64 QuadTree::GetTicks100Pct() const
 	return total_ticks;
 }
 
-void QuadTree::ReportStats(uint64 inTicks100Pct) const
+void QuadTree::ReportStats(uint64_t inTicks100Pct) const
 {
 	unique_lock lock(mStatsMutex);
 	ReportStats("RayCast", mCastRayStats, inTicks100Pct);
@@ -4378,14 +4378,14 @@ void QuadTree::ReportStats(uint64 inTicks100Pct) const
 
 #endif // MOSS_TRACK_BROADPHASE_STATS
 
-uint32 QuadTree::GetMaxTreeDepth(const NodeID &inNodeID) const
+uint32_t QuadTree::GetMaxTreeDepth(const NodeID &inNodeID) const
 {
 	// Reached a leaf?
 	if (!inNodeID.IsValid() || inNodeID.IsBody())
 		return 0;
 
 	// Recurse to children
-	uint32 max_depth = 0;
+	uint32_t max_depth = 0;
 	const Node &node = mAllocator->Get(inNodeID.GetNodeIndex());
 	for (NodeID child_node_id : node.mChildNodeID)
 		max_depth = max(max_depth, GetMaxTreeDepth(child_node_id));

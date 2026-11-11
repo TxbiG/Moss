@@ -38,8 +38,8 @@ struct Moss_Renderer {
     VkDevice m_device       = VK_NULL_HANDLE;          // The “logical” GPU context that you actually execute things on.
     PhysicalDevice m_physicalDevice;                   // Holds GPU Physical device data.
 
-	uint32							m_GraphicsQueueIndex = 0;
-	uint32							m_PresentQueueIndex = 0;
+	uint32_t							m_GraphicsQueueIndex = 0;
+	uint32_t							m_PresentQueueIndex = 0;
 	VkQueue							m_GraphicsQueue = VK_NULL_HANDLE;
 	VkQueue							m_PresentQueue = VK_NULL_HANDLE;
 	VkSwapchainKHR					m_SwapChain = VK_NULL_HANDLE;
@@ -63,8 +63,8 @@ struct Moss_Renderer {
 	VkPipelineLayout				m_PipelineLayout = VK_NULL_HANDLE;
 	VkFramebuffer					m_ShadowFrameBuffer = VK_NULL_HANDLE;
 	std::vector<VkFramebuffer>			m_SwapChainFramebuffers;
-	uint32							m_ImageIndex = 0;
-	uint32							m_CurrentFrame = 0;
+	uint32_t							m_ImageIndex = 0;
+	uint32_t							m_CurrentFrame = 0;
 	VkCommandPool					m_CommandPool = VK_NULL_HANDLE;
 	VkCommandBuffer					m_CommandBuffers[cFrameCount];
 	std::vector<VkSemaphore>				m_AvailableSemaphores;
@@ -108,8 +108,8 @@ struct Moss_Renderer {
 	using MemoryCache = TMap<Key, TArray<Memory>, KeyHasher>;
 
 	MemoryCache						m_MemoryCache;
-	uint32							m_NumAllocations = 0;
-	uint32							m_MaxNumAllocations = 0;
+	uint32_t							m_NumAllocations = 0;
+	uint32_t							m_MaxNumAllocations = 0;
 	VkDeviceSize					m_TotalAllocated = 0;
 	VkDeviceSize					m_MaxTotalAllocated = 0;
 
@@ -144,7 +144,7 @@ struct Moss_Renderer {
 	int             fsrHistoryIndex = 0;
 
 	VkQueue m_ComputeQueue;
-	uint32  m_ComputeQueueIndex;
+	uint32_t  m_ComputeQueueIndex;
 
 
 	VkImage         fsrMotionVectorsImage = VK_NULL_HANDLE;

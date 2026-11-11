@@ -5,7 +5,7 @@ typedef struct Moss_PipelineState {
     ID3D12Device* device;
     ID3D12PipelineState* pipelineState;
     ID3D12Resource* constantBuffer;   // Constant buffer for uniforms
-    UINT64 constantBufferSize;
+    uint64_t constantBufferSize;
 } Moss_PipelineState;
 
 

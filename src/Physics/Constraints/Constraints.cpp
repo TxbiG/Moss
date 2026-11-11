@@ -434,7 +434,7 @@ void ConstraintManager::Add(Constraint **inConstraints, int inNumber)
 		MOSS_ASSERT(constraint->mConstraintIndex == Constraint::cInvalidConstraintIndex);
 
 		// Add to the list
-		constraint->mConstraintIndex = uint32(mConstraints.size());
+		constraint->mConstraintIndex = uint32_t(mConstraints.size());
 		mConstraints.push_back(constraint);
 	}
 }
@@ -448,12 +448,12 @@ void ConstraintManager::Remove(Constraint **inConstraints, int inNumber)
 		Constraint *constraint = *c;
 
 		// Reset constraint index for this constraint
-		uint32 this_constraint_idx = constraint->mConstraintIndex;
+		uint32_t this_constraint_idx = constraint->mConstraintIndex;
 		constraint->mConstraintIndex = Constraint::cInvalidConstraintIndex;
 		MOSS_ASSERT(this_constraint_idx != Constraint::cInvalidConstraintIndex);
 
 		// Check if this constraint is somewhere in the middle of the constraints, in this case we need to move the last constraint to this position
-		uint32 last_constraint_idx = uint32(mConstraints.size() - 1);
+		uint32_t last_constraint_idx = uint32_t(mConstraints.size() - 1);
 		if (this_constraint_idx < last_constraint_idx)
 		{
 			Constraint *last_constraint = mConstraints[last_constraint_idx];
@@ -474,14 +474,14 @@ Constraints ConstraintManager::GetConstraints() const
 	return copy;
 }
 
-void ConstraintManager::GetActiveConstraints(uint32 inStartConstraintIdx, uint32 inEndConstraintIdx, Constraint **outActiveConstraints, uint32 &outNumActiveConstraints) const
+void ConstraintManager::GetActiveConstraints(uint32_t inStartConstraintIdx, uint32_t inEndConstraintIdx, Constraint **outActiveConstraints, uint32_t &outNumActiveConstraints) const
 {
 	MOSS_PROFILE_FUNCTION();
 
 	MOSS_ASSERT(inEndConstraintIdx <= mConstraints.size());
 
-	uint32 num_active_constraints = 0;
-	for (uint32 constraint_idx = inStartConstraintIdx; constraint_idx < inEndConstraintIdx; ++constraint_idx)
+	uint32_t num_active_constraints = 0;
+	for (uint32_t constraint_idx = inStartConstraintIdx; constraint_idx < inEndConstraintIdx; ++constraint_idx)
 	{
 		Constraint *c = mConstraints[constraint_idx];
 		MOSS_ASSERT(c->mConstraintIndex == constraint_idx);
@@ -495,22 +495,22 @@ void ConstraintManager::GetActiveConstraints(uint32 inStartConstraintIdx, uint32
 	outNumActiveConstraints = num_active_constraints;
 }
 
-void ConstraintManager::BuildIslands(Constraint **inActiveConstraints, uint32 inNumActiveConstraints, IslandBuilder &ioBuilder, BodyManager &inBodyManager)
+void ConstraintManager::BuildIslands(Constraint **inActiveConstraints, uint32_t inNumActiveConstraints, IslandBuilder &ioBuilder, BodyManager &inBodyManager)
 {
 	MOSS_PROFILE_FUNCTION();
 
-	for (uint32 constraint_idx = 0; constraint_idx < inNumActiveConstraints; ++constraint_idx)
+	for (uint32_t constraint_idx = 0; constraint_idx < inNumActiveConstraints; ++constraint_idx)
 	{
 		Constraint *c = inActiveConstraints[constraint_idx];
 		c->BuildIslands(constraint_idx, ioBuilder, inBodyManager);
 	}
 }
 
-void ConstraintManager::SortConstraints(Constraint **inActiveConstraints, uint32 *inConstraintIdxBegin, uint32 *inConstraintIdxEnd)
+void ConstraintManager::SortConstraints(Constraint **inActiveConstraints, uint32_t *inConstraintIdxBegin, uint32_t *inConstraintIdxEnd)
 {
 	MOSS_PROFILE_FUNCTION();
 
-	QuickSort(inConstraintIdxBegin, inConstraintIdxEnd, [inActiveConstraints](uint32 inLHS, uint32 inRHS) {
+	QuickSort(inConstraintIdxBegin, inConstraintIdxEnd, [inActiveConstraints](uint32_t inLHS, uint32_t inRHS) {
 		const Constraint *lhs = inActiveConstraints[inLHS];
 		const Constraint *rhs = inActiveConstraints[inRHS];
 
@@ -521,7 +521,7 @@ void ConstraintManager::SortConstraints(Constraint **inActiveConstraints, uint32
 	});
 }
 
-void ConstraintManager::SetupVelocityConstraints(Constraint **inActiveConstraints, uint32 inNumActiveConstraints, float inDeltaTime)
+void ConstraintManager::SetupVelocityConstraints(Constraint **inActiveConstraints, uint32_t inNumActiveConstraints, float inDeltaTime)
 {
 	MOSS_PROFILE_FUNCTION();
 
@@ -530,11 +530,11 @@ void ConstraintManager::SetupVelocityConstraints(Constraint **inActiveConstraint
 }
 
 template <class ConstraintCallback>
-void ConstraintManager::WarmStartVelocityConstraints(Constraint **inActiveConstraints, const uint32 *inConstraintIdxBegin, const uint32 *inConstraintIdxEnd, float inWarmStartImpulseRatio, ConstraintCallback &ioCallback)
+void ConstraintManager::WarmStartVelocityConstraints(Constraint **inActiveConstraints, const uint32_t *inConstraintIdxBegin, const uint32_t *inConstraintIdxEnd, float inWarmStartImpulseRatio, ConstraintCallback &ioCallback)
 {
 	MOSS_PROFILE_FUNCTION();
 
-	for (const uint32 *constraint_idx = inConstraintIdxBegin; constraint_idx < inConstraintIdxEnd; ++constraint_idx)
+	for (const uint32_t *constraint_idx = inConstraintIdxBegin; constraint_idx < inConstraintIdxEnd; ++constraint_idx)
 	{
 		Constraint *c = inActiveConstraints[*constraint_idx];
 		ioCallback(c);
@@ -543,16 +543,16 @@ void ConstraintManager::WarmStartVelocityConstraints(Constraint **inActiveConstr
 }
 
 // Specialize for the two constraint callback types
-template void ConstraintManager::WarmStartVelocityConstraints<CalculateSolverSteps>(Constraint **inActiveConstraints, const uint32 *inConstraintIdxBegin, const uint32 *inConstraintIdxEnd, float inWarmStartImpulseRatio, CalculateSolverSteps &ioCallback);
-template void ConstraintManager::WarmStartVelocityConstraints<DummyCalculateSolverSteps>(Constraint **inActiveConstraints, const uint32 *inConstraintIdxBegin, const uint32 *inConstraintIdxEnd, float inWarmStartImpulseRatio, DummyCalculateSolverSteps &ioCallback);
+template void ConstraintManager::WarmStartVelocityConstraints<CalculateSolverSteps>(Constraint **inActiveConstraints, const uint32_t *inConstraintIdxBegin, const uint32_t *inConstraintIdxEnd, float inWarmStartImpulseRatio, CalculateSolverSteps &ioCallback);
+template void ConstraintManager::WarmStartVelocityConstraints<DummyCalculateSolverSteps>(Constraint **inActiveConstraints, const uint32_t *inConstraintIdxBegin, const uint32_t *inConstraintIdxEnd, float inWarmStartImpulseRatio, DummyCalculateSolverSteps &ioCallback);
 
-bool ConstraintManager::SolveVelocityConstraints(Constraint **inActiveConstraints, const uint32 *inConstraintIdxBegin, const uint32 *inConstraintIdxEnd, float inDeltaTime)
+bool ConstraintManager::SolveVelocityConstraints(Constraint **inActiveConstraints, const uint32_t *inConstraintIdxBegin, const uint32_t *inConstraintIdxEnd, float inDeltaTime)
 {
 	MOSS_PROFILE_FUNCTION();
 
 	bool any_impulse_applied = false;
 
-	for (const uint32 *constraint_idx = inConstraintIdxBegin; constraint_idx < inConstraintIdxEnd; ++constraint_idx)
+	for (const uint32_t *constraint_idx = inConstraintIdxBegin; constraint_idx < inConstraintIdxEnd; ++constraint_idx)
 	{
 		Constraint *c = inActiveConstraints[*constraint_idx];
 		any_impulse_applied |= c->SolveVelocityConstraint(inDeltaTime);
@@ -561,13 +561,13 @@ bool ConstraintManager::SolveVelocityConstraints(Constraint **inActiveConstraint
 	return any_impulse_applied;
 }
 
-bool ConstraintManager::SolvePositionConstraints(Constraint **inActiveConstraints, const uint32 *inConstraintIdxBegin, const uint32 *inConstraintIdxEnd, float inDeltaTime, float inBaumgarte)
+bool ConstraintManager::SolvePositionConstraints(Constraint **inActiveConstraints, const uint32_t *inConstraintIdxBegin, const uint32_t *inConstraintIdxEnd, float inDeltaTime, float inBaumgarte)
 {
 	MOSS_PROFILE_FUNCTION();
 
 	bool any_impulse_applied = false;
 
-	for (const uint32 *constraint_idx = inConstraintIdxBegin; constraint_idx < inConstraintIdxEnd; ++constraint_idx)
+	for (const uint32_t *constraint_idx = inConstraintIdxBegin; constraint_idx < inConstraintIdxEnd; ++constraint_idx)
 	{
 		Constraint *c = inActiveConstraints[*constraint_idx];
 		any_impulse_applied |= c->SolvePositionConstraint(inDeltaTime, inBaumgarte);
@@ -623,7 +623,7 @@ void ConstraintManager::SaveState(StateRecorder &inStream, const StateRecorderFi
 				constraints.push_back(c);
 
 		// Save them
-		uint32 num_constraints = (uint32)constraints.size();
+		uint32_t num_constraints = (uint32_t)constraints.size();
 		inStream.Write(num_constraints);
 		for (const Constraint *c : constraints)
 		{
@@ -634,7 +634,7 @@ void ConstraintManager::SaveState(StateRecorder &inStream, const StateRecorderFi
 	else
 	{
 		// Save all constraints
-		uint32 num_constraints = (uint32)mConstraints.size();
+		uint32_t num_constraints = (uint32_t)mConstraints.size();
 		inStream.Write(num_constraints);
 		for (const Ref<Constraint> &c : mConstraints)
 		{
@@ -651,7 +651,7 @@ bool ConstraintManager::RestoreState(StateRecorder &inStream)
 	if (inStream.IsValidating())
 	{
 		// Read state of constraints
-		uint32 num_constraints = (uint32)mConstraints.size(); // Initialize to current value for validation
+		uint32_t num_constraints = (uint32_t)mConstraints.size(); // Initialize to current value for validation
 		inStream.Read(num_constraints);
 		if (num_constraints != mConstraints.size())
 		{
@@ -660,7 +660,7 @@ bool ConstraintManager::RestoreState(StateRecorder &inStream)
 		}
 		for (const Ref<Constraint> &c : mConstraints)
 		{
-			uint32 constraint_index = c->mConstraintIndex;
+			uint32_t constraint_index = c->mConstraintIndex;
 			inStream.Read(constraint_index);
 			if (constraint_index != c->mConstraintIndex)
 			{
@@ -673,12 +673,12 @@ bool ConstraintManager::RestoreState(StateRecorder &inStream)
 	else
 	{
 		// Not validating, use more flexible reading, read number of constraints
-		uint32 num_constraints = 0;
+		uint32_t num_constraints = 0;
 		inStream.Read(num_constraints);
 
-		for (uint32 idx = 0; idx < num_constraints; ++idx)
+		for (uint32_t idx = 0; idx < num_constraints; ++idx)
 		{
-			uint32 constraint_index;
+			uint32_t constraint_index;
 			inStream.Read(constraint_index);
 			if (mConstraints.size() <= constraint_index)
 			{
@@ -1072,13 +1072,13 @@ void ContactConstraintManager::CachedBodyPair::RestoreState(StateRecorder &inStr
 // ContactConstraintManager::ManifoldCache
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void ContactConstraintManager::ManifoldCache::Init(uint32 inMaxBodyPairs, uint32 inMaxContactConstraints, uint32 inCachedManifoldsSize)
+void ContactConstraintManager::ManifoldCache::Init(uint32_t inMaxBodyPairs, uint32_t inMaxContactConstraints, uint32_t inCachedManifoldsSize)
 {
-	uint32 max_body_pairs = min(inMaxBodyPairs, cMaxBodyPairsLimit);
+	uint32_t max_body_pairs = min(inMaxBodyPairs, cMaxBodyPairsLimit);
 	MOSS_ASSERT(max_body_pairs == inMaxBodyPairs, "Cannot support this many body pairs!");
 	MOSS_ASSERT(inMaxContactConstraints <= cMaxContactConstraintsLimit); // Should have been enforced by caller
 
-	mAllocator.Init(uint32(min(uint64(max_body_pairs) * sizeof(BodyPairMap::KeyValue) + inCachedManifoldsSize, uint64(~uint32(0)))));
+	mAllocator.Init(uint32_t(min(uint64_t(max_body_pairs) * sizeof(BodyPairMap::KeyValue) + inCachedManifoldsSize, uint64_t(~uint32_t(0)))));
 
 	mCachedManifolds.Init(GetNextPowerOf2(inMaxContactConstraints));
 	mCachedBodyPairs.Init(GetNextPowerOf2(max_body_pairs));
@@ -1098,23 +1098,23 @@ void ContactConstraintManager::ManifoldCache::Clear()
 #endif
 }
 
-void ContactConstraintManager::ManifoldCache::Prepare(uint32 inExpectedNumBodyPairs, uint32 inExpectedNumManifolds)
+void ContactConstraintManager::ManifoldCache::Prepare(uint32_t inExpectedNumBodyPairs, uint32_t inExpectedNumManifolds)
 {
 	// Minimum amount of buckets to use in the hash map
-	constexpr uint32 cMinBuckets = 1024;
+	constexpr uint32_t cMinBuckets = 1024;
 
 	// Use the next higher power of 2 of amount of objects in the cache from last frame to determine the amount of buckets in this frame
 	mCachedManifolds.SetNumBuckets(min(max(cMinBuckets, GetNextPowerOf2(inExpectedNumManifolds)), mCachedManifolds.GetMaxBuckets()));
 	mCachedBodyPairs.SetNumBuckets(min(max(cMinBuckets, GetNextPowerOf2(inExpectedNumBodyPairs)), mCachedBodyPairs.GetMaxBuckets()));
 }
 
-const ContactConstraintManager::MKeyValue *ContactConstraintManager::ManifoldCache::Find(const SubShapeIDPair &inKey, uint64 inKeyHash) const
+const ContactConstraintManager::MKeyValue *ContactConstraintManager::ManifoldCache::Find(const SubShapeIDPair &inKey, uint64_t inKeyHash) const
 {
 	MOSS_ASSERT(mIsFinalized);
 	return mCachedManifolds.Find(inKey, inKeyHash);
 }
 
-ContactConstraintManager::MKeyValue *ContactConstraintManager::ManifoldCache::Create(ContactAllocator &ioContactAllocator, const SubShapeIDPair &inKey, uint64 inKeyHash, int inNumContactPoints)
+ContactConstraintManager::MKeyValue *ContactConstraintManager::ManifoldCache::Create(ContactAllocator &ioContactAllocator, const SubShapeIDPair &inKey, uint64_t inKeyHash, int inNumContactPoints)
 {
 	MOSS_ASSERT(!mIsFinalized);
 	MKeyValue *kv = mCachedManifolds.Create(ioContactAllocator, inKey, inKeyHash, CachedManifold::GetRequiredExtraSize(inNumContactPoints));
@@ -1123,12 +1123,12 @@ ContactConstraintManager::MKeyValue *ContactConstraintManager::ManifoldCache::Cr
 		ioContactAllocator.mErrors |= EPhysicsUpdateError::ManifoldCacheFull;
 		return nullptr;
 	}
-	kv->GetValue().mNumContactPoints = uint16(inNumContactPoints);
+	kv->GetValue().mNumContactPoints = uint16_t(inNumContactPoints);
 	++ioContactAllocator.mNumManifolds;
 	return kv;
 }
 
-ContactConstraintManager::MKVAndCreated ContactConstraintManager::ManifoldCache::FindOrCreate(ContactAllocator &ioContactAllocator, const SubShapeIDPair &inKey, uint64 inKeyHash, int inNumContactPoints)
+ContactConstraintManager::MKVAndCreated ContactConstraintManager::ManifoldCache::FindOrCreate(ContactAllocator &ioContactAllocator, const SubShapeIDPair &inKey, uint64_t inKeyHash, int inNumContactPoints)
 {
 	MKeyValue *kv = const_cast<MKeyValue *>(mCachedManifolds.Find(inKey, inKeyHash));
 	if (kv != nullptr)
@@ -1137,25 +1137,25 @@ ContactConstraintManager::MKVAndCreated ContactConstraintManager::ManifoldCache:
 	return { Create(ioContactAllocator, inKey, inKeyHash, inNumContactPoints), true };
 }
 
-uint32 ContactConstraintManager::ManifoldCache::ToHandle(const MKeyValue *inKeyValue) const
+uint32_t ContactConstraintManager::ManifoldCache::ToHandle(const MKeyValue *inKeyValue) const
 {
 	MOSS_ASSERT(!mIsFinalized);
 	return mCachedManifolds.ToHandle(inKeyValue);
 }
 
-const ContactConstraintManager::MKeyValue *ContactConstraintManager::ManifoldCache::FromHandle(uint32 inHandle) const
+const ContactConstraintManager::MKeyValue *ContactConstraintManager::ManifoldCache::FromHandle(uint32_t inHandle) const
 {
 	MOSS_ASSERT(mIsFinalized);
 	return mCachedManifolds.FromHandle(inHandle);
 }
 
-const ContactConstraintManager::BPKeyValue *ContactConstraintManager::ManifoldCache::Find(const BodyPair &inKey, uint64 inKeyHash) const
+const ContactConstraintManager::BPKeyValue *ContactConstraintManager::ManifoldCache::Find(const BodyPair &inKey, uint64_t inKeyHash) const
 {
 	MOSS_ASSERT(mIsFinalized);
 	return mCachedBodyPairs.Find(inKey, inKeyHash);
 }
 
-ContactConstraintManager::BPKeyValue *ContactConstraintManager::ManifoldCache::Create(ContactAllocator &ioContactAllocator, const BodyPair &inKey, uint64 inKeyHash)
+ContactConstraintManager::BPKeyValue *ContactConstraintManager::ManifoldCache::Create(ContactAllocator &ioContactAllocator, const BodyPair &inKey, uint64_t inKeyHash)
 {
 	MOSS_ASSERT(!mIsFinalized);
 	BPKeyValue *kv = mCachedBodyPairs.Create(ioContactAllocator, inKey, inKeyHash, 0);
@@ -1184,7 +1184,7 @@ void ContactConstraintManager::ManifoldCache::GetAllManifoldsSorted(const Cached
 	MOSS_ASSERT(mIsFinalized);
 
 	// Iterate through the attached manifolds
-	for (uint32 handle = inBodyPair.mFirstCachedManifold; handle != ManifoldMap::cInvalidHandle; handle = FromHandle(handle)->GetValue().mNextWithSameBodyPair)
+	for (uint32_t handle = inBodyPair.mFirstCachedManifold; handle != ManifoldMap::cInvalidHandle; handle = FromHandle(handle)->GetValue().mNextWithSameBodyPair)
 	{
 		const MKeyValue *kv = mCachedManifolds.FromHandle(handle);
 		outAll.push_back(kv);
@@ -1201,7 +1201,7 @@ void ContactConstraintManager::ManifoldCache::GetAllCCDManifoldsSorted(TArray<co
 	mCachedManifolds.GetAllKeyValues(outAll);
 
 	for (int i = (int)outAll.size() - 1; i >= 0; --i)
-		if ((outAll[i]->GetValue().mFlags & (uint16)CachedManifold::EFlags::CCDContact) == 0)
+		if ((outAll[i]->GetValue().mFlags & (uint16_t)CachedManifold::EFlags::CCDContact) == 0)
 		{
 			outAll[i] = outAll.back();
 			outAll.pop_back();
@@ -1218,7 +1218,7 @@ void ContactConstraintManager::ManifoldCache::ContactPointRemovedCallbacks(Conta
 	MOSS_PROFILE_FUNCTION();
 
 	for (MKeyValue &kv : mCachedManifolds)
-		if ((kv.GetValue().mFlags & uint16(CachedManifold::EFlags::ContactPersisted)) == 0)
+		if ((kv.GetValue().mFlags & uint16_t(CachedManifold::EFlags::ContactPersisted)) == 0)
 			inListener->OnContactRemoved(kv.GetKey());
 }
 
@@ -1259,7 +1259,7 @@ void ContactConstraintManager::ManifoldCache::SaveState(StateRecorder &inStream,
 	}
 
 	// Write body pairs
-	uint32 num_body_pairs = uint32(selected_bp.size());
+	uint32_t num_body_pairs = uint32_t(selected_bp.size());
 	inStream.Write(num_body_pairs);
 	for (const BPKeyValue *bp_kv : selected_bp)
 	{
@@ -1275,7 +1275,7 @@ void ContactConstraintManager::ManifoldCache::SaveState(StateRecorder &inStream,
 		GetAllManifoldsSorted(bp, all_m);
 
 		// Write num manifolds
-		uint32 num_manifolds = uint32(all_m.size());
+		uint32_t num_manifolds = uint32_t(all_m.size());
 		inStream.Write(num_manifolds);
 
 		// Write all manifolds
@@ -1284,7 +1284,7 @@ void ContactConstraintManager::ManifoldCache::SaveState(StateRecorder &inStream,
 			// Write key
 			inStream.Write(m_kv->GetKey());
 			const CachedManifold &cm = m_kv->GetValue();
-			MOSS_ASSERT((cm.mFlags & (uint16)CachedManifold::EFlags::CCDContact) == 0);
+			MOSS_ASSERT((cm.mFlags & (uint16_t)CachedManifold::EFlags::CCDContact) == 0);
 
 			// Write amount of contacts
 			inStream.Write(cm.mNumContactPoints);
@@ -1293,7 +1293,7 @@ void ContactConstraintManager::ManifoldCache::SaveState(StateRecorder &inStream,
 			cm.SaveState(inStream);
 
 			// Write contact points
-			for (uint32 i = 0; i < cm.mNumContactPoints; ++i)
+			for (uint32_t i = 0; i < cm.mNumContactPoints; ++i)
 				cm.mContactPoints[i].SaveState(inStream);
 		}
 	}
@@ -1315,7 +1315,7 @@ void ContactConstraintManager::ManifoldCache::SaveState(StateRecorder &inStream,
 	}
 
 	// Write all CCD manifold keys
-	uint32 num_manifolds = uint32(selected_m.size());
+	uint32_t num_manifolds = uint32_t(selected_m.size());
 	inStream.Write(num_manifolds);
 	for (const MKeyValue *m_kv : selected_m)
 		inStream.Write(m_kv->GetKey());
@@ -1336,13 +1336,13 @@ bool ContactConstraintManager::ManifoldCache::RestoreState(const ManifoldCache &
 		inReadCache.GetAllBodyPairsSorted(all_bp);
 
 	// Read amount of body pairs
-	uint32 num_body_pairs;
+	uint32_t num_body_pairs;
 	if (inStream.IsValidating())
-		num_body_pairs = uint32(all_bp.size());
+		num_body_pairs = uint32_t(all_bp.size());
 	inStream.Read(num_body_pairs);
 
 	// Read entire cache
-	for (uint32 i = 0; i < num_body_pairs; ++i)
+	for (uint32_t i = 0; i < num_body_pairs; ++i)
 	{
 		// Read key
 		BodyPair body_pair_key;
@@ -1354,7 +1354,7 @@ bool ContactConstraintManager::ManifoldCache::RestoreState(const ManifoldCache &
 		if (inFilter == nullptr || inFilter->ShouldRestoreContact(body_pair_key.mBodyA, body_pair_key.mBodyB))
 		{
 			// Create new entry for this body pair
-			uint64 body_pair_hash = body_pair_key.GetHash();
+			uint64_t body_pair_hash = body_pair_key.GetHash();
 			BPKeyValue *bp_kv = Create(contact_allocator, body_pair_key, body_pair_hash);
 			if (bp_kv == nullptr)
 			{
@@ -1375,23 +1375,23 @@ bool ContactConstraintManager::ManifoldCache::RestoreState(const ManifoldCache &
 				inReadCache.GetAllManifoldsSorted(all_bp[i]->GetValue(), all_m);
 
 			// Read amount of manifolds
-			uint32 num_manifolds = 0;
+			uint32_t num_manifolds = 0;
 			if (inStream.IsValidating())
-				num_manifolds = uint32(all_m.size());
+				num_manifolds = uint32_t(all_m.size());
 			inStream.Read(num_manifolds);
 
-			uint32 handle = ManifoldMap::cInvalidHandle;
-			for (uint32 j = 0; j < num_manifolds; ++j)
+			uint32_t handle = ManifoldMap::cInvalidHandle;
+			for (uint32_t j = 0; j < num_manifolds; ++j)
 			{
 				// Read key
 				SubShapeIDPair sub_shape_key;
 				if (inStream.IsValidating() && j < all_m.size())
 					sub_shape_key = all_m[j]->GetKey();
 				inStream.Read(sub_shape_key);
-				uint64 sub_shape_key_hash = sub_shape_key.GetHash();
+				uint64_t sub_shape_key_hash = sub_shape_key.GetHash();
 
 				// Read amount of contact points
-				uint16 num_contact_points = 0;
+				uint16_t num_contact_points = 0;
 				if (inStream.IsValidating() && j < all_m.size())
 					num_contact_points = all_m[j]->GetValue().mNumContactPoints;
 				inStream.Read(num_contact_points);
@@ -1408,14 +1408,14 @@ bool ContactConstraintManager::ManifoldCache::RestoreState(const ManifoldCache &
 				if (inStream.IsValidating() && j < all_m.size())
 				{
 					memcpy(&cm, &all_m[j]->GetValue(), CachedManifold::GetRequiredTotalSize(num_contact_points));
-					cm.mNumContactPoints = uint16(num_contact_points); // Restore num contact points
+					cm.mNumContactPoints = uint16_t(num_contact_points); // Restore num contact points
 				}
 				cm.RestoreState(inStream);
 				cm.mNextWithSameBodyPair = handle;
 				handle = ToHandle(m_kv);
 
 				// Read contact points
-				for (uint32 k = 0; k < num_contact_points; ++k)
+				for (uint32_t k = 0; k < num_contact_points; ++k)
 					cm.mContactPoints[k].RestoreState(inStream);
 			}
 			bp.mFirstCachedManifold = handle;
@@ -1425,17 +1425,17 @@ bool ContactConstraintManager::ManifoldCache::RestoreState(const ManifoldCache &
 			// Skip the contact
 			CachedBodyPair bp;
 			bp.RestoreState(inStream);
-			uint32 num_manifolds = 0;
+			uint32_t num_manifolds = 0;
 			inStream.Read(num_manifolds);
-			for (uint32 j = 0; j < num_manifolds; ++j)
+			for (uint32_t j = 0; j < num_manifolds; ++j)
 			{
 				SubShapeIDPair sub_shape_key;
 				inStream.Read(sub_shape_key);
-				uint16 num_contact_points;
+				uint16_t num_contact_points;
 				inStream.Read(num_contact_points);
 				CachedManifold cm;
 				cm.RestoreState(inStream);
-				for (uint32 k = 0; k < num_contact_points; ++k)
+				for (uint32_t k = 0; k < num_contact_points; ++k)
 					cm.mContactPoints[0].RestoreState(inStream);
 			}
 		}
@@ -1447,12 +1447,12 @@ bool ContactConstraintManager::ManifoldCache::RestoreState(const ManifoldCache &
 		inReadCache.GetAllCCDManifoldsSorted(all_m);
 
 	// Read amount of CCD manifolds
-	uint32 num_manifolds;
+	uint32_t num_manifolds;
 	if (inStream.IsValidating())
-		num_manifolds = uint32(all_m.size());
+		num_manifolds = uint32_t(all_m.size());
 	inStream.Read(num_manifolds);
 
-	for (uint32 j = 0; j < num_manifolds; ++j)
+	for (uint32_t j = 0; j < num_manifolds; ++j)
 	{
 		// Read key
 		SubShapeIDPair sub_shape_key;
@@ -1464,7 +1464,7 @@ bool ContactConstraintManager::ManifoldCache::RestoreState(const ManifoldCache &
 		if (inFilter == nullptr || inFilter->ShouldRestoreContact(sub_shape_key.GetBody1ID(), sub_shape_key.GetBody2ID()))
 		{
 			// Create CCD manifold
-			uint64 sub_shape_key_hash = sub_shape_key.GetHash();
+			uint64_t sub_shape_key_hash = sub_shape_key.GetHash();
 			MKeyValue *m_kv = Create(contact_allocator, sub_shape_key, sub_shape_key_hash, 0);
 			if (m_kv == nullptr)
 			{
@@ -1473,7 +1473,7 @@ bool ContactConstraintManager::ManifoldCache::RestoreState(const ManifoldCache &
 				break;
 			}
 			CachedManifold &cm = m_kv->GetValue();
-			cm.mFlags |= (uint16)CachedManifold::EFlags::CCDContact;
+			cm.mFlags |= (uint16_t)CachedManifold::EFlags::CCDContact;
 		}
 	}
 
@@ -1504,16 +1504,16 @@ ContactConstraintManager::~ContactConstraintManager()
 	MOSS_ASSERT(mConstraints == nullptr);
 }
 
-void ContactConstraintManager::Init(uint32 inMaxBodyPairs, uint32 inMaxContactConstraints)
+void ContactConstraintManager::Init(uint32_t inMaxBodyPairs, uint32_t inMaxContactConstraints)
 {
 	// Limit the number of constraints so that the allocation size fits in an unsigned integer
 	mMaxConstraints = min(inMaxContactConstraints, cMaxContactConstraintsLimit);
 	MOSS_ASSERT(mMaxConstraints == inMaxContactConstraints, "Cannot support this many contact constraints!");
 
 	// Calculate worst case cache usage
-	constexpr uint32 cMaxManifoldSizePerConstraint = sizeof(CachedManifold) + (MaxContactPoints - 1) * sizeof(CachedContactPoint);
+	constexpr uint32_t cMaxManifoldSizePerConstraint = sizeof(CachedManifold) + (MaxContactPoints - 1) * sizeof(CachedContactPoint);
 	static_assert(cMaxManifoldSizePerConstraint < sizeof(ContactConstraint)); // If not true, then the next line can overflow
-	uint32 cached_manifolds_size = mMaxConstraints * cMaxManifoldSizePerConstraint;
+	uint32_t cached_manifolds_size = mMaxConstraints * cMaxManifoldSizePerConstraint;
 
 	// Init the caches
 	mCache[0].Init(inMaxBodyPairs, mMaxConstraints, cached_manifolds_size);
@@ -1640,7 +1640,7 @@ void ContactConstraintManager::GetContactsFromCache(ContactAllocator &ioContactA
 
 	// Find the cached body pair
 	BodyPair body_pair_key(body1->GetID(), body2->GetID());
-	uint64 body_pair_hash = body_pair_key.GetHash();
+	uint64_t body_pair_hash = body_pair_key.GetHash();
 	const ManifoldCache &read_cache = mCache[mCacheWriteIdx ^ 1];
 	const BPKeyValue *kv = read_cache.Find(body_pair_key, body_pair_hash);
 	if (kv == nullptr)
@@ -1697,8 +1697,8 @@ void ContactConstraintManager::GetContactsFromCache(ContactAllocator &ioContactA
 	Vec3 gravity_dt = mUpdateContext->mPhysicsSystem->GetGravity() * delta_time;
 
 	// Copy manifolds
-	uint32 output_handle = ManifoldMap::cInvalidHandle;
-	uint32 input_handle = input_cbp.mFirstCachedManifold;
+	uint32_t output_handle = ManifoldMap::cInvalidHandle;
+	uint32_t input_handle = input_cbp.mFirstCachedManifold;
 	do
 	{
 		MOSS_PROFILE("Add Constraint From Cached Manifold");
@@ -1710,7 +1710,7 @@ void ContactConstraintManager::GetContactsFromCache(ContactAllocator &ioContactA
 		MOSS_ASSERT(input_cm.mNumContactPoints > 0); // There should be contact points in this manifold!
 
 		// Create room for manifold in write buffer and copy data
-		uint64 input_hash = input_key.GetHash();
+		uint64_t input_hash = input_key.GetHash();
 		MKeyValue *output_kv = write_cache.Create(ioContactAllocator, input_key, input_hash, input_cm.mNumContactPoints);
 		if (output_kv == nullptr)
 			break; // Out of cache space
@@ -1743,7 +1743,7 @@ void ContactConstraintManager::GetContactsFromCache(ContactAllocator &ioContactA
 			manifold.mRelativeContactPointsOn2.resize(output_cm->mNumContactPoints);
 			Mat44 local_transform_body2 = transform_body2.PostTranslated(-manifold.mBaseOffset).ToMat44();
 			float penetration_depth = -FLT_MAX;
-			for (uint32 i = 0; i < output_cm->mNumContactPoints; ++i)
+			for (uint32_t i = 0; i < output_cm->mNumContactPoints; ++i)
 			{
 				const CachedContactPoint &ccp = output_cm->mContactPoints[i];
 				manifold.mRelativeContactPointsOn1[i] = transform_body1.Multiply3x3(Vec3::LoadFloat3Unsafe(ccp.mPosition1));
@@ -1762,7 +1762,7 @@ void ContactConstraintManager::GetContactsFromCache(ContactAllocator &ioContactA
 				|| (body2->IsDynamic() && settings.mInvMassScale2 != 0.0f)))
 		{
 			// Add contact constraint in world space for the solver
-			uint32 constraint_idx = mNumConstraints++;
+			uint32_t constraint_idx = mNumConstraints++;
 			if (constraint_idx >= mMaxConstraints)
 			{
 				ioContactAllocator.mErrors |= EPhysicsUpdateError::ContactConstraintsFull;
@@ -1784,7 +1784,7 @@ void ContactConstraintManager::GetContactsFromCache(ContactAllocator &ioContactA
 			constraint.mInvMass2 = body2->GetMotionPropertiesUnchecked() != nullptr? settings.mInvMassScale2 * body2->GetMotionPropertiesUnchecked()->GetInverseMassUnchecked() : 0.0f;
 			constraint.mInvInertiaScale2 = settings.mInvInertiaScale2;
 			constraint.mContactPoints.resize(output_cm->mNumContactPoints);
-			for (uint32 i = 0; i < output_cm->mNumContactPoints; ++i)
+			for (uint32_t i = 0; i < output_cm->mNumContactPoints; ++i)
 			{
 				CachedContactPoint &ccp = output_cm->mContactPoints[i];
 				WorldContactPoint &wcp = constraint.mContactPoints[i];
@@ -1810,7 +1810,7 @@ void ContactConstraintManager::GetContactsFromCache(ContactAllocator &ioContactA
 		}
 
 		// Mark contact as persisted so that we won't fire OnContactRemoved callbacks
-		input_cm.mFlags |= (uint16)CachedManifold::EFlags::ContactPersisted;
+		input_cm.mFlags |= (uint16_t)CachedManifold::EFlags::ContactPersisted;
 
 		// Fetch the next manifold
 		input_handle = input_cm.mNextWithSameBodyPair;
@@ -1838,7 +1838,7 @@ ContactConstraintManager::BodyPairHandle ContactConstraintManager::AddBodyPair(C
 
 	// Add an entry
 	BodyPair body_pair_key(body1->GetID(), body2->GetID());
-	uint64 body_pair_hash = body_pair_key.GetHash();
+	uint64_t body_pair_hash = body_pair_key.GetHash();
 	BPKeyValue *body_pair_kv = mCache[mCacheWriteIdx].Create(ioContactAllocator, body_pair_key, body_pair_hash);
 	if (body_pair_kv == nullptr)
 		return nullptr; // Out of cache space
@@ -1866,7 +1866,7 @@ bool ContactConstraintManager::TemplatedAddContactConstraint(ContactAllocator &i
 {
 	// Calculate hash
 	SubShapeIDPair key { inBody1.GetID(), inManifold.mSubShapeID1, inBody2.GetID(), inManifold.mSubShapeID2 };
-	uint64 key_hash = key.GetHash();
+	uint64_t key_hash = key.GetHash();
 
 	// Determine number of contact points
 	int num_contact_points = (int)inManifold.mRelativeContactPointsOn1.size();
@@ -1909,7 +1909,7 @@ bool ContactConstraintManager::TemplatedAddContactConstraint(ContactAllocator &i
 		ccp_end = ccp_start + old_manifold->mNumContactPoints;
 
 		// Mark contact as persisted so that we won't fire OnContactRemoved callbacks
-		old_manifold->mFlags |= (uint16)CachedManifold::EFlags::ContactPersisted;
+		old_manifold->mFlags |= (uint16_t)CachedManifold::EFlags::ContactPersisted;
 	}
 	else
 	{
@@ -1934,7 +1934,7 @@ bool ContactConstraintManager::TemplatedAddContactConstraint(ContactAllocator &i
 			|| (inBody2.IsDynamic() && settings.mInvMassScale2 != 0.0f)))
 	{
 		// Add contact constraint
-		uint32 constraint_idx = mNumConstraints++;
+		uint32_t constraint_idx = mNumConstraints++;
 		if (constraint_idx >= mMaxConstraints)
 		{
 			ioContactAllocator.mErrors |= EPhysicsUpdateError::ContactConstraintsFull;
@@ -2208,7 +2208,7 @@ void ContactConstraintManager::OnCCDContactAdded(ContactAllocator &ioContactAllo
 
 		// Calculate hash
 		SubShapeIDPair key { body1->GetID(), manifold->mSubShapeID1, body2->GetID(), manifold->mSubShapeID2 };
-		uint64 key_hash = key.GetHash();
+		uint64_t key_hash = key.GetHash();
 
 		// Check if we already created this contact this physics update
 		ManifoldCache &write_cache = mCache[mCacheWriteIdx];
@@ -2229,7 +2229,7 @@ void ContactConstraintManager::OnCCDContactAdded(ContactAllocator &ioContactAllo
 				mContactListener->OnContactPersisted(*body1, *body2, *manifold, outSettings);
 
 				// Mark contact as persisted so that we won't fire OnContactRemoved callbacks
-				old_manifold_kv->GetValue().mFlags |= (uint16)CachedManifold::EFlags::ContactPersisted;
+				old_manifold_kv->GetValue().mFlags |= (uint16_t)CachedManifold::EFlags::ContactPersisted;
 			}
 
 			// Check if the cache is full
@@ -2238,7 +2238,7 @@ void ContactConstraintManager::OnCCDContactAdded(ContactAllocator &ioContactAllo
 				// We don't store any contact points in this manifold as it is not for caching impulses, we only need to know that the contact was created
 				CachedManifold &new_manifold = new_manifold_kv.first->GetValue();
 				new_manifold.mContactNormal = { 0, 0, 0 };
-				new_manifold.mFlags |= (uint16)CachedManifold::EFlags::CCDContact;
+				new_manifold.mFlags |= (uint16_t)CachedManifold::EFlags::CCDContact;
 			}
 		}
 		else
@@ -2260,11 +2260,11 @@ void ContactConstraintManager::OnCCDContactAdded(ContactAllocator &ioContactAllo
 	MOSS_ASSERT(outSettings.mIsSensor || !(inBody1.IsSensor() || inBody2.IsSensor()), "Sensors cannot be converted into regular bodies by a contact callback!");
 }
 
-void ContactConstraintManager::SortContacts(uint32 *inConstraintIdxBegin, uint32 *inConstraintIdxEnd) const
+void ContactConstraintManager::SortContacts(uint32_t *inConstraintIdxBegin, uint32_t *inConstraintIdxEnd) const
 {
 	MOSS_PROFILE_FUNCTION();
 
-	QuickSort(inConstraintIdxBegin, inConstraintIdxEnd, [this](uint32 inLHS, uint32 inRHS) {
+	QuickSort(inConstraintIdxBegin, inConstraintIdxEnd, [this](uint32_t inLHS, uint32_t inRHS) {
 		const ContactConstraint &lhs = mConstraints[inLHS];
 		const ContactConstraint &rhs = mConstraints[inRHS];
 
@@ -2285,7 +2285,7 @@ void ContactConstraintManager::SortContacts(uint32 *inConstraintIdxBegin, uint32
 	});
 }
 
-void ContactConstraintManager::FinalizeContactCacheAndCallContactPointRemovedCallbacks(uint32 inExpectedNumBodyPairs, uint32 inExpectedNumManifolds)
+void ContactConstraintManager::FinalizeContactCacheAndCallContactPointRemovedCallbacks(uint32_t inExpectedNumBodyPairs, uint32_t inExpectedNumManifolds)
 {
 	MOSS_PROFILE_FUNCTION();
 
@@ -2325,7 +2325,7 @@ bool ContactConstraintManager::WereBodiesInContact(const BodyID &inBody1ID, cons
 		key = BodyPair(inBody1ID, inBody2ID);
 	else
 		key = BodyPair(inBody2ID, inBody1ID);
-	uint64 key_hash = key.GetHash();
+	uint64_t key_hash = key.GetHash();
 	const BPKeyValue *kv = read_cache.Find(key, key_hash);
 	return kv != nullptr && kv->GetValue().mFirstCachedManifold != ManifoldMap::cInvalidHandle;
 }
@@ -2352,11 +2352,11 @@ MOSS_INLINE void ContactConstraintManager::WarmStartConstraint(ContactConstraint
 }
 
 template <class MotionPropertiesCallback>
-void ContactConstraintManager::WarmStartVelocityConstraints(const uint32 *inConstraintIdxBegin, const uint32 *inConstraintIdxEnd, float inWarmStartImpulseRatio, MotionPropertiesCallback &ioCallback)
+void ContactConstraintManager::WarmStartVelocityConstraints(const uint32_t *inConstraintIdxBegin, const uint32_t *inConstraintIdxEnd, float inWarmStartImpulseRatio, MotionPropertiesCallback &ioCallback)
 {
 	MOSS_PROFILE_FUNCTION();
 
-	for (const uint32 *constraint_idx = inConstraintIdxBegin; constraint_idx < inConstraintIdxEnd; ++constraint_idx)
+	for (const uint32_t *constraint_idx = inConstraintIdxBegin; constraint_idx < inConstraintIdxEnd; ++constraint_idx)
 	{
 		ContactConstraint &constraint = mConstraints[*constraint_idx];
 
@@ -2396,8 +2396,8 @@ void ContactConstraintManager::WarmStartVelocityConstraints(const uint32 *inCons
 }
 
 // Specialize for the two body callback types
-template void ContactConstraintManager::WarmStartVelocityConstraints<CalculateSolverSteps>(const uint32 *inConstraintIdxBegin, const uint32 *inConstraintIdxEnd, float inWarmStartImpulseRatio, CalculateSolverSteps &ioCallback);
-template void ContactConstraintManager::WarmStartVelocityConstraints<DummyCalculateSolverSteps>(const uint32 *inConstraintIdxBegin, const uint32 *inConstraintIdxEnd, float inWarmStartImpulseRatio, DummyCalculateSolverSteps &ioCallback);
+template void ContactConstraintManager::WarmStartVelocityConstraints<CalculateSolverSteps>(const uint32_t *inConstraintIdxBegin, const uint32_t *inConstraintIdxEnd, float inWarmStartImpulseRatio, CalculateSolverSteps &ioCallback);
+template void ContactConstraintManager::WarmStartVelocityConstraints<DummyCalculateSolverSteps>(const uint32_t *inConstraintIdxBegin, const uint32_t *inConstraintIdxEnd, float inWarmStartImpulseRatio, DummyCalculateSolverSteps &ioCallback);
 
 template <EMotionType Type1, EMotionType Type2>
 MOSS_INLINE bool ContactConstraintManager::SolveVelocityConstraint(ContactConstraint &ioConstraint, MotionProperties *ioMotionProperties1, MotionProperties *ioMotionProperties2)
@@ -2453,13 +2453,13 @@ MOSS_INLINE bool ContactConstraintManager::SolveVelocityConstraint(ContactConstr
 	return any_impulse_applied;
 }
 
-bool ContactConstraintManager::SolveVelocityConstraints(const uint32 *inConstraintIdxBegin, const uint32 *inConstraintIdxEnd)
+bool ContactConstraintManager::SolveVelocityConstraints(const uint32_t *inConstraintIdxBegin, const uint32_t *inConstraintIdxEnd)
 {
 	MOSS_PROFILE_FUNCTION();
 
 	bool any_impulse_applied = false;
 
-	for (const uint32 *constraint_idx = inConstraintIdxBegin; constraint_idx < inConstraintIdxEnd; ++constraint_idx)
+	for (const uint32_t *constraint_idx = inConstraintIdxBegin; constraint_idx < inConstraintIdxEnd; ++constraint_idx)
 	{
 		ContactConstraint &constraint = mConstraints[*constraint_idx];
 
@@ -2515,10 +2515,10 @@ bool ContactConstraintManager::SolveVelocityConstraints(const uint32 *inConstrai
 	return any_impulse_applied;
 }
 
-void ContactConstraintManager::StoreAppliedImpulses(const uint32 *inConstraintIdxBegin, const uint32 *inConstraintIdxEnd) const
+void ContactConstraintManager::StoreAppliedImpulses(const uint32_t *inConstraintIdxBegin, const uint32_t *inConstraintIdxEnd) const
 {
 	// Copy back total applied impulse to cache for the next frame
-	for (const uint32 *constraint_idx = inConstraintIdxBegin; constraint_idx < inConstraintIdxEnd; ++constraint_idx)
+	for (const uint32_t *constraint_idx = inConstraintIdxBegin; constraint_idx < inConstraintIdxEnd; ++constraint_idx)
 	{
 		const ContactConstraint &constraint = mConstraints[*constraint_idx];
 
@@ -2531,13 +2531,13 @@ void ContactConstraintManager::StoreAppliedImpulses(const uint32 *inConstraintId
 	}
 }
 
-bool ContactConstraintManager::SolvePositionConstraints(const uint32 *inConstraintIdxBegin, const uint32 *inConstraintIdxEnd)
+bool ContactConstraintManager::SolvePositionConstraints(const uint32_t *inConstraintIdxBegin, const uint32_t *inConstraintIdxEnd)
 {
 	MOSS_PROFILE_FUNCTION();
 
 	bool any_impulse_applied = false;
 
-	for (const uint32 *constraint_idx = inConstraintIdxBegin; constraint_idx < inConstraintIdxEnd; ++constraint_idx)
+	for (const uint32_t *constraint_idx = inConstraintIdxBegin; constraint_idx < inConstraintIdxEnd; ++constraint_idx)
 	{
 		ContactConstraint &constraint = mConstraints[*constraint_idx];
 
@@ -4530,7 +4530,7 @@ Ref<ConstraintSettings> PointConstraint::GetConstraintSettings() const
 }
 
 
-void TwoBodyConstraint::BuildIslands(uint32 inConstraintIndex, IslandBuilder &ioBuilder, BodyManager &inBodyManager)
+void TwoBodyConstraint::BuildIslands(uint32_t inConstraintIndex, IslandBuilder &ioBuilder, BodyManager &inBodyManager)
 {
 	// Activate bodies
 	BodyID body_ids[2];
@@ -4546,7 +4546,7 @@ void TwoBodyConstraint::BuildIslands(uint32 inConstraintIndex, IslandBuilder &io
 	ioBuilder.LinkConstraint(inConstraintIndex, mBody1->GetIndexInActiveBodiesInternal(), mBody2->GetIndexInActiveBodiesInternal());
 }
 
-uint32 TwoBodyConstraint::BuildIslandSplits(LargeIslandSplitter &ioSplitter) const
+uint32_t TwoBodyConstraint::BuildIslandSplits(LargeIslandSplitter &ioSplitter) const
 {
 	return ioSplitter.AssignSplit(mBody1, mBody2);
 }
@@ -5134,7 +5134,7 @@ void SwingTwistConstraint::SetTargetOrientationCS(QuatArg inOrientation)
 	Quat q_swing, q_twist;
 	inOrientation.GetSwingTwist(q_swing, q_twist);
 
-	uint32 clamped_axis;
+	uint32_t clamped_axis;
 	mSwingTwistConstraintPart.ClampSwingTwist(q_swing, q_twist, clamped_axis);
 
 	if (clamped_axis != 0)
@@ -5511,8 +5511,8 @@ void SixDOFConstraint::UpdateRotationLimits()
 
 void SixDOFConstraint::UpdateFixedFreeAxis()
 {
-	uint8 old_free_axis = mFreeAxis;
-	uint8 old_fixed_axis = mFixedAxis;
+	uint8_t old_free_axis = mFreeAxis;
+	uint8_t old_fixed_axis = mFixedAxis;
 
 	// Cache which axis are fixed and which ones are free
 	mFreeAxis = 0;
@@ -5730,7 +5730,7 @@ void SixDOFConstraint::SetTargetOrientationCS(QuatArg inOrientation)
 	Quat q_swing, q_twist;
 	inOrientation.GetSwingTwist(q_swing, q_twist);
 
-	uint32 clamped_axis;
+	uint32_t clamped_axis;
 	mSwingTwistConstraintPart.ClampSwingTwist(q_swing, q_twist, clamped_axis);
 
 	if (clamped_axis != 0)

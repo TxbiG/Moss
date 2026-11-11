@@ -131,7 +131,7 @@ const TStaticArray<Vec3, 384> ConvexShape::UnitSphereTriangles = []() {
 	return verts;
 }();
 
-const uint32 HeightFieldShape::GridOffsets[] =
+const uint32_t HeightFieldShape::GridOffsets[] =
 {
 	0,			// level:  0, max x/y:     0, offset: 0
 	1,			// level:  1, max x/y:     1, offset: 1
@@ -564,7 +564,7 @@ void SphereShape::CollidePoint(Vec3Arg inPoint, const SubShapeIDCreator &inSubSh
 		ioCollector.AddHit({ TransformedShape::GetBodyID(ioCollector.GetContext()), inSubShapeIDCreator.GetID() });
 }
 
-void SphereShape::CollideSoftBodyVertices(Mat44Arg inCenterOfMassTransform, Vec3Arg inScale, const CollideSoftBodyVertexIterator &inVertices, uint32 inNumVertices, int inCollidingShapeIndex) const
+void SphereShape::CollideSoftBodyVertices(Mat44Arg inCenterOfMassTransform, Vec3Arg inScale, const CollideSoftBodyVertexIterator &inVertices, uint32_t inNumVertices, int inCollidingShapeIndex) const
 {
 	Vec3 center = inCenterOfMassTransform.GetTranslation();
 	float radius = GetScaledRadius(inScale);
@@ -906,7 +906,7 @@ AABox TaperedCapsuleShape::GetWorldSpaceBounds(Mat44Arg inCenterOfMassTransform,
 	return AABox(p1, p2);
 }
 
-void TaperedCapsuleShape::CollideSoftBodyVertices(Mat44Arg inCenterOfMassTransform, Vec3Arg inScale, const CollideSoftBodyVertexIterator &inVertices, uint32 inNumVertices, int inCollidingShapeIndex) const
+void TaperedCapsuleShape::CollideSoftBodyVertices(Mat44Arg inCenterOfMassTransform, Vec3Arg inScale, const CollideSoftBodyVertexIterator &inVertices, uint32_t inNumVertices, int inCollidingShapeIndex) const
 {
 	MOSS_ASSERT(IsValidScale(inScale));
 
@@ -1414,7 +1414,7 @@ void TaperedCylinderShape::CollidePoint(Vec3Arg inPoint, const SubShapeIDCreator
 		ioCollector.AddHit({ TransformedShape::GetBodyID(ioCollector.GetContext()), inSubShapeIDCreator.GetID() });
 }
 
-void TaperedCylinderShape::CollideSoftBodyVertices(Mat44Arg inCenterOfMassTransform, Vec3Arg inScale, const CollideSoftBodyVertexIterator &inVertices, uint32 inNumVertices, int inCollidingShapeIndex) const
+void TaperedCylinderShape::CollideSoftBodyVertices(Mat44Arg inCenterOfMassTransform, Vec3Arg inScale, const CollideSoftBodyVertexIterator &inVertices, uint32_t inNumVertices, int inCollidingShapeIndex) const
 {
 	MOSS_ASSERT(IsValidScale(inScale));
 
@@ -1542,7 +1542,7 @@ public:
 	explicit	TCSGetTrianglesContext(Mat44Arg inTransform) : mTransform(inTransform) { }
 
 	Mat44		mTransform;
-	uint32		mProcessed = 0; // Which elements we processed, bit 0 = top, bit 1 = bottom, bit 2 = side
+	uint32_t		mProcessed = 0; // Which elements we processed, bit 0 = top, bit 1 = bottom, bit 2 = side
 };
 
 void TaperedCylinderShape::GetTrianglesStart(GetTrianglesContext &ioContext, const AABox &inBox, Vec3Arg inPositionCOM, QuatArg inRotation, Vec3Arg inScale) const
@@ -1768,7 +1768,7 @@ ShapeSettings::ShapeResult StaticCompoundShapeSettings::Create() const
 	return Create(allocator);
 }
 
-void StaticCompoundShape::Node::SetChildInvalid(uint32 inIndex)
+void StaticCompoundShape::Node::SetChildInvalid(uint32_t inIndex)
 {
 	// Make this an invalid node
 	mNodeProperties[inIndex] = INVALID_NODE;
@@ -1782,7 +1782,7 @@ void StaticCompoundShape::Node::SetChildInvalid(uint32 inIndex)
 	mBoundsMaxZ[inIndex] = HALF_FLT_MAX;
 }
 
-void StaticCompoundShape::Node::SetChildBounds(uint32 inIndex, const AABox &inBounds)
+void StaticCompoundShape::Node::SetChildBounds(uint32_t inIndex, const AABox &inBounds)
 {
 	mBoundsMinX[inIndex] = HalfFloatConversion::FromFloat<HalfFloatConversion::ROUND_TO_NEG_INF>(inBounds.mMin.GetX());
 	mBoundsMinY[inIndex] = HalfFloatConversion::FromFloat<HalfFloatConversion::ROUND_TO_NEG_INF>(inBounds.mMin.GetY());
@@ -1792,7 +1792,7 @@ void StaticCompoundShape::Node::SetChildBounds(uint32 inIndex, const AABox &inBo
 	mBoundsMaxZ[inIndex] = HalfFloatConversion::FromFloat<HalfFloatConversion::ROUND_TO_POS_INF>(inBounds.mMax.GetZ());
 }
 
-void StaticCompoundShape::Partition(uint32 *ioBodyIdx, AABox *ioBounds, int inNumber, int &outMidPoint)
+void StaticCompoundShape::Partition(uint32_t *ioBodyIdx, AABox *ioBounds, int inNumber, int &outMidPoint)
 {
 	// Handle trivial case
 	if (inNumber <= 4)
@@ -1850,9 +1850,9 @@ void StaticCompoundShape::Partition(uint32 *ioBodyIdx, AABox *ioBounds, int inNu
 	}
 }
 
-void StaticCompoundShape::Partition4(uint32 *ioBodyIdx, AABox *ioBounds, int inBegin, int inEnd, int *outSplit)
+void StaticCompoundShape::Partition4(uint32_t *ioBodyIdx, AABox *ioBounds, int inBegin, int inEnd, int *outSplit)
 {
-	uint32 *body_idx = ioBodyIdx + inBegin;
+	uint32_t *body_idx = ioBodyIdx + inBegin;
 	AABox *node_bounds = ioBounds + inBegin;
 	int number = inEnd - inBegin;
 
@@ -1877,7 +1877,7 @@ StaticCompoundShape::StaticCompoundShape(const StaticCompoundShapeSettings &inSe
 	CompoundShape(EShapeSubType::StaticCompound, inSettings, outResult)
 {
 	// Check that there's at least 1 shape
-	uint32 num_subshapes = (uint32)inSettings.mSubShapes.size();
+	uint32_t num_subshapes = (uint32_t)inSettings.mSubShapes.size();
 	if (num_subshapes < 2)
 	{
 		outResult.SetError("Compound needs at least 2 sub shapes, otherwise you should use a RotatedTranslatedShape!");
@@ -1888,7 +1888,7 @@ StaticCompoundShape::StaticCompoundShape(const StaticCompoundShapeSettings &inSe
 	float mass = 0.0f;
 
 	mSubShapes.resize(num_subshapes);
-	for (uint32 i = 0; i < num_subshapes; ++i)
+	for (uint32_t i = 0; i < num_subshapes; ++i)
 	{
 		const CompoundShapeSettings::SubShapeSettings &shape = inSettings.mSubShapes[i];
 
@@ -1912,17 +1912,17 @@ StaticCompoundShape::StaticCompoundShape(const StaticCompoundShapeSettings &inSe
 	CalculateInnerRadius();
 
 	// Temporary storage for the bounding boxes of all shapes
-	uint32 bounds_size = num_subshapes * sizeof(AABox);
+	uint32_t bounds_size = num_subshapes * sizeof(AABox);
 	AABox *bounds = (AABox *)inTempAllocator.Allocate(bounds_size);
 	MOSS_SCOPE_EXIT([&inTempAllocator, bounds, bounds_size]{ inTempAllocator.Free(bounds, bounds_size); });
 
 	// Temporary storage for body indexes (we're shuffling them)
-	uint32 body_idx_size = num_subshapes * sizeof(uint32);
-	uint32 *body_idx = (uint32 *)inTempAllocator.Allocate(body_idx_size);
+	uint32_t body_idx_size = num_subshapes * sizeof(uint32_t);
+	uint32_t *body_idx = (uint32_t *)inTempAllocator.Allocate(body_idx_size);
 	MOSS_SCOPE_EXIT([&inTempAllocator, body_idx, body_idx_size]{ inTempAllocator.Free(body_idx, body_idx_size); });
 
 	// Shift all shapes so that the center of mass is now at the origin and calculate bounds
-	for (uint32 i = 0; i < num_subshapes; ++i)
+	for (uint32_t i = 0; i < num_subshapes; ++i)
 	{
 		SubShape &shape = mSubShapes[i];
 
@@ -1944,18 +1944,18 @@ StaticCompoundShape::StaticCompoundShape(const StaticCompoundShapeSettings &inSe
 	// The algorithm is a recursive tree build, but to avoid the call overhead we keep track of a stack here
 	struct StackEntry
 	{
-		uint32			mNodeIdx;					// Node index of node that is generated
+		uint32_t			mNodeIdx;					// Node index of node that is generated
 		int				mChildIdx;					// Index of child that we're currently processing
 		int				mSplit[5];					// Indices where the node ID's have been split to form 4 partitions
 		AABox			mBounds;					// Bounding box of this node
 	};
-	uint32 stack_size = num_subshapes * sizeof(StackEntry);
+	uint32_t stack_size = num_subshapes * sizeof(StackEntry);
 	StackEntry *stack = (StackEntry *)inTempAllocator.Allocate(stack_size);
 	MOSS_SCOPE_EXIT([&inTempAllocator, stack, stack_size]{ inTempAllocator.Free(stack, stack_size); });
 	int top = 0;
 
 	// Reserve enough space so that every sub shape gets its own leaf node
-	uint32 next_node_idx = 0;
+	uint32_t next_node_idx = 0;
 	mNodes.resize(num_subshapes + (num_subshapes + 2) / 3); // = Sum(num_subshapes * 4^-i) with i = [0, Inf].
 
 	// Create root node
@@ -2006,7 +2006,7 @@ StaticCompoundShape::StaticCompoundShape(const StaticCompoundShapeSettings &inSe
 			else if (num_bodies == 1)
 			{
 				// Get body info
-				uint32 child_node_idx = body_idx[low];
+				uint32_t child_node_idx = body_idx[low];
 				const AABox &child_bounds = bounds[low];
 
 				// Update node
@@ -2055,14 +2055,14 @@ StaticCompoundShape::StaticCompoundShape(const StaticCompoundShapeSettings &inSe
 template <class Visitor>
 inline void StaticCompoundShape::WalkTree(Visitor &ioVisitor) const
 {
-	uint32 node_stack[cStackSize];
+	uint32_t node_stack[cStackSize];
 	node_stack[0] = 0;
 	int top = 0;
 	do
 	{
 		// Test if the node is valid, the node should rarely be invalid but it is possible when testing
 		// a really large box against the tree that the invalid nodes will intersect with the box
-		uint32 node_properties = node_stack[top];
+		uint32_t node_properties = node_stack[top];
 		if (node_properties != INVALID_NODE)
 		{
 			// Test if node contains triangles
@@ -2072,15 +2072,15 @@ inline void StaticCompoundShape::WalkTree(Visitor &ioVisitor) const
 				const Node &node = mNodes[node_properties];
 
 				// Unpack bounds
-				UVec4 bounds_minxy = UVec4::LoadInt4(reinterpret_cast<const uint32 *>(&node.mBoundsMinX[0]));
+				UVec4 bounds_minxy = UVec4::LoadInt4(reinterpret_cast<const uint32_t *>(&node.mBoundsMinX[0]));
 				Vec4 bounds_minx = HalfFloatConversion::ToFloat(bounds_minxy);
 				Vec4 bounds_miny = HalfFloatConversion::ToFloat(bounds_minxy.Swizzle<SWIZZLE_Z, SWIZZLE_W, SWIZZLE_UNUSED, SWIZZLE_UNUSED>());
 
-				UVec4 bounds_minzmaxx = UVec4::LoadInt4(reinterpret_cast<const uint32 *>(&node.mBoundsMinZ[0]));
+				UVec4 bounds_minzmaxx = UVec4::LoadInt4(reinterpret_cast<const uint32_t *>(&node.mBoundsMinZ[0]));
 				Vec4 bounds_minz = HalfFloatConversion::ToFloat(bounds_minzmaxx);
 				Vec4 bounds_maxx = HalfFloatConversion::ToFloat(bounds_minzmaxx.Swizzle<SWIZZLE_Z, SWIZZLE_W, SWIZZLE_UNUSED, SWIZZLE_UNUSED>());
 
-				UVec4 bounds_maxyz = UVec4::LoadInt4(reinterpret_cast<const uint32 *>(&node.mBoundsMaxY[0]));
+				UVec4 bounds_maxyz = UVec4::LoadInt4(reinterpret_cast<const uint32_t *>(&node.mBoundsMaxY[0]));
 				Vec4 bounds_maxy = HalfFloatConversion::ToFloat(bounds_maxyz);
 				Vec4 bounds_maxz = HalfFloatConversion::ToFloat(bounds_maxyz.Swizzle<SWIZZLE_Z, SWIZZLE_W, SWIZZLE_UNUSED, SWIZZLE_UNUSED>());
 
@@ -2098,7 +2098,7 @@ inline void StaticCompoundShape::WalkTree(Visitor &ioVisitor) const
 			else
 			{
 				// Points to a sub shape
-				uint32 sub_shape_idx = node_properties ^ IS_SUBSHAPE;
+				uint32_t sub_shape_idx = node_properties ^ IS_SUBSHAPE;
 				const SubShape &sub_shape = mSubShapes[sub_shape_idx];
 
 				ioVisitor.VisitShape(sub_shape, sub_shape_idx);
@@ -2262,7 +2262,7 @@ void StaticCompoundShape::CollectTransformedShapes(const AABox &inBox, Vec3Arg i
 	WalkTree(visitor);
 }
 
-int StaticCompoundShape::GetIntersectingSubShapes(const AABox &inBox, uint32 *outSubShapeIndices, int inMaxSubShapeIndices) const
+int StaticCompoundShape::GetIntersectingSubShapes(const AABox &inBox, uint32_t *outSubShapeIndices, int inMaxSubShapeIndices) const
 {
 	MOSS_PROFILE_FUNCTION();
 
@@ -2271,7 +2271,7 @@ int StaticCompoundShape::GetIntersectingSubShapes(const AABox &inBox, uint32 *ou
 	return visitor.GetNumResults();
 }
 
-int StaticCompoundShape::GetIntersectingSubShapes(const OrientedBox &inBox, uint32 *outSubShapeIndices, int inMaxSubShapeIndices) const
+int StaticCompoundShape::GetIntersectingSubShapes(const OrientedBox &inBox, uint32_t *outSubShapeIndices, int inMaxSubShapeIndices) const
 {
 	MOSS_PROFILE_FUNCTION();
 
@@ -2440,7 +2440,7 @@ void Shape::SaveWithChildren(StreamOut &inStream, ShapeToIDMap &ioShapeMap, Mate
 	ShapeToIDMap::const_iterator shape_id_iter = ioShapeMap.find(this);
 	if (shape_id_iter == ioShapeMap.end()) {
 		// Write shape ID of this shape
-		uint32 shape_id = ioShapeMap.size();
+		uint32_t shape_id = ioShapeMap.size();
 		ioShapeMap[this] = shape_id;
 		inStream.Write(shape_id);
 
@@ -2450,11 +2450,11 @@ void Shape::SaveWithChildren(StreamOut &inStream, ShapeToIDMap &ioShapeMap, Mate
 		// Write the ID's of all sub shapes
 		ShapeList sub_shapes;
 		SaveSubShapeState(sub_shapes);
-		inStream.Write(uint32(sub_shapes.size()));
+		inStream.Write(uint32_t(sub_shapes.size()));
 		for (const Shape *shape : sub_shapes)
 		{
 			if (shape == nullptr)
-				inStream.Write(~uint32(0));
+				inStream.Write(~uint32_t(0));
 			else
 				shape->SaveWithChildren(inStream, ioShapeMap, ioMaterialMap);
 		}
@@ -2474,7 +2474,7 @@ Shape::ShapeResult Shape::RestoreWithChildren(StreamIn &inStream, IDToShapeMap &
 	ShapeResult result;
 
 	// Read ID of this shape
-	uint32 shape_id;
+	uint32_t shape_id;
 	inStream.Read(shape_id);
 	if (inStream.IsEOF() || inStream.IsFailed()) {
 		result.SetError("Failed to read shape id");
@@ -2482,7 +2482,7 @@ Shape::ShapeResult Shape::RestoreWithChildren(StreamIn &inStream, IDToShapeMap &
 	}
 
 	// Check nullptr shape
-	if (shape_id == ~uint32(0)) {
+	if (shape_id == ~uint32_t(0)) {
 		result.Set(nullptr);
 		return result;
 	}
@@ -2501,7 +2501,7 @@ Shape::ShapeResult Shape::RestoreWithChildren(StreamIn &inStream, IDToShapeMap &
 	ioShapeMap.push_back(result.Get());
 
 	// Read the sub shapes
-	uint32 len;
+	uint32_t len;
 	inStream.Read(len);
 	if (inStream.IsEOF() || inStream.IsFailed()) {
 		result.SetError("Failed to read stream");
@@ -2516,7 +2516,7 @@ Shape::ShapeResult Shape::RestoreWithChildren(StreamIn &inStream, IDToShapeMap &
 			return sub_shape_result;
 		sub_shapes.push_back(sub_shape_result.Get());
 	}
-	result.Get()->RestoreSubShapeState(sub_shapes.data(), (uint32)sub_shapes.size());
+	result.Get()->RestoreSubShapeState(sub_shapes.data(), (uint32_t)sub_shapes.size());
 
 	// Read the materials
 	Result mlresult = StreamUtils::RestoreObjectArray<PhysicsMaterialList>(inStream, ioMaterialMap);
@@ -2526,7 +2526,7 @@ Shape::ShapeResult Shape::RestoreWithChildren(StreamIn &inStream, IDToShapeMap &
 		return result;
 	}
 	const PhysicsMaterialList &materials = mlresult.Get();
-	result.Get()->RestoreMaterialState(materials.data(), (uint32)materials.size());
+	result.Get()->RestoreMaterialState(materials.data(), (uint32_t)materials.size());
 
 	return result;
 }
@@ -2909,7 +2909,7 @@ void CapsuleShape::CollidePoint(Vec3Arg inPoint, const SubShapeIDCreator &inSubS
 		ioCollector.AddHit({ TransformedShape::GetBodyID(ioCollector.GetContext()), inSubShapeIDCreator.GetID() });
 }
 
-void CapsuleShape::CollideSoftBodyVertices(Mat44Arg inCenterOfMassTransform, Vec3Arg inScale, const CollideSoftBodyVertexIterator &inVertices, uint32 inNumVertices, int inCollidingShapeIndex) const
+void CapsuleShape::CollideSoftBodyVertices(Mat44Arg inCenterOfMassTransform, Vec3Arg inScale, const CollideSoftBodyVertexIterator &inVertices, uint32_t inNumVertices, int inCollidingShapeIndex) const
 {
 	MOSS_ASSERT(IsValidScale(inScale));
 
@@ -3205,7 +3205,7 @@ void BoxShape::CollidePoint(Vec3Arg inPoint, const SubShapeIDCreator &inSubShape
 		ioCollector.AddHit({ TransformedShape::GetBodyID(ioCollector.GetContext()), inSubShapeIDCreator.GetID() });
 }
 
-void BoxShape::CollideSoftBodyVertices(Mat44Arg inCenterOfMassTransform, Vec3Arg inScale, const CollideSoftBodyVertexIterator &inVertices, uint32 inNumVertices, int inCollidingShapeIndex) const
+void BoxShape::CollideSoftBodyVertices(Mat44Arg inCenterOfMassTransform, Vec3Arg inScale, const CollideSoftBodyVertexIterator &inVertices, uint32_t inNumVertices, int inCollidingShapeIndex) const
 {
 	Mat44 inverse_transform = inCenterOfMassTransform.InversedRotationTranslation();
 	Vec3 half_extent = inScale.Abs() * mHalfExtent;
@@ -3291,7 +3291,7 @@ void BoxShape::Register()
 
 /*													*/
 
-void CompoundShapeSettings::AddShape(Vec3Arg inPosition, QuatArg inRotation, const ShapeSettings *inShape, uint32 inUserData)
+void CompoundShapeSettings::AddShape(Vec3Arg inPosition, QuatArg inRotation, const ShapeSettings *inShape, uint32_t inUserData)
 {
 	// Add shape
 	SubShapeSettings shape;
@@ -3302,7 +3302,7 @@ void CompoundShapeSettings::AddShape(Vec3Arg inPosition, QuatArg inRotation, con
 	mSubShapes.push_back(shape);
 }
 
-void CompoundShapeSettings::AddShape(Vec3Arg inPosition, QuatArg inRotation, const Shape *inShape, uint32 inUserData)
+void CompoundShapeSettings::AddShape(Vec3Arg inPosition, QuatArg inRotation, const Shape *inShape, uint32_t inUserData)
 {
 	// Add shape
 	SubShapeSettings shape;
@@ -3371,10 +3371,10 @@ AABox CompoundShape::GetWorldSpaceBounds(Mat44Arg inCenterOfMassTransform, Vec3A
 	}
 }
 
-uint32 CompoundShape::GetSubShapeIDBitsRecursive() const
+uint32_t CompoundShape::GetSubShapeIDBitsRecursive() const
 {
 	// Add max of child bits to our bits
-	uint32 child_bits = 0;
+	uint32_t child_bits = 0;
 	for (const SubShape &shape : mSubShapes)
 		child_bits = max(child_bits, shape.mShape->GetSubShapeIDBitsRecursive());
 	return child_bits + GetSubShapeIDBits();
@@ -3384,7 +3384,7 @@ const PhysicsMaterial *CompoundShape::GetMaterial(const SubShapeID &inSubShapeID
 {
 	// Decode sub shape index
 	SubShapeID remainder;
-	uint32 index = GetSubShapeIndexFromID(inSubShapeID, remainder);
+	uint32_t index = GetSubShapeIndexFromID(inSubShapeID, remainder);
 
 	// Pass call on
 	return mSubShapes[index].mShape->GetMaterial(remainder);
@@ -3394,7 +3394,7 @@ const Shape *CompoundShape::GetLeafShape(const SubShapeID &inSubShapeID, SubShap
 {
 	// Decode sub shape index
 	SubShapeID remainder;
-	uint32 index = GetSubShapeIndexFromID(inSubShapeID, remainder);
+	uint32_t index = GetSubShapeIndexFromID(inSubShapeID, remainder);
 	if (index >= mSubShapes.size())
 	{
 		// No longer valid index
@@ -3406,11 +3406,11 @@ const Shape *CompoundShape::GetLeafShape(const SubShapeID &inSubShapeID, SubShap
 	return mSubShapes[index].mShape->GetLeafShape(remainder, outRemainder);
 }
 
-uint64 CompoundShape::GetSubShapeUserData(const SubShapeID &inSubShapeID) const
+uint64_t CompoundShape::GetSubShapeUserData(const SubShapeID &inSubShapeID) const
 {
 	// Decode sub shape index
 	SubShapeID remainder;
-	uint32 index = GetSubShapeIndexFromID(inSubShapeID, remainder);
+	uint32_t index = GetSubShapeIndexFromID(inSubShapeID, remainder);
 	if (index >= mSubShapes.size())
 		return 0; // No longer valid index
 
@@ -3438,7 +3438,7 @@ Vec3 CompoundShape::GetSurfaceNormal(const SubShapeID &inSubShapeID, Vec3Arg inL
 {
 	// Decode sub shape index
 	SubShapeID remainder;
-	uint32 index = GetSubShapeIndexFromID(inSubShapeID, remainder);
+	uint32_t index = GetSubShapeIndexFromID(inSubShapeID, remainder);
 
 	// Transform surface position to local space and pass call on
 	const SubShape &shape = mSubShapes[index];
@@ -3453,7 +3453,7 @@ void CompoundShape::GetSupportingFace(const SubShapeID &inSubShapeID, Vec3Arg in
 {
 	// Decode sub shape index
 	SubShapeID remainder;
-	uint32 index = GetSubShapeIndexFromID(inSubShapeID, remainder);
+	uint32_t index = GetSubShapeIndexFromID(inSubShapeID, remainder);
 
 	// Apply transform and pass on to sub shape
 	const SubShape &shape = mSubShapes[index];
@@ -3524,7 +3524,7 @@ void CompoundShape::DrawGetSupportingFace(DebugRenderer *inRenderer, RMat44Arg i
 }
 #endif // MOSS_DEBUG_RENDERER
 
-void CompoundShape::CollideSoftBodyVertices(Mat44Arg inCenterOfMassTransform, Vec3Arg inScale, const CollideSoftBodyVertexIterator &inVertices, uint32 inNumVertices, int inCollidingShapeIndex) const
+void CompoundShape::CollideSoftBodyVertices(Mat44Arg inCenterOfMassTransform, Vec3Arg inScale, const CollideSoftBodyVertexIterator &inVertices, uint32_t inNumVertices, int inCollidingShapeIndex) const
 {
 	for (const SubShape &shape : mSubShapes)
 	{
@@ -3551,7 +3551,7 @@ void CompoundShape::CastCompoundVsShape(const ShapeCast &inShapeCast, const Shap
 	int n = (int)compound->mSubShapes.size();
 
 	// Determine amount of bits for sub shape
-	uint32 sub_shape_bits = compound->GetSubShapeIDBits();
+	uint32_t sub_shape_bits = compound->GetSubShapeIDBits();
 
 	// Recurse to sub shapes
 	for (int i = 0; i < n; ++i)
@@ -3616,10 +3616,10 @@ void CompoundShape::SaveSubShapeState(ShapeList &outSubShapes) const
 		outSubShapes.push_back(shape.mShape);
 }
 
-void CompoundShape::RestoreSubShapeState(const ShapeRefC *inSubShapes, uint32 inNumShapes)
+void CompoundShape::RestoreSubShapeState(const ShapeRefC *inSubShapes, uint32_t inNumShapes)
 {
 	MOSS_ASSERT(mSubShapes.size() == inNumShapes);
-	for (uint32 i = 0; i < inNumShapes; ++i)
+	for (uint32_t i = 0; i < inNumShapes; ++i)
 		mSubShapes[i].mShape = inSubShapes[i];
 }
 
@@ -4190,7 +4190,7 @@ void ConvexShape::SaveMaterialState(PhysicsMaterialList &outMaterials) const
 	outMaterials.push_back(mMaterial);
 }
 
-void ConvexShape::RestoreMaterialState(const PhysicsMaterialRefC *inMaterials, uint32 inNumMaterials)
+void ConvexShape::RestoreMaterialState(const PhysicsMaterialRefC *inMaterials, uint32_t inNumMaterials)
 {
 	MOSS_ASSERT(inNumMaterials == 1);
 	mMaterial = inMaterials[0];
@@ -4298,22 +4298,22 @@ ConvexHullShape::ConvexHullShape(const ConvexHullShapeSettings &inSettings, Shap
 	mInertia = Mat44::Identity() * (covariance_matrix(0, 0) + covariance_matrix(1, 1) + covariance_matrix(2, 2)) - covariance_matrix;
 
 	// Convert polygons from the builder to our internal representation
-	using VtxMap = TMap<int, uint8>;
+	using VtxMap = TMap<int, uint8_t>;
 	VtxMap vertex_map;
 	vertex_map.reserve(VtxMap::size_type(inSettings.mPoints.size()));
 	for (BuilderFace *builder_face : builder_faces)
 	{
 		// Determine where the vertices go
 		MOSS_ASSERT(mVertexIdx.size() <= 0xFFFF);
-		uint16 first_vertex = (uint16)mVertexIdx.size();
-		uint16 num_vertices = 0;
+		uint16_t first_vertex = (uint16_t)mVertexIdx.size();
+		uint16_t num_vertices = 0;
 
 		// Loop over vertices in face
 		Edge *edge = builder_face->mFirstEdge;
 		do
 		{
 			// Remap to new index, not all points in the original input set are required to form the hull
-			uint8 new_idx;
+			uint8_t new_idx;
 			int original_idx = edge->mStartIdx;
 			VtxMap::iterator m = vertex_map.find(original_idx);
 			if (m != vertex_map.end())
@@ -4332,7 +4332,7 @@ ConvexHullShape::ConvexHullShape(const ConvexHullShapeSettings &inSettings, Shap
 
 				// Add to point list
 				MOSS_ASSERT(mPoints.size() <= 0xff);
-				new_idx = (uint8)mPoints.size();
+				new_idx = (uint8_t)mPoints.size();
 				mPoints.push_back({ p });
 				vertex_map[original_idx] = new_idx;
 			}
@@ -4356,7 +4356,7 @@ ConvexHullShape::ConvexHullShape(const ConvexHullShapeSettings &inSettings, Shap
 	// Test if GetSupportFunction can support this many points
 	if (mPoints.size() > cMaxPointsInHull)
 	{
-		outResult.SetError(StringFormat("Internal error: Too many points in hull (%u), max allowed %d", (uint32)mPoints.size(), cMaxPointsInHull));
+		outResult.SetError(StringFormat("Internal error: Too many points in hull (%u), max allowed %d", (uint32_t)mPoints.size(), cMaxPointsInHull));
 		return;
 	}
 
@@ -4872,8 +4872,8 @@ void ConvexHullShape::GetSupportingFace(const SubShapeID &inSubShapeID, Vec3Arg 
 
 	// Get vertices
 	const Face &best_face = mFaces[best_face_idx];
-	const uint8 *first_vtx = mVertexIdx.data() + best_face.mFirstVertex;
-	const uint8 *end_vtx = first_vtx + best_face.mNumVertices;
+	const uint8_t *first_vtx = mVertexIdx.data() + best_face.mFirstVertex;
+	const uint8_t *end_vtx = first_vtx + best_face.mNumVertices;
 
 	// If we have more than 1/2 the capacity of outVertices worth of vertices, we start skipping vertices (note we can't fill the buffer completely since extra edges will be generated by clipping).
 	// TODO: This really needs a better algorithm to determine which vertices are important!
@@ -4886,13 +4886,13 @@ void ConvexHullShape::GetSupportingFace(const SubShapeID &inSubShapeID, Vec3Arg 
 	if (ScaleHelpers::IsInsideOut(inScale))
 	{
 		// Flip winding of supporting face
-		for (const uint8 *v = end_vtx - 1; v >= first_vtx; v -= delta_vtx)
+		for (const uint8_t *v = end_vtx - 1; v >= first_vtx; v -= delta_vtx)
 			outVertices.push_back(transform * mPoints[*v].mPosition);
 	}
 	else
 	{
 		// Normal winding of supporting face
-		for (const uint8 *v = first_vtx; v < end_vtx; v += delta_vtx)
+		for (const uint8_t *v = first_vtx; v < end_vtx; v += delta_vtx)
 			outVertices.push_back(transform * mPoints[*v].mPosition);
 	}
 }
@@ -4929,12 +4929,12 @@ void ConvexHullShape::GetSubmergedVolume(Mat44Arg inCenterOfMassTransform, Vec3A
 		int reference_point_idx = submerged_vol_calc.GetReferencePointIdx();
 		for (const Face &f : mFaces)
 		{
-			const uint8 *first_vtx = mVertexIdx.data() + f.mFirstVertex;
-			const uint8 *end_vtx = first_vtx + f.mNumVertices;
+			const uint8_t *first_vtx = mVertexIdx.data() + f.mFirstVertex;
+			const uint8_t *end_vtx = first_vtx + f.mNumVertices;
 
 			// If any of the vertices of this face are the reference point, the volume will be zero so we can skip this face
 			bool degenerate = false;
-			for (const uint8 *v = first_vtx; v < end_vtx; ++v)
+			for (const uint8_t *v = first_vtx; v < end_vtx; ++v)
 				if (*v == reference_point_idx)
 				{
 					degenerate = true;
@@ -4948,7 +4948,7 @@ void ConvexHullShape::GetSubmergedVolume(Mat44Arg inCenterOfMassTransform, Vec3A
 			if (is_inside_out)
 			{
 				// Reverse winding
-				for (const uint8 *v = first_vtx + 2; v < end_vtx; ++v)
+				for (const uint8_t *v = first_vtx + 2; v < end_vtx; ++v)
 				{
 					int i2 = *(v - 1);
 					int i3 = *v;
@@ -4958,7 +4958,7 @@ void ConvexHullShape::GetSubmergedVolume(Mat44Arg inCenterOfMassTransform, Vec3A
 			else
 			{
 				// Normal winding
-				for (const uint8 *v = first_vtx + 2; v < end_vtx; ++v)
+				for (const uint8_t *v = first_vtx + 2; v < end_vtx; ++v)
 				{
 					int i2 = *(v - 1);
 					int i3 = *v;
@@ -4986,8 +4986,8 @@ void ConvexHullShape::Draw(DebugRenderer *inRenderer, RMat44Arg inCenterOfMassTr
 		TArray<DebugRenderer::Triangle> triangles;
 		for (const Face &f : mFaces)
 		{
-			const uint8 *first_vtx = mVertexIdx.data() + f.mFirstVertex;
-			const uint8 *end_vtx = first_vtx + f.mNumVertices;
+			const uint8_t *first_vtx = mVertexIdx.data() + f.mFirstVertex;
+			const uint8_t *end_vtx = first_vtx + f.mNumVertices;
 
 			// Draw first triangle of polygon
 			Vec3 v0 = mPoints[first_vtx[0]].mPosition;
@@ -4997,7 +4997,7 @@ void ConvexHullShape::Draw(DebugRenderer *inRenderer, RMat44Arg inCenterOfMassTr
 			triangles.push_back({ v0, v1, v2, Color::White, v0, uv_direction });
 
 			// Draw any other triangles in this polygon
-			for (const uint8 *v = first_vtx + 3; v < end_vtx; ++v)
+			for (const uint8_t *v = first_vtx + 3; v < end_vtx; ++v)
 				triangles.push_back({ v0, mPoints[*(v - 1)].mPosition, mPoints[*v].mPosition, Color::White, v0, uv_direction });
 		}
 		mGeometry = new DebugRenderer::Geometry(inRenderer->CreateTriangleBatch(triangles), GetLocalBounds());
@@ -5018,12 +5018,12 @@ void ConvexHullShape::Draw(DebugRenderer *inRenderer, RMat44Arg inCenterOfMassTr
 	if (sDrawFaceOutlines)
 		for (const Face &f : mFaces)
 		{
-			const uint8 *first_vtx = mVertexIdx.data() + f.mFirstVertex;
-			const uint8 *end_vtx = first_vtx + f.mNumVertices;
+			const uint8_t *first_vtx = mVertexIdx.data() + f.mFirstVertex;
+			const uint8_t *end_vtx = first_vtx + f.mNumVertices;
 
 			// Draw edges of face
 			inRenderer->DrawLine(transform * mPoints[*(end_vtx - 1)].mPosition, transform * mPoints[*first_vtx].mPosition, Color::Grey);
-			for (const uint8 *v = first_vtx + 1; v < end_vtx; ++v)
+			for (const uint8_t *v = first_vtx + 1; v < end_vtx; ++v)
 				inRenderer->DrawLine(transform * mPoints[*(v - 1)].mPosition, transform * mPoints[*v].mPosition, Color::Grey);
 		}
 }
@@ -5081,10 +5081,10 @@ bool ConvexHullShape::CastRayHelper(const RayCast &inRay, float &outMinFraction,
 
 			// Test all edges to see if point is inside polygon
 			const Face &f = mFaces.front();
-			const uint8 *first_vtx = mVertexIdx.data() + f.mFirstVertex;
-			const uint8 *end_vtx = first_vtx + f.mNumVertices;
+			const uint8_t *first_vtx = mVertexIdx.data() + f.mFirstVertex;
+			const uint8_t *end_vtx = first_vtx + f.mNumVertices;
 			Vec3 p1 = mPoints[*end_vtx].mPosition;
-			for (const uint8 *v = first_vtx; v < end_vtx; ++v)
+			for (const uint8_t *v = first_vtx; v < end_vtx; ++v)
 			{
 				Vec3 p2 = mPoints[*v].mPosition;
 				if ((p2 - p1).Cross(intersection_point - p1).Dot(plane_normal) < 0.0f)
@@ -5232,7 +5232,7 @@ void ConvexHullShape::CollidePoint(Vec3Arg inPoint, const SubShapeIDCreator &inS
 	ioCollector.AddHit({ TransformedShape::GetBodyID(ioCollector.GetContext()), inSubShapeIDCreator.GetID() });
 }
 
-void ConvexHullShape::CollideSoftBodyVertices(Mat44Arg inCenterOfMassTransform, Vec3Arg inScale, const CollideSoftBodyVertexIterator &inVertices, uint32 inNumVertices, int inCollidingShapeIndex) const
+void ConvexHullShape::CollideSoftBodyVertices(Mat44Arg inCenterOfMassTransform, Vec3Arg inScale, const CollideSoftBodyVertexIterator &inVertices, uint32_t inNumVertices, int inCollidingShapeIndex) const
 {
 	Mat44 inverse_transform = inCenterOfMassTransform.InversedRotationTranslation();
 
@@ -5248,7 +5248,7 @@ void ConvexHullShape::CollideSoftBodyVertices(Mat44Arg inCenterOfMassTransform, 
 			// Find most facing plane
 			float max_distance = -FLT_MAX;
 			Vec3 max_plane_normal = Vec3::Zero();
-			uint32 max_plane_idx = 0;
+			uint32_t max_plane_idx = 0;
 			if (is_not_scaled)
 			{
 				// Without scale, it is trivial to calculate the distance to the hull
@@ -5259,14 +5259,14 @@ void ConvexHullShape::CollideSoftBodyVertices(Mat44Arg inCenterOfMassTransform, 
 					{
 						max_distance = distance;
 						max_plane_normal = p.GetNormal();
-						max_plane_idx = uint32(&p - mPlanes.data());
+						max_plane_idx = uint32_t(&p - mPlanes.data());
 					}
 				}
 			}
 			else
 			{
 				// When there's scale we need to calculate the planes first
-				for (uint32 i = 0; i < (uint32)mPlanes.size(); ++i)
+				for (uint32_t i = 0; i < (uint32_t)mPlanes.size(); ++i)
 				{
 					// Calculate plane normal and point by scaling the original plane
 					Vec3 plane_normal = (inv_scale * mPlanes[i].GetNormal()).Normalized();
@@ -5292,10 +5292,10 @@ void ConvexHullShape::CollideSoftBodyVertices(Mat44Arg inCenterOfMassTransform, 
 				// Loop over edges
 				float closest_point_dist_sq = FLT_MAX;
 				const Face &face = mFaces[max_plane_idx];
-				for (const uint8 *v_start = &mVertexIdx[face.mFirstVertex], *v1 = v_start, *v_end = v_start + face.mNumVertices; v1 < v_end; ++v1)
+				for (const uint8_t *v_start = &mVertexIdx[face.mFirstVertex], *v1 = v_start, *v_end = v_start + face.mNumVertices; v1 < v_end; ++v1)
 				{
 					// Find second point
-					const uint8 *v2 = v1 + 1;
+					const uint8_t *v2 = v1 + 1;
 					if (v2 == v_end)
 						v2 = v_start;
 
@@ -5308,7 +5308,7 @@ void ConvexHullShape::CollideSoftBodyVertices(Mat44Arg inCenterOfMassTransform, 
 					if (scale_flip * edge_normal.Dot(local_pos - p1) > 0.0f)
 					{
 						// Get closest point on edge
-						uint32 set;
+						uint32_t set;
 						Vec3 closest = ClosestPoint::GetClosestPointOnLine(p1 - local_pos, p2 - local_pos, set);
 						float distance_sq = closest.LengthSq();
 						if (distance_sq < closest_point_dist_sq)
@@ -5367,8 +5367,8 @@ int ConvexHullShape::GetTrianglesNext(GetTrianglesContext &ioContext, int inMaxT
 	{
 		const Face &f = mFaces[context.mCurrentFace];
 
-		const uint8 *first_vtx = mVertexIdx.data() + f.mFirstVertex;
-		const uint8 *end_vtx = first_vtx + f.mNumVertices;
+		const uint8_t *first_vtx = mVertexIdx.data() + f.mFirstVertex;
+		const uint8_t *end_vtx = first_vtx + f.mNumVertices;
 
 		// Check if there is still room in the output buffer for this face
 		int num_triangles = f.mNumVertices - 2;
@@ -5389,7 +5389,7 @@ int ConvexHullShape::GetTrianglesNext(GetTrianglesContext &ioContext, int inMaxT
 			v1.StoreFloat3(outTriangleVertices++);
 
 			// Store other triangles in this polygon flipped
-			for (const uint8 *v = first_vtx + 3; v < end_vtx; ++v)
+			for (const uint8_t *v = first_vtx + 3; v < end_vtx; ++v)
 			{
 				v0.StoreFloat3(outTriangleVertices++);
 				(context.mTransform * mPoints[*v].mPosition).StoreFloat3(outTriangleVertices++);
@@ -5403,7 +5403,7 @@ int ConvexHullShape::GetTrianglesNext(GetTrianglesContext &ioContext, int inMaxT
 			v2.StoreFloat3(outTriangleVertices++);
 
 			// Store other triangles in this polygon
-			for (const uint8 *v = first_vtx + 3; v < end_vtx; ++v)
+			for (const uint8_t *v = first_vtx + 3; v < end_vtx; ++v)
 			{
 				v0.StoreFloat3(outTriangleVertices++);
 				(context.mTransform * mPoints[*(v - 1)].mPosition).StoreFloat3(outTriangleVertices++);
@@ -5460,7 +5460,7 @@ void ConvexHullShape::RestoreBinaryState(StreamIn &inStream)
 Shape::Stats ConvexHullShape::GetStats() const
 {
 	// Count number of triangles
-	uint32 triangle_count = 0;
+	uint32_t triangle_count = 0;
 	for (const Face &f : mFaces)
 		triangle_count += f.mNumVertices - 2;
 
@@ -5469,7 +5469,7 @@ Shape::Stats ConvexHullShape::GetStats() const
 			+ mPoints.size() * sizeof(Point)
 			+ mFaces.size() * sizeof(Face)
 			+ mPlanes.size() * sizeof(Plane)
-			+ mVertexIdx.size() * sizeof(uint8),
+			+ mVertexIdx.size() * sizeof(uint8_t),
 		triangle_count);
 }
 
@@ -5716,7 +5716,7 @@ void CylinderShape::CollidePoint(Vec3Arg inPoint, const SubShapeIDCreator &inSub
 		ioCollector.AddHit({ TransformedShape::GetBodyID(ioCollector.GetContext()), inSubShapeIDCreator.GetID() });
 }
 
-void CylinderShape::CollideSoftBodyVertices(Mat44Arg inCenterOfMassTransform, Vec3Arg inScale, const CollideSoftBodyVertexIterator &inVertices, uint32 inNumVertices, int inCollidingShapeIndex) const
+void CylinderShape::CollideSoftBodyVertices(Mat44Arg inCenterOfMassTransform, Vec3Arg inScale, const CollideSoftBodyVertexIterator &inVertices, uint32_t inNumVertices, int inCollidingShapeIndex) const
 {
 	MOSS_ASSERT(IsValidScale(inScale));
 
@@ -5857,7 +5857,7 @@ void DecoratedShape::GetSupportingFace(const SubShapeID &inSubShapeID, Vec3Arg i
 	mInnerShape->GetSupportingFace(inSubShapeID, inDirection, inScale, inCenterOfMassTransform, outVertices);
 }
 
-uint64 DecoratedShape::GetSubShapeUserData(const SubShapeID &inSubShapeID) const
+uint64_t DecoratedShape::GetSubShapeUserData(const SubShapeID &inSubShapeID) const
 {
 	return mInnerShape->GetSubShapeUserData(inSubShapeID);
 }
@@ -5868,7 +5868,7 @@ void DecoratedShape::SaveSubShapeState(ShapeList &outSubShapes) const
 	outSubShapes.push_back(mInnerShape);
 }
 
-void DecoratedShape::RestoreSubShapeState(const ShapeRefC *inSubShapes, uint32 inNumShapes)
+void DecoratedShape::RestoreSubShapeState(const ShapeRefC *inSubShapes, uint32_t inNumShapes)
 {
 	MOSS_ASSERT(inNumShapes == 1);
 	mInnerShape = inSubShapes[0];
@@ -5933,7 +5933,7 @@ void EmptyShape::Register()
 
 /*													*/
 
-HeightFieldShapeSettings::HeightFieldShapeSettings(const float *inSamples, Vec3Arg inOffset, Vec3Arg inScale, uint32 inSampleCount, const uint8 *inMaterialIndices, const PhysicsMaterialList &inMaterialList) :
+HeightFieldShapeSettings::HeightFieldShapeSettings(const float *inSamples, Vec3Arg inOffset, Vec3Arg inScale, uint32_t inSampleCount, const uint8_t *inMaterialIndices, const PhysicsMaterialList &inMaterialList) :
 	mOffset(inOffset),
 	mScale(inScale),
 	mSampleCount(inSampleCount)
@@ -5978,10 +5978,10 @@ void HeightFieldShapeSettings::DetermineMinAndMaxSample(float &outMinValue, floa
 	outQuantizationScale = float(cMaxHeightValue16) / height_diff;
 }
 
-uint32 HeightFieldShapeSettings::CalculateBitsPerSampleForError(float inMaxError) const
+uint32_t HeightFieldShapeSettings::CalculateBitsPerSampleForError(float inMaxError) const
 {
 	// Start with 1 bit per sample
-	uint32 bits_per_sample = 1;
+	uint32_t bits_per_sample = 1;
 
 	// Determine total range
 	float min_value, max_value, scale;
@@ -5989,13 +5989,13 @@ uint32 HeightFieldShapeSettings::CalculateBitsPerSampleForError(float inMaxError
 	if (min_value < max_value)
 	{
 		// Loop over all blocks
-		for (uint32 y = 0; y < mSampleCount; y += mBlockSize)
-			for (uint32 x = 0; x < mSampleCount; x += mBlockSize)
+		for (uint32_t y = 0; y < mSampleCount; y += mBlockSize)
+			for (uint32_t x = 0; x < mSampleCount; x += mBlockSize)
 			{
 				// Determine min and max block value + take 1 sample border just like we do while building the hierarchical grids
 				float block_min_value = FLT_MAX, block_max_value = -FLT_MAX;
-				for (uint32 bx = x; bx < min(x + mBlockSize + 1, mSampleCount); ++bx)
-					for (uint32 by = y; by < min(y + mBlockSize + 1, mSampleCount); ++by)
+				for (uint32_t bx = x; bx < min(x + mBlockSize + 1, mSampleCount); ++bx)
+					for (uint32_t by = y; by < min(y + mBlockSize + 1, mSampleCount); ++by)
 					{
 						float h = mHeightSamples[by * mSampleCount + bx];
 						if (h != cNoCollisionValue)
@@ -6013,8 +6013,8 @@ uint32 HeightFieldShapeSettings::CalculateBitsPerSampleForError(float inMaxError
 					float block_height = block_max_value - block_min_value;
 
 					// Loop over the block again
-					for (uint32 bx = x; bx < x + mBlockSize; ++bx)
-						for (uint32 by = y; by < y + mBlockSize; ++by)
+					for (uint32_t bx = x; bx < x + mBlockSize; ++bx)
+						for (uint32_t by = y; by < y + mBlockSize; ++by)
 						{
 							// Get the height
 							float height = mHeightSamples[by * mSampleCount + bx];
@@ -6023,7 +6023,7 @@ uint32 HeightFieldShapeSettings::CalculateBitsPerSampleForError(float inMaxError
 								for (;;)
 								{
 									// Determine bitmask for sample
-									uint32 sample_mask = (1 << bits_per_sample) - 1;
+									uint32_t sample_mask = (1 << bits_per_sample) - 1;
 
 									// Quantize
 									float quantized_height = floor((height - block_min_value) * float(sample_mask) / block_height);
@@ -6051,27 +6051,27 @@ uint32 HeightFieldShapeSettings::CalculateBitsPerSampleForError(float inMaxError
 	return bits_per_sample;
 }
 
-void HeightFieldShape::CalculateActiveEdges(uint32 inX, uint32 inY, uint32 inSizeX, uint32 inSizeY, const float *inHeights, uint32 inHeightsStartX, uint32 inHeightsStartY, intptr_t inHeightsStride, float inHeightsScale, float inActiveEdgeCosThresholdAngle, TempAllocator &inAllocator)
+void HeightFieldShape::CalculateActiveEdges(uint32_t inX, uint32_t inY, uint32_t inSizeX, uint32_t inSizeY, const float *inHeights, uint32_t inHeightsStartX, uint32_t inHeightsStartY, intptr_t inHeightsStride, float inHeightsScale, float inActiveEdgeCosThresholdAngle, TempAllocator &inAllocator)
 {
 	// Limit the block size so we don't allocate more than 64K memory from the temp allocator
-	uint32 block_size_x = min(inSizeX, 44u);
-	uint32 block_size_y = min(inSizeY, 44u);
+	uint32_t block_size_x = min(inSizeX, 44u);
+	uint32_t block_size_y = min(inSizeY, 44u);
 
 	// Allocate temporary buffer for normals
-	uint32 normals_size = 2 * (block_size_x + 1) * (block_size_y + 1) * sizeof(Vec3);
+	uint32_t normals_size = 2 * (block_size_x + 1) * (block_size_y + 1) * sizeof(Vec3);
 	Vec3 *normals = (Vec3 *)inAllocator.Allocate(normals_size);
 	MOSS_SCOPE_EXIT([&inAllocator, normals, normals_size]{ inAllocator.Free(normals, normals_size); });
 
 	// Update the edges in blocks
-	for (uint32 block_y = 0; block_y < inSizeY; block_y += block_size_y)
-		for (uint32 block_x = 0; block_x < inSizeX; block_x += block_size_x)
+	for (uint32_t block_y = 0; block_y < inSizeY; block_y += block_size_y)
+		for (uint32_t block_x = 0; block_x < inSizeX; block_x += block_size_x)
 		{
 			// Calculate the bottom right corner of the block
-			uint32 block_x_end = min(block_x + block_size_x, inSizeX);
-			uint32 block_y_end = min(block_y + block_size_y, inSizeY);
+			uint32_t block_x_end = min(block_x + block_size_x, inSizeX);
+			uint32_t block_y_end = min(block_y + block_size_y, inSizeY);
 
 			// If we're not at the first block in x, we need one extra column of normals to the left
-			uint32 normals_x_start, normals_x_skip;
+			uint32_t normals_x_start, normals_x_skip;
 			if (block_x > 0)
 			{
 				normals_x_start = block_x - 1;
@@ -6084,13 +6084,13 @@ void HeightFieldShape::CalculateActiveEdges(uint32 inX, uint32 inY, uint32 inSiz
 			}
 
 			// If we're not at the last block in y, we need one extra row of normals at the bottom
-			uint32 normals_y_end = block_y_end < inSizeY? block_y_end + 1 : inSizeY;
+			uint32_t normals_y_end = block_y_end < inSizeY? block_y_end + 1 : inSizeY;
 
 			// Calculate triangle normals and make normals zero for triangles that are missing
 			Vec3 *out_normal = normals;
-			for (uint32 y = block_y; y < normals_y_end; ++y)
+			for (uint32_t y = block_y; y < normals_y_end; ++y)
 			{
-				for (uint32 x = normals_x_start; x < block_x_end; ++x)
+				for (uint32_t x = normals_x_start; x < block_x_end; ++x)
 				{
 					// Get height on diagonal
 					const float *height_samples = inHeights + (inY - inHeightsStartY + y) * inHeightsStride + (inX - inHeightsStartX + x);
@@ -6131,16 +6131,16 @@ void HeightFieldShape::CalculateActiveEdges(uint32 inX, uint32 inY, uint32 inSiz
 			}
 
 			// Number of vectors to skip to get to the next row of normals
-			uint32 normals_pitch = 2 * (block_x_end - normals_x_start);
+			uint32_t normals_pitch = 2 * (block_x_end - normals_x_start);
 
 			// Calculate active edges
 			const Vec3 *in_normal = normals;
-			uint32 global_bit_pos = 3 * ((inY + block_y) * (mSampleCount - 1) + (inX + block_x));
-			for (uint32 y = block_y; y < block_y_end; ++y)
+			uint32_t global_bit_pos = 3 * ((inY + block_y) * (mSampleCount - 1) + (inX + block_x));
+			for (uint32_t y = block_y; y < block_y_end; ++y)
 			{
 				in_normal += normals_x_skip; // If we have an extra column to the left, skip it here, we'll read it with in_normal[-1] below
 
-				for (uint32 x = block_x; x < block_x_end; ++x)
+				for (uint32_t x = block_x; x < block_x_end; ++x)
 				{
 					// Get vertex heights
 					const float *height_samples = inHeights + (inY - inHeightsStartY + y) * inHeightsStride + (inX - inHeightsStartX + x);
@@ -6153,8 +6153,8 @@ void HeightFieldShape::CalculateActiveEdges(uint32 inX, uint32 inY, uint32 inSiz
 
 					// Calculate the edge flags (3 bits)
 					// See diagram in the next function for the edge numbering
-					uint16 edge_mask = 0b111;
-					uint16 edge_flags = 0;
+					uint16_t edge_mask = 0b111;
+					uint16_t edge_flags = 0;
 
 					// Edge 0
 					if (x == 0)
@@ -6185,15 +6185,15 @@ void HeightFieldShape::CalculateActiveEdges(uint32 inX, uint32 inY, uint32 inSiz
 					}
 
 					// Store the edge flags in the array
-					uint32 byte_pos = global_bit_pos >> 3;
-					uint32 bit_pos = global_bit_pos & 0b111;
+					uint32_t byte_pos = global_bit_pos >> 3;
+					uint32_t bit_pos = global_bit_pos & 0b111;
 					MOSS_ASSERT(byte_pos < mActiveEdgesSize);
-					uint8 *edge_flags_ptr = &mActiveEdges[byte_pos];
-					uint16 combined_edge_flags = uint16(edge_flags_ptr[0]) | uint16(uint16(edge_flags_ptr[1]) << 8);
+					uint8_t *edge_flags_ptr = &mActiveEdges[byte_pos];
+					uint16_t combined_edge_flags = uint16_t(edge_flags_ptr[0]) | uint16_t(uint16_t(edge_flags_ptr[1]) << 8);
 					combined_edge_flags &= ~(edge_mask << bit_pos);
 					combined_edge_flags |= edge_flags << bit_pos;
-					edge_flags_ptr[0] = uint8(combined_edge_flags);
-					edge_flags_ptr[1] = uint8(combined_edge_flags >> 8);
+					edge_flags_ptr[0] = uint8_t(combined_edge_flags);
+					edge_flags_ptr[1] = uint8_t(combined_edge_flags >> 8);
 
 					in_normal += 2;
 					global_bit_pos += 3;
@@ -6224,7 +6224,7 @@ void HeightFieldShape::CalculateActiveEdges(const HeightFieldShapeSettings &inSe
 		The top edge and right edge of the heightfield are always active so we do not need to store them,
 		therefore we only need to store (mSampleCount - 1)^2 * 3-bit
 		The triangles T1B, T2B, T3B and T4B do not need to be stored, their active edges can be constructed from adjacent triangles.
-		Add 1 byte padding so we can always read 1 uint16 to get the bits that cross an 8 bit boundary
+		Add 1 byte padding so we can always read 1 uint16_t to get the bits that cross an 8 bit boundary
 	*/
 
 	// Make all edges active (if mSampleCount is bigger than inSettings.mSampleCount we need to fill up the padding,
@@ -6239,42 +6239,42 @@ void HeightFieldShape::CalculateActiveEdges(const HeightFieldShapeSettings &inSe
 void HeightFieldShape::StoreMaterialIndices(const HeightFieldShapeSettings &inSettings)
 {
 	// We need to account for any rounding of the sample count to the nearest block size
-	uint32 in_count_min_1 = inSettings.mSampleCount - 1;
-	uint32 out_count_min_1 = mSampleCount - 1;
+	uint32_t in_count_min_1 = inSettings.mSampleCount - 1;
+	uint32_t out_count_min_1 = mSampleCount - 1;
 
-	mNumBitsPerMaterialIndex = 32 - CountLeadingZeros(max((uint32)mMaterials.size(), inSettings.mMaterialsCapacity) - 1);
-	mMaterialIndices.resize(((Square(out_count_min_1) * mNumBitsPerMaterialIndex + 7) >> 3) + 1, 0); // Add 1 byte so we don't read out of bounds when reading an uint16
+	mNumBitsPerMaterialIndex = 32 - CountLeadingZeros(max((uint32_t)mMaterials.size(), inSettings.mMaterialsCapacity) - 1);
+	mMaterialIndices.resize(((Square(out_count_min_1) * mNumBitsPerMaterialIndex + 7) >> 3) + 1, 0); // Add 1 byte so we don't read out of bounds when reading an uint16_t
 
 	if (mMaterials.size() > 1)
-		for (uint32 y = 0; y < out_count_min_1; ++y)
-			for (uint32 x = 0; x < out_count_min_1; ++x)
+		for (uint32_t y = 0; y < out_count_min_1; ++y)
+			for (uint32_t x = 0; x < out_count_min_1; ++x)
 			{
 				// Read material
-				uint16 material_index = x < in_count_min_1 && y < in_count_min_1? uint16(inSettings.mMaterialIndices[x + y * in_count_min_1]) : 0;
+				uint16_t material_index = x < in_count_min_1 && y < in_count_min_1? uint16_t(inSettings.mMaterialIndices[x + y * in_count_min_1]) : 0;
 
 				// Calculate byte and bit position where the material index needs to go
-				uint32 sample_pos = x + y * out_count_min_1;
-				uint32 bit_pos = sample_pos * mNumBitsPerMaterialIndex;
-				uint32 byte_pos = bit_pos >> 3;
+				uint32_t sample_pos = x + y * out_count_min_1;
+				uint32_t bit_pos = sample_pos * mNumBitsPerMaterialIndex;
+				uint32_t byte_pos = bit_pos >> 3;
 				bit_pos &= 0b111;
 
 				// Write the material index
 				material_index <<= bit_pos;
 				MOSS_ASSERT(byte_pos + 1 < mMaterialIndices.size());
-				mMaterialIndices[byte_pos] |= uint8(material_index);
-				mMaterialIndices[byte_pos + 1] |= uint8(material_index >> 8);
+				mMaterialIndices[byte_pos] |= uint8_t(material_index);
+				mMaterialIndices[byte_pos + 1] |= uint8_t(material_index >> 8);
 			}
 }
 
 void HeightFieldShape::CacheValues()
 {
-	mSampleMask = uint8((uint32(1) << mBitsPerSample) - 1);
+	mSampleMask = uint8_t((uint32_t(1) << mBitsPerSample) - 1);
 }
 
 void HeightFieldShape::AllocateBuffers()
 {
-	uint32 num_blocks = GetNumBlocks();
-	uint32 max_stride = (num_blocks + 1) >> 1;
+	uint32_t num_blocks = GetNumBlocks();
+	uint32_t max_stride = (num_blocks + 1) >> 1;
 	mRangeBlocksSize = sGridOffsets[sGetMaxLevel(num_blocks) - 1] + Square(max_stride);
 	mHeightSamplesSize = (mSampleCount * mSampleCount * mBitsPerSample + 7) / 8 + 1;
 	mActiveEdgesSize = (Square(mSampleCount - 1) * 3 + 7) / 8 + 1; // See explanation at HeightFieldShape::CalculateActiveEdges
@@ -6282,7 +6282,7 @@ void HeightFieldShape::AllocateBuffers()
 	MOSS_ASSERT(mRangeBlocks == nullptr && mHeightSamples == nullptr && mActiveEdges == nullptr);
 	void *data = AlignedAllocate(mRangeBlocksSize * sizeof(RangeBlock) + mHeightSamplesSize + mActiveEdgesSize, alignof(RangeBlock));
 	mRangeBlocks = reinterpret_cast<RangeBlock *>(data);
-	mHeightSamples = reinterpret_cast<uint8 *>(mRangeBlocks + mRangeBlocksSize);
+	mHeightSamples = reinterpret_cast<uint8_t *>(mRangeBlocks + mRangeBlocksSize);
 	mActiveEdges = mHeightSamples + mHeightSamplesSize;
 }
 
@@ -6292,7 +6292,7 @@ HeightFieldShape::HeightFieldShape(const HeightFieldShapeSettings &inSettings, S
 	mScale(inSettings.mScale),
 	mSampleCount(((inSettings.mSampleCount + inSettings.mBlockSize - 1) / inSettings.mBlockSize) * inSettings.mBlockSize), // Round sample count to nearest block size
 	mBlockSize(inSettings.mBlockSize),
-	mBitsPerSample(uint8(inSettings.mBitsPerSample))
+	mBitsPerSample(uint8_t(inSettings.mBitsPerSample))
 {
 	CacheValues();
 
@@ -6316,7 +6316,7 @@ HeightFieldShape::HeightFieldShape(const HeightFieldShapeSettings &inSettings, S
 	}
 
 	// We stop at mBlockSize x mBlockSize height sample blocks
-	uint32 num_blocks = GetNumBlocks();
+	uint32_t num_blocks = GetNumBlocks();
 
 	// We want at least 1 grid layer
 	if (num_blocks < 2)
@@ -6347,10 +6347,10 @@ HeightFieldShape::HeightFieldShape(const HeightFieldShapeSettings &inSettings, S
 			outResult.SetError("Supporting max 256 materials per height field");
 			return;
 		}
-		for (uint8 s : inSettings.mMaterialIndices)
+		for (uint8_t s : inSettings.mMaterialIndices)
 			if (s >= mMaterials.size())
 			{
-				outResult.SetError(StringFormat("Material %u is beyond material list (size: %u)", s, (uint32)mMaterials.size()));
+				outResult.SetError(StringFormat("Material %u is beyond material list (size: %u)", s, (uint32_t)mMaterials.size()));
 				return;
 			}
 	}
@@ -6378,12 +6378,12 @@ HeightFieldShape::HeightFieldShape(const HeightFieldShapeSettings &inSettings, S
 	// Allocate space for this shape
 	AllocateBuffers();
 
-	// Quantize to uint16
-	TArray<uint16> quantized_samples;
+	// Quantize to uint16_t
+	TArray<uint16_t> quantized_samples;
 	quantized_samples.reserve(mSampleCount * mSampleCount);
-	for (uint32 y = 0; y < inSettings.mSampleCount; ++y)
+	for (uint32_t y = 0; y < inSettings.mSampleCount; ++y)
 	{
-		for (uint32 x = 0; x < inSettings.mSampleCount; ++x)
+		for (uint32_t x = 0; x < inSettings.mSampleCount; ++x)
 		{
 			float h = inSettings.mHeightSamples[x + y * inSettings.mSampleCount];
 			if (h == cNoCollisionValue)
@@ -6398,19 +6398,19 @@ HeightFieldShape::HeightFieldShape(const HeightFieldShapeSettings &inSettings, S
 				// Ensure that the height says below the max height value so we can safely add 1 to get the upper bound for the quantized value
 				quantized_height = Clamp(quantized_height, 0, int(cMaxHeightValue16 - 1));
 
-				quantized_samples.push_back(uint16(quantized_height));
+				quantized_samples.push_back(uint16_t(quantized_height));
 			}
 		}
 		// Pad remaining columns with no collision
-		for (uint32 x = inSettings.mSampleCount; x < mSampleCount; ++x)
+		for (uint32_t x = inSettings.mSampleCount; x < mSampleCount; ++x)
 			quantized_samples.push_back(cNoCollisionValue16);
 	}
 	// Pad remaining rows with no collision
-	for (uint32 y = inSettings.mSampleCount; y < mSampleCount; ++y)
-		for (uint32 x = 0; x < mSampleCount; ++x)
+	for (uint32_t y = inSettings.mSampleCount; y < mSampleCount; ++y)
+		for (uint32_t x = 0; x < mSampleCount; ++x)
 			quantized_samples.push_back(cNoCollisionValue16);
 
-	// Update offset and scale to account for the compression to uint16
+	// Update offset and scale to account for the compression to uint16_t
 	if (min_value <= max_value) // Only when there was collision
 	{
 		// In GetPosition we always add 0.5 to the quantized sample in order to reduce the average error.
@@ -6422,13 +6422,13 @@ HeightFieldShape::HeightFieldShape(const HeightFieldShapeSettings &inSettings, S
 	mScale.SetY(mScale.GetY() / scale);
 
 	// Calculate amount of grids
-	uint32 max_level = sGetMaxLevel(num_blocks);
+	uint32_t max_level = sGetMaxLevel(num_blocks);
 
 	// Temporary data structure used during creating of a hierarchy of grids
 	struct Range
 	{
-		uint16	mMin;
-		uint16	mMax;
+		uint16_t	mMin;
+		uint16_t	mMax;
 	};
 
 	// Reserve size for temporary range data + reserve 1 extra for a 1x1 grid that we won't store but use for calculating the bounding box
@@ -6437,28 +6437,28 @@ HeightFieldShape::HeightFieldShape(const HeightFieldShapeSettings &inSettings, S
 
 	// Calculate highest detail grid by combining mBlockSize x mBlockSize height samples
 	TArray<Range> *cur_range_vector = &ranges.back();
-	uint32 num_blocks_pow2 = GetNextPowerOf2(num_blocks); // We calculate the range blocks as if the heightfield was a power of 2, when we save the range blocks we'll ignore the extra samples (this makes downsampling easier)
+	uint32_t num_blocks_pow2 = GetNextPowerOf2(num_blocks); // We calculate the range blocks as if the heightfield was a power of 2, when we save the range blocks we'll ignore the extra samples (this makes downsampling easier)
 	cur_range_vector->resize(num_blocks_pow2 * num_blocks_pow2);
 	Range *range_dst = &cur_range_vector->front();
-	for (uint32 y = 0; y < num_blocks_pow2; ++y)
-		for (uint32 x = 0; x < num_blocks_pow2; ++x)
+	for (uint32_t y = 0; y < num_blocks_pow2; ++y)
+		for (uint32_t x = 0; x < num_blocks_pow2; ++x)
 		{
 			range_dst->mMin = 0xffff;
 			range_dst->mMax = 0;
-			uint32 max_bx = x == num_blocks_pow2 - 1? mBlockSize : mBlockSize + 1; // for interior blocks take 1 more because the triangles connect to the next block so we must include their height too
-			uint32 max_by = y == num_blocks_pow2 - 1? mBlockSize : mBlockSize + 1;
-			for (uint32 by = 0; by < max_by; ++by)
-				for (uint32 bx = 0; bx < max_bx; ++bx)
+			uint32_t max_bx = x == num_blocks_pow2 - 1? mBlockSize : mBlockSize + 1; // for interior blocks take 1 more because the triangles connect to the next block so we must include their height too
+			uint32_t max_by = y == num_blocks_pow2 - 1? mBlockSize : mBlockSize + 1;
+			for (uint32_t by = 0; by < max_by; ++by)
+				for (uint32_t bx = 0; bx < max_bx; ++bx)
 				{
-					uint32 sx = x * mBlockSize + bx;
-					uint32 sy = y * mBlockSize + by;
+					uint32_t sx = x * mBlockSize + bx;
+					uint32_t sy = y * mBlockSize + by;
 					if (sx < mSampleCount && sy < mSampleCount)
 					{
-						uint16 h = quantized_samples[sy * mSampleCount + sx];
+						uint16_t h = quantized_samples[sy * mSampleCount + sx];
 						if (h != cNoCollisionValue16)
 						{
 							range_dst->mMin = min(range_dst->mMin, h);
-							range_dst->mMax = max(range_dst->mMax, uint16(h + 1)); // Add 1 to the max so we know the real value is between mMin and mMax
+							range_dst->mMax = max(range_dst->mMax, uint16_t(h + 1)); // Add 1 to the max so we know the real value is between mMin and mMax
 						}
 					}
 				}
@@ -6466,7 +6466,7 @@ HeightFieldShape::HeightFieldShape(const HeightFieldShapeSettings &inSettings, S
 		}
 
 	// Calculate remaining grids
-	for (uint32 n = num_blocks_pow2 >> 1; n >= 1; n >>= 1)
+	for (uint32_t n = num_blocks_pow2 >> 1; n >= 1; n >>= 1)
 	{
 		// Get source buffer
 		const Range *range_src = &cur_range_vector->front();
@@ -6481,13 +6481,13 @@ HeightFieldShape::HeightFieldShape(const HeightFieldShapeSettings &inSettings, S
 		range_dst = &cur_range_vector->front();
 
 		// Combine the results of 2x2 ranges
-		for (uint32 y = 0; y < n; ++y)
-			for (uint32 x = 0; x < n; ++x)
+		for (uint32_t y = 0; y < n; ++y)
+			for (uint32_t x = 0; x < n; ++x)
 			{
 				range_dst->mMin = 0xffff;
 				range_dst->mMax = 0;
-				for (uint32 by = 0; by < 2; ++by)
-					for (uint32 bx = 0; bx < 2; ++bx)
+				for (uint32_t by = 0; by < 2; ++by)
+					for (uint32_t bx = 0; bx < 2; ++bx)
 					{
 						const Range &r = range_src[(y * 2 + by) * n * 2 + x * 2 + bx];
 						range_dst->mMin = min(range_dst->mMin, r.mMin);
@@ -6504,12 +6504,12 @@ HeightFieldShape::HeightFieldShape(const HeightFieldShapeSettings &inSettings, S
 
 #ifdef MOSS_DEBUG
 	// Validate that we did not lose range along the way
-	uint16 minv = 0xffff, maxv = 0;
-	for (uint16 v : quantized_samples)
+	uint16_t minv = 0xffff, maxv = 0;
+	for (uint16_t v : quantized_samples)
 		if (v != cNoCollisionValue16)
 		{
 			minv = min(minv, v);
-			maxv = max(maxv, uint16(v + 1));
+			maxv = max(maxv, uint16_t(v + 1));
 		}
 	MOSS_ASSERT(mMinSample == minv && mMaxSample == maxv);
 #endif
@@ -6518,39 +6518,39 @@ HeightFieldShape::HeightFieldShape(const HeightFieldShapeSettings &inSettings, S
 	ranges.erase(ranges.begin());
 
 	// Create blocks
-	uint32 max_stride = (num_blocks + 1) >> 1;
+	uint32_t max_stride = (num_blocks + 1) >> 1;
 	RangeBlock *current_block = mRangeBlocks;
-	for (uint32 level = 0; level < ranges.size(); ++level)
+	for (uint32_t level = 0; level < ranges.size(); ++level)
 	{
-		MOSS_ASSERT(uint32(current_block - mRangeBlocks) == sGridOffsets[level]);
+		MOSS_ASSERT(uint32_t(current_block - mRangeBlocks) == sGridOffsets[level]);
 
-		uint32 in_n = 1 << level;
-		uint32 out_n = min(in_n, max_stride); // At the most detailed level we store a non-power of 2 number of blocks
+		uint32_t in_n = 1 << level;
+		uint32_t out_n = min(in_n, max_stride); // At the most detailed level we store a non-power of 2 number of blocks
 
-		for (uint32 y = 0; y < out_n; ++y)
-			for (uint32 x = 0; x < out_n; ++x)
+		for (uint32_t y = 0; y < out_n; ++y)
+			for (uint32_t x = 0; x < out_n; ++x)
 			{
 				// Convert from 2x2 Range structure to 1 RangeBlock structure
 				RangeBlock &rb = *current_block++;
-				for (uint32 by = 0; by < 2; ++by)
-					for (uint32 bx = 0; bx < 2; ++bx)
+				for (uint32_t by = 0; by < 2; ++by)
+					for (uint32_t bx = 0; bx < 2; ++bx)
 					{
-						uint32 src_pos = (y * 2 + by) * 2 * in_n + (x * 2 + bx);
-						uint32 dst_pos = by * 2 + bx;
+						uint32_t src_pos = (y * 2 + by) * 2 * in_n + (x * 2 + bx);
+						uint32_t dst_pos = by * 2 + bx;
 						rb.mMin[dst_pos] = ranges[level][src_pos].mMin;
 						rb.mMax[dst_pos] = ranges[level][src_pos].mMax;
 					}
 			}
 	}
-	MOSS_ASSERT(uint32(current_block - mRangeBlocks) == mRangeBlocksSize);
+	MOSS_ASSERT(uint32_t(current_block - mRangeBlocks) == mRangeBlocksSize);
 
 	// Quantize height samples
 	memset(mHeightSamples, 0, mHeightSamplesSize);
 	int sample = 0;
-	for (uint32 y = 0; y < mSampleCount; ++y)
-		for (uint32 x = 0; x < mSampleCount; ++x)
+	for (uint32_t y = 0; y < mSampleCount; ++y)
+		for (uint32_t x = 0; x < mSampleCount; ++x)
 		{
-			uint32 output_value;
+			uint32_t output_value;
 
 			float h = x < inSettings.mSampleCount && y < inSettings.mSampleCount? inSettings.mHeightSamples[x + y * inSettings.mSampleCount] : cNoCollisionValue;
 			if (h == cNoCollisionValue)
@@ -6561,8 +6561,8 @@ HeightFieldShape::HeightFieldShape(const HeightFieldShapeSettings &inSettings, S
 			else
 			{
 				// Get range of block so we know what range to compress to
-				uint32 bx = x / mBlockSize;
-				uint32 by = y / mBlockSize;
+				uint32_t bx = x / mBlockSize;
+				uint32_t by = y / mBlockSize;
 				const Range &range = ranges.back()[by * num_blocks_pow2 + bx];
 				MOSS_ASSERT(range.mMin < range.mMax);
 
@@ -6572,16 +6572,16 @@ HeightFieldShape::HeightFieldShape(const HeightFieldShapeSettings &inSettings, S
 				float h_min = min_value + range.mMin / scale;
 				float h_delta = float(range.mMax - range.mMin) / scale;
 				float quantized_height = floor((h - h_min) * float(mSampleMask) / h_delta);
-				output_value = uint32(Clamp((int)quantized_height, 0, int(mSampleMask) - 1)); // mSampleMask is reserved as 'no collision value'
+				output_value = uint32_t(Clamp((int)quantized_height, 0, int(mSampleMask) - 1)); // mSampleMask is reserved as 'no collision value'
 			}
 
 			// Store the sample
-			uint32 byte_pos = sample >> 3;
-			uint32 bit_pos = sample & 0b111;
+			uint32_t byte_pos = sample >> 3;
+			uint32_t bit_pos = sample & 0b111;
 			output_value <<= bit_pos;
 			MOSS_ASSERT(byte_pos + 1 < mHeightSamplesSize);
-			mHeightSamples[byte_pos] |= uint8(output_value);
-			mHeightSamples[byte_pos + 1] |= uint8(output_value >> 8);
+			mHeightSamples[byte_pos] |= uint8_t(output_value);
+			mHeightSamples[byte_pos + 1] |= uint8_t(output_value >> 8);
 			sample += inSettings.mBitsPerSample;
 		}
 
@@ -6631,83 +6631,83 @@ Ref<HeightFieldShape> HeightFieldShape::Clone() const
 	return clone;
 }
 
-inline void HeightFieldShape::GetRangeBlockOffsetAndStride(uint32 inNumBlocks, uint32 inMaxLevel, uint32 &outRangeBlockOffset, uint32 &outRangeBlockStride)
+inline void HeightFieldShape::GetRangeBlockOffsetAndStride(uint32_t inNumBlocks, uint32_t inMaxLevel, uint32_t &outRangeBlockOffset, uint32_t &outRangeBlockStride)
 {
 	outRangeBlockOffset = sGridOffsets[inMaxLevel - 1];
 	outRangeBlockStride = (inNumBlocks + 1) >> 1;
 }
 
-inline void HeightFieldShape::GetRangeBlock(uint32 inBlockX, uint32 inBlockY, uint32 inRangeBlockOffset, uint32 inRangeBlockStride, RangeBlock *&outBlock, uint32 &outIndexInBlock)
+inline void HeightFieldShape::GetRangeBlock(uint32_t inBlockX, uint32_t inBlockY, uint32_t inRangeBlockOffset, uint32_t inRangeBlockStride, RangeBlock *&outBlock, uint32_t &outIndexInBlock)
 {
 	MOSS_ASSERT(inBlockX < GetNumBlocks() && inBlockY < GetNumBlocks());
 
 	// Convert to location of range block
-	uint32 rbx = inBlockX >> 1;
-	uint32 rby = inBlockY >> 1;
+	uint32_t rbx = inBlockX >> 1;
+	uint32_t rby = inBlockY >> 1;
 	outIndexInBlock = ((inBlockY & 1) << 1) + (inBlockX & 1);
 
-	uint32 offset = inRangeBlockOffset + rby * inRangeBlockStride + rbx;
+	uint32_t offset = inRangeBlockOffset + rby * inRangeBlockStride + rbx;
 	MOSS_ASSERT(offset < mRangeBlocksSize);
 	outBlock = mRangeBlocks + offset;
 }
 
-inline void HeightFieldShape::GetBlockOffsetAndScale(uint32 inBlockX, uint32 inBlockY, uint32 inRangeBlockOffset, uint32 inRangeBlockStride, float &outBlockOffset, float &outBlockScale) const
+inline void HeightFieldShape::GetBlockOffsetAndScale(uint32_t inBlockX, uint32_t inBlockY, uint32_t inRangeBlockOffset, uint32_t inRangeBlockStride, float &outBlockOffset, float &outBlockScale) const
 {
 	MOSS_ASSERT(inBlockX < GetNumBlocks() && inBlockY < GetNumBlocks());
 
 	// Convert to location of range block
-	uint32 rbx = inBlockX >> 1;
-	uint32 rby = inBlockY >> 1;
-	uint32 n = ((inBlockY & 1) << 1) + (inBlockX & 1);
+	uint32_t rbx = inBlockX >> 1;
+	uint32_t rby = inBlockY >> 1;
+	uint32_t n = ((inBlockY & 1) << 1) + (inBlockX & 1);
 
 	// Calculate offset and scale
-	uint32 offset = inRangeBlockOffset + rby * inRangeBlockStride + rbx;
+	uint32_t offset = inRangeBlockOffset + rby * inRangeBlockStride + rbx;
 	MOSS_ASSERT(offset < mRangeBlocksSize);
 	const RangeBlock &block = mRangeBlocks[offset];
 	outBlockOffset = float(block.mMin[n]);
 	outBlockScale = float(block.mMax[n] - block.mMin[n]) / float(mSampleMask);
 }
 
-inline uint8 HeightFieldShape::GetHeightSample(uint32 inX, uint32 inY) const
+inline uint8_t HeightFieldShape::GetHeightSample(uint32_t inX, uint32_t inY) const
 {
 	MOSS_ASSERT(inX < mSampleCount);
 	MOSS_ASSERT(inY < mSampleCount);
 
 	// Determine bit position of sample
-	uint32 sample = (inY * mSampleCount + inX) * uint32(mBitsPerSample);
-	uint32 byte_pos = sample >> 3;
-	uint32 bit_pos = sample & 0b111;
+	uint32_t sample = (inY * mSampleCount + inX) * uint32_t(mBitsPerSample);
+	uint32_t byte_pos = sample >> 3;
+	uint32_t bit_pos = sample & 0b111;
 
 	// Fetch the height sample value
 	MOSS_ASSERT(byte_pos + 1 < mHeightSamplesSize);
-	const uint8 *height_samples = mHeightSamples + byte_pos;
-	uint16 height_sample = uint16(height_samples[0]) | uint16(uint16(height_samples[1]) << 8);
-	return uint8(height_sample >> bit_pos) & mSampleMask;
+	const uint8_t *height_samples = mHeightSamples + byte_pos;
+	uint16_t height_sample = uint16_t(height_samples[0]) | uint16_t(uint16_t(height_samples[1]) << 8);
+	return uint8_t(height_sample >> bit_pos) & mSampleMask;
 }
 
-inline Vec3 HeightFieldShape::GetPosition(uint32 inX, uint32 inY, float inBlockOffset, float inBlockScale, bool &outNoCollision) const
+inline Vec3 HeightFieldShape::GetPosition(uint32_t inX, uint32_t inY, float inBlockOffset, float inBlockScale, bool &outNoCollision) const
 {
 	// Get quantized value
-	uint8 height_sample = GetHeightSample(inX, inY);
+	uint8_t height_sample = GetHeightSample(inX, inY);
 	outNoCollision = height_sample == mSampleMask;
 
 	// Add 0.5 to the quantized value to minimize the error (see constructor)
 	return mOffset + mScale * Vec3(float(inX), inBlockOffset + (0.5f + height_sample) * inBlockScale, float(inY));
 }
 
-Vec3 HeightFieldShape::GetPosition(uint32 inX, uint32 inY) const
+Vec3 HeightFieldShape::GetPosition(uint32_t inX, uint32_t inY) const
 {
 	// Test if there are any samples
 	if (mHeightSamplesSize == 0)
 		return mOffset + mScale * Vec3(float(inX), 0.0f, float(inY));
 
 	// Get block location
-	uint32 bx = inX / mBlockSize;
-	uint32 by = inY / mBlockSize;
+	uint32_t bx = inX / mBlockSize;
+	uint32_t by = inY / mBlockSize;
 
 	// Calculate offset and stride
-	uint32 num_blocks = GetNumBlocks();
-	uint32 range_block_offset, range_block_stride;
+	uint32_t num_blocks = GetNumBlocks();
+	uint32_t range_block_offset, range_block_stride;
 	sGetRangeBlockOffsetAndStride(num_blocks, sGetMaxLevel(num_blocks), range_block_offset, range_block_stride);
 
 	float offset, scale;
@@ -6717,7 +6717,7 @@ Vec3 HeightFieldShape::GetPosition(uint32 inX, uint32 inY) const
 	return GetPosition(inX, inY, offset, scale, no_collision);
 }
 
-bool HeightFieldShape::IsNoCollision(uint32 inX, uint32 inY) const
+bool HeightFieldShape::IsNoCollision(uint32_t inX, uint32_t inY) const
 {
 	return mHeightSamplesSize == 0 || GetHeightSample(inX, inY) == mSampleMask;
 }
@@ -6735,14 +6735,14 @@ bool HeightFieldShape::ProjectOntoSurface(Vec3Arg inLocalPosition, Vec3 &outSurf
 	float x_frac = integer_space.GetX();
 	if (x_frac < 0.0f || x_frac >= mSampleCount - 1)
 		return false;
-	uint32 x = (uint32)floor(x_frac);
+	uint32_t x = (uint32_t)floor(x_frac);
 	x_frac -= x;
 
 	// Get y coordinate and fraction
 	float y_frac = integer_space.GetZ();
 	if (y_frac < 0.0f || y_frac >= mSampleCount - 1)
 		return false;
-	uint32 y = (uint32)floor(y_frac);
+	uint32_t y = (uint32_t)floor(y_frac);
 	y_frac -= y;
 
 	// If one of the diagonal points doesn't have collision, we don't have a height at this location
@@ -6781,7 +6781,7 @@ bool HeightFieldShape::ProjectOntoSurface(Vec3Arg inLocalPosition, Vec3 &outSurf
 	}
 }
 
-void HeightFieldShape::GetHeights(uint32 inX, uint32 inY, uint32 inSizeX, uint32 inSizeY, float *outHeights, intptr_t inHeightsStride) const
+void HeightFieldShape::GetHeights(uint32_t inX, uint32_t inY, uint32_t inSizeX, uint32_t inSizeY, float *outHeights, intptr_t inHeightsStride) const
 {
 	if (inSizeX == 0 || inSizeY == 0)
 		return;
@@ -6795,24 +6795,24 @@ void HeightFieldShape::GetHeights(uint32 inX, uint32 inY, uint32 inSizeX, uint32
 	{
 		// No samples, return the offset
 		float offset = mOffset.GetY();
-		for (uint32 y = 0; y < inSizeY; ++y, outHeights += inHeightsStride)
-			for (uint32 x = 0; x < inSizeX; ++x)
+		for (uint32_t y = 0; y < inSizeY; ++y, outHeights += inHeightsStride)
+			for (uint32_t x = 0; x < inSizeX; ++x)
 				outHeights[x] = offset;
 	}
 	else
 	{
 		// Calculate offset and stride
-		uint32 num_blocks = GetNumBlocks();
-		uint32 range_block_offset, range_block_stride;
+		uint32_t num_blocks = GetNumBlocks();
+		uint32_t range_block_offset, range_block_stride;
 		sGetRangeBlockOffsetAndStride(num_blocks, sGetMaxLevel(num_blocks), range_block_offset, range_block_stride);
 
 		// Loop over blocks
-		uint32 block_start_x = inX / mBlockSize;
-		uint32 block_start_y = inY / mBlockSize;
-		uint32 num_blocks_x = inSizeX / mBlockSize;
-		uint32 num_blocks_y = inSizeY / mBlockSize;
-		for (uint32 block_y = 0; block_y < num_blocks_y; ++block_y)
-			for (uint32 block_x = 0; block_x < num_blocks_x; ++block_x)
+		uint32_t block_start_x = inX / mBlockSize;
+		uint32_t block_start_y = inY / mBlockSize;
+		uint32_t num_blocks_x = inSizeX / mBlockSize;
+		uint32_t num_blocks_y = inSizeY / mBlockSize;
+		for (uint32_t block_y = 0; block_y < num_blocks_y; ++block_y)
+			for (uint32_t block_x = 0; block_x < num_blocks_x; ++block_x)
 			{
 				// Get offset and scale for block
 				float offset, scale;
@@ -6824,15 +6824,15 @@ void HeightFieldShape::GetHeights(uint32 inX, uint32 inY, uint32 inSizeX, uint32
 				offset = mOffset.GetY() + mScale.GetY() * offset + 0.5f * scale;
 
 				// Loop over samples in block
-				for (uint32 sample_y = 0; sample_y < mBlockSize; ++sample_y)
-					for (uint32 sample_x = 0; sample_x < mBlockSize; ++sample_x)
+				for (uint32_t sample_y = 0; sample_y < mBlockSize; ++sample_y)
+					for (uint32_t sample_x = 0; sample_x < mBlockSize; ++sample_x)
 					{
 						// Calculate output coordinate
-						uint32 output_x = block_x * mBlockSize + sample_x;
-						uint32 output_y = block_y * mBlockSize + sample_y;
+						uint32_t output_x = block_x * mBlockSize + sample_x;
+						uint32_t output_y = block_y * mBlockSize + sample_y;
 
 						// Get quantized value
-						uint8 height_sample = GetHeightSample(inX + output_x, inY + output_y);
+						uint8_t height_sample = GetHeightSample(inX + output_x, inY + output_y);
 
 						// Dequantize
 						float h = height_sample != mSampleMask? offset + height_sample * scale : cNoCollisionValue;
@@ -6842,7 +6842,7 @@ void HeightFieldShape::GetHeights(uint32 inX, uint32 inY, uint32 inSizeX, uint32
 	}
 }
 
-void HeightFieldShape::SetHeights(uint32 inX, uint32 inY, uint32 inSizeX, uint32 inSizeY, const float *inHeights, intptr_t inHeightsStride, TempAllocator &inAllocator, float inActiveEdgeCosThresholdAngle)
+void HeightFieldShape::SetHeights(uint32_t inX, uint32_t inY, uint32_t inSizeX, uint32_t inSizeY, const float *inHeights, intptr_t inHeightsStride, TempAllocator &inAllocator, float inActiveEdgeCosThresholdAngle)
 {
 	if (inSizeX == 0 || inSizeY == 0)
 		return;
@@ -6854,16 +6854,16 @@ void HeightFieldShape::SetHeights(uint32 inX, uint32 inY, uint32 inSizeX, uint32
 
 	// If we have a block in negative x/y direction, we will affect its range so we need to take it into account
 	bool need_temp_heights = false;
-	uint32 affected_x = inX;
-	uint32 affected_y = inY;
-	uint32 affected_size_x = inSizeX;
-	uint32 affected_size_y = inSizeY;
+	uint32_t affected_x = inX;
+	uint32_t affected_y = inY;
+	uint32_t affected_size_x = inSizeX;
+	uint32_t affected_size_y = inSizeY;
 	if (inX > 0) { affected_x -= mBlockSize; affected_size_x += mBlockSize; need_temp_heights = true; }
 	if (inY > 0) { affected_y -= mBlockSize; affected_size_y += mBlockSize; need_temp_heights = true; }
 
 	// If we have a block in positive x/y direction, our ranges are affected by it so we need to take it into account
-	uint32 heights_size_x = affected_size_x;
-	uint32 heights_size_y = affected_size_y;
+	uint32_t heights_size_x = affected_size_x;
+	uint32_t heights_size_y = affected_size_y;
 	if (inX + inSizeX < mSampleCount) { heights_size_x += mBlockSize; need_temp_heights = true; }
 	if (inY + inSizeY < mSampleCount) { heights_size_y += mBlockSize; need_temp_heights = true; }
 
@@ -6892,8 +6892,8 @@ void HeightFieldShape::SetHeights(uint32 inX, uint32 inY, uint32 inSizeX, uint32
 		//
 		// 1. The area that is affected by the new heights (we just copy these)
 		// 2-5. These areas are either needed to calculate the range of the affected blocks or they need to be recompressed with a different range
-		uint32 offset_x = inX - affected_x;
-		uint32 offset_y = inY - affected_y;
+		uint32_t offset_x = inX - affected_x;
+		uint32_t offset_y = inY - affected_y;
 
 		// Area 2
 		GetHeights(affected_x, affected_y, heights_size_x, offset_y, temp_heights, heights_size_x);
@@ -6904,15 +6904,15 @@ void HeightFieldShape::SetHeights(uint32 inX, uint32 inY, uint32 inSizeX, uint32
 
 		// Area 1
 		float *area1_start = area3_start + offset_x;
-		for (uint32 y = 0; y < inSizeY; ++y, area1_start += heights_size_x, inHeights += inHeightsStride)
+		for (uint32_t y = 0; y < inSizeY; ++y, area1_start += heights_size_x, inHeights += inHeightsStride)
 			memcpy(area1_start, inHeights, inSizeX * sizeof(float));
 
 		// Area 4
-		uint32 area4_x = inX + inSizeX;
+		uint32_t area4_x = inX + inSizeX;
 		GetHeights(area4_x, inY, affected_x + heights_size_x - area4_x, inSizeY, area3_start + area4_x - affected_x, heights_size_x);
 
 		// Area 5
-		uint32 area5_y = inY + inSizeY;
+		uint32_t area5_y = inY + inSizeY;
 		float *area5_start = temp_heights + (area5_y - affected_y) * heights_size_x;
 		GetHeights(affected_x, area5_y, heights_size_x, affected_y + heights_size_y - area5_y, area5_start, heights_size_x);
 	}
@@ -6925,27 +6925,27 @@ void HeightFieldShape::SetHeights(uint32 inX, uint32 inY, uint32 inSizeX, uint32
 	}
 
 	// Calculate offset and stride
-	uint32 num_blocks = GetNumBlocks();
-	uint32 range_block_offset, range_block_stride;
-	uint32 max_level = sGetMaxLevel(num_blocks);
+	uint32_t num_blocks = GetNumBlocks();
+	uint32_t range_block_offset, range_block_stride;
+	uint32_t max_level = sGetMaxLevel(num_blocks);
 	sGetRangeBlockOffsetAndStride(num_blocks, max_level, range_block_offset, range_block_stride);
 
 	// Loop over blocks
-	uint32 block_start_x = affected_x / mBlockSize;
-	uint32 block_start_y = affected_y / mBlockSize;
-	uint32 num_blocks_x = affected_size_x / mBlockSize;
-	uint32 num_blocks_y = affected_size_y / mBlockSize;
-	for (uint32 block_y = 0, sample_start_y = 0; block_y < num_blocks_y; ++block_y, sample_start_y += mBlockSize)
-		for (uint32 block_x = 0, sample_start_x = 0; block_x < num_blocks_x; ++block_x, sample_start_x += mBlockSize)
+	uint32_t block_start_x = affected_x / mBlockSize;
+	uint32_t block_start_y = affected_y / mBlockSize;
+	uint32_t num_blocks_x = affected_size_x / mBlockSize;
+	uint32_t num_blocks_y = affected_size_y / mBlockSize;
+	for (uint32_t block_y = 0, sample_start_y = 0; block_y < num_blocks_y; ++block_y, sample_start_y += mBlockSize)
+		for (uint32_t block_x = 0, sample_start_x = 0; block_x < num_blocks_x; ++block_x, sample_start_x += mBlockSize)
 		{
 			// Determine quantized min and max value for block
 			// Note that we need to include 1 extra row in the positive x/y direction to account for connecting triangles
 			int min_value = 0xffff;
 			int max_value = 0;
-			uint32 sample_x_end = min(sample_start_x + mBlockSize + 1, mSampleCount - affected_x);
-			uint32 sample_y_end = min(sample_start_y + mBlockSize + 1, mSampleCount - affected_y);
-			for (uint32 sample_y = sample_start_y; sample_y < sample_y_end; ++sample_y)
-				for (uint32 sample_x = sample_start_x; sample_x < sample_x_end; ++sample_x)
+			uint32_t sample_x_end = min(sample_start_x + mBlockSize + 1, mSampleCount - affected_x);
+			uint32_t sample_y_end = min(sample_start_y + mBlockSize + 1, mSampleCount - affected_y);
+			for (uint32_t sample_y = sample_start_y; sample_y < sample_y_end; ++sample_y)
+				for (uint32_t sample_x = sample_start_x; sample_x < sample_x_end; ++sample_x)
 				{
 					float h = heights[sample_y * heights_stride + sample_x];
 					if (h != cNoCollisionValue)
@@ -6960,10 +6960,10 @@ void HeightFieldShape::SetHeights(uint32 inX, uint32 inY, uint32 inSizeX, uint32
 
 			// Update range for block
 			RangeBlock *range_block;
-			uint32 index_in_block;
+			uint32_t index_in_block;
 			GetRangeBlock(block_start_x + block_x, block_start_y + block_y, range_block_offset, range_block_stride, range_block, index_in_block);
-			range_block->mMin[index_in_block] = uint16(min_value);
-			range_block->mMax[index_in_block] = uint16(max_value);
+			range_block->mMin[index_in_block] = uint16_t(min_value);
+			range_block->mMax[index_in_block] = uint16_t(max_value);
 
 			// Get offset and scale for block
 			float offset_block = float(min_value);
@@ -6976,35 +6976,35 @@ void HeightFieldShape::SetHeights(uint32 inX, uint32 inY, uint32 inSizeX, uint32
 			// Loop over samples in block
 			sample_x_end = sample_start_x + mBlockSize;
 			sample_y_end = sample_start_y + mBlockSize;
-			for (uint32 sample_y = sample_start_y; sample_y < sample_y_end; ++sample_y)
-				for (uint32 sample_x = sample_start_x; sample_x < sample_x_end; ++sample_x)
+			for (uint32_t sample_y = sample_start_y; sample_y < sample_y_end; ++sample_y)
+				for (uint32_t sample_x = sample_start_x; sample_x < sample_x_end; ++sample_x)
 				{
 					// Quantize height
 					float h = heights[sample_y * heights_stride + sample_x];
-					uint8 quantized_height = h != cNoCollisionValue? uint8(Clamp((int)floor((h - offset) / scale), 0, int(mSampleMask) - 1)) : mSampleMask;
+					uint8_t quantized_height = h != cNoCollisionValue? uint8_t(Clamp((int)floor((h - offset) / scale), 0, int(mSampleMask) - 1)) : mSampleMask;
 
 					// Determine bit position of sample
-					uint32 sample = ((affected_y + sample_y) * mSampleCount + affected_x + sample_x) * uint32(mBitsPerSample);
-					uint32 byte_pos = sample >> 3;
-					uint32 bit_pos = sample & 0b111;
+					uint32_t sample = ((affected_y + sample_y) * mSampleCount + affected_x + sample_x) * uint32_t(mBitsPerSample);
+					uint32_t byte_pos = sample >> 3;
+					uint32_t bit_pos = sample & 0b111;
 
 					// Update the height value sample
 					MOSS_ASSERT(byte_pos + 1 < mHeightSamplesSize);
-					uint8 *height_samples = mHeightSamples + byte_pos;
-					uint16 height_sample = uint16(height_samples[0]) | uint16(uint16(height_samples[1]) << 8);
-					height_sample &= ~(uint16(mSampleMask) << bit_pos);
-					height_sample |= uint16(quantized_height) << bit_pos;
-					height_samples[0] = uint8(height_sample);
-					height_samples[1] = uint8(height_sample >> 8);
+					uint8_t *height_samples = mHeightSamples + byte_pos;
+					uint16_t height_sample = uint16_t(height_samples[0]) | uint16_t(uint16_t(height_samples[1]) << 8);
+					height_sample &= ~(uint16_t(mSampleMask) << bit_pos);
+					height_sample |= uint16_t(quantized_height) << bit_pos;
+					height_samples[0] = uint8_t(height_sample);
+					height_samples[1] = uint8_t(height_sample >> 8);
 				}
 		}
 
 	// Update active edges
 	// Note that we must take an extra row on all sides to account for connecting triangles
-	uint32 ae_x = inX > 1? inX - 2 : 0;
-	uint32 ae_y = inY > 1? inY - 2 : 0;
-	uint32 ae_sx = min(inX + inSizeX + 1, mSampleCount - 1) - ae_x;
-	uint32 ae_sy = min(inY + inSizeY + 1, mSampleCount - 1) - ae_y;
+	uint32_t ae_x = inX > 1? inX - 2 : 0;
+	uint32_t ae_y = inY > 1? inY - 2 : 0;
+	uint32_t ae_sx = min(inX + inSizeX + 1, mSampleCount - 1) - ae_x;
+	uint32_t ae_sy = min(inY + inSizeY + 1, mSampleCount - 1) - ae_y;
 	CalculateActiveEdges(ae_x, ae_y, ae_sx, ae_sy, heights, affected_x, affected_y, heights_stride, 1.0f, inActiveEdgeCosThresholdAngle, inAllocator);
 
 	// Free temporary buffer
@@ -7015,7 +7015,7 @@ void HeightFieldShape::SetHeights(uint32 inX, uint32 inY, uint32 inSizeX, uint32
 	while (max_level > 1)
 	{
 		// Get offset and stride for destination blocks
-		uint32 dst_range_block_offset, dst_range_block_stride;
+		uint32_t dst_range_block_offset, dst_range_block_stride;
 		sGetRangeBlockOffsetAndStride(num_blocks >> 1, max_level - 1, dst_range_block_offset, dst_range_block_stride);
 
 		// We'll be processing 2x2 blocks below so we need the start coordinates to be even and we extend the number of blocks to correct for that
@@ -7023,20 +7023,20 @@ void HeightFieldShape::SetHeights(uint32 inX, uint32 inY, uint32 inSizeX, uint32
 		if (block_start_y & 1) { --block_start_y; ++num_blocks_y; }
 
 		// Loop over all affected blocks
-		uint32 block_end_x = block_start_x + num_blocks_x;
-		uint32 block_end_y = block_start_y + num_blocks_y;
-		for (uint32 block_y = block_start_y; block_y < block_end_y; block_y += 2)
-			for (uint32 block_x = block_start_x; block_x < block_end_x; block_x += 2)
+		uint32_t block_end_x = block_start_x + num_blocks_x;
+		uint32_t block_end_y = block_start_y + num_blocks_y;
+		for (uint32_t block_y = block_start_y; block_y < block_end_y; block_y += 2)
+			for (uint32_t block_x = block_start_x; block_x < block_end_x; block_x += 2)
 			{
 				// Get source range block
 				RangeBlock *src_range_block;
-				uint32 index_in_src_block;
+				uint32_t index_in_src_block;
 				GetRangeBlock(block_x, block_y, range_block_offset, range_block_stride, src_range_block, index_in_src_block);
 
 				// Determine quantized min and max value for the entire 2x2 block
-				uint16 min_value = 0xffff;
-				uint16 max_value = 0;
-				for (uint32 i = 0; i < 4; ++i)
+				uint16_t min_value = 0xffff;
+				uint16_t max_value = 0;
+				for (uint32_t i = 0; i < 4; ++i)
 					if (src_range_block->mMin[i] != cNoCollisionValue16)
 					{
 						min_value = min(min_value, src_range_block->mMin[i]);
@@ -7045,10 +7045,10 @@ void HeightFieldShape::SetHeights(uint32 inX, uint32 inY, uint32 inSizeX, uint32
 
 				// Write to destination block
 				RangeBlock *dst_range_block;
-				uint32 index_in_dst_block;
+				uint32_t index_in_dst_block;
 				GetRangeBlock(block_x >> 1, block_y >> 1, dst_range_block_offset, dst_range_block_stride, dst_range_block, index_in_dst_block);
-				dst_range_block->mMin[index_in_dst_block] = uint16(min_value);
-				dst_range_block->mMax[index_in_dst_block] = uint16(max_value);
+				dst_range_block->mMin[index_in_dst_block] = uint16_t(min_value);
+				dst_range_block->mMax[index_in_dst_block] = uint16_t(max_value);
 			}
 
 		// Go up one level
@@ -7067,7 +7067,7 @@ void HeightFieldShape::SetHeights(uint32 inX, uint32 inY, uint32 inSizeX, uint32
 	// Calculate new min and max sample for the entire height field
 	mMinSample = 0xffff;
 	mMaxSample = 0;
-	for (uint32 i = 0; i < 4; ++i)
+	for (uint32_t i = 0; i < 4; ++i)
 		if (mRangeBlocks[0].mMin[i] != cNoCollisionValue16)
 		{
 			mMinSample = min(mMinSample, mRangeBlocks[0].mMin[i]);
@@ -7080,7 +7080,7 @@ void HeightFieldShape::SetHeights(uint32 inX, uint32 inY, uint32 inSizeX, uint32
 #endif
 }
 
-void HeightFieldShape::GetMaterials(uint32 inX, uint32 inY, uint32 inSizeX, uint32 inSizeY, uint8 *outMaterials, intptr_t inMaterialsStride) const
+void HeightFieldShape::GetMaterials(uint32_t inX, uint32_t inY, uint32_t inSizeX, uint32_t inSizeY, uint8_t *outMaterials, intptr_t inMaterialsStride) const
 {
 	if (inSizeX == 0 || inSizeY == 0)
 		return;
@@ -7088,10 +7088,10 @@ void HeightFieldShape::GetMaterials(uint32 inX, uint32 inY, uint32 inSizeX, uint
 	if (mMaterialIndices.empty())
 	{
 		// Return all 0's
-		for (uint32 y = 0; y < inSizeY; ++y)
+		for (uint32_t y = 0; y < inSizeY; ++y)
 		{
-			uint8 *out_indices = outMaterials + y * inMaterialsStride;
-			for (uint32 x = 0; x < inSizeX; ++x)
+			uint8_t *out_indices = outMaterials + y * inMaterialsStride;
+			for (uint32_t x = 0; x < inSizeX; ++x)
 				*out_indices++ = 0;
 		}
 		return;
@@ -7100,26 +7100,26 @@ void HeightFieldShape::GetMaterials(uint32 inX, uint32 inY, uint32 inSizeX, uint
 	MOSS_ASSERT(inX < mSampleCount && inY < mSampleCount);
 	MOSS_ASSERT(inX + inSizeX < mSampleCount && inY + inSizeY < mSampleCount);
 
-	uint32 count_min_1 = mSampleCount - 1;
-	uint16 material_index_mask = uint16((1 << mNumBitsPerMaterialIndex) - 1);
+	uint32_t count_min_1 = mSampleCount - 1;
+	uint16_t material_index_mask = uint16_t((1 << mNumBitsPerMaterialIndex) - 1);
 
-	for (uint32 y = 0; y < inSizeY; ++y)
+	for (uint32_t y = 0; y < inSizeY; ++y)
 	{
 		// Calculate input position
-		uint32 bit_pos = (inX + (inY + y) * count_min_1) * mNumBitsPerMaterialIndex;
-		const uint8 *in_indices = mMaterialIndices.data() + (bit_pos >> 3);
+		uint32_t bit_pos = (inX + (inY + y) * count_min_1) * mNumBitsPerMaterialIndex;
+		const uint8_t *in_indices = mMaterialIndices.data() + (bit_pos >> 3);
 		bit_pos &= 0b111;
 
 		// Calculate output position
-		uint8 *out_indices = outMaterials + y * inMaterialsStride;
+		uint8_t *out_indices = outMaterials + y * inMaterialsStride;
 
-		for (uint32 x = 0; x < inSizeX; ++x)
+		for (uint32_t x = 0; x < inSizeX; ++x)
 		{
 			// Get material index
-			uint16 material_index = uint16(in_indices[0]) + uint16(uint16(in_indices[1]) << 8);
+			uint16_t material_index = uint16_t(in_indices[0]) + uint16_t(uint16_t(in_indices[1]) << 8);
 			material_index >>= bit_pos;
 			material_index &= material_index_mask;
-			*out_indices = uint8(material_index);
+			*out_indices = uint8_t(material_index);
 
 			// Go to the next index
 			bit_pos += mNumBitsPerMaterialIndex;
@@ -7130,7 +7130,7 @@ void HeightFieldShape::GetMaterials(uint32 inX, uint32 inY, uint32 inSizeX, uint
 	}
 }
 
-bool HeightFieldShape::SetMaterials(uint32 inX, uint32 inY, uint32 inSizeX, uint32 inSizeY, const uint8 *inMaterials, intptr_t inMaterialsStride, const PhysicsMaterialList *inMaterialList, TempAllocator &inAllocator)
+bool HeightFieldShape::SetMaterials(uint32_t inX, uint32_t inY, uint32_t inSizeX, uint32_t inSizeY, const uint8_t *inMaterials, intptr_t inMaterialsStride, const PhysicsMaterialList *inMaterialList, TempAllocator &inAllocator)
 {
 	if (inSizeX == 0 || inSizeY == 0)
 		return true;
@@ -7139,8 +7139,8 @@ bool HeightFieldShape::SetMaterials(uint32 inX, uint32 inY, uint32 inSizeX, uint
 	MOSS_ASSERT(inX + inSizeX < mSampleCount && inY + inSizeY < mSampleCount);
 
 	// Remap materials
-	uint32 material_remap_table_size = uint32(inMaterialList != nullptr? inMaterialList->size() : mMaterials.size());
-	uint8 *material_remap_table = (uint8 *)inAllocator.Allocate(material_remap_table_size);
+	uint32_t material_remap_table_size = uint32_t(inMaterialList != nullptr? inMaterialList->size() : mMaterials.size());
+	uint8_t *material_remap_table = (uint8_t *)inAllocator.Allocate(material_remap_table_size);
 	MOSS_SCOPE_EXIT([&inAllocator, material_remap_table, material_remap_table_size]{ inAllocator.Free(material_remap_table, material_remap_table_size); });
 	if (inMaterialList != nullptr)
 	{
@@ -7149,7 +7149,7 @@ bool HeightFieldShape::SetMaterials(uint32 inX, uint32 inY, uint32 inSizeX, uint
 			mMaterials.reserve(inMaterialList->size());
 
 		// Create a remap table
-		uint8 *remap_entry = material_remap_table;
+		uint8_t *remap_entry = material_remap_table;
 		for (const PhysicsMaterial *material : *inMaterialList)
 		{
 			// Try to find it in the existing list
@@ -7157,17 +7157,17 @@ bool HeightFieldShape::SetMaterials(uint32 inX, uint32 inY, uint32 inSizeX, uint
 			if (it != mMaterials.end())
 			{
 				// Found it, calculate index
-				*remap_entry = uint8(it - mMaterials.begin());
+				*remap_entry = uint8_t(it - mMaterials.begin());
 			}
 			else
 			{
 				// Not found, add it
 				if (mMaterials.size() >= 256)
 				{
-					// We can't have more than 256 materials since we use uint8 as indices
+					// We can't have more than 256 materials since we use uint8_t as indices
 					return false;
 				}
-				*remap_entry = uint8(mMaterials.size());
+				*remap_entry = uint8_t(mMaterials.size());
 				mMaterials.push_back(material);
 			}
 			++remap_entry;
@@ -7176,8 +7176,8 @@ bool HeightFieldShape::SetMaterials(uint32 inX, uint32 inY, uint32 inSizeX, uint
 	else
 	{
 		// No remapping
-		for (uint32 i = 0; i < material_remap_table_size; ++i)
-			material_remap_table[i] = uint8(i);
+		for (uint32_t i = 0; i < material_remap_table_size; ++i)
+			material_remap_table[i] = uint8_t(i);
 	}
 
 	if (mMaterials.size() == 1)
@@ -7187,39 +7187,39 @@ bool HeightFieldShape::SetMaterials(uint32 inX, uint32 inY, uint32 inSizeX, uint
 	}
 
 	// Check if we need to resize the material indices array
-	uint32 count_min_1 = mSampleCount - 1;
-	uint32 new_bits_per_material_index = 32 - CountLeadingZeros((uint32)mMaterials.size() - 1);
+	uint32_t count_min_1 = mSampleCount - 1;
+	uint32_t new_bits_per_material_index = 32 - CountLeadingZeros((uint32_t)mMaterials.size() - 1);
 	MOSS_ASSERT(mNumBitsPerMaterialIndex <= 8 && new_bits_per_material_index <= 8);
 	if (new_bits_per_material_index > mNumBitsPerMaterialIndex)
 	{
 		// Resize the material indices array
-		mMaterialIndices.resize(((Square(count_min_1) * new_bits_per_material_index + 7) >> 3) + 1, 0); // Add 1 byte so we don't read out of bounds when reading an uint16
+		mMaterialIndices.resize(((Square(count_min_1) * new_bits_per_material_index + 7) >> 3) + 1, 0); // Add 1 byte so we don't read out of bounds when reading an uint16_t
 
 		// Calculate old and new mask
-		uint16 old_material_index_mask = uint16((1 << mNumBitsPerMaterialIndex) - 1);
-		uint16 new_material_index_mask = uint16((1 << new_bits_per_material_index) - 1);
+		uint16_t old_material_index_mask = uint16_t((1 << mNumBitsPerMaterialIndex) - 1);
+		uint16_t new_material_index_mask = uint16_t((1 << new_bits_per_material_index) - 1);
 
 		// Loop through the array backwards to avoid overwriting data
 		int in_bit_pos = (count_min_1 * count_min_1 - 1) * mNumBitsPerMaterialIndex;
-		const uint8 *in_indices = mMaterialIndices.data() + (in_bit_pos >> 3);
+		const uint8_t *in_indices = mMaterialIndices.data() + (in_bit_pos >> 3);
 		in_bit_pos &= 0b111;
 		int out_bit_pos = (count_min_1 * count_min_1 - 1) * new_bits_per_material_index;
-		uint8 *out_indices = mMaterialIndices.data() + (out_bit_pos >> 3);
+		uint8_t *out_indices = mMaterialIndices.data() + (out_bit_pos >> 3);
 		out_bit_pos &= 0b111;
 
 		while (out_indices >= mMaterialIndices.data())
 		{
 			// Read the material index
-			uint16 material_index = uint16(in_indices[0]) + uint16(uint16(in_indices[1]) << 8);
+			uint16_t material_index = uint16_t(in_indices[0]) + uint16_t(uint16_t(in_indices[1]) << 8);
 			material_index >>= in_bit_pos;
 			material_index &= old_material_index_mask;
 
 			// Write the material index
-			uint16 output_data = uint16(out_indices[0]) + uint16(uint16(out_indices[1]) << 8);
+			uint16_t output_data = uint16_t(out_indices[0]) + uint16_t(uint16_t(out_indices[1]) << 8);
 			output_data &= ~(new_material_index_mask << out_bit_pos);
 			output_data |= material_index << out_bit_pos;
-			out_indices[0] = uint8(output_data);
-			out_indices[1] = uint8(output_data >> 8);
+			out_indices[0] = uint8_t(output_data);
+			out_indices[1] = uint8_t(output_data >> 8);
 
 			// Go to the previous index
 			in_bit_pos -= int(mNumBitsPerMaterialIndex);
@@ -7234,25 +7234,25 @@ bool HeightFieldShape::SetMaterials(uint32 inX, uint32 inY, uint32 inSizeX, uint
 		mNumBitsPerMaterialIndex = new_bits_per_material_index;
 	}
 
-	uint16 material_index_mask = uint16((1 << mNumBitsPerMaterialIndex) - 1);
-	for (uint32 y = 0; y < inSizeY; ++y)
+	uint16_t material_index_mask = uint16_t((1 << mNumBitsPerMaterialIndex) - 1);
+	for (uint32_t y = 0; y < inSizeY; ++y)
 	{
 		// Calculate input position
-		const uint8 *in_indices = inMaterials + y * inMaterialsStride;
+		const uint8_t *in_indices = inMaterials + y * inMaterialsStride;
 
 		// Calculate output position
-		uint32 bit_pos = (inX + (inY + y) * count_min_1) * mNumBitsPerMaterialIndex;
-		uint8 *out_indices = mMaterialIndices.data() + (bit_pos >> 3);
+		uint32_t bit_pos = (inX + (inY + y) * count_min_1) * mNumBitsPerMaterialIndex;
+		uint8_t *out_indices = mMaterialIndices.data() + (bit_pos >> 3);
 		bit_pos &= 0b111;
 
-		for (uint32 x = 0; x < inSizeX; ++x)
+		for (uint32_t x = 0; x < inSizeX; ++x)
 		{
 			// Update material
-			uint16 output_data = uint16(out_indices[0]) + uint16(uint16(out_indices[1]) << 8);
+			uint16_t output_data = uint16_t(out_indices[0]) + uint16_t(uint16_t(out_indices[1]) << 8);
 			output_data &= ~(material_index_mask << bit_pos);
 			output_data |= material_remap_table[*in_indices] << bit_pos;
-			out_indices[0] = uint8(output_data);
-			out_indices[1] = uint8(output_data >> 8);
+			out_indices[0] = uint8_t(output_data);
+			out_indices[1] = uint8_t(output_data >> 8);
 
 			// Go to the next index
 			in_indices++;
@@ -7271,26 +7271,26 @@ MassProperties HeightFieldShape::GetMassProperties() const
 	return MassProperties();
 }
 
-const PhysicsMaterial *HeightFieldShape::GetMaterial(uint32 inX, uint32 inY) const
+const PhysicsMaterial *HeightFieldShape::GetMaterial(uint32_t inX, uint32_t inY) const
 {
 	if (mMaterials.empty())
 		return PhysicsMaterial::Default;
 	if (mMaterials.size() == 1)
 		return mMaterials[0];
 
-	uint32 count_min_1 = mSampleCount - 1;
+	uint32_t count_min_1 = mSampleCount - 1;
 	MOSS_ASSERT(inX < count_min_1);
 	MOSS_ASSERT(inY < count_min_1);
 
 	// Calculate at which bit the material index starts
-	uint32 bit_pos = (inX + inY * count_min_1) * mNumBitsPerMaterialIndex;
-	uint32 byte_pos = bit_pos >> 3;
+	uint32_t bit_pos = (inX + inY * count_min_1) * mNumBitsPerMaterialIndex;
+	uint32_t byte_pos = bit_pos >> 3;
 	bit_pos &= 0b111;
 
 	// Read the material index
 	MOSS_ASSERT(byte_pos + 1 < mMaterialIndices.size());
-	const uint8 *material_indices = mMaterialIndices.data() + byte_pos;
-	uint16 material_index = uint16(material_indices[0]) + uint16(uint16(material_indices[1]) << 8);
+	const uint8_t *material_indices = mMaterialIndices.data() + byte_pos;
+	uint16_t material_index = uint16_t(material_indices[0]) + uint16_t(uint16_t(material_indices[1]) << 8);
 	material_index >>= bit_pos;
 	material_index &= (1 << mNumBitsPerMaterialIndex) - 1;
 
@@ -7298,22 +7298,22 @@ const PhysicsMaterial *HeightFieldShape::GetMaterial(uint32 inX, uint32 inY) con
 	return mMaterials[material_index];
 }
 
-uint32 HeightFieldShape::GetSubShapeIDBits() const
+uint32_t HeightFieldShape::GetSubShapeIDBits() const
 {
 	// Need to store X, Y and 1 extra bit to specify the triangle number in the quad
 	return 2 * (32 - CountLeadingZeros(mSampleCount - 1)) + 1;
 }
 
-SubShapeID HeightFieldShape::EncodeSubShapeID(const SubShapeIDCreator &inCreator, uint32 inX, uint32 inY, uint32 inTriangle) const
+SubShapeID HeightFieldShape::EncodeSubShapeID(const SubShapeIDCreator &inCreator, uint32_t inX, uint32_t inY, uint32_t inTriangle) const
 {
 	return inCreator.PushID((inX + inY * mSampleCount) * 2 + inTriangle, GetSubShapeIDBits()).GetID();
 }
 
-void HeightFieldShape::DecodeSubShapeID(const SubShapeID &inSubShapeID, uint32 &outX, uint32 &outY, uint32 &outTriangle) const
+void HeightFieldShape::DecodeSubShapeID(const SubShapeID &inSubShapeID, uint32_t &outX, uint32_t &outY, uint32_t &outTriangle) const
 {
 	// Decode sub shape id
 	SubShapeID remainder;
-	uint32 id = inSubShapeID.PopID(GetSubShapeIDBits(), remainder);
+	uint32_t id = inSubShapeID.PopID(GetSubShapeIDBits(), remainder);
 	MOSS_ASSERT(remainder.IsEmpty(), "Invalid subshape ID");
 
 	// Get triangle index
@@ -7325,7 +7325,7 @@ void HeightFieldShape::DecodeSubShapeID(const SubShapeID &inSubShapeID, uint32 &
 	outY = id / mSampleCount;
 }
 
-void HeightFieldShape::GetSubShapeCoordinates(const SubShapeID &inSubShapeID, uint32 &outX, uint32 &outY, uint32 &outTriangleIndex) const
+void HeightFieldShape::GetSubShapeCoordinates(const SubShapeID &inSubShapeID, uint32_t &outX, uint32_t &outY, uint32_t &outTriangleIndex) const
 {
 	DecodeSubShapeID(inSubShapeID, outX, outY, outTriangleIndex);
 }
@@ -7333,7 +7333,7 @@ void HeightFieldShape::GetSubShapeCoordinates(const SubShapeID &inSubShapeID, ui
 const PhysicsMaterial *HeightFieldShape::GetMaterial(const SubShapeID &inSubShapeID) const
 {
 	// Decode ID
-	uint32 x, y, triangle;
+	uint32_t x, y, triangle;
 	DecodeSubShapeID(inSubShapeID, x, y, triangle);
 
 	// Fetch the material
@@ -7343,7 +7343,7 @@ const PhysicsMaterial *HeightFieldShape::GetMaterial(const SubShapeID &inSubShap
 Vec3 HeightFieldShape::GetSurfaceNormal(const SubShapeID &inSubShapeID, Vec3Arg inLocalSurfacePosition) const
 {
 	// Decode ID
-	uint32 x, y, triangle;
+	uint32_t x, y, triangle;
 	DecodeSubShapeID(inSubShapeID, x, y, triangle);
 
 	// Fetch vertices that both triangles share
@@ -7369,7 +7369,7 @@ Vec3 HeightFieldShape::GetSurfaceNormal(const SubShapeID &inSubShapeID, Vec3Arg 
 void HeightFieldShape::GetSupportingFace(const SubShapeID &inSubShapeID, Vec3Arg inDirection, Vec3Arg inScale, Mat44Arg inCenterOfMassTransform, SupportingFace &outVertices) const
 {
 	// Decode ID
-	uint32 x, y, triangle;
+	uint32_t x, y, triangle;
 	DecodeSubShapeID(inSubShapeID, x, y, triangle);
 
 	// Fetch the triangle
@@ -7397,27 +7397,27 @@ void HeightFieldShape::GetSupportingFace(const SubShapeID &inSubShapeID, Vec3Arg
 		v = transform * v;
 }
 
-inline uint8 HeightFieldShape::GetEdgeFlags(uint32 inX, uint32 inY, uint32 inTriangle) const
+inline uint8_t HeightFieldShape::GetEdgeFlags(uint32_t inX, uint32_t inY, uint32_t inTriangle) const
 {
 	MOSS_ASSERT(inX < mSampleCount - 1 && inY < mSampleCount - 1);
 
 	if (inTriangle == 0)
 	{
 		// The edge flags for this triangle are directly stored, find the right 3 bits
-		uint32 bit_pos = 3 * (inX + inY * (mSampleCount - 1));
-		uint32 byte_pos = bit_pos >> 3;
+		uint32_t bit_pos = 3 * (inX + inY * (mSampleCount - 1));
+		uint32_t byte_pos = bit_pos >> 3;
 		bit_pos &= 0b111;
 		MOSS_ASSERT(byte_pos + 1 < mActiveEdgesSize);
-		const uint8 *active_edges = mActiveEdges + byte_pos;
-		uint16 edge_flags = uint16(active_edges[0]) + uint16(uint16(active_edges[1]) << 8);
-		return uint8(edge_flags >> bit_pos) & 0b111;
+		const uint8_t *active_edges = mActiveEdges + byte_pos;
+		uint16_t edge_flags = uint16_t(active_edges[0]) + uint16_t(uint16_t(active_edges[1]) << 8);
+		return uint8_t(edge_flags >> bit_pos) & 0b111;
 	}
 	else
 	{
 		// We don't store this triangle directly, we need to look at our three neighbours to construct the edge flags
-		uint8 edge0 = (GetEdgeFlags(inX, inY, 0) & 0b100) != 0? 0b001 : 0; // Diagonal edge
-		uint8 edge1 = inX == mSampleCount - 2 || (GetEdgeFlags(inX + 1, inY, 0) & 0b001) != 0? 0b010 : 0; // Vertical edge
-		uint8 edge2 = inY == 0 || (GetEdgeFlags(inX, inY - 1, 0) & 0b010) != 0? 0b100 : 0; // Horizontal edge
+		uint8_t edge0 = (GetEdgeFlags(inX, inY, 0) & 0b100) != 0? 0b001 : 0; // Diagonal edge
+		uint8_t edge1 = inX == mSampleCount - 2 || (GetEdgeFlags(inX + 1, inY, 0) & 0b001) != 0? 0b010 : 0; // Vertical edge
+		uint8_t edge2 = inY == 0 || (GetEdgeFlags(inX, inY - 1, 0) & 0b010) != 0? 0b100 : 0; // Horizontal edge
 		return edge0 | edge1 | edge2;
 	}
 }
@@ -7456,16 +7456,16 @@ void HeightFieldShape::Draw(DebugRenderer *inRenderer, RMat44Arg inCenterOfMassT
 	if (mGeometry.empty())
 	{
 		// Divide terrain in triangle batches of max 64x64x2 triangles to allow better culling of the terrain
-		uint32 block_size = min<uint32>(mSampleCount, 64);
-		for (uint32 by = 0; by < mSampleCount; by += block_size)
-			for (uint32 bx = 0; bx < mSampleCount; bx += block_size)
+		uint32_t block_size = min<uint32_t>(mSampleCount, 64);
+		for (uint32_t by = 0; by < mSampleCount; by += block_size)
+			for (uint32_t bx = 0; bx < mSampleCount; bx += block_size)
 			{
 				// Create vertices for a block
 				TArray<DebugRenderer::Triangle> triangles;
 				triangles.resize(block_size * block_size * 2);
 				DebugRenderer::Triangle *out_tri = &triangles[0];
-				for (uint32 y = by, max_y = min(by + block_size, mSampleCount - 1); y < max_y; ++y)
-					for (uint32 x = bx, max_x = min(bx + block_size, mSampleCount - 1); x < max_x; ++x)
+				for (uint32_t y = by, max_y = min(by + block_size, mSampleCount - 1); y < max_y; ++y)
+					for (uint32_t x = bx, max_x = min(bx + block_size, mSampleCount - 1); x < max_x; ++x)
 						if (!IsNoCollision(x, y) && !IsNoCollision(x + 1, y + 1))
 						{
 							Vec3 x1y1 = GetPosition(x, y);
@@ -7561,14 +7561,14 @@ void HeightFieldShape::Draw(DebugRenderer *inRenderer, RMat44Arg inCenterOfMassT
 				return CountAndSortTrues(valid, ioProperties);
 			}
 
-			MOSS_INLINE void			VisitTriangle(uint32 inX, uint32 inY, uint32 inTriangle, Vec3Arg inV0, Vec3Arg inV1, Vec3Arg inV2) const
+			MOSS_INLINE void			VisitTriangle(uint32_t inX, uint32_t inY, uint32_t inTriangle, Vec3Arg inV0, Vec3Arg inV1, Vec3Arg inV2) const
 			{
 				// Determine active edges
-				uint8 active_edges = mShape->GetEdgeFlags(inX, inY, inTriangle);
+				uint8_t active_edges = mShape->GetEdgeFlags(inX, inY, inTriangle);
 
 				// Loop through edges
 				Vec3 v[] = { inV0, inV1, inV2 };
-				for (uint32 edge_idx = 0; edge_idx < 3; ++edge_idx)
+				for (uint32_t edge_idx = 0; edge_idx < 3; ++edge_idx)
 				{
 					RVec3 v1 = mTransform * v[edge_idx];
 					RVec3 v2 = mTransform * v[(edge_idx + 1) % 3];
@@ -7616,19 +7616,19 @@ public:
 		MOSS_ASSERT(ioVisitor.VisitRangeBlock(Vec4::Replicate(-1.0e6f), Vec4::Replicate(1.0e6f), Vec4::Replicate(-1.0e6f), Vec4::Replicate(1.0e6f), Vec4::Replicate(-1.0e6f), Vec4::Replicate(1.0e6f), dummy, 0) == 0);
 
 		// Precalculate values relating to sample count
-		uint32 sample_count = mShape->mSampleCount;
+		uint32_t sample_count = mShape->mSampleCount;
 		UVec4 sample_count_min_1 = UVec4::Replicate(sample_count - 1);
 
 		// Precalculate values relating to block size
-		uint32 block_size = mShape->mBlockSize;
-		uint32 block_size_plus_1 = block_size + 1;
-		uint32 num_blocks = mShape->GetNumBlocks();
-		uint32 num_blocks_min_1 = num_blocks - 1;
-		uint32 max_level = HeightFieldShape::GetMaxLevel(num_blocks);
-		uint32 max_stride = (num_blocks + 1) >> 1;
+		uint32_t block_size = mShape->mBlockSize;
+		uint32_t block_size_plus_1 = block_size + 1;
+		uint32_t num_blocks = mShape->GetNumBlocks();
+		uint32_t num_blocks_min_1 = num_blocks - 1;
+		uint32_t max_level = HeightFieldShape::GetMaxLevel(num_blocks);
+		uint32_t max_stride = (num_blocks + 1) >> 1;
 
 		// Precalculate range block offset and stride for GetBlockOffsetAndScale
-		uint32 range_block_offset, range_block_stride;
+		uint32_t range_block_offset, range_block_stride;
 		sGetRangeBlockOffsetAndStride(num_blocks, max_level, range_block_offset, range_block_stride);
 
 		// Allocate space for vertices and 'no collision' flags
@@ -7649,27 +7649,27 @@ public:
 		do
 		{
 			// Decode properties
-			uint32 properties_top = mPropertiesStack[mTop];
-			uint32 x = properties_top & cMaskBitsXY;
-			uint32 y = (properties_top >> cNumBitsXY) & cMaskBitsXY;
-			uint32 level = properties_top >> cLevelShift;
+			uint32_t properties_top = mPropertiesStack[mTop];
+			uint32_t x = properties_top & cMaskBitsXY;
+			uint32_t y = (properties_top >> cNumBitsXY) & cMaskBitsXY;
+			uint32_t level = properties_top >> cLevelShift;
 
 			if (level >= max_level)
 			{
 				// Determine actual range of samples (minus one because we eventually want to iterate over the triangles, not the samples)
-				uint32 min_x = x * block_size;
-				uint32 max_x = min_x + block_size;
-				uint32 min_y = y * block_size;
-				uint32 max_y = min_y + block_size;
+				uint32_t min_x = x * block_size;
+				uint32_t max_x = min_x + block_size;
+				uint32_t min_y = y * block_size;
+				uint32_t max_y = min_y + block_size;
 
 				// Decompress vertices of block at (x, y)
 				Vec3 *dst_vertex = vertices;
 				bool *dst_no_collision = no_collision;
 				float block_offset, block_scale;
 				mShape->GetBlockOffsetAndScale(x, y, range_block_offset, range_block_stride, block_offset, block_scale);
-				for (uint32 v_y = min_y; v_y < max_y; ++v_y)
+				for (uint32_t v_y = min_y; v_y < max_y; ++v_y)
 				{
-					for (uint32 v_x = min_x; v_x < max_x; ++v_x)
+					for (uint32_t v_x = min_x; v_x < max_x; ++v_x)
 					{
 						*dst_vertex = mShape->GetPosition(v_x, v_y, block_offset, block_scale, *dst_no_collision);
 						++dst_vertex;
@@ -7682,13 +7682,13 @@ public:
 				}
 
 				// Decompress block (x + 1, y)
-				uint32 max_x_decrement = 0;
+				uint32_t max_x_decrement = 0;
 				if (x < num_blocks_min_1)
 				{
 					dst_vertex = vertices + block_size;
 					dst_no_collision = no_collision + block_size;
 					mShape->GetBlockOffsetAndScale(x + 1, y, range_block_offset, range_block_stride, block_offset, block_scale);
-					for (uint32 v_y = min_y; v_y < max_y; ++v_y)
+					for (uint32_t v_y = min_y; v_y < max_y; ++v_y)
 					{
 						*dst_vertex = mShape->GetPosition(max_x, v_y, block_offset, block_scale, *dst_no_collision);
 						dst_vertex += block_size_plus_1;
@@ -7701,11 +7701,11 @@ public:
 				// Decompress block (x, y + 1)
 				if (y < num_blocks_min_1)
 				{
-					uint32 start = block_size * block_size_plus_1;
+					uint32_t start = block_size * block_size_plus_1;
 					dst_vertex = vertices + start;
 					dst_no_collision = no_collision + start;
 					mShape->GetBlockOffsetAndScale(x, y + 1, range_block_offset, range_block_stride, block_offset, block_scale);
-					for (uint32 v_x = min_x; v_x < max_x; ++v_x)
+					for (uint32_t v_x = min_x; v_x < max_x; ++v_x)
 					{
 						*dst_vertex = mShape->GetPosition(v_x, max_y, block_offset, block_scale, *dst_no_collision);
 						++dst_vertex;
@@ -7728,11 +7728,11 @@ public:
 				// We're going to divide the vertices in 4 blocks to do one more runtime sub-division, calculate the ranges of those blocks
 				struct Range
 				{
-					uint32 mMinX, mMinY, mNumTrianglesX, mNumTrianglesY;
+					uint32_t mMinX, mMinY, mNumTrianglesX, mNumTrianglesY;
 				};
-				uint32 half_block_size = block_size >> 1;
-				uint32 block_size_x = max_x - min_x - half_block_size;
-				uint32 block_size_y = max_y - min_y - half_block_size;
+				uint32_t half_block_size = block_size >> 1;
+				uint32_t block_size_x = max_x - min_x - half_block_size;
+				uint32_t block_size_y = max_y - min_y - half_block_size;
 				Range ranges[] =
 				{
 					{ 0, 0,									half_block_size, half_block_size },
@@ -7747,23 +7747,23 @@ public:
 				{
 					// Get the range for this block
 					const Range &range = ranges[block];
-					uint32 start = range.mMinX + range.mMinY * block_size_plus_1;
-					uint32 size_x_plus_1 = range.mNumTrianglesX + 1;
-					uint32 size_y_plus_1 = range.mNumTrianglesY + 1;
+					uint32_t start = range.mMinX + range.mMinY * block_size_plus_1;
+					uint32_t size_x_plus_1 = range.mNumTrianglesX + 1;
+					uint32_t size_y_plus_1 = range.mNumTrianglesY + 1;
 
 					// Calculate where to start reading
 					const Vec3 *src_vertex = vertices + start;
 					const bool *src_no_collision = no_collision + start;
-					uint32 stride = block_size_plus_1 - size_x_plus_1;
+					uint32_t stride = block_size_plus_1 - size_x_plus_1;
 
 					// Start range with a very large inside-out box
 					Vec3 value_min = Vec3::Replicate(cLargeFloat);
 					Vec3 value_max = Vec3::Replicate(-cLargeFloat);
 
 					// Loop over the samples to determine the min and max of this block
-					for (uint32 block_y = 0; block_y < size_y_plus_1; ++block_y)
+					for (uint32_t block_y = 0; block_y < size_y_plus_1; ++block_y)
 					{
-						for (uint32 block_x = 0; block_x < size_x_plus_1; ++block_x)
+						for (uint32_t block_x = 0; block_x < size_x_plus_1; ++block_x)
 						{
 							if (!*src_no_collision)
 							{
@@ -7805,16 +7805,16 @@ public:
 				while (result >= 0)
 				{
 					// Calculate the min and max of this block
-					uint32 block = colliding_blocks[result];
+					uint32_t block = colliding_blocks[result];
 					const Range &range = ranges[block];
-					uint32 block_min_x = min_x + range.mMinX;
-					uint32 block_max_x = block_min_x + range.mNumTrianglesX;
-					uint32 block_min_y = min_y + range.mMinY;
-					uint32 block_max_y = block_min_y + range.mNumTrianglesY;
+					uint32_t block_min_x = min_x + range.mMinX;
+					uint32_t block_max_x = block_min_x + range.mNumTrianglesX;
+					uint32_t block_min_y = min_y + range.mMinY;
+					uint32_t block_max_y = block_min_y + range.mNumTrianglesY;
 
 					// Loop triangles
-					for (uint32 v_y = block_min_y; v_y < block_max_y; ++v_y)
-						for (uint32 v_x = block_min_x; v_x < block_max_x; ++v_x)
+					for (uint32_t v_y = block_min_y; v_y < block_max_y; ++v_y)
+						for (uint32_t v_x = block_min_x; v_x < block_max_x; ++v_x)
 						{
 							// Get first vertex
 							const int offset = (v_y - min_y) * block_size_plus_1 + (v_x - min_x);
@@ -7825,7 +7825,7 @@ public:
 							if (!start_no_collision[0] && !start_no_collision[block_size_plus_1 + 1])
 							{
 								// Loop 2 triangles
-								for (uint32 t = 0; t < 2; ++t)
+								for (uint32_t t = 0; t < 2; ++t)
 								{
 									// Determine triangle vertices
 									Vec3 v0, v1, v2;
@@ -7875,12 +7875,12 @@ public:
 			else
 			{
 				// Visit child grid
-				uint32 stride = min(1U << level, max_stride); // At the most detailed level we store a non-power of 2 number of blocks
-				uint32 offset = sGridOffsets[level] + stride * y + x;
+				uint32_t stride = min(1U << level, max_stride); // At the most detailed level we store a non-power of 2 number of blocks
+				uint32_t offset = sGridOffsets[level] + stride * y + x;
 
 				// Decode min/max height
 				MOSS_ASSERT(offset < mShape->mRangeBlocksSize);
-				UVec4 block = UVec4::LoadInt4Aligned(reinterpret_cast<const uint32 *>(&mShape->mRangeBlocks[offset]));
+				UVec4 block = UVec4::LoadInt4Aligned(reinterpret_cast<const uint32_t *>(&mShape->mRangeBlocks[offset]));
 				Vec4 bounds_miny = oy + sy * block.Expand4Uint16Lo().ToFloat();
 				Vec4 bounds_maxy = oy + sy * block.Expand4Uint16Hi().ToFloat();
 
@@ -7939,7 +7939,7 @@ public:
 private:
 	const HeightFieldShape *	mShape;
 	int							mTop = 0;
-	uint32						mPropertiesStack[cStackSize];
+	uint32_t						mPropertiesStack[cStackSize];
 };
 
 template <class Visitor>
@@ -7984,7 +7984,7 @@ bool HeightFieldShape::CastRay(const RayCast &inRay, const SubShapeIDCreator &in
 			return SortReverseAndStore(distance, mHit.mFraction, ioProperties, &mDistanceStack[inStackTop]);
 		}
 
-		MOSS_INLINE void			VisitTriangle(uint32 inX, uint32 inY, uint32 inTriangle, Vec3Arg inV0, Vec3Arg inV1, Vec3Arg inV2)
+		MOSS_INLINE void			VisitTriangle(uint32_t inX, uint32_t inY, uint32_t inTriangle, Vec3Arg inV0, Vec3Arg inV1, Vec3Arg inV2)
 		{
 			float fraction = RayTriangle(mRayOrigin, mRayDirection, inV0, inV1, inV2);
 			if (fraction < mHit.mFraction)
@@ -8052,7 +8052,7 @@ void HeightFieldShape::CastRay(const RayCast &inRay, const RayCastSettings &inRa
 			return SortReverseAndStore(distance, mCollector.GetEarlyOutFraction(), ioProperties, &mDistanceStack[inStackTop]);
 		}
 
-		MOSS_INLINE void			VisitTriangle(uint32 inX, uint32 inY, uint32 inTriangle, Vec3Arg inV0, Vec3Arg inV1, Vec3Arg inV2) const
+		MOSS_INLINE void			VisitTriangle(uint32_t inX, uint32_t inY, uint32_t inTriangle, Vec3Arg inV0, Vec3Arg inV1, Vec3Arg inV2) const
 		{
 			// Back facing check
 			if (mBackFaceMode == EBackFaceMode::IgnoreBackFaces && (inV2 - inV0).Cross(inV1 - inV0).Dot(mRayDirection) < 0)
@@ -8089,7 +8089,7 @@ void HeightFieldShape::CollidePoint(Vec3Arg inPoint, const SubShapeIDCreator &in
 	// A height field doesn't have volume, so we can't test insideness
 }
 
-void HeightFieldShape::CollideSoftBodyVertices(Mat44Arg inCenterOfMassTransform, Vec3Arg inScale, const CollideSoftBodyVertexIterator &inVertices, uint32 inNumVertices, int inCollidingShapeIndex) const
+void HeightFieldShape::CollideSoftBodyVertices(Mat44Arg inCenterOfMassTransform, Vec3Arg inScale, const CollideSoftBodyVertexIterator &inVertices, uint32_t inNumVertices, int inCollidingShapeIndex) const
 {
 	MOSS_PROFILE_FUNCTION();
 
@@ -8119,7 +8119,7 @@ void HeightFieldShape::CollideSoftBodyVertices(Mat44Arg inCenterOfMassTransform,
 			return SortReverseAndStore(dist_sq, mClosestDistanceSq, ioProperties, &mDistanceStack[inStackTop]);
 		}
 
-		MOSS_INLINE void	VisitTriangle([[maybe_unused]] uint32 inX, [[maybe_unused]] uint32 inY, [[maybe_unused]] uint32 inTriangle, Vec3Arg inV0, Vec3Arg inV1, Vec3Arg inV2)
+		MOSS_INLINE void	VisitTriangle([[maybe_unused]] uint32_t inX, [[maybe_unused]] uint32_t inY, [[maybe_unused]] uint32_t inTriangle, Vec3Arg inV0, Vec3Arg inV1, Vec3Arg inV2)
 		{
 			ProcessTriangle(inV0, inV1, inV2);
 		}
@@ -8175,13 +8175,13 @@ void HeightFieldShape::CastConvexVsHeightField(const ShapeCast &inShapeCast, con
 			return SortReverseAndStore(distance, mCollector.GetPositiveEarlyOutFraction(), ioProperties, &mDistanceStack[inStackTop]);
 		}
 
-		MOSS_INLINE void				VisitTriangle(uint32 inX, uint32 inY, uint32 inTriangle, Vec3Arg inV0, Vec3Arg inV1, Vec3Arg inV2)
+		MOSS_INLINE void				VisitTriangle(uint32_t inX, uint32_t inY, uint32_t inTriangle, Vec3Arg inV0, Vec3Arg inV1, Vec3Arg inV2)
 		{
 			// Create sub shape id for this part
 			SubShapeID triangle_sub_shape_id = mShape2->EncodeSubShapeID(mSubShapeIDCreator2, inX, inY, inTriangle);
 
 			// Determine active edges
-			uint8 active_edges = mShape2->GetEdgeFlags(inX, inY, inTriangle);
+			uint8_t active_edges = mShape2->GetEdgeFlags(inX, inY, inTriangle);
 
 			Cast(inV0, inV1, inV2, active_edges, triangle_sub_shape_id);
 		}
@@ -8243,13 +8243,13 @@ void HeightFieldShape::CastSphereVsHeightField(const ShapeCast &inShapeCast, con
 			return SortReverseAndStore(distance, mCollector.GetPositiveEarlyOutFraction(), ioProperties, &mDistanceStack[inStackTop]);
 		}
 
-		MOSS_INLINE void				VisitTriangle(uint32 inX, uint32 inY, uint32 inTriangle, Vec3Arg inV0, Vec3Arg inV1, Vec3Arg inV2)
+		MOSS_INLINE void				VisitTriangle(uint32_t inX, uint32_t inY, uint32_t inTriangle, Vec3Arg inV0, Vec3Arg inV1, Vec3Arg inV2)
 		{
 			// Create sub shape id for this part
 			SubShapeID triangle_sub_shape_id = mShape2->EncodeSubShapeID(mSubShapeIDCreator2, inX, inY, inTriangle);
 
 			// Determine active edges
-			uint8 active_edges = mShape2->GetEdgeFlags(inX, inY, inTriangle);
+			uint8_t active_edges = mShape2->GetEdgeFlags(inX, inY, inTriangle);
 
 			Cast(inV0, inV1, inV2, active_edges, triangle_sub_shape_id);
 		}
@@ -8307,7 +8307,7 @@ struct HeightFieldShape::HSGetTrianglesContext
 		return CountAndSortTrues(collides, ioProperties);
 	}
 
-	void	VisitTriangle(uint32 inX, uint32 inY, [[maybe_unused]] uint32 inTriangle, Vec3Arg inV0, Vec3Arg inV1, Vec3Arg inV2)
+	void	VisitTriangle(uint32_t inX, uint32_t inY, [[maybe_unused]] uint32_t inTriangle, Vec3Arg inV0, Vec3Arg inV1, Vec3Arg inV2)
 	{
 		// When the buffer is full and we cannot process the triangles, abort the height field walk. The next time GetTrianglesNext is called we will continue here.
 		if (mNumTrianglesFound + 1 > mMaxTrianglesRequested)
@@ -8422,13 +8422,13 @@ void HeightFieldShape::CollideConvexVsHeightField(const Shape *inShape1, const S
 			return CountAndSortTrues(collides, ioProperties);
 		}
 
-		MOSS_INLINE void				VisitTriangle(uint32 inX, uint32 inY, uint32 inTriangle, Vec3Arg inV0, Vec3Arg inV1, Vec3Arg inV2)
+		MOSS_INLINE void				VisitTriangle(uint32_t inX, uint32_t inY, uint32_t inTriangle, Vec3Arg inV0, Vec3Arg inV1, Vec3Arg inV2)
 		{
 			// Create ID for triangle
 			SubShapeID triangle_sub_shape_id = mShape2->EncodeSubShapeID(mSubShapeIDCreator2, inX, inY, inTriangle);
 
 			// Determine active edges
-			uint8 active_edges = mShape2->GetEdgeFlags(inX, inY, inTriangle);
+			uint8_t active_edges = mShape2->GetEdgeFlags(inX, inY, inTriangle);
 
 			Collide(inV0, inV1, inV2, active_edges, triangle_sub_shape_id);
 		}
@@ -8482,13 +8482,13 @@ void HeightFieldShape::CollideSphereVsHeightField(const Shape *inShape1, const S
 			return CountAndSortTrues(collides, ioProperties);
 		}
 
-		MOSS_INLINE void				VisitTriangle(uint32 inX, uint32 inY, uint32 inTriangle, Vec3Arg inV0, Vec3Arg inV1, Vec3Arg inV2)
+		MOSS_INLINE void				VisitTriangle(uint32_t inX, uint32_t inY, uint32_t inTriangle, Vec3Arg inV0, Vec3Arg inV1, Vec3Arg inV2)
 		{
 			// Create ID for triangle
 			SubShapeID triangle_sub_shape_id = mShape2->EncodeSubShapeID(mSubShapeIDCreator2, inX, inY, inTriangle);
 
 			// Determine active edges
-			uint8 active_edges = mShape2->GetEdgeFlags(inX, inY, inTriangle);
+			uint8_t active_edges = mShape2->GetEdgeFlags(inX, inY, inTriangle);
 
 			Collide(inV0, inV1, inV2, active_edges, triangle_sub_shape_id);
 		}
@@ -8562,7 +8562,7 @@ void HeightFieldShape::SaveMaterialState(PhysicsMaterialList &outMaterials) cons
 	outMaterials = mMaterials;
 }
 
-void HeightFieldShape::RestoreMaterialState(const PhysicsMaterialRefC *inMaterials, uint32 inNumMaterials)
+void HeightFieldShape::RestoreMaterialState(const PhysicsMaterialRefC *inMaterials, uint32_t inNumMaterials)
 {
 	mMaterials.assign(inMaterials, inMaterials + inNumMaterials);
 }
@@ -8573,9 +8573,9 @@ Shape::Stats HeightFieldShape::GetStats() const
 		sizeof(*this)
 			+ mMaterials.size() * sizeof(Ref<PhysicsMaterial>)
 			+ mRangeBlocksSize * sizeof(RangeBlock)
-			+ mHeightSamplesSize * sizeof(uint8)
-			+ mActiveEdgesSize * sizeof(uint8)
-			+ mMaterialIndices.size() * sizeof(uint8),
+			+ mHeightSamplesSize * sizeof(uint8_t)
+			+ mActiveEdgesSize * sizeof(uint8_t)
+			+ mMaterialIndices.size() * sizeof(uint8_t),
 		mHeightSamplesSize == 0? 0 : Square(mSampleCount - 1) * 2);
 }
 
@@ -8681,10 +8681,10 @@ MeshShape::MeshShape(const MeshShapeSettings &inSettings, ShapeResult &outResult
 		else
 		{
 			// Check vertex indices
-			for (uint32 idx : triangle.mIdx)
+			for (uint32_t idx : triangle.mIdx)
 				if (idx >= inSettings.mTriangleVertices.size())
 				{
-					outResult.SetError(StringFormat("Vertex index %u is beyond vertex list (size: %u)", idx, (uint32)inSettings.mTriangleVertices.size()));
+					outResult.SetError(StringFormat("Vertex index %u is beyond vertex list (size: %u)", idx, (uint32_t)inSettings.mTriangleVertices.size()));
 					return;
 				}
 		}
@@ -8703,7 +8703,7 @@ MeshShape::MeshShape(const MeshShapeSettings &inSettings, ShapeResult &outResult
 		for (const IndexedTriangle &t : inSettings.mIndexedTriangles)
 			if (t.mMaterialIndex >= mMaterials.size())
 			{
-				outResult.SetError(StringFormat("Triangle material %u is beyond material list (size: %u)", t.mMaterialIndex, (uint32)mMaterials.size()));
+				outResult.SetError(StringFormat("Triangle material %u is beyond material list (size: %u)", t.mMaterialIndex, (uint32_t)mMaterials.size()));
 				return;
 			}
 	}
@@ -8797,9 +8797,9 @@ void MeshShape::FindActiveEdges(const MeshShapeSettings &inSettings, IndexedTria
 	{
 				Edge(int inIdx1, int inIdx2) : mIdx1(min(inIdx1, inIdx2)), mIdx2(max(inIdx1, inIdx2)) { }
 
-		uint32	GetIndexInTriangle(const IndexedTriangle &inTriangle) const
+		uint32_t	GetIndexInTriangle(const IndexedTriangle &inTriangle) const
 		{
-			for (uint32 edge_idx = 0; edge_idx < 3; ++edge_idx)
+			for (uint32_t edge_idx = 0; edge_idx < 3; ++edge_idx)
 			{
 				Edge edge(inTriangle.mIdx[edge_idx], inTriangle.mIdx[(edge_idx + 1) % 3]);
 				if (*this == edge)
@@ -8807,7 +8807,7 @@ void MeshShape::FindActiveEdges(const MeshShapeSettings &inSettings, IndexedTria
 			}
 
 			MOSS_ASSERT(false);
-			return ~uint32(0);
+			return ~uint32_t(0);
 		}
 
 		bool	operator == (const Edge &inRHS) const
@@ -8815,7 +8815,7 @@ void MeshShape::FindActiveEdges(const MeshShapeSettings &inSettings, IndexedTria
 			return mIdx1 == inRHS.mIdx1 && mIdx2 == inRHS.mIdx2;
 		}
 
-		uint64	GetHash() const
+		uint64_t	GetHash() const
 		{
 			static_assert(sizeof(*this) == 2 * sizeof(int), "No padding expected");
 			return HashBytes(this, sizeof(*this));
@@ -8828,18 +8828,18 @@ void MeshShape::FindActiveEdges(const MeshShapeSettings &inSettings, IndexedTria
 	// A struct to hold the triangles that are connected to an edge
 	struct TriangleIndices
 	{
-		uint32	mNumTriangles = 0;
-		uint32	mTriangleIndices[2];
+		uint32_t	mNumTriangles = 0;
+		uint32_t	mTriangleIndices[2];
 	};
 
 	// Build a list of edge to triangles
 	using EdgeToTriangle = TMap<Edge, TriangleIndices>;
 	EdgeToTriangle edge_to_triangle;
 	edge_to_triangle.reserve(EdgeToTriangle::size_type(ioIndices.size() * 3));
-	for (uint32 triangle_idx = 0; triangle_idx < ioIndices.size(); ++triangle_idx)
+	for (uint32_t triangle_idx = 0; triangle_idx < ioIndices.size(); ++triangle_idx)
 	{
 		IndexedTriangle &triangle = ioIndices[triangle_idx];
-		for (uint32 edge_idx = 0; edge_idx < 3; ++edge_idx)
+		for (uint32_t edge_idx = 0; edge_idx < 3; ++edge_idx)
 		{
 			Edge edge(triangle.mIdx[edge_idx], triangle.mIdx[(edge_idx + 1) % 3]);
 			EdgeToTriangle::iterator edge_to_triangle_it = edge_to_triangle.try_emplace(edge, TriangleIndices()).first;
@@ -8853,7 +8853,7 @@ void MeshShape::FindActiveEdges(const MeshShapeSettings &inSettings, IndexedTria
 			else
 			{
 				// 3 or more triangles share an edge, mark this edge as active
-				uint32 mask = 1 << (edge_idx + FLAGS_ACTIVE_EGDE_SHIFT);
+				uint32_t mask = 1 << (edge_idx + FLAGS_ACTIVE_EGDE_SHIFT);
 				MOSS_ASSERT((triangle.mMaterialIndex & mask) == 0);
 				triangle.mMaterialIndex |= mask;
 			}
@@ -8863,7 +8863,7 @@ void MeshShape::FindActiveEdges(const MeshShapeSettings &inSettings, IndexedTria
 	// Walk over all edges and determine which ones are active
 	for (const EdgeToTriangle::value_type &edge : edge_to_triangle)
 	{
-		uint32 num_active = 0;
+		uint32_t num_active = 0;
 		if (edge.second.mNumTriangles == 1)
 		{
 			// Edge is not shared, it is an active edge
@@ -8876,8 +8876,8 @@ void MeshShape::FindActiveEdges(const MeshShapeSettings &inSettings, IndexedTria
 			const IndexedTriangle &triangle2 = ioIndices[edge.second.mTriangleIndices[1]];
 
 			// Find which edge this is for both triangles
-			uint32 edge_idx1 = edge.first.GetIndexInTriangle(triangle1);
-			uint32 edge_idx2 = edge.first.GetIndexInTriangle(triangle2);
+			uint32_t edge_idx1 = edge.first.GetIndexInTriangle(triangle1);
+			uint32_t edge_idx2 = edge.first.GetIndexInTriangle(triangle2);
 
 			// Construct a plane for triangle 1 (e1 = edge vertex 1, e2 = edge vertex 2, op = opposing vertex)
 			Vec3 triangle1_e1 = Vec3(inSettings.mTriangleVertices[triangle1.mIdx[edge_idx1]]);
@@ -8901,12 +8901,12 @@ void MeshShape::FindActiveEdges(const MeshShapeSettings &inSettings, IndexedTria
 		}
 
 		// Mark edges of all original triangles active
-		for (uint32 i = 0; i < num_active; ++i)
+		for (uint32_t i = 0; i < num_active; ++i)
 		{
-			uint32 triangle_idx = edge.second.mTriangleIndices[i];
+			uint32_t triangle_idx = edge.second.mTriangleIndices[i];
 			IndexedTriangle &triangle = ioIndices[triangle_idx];
-			uint32 edge_idx = edge.first.GetIndexInTriangle(triangle);
-			uint32 mask = 1 << (edge_idx + FLAGS_ACTIVE_EGDE_SHIFT);
+			uint32_t edge_idx = edge.first.GetIndexInTriangle(triangle);
+			uint32_t mask = 1 << (edge_idx + FLAGS_ACTIVE_EGDE_SHIFT);
 			MOSS_ASSERT((triangle.mMaterialIndex & mask) == 0);
 			triangle.mMaterialIndex |= mask;
 		}
@@ -8927,11 +8927,11 @@ MassProperties MeshShape::GetMassProperties() const
 	return MassProperties();
 }
 
-void MeshShape::DecodeSubShapeID(const SubShapeID &inSubShapeID, const void *&outTriangleBlock, uint32 &outTriangleIndex) const
+void MeshShape::DecodeSubShapeID(const SubShapeID &inSubShapeID, const void *&outTriangleBlock, uint32_t &outTriangleIndex) const
 {
 	// Get block
 	SubShapeID triangle_idx_subshape_id;
-	uint32 block_id = inSubShapeID.PopID(NodeCodec::DecodingContext::TriangleBlockIDBits(sGetNodeHeader(mTree)), triangle_idx_subshape_id);
+	uint32_t block_id = inSubShapeID.PopID(NodeCodec::DecodingContext::TriangleBlockIDBits(sGetNodeHeader(mTree)), triangle_idx_subshape_id);
 	outTriangleBlock = NodeCodec::DecodingContext::GetTriangleBlockStart(&mTree[0], block_id);
 
 	// Fetch the triangle index
@@ -8940,15 +8940,15 @@ void MeshShape::DecodeSubShapeID(const SubShapeID &inSubShapeID, const void *&ou
 	MOSS_ASSERT(remainder.IsEmpty(), "Invalid subshape ID");
 }
 
-uint32 MeshShape::GetMaterialIndex(const SubShapeID &inSubShapeID) const
+uint32_t MeshShape::GetMaterialIndex(const SubShapeID &inSubShapeID) const
 {
 	// Decode ID
 	const void *block_start;
-	uint32 triangle_idx;
+	uint32_t triangle_idx;
 	DecodeSubShapeID(inSubShapeID, block_start, triangle_idx);
 
 	// Fetch the flags
-	uint8 flags = TriangleCodec::DecodingContext::GetFlags(block_start, triangle_idx);
+	uint8_t flags = TriangleCodec::DecodingContext::GetFlags(block_start, triangle_idx);
 	return flags & FLAGS_MATERIAL_MASK;
 }
 
@@ -8965,7 +8965,7 @@ Vec3 MeshShape::GetSurfaceNormal(const SubShapeID &inSubShapeID, Vec3Arg inLocal
 {
 	// Decode ID
 	const void *block_start;
-	uint32 triangle_idx;
+	uint32_t triangle_idx;
 	DecodeSubShapeID(inSubShapeID, block_start, triangle_idx);
 
 	// Decode triangle
@@ -8981,7 +8981,7 @@ void MeshShape::GetSupportingFace(const SubShapeID &inSubShapeID, Vec3Arg inDire
 {
 	// Decode ID
 	const void *block_start;
-	uint32 triangle_idx;
+	uint32_t triangle_idx;
 	DecodeSubShapeID(inSubShapeID, block_start, triangle_idx);
 
 	// Decode triangle
@@ -9007,7 +9007,7 @@ AABox MeshShape::GetLocalBounds() const
 	return AABox(Vec3::LoadFloat3Unsafe(header->mRootBoundsMin), Vec3::LoadFloat3Unsafe(header->mRootBoundsMax));
 }
 
-uint32 MeshShape::GetSubShapeIDBitsRecursive() const
+uint32_t MeshShape::GetSubShapeIDBitsRecursive() const
 {
 	return NodeCodec::DecodingContext::TriangleBlockIDBits(sGetNodeHeader(mTree)) + NumTriangleBits;
 }
@@ -9019,7 +9019,7 @@ MOSS_INLINE void MeshShape::WalkTree(Visitor &ioVisitor) const
 	NodeCodec::DecodingContext node_ctx(header);
 
 	const TriangleCodec::DecodingContext triangle_ctx(sGetTriangleHeader(mTree));
-	const uint8 *buffer_start = &mTree[0];
+	const uint8_t *buffer_start = &mTree[0];
 	node_ctx.WalkTree(buffer_start, triangle_ctx, ioVisitor);
 }
 
@@ -9028,7 +9028,7 @@ MOSS_INLINE void MeshShape::WalkTreePerTriangle(const SubShapeIDCreator &inSubSh
 {
 	struct ChainedVisitor
 	{
-		MOSS_INLINE			ChainedVisitor(Visitor &ioVisitor, const SubShapeIDCreator &inSubShapeIDCreator2, uint32 inTriangleBlockIDBits) :
+		MOSS_INLINE			ChainedVisitor(Visitor &ioVisitor, const SubShapeIDCreator &inSubShapeIDCreator2, uint32_t inTriangleBlockIDBits) :
 			mVisitor(ioVisitor),
 			mSubShapeIDCreator2(inSubShapeIDCreator2),
 			mTriangleBlockIDBits(inTriangleBlockIDBits)
@@ -9050,7 +9050,7 @@ MOSS_INLINE void MeshShape::WalkTreePerTriangle(const SubShapeIDCreator &inSubSh
 			return mVisitor.VisitNodes(inBoundsMinX, inBoundsMinY, inBoundsMinZ, inBoundsMaxX, inBoundsMaxY, inBoundsMaxZ, ioProperties, inStackTop);
 		}
 
-		MOSS_INLINE void		VisitTriangles(const TriangleCodec::DecodingContext &ioContext, const void *inTriangles, int inNumTriangles, uint32 inTriangleBlockID)
+		MOSS_INLINE void		VisitTriangles(const TriangleCodec::DecodingContext &ioContext, const void *inTriangles, int inNumTriangles, uint32_t inTriangleBlockID)
 		{
 			// Create ID for triangle block
 			SubShapeIDCreator block_sub_shape_id = mSubShapeIDCreator2.PushID(inTriangleBlockID, mTriangleBlockIDBits);
@@ -9058,14 +9058,14 @@ MOSS_INLINE void MeshShape::WalkTreePerTriangle(const SubShapeIDCreator &inSubSh
 			// Decode vertices and flags
 			MOSS_ASSERT(inNumTriangles <= MaxTrianglesPerLeaf);
 			Vec3 vertices[MaxTrianglesPerLeaf * 3];
-			uint8 flags[MaxTrianglesPerLeaf];
+			uint8_t flags[MaxTrianglesPerLeaf];
 			ioContext.Unpack(inTriangles, inNumTriangles, vertices, flags);
 
 			int triangle_idx = 0;
 			for (const Vec3 *v = vertices, *v_end = vertices + inNumTriangles * 3; v < v_end; v += 3, triangle_idx++)
 			{
 				// Determine active edges
-				uint8 active_edges = (flags[triangle_idx] >> FLAGS_ACTIVE_EGDE_SHIFT) & FLAGS_ACTIVE_EDGE_MASK;
+				uint8_t active_edges = (flags[triangle_idx] >> FLAGS_ACTIVE_EGDE_SHIFT) & FLAGS_ACTIVE_EDGE_MASK;
 
 				// Create ID for triangle
 				SubShapeIDCreator triangle_sub_shape_id = block_sub_shape_id.PushID(triangle_idx, NumTriangleBits);
@@ -9080,7 +9080,7 @@ MOSS_INLINE void MeshShape::WalkTreePerTriangle(const SubShapeIDCreator &inSubSh
 
 		Visitor &			mVisitor;
 		SubShapeIDCreator	mSubShapeIDCreator2;
-		uint32				mTriangleBlockIDBits;
+		uint32_t				mTriangleBlockIDBits;
 	};
 
 	ChainedVisitor visitor(ioVisitor, inSubShapeIDCreator2, NodeCodec::DecodingContext::TriangleBlockIDBits(sGetNodeHeader(mTree)));
@@ -9118,7 +9118,7 @@ void MeshShape::Draw(DebugRenderer *inRenderer, RMat44Arg inCenterOfMassTransfor
 				return CountAndSortTrues(valid, ioProperties);
 			}
 
-			MOSS_INLINE void		VisitTriangles(const TriangleCodec::DecodingContext &ioContext, const void *inTriangles, int inNumTriangles, [[maybe_unused]] uint32 inTriangleBlockID)
+			MOSS_INLINE void		VisitTriangles(const TriangleCodec::DecodingContext &ioContext, const void *inTriangles, int inNumTriangles, [[maybe_unused]] uint32_t inTriangleBlockID)
 			{
 				MOSS_ASSERT(inNumTriangles <= MaxTrianglesPerLeaf);
 				Vec3 vertices[MaxTrianglesPerLeaf * 3];
@@ -9134,10 +9134,10 @@ void MeshShape::Draw(DebugRenderer *inRenderer, RMat44Arg inCenterOfMassTransfor
 				else
 				{
 					// Per triangle color
-					uint8 flags[MaxTrianglesPerLeaf];
+					uint8_t flags[MaxTrianglesPerLeaf];
 					TriangleCodec::DecodingContext::GetFlags(inTriangles, inNumTriangles, flags);
 
-					const uint8 *f = flags;
+					const uint8_t *f = flags;
 					for (const Vec3 *v = vertices, *v_end = vertices + inNumTriangles * 3; v < v_end; v += 3, f++)
 						mTriangles.push_back({ v[0], v[1], v[2], mMaterials[*f & FLAGS_MATERIAL_MASK]->GetDebugColor() });
 				}
@@ -9185,20 +9185,20 @@ void MeshShape::Draw(DebugRenderer *inRenderer, RMat44Arg inCenterOfMassTransfor
 				return CountAndSortTrues(valid, ioProperties);
 			}
 
-			MOSS_INLINE void		VisitTriangles(const TriangleCodec::DecodingContext &ioContext, const void *inTriangles, int inNumTriangles, uint32 inTriangleBlockID)
+			MOSS_INLINE void		VisitTriangles(const TriangleCodec::DecodingContext &ioContext, const void *inTriangles, int inNumTriangles, uint32_t inTriangleBlockID)
 			{
 				// Decode vertices and flags
 				MOSS_ASSERT(inNumTriangles <= MaxTrianglesPerLeaf);
 				Vec3 vertices[MaxTrianglesPerLeaf * 3];
-				uint8 flags[MaxTrianglesPerLeaf];
+				uint8_t flags[MaxTrianglesPerLeaf];
 				ioContext.Unpack(inTriangles, inNumTriangles, vertices, flags);
 
 				// Loop through triangles
-				const uint8 *f = flags;
+				const uint8_t *f = flags;
 				for (Vec3 *v = vertices, *v_end = vertices + inNumTriangles * 3; v < v_end; v += 3, ++f)
 				{
 					// Loop through edges
-					for (uint32 edge_idx = 0; edge_idx < 3; ++edge_idx)
+					for (uint32_t edge_idx = 0; edge_idx < 3; ++edge_idx)
 					{
 						RVec3 v1 = mTransform * v[edge_idx];
 						RVec3 v2 = mTransform * v[(edge_idx + 1) % 3];
@@ -9252,10 +9252,10 @@ bool MeshShape::CastRay(const RayCast &inRay, const SubShapeIDCreator &inSubShap
 			return SortReverseAndStore(distance, mHit.mFraction, ioProperties, &mDistanceStack[inStackTop]);
 		}
 
-		MOSS_INLINE void		VisitTriangles(const TriangleCodec::DecodingContext &ioContext, const void *inTriangles, int inNumTriangles, uint32 inTriangleBlockID)
+		MOSS_INLINE void		VisitTriangles(const TriangleCodec::DecodingContext &ioContext, const void *inTriangles, int inNumTriangles, uint32_t inTriangleBlockID)
 		{
 			// Test against triangles
-			uint32 triangle_idx;
+			uint32_t triangle_idx;
 			float fraction = ioContext.TestRay(mRayOrigin, mRayDirection, inTriangles, inNumTriangles, mHit.mFraction, triangle_idx);
 			if (fraction < mHit.mFraction)
 			{
@@ -9269,7 +9269,7 @@ bool MeshShape::CastRay(const RayCast &inRay, const SubShapeIDCreator &inSubShap
 		Vec3				mRayOrigin;
 		Vec3				mRayDirection;
 		RayInvDirection		mRayInvDirection;
-		uint32				mTriangleBlockIDBits;
+		uint32_t				mTriangleBlockIDBits;
 		SubShapeIDCreator	mSubShapeIDCreator;
 		bool				mReturnValue = false;
 		float				mDistanceStack[NodeCodec::StackSize];
@@ -9320,7 +9320,7 @@ void MeshShape::CastRay(const RayCast &inRay, const RayCastSettings &inRayCastSe
 			return SortReverseAndStore(distance, mCollector.GetEarlyOutFraction(), ioProperties, &mDistanceStack[inStackTop]);
 		}
 
-		MOSS_INLINE void		VisitTriangle(Vec3Arg inV0, Vec3Arg inV1, Vec3Arg inV2, [[maybe_unused]] uint8 inActiveEdges, SubShapeID inSubShapeID2)
+		MOSS_INLINE void		VisitTriangle(Vec3Arg inV0, Vec3Arg inV1, Vec3Arg inV2, [[maybe_unused]] uint8_t inActiveEdges, SubShapeID inSubShapeID2)
 		{
 			// Back facing check
 			if (mBackFaceMode == EBackFaceMode::IgnoreBackFaces && (inV2 - inV0).Cross(inV1 - inV0).Dot(mRayDirection) < 0)
@@ -9359,7 +9359,7 @@ void MeshShape::CollidePoint(Vec3Arg inPoint, const SubShapeIDCreator &inSubShap
 	sCollidePointUsingRayCast(*this, inPoint, inSubShapeIDCreator, ioCollector, inShapeFilter);
 }
 
-void MeshShape::CollideSoftBodyVertices(Mat44Arg inCenterOfMassTransform, Vec3Arg inScale, const CollideSoftBodyVertexIterator &inVertices, uint32 inNumVertices, int inCollidingShapeIndex) const
+void MeshShape::CollideSoftBodyVertices(Mat44Arg inCenterOfMassTransform, Vec3Arg inScale, const CollideSoftBodyVertexIterator &inVertices, uint32_t inNumVertices, int inCollidingShapeIndex) const
 {
 	MOSS_PROFILE_FUNCTION();
 
@@ -9386,7 +9386,7 @@ void MeshShape::CollideSoftBodyVertices(Mat44Arg inCenterOfMassTransform, Vec3Ar
 			return SortReverseAndStore(dist_sq, mClosestDistanceSq, ioProperties, &mDistanceStack[inStackTop]);
 		}
 
-		MOSS_INLINE void	VisitTriangle(Vec3Arg inV0, Vec3Arg inV1, Vec3Arg inV2, [[maybe_unused]] uint8 inActiveEdges, [[maybe_unused]] SubShapeID inSubShapeID2)
+		MOSS_INLINE void	VisitTriangle(Vec3Arg inV0, Vec3Arg inV1, Vec3Arg inV2, [[maybe_unused]] uint8_t inActiveEdges, [[maybe_unused]] SubShapeID inSubShapeID2)
 		{
 			ProcessTriangle(inV0, inV1, inV2);
 		}
@@ -9439,7 +9439,7 @@ void MeshShape::CastConvexVsMesh(const ShapeCast &inShapeCast, const ShapeCastSe
 			return SortReverseAndStore(distance, mCollector.GetPositiveEarlyOutFraction(), ioProperties, &mDistanceStack[inStackTop]);
 		}
 
-		MOSS_INLINE void		VisitTriangle(Vec3Arg inV0, Vec3Arg inV1, Vec3Arg inV2, uint8 inActiveEdges, SubShapeID inSubShapeID2)
+		MOSS_INLINE void		VisitTriangle(Vec3Arg inV0, Vec3Arg inV1, Vec3Arg inV2, uint8_t inActiveEdges, SubShapeID inSubShapeID2)
 		{
 			Cast(inV0, inV1, inV2, inActiveEdges, inSubShapeID2);
 		}
@@ -9494,7 +9494,7 @@ void MeshShape::CastSphereVsMesh(const ShapeCast &inShapeCast, const ShapeCastSe
 			return SortReverseAndStore(distance, mCollector.GetPositiveEarlyOutFraction(), ioProperties, &mDistanceStack[inStackTop]);
 		}
 
-		MOSS_INLINE void		VisitTriangle(Vec3Arg inV0, Vec3Arg inV1, Vec3Arg inV2, uint8 inActiveEdges, SubShapeID inSubShapeID2)
+		MOSS_INLINE void		VisitTriangle(Vec3Arg inV0, Vec3Arg inV1, Vec3Arg inV2, uint8_t inActiveEdges, SubShapeID inSubShapeID2)
 		{
 			Cast(inV0, inV1, inV2, inActiveEdges, inSubShapeID2);
 		}
@@ -9544,7 +9544,7 @@ struct MeshShape::MSGetTrianglesContext
 		return CountAndSortTrues(collides, ioProperties);
 	}
 
-	MOSS_INLINE void	VisitTriangles(const TriangleCodec::DecodingContext &ioContext, const void *inTriangles, int inNumTriangles, [[maybe_unused]] uint32 inTriangleBlockID)
+	MOSS_INLINE void	VisitTriangles(const TriangleCodec::DecodingContext &ioContext, const void *inTriangles, int inNumTriangles, [[maybe_unused]] uint32_t inTriangleBlockID)
 	{
 		// When the buffer is full and we cannot process the triangles, abort the tree walk. The next time GetTrianglesNext is called we will continue here.
 		if (mNumTrianglesFound + inNumTriangles > mMaxTrianglesRequested)
@@ -9588,11 +9588,11 @@ struct MeshShape::MSGetTrianglesContext
 			else
 			{
 				// Decode triangle flags
-				uint8 flags[MaxTrianglesPerLeaf];
+				uint8_t flags[MaxTrianglesPerLeaf];
 				TriangleCodec::DecodingContext::GetFlags(inTriangles, inNumTriangles, flags);
 
 				// Store materials
-				for (const uint8 *f = flags, *f_end = f + inNumTriangles; f < f_end; ++f)
+				for (const uint8_t *f = flags, *f_end = f + inNumTriangles; f < f_end; ++f)
 					*mMaterials++ = mShape->mMaterials[*f & FLAGS_MATERIAL_MASK].GetPtr();
 			}
 		}
@@ -9641,7 +9641,7 @@ int MeshShape::GetTrianglesNext(GetTrianglesContext &ioContext, int inMaxTriangl
 
 	// Continue (or start) walking the tree
 	const TriangleCodec::DecodingContext triangle_ctx(sGetTriangleHeader(mTree));
-	const uint8 *buffer_start = &mTree[0];
+	const uint8_t *buffer_start = &mTree[0];
 	context.mDecodeCtx.WalkTree(buffer_start, triangle_ctx, context);
 	return context.mNumTrianglesFound;
 }
@@ -9681,7 +9681,7 @@ void MeshShape::CollideConvexVsMesh(const Shape *inShape1, const Shape *inShape2
 			return CountAndSortTrues(collides, ioProperties);
 		}
 
-		MOSS_INLINE void	VisitTriangle(Vec3Arg inV0, Vec3Arg inV1, Vec3Arg inV2, uint8 inActiveEdges, SubShapeID inSubShapeID2)
+		MOSS_INLINE void	VisitTriangle(Vec3Arg inV0, Vec3Arg inV1, Vec3Arg inV2, uint8_t inActiveEdges, SubShapeID inSubShapeID2)
 		{
 			Collide(inV0, inV1, inV2, inActiveEdges, inSubShapeID2);
 		}
@@ -9726,7 +9726,7 @@ void MeshShape::CollideSphereVsMesh(const Shape *inShape1, const Shape *inShape2
 			return CountAndSortTrues(collides, ioProperties);
 		}
 
-		MOSS_INLINE void	VisitTriangle(Vec3Arg inV0, Vec3Arg inV1, Vec3Arg inV2, uint8 inActiveEdges, SubShapeID inSubShapeID2)
+		MOSS_INLINE void	VisitTriangle(Vec3Arg inV0, Vec3Arg inV1, Vec3Arg inV2, uint8_t inActiveEdges, SubShapeID inSubShapeID2)
 		{
 			Collide(inV0, inV1, inV2, inActiveEdges, inSubShapeID2);
 		}
@@ -9755,7 +9755,7 @@ void MeshShape::SaveMaterialState(PhysicsMaterialList &outMaterials) const
 	outMaterials = mMaterials;
 }
 
-void MeshShape::RestoreMaterialState(const PhysicsMaterialRefC *inMaterials, uint32 inNumMaterials)
+void MeshShape::RestoreMaterialState(const PhysicsMaterialRefC *inMaterials, uint32_t inNumMaterials)
 {
 	mMaterials.assign(inMaterials, inMaterials + inNumMaterials);
 }
@@ -9782,25 +9782,25 @@ Shape::Stats MeshShape::GetStats() const
 			return CountAndSortTrues(valid, ioProperties);
 		}
 
-		MOSS_INLINE void		VisitTriangles([[maybe_unused]] const TriangleCodec::DecodingContext &ioContext, [[maybe_unused]] const void *inTriangles, int inNumTriangles, [[maybe_unused]] uint32 inTriangleBlockID)
+		MOSS_INLINE void		VisitTriangles([[maybe_unused]] const TriangleCodec::DecodingContext &ioContext, [[maybe_unused]] const void *inTriangles, int inNumTriangles, [[maybe_unused]] uint32_t inTriangleBlockID)
 		{
 			mNumTriangles += inNumTriangles;
 		}
 
-		uint32				mNumTriangles = 0;
+		uint32_t				mNumTriangles = 0;
 	};
 
 	Visitor visitor;
 	WalkTree(visitor);
 
-	return Stats(sizeof(*this) + mMaterials.size() * sizeof(Ref<PhysicsMaterial>) + mTree.size() * sizeof(uint8), visitor.mNumTriangles);
+	return Stats(sizeof(*this) + mMaterials.size() * sizeof(Ref<PhysicsMaterial>) + mTree.size() * sizeof(uint8_t), visitor.mNumTriangles);
 }
 
-uint32 MeshShape::GetTriangleUserData(const SubShapeID &inSubShapeID) const
+uint32_t MeshShape::GetTriangleUserData(const SubShapeID &inSubShapeID) const
 {
 	// Decode ID
 	const void *block_start;
-	uint32 triangle_idx;
+	uint32_t triangle_idx;
 	DecodeSubShapeID(inSubShapeID, block_start, triangle_idx);
 
 	// Decode triangle
@@ -9856,7 +9856,7 @@ MutableCompoundShape::MutableCompoundShape(const MutableCompoundShapeSettings &i
 
 	AdjustCenterOfMass();
 
-	CalculateSubShapeBounds(0, (uint32)mSubShapes.size());
+	CalculateSubShapeBounds(0, (uint32_t)mSubShapes.size());
 
 	// Check if we're not exceeding the amount of sub shape id bits
 	if (GetSubShapeIDBitsRecursive() > SubShapeID::MaxBits)
@@ -9921,7 +9921,7 @@ void MutableCompoundShape::AdjustCenterOfMass()
 
 void MutableCompoundShape::CalculateLocalBounds()
 {
-	uint32 num_blocks = GetNumBlocks();
+	uint32_t num_blocks = GetNumBlocks();
 	if (num_blocks > 0)
 	{
 		// Initialize min/max for first block
@@ -9966,26 +9966,26 @@ void MutableCompoundShape::CalculateLocalBounds()
 void MutableCompoundShape::EnsureSubShapeBoundsCapacity()
 {
 	// Check if we have enough space
-	uint32 new_capacity = ((uint32)mSubShapes.size() + 3) >> 2;
+	uint32_t new_capacity = ((uint32_t)mSubShapes.size() + 3) >> 2;
 	if (mSubShapeBounds.size() < new_capacity)
 		mSubShapeBounds.resize(new_capacity);
 }
 
-void MutableCompoundShape::CalculateSubShapeBounds(uint32 inStartIdx, uint32 inNumber)
+void MutableCompoundShape::CalculateSubShapeBounds(uint32_t inStartIdx, uint32_t inNumber)
 {
 	// Ensure that we have allocated the required space for mSubShapeBounds
 	EnsureSubShapeBoundsCapacity();
 
 	// Loop over blocks of 4 sub shapes
-	for (uint32 sub_shape_idx_start = inStartIdx & ~uint32(3), sub_shape_idx_end = inStartIdx + inNumber; sub_shape_idx_start < sub_shape_idx_end; sub_shape_idx_start += 4)
+	for (uint32_t sub_shape_idx_start = inStartIdx & ~uint32_t(3), sub_shape_idx_end = inStartIdx + inNumber; sub_shape_idx_start < sub_shape_idx_end; sub_shape_idx_start += 4)
 	{
 		Mat44 bounds_min;
 		Mat44 bounds_max;
 
 		AABox sub_shape_bounds;
-		for (uint32 col = 0; col < 4; ++col)
+		for (uint32_t col = 0; col < 4; ++col)
 		{
-			uint32 sub_shape_idx = sub_shape_idx_start + col;
+			uint32_t sub_shape_idx = sub_shape_idx_start + col;
 			if (sub_shape_idx < mSubShapes.size()) // else reuse sub_shape_bounds from previous iteration
 			{
 				const SubShape &sub_shape = mSubShapes[sub_shape_idx];
@@ -10019,7 +10019,7 @@ void MutableCompoundShape::CalculateSubShapeBounds(uint32 inStartIdx, uint32 inN
 	CalculateLocalBounds();
 }
 
-uint32 MutableCompoundShape::AddShape(Vec3Arg inPosition, QuatArg inRotation, const Shape *inShape, uint32 inUserData, uint32 inIndex)
+uint32_t MutableCompoundShape::AddShape(Vec3Arg inPosition, QuatArg inRotation, const Shape *inShape, uint32_t inUserData, uint32_t inIndex)
 {
 	SubShape sub_shape;
 	sub_shape.mShape = inShape;
@@ -10028,7 +10028,7 @@ uint32 MutableCompoundShape::AddShape(Vec3Arg inPosition, QuatArg inRotation, co
 
 	if (inIndex >= mSubShapes.size())
 	{
-		uint32 shape_idx = uint32(mSubShapes.size());
+		uint32_t shape_idx = uint32_t(mSubShapes.size());
 		mSubShapes.push_back(sub_shape);
 		CalculateSubShapeBounds(shape_idx, 1);
 		return shape_idx;
@@ -10036,23 +10036,23 @@ uint32 MutableCompoundShape::AddShape(Vec3Arg inPosition, QuatArg inRotation, co
 	else
 	{
 		mSubShapes.insert(mSubShapes.begin() + inIndex, sub_shape);
-		CalculateSubShapeBounds(inIndex, uint32(mSubShapes.size()) - inIndex);
+		CalculateSubShapeBounds(inIndex, uint32_t(mSubShapes.size()) - inIndex);
 		return inIndex;
 	}
 }
 
-void MutableCompoundShape::RemoveShape(uint32 inIndex)
+void MutableCompoundShape::RemoveShape(uint32_t inIndex)
 {
 	mSubShapes.erase(mSubShapes.begin() + inIndex);
 
 	// We always need to recalculate the bounds of the sub shapes as we test blocks
 	// of 4 sub shapes at a time and removed shapes get their bounds updated
 	// to repeat the bounds of the previous sub shape
-	uint32 num_bounds = (uint32)mSubShapes.size() - inIndex;
+	uint32_t num_bounds = (uint32_t)mSubShapes.size() - inIndex;
 	CalculateSubShapeBounds(inIndex, num_bounds);
 }
 
-void MutableCompoundShape::ModifyShape(uint32 inIndex, Vec3Arg inPosition, QuatArg inRotation)
+void MutableCompoundShape::ModifyShape(uint32_t inIndex, Vec3Arg inPosition, QuatArg inRotation)
 {
 	SubShape &sub_shape = mSubShapes[inIndex];
 	sub_shape.SetTransform(inPosition, inRotation, mCenterOfMass);
@@ -10060,7 +10060,7 @@ void MutableCompoundShape::ModifyShape(uint32 inIndex, Vec3Arg inPosition, QuatA
 	CalculateSubShapeBounds(inIndex, 1);
 }
 
-void MutableCompoundShape::ModifyShape(uint32 inIndex, Vec3Arg inPosition, QuatArg inRotation, const Shape *inShape)
+void MutableCompoundShape::ModifyShape(uint32_t inIndex, Vec3Arg inPosition, QuatArg inRotation, const Shape *inShape)
 {
 	SubShape &sub_shape = mSubShapes[inIndex];
 	sub_shape.mShape = inShape;
@@ -10069,7 +10069,7 @@ void MutableCompoundShape::ModifyShape(uint32 inIndex, Vec3Arg inPosition, QuatA
 	CalculateSubShapeBounds(inIndex, 1);
 }
 
-void MutableCompoundShape::ModifyShapes(uint32 inStartIndex, uint32 inNumber, const Vec3 *inPositions, const Quat *inRotations, uint32 inPositionStride, uint32 inRotationStride)
+void MutableCompoundShape::ModifyShapes(uint32_t inStartIndex, uint32_t inNumber, const Vec3 *inPositions, const Quat *inRotations, uint32_t inPositionStride, uint32_t inRotationStride)
 {
 	MOSS_ASSERT(inStartIndex + inNumber <= mSubShapes.size());
 
@@ -10081,8 +10081,8 @@ void MutableCompoundShape::ModifyShapes(uint32 inStartIndex, uint32 inNumber, co
 		dest->SetTransform(*pos, *rot, mCenterOfMass);
 
 		// Advance pointer in position / rotation buffer
-		pos = reinterpret_cast<const Vec3 *>(reinterpret_cast<const uint8 *>(pos) + inPositionStride);
-		rot = reinterpret_cast<const Quat *>(reinterpret_cast<const uint8 *>(rot) + inRotationStride);
+		pos = reinterpret_cast<const Vec3 *>(reinterpret_cast<const uint8_t *>(pos) + inPositionStride);
+		rot = reinterpret_cast<const Quat *>(reinterpret_cast<const uint8_t *>(rot) + inRotationStride);
 	}
 
 	CalculateSubShapeBounds(inStartIndex, inNumber);
@@ -10092,7 +10092,7 @@ template <class Visitor>
 inline void MutableCompoundShape::WalkSubShapes(Visitor &ioVisitor) const
 {
 	// Loop over all blocks of 4 bounding boxes
-	for (uint32 block = 0, num_blocks = GetNumBlocks(); block < num_blocks; ++block)
+	for (uint32_t block = 0, num_blocks = GetNumBlocks(); block < num_blocks; ++block)
 	{
 		// Test the bounding boxes
 		const Bounds &bounds = mSubShapeBounds[block];
@@ -10102,12 +10102,12 @@ inline void MutableCompoundShape::WalkSubShapes(Visitor &ioVisitor) const
 		if (ioVisitor.ShouldVisitBlock(result))
 		{
 			// Go through the individual boxes
-			uint32 sub_shape_start_idx = block << 2;
-			for (uint32 col = 0, max_col = min<uint32>(4, (uint32)mSubShapes.size() - sub_shape_start_idx); col < max_col; ++col) // Don't read beyond the end of the subshapes array
+			uint32_t sub_shape_start_idx = block << 2;
+			for (uint32_t col = 0, max_col = min<uint32_t>(4, (uint32_t)mSubShapes.size() - sub_shape_start_idx); col < max_col; ++col) // Don't read beyond the end of the subshapes array
 				if (ioVisitor.ShouldVisitSubShape(result, col)) // Because the early out fraction can change, we need to retest every shape
 				{
 					// Test sub shape
-					uint32 sub_shape_idx = sub_shape_start_idx + col;
+					uint32_t sub_shape_idx = sub_shape_start_idx + col;
 					const SubShape &sub_shape = mSubShapes[sub_shape_idx];
 					ioVisitor.VisitShape(sub_shape, sub_shape_idx);
 
@@ -10140,7 +10140,7 @@ bool MutableCompoundShape::CastRay(const RayCast &inRay, const SubShapeIDCreator
 			return closer.TestAnyTrue();
 		}
 
-		MOSS_INLINE bool		ShouldVisitSubShape(Vec4Arg inResult, uint32 inIndexInBlock) const
+		MOSS_INLINE bool		ShouldVisitSubShape(Vec4Arg inResult, uint32_t inIndexInBlock) const
 		{
 			return inResult[inIndexInBlock] < mHit.mFraction;
 		}
@@ -10176,7 +10176,7 @@ void MutableCompoundShape::CastRay(const RayCast &inRay, const RayCastSettings &
 			return closer.TestAnyTrue();
 		}
 
-		MOSS_INLINE bool		ShouldVisitSubShape(Vec4Arg inResult, uint32 inIndexInBlock) const
+		MOSS_INLINE bool		ShouldVisitSubShape(Vec4Arg inResult, uint32_t inIndexInBlock) const
 		{
 			return inResult[inIndexInBlock] < mCollector.GetEarlyOutFraction();
 		}
@@ -10210,7 +10210,7 @@ void MutableCompoundShape::CollidePoint(Vec3Arg inPoint, const SubShapeIDCreator
 			return inResult.TestAnyTrue();
 		}
 
-		MOSS_INLINE bool		ShouldVisitSubShape(UVec4Arg inResult, uint32 inIndexInBlock) const
+		MOSS_INLINE bool		ShouldVisitSubShape(UVec4Arg inResult, uint32_t inIndexInBlock) const
 		{
 			return inResult[inIndexInBlock] != 0;
 		}
@@ -10241,7 +10241,7 @@ void MutableCompoundShape::CastShapeVsCompound(const ShapeCast &inShapeCast, con
 			return closer.TestAnyTrue();
 		}
 
-		MOSS_INLINE bool		ShouldVisitSubShape(Vec4Arg inResult, uint32 inIndexInBlock) const
+		MOSS_INLINE bool		ShouldVisitSubShape(Vec4Arg inResult, uint32_t inIndexInBlock) const
 		{
 			return inResult[inIndexInBlock] < mCollector.GetPositiveEarlyOutFraction();
 		}
@@ -10278,7 +10278,7 @@ void MutableCompoundShape::CollectTransformedShapes(const AABox &inBox, Vec3Arg 
 			return inResult.TestAnyTrue();
 		}
 
-		MOSS_INLINE bool		ShouldVisitSubShape(UVec4Arg inResult, uint32 inIndexInBlock) const
+		MOSS_INLINE bool		ShouldVisitSubShape(UVec4Arg inResult, uint32_t inIndexInBlock) const
 		{
 			return inResult[inIndexInBlock] != 0;
 		}
@@ -10288,7 +10288,7 @@ void MutableCompoundShape::CollectTransformedShapes(const AABox &inBox, Vec3Arg 
 	WalkSubShapes(visitor);
 }
 
-int MutableCompoundShape::GetIntersectingSubShapes(const AABox &inBox, uint32 *outSubShapeIndices, int inMaxSubShapeIndices) const
+int MutableCompoundShape::GetIntersectingSubShapes(const AABox &inBox, uint32_t *outSubShapeIndices, int inMaxSubShapeIndices) const
 {
 	MOSS_PROFILE_FUNCTION();
 
@@ -10297,7 +10297,7 @@ int MutableCompoundShape::GetIntersectingSubShapes(const AABox &inBox, uint32 *o
 	return visitor.GetNumResults();
 }
 
-int MutableCompoundShape::GetIntersectingSubShapes(const OrientedBox &inBox, uint32 *outSubShapeIndices, int inMaxSubShapeIndices) const
+int MutableCompoundShape::GetIntersectingSubShapes(const OrientedBox &inBox, uint32_t *outSubShapeIndices, int inMaxSubShapeIndices) const
 {
 	MOSS_PROFILE_FUNCTION();
 
@@ -10329,7 +10329,7 @@ void MutableCompoundShape::CollideCompoundVsShape(const Shape *inShape1, const S
 			return inResult.TestAnyTrue();
 		}
 
-		MOSS_INLINE bool		ShouldVisitSubShape(UVec4Arg inResult, uint32 inIndexInBlock) const
+		MOSS_INLINE bool		ShouldVisitSubShape(UVec4Arg inResult, uint32_t inIndexInBlock) const
 		{
 			return inResult[inIndexInBlock] != 0;
 		}
@@ -10362,7 +10362,7 @@ void MutableCompoundShape::CollideShapeVsCompound(const Shape *inShape1, const S
 			return inResult.TestAnyTrue();
 		}
 
-		MOSS_INLINE bool		ShouldVisitSubShape(UVec4Arg inResult, uint32 inIndexInBlock) const
+		MOSS_INLINE bool		ShouldVisitSubShape(UVec4Arg inResult, uint32_t inIndexInBlock) const
 		{
 			return inResult[inIndexInBlock] != 0;
 		}
@@ -10377,7 +10377,7 @@ void MutableCompoundShape::SaveBinaryState(StreamOut &inStream) const
 	CompoundShape::SaveBinaryState(inStream);
 
 	// Write bounds
-	uint32 bounds_size = (((uint32)mSubShapes.size() + 3) >> 2) * sizeof(Bounds);
+	uint32_t bounds_size = (((uint32_t)mSubShapes.size() + 3) >> 2) * sizeof(Bounds);
 	inStream.WriteBytes(mSubShapeBounds.data(), bounds_size);
 }
 
@@ -10389,7 +10389,7 @@ void MutableCompoundShape::RestoreBinaryState(StreamIn &inStream)
 	EnsureSubShapeBoundsCapacity();
 
 	// Read bounds
-	uint32 bounds_size = (((uint32)mSubShapes.size() + 3) >> 2) * sizeof(Bounds);
+	uint32_t bounds_size = (((uint32_t)mSubShapes.size() + 3) >> 2) * sizeof(Bounds);
 	inStream.ReadBytes(mSubShapeBounds.data(), bounds_size);
 }
 
@@ -10548,7 +10548,7 @@ void RotatedTranslatedShape::CollidePoint(Vec3Arg inPoint, const SubShapeIDCreat
 	mInnerShape->CollidePoint(transform * inPoint, inSubShapeIDCreator, ioCollector, inShapeFilter);
 }
 
-void RotatedTranslatedShape::CollideSoftBodyVertices(Mat44Arg inCenterOfMassTransform, Vec3Arg inScale, const CollideSoftBodyVertexIterator &inVertices, uint32 inNumVertices, int inCollidingShapeIndex) const
+void RotatedTranslatedShape::CollideSoftBodyVertices(Mat44Arg inCenterOfMassTransform, Vec3Arg inScale, const CollideSoftBodyVertexIterator &inVertices, uint32_t inNumVertices, int inCollidingShapeIndex) const
 {
 	mInnerShape->CollideSoftBodyVertices(inCenterOfMassTransform * Mat44::Rotation(mRotation), inScale, inVertices, inNumVertices, inCollidingShapeIndex);
 }
@@ -10829,7 +10829,7 @@ void PlaneShape::Draw(DebugRenderer *inRenderer, RMat44Arg inCenterOfMassTransfo
 	// Transform them to world space
 	RMat44 com = inCenterOfMassTransform.PreScaled(inScale);
 	RVec3 vertices[4];
-	for (uint32 i = 0; i < 4; ++i)
+	for (uint32_t i = 0; i < 4; ++i)
 		vertices[i] = com * local_vertices[i];
 
 	// Determine the color
@@ -10931,7 +10931,7 @@ void PlaneShape::CollidePoint(Vec3Arg inPoint, const SubShapeIDCreator &inSubSha
 		ioCollector.AddHit({ TransformedShape::GetBodyID(ioCollector.GetContext()), inSubShapeIDCreator.GetID() });
 }
 
-void PlaneShape::CollideSoftBodyVertices(Mat44Arg inCenterOfMassTransform, Vec3Arg inScale, const CollideSoftBodyVertexIterator &inVertices, uint32 inNumVertices, int inCollidingShapeIndex) const
+void PlaneShape::CollideSoftBodyVertices(Mat44Arg inCenterOfMassTransform, Vec3Arg inScale, const CollideSoftBodyVertexIterator &inVertices, uint32_t inNumVertices, int inCollidingShapeIndex) const
 {
 	MOSS_PROFILE_FUNCTION();
 
@@ -11091,7 +11091,7 @@ void PlaneShape::GetTrianglesStart(GetTrianglesContext &ioContext, const AABox &
 
 	// Transform them to world space
 	Mat44 com = Mat44::RotationTranslation(inRotation, inPositionCOM).PreScaled(inScale);
-	for (uint32 i = 0; i < 4; ++i)
+	for (uint32_t i = 0; i < 4; ++i)
 		(com * vertices[i]).StoreFloat3(&context->mVertices[i]);
 }
 
@@ -11201,7 +11201,7 @@ void PlaneShape::SaveMaterialState(PhysicsMaterialList &outMaterials) const
 	outMaterials = { mMaterial };
 }
 
-void PlaneShape::RestoreMaterialState(const PhysicsMaterialRefC *inMaterials, uint32 inNumMaterials)
+void PlaneShape::RestoreMaterialState(const PhysicsMaterialRefC *inMaterials, uint32_t inNumMaterials)
 {
 	MOSS_ASSERT(inNumMaterials == 1);
 	mMaterial = inMaterials[0];
@@ -11341,7 +11341,7 @@ void ScaledShape::CollidePoint(Vec3Arg inPoint, const SubShapeIDCreator &inSubSh
 	mInnerShape->CollidePoint(inv_scale * inPoint, inSubShapeIDCreator, ioCollector, inShapeFilter);
 }
 
-void ScaledShape::CollideSoftBodyVertices(Mat44Arg inCenterOfMassTransform, Vec3Arg inScale, const CollideSoftBodyVertexIterator &inVertices, uint32 inNumVertices, int inCollidingShapeIndex) const
+void ScaledShape::CollideSoftBodyVertices(Mat44Arg inCenterOfMassTransform, Vec3Arg inScale, const CollideSoftBodyVertexIterator &inVertices, uint32_t inNumVertices, int inCollidingShapeIndex) const
 {
 	mInnerShape->CollideSoftBodyVertices(inCenterOfMassTransform, inScale * mScale, inVertices, inNumVertices, inCollidingShapeIndex);
 }
@@ -11556,7 +11556,7 @@ void OffsetCenterOfMassShape::CollidePoint(Vec3Arg inPoint, const SubShapeIDCrea
 	mInnerShape->CollidePoint(inPoint + mOffset, inSubShapeIDCreator, ioCollector, inShapeFilter);
 }
 
-void OffsetCenterOfMassShape::CollideSoftBodyVertices(Mat44Arg inCenterOfMassTransform, Vec3Arg inScale, const CollideSoftBodyVertexIterator &inVertices, uint32 inNumVertices, int inCollidingShapeIndex) const
+void OffsetCenterOfMassShape::CollideSoftBodyVertices(Mat44Arg inCenterOfMassTransform, Vec3Arg inScale, const CollideSoftBodyVertexIterator &inVertices, uint32_t inNumVertices, int inCollidingShapeIndex) const
 {
 	mInnerShape->CollideSoftBodyVertices(inCenterOfMassTransform.PreTranslated(-inScale * mOffset), inScale, inVertices, inNumVertices, inCollidingShapeIndex);
 }

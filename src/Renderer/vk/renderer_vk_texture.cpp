@@ -54,7 +54,7 @@ TextureVK::TextureVK(RendererVK *inRenderer, const Surface *inSurface) :
 	void *data;
 	vkMapMemory(device, staging_buffer.mMemory, staging_buffer.mOffset, image_size, 0, &data);
 	for (int y = 0; y < mHeight; ++y)
-		memcpy(reinterpret_cast<uint8 *>(data) + y * mWidth * bpp, surface->GetData() + y * surface->GetStride(), mWidth * bpp);
+		memcpy(reinterpret_cast<uint8_t *>(data) + y * mWidth * bpp, surface->GetData() + y * surface->GetStride(), mWidth * bpp);
 	vkUnmapMemory(device, staging_buffer.mMemory);
 	surface->UnLock();
 
@@ -70,7 +70,7 @@ TextureVK::TextureVK(RendererVK *inRenderer, const Surface *inSurface) :
 	VkBufferImageCopy region = {};
 	region.imageSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
 	region.imageSubresource.layerCount = 1;
-	region.imageExtent = { uint32(mWidth), uint32(mHeight), 1 };
+	region.imageExtent = { uint32_t(mWidth), uint32_t(mHeight), 1 };
 	vkCmdCopyBufferToImage(command_buffer, staging_buffer.mBuffer, mImage, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &region);
 
 	// Make the image suitable for sampling
