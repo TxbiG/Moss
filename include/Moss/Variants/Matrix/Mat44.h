@@ -9,8 +9,7 @@
 MOSS_SUPPRESS_WARNINGS_BEGIN
 
 /// Holds a 4x4 matrix of floats, but supports also operations on the 3x3 upper left part of the matrix.
-class [[nodiscard]] alignas(MOSS_VECTOR_ALIGNMENT) Mat44
-{
+class [[nodiscard]] alignas(MOSS_VECTOR_ALIGNMENT) Mat44 {
 public:
 	MOSS_OVERRIDE_NEW_DELETE
 
@@ -25,7 +24,7 @@ public:
 	MOSS_INLINE					Mat44(const Vec4 inC1, const Vec4 inC2, const Vec4 inC3, const Vec4 inC4);
 	MOSS_INLINE					Mat44(const Vec4 inC1, const Vec4 inC2, const Vec4 inC3, const Vec3 inC4);
 								Mat44(const Mat44 &inM2) = default;
-	Mat44 &						operator = (const Mat44 &inM2) = default;
+	Mat44&						operator = (const Mat44 &inM2) = default;
 	MOSS_INLINE					Mat44(Type inC1, Type inC2, Type inC3, Type inC4);
 
 	/// Zero matrix

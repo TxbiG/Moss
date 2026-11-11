@@ -11,7 +11,7 @@
 MOSS_SUPPRESS_WARNINGS_BEGIN
 
 // AABB3 (Axis aligned box 3D) is used for 3D Collisions
-class [[nodiscard]] AABB3 {
+class MOSS_API [[nodiscard]] alignas(MOSS_VECTOR_ALIGNMENT) AABB3 {
 public:
 	MOSS_OVERRIDE_NEW_DELETE
 

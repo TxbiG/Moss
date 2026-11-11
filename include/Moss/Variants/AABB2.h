@@ -6,8 +6,9 @@
 MOSS_SUPPRESS_WARNINGS_BEGIN
 
 // AABB2 (Axis aligned box 2D) is used for 2D Collisions
-class [[nodiscard]] AABB2 {
+class MOSS_API [[nodiscard]] alignas(MOSS_VECTOR_ALIGNMENT) AABB2 {
 public:
+    MOSS_OVERRIDE_NEW_DELETE
     // Constructors
     AABB2() : mBox(Vec4(FLT_MAX, FLT_MAX, -FLT_MAX, -FLT_MAX)) {}
     AABB2(RVec2 inMin, RVec2 inMax) : mBox(inMin.GetX(), inMin.GetY(), inMax.GetX(), inMax.GetY()) {}
