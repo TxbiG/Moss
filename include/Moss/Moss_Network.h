@@ -1065,7 +1065,7 @@ struct ENetTransport {
 struct ENetTransport ENetTransport;
 
 // factory / lifecycle 
-ENetTransport* enet_transport_create(ENetTransportType type, const char *bind_host, uint16_t_t port, const ENetTransportConfig *cfg);
+ENetTransport* enet_transport_create(ENetTransportType type, const char *bind_host, uint16_t port, const ENetTransportConfig *cfg);
 void enet_transport_destroy(ENetTransport *t);
 
 // poll: non-blocking; fills events up to capacity, returns count
@@ -1075,7 +1075,7 @@ int enet_transport_poll(ENetTransport *t, ENetTransportEvent *events, int capaci
 int enet_transport_send(ENetTransport *t, ENetTransportPeer *peer, const uint8 *data, size_t len, int channel);
 
 /* connect / close 
-int enet_transport_connect(ENetTransport *t, ENetTransportPeer *peer, const char *host, uint16_t_t port);
+int enet_transport_connect(ENetTransport *t, ENetTransportPeer *peer, const char *host, uint16_t port);
 
 int enet_transport_close_peer(ENetTransport *t, ENetTransportPeer *peer);
 
@@ -1108,13 +1108,13 @@ MOSS_API void enet_bandwidth_update(ENetHost* host, float deltaTime);
 MOSS_API size_t enet_peer_send_window(const ENetPeer* peer);
 MOSS_API int enet_peer_create_channel(ENetPeer* peer, bool reliable, bool ordered);
 MOSS_API void enet_peer_reset_channels(ENetPeer* peer);
-MOSS_API void enet_peer_disconnect(ENetPeer* peer, uint32_t_t reason);
+MOSS_API void enet_peer_disconnect(ENetPeer* peer, uint32_t reason);
 MOSS_API void enet_peer_disconnect_now(ENetPeer* peer);
-MOSS_API void enet_peer_get_stats(const ENetPeer* peer, float* rtt, float* packetLoss, uint32_t_t* sent, uint32_t_t* received);
+MOSS_API void enet_peer_get_stats(const ENetPeer* peer, float* rtt, float* packetLoss, uint32_t* sent, uint32_t* received);
 MOSS_API void enet_host_flush(ENetHost* host);
 MOSS_API void enet_host_broadcast(ENetHost* host, uint8 channelId, const uint8* data, size_t size);
-MOSS_API void enet_host_set_protocol_id(ENetHost* host, uint16_t_t protocolId);
-MOSS_API uint16_t_t enet_host_get_protocol_id(const ENetHost* host);
+MOSS_API void enet_host_set_protocol_id(ENetHost* host, uint16_t protocolId);
+MOSS_API uint16_t enet_host_get_protocol_id(const ENetHost* host);
 
 
 
@@ -1130,7 +1130,7 @@ struct NetSocket {
    ENetAddress localAddress;
 };
 
-NetSocket* net_socket_create(uint16_t_t port);
+NetSocket* net_socket_create(uint16_t port);
 
 void net_socket_close(NetSocket* socket);
 
@@ -1144,12 +1144,12 @@ int net_socket_receive(NetSocket* socket, ENetAddress* outAddress, uint8* buffer
 // =============================================
 
 struct NetPacketHeader {
-   uint16_t_t protocolId;
+   uint16_t protocolId;
    uint8  flags;
    uint8  channelId;
-   uint16_t_t sequence;
-   uint16_t_t ack;
-   uint32_t_t ackBits;
+   uint16_t sequence;
+   uint16_t ack;
+   uint32_t ackBits;
 } NetPacketHeader;
 
 struct NetPacket {
@@ -1161,15 +1161,15 @@ struct NetPacket {
 struct NetChannel {
     uint8 id;
     bool reliable;
-    uint16_t_t nextSendSeq;
-    uint16_t_t nextRecvSeq;
+    uint16_t nextSendSeq;
+    uint16_t nextRecvSeq;
     PacketQueue outgoing;
     PacketQueue incoming;
 } NetChannel;
 
 struct ReliablePacket {
-    uint16_t_t sequence;
-    uint32_t_t sendTime;
+    uint16_t sequence;
+    uint32_t sendTime;
     uint8 retries;
     NetPacket* packet;
 } ReliablePacket;
@@ -1190,8 +1190,8 @@ struct NetCryptoContext {
 } NetCryptoContext;
 
 struct NetHandshake {
-    uint32_t_t challenge;
-    uint32_t_t response;
+    uint32_t challenge;
+    uint32_t response;
     bool verified;
 } NetHandshake;
 
@@ -1207,9 +1207,9 @@ bool net_handshake_process(NetPeer* peer, NetPacket* packet);
 
 struct NetPeer {
    ENetAddress address;
-   uint32_t_t peerId;
-   uint16_t_t localSequence;
-   uint16_t_t remoteSequence;
+   uint32_t peerId;
+   uint16_t localSequence;
+   uint16_t remoteSequence;
    float lastReceiveTime;
    float rtt;
    float packetLoss;
@@ -1224,7 +1224,7 @@ struct NetHost {
     float currentTime;
 } NetHost;
 
-NetHost* net_host_create(uint16_t_t port, size_t maxPeers);
+NetHost* net_host_create(uint16_t port, size_t maxPeers);
 void net_host_destroy(NetHost* host);
 void net_host_update(NetHost* host, float deltaTime);
 
@@ -1247,7 +1247,7 @@ void net_host_set_callback(NetHost*, NetEventCallback, void* userData);
 
 struct NetNATState {
     bool punchInProgress;
-    uint32_t_t retries;
+    uint32_t retries;
 } NetNATState;
 
 void net_nat_start_punch(NetPeer*);
@@ -1293,14 +1293,14 @@ struct ENetTransport {
 ENetTransport* enet_transport_create(
    ENetTransportType type,
    const char *bind_host,
-   uint16_t_t port,
+   uint16_t port,
    const ENetTransportConfig *cfg
 );
 
 void enet_transport_destroy(ENetTransport*);
 int enet_transport_poll(ENetTransport*, ENetTransportEvent*, int, int);
 int enet_transport_send(ENetTransport*, ENetTransportPeer*, const uint8*, size_t, int);
-int enet_transport_connect(ENetTransport*, ENetTransportPeer*, const char*, uint16_t_t);
+int enet_transport_connect(ENetTransport*, ENetTransportPeer*, const char*, uint16_t);
 int enet_transport_close_peer(ENetTransport*, ENetTransportPeer*);
 
 // =============================================
@@ -1399,7 +1399,7 @@ struct ENetHttpRequestDesc {
     size_t      body_size;
 
     const ENetHttpTLSConfig* tls;
-    uint32_t_t timeout_ms;
+    uint32_t timeout_ms;
 } ENetHttpRequestDesc;
 
 struct ENetHttpResponse {
@@ -1451,10 +1451,10 @@ MOSS_API void enet_host_set_connect_validator(ENetHost* host, ENetConnectValidat
 
 struct NetPeer {
    ENetAddress address;
-   uint32_t_t peerId;
+   uint32_t peerId;
 
-   uint16_t_t localSequence;
-   uint16_t_t remoteSequence;
+   uint16_t localSequence;
+   uint16_t remoteSequence;
 
    float lastReceiveTime;
    float rtt;
@@ -1467,8 +1467,8 @@ struct NetChannel {
     uint8 id;
     bool reliable;
 
-    uint16_t_t nextSendSeq;
-    uint16_t_t nextRecvSeq;
+    uint16_t nextSendSeq;
+    uint16_t nextRecvSeq;
 
     PacketQueue outgoing;
     PacketQueue incoming;
@@ -1493,20 +1493,20 @@ struct NetEvent {
 } NetEvent;
 
 struct ENetStreamFrame {
-   uint32_t_t length;
+   uint32_t length;
    uint8  data[];
 } ENetStreamFrame;
 
 
 #pragma pack(push, 1)
 struct ENetTCPFrameHeader {
-    uint32_t_t length;     // payload size (network byte order)
+    uint32_t length;     // payload size (network byte order)
     uint8  channelID;
     uint8  flags;      // 
 } ENetTCPFrameHeader;
 #pragma pack(pop)
 
-NetHost* net_host_create(uint16_t_t port, size_t maxPeers);
+NetHost* net_host_create(uint16_t port, size_t maxPeers);
 void net_host_destroy(NetHost* host);
 
 void net_host_update(NetHost* host, float deltaTime);

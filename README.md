@@ -63,6 +63,11 @@ Comprehensive documentation is available in the [`docs/`](docs/README.md) direct
 - [Lua - LuaMoss](https://github.com/TxbiG/LuaMoss)
 - [Python - PyMoss](https://github.com/TxbiG/PyMoss)
 
+# Integrations in other engines
+- [MossUnreal](https://github.com/TxbiG/MossUnreal)
+- [MossUnity](https://github.com/TxbiG/MossUnity)
+- [MossGodot](https://github.com/TxbiG/MossGodot)
+
 ## Compiling
 - CMake 3.20 or newer.
 - C++ 17.

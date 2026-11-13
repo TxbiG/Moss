@@ -9,11 +9,11 @@
 #endif // MOSS_DEBUG_RENDERER
 
 
-#include <Moss/Physics/Body/MotionProperties.h>
+#include <Moss/Physics/Body/Body.h>
 #include <Moss/Physics/Collision/BroadPhase/BroadPhase.h>
 #include <Moss/Physics/Collision/CollisionCollectorImpl.h>
 #include <Moss/Physics/Collision/PhysicsMaterial.h>
-#include <Moss/Physics/Constraints/TwoBodyConstraint.h>
+#include <Moss/Physics/Constraints/Constraints.h>
 #include <Moss/Physics/StateRecorder.h>
 #include <Moss/Variants/Matrix/TMatrix.h>
 #include <Moss/Variants/Vector/TVec.h>
@@ -21,13 +21,11 @@
 #include <Moss/Core/StreamIn.h>
 #include <Moss/Core/StreamOut.h>
 #include <Moss/Core/InsertionSort.h>
-#include <Moss/Physics/PhysicsSettings.h>
 #include <Moss/Physics/StateRecorder.h>
-#include <Moss/Physics/Collision/Shape/EmptyShape.h>
+#include <Moss/Physics/Collision/Shape/Shapes.h>
 #include <Moss/Core/StringTools.h>
 #include <Moss/Core/Profiler.h>
-#include <Moss/Physics/PhysicsSettings.h>
-#include <Moss/Physics/SoftBody.h>
+#include <Moss/Physics/SoftBody/SoftBody.h>
 #include <Moss/Physics/StateRecorder.h>
 #include <Moss/Core/StringTools.h>
 #include <Moss/Core/StreamIn.h>

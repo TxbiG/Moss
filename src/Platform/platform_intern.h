@@ -341,4 +341,27 @@ inline void UpdateControllerInput(Moss_Gamepad* activeGamepad, MossMotionTracker
         motionTracker.Update(gyroData.x,  gyroData.y,  gyroData.z, accelData.x, accelData.y, accelData.z, deltaTime);
     }
 }
+
+
+
+
+
+
+
+#if defined(MOSS_GRAPHICS_VK) && defined(MOSS_ASAN_ENABLED)
+MOSS_SUPPRESS_WARNING_BEGIN
+MOSS_CLANG_SUPPRESS_WARNING("-Wreserved-identifier")
+// Suppress ASAN leak detection for the Vulkan driver
+extern "C" const char *__lsan_default_suppressions();
+extern "C" const char *__lsan_default_suppressions() { 
+#if defined(__APPLE__)
+    return "leak:libMoltenVK\n"         // Suppress leaks from MoltenVK and Apple's Metal framework on macOS/iOS
+           "leak:Metal\n";
+#else
+    return "leak:libvulkan\n";          // Suppress leaks from the Vulkan loader/driver on Linux/Android
+#endif
+}
+MOSS_SUPPRESS_WARNING_END
+#endif // MOSS_GRAPHICS_VK && MOSS_ASAN_ENABLED
+
 #endif // MOSS_PLATFORM_INTERNAL_H

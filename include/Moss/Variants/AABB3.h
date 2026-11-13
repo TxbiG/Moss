@@ -44,7 +44,9 @@ public:
 
 	// Check if the bounding box is valid (max >= min)
 	bool IsValid() const {
-		return mMin.GetX() <= mMax.GetX() && mMin.GetY() <= mMax.GetY() && mMin.GetZ() <= mMax.GetZ();
+		return mMin.GetX() <= mMax.GetX() 
+			&& mMin.GetY() <= mMax.GetY() 
+			&& mMin.GetZ() <= mMax.GetZ();
 	}
 
 	// Encapsulate point in bounding box

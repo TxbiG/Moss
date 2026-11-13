@@ -1076,6 +1076,18 @@ inline bool MossAssertHelper(const char* expr, const char* file, uint32_t line, 
 	#endif
 #endif
 
+#if defined(__GNUC__) || defined(__clang__)
+    // rw: 0 = read, 1 = write
+    // locality: 0 = no temporal locality (NTA), 1 = low, 2 = moderate, 3 = high (T0)
+    #define MOSS_PREFETCH(addr, rw, locality) __builtin_prefetch((addr), (rw), (locality))
+#elif defined(_MSC_VER) && (defined(_M_IX86) || defined(_M_X64))
+    #include <xmmintrin.h>
+    #define MOSS_PREFETCH(addr, rw, locality) _mm_prefetch((const char*)(addr), (locality))
+#else
+    // Fallback no-op for unsupported compilers/architectures
+    #define MOSS_PREFETCH(addr, rw, locality) ((void)0)
+#endif
+
 // Attribute to disable Thread Sanitizer for a particular function
 #ifdef MOSS_TSAN_ENABLED
 	#define MOSS_TSAN_NO_SANITIZE __attribute__((no_sanitize("thread")))
@@ -1137,6 +1149,20 @@ using uint64 = unsigned long long;
 #define MIN_UINT32  ((uint32_t)0x00000000)
 #define MIN_UINT64  ((uint64)(0x0000000000000000))
 
+// Unit conversion constants & macros
+
+#define MOSS_US_PER_SECOND   1000000ULL
+#define MOSS_MS_PER_SECOND   1000ULL
+#define MOSS_NS_PER_US       1000ULL
+#define MOSS_NS_PER_MS       1000000ULL
+#define MOSS_NS_PER_SECOND   1000000000ULL
+
+#define MOSS_NS_TO_MS(ns)        ((ns) / MOSS_NS_PER_MS)
+#define MOSS_MS_TO_NS(ms)        ((uint64_t)(ms) * MOSS_NS_PER_MS)
+#define MOSS_NS_TO_SECONDS(ns)   ((double)(ns) / (double)MOSS_NS_PER_SECOND)
+#define MOSS_SECONDS_TO_NS(s)    ((uint64_t)((s) * (double)MOSS_NS_PER_SECOND))
+#define MOSS_NS_TO_US(ns)        ((ns) / MOSS_NS_PER_US)
+#define MOSS_US_TO_NS(us)        ((uint64_t)(us) * MOSS_NS_PER_US)
 
 // Assert sizes of types
 static_assert(sizeof(uint8) == 1, "Invalid size of uint8");
@@ -1264,198 +1290,52 @@ enum {
 	SWIZZLE_UNUSED = 2,		// We always use the Z component when we don't specifically want to initialize a value, this is consistent with what is done in Vec3(x, y, z), Vec3(Float3 &) and Vec3::LoadFloat3Unsafe
 };
 
-struct BumpAlloc {
-    size_t capacity;
-    size_t used;
-    char* memory;
+
+
+typedef uint32_t Moss_TimerID;
+typedef int Moss_SpinLock;
+
+#define MOSS_MAX_TIME MAX_INT64
+#define MOSS_MIN_TIME MIN_INT64
+typedef int64_t Moss_Time; // Nanoseconds since Unix epoch (Jan 1, 1970 UTC)
+
+typedef struct Moss_DateTime {
+    int year;        // e.g., 2026
+    int month;       // [1..12]
+    int day;         // [1..31]
+    int hour;        // [0..23]
+    int minute;      // [0..59]
+    int second;      // [0..60]
+    int nanosecond;  // [0..999999999]
+    int day_of_week; // [0..6] (0 = Sunday)
+    int day_of_year; // [0..365]
+    int utc_offset;  // Seconds east of UTC
+};
+
+struct Moss_RNG {
+    uint64_t state;
+    uint64_t inc;
+};
+
+// Wrap atomic types in structs so callers cannot accidentally perform
+// non-atomic operations (like a->value++) without compiler errors.
+typedef struct Moss_AtomicInt { volatile int value; } Moss_AtomicInt;
+typedef struct Moss_AtomicU32 { volatile uint32_t value; } Moss_AtomicU32;
+typedef struct Moss_AtomicU64 { volatile uint64_t value; } Moss_AtomicU64;
+
+typedef uint64_t (MOSS_CALL *Moss_NSTimerCallback)(void* userdata, Moss_TimerID timerID, uint64_t intervalNS);
+typedef uint32_t (MOSS_CALL *Moss_TimerCallback)(void* userdata, Moss_TimerID timerID, uint32_t intervalMS);
+
+struct Moss_BumpAlloc {
+    uint8_t* buffer   = nullptr;
+    size_t   offset   = 0;
+    size_t   capacity = 0;
 };
 
 // Convert a value from degrees to radians
 MOSS_INLINE constexpr float DegreesToRadians(float value) { return value * (MOSS_PI / 180.0f); }
 // Convert a value from radians to degrees
 MOSS_INLINE constexpr float RadiansToDegrees(float value) { return value * (180.0f / MOSS_PI); }
-//
-
-/*
-MOSS_INLINE constexpr void seed_random() { std::srand(static_cast<unsigned int>(std::time(nullptr))); }
-// Returns a float between min and max
-MOSS_INLINE constexpr float randf_range(float min, float max) { return min + static_cast<float>(std::rand()) / static_cast<float>(RAND_MAX) * (max - min); }
-//
-MOSS_INLINE constexpr int randi_range(int min, int max) { return min + std::rand() % (max - min + 1); }
-*/
-/*
-// Memory management
-// Random functions
-MOSS_API int32  Moss_rand(int32 n);
-MOSS_API float  Moss_randf(void);
-MOSS_API int    Moss_randi(void);
-MOSS_API void   Moss_srand(int64 seed);
-MOSS_API int32  Moss_randi_range(int32 from, int32 to);
-MOSS_API float  Moss_randf_range(float from, float to);
-MOSS_API float  Moss_rand_gaussian(float mean, float stddev);
-MOSS_API float  Moss_rand_unit();
-*/
-
-
-using Moss_Time = int64_t;
-/*            Timer          */
-
-/*! @brief Get every Tick. @ingroup Time.
-MOSS_API Moss_Time Moss_GetTicks();
-
-/*! @brief Get Seconds. @ingroup Time.
-MOSS_API double Moss_GetSeconds(Moss_Time time);
-
-// Get the milliseconds passed from an initial tick value.
-MOSS_API float Moss_GetMilliseconds(Moss_Time ticks);
-
-// Get the milliseconds passed from an initial tick value. Resets the passed in
-// value to the current tick value.
-MOSS_API float Moss_GetMillisecondsAndReset(Moss_Time* ticks);
-
-/*! @brief Get Nanoseconds. @ingroup Time.
-void Moss_GetNanoseconds(uint64 nanoseconds);
-
-// Yield to be used in a busy loop.
-MOSS_API void Moss_Yield(void);
-
-/*! @brief Delay Makes a time delay for the next below to run. @param delay milliseconds. @ingroup Time.
-MOSS_API double Moss_Delay(double delay);
-
-
-Moss_MS_PER_SECOND
-Moss_MS_TO_NS
-Moss_NS_PER_MS
-Moss_NS_PER_SECOND
-Moss_NS_PER_US
-Moss_NS_TO_MS
-Moss_NS_TO_SECONDS
-Moss_NS_TO_US
-Moss_SECONDS_TO_NS
-Moss_US_PER_SECOND
-Moss_US_TO_NS
-
-Moss_AddTimer
-Moss_AddTimerNS
-Moss_Delay
-Moss_DelayNS
-Moss_DelayPrecise
-Moss_GetPerformanceCounter
-Moss_GetPerformanceFrequency
-Moss_GetTicks
-Moss_GetTicksNS
-Moss_RemoveTimer
-
-/*            Time         */
-
-/*! @brief Returns "HH:MM:SS"
-MOSS_API const char* Moss_LocalTime(void);         
-
-/*! @brief Returns "YYYY-MM-DD_HH-MM-SS" (useful for filenames)
-MOSS_API const char* Moss_TimeStamp(void);         
-
-/*! @brief Returns Unix timestamp as string (seconds since epoch)
-MOSS_API const char* Moss_TimeNow(void);           
-
-/*! @brief Returns full ctime string: "Sun May 18 12:34:56 2025"
-MOSS_API const char* Moss_CTimeNow(void);          
-
-/*! @brief Returns "YYYY-MM-DD_HH-MM-SS" in GMT*/
-//MOSS_API const char* Moss_TimeStampGMT(void);
-
-/*! @brief Returns "YYYY-MM-DD_HH-MM-SS" in Eastern Time.
-MOSS_API const char* Moss_TimeStampET(void);
-
-/*! @brief Returns "YYYY-MM-DD_HH-MM-SS" in Central Time.
-MOSS_API const char* Moss_TimeStampCT(void);
-
-/*! @brief Returns "YYYY-MM-DD_HH-MM-SS" in Mountain Time.
-MOSS_API const char* Moss_TimeStampMT(void);
-
-/*! @brief Returns "YYYY-MM-DD_HH-MM-SS" in Pacific Time.
-MOSS_API const char* Moss_TimeStampPT(void);
-
-/*!
-// Date & Time Components.
-@param %A Full weekday name, e.g., "Sunday".
-@param %a Abbreviated weekday name, e.g., "Sun".
-@param %B Full month name, e.g., "January".
-@param %b Abbreviated month name, e.g., "Jan".
-@param %C Century number (year / 100), e.g., "20" for 2025.
-@param %d Day of the month [01,31].
-@param %e Day of the month [1,31], single digits not zero-padded (non-standard on Windows).
-@param %H Hour in 24-hour format [00,23].
-@param %I Hour in 12-hour format [01,12].
-@param %j Day of the year [001,366].
-@param %m Month as number [01,12].
-@param %M Minutes [00,59].
-@param %S Seconds [00,60] (can be 60 for leap seconds).
-@param %U Week number of the year (Sunday as first day of week) [00,53].
-@param %w Weekday as number [0,6] (0 = Sunday).
-@param %W Week number (Monday as first day of week) [00,53].
-@param %y Year as last two digits [00,99].
-@param %Y Year as four digits, e.g., "2025".
-@param %z Numeric UTC offset, e.g., "-0500".
-@param %Z Time zone abbreviation, e.g., "EST", "UTC".
-@param %p AM or PM.
-
-// Combined Date/Time Formats.
-
-@param %c Locale's date and time representation, e.g., "Sun May 18 14:30:00 2025".
-@param %D Equivalent to "%m/%d/%y", e.g., "05/18/25".
-@param %F Equivalent to "%Y-%m-%d" (ISO 8601), e.g., "2025-05-18".
-@param %r Time in 12-hour format with AM/PM, e.g., "02:30:00 PM".
-@param %R Time in 24-hour format without seconds, e.g., "14:30".
-@param %TTime in 24-hour format with seconds, e.g., "14:30:00".
-@param %x Locale's date format only, e.g., "05/18/25".
-@param %X Locale's time format only, e.g., "14:30:00".
-
-// Literal Characters
-@param %% A literal '%' character
-
-MOSS_API const char* Moss_FormatTime(const char* fmt);
-
-
-Moss_DateTimeToTime
-Moss_GetCurrentTime
-Moss_GetDateTimeLocalePreferences
-Moss_GetDayOfWeek
-Moss_GetDayOfYear
-Moss_GetDaysInMonth
-Moss_TimeFromWindows
-Moss_TimeToDateTime
-Moss_TimeToWindows
-
-
-
-
-AddTimer
-AddTimerNS
-Delay
-DelayNS
-DelayPrecise
-GetPerformanceCounter
-GetPerformanceFrequency
-GetTicks
-GetTicksNS
-RemoveTimer
-
-#define US_PER_SECOND   1000000
-#define MS_PER_SECOND   1000
-#define NS_PER_MS       1000000
-#define NS_PER_SECOND   1000000000LL
-#define NS_PER_US       1000
-#define NS_TO_MS(NS)        ((NS) / NS_PER_MS)
-#define MS_TO_NS(MS)        (((Uint64)(MS)) * NS_PER_MS)
-#define NS_TO_SECONDS(NS)   ((NS) / NS_PER_SECOND)
-#define NS_TO_US(NS)        ((NS) / NS_PER_US)
-#define SECONDS_TO_NS(S)    (((Uint64)(S)) * NS_PER_SECOND)
-#define US_TO_NS(US)        (((Uint64)(US)) * NS_PER_US)
-
-
-typedef Uint64 (MOSS_CALL *NSTimerCallback)(void *userdata, TimerID timerID, Uint64 interval);
-typedef Uint32 (MOSS_CALL *TimerCallback)(void *userdata, TimerID timerID, Uint32 interval);
-*/
 
 // Convert angle in radians to the range \f$[-\pi, \pi]\f$
 inline float CenterAngleAroundZero(float inV) { 
@@ -1647,6 +1527,106 @@ bool AtomicMax(atomic<T> &ioAtomic, const T inValue, const memory_order inMemory
 	return false;
 }
 
+// Reference counting helpers
+#define Moss_AtomicIncRef(a)    Moss_AddAtomicInt(a, 1)
+#define Moss_AtomicDecRef(a)    (Moss_AddAtomicInt(a, -1) == 1)
+
+// --- Barriers & CPU Hints ---
+void Moss_CompilerBarrier(void);
+void Moss_MemoryBarrierAcquireFunction(void);
+void Moss_MemoryBarrierReleaseFunction(void);
+void Moss_MemoryBarrierFullFunction(void);
+void Moss_CPUPause(void); // _mm_pause() on x86, yield on ARM
+
+// --- Spinlocks ---
+bool Moss_TryLockSpinlock(Moss_SpinLock *lock);
+void Moss_LockSpinlock(Moss_SpinLock *lock);
+void Moss_UnlockSpinlock(Moss_SpinLock *lock);
+
+// --- 32-bit Signed Int ---
+int  Moss_GetAtomicInt(Moss_AtomicInt *a);
+int  Moss_SetAtomicInt(Moss_AtomicInt *a, int v);
+int  Moss_AddAtomicInt(Moss_AtomicInt *a, int v);
+bool Moss_CompareAndSwapAtomicInt(Moss_AtomicInt *a, int oldval, int newval);
+
+// --- 32-bit Unsigned Int (Flags & Counters) ---
+uint32_t Moss_GetAtomicU32(Moss_AtomicU32 *a);
+uint32_t Moss_SetAtomicU32(Moss_AtomicU32 *a, uint32_t v);
+uint32_t Moss_AddAtomicU32(Moss_AtomicU32 *a, int32_t v);
+uint32_t Moss_AndAtomicU32(Moss_AtomicU32 *a, uint32_t v);
+uint32_t Moss_OrAtomicU32(Moss_AtomicU32 *a, uint32_t v);
+uint32_t Moss_XorAtomicU32(Moss_AtomicU32 *a, uint32_t v);
+bool     Moss_CompareAndSwapAtomicU32(Moss_AtomicU32 *a, uint32_t oldval, uint32_t newval);
+
+// --- 64-bit Unsigned Int (Timers, Ring Buffers, ABA Tags) ---
+uint64_t Moss_GetAtomicU64(Moss_AtomicU64 *a);
+uint64_t Moss_SetAtomicU64(Moss_AtomicU64 *a, uint64_t v);
+uint64_t Moss_AddAtomicU64(Moss_AtomicU64 *a, int64_t v);
+uint64_t Moss_AndAtomicU64(Moss_AtomicU64 *a, uint64_t v);
+uint64_t Moss_OrAtomicU64(Moss_AtomicU64 *a, uint64_t v);
+uint64_t Moss_XorAtomicU64(Moss_AtomicU64 *a, uint64_t v);
+bool     Moss_CompareAndSwapAtomicU64(Moss_AtomicU64 *a, uint64_t oldval, uint64_t newval);
+
+// --- Pointers ---
+void *Moss_GetAtomicPointer(void * volatile *a);
+void *Moss_SetAtomicPointer(void * volatile *a, void *v);
+bool  Moss_CompareAndSwapAtomicPointer(void * volatile *a, void *oldval, void *newval);
+
+// High-resolution monotonic clock
+MOSS_API uint64_t Moss_GetTicksMS(void);
+MOSS_API uint64_t Moss_GetTicksNS(void);
+MOSS_API uint64_t Moss_GetPerformanceCounter(void);
+MOSS_API uint64_t Moss_GetPerformanceFrequency(void);
+
+// Delta-time helpers
+MOSS_API float    Moss_GetElapsedSeconds(uint64_t startCounter);
+MOSS_API float    Moss_GetElapsedMilliseconds(uint64_t startCounter);
+MOSS_API float    Moss_GetMillisecondsAndReset(uint64_t* counter);
+
+// Sleeping & Yielding
+MOSS_API void     Moss_Yield(void);
+MOSS_API void     Moss_DelayMS(uint32_t ms);
+MOSS_API void     Moss_DelayNS(uint64_t ns);
+MOSS_API void     Moss_DelayPreciseNS(uint64_t ns); // Sleep + spin-wait tail for frame pacing
+
+// Callback Timers
+MOSS_API Moss_TimerID Moss_AddTimerMS(uint32_t intervalMS, Moss_TimerCallback callback, void* userdata);
+MOSS_API Moss_TimerID Moss_AddTimerNS(uint64_t intervalNS, Moss_NSTimerCallback callback, void* userdata);
+MOSS_API bool         Moss_RemoveTimer(Moss_TimerID id);
+
+
+// Wall-clock queries & conversions
+MOSS_API bool Moss_GetCurrentTime(Moss_Time* ticks);
+MOSS_API bool Moss_TimeToDateTime(Moss_Time ticks, Moss_DateTime* dt, bool localTime);
+MOSS_API bool Moss_DateTimeToTime(const Moss_DateTime* dt, Moss_Time* ticks);
+
+// Calendar helpers
+MOSS_API int  Moss_GetDaysInMonth(int year, int month);
+MOSS_API int  Moss_GetDayOfYear(int year, int month, int day);
+MOSS_API int  Moss_GetDayOfWeek(int year, int month, int day);
+
+// Thread-safe formatting (writes into caller's buffer)
+MOSS_API bool Moss_FormatTime(char* outBuf, size_t bufSize, const char* fmt, const Moss_DateTime* dt);
+MOSS_API bool Moss_FormatTimeNow(char* outBuf, size_t bufSize, const char* fmt, bool localTime);
+
+// Explicit state API (Thread-safe & deterministic)
+MOSS_API void     Moss_RngSeed(Moss_RNG* rng, uint64_t seed, uint64_t sequence);
+MOSS_API uint32_t Moss_RngNextU32(Moss_RNG* rng);
+MOSS_API uint32_t Moss_RngBoundU32(Moss_RNG* rng, uint32_t bound); // Unbiased [0, bound)
+MOSS_API int32_t  Moss_RngRangeI32(Moss_RNG* rng, int32_t min, int32_t max); // Inclusive [min, max]
+MOSS_API float    Moss_RngNextFloat(Moss_RNG* rng); // [0.0f, 1.0f)
+MOSS_API float    Moss_RngRangeFloat(Moss_RNG* rng, float min, float max);
+MOSS_API float    Moss_RngGaussian(Moss_RNG* rng, float mean, float stddev);
+
+// Convenience global API (wraps a default global Moss_RNG)
+MOSS_API void     Moss_srand(uint64_t seed);
+MOSS_API int32_t  Moss_rand(int32_t n);
+MOSS_API int32_t  Moss_randi(void);
+MOSS_API float    Moss_randf(void);
+MOSS_API int32_t  Moss_randi_range(int32_t from, int32_t to);
+MOSS_API float    Moss_randf_range(float from, float to);
+MOSS_API float    Moss_rand_gaussian(float mean, float stddev);
+
 #ifdef MOSS_SIMD_NEON
 // Constructing NEON values
 #ifdef MOSS_COMPILER_MSVC
@@ -1709,153 +1689,226 @@ MOSS_INLINE float32x4_t NeonShuffleFloat32x4<1, 2, 0, 0>(float32x4_t inV1, float
 #define MOSS_NEON_SHUFFLE_F32x4(vec1, vec2, index1, index2, index3, index4) NeonShuffleFloat32x4<index1, index2, index3, index4>(vec1, vec2)
 #define MOSS_NEON_SHUFFLE_U32x4(vec1, vec2, index1, index2, index3, index4) vreinterpretq_u32_f32((NeonShuffleFloat32x4<index1, index2, index3, index4>(vreinterpretq_f32_u32(vec1), vreinterpretq_f32_u32(vec2))))
 #endif // MOSS_SIMD_NEON
-/*
-void Moss_Create_BumpAlloc(BumpAlloc* alloc, size_t size) {
-    alloc->buffer = (char*)malloc(size);
-    alloc->offset = 0;
+
+
+#ifdef JPH_USE_RVV
+
+template <unsigned IndexX, unsigned IndexY, unsigned IndexZ, unsigned IndexW>
+JPH_INLINE vfloat32m1_t RVVShuffleFloat32x4(vfloat32m1_t inV0, vfloat32m1_t inV1)
+{
+	vfloat32m2_t combined = __riscv_vlmul_ext_v_f32m1_f32m2(inV0);
+	combined = __riscv_vslideup_vx_f32m2(combined, __riscv_vlmul_ext_v_f32m1_f32m2(inV1), 4, 8);
+
+	const uint32 indices_raw[4] = { IndexX, IndexY, IndexZ, IndexW };
+	const vuint32m1_t v_indices_m1 = __riscv_vle32_v_u32m1(indices_raw, 4);
+	const vuint32m2_t v_indices_m2 = __riscv_vlmul_ext_v_u32m1_u32m2(v_indices_m1);
+
+	const vfloat32m2_t gathered_m2 = __riscv_vrgather_vv_f32m2(combined, v_indices_m2, 4);
+	return __riscv_vlmul_trunc_v_f32m2_f32m1(gathered_m2);
+}
+
+template <>
+JPH_INLINE vfloat32m1_t RVVShuffleFloat32x4<0, 1, 2, 3>(vfloat32m1_t inV0, vfloat32m1_t inV1)
+{
+	return inV0;
+}
+
+template <>
+JPH_INLINE vfloat32m1_t RVVShuffleFloat32x4<0, 1, 4, 5>(vfloat32m1_t inV0, vfloat32m1_t inV1)
+{
+	vfloat32m1_t result = inV0;
+	return __riscv_vslideup_vx_f32m1(result, inV1, 2, 4);
+}
+
+template <>
+JPH_INLINE vfloat32m1_t RVVShuffleFloat32x4<1, 0, 3, 2>(vfloat32m1_t inV0, vfloat32m1_t inV1)
+{
+	// Avoids m2 extension overhead that the default implementation of RVVShuffleFloat32x4 has
+	const uint32 indices_raw[4] = { 1, 0, 3, 2 };
+	const vuint32m1_t indices = __riscv_vle32_v_u32m1(indices_raw, 4);
+	return __riscv_vrgather_vv_f32m1(inV0, indices, 4);
+}
+
+template <>
+JPH_INLINE vfloat32m1_t RVVShuffleFloat32x4<2, 3, 0, 1>(vfloat32m1_t inV0, vfloat32m1_t inV1)
+{
+	vfloat32m1_t upper = __riscv_vslidedown_vx_f32m1(inV0, 2, 4);
+	return __riscv_vslideup_vx_f32m1(upper, inV0, 2, 4);
+}
+
+template <>
+JPH_INLINE vfloat32m1_t RVVShuffleFloat32x4<2, 3, 6, 7>(vfloat32m1_t inV0, vfloat32m1_t inV1)
+{
+	return __riscv_vslidedown_vx_f32m1_tu(inV1, inV0, 2, 2);
+}
+
+template <>
+JPH_INLINE vfloat32m1_t RVVShuffleFloat32x4<4, 5, 6, 7>(vfloat32m1_t inV0, vfloat32m1_t inV1)
+{
+	return inV1;
+}
+
+template <>
+JPH_INLINE vfloat32m1_t RVVShuffleFloat32x4<0, 2, 4, 6>(vfloat32m1_t inV0, vfloat32m1_t inV1)
+{
+	vfloat32m2_t combined = __riscv_vlmul_ext_v_f32m1_f32m2(inV0);
+	combined = __riscv_vslideup_vx_f32m2(combined, __riscv_vlmul_ext_v_f32m1_f32m2(inV1), 4, 8);
+
+	vuint64m2_t combined_u64 = __riscv_vreinterpret_v_u32m2_u64m2(__riscv_vreinterpret_v_f32m2_u32m2(combined));
+
+	// vnsrl extracts lower 32 bits from all 4 u64 elements -> [0, 2, 4, 6]
+	vuint32m1_t result = __riscv_vnsrl_wx_u32m1(combined_u64, 0, 4);
+
+	return __riscv_vreinterpret_v_u32m1_f32m1(result);
+}
+
+template <>
+JPH_INLINE vfloat32m1_t RVVShuffleFloat32x4<1, 3, 5, 7>(vfloat32m1_t inV0, vfloat32m1_t inV1)
+{
+	vfloat32m2_t combined = __riscv_vlmul_ext_v_f32m1_f32m2(inV0);
+	combined = __riscv_vslideup_vx_f32m2(combined, __riscv_vlmul_ext_v_f32m1_f32m2(inV1), 4, 8);
+
+	vuint64m2_t combined_u64 = __riscv_vreinterpret_v_u32m2_u64m2(__riscv_vreinterpret_v_f32m2_u32m2(combined));
+
+	// vnsrl with shift=32 extracts upper 32 bits from all 4 u64 elements -> [1, 3, 5, 7]
+	vuint32m1_t result = __riscv_vnsrl_wx_u32m1(combined_u64, 32, 4);
+
+	return __riscv_vreinterpret_v_u32m1_f32m1(result);
+}
+
+/// Given inV = (a, b, c, d), calculates (a + b) + (c + d) when cross platform determinism is on, otherwise calculates a + b + c + d (order undefined)
+JPH_INLINE vfloat32m1_t RVVSumElementsFloat32x4(vfloat32m1_t inV)
+{
+#ifdef JPH_CROSS_PLATFORM_DETERMINISTIC
+	const vfloat32m1_t shift1 = __riscv_vslidedown_vx_f32m1(inV, 1, 4);
+	const vfloat32m1_t sum_pairs = __riscv_vfadd_vv_f32m1(inV, shift1, 4);
+	const vfloat32m1_t shift2 = __riscv_vslidedown_vx_f32m1(sum_pairs, 2, 4);
+	const vfloat32m1_t sum = __riscv_vfadd_vv_f32m1(sum_pairs, shift2, 4);
+#else
+	const vfloat32m1_t zeros = __riscv_vfmv_v_f_f32m1(0.0f, 4);
+	const vfloat32m1_t sum = __riscv_vfredusum_vs_f32m1_f32m1(inV, zeros, 4);
+#endif
+	return sum;
+}
+
+#endif // JPH_USE_RVV
+
+MOSS_API void Moss_CreateBumpAlloc(Moss_BumpAlloc* alloc, size_t size) {
+    MOSS_ASSERT(alloc && size > 0);
+    alloc->buffer   = static_cast<uint8_t*>(Allocate(size));
+    alloc->offset   = 0;
     alloc->capacity = size;
 }
 
-void* Moss_BumpAlloc(BumpAlloc* ba, size_t size) {
-    if (alloc->offset + size > alloc->capacity) return NULL;
-    void* ptr = alloc->buffer + alloc->offset;
-    alloc->offset += size;
-    return ptr
+MOSS_INLINE void* Moss_BumpAlloc(Moss_BumpAlloc* alloc, size_t size, size_t alignment = 16) {
+    MOSS_ASSERT(alloc && (alignment & (alignment - 1)) == 0); // Power of 2 check
+
+    // Align current offset up to requested boundary
+    size_t alignedOffset = (alloc->offset + (alignment - 1)) & ~(alignment - 1);
+
+    // Overflow-safe bounds check
+    if (alignedOffset > alloc->capacity || size > alloc->capacity - alignedOffset) { return nullptr; }
+
+    void* ptr = alloc->buffer + alignedOffset;
+    alloc->offset = alignedOffset + size;
+    return ptr;
 }
 
-void reset_BumpAlloc(BumpAlloc* alloc) { alloc->offset = 0; }
-void free_BumpAlloc(BumpAlloc* alloc) { free(alloc->buffer); }
+MOSS_INLINE void Moss_ResetBumpAlloc(Moss_BumpAlloc* alloc) { if (alloc) alloc->offset = 0; }
 
-
-
-long long Moss_GetFileTimeStamp(char* file) {
-    struct stat file_stat = {};
-    stat(file, &file_stat);
-    return file_stat.st_mtime;
+MOSS_INLINE void Moss_FreeBumpAlloc(Moss_BumpAlloc* alloc) {
+    if (alloc && alloc->buffer) {
+        Free(alloc->buffer);
+        alloc->buffer   = nullptr;
+        alloc->offset   = 0;
+        alloc->capacity = 0;
+    }
 }
 
-bool Moss_FileExists(char* filepath)
-{
-    MOSS_ERROR(filepath, "No filepath supplied.");
 
-    int file = fopen(filepath, "rb");
-    if (!file) { return false; }
-    
+
+MOSS_INLINE int64_t Moss_GetFileTimeStamp(const char* filepath) {
+    if (!filepath) return -1;
+    struct stat fileStat = {};
+    if (stat(filepath, &fileStat) != 0) { return -1; }
+    return static_cast<int64_t>(fileStat.st_mtime);
+}
+
+MOSS_INLINE bool Moss_FileExists(const char* filepath) {
+    if (!filepath) return false;
+    FILE* file = fopen(filepath, "rb");
+    if (!file) return false;
     fclose(file);
-
     return true;
 }
 
-long Moss_GetFileSize(char* filepath)
-{
-    MOSS_ERROR(filepath, "No filepath supplied.");
+MOSS_INLINE int64_t Moss_GetFileSize(const char* filepath) {
+    if (!filepath) return -1;
+    FILE* file = fopen(filepath, "rb");
+    if (!file) return -1;
 
-    long fileSize = 0;
-    int file = fopen(filepath, "rb");
-    if (!file) { MOSS_ERROR(filepath, "Failed opening file: %s", filepath); return 0; }
+    if (fseek(file, 0, SEEK_END) != 0) { fclose(file); return -1; }
 
-    fseek(file, 0, SEEK_END);
-    fileSize = ftell(file);
-
-    fseek(file, 0, SEEK_SET);
+    long size = ftell(file);
     fclose(file);
-
-    return fileSize;
+    return (size < 0) ? -1 : static_cast<int64_t>(size);
 }
 
+// Reads file into a caller-supplied buffer of size >= fileSize + 1
+MOSS_INLINE char* Moss_FileRead(const char* filepath, size_t* outFileSize, char* buffer, size_t bufferCapacity) {
+    if (!filepath || !outFileSize || !buffer) return nullptr;
+    *outFileSize = 0;
 
-// Reads a file into a supplied buffer. We manage our own memory and therefore want more control over where it is allocated
-
-char* Moss_FileRead(char* filepath, int fileSize, char* buffer) {
-    MOSS_ERROR(filePath, "No filePath supplied!");
-    MOSS_ERROR(fileSize, "No fileSize supplied!");
-    MOSS_ERROR(buffer, "No buffer supplied!");
-
-    *fileSize = 0;
-    auto file = fopen(filePath, "rb");
-    if(!file) {
-        MOSS_ERROR("Failed opening File: %s", filePath);
-        return nullptr;
-    }
+    FILE* file = fopen(filepath, "rb");
+    if (!file) return nullptr;
 
     fseek(file, 0, SEEK_END);
-    *fileSize = ftell(file);
+    long rawSize = ftell(file);
     fseek(file, 0, SEEK_SET);
 
-    memset(buffer, 0, *fileSize + 1);
-    fread(buffer, sizeof(char), *fileSize, file);
+    if (rawSize < 0 || static_cast<size_t>(rawSize) + 1 > bufferCapacity) { fclose(file); return nullptr; }
 
+    size_t size = static_cast<size_t>(rawSize);
+    size_t bytesRead = fread(buffer, 1, size, file);
     fclose(file);
 
+    if (bytesRead != size) return nullptr;
+
+    buffer[size] = '\0'; // Null-terminate safely for text files
+    *outFileSize = size;
     return buffer;
 }
 
+// Overload using Moss_BumpAlloc
+MOSS_INLINE char* Moss_FileRead(const char* filepath, size_t* outFileSize, Moss_BumpAlloc* alloc) {
+    int64_t size = Moss_GetFileSize(filepath);
+    if (size < 0) return nullptr;
 
-char* read_file(const char* filePath, int* fileSize, BumpAlloc* BumpAlloc) {
-	char* file = nullptr;
-	long fileSize2 = get_file_size(filePath);
+    size_t capacity = static_cast<size_t>(size) + 1;
+    char* buffer = static_cast<char*>(Moss_BumpAlloc(alloc, capacity, 16));
+    if (!buffer) return nullptr;
 
-	if(fileSize2) {
-		char* buffer = bump_alloc(BumpAlloc, fileSize2 + 1);
-
-		file = read_file(filePath, fileSize, buffer);
-	}
-
-	return file; 
+    return Moss_FileRead(filepath, outFileSize, buffer, capacity);
 }
 
-void Moss_FileWrite(char* filepath, char* buffer, int size) {
-    MOSS_ERROR(filePath, "No filePath supplied!");
-    MOSS_ERROR(buffer, "No buffer supplied!");
-    auto file = fopen(filePath, "wb");
-    if(!file) {
-        MOSS_ERROR("Failed opening File: %s", filePath);
-        return;
-    }
+MOSS_INLINE bool Moss_FileWrite(const char* filepath, const void* buffer, size_t size) {
+    if (!filepath || (!buffer && size > 0)) return false;
 
-    fwrite(buffer, sizeof(char), size, file);
+    FILE* file = fopen(filepath, "wb");
+    if (!file) return false;
+
+    size_t written = fwrite(buffer, 1, size, file);
     fclose(file);
+    return written == size;
 }
 
+MOSS_INLINE bool Moss_CopyFile(const char* srcPath, const char* dstPath, Moss_BumpAlloc* alloc) {
+    size_t fileSize = 0;
+    char* data = Moss_FileRead(srcPath, &fileSize, alloc);
+    if (!data) { return false; }
 
-
-bool Moss_CopyFile(const char* fileName, const char* outputName, char* buffer) {
-	int fileSize = 0;
-	char* data = read_file(fileName, &fileSize, buffer);
-
-	auto outputFile = fopen(outputName, "wb");
-	if(!outputFile)
-	{
-		MOSS_ERROR("Failed opening File: %s", outputName);
-		return false;
-	}
-
-	int result = fwrite(data, sizeof(char), fileSize, outputFile);
-	if(!result) {
-		MOSS_ERROR("Failed opening File: %s", outputName);
-		return false;
-	}
-	
-	fclose(outputFile);
-
-	return true;
+    return Moss_FileWrite(dstPath, data, fileSize);
 }
-
-bool copy_file(const char* fileName, const char* outputName, BumpAlloc* BumpAlloc) {
-	char* file = 0;
-	long fileSize2 = get_file_size(fileName);
-
-	if(fileSize2)
-	{
-		char* buffer = bump_alloc(BumpAlloc, fileSize2 + 1);
-
-		return copy_file(fileName, outputName, buffer);
-	}
-
-  	return false;
-}
-
-MOSS_SUPPRESS_WARNINGS_END
 
 
 // Find the roots of \f$inA \: x^2 + inB \: x + inC = 0\f$.
@@ -1864,12 +1917,9 @@ MOSS_SUPPRESS_WARNINGS_END
 template <typename T>
 inline int FindRoot(const T inA, const T inB, const T inC, T &outX1, T &outX2) {
 	// Check if this is a linear equation
-	if (inA == T(0))
-	{
+	if (inA == T(0)) {
 		// Check if this is a constant equation
-		if (inB == T(0))
-			return 0;
-
+		if (inB == T(0)) { return 0; }
 		// Linear equation with 1 solution
 		outX1 = outX2 = -inC / inB;
 		return 1;
@@ -1877,24 +1927,16 @@ inline int FindRoot(const T inA, const T inB, const T inC, T &outX1, T &outX2) {
 
 	// See Numerical Recipes in C, Chapter 5.6 Quadratic and Cubic Equations
 	T det = Square(inB) - T(4) * inA * inC;
-	if (det < T(0))
-		return 0;
+	if (det < T(0)) { return 0; }
 	T q = (inB + Sign(inB) * sqrt(det)) / T(-2);
 	outX1 = q / inA;
-	if (q == T(0))
-	{
+	if (q == T(0)) {
 		outX2 = outX1;
 		return 1;
 	}
 	outX2 = inC / q;
 	return 2;
 }
-
-MOSS_SUPPRESS_WARNINGS_BEGIN
-#include <cstdlib>
-MOSS_SUPPRESS_WARNINGS_END
-#include <stdlib.h>
-MOSS_SUPPRESS_WARNINGS_BEGIN
 
 #ifdef MOSS_DISABLE_CUSTOM_ALLOCATOR
 	#define MOSS_ALLOC_FN(x)	x
@@ -1904,22 +1946,17 @@ MOSS_SUPPRESS_WARNINGS_BEGIN
 	#define MOSS_ALLOC_SCOPE static
 #endif
 
-MOSS_ALLOC_SCOPE void *MOSS_ALLOC_FN(Allocate)(size_t inSize)
-{
+MOSS_ALLOC_SCOPE void *MOSS_ALLOC_FN(Allocate)(size_t inSize) {
 	MOSS_ASSERT(inSize > 0);
 	return malloc(inSize);
 }
 
-MOSS_ALLOC_SCOPE void *MOSS_ALLOC_FN(Reallocate)(void *inBlock, [[maybe_unused]] size_t inOldSize, size_t inNewSize)
-{
+MOSS_ALLOC_SCOPE void *MOSS_ALLOC_FN(Reallocate)(void *inBlock, [[maybe_unused]] size_t inOldSize, size_t inNewSize) {
 	MOSS_ASSERT(inNewSize > 0);
 	return realloc(inBlock, inNewSize);
 }
 
-MOSS_ALLOC_SCOPE void MOSS_ALLOC_FN(Free)(void *inBlock)
-{
-	free(inBlock);
-}
+MOSS_ALLOC_SCOPE void MOSS_ALLOC_FN(Free)(void *inBlock) { free(inBlock); }
 
 MOSS_ALLOC_SCOPE void *MOSS_ALLOC_FN(AlignedAllocate)(size_t inSize, size_t inAlignment)
 {
@@ -1956,8 +1993,7 @@ FreeFunction Free = nullptr;
 AlignedAllocateFunction AlignedAllocate = nullptr;
 AlignedFreeFunction AlignedFree = nullptr;
 
-void RegisterDefaultAllocator()
-{
+void RegisterDefaultAllocator() {
 	Allocate = AllocateImpl;
 	Reallocate = ReallocateImpl;
 	Free = FreeImpl;
@@ -1967,205 +2003,201 @@ void RegisterDefaultAllocator()
 #endif // MOSS_DISABLE_CUSTOM_ALLOCATOR
 
 
-typedef int64 Moss_Time;
-#define MOSS_MAX_TIME MOSS_MAX_SINT64
-#define MOSS_MIN_TIME MOSS_MIN_SINT64
+// ============================================================================
+// Compiler Format Checking Annotations (MSVC SAL vs GCC/Clang Attributes)
+// ============================================================================
+#if defined(_MSC_VER)
+    #define MOSS_PRINTF_FORMAT_STRING _Printf_format_string_
+    #define MOSS_SCANF_FORMAT_STRING  _Scanf_format_string_impl_
+    #define MOSS_PRINTF_VARARG_FUNC(fmtarg)
+    #define MOSS_PRINTF_VARARG_FUNCV(fmtarg)
+    #define MOSS_SCANF_VARARG_FUNC(fmtarg)
+    #define MOSS_SCANF_VARARG_FUNCV(fmtarg)
+#elif defined(__GNUC__) || defined(__clang__)
+    #define MOSS_PRINTF_FORMAT_STRING
+    #define MOSS_SCANF_FORMAT_STRING
+    #define MOSS_PRINTF_VARARG_FUNC(fmtarg)  __attribute__((format(__printf__, fmtarg, fmtarg + 1)))
+    #define MOSS_PRINTF_VARARG_FUNCV(fmtarg) __attribute__((format(__printf__, fmtarg, 0)))
+    #define MOSS_SCANF_VARARG_FUNC(fmtarg)   __attribute__((format(__scanf__, fmtarg, fmtarg + 1)))
+    #define MOSS_SCANF_VARARG_FUNCV(fmtarg)  __attribute__((format(__scanf__, fmtarg, 0)))
+#else
+    #define MOSS_PRINTF_FORMAT_STRING
+    #define MOSS_SCANF_FORMAT_STRING
+    #define MOSS_PRINTF_VARARG_FUNC(fmtarg)
+    #define MOSS_PRINTF_VARARG_FUNCV(fmtarg)
+    #define MOSS_SCANF_VARARG_FUNC(fmtarg)
+    #define MOSS_SCANF_VARARG_FUNCV(fmtarg)
+#endif
 
-typedef void *(MOSS_CALL *MOSS_realloc_func)(void *mem, size_t size);
-typedef void *(MOSS_CALL *MOSS_malloc_func)(size_t size);
-typedef void (MOSS_CALL *MOSS_free_func)(void *mem);
-typedef void (*MOSS_FunctionPointer)(void);
-typedef int (MOSS_CALL *MOSS_CompareCallback_r)(void *userdata, const void *a, const void *b);
-typedef int (MOSS_CALL *MOSS_CompareCallback)(const void *a, const void *b);
-typedef void *(MOSS_CALL *MOSS_calloc_func)(size_t nmemb, size_t size);
+// ============================================================================
+// C / C++ Safe Cast Macros
+// ============================================================================
+#ifdef __cplusplus
+    #define MOSS_static_cast(type, expression)      static_cast<type>(expression)
+    #define MOSS_reinterpret_cast(type, expression) reinterpret_cast<type>(expression)
+    #define MOSS_const_cast(type, expression)       const_cast<type>(expression)
+#else
+    #define MOSS_static_cast(type, expression)      ((type)(expression))
+    #define MOSS_reinterpret_cast(type, expression) ((type)(expression))
+    #define MOSS_const_cast(type, expression)       ((type)(expression))
+#endif
 
+// ============================================================================
+// Memory, Stack & String Helpers
+// ============================================================================
+#define MOSS_STRINGIFY_ARG(arg) #arg
 
+#if defined(_MSC_VER)
+    #define MOSS_stack_alloc(type, count) MOSS_static_cast(type*, _alloca(sizeof(type) * (count)))
+#else
+    #define MOSS_stack_alloc(type, count) MOSS_static_cast(type*, alloca(sizeof(type) * (count)))
+#endif
+#define MOSS_stack_free(data) ((void)(data))
 
-#define MOSS_const_cast(type, expression) const_cast<type>(expression)
-#define MOSS_iconv_utf8_locale(S)    MOSS_iconv_string("", "UTF-8", S, MOSS_strlen(S)+1)
-#define MOSS_iconv_utf8_ucs2(S)      MOSS_reinterpret_cast(Uint16 *, MOSS_iconv_string("UCS-2", "UTF-8", S, MOSS_strlen(S)+1))
-#define MOSS_iconv_utf8_ucs4(S)      MOSS_reinterpret_cast(Uint32 *, MOSS_iconv_string("UCS-4", "UTF-8", S, MOSS_strlen(S)+1))
-#define MOSS_iconv_wchar_utf8(S)     MOSS_iconv_string("UTF-8", "WCHAR_T", MOSS_reinterpret_cast(const char *, S), (MOSS_wcslen(S)+1)*sizeof(wchar_t))
-#define MOSS_PRINTF_FORMAT_STRING _Printf_format_string_
-#define MOSS_PRINTF_VARARG_FUNC( fmtargnumber ) __attribute__ (( format( __printf__, fmtargnumber, fmtargnumber+1 )))
-#define MOSS_PRINTF_VARARG_FUNCV( fmtargnumber ) __attribute__(( format( __printf__, fmtargnumber, 0 )))
-#define MOSS_reinterpret_cast(type, expression) reinterpret_cast<type>(expression)
-#define MOSS_SCANF_FORMAT_STRING _Scanf_format_string_impl_
-#define MOSS_SCANF_VARARG_FUNC( fmtargnumber ) __attribute__ (( format( __scanf__, fmtargnumber, fmtargnumber+1 )))
-#define MOSS_SCANF_VARARG_FUNCV( fmtargnumber ) __attribute__(( format( __scanf__, fmtargnumber, 0 )))
-#define MOSS_stack_alloc(type, count)    (type*)alloca(sizeof(type)*(count))
-#define MOSS_stack_free(data)
-#define MOSS_static_cast(type, expression) static_cast<type>(expression)
-#define MOSS_STRINGIFY_ARG(arg)  #arg
-#define MOSS_zero(x) MOSS_memset(&(x), 0, sizeof((x)))
+#define MOSS_zero(x)  MOSS_memset(&(x), 0, sizeof((x)))
 #define MOSS_zeroa(x) MOSS_memset((x), 0, sizeof((x)))
 #define MOSS_zerop(x) MOSS_memset((x), 0, sizeof(*(x)))
 
+// ============================================================================
+// Core Callback Typedefs
+// ============================================================================
+typedef void* (MOSS_CALL *MOSS_malloc_func)(size_t size);
+typedef void* (MOSS_CALL *MOSS_calloc_func)(size_t nmemb, size_t size);
+typedef void* (MOSS_CALL *MOSS_realloc_func)(void* mem, size_t size);
+typedef void  (MOSS_CALL *MOSS_free_func)(void* mem);
+
+typedef void (*MOSS_FunctionPointer)(void);
+typedef int  (MOSS_CALL *MOSS_CompareCallback)(const void* a, const void* b);
+typedef int  (MOSS_CALL *MOSS_CompareCallback_r)(void* userdata, const void* a, const void* b);
 
 
+#if defined(__AVX2__)
+    #include <immintrin.h>
+    typedef __m128  Moss_Simd128f;
+    typedef __m128d Moss_Simd128d;
+    typedef __m128i Moss_Simd128i;
+    typedef __m256  Moss_Simd256f;
+    typedef __m256d Moss_Simd256d;
+    typedef __m256i Moss_Simd256i;
+#elif defined(__SSE2__) || defined(_M_X64) || (defined(_M_IX86_FP) && _M_IX86_FP >= 2)
+    #include <emmintrin.h>
+    typedef __m128  Moss_Simd128f;
+    typedef __m128d Moss_Simd128d;
+    typedef __m128i Moss_Simd128i;
+    typedef struct { __m128 lo, hi; }  Moss_Simd256f;
+    typedef struct { __m128d lo, hi; } Moss_Simd256d;
+    typedef struct { __m128i lo, hi; } Moss_Simd256i;
+#elif defined(__ARM_NEON)
+    #include <arm_neon.h>
+    typedef float32x4_t Moss_Simd128f;
+    typedef float64x2_t Moss_Simd128d;
+    typedef int32x4_t   Moss_Simd128i;
+    typedef struct { float32x4_t lo, hi; } Moss_Simd256f;
+    typedef struct { float64x2_t lo, hi; } Moss_Simd256d;
+    typedef struct { int32x4_t lo, hi; }   Moss_Simd256i;
+#else
+    typedef struct { float v[4]; }    Moss_Simd128f;
+    typedef struct { double v[2]; }   Moss_Simd128d;
+    typedef struct { int32_t v[4]; }  Moss_Simd128i;
+    typedef struct { float v[8]; }    Moss_Simd256f;
+    typedef struct { double v[4]; }   Moss_Simd256d;
+    typedef struct { int32_t v[8]; }  Moss_Simd256i;
+#endif
 
-typedef int Moss_SpinLock;
+// ============================================================================
+// Memory Load & Store Operations (Explicit Memory Boundaries)
+// ============================================================================
+MOSS_INLINE Moss_Simd128i Moss_Simd_i_Load(const void* ptr);          // 16-byte aligned
+MOSS_INLINE Moss_Simd128i Moss_Simd_i_LoadU(const void* ptr);         // Unaligned
+MOSS_INLINE void          Moss_Simd_i_Store(void* ptr, Moss_Simd128i v);
+MOSS_INLINE void          Moss_Simd_i_StoreU(void* ptr, Moss_Simd128i v);
 
-#define Moss_AtomicDecRef(a)    (Moss_AddAtomicInt(a, -1) == 1)
-#define Moss_AtomicIncRef(a)    Moss_AddAtomicInt(a, 1)
+MOSS_INLINE Moss_Simd128f Moss_Simd_f_Load(const float* ptr);         // 16-byte aligned
+MOSS_INLINE Moss_Simd128f Moss_Simd_f_LoadU(const float* ptr);        // Unaligned
+MOSS_INLINE void          Moss_Simd_f_Store(float* ptr, Moss_Simd128f v);
+MOSS_INLINE void          Moss_Simd_f_StoreU(float* ptr, Moss_Simd128f v);
 
-int Moss_AddAtomicInt(Moss_AtomicInt *a, int v);
-Uint32 Moss_AddAtomicU32(Moss_AtomicU32 *a, int v);
-bool Moss_CompareAndSwapAtomicInt(Moss_AtomicInt *a, int oldval, int newval);
-bool Moss_CompareAndSwapAtomicPointer(void **a, void *oldval, void *newval);
-bool Moss_CompareAndSwapAtomicU32(Moss_AtomicU32 *a, Uint32 oldval, Uint32 newval);
-int Moss_GetAtomicInt(Moss_AtomicInt *a);
-void * Moss_GetAtomicPointer(void **a);
-Uint32 Moss_GetAtomicU32(Moss_AtomicU32 *a);
-void Moss_LockSpinlock(Moss_SpinLock *lock);
-void Moss_MemoryBarrierAcquireFunction(void);
-void Moss_MemoryBarrierReleaseFunction(void);
-int Moss_SetAtomicInt(Moss_AtomicInt *a, int v);
-void * Moss_SetAtomicPointer(void **a, void *v);
-void Moss_MemoryBarrierReleaseFunction(void);
-bool Moss_TryLockSpinlock(Moss_SpinLock *lock);
-Uint32 Moss_SetAtomicU32(Moss_AtomicU32 *a, Uint32 v);
-void Moss_UnlockSpinlock(Moss_SpinLock *lock);
+MOSS_INLINE Moss_Simd128d Moss_Simd_d_Load(const double* ptr);        // 16-byte aligned
+MOSS_INLINE Moss_Simd128d Moss_Simd_d_LoadU(const double* ptr);       // Unaligned
+MOSS_INLINE void          Moss_Simd_d_Store(double* ptr, Moss_Simd128d v);
+MOSS_INLINE void          Moss_Simd_d_StoreU(double* ptr, Moss_Simd128d v);
 
 
 // ============================================================================
-// Boolean & Bitwise Masks (_b / 1-bit per flag)
+// Boolean & Bitwise Masks (_b / 128-bit raw register bits)
 // ============================================================================
-
-// Performs bitwise AND across 128 raw bit-flags (16 bytes input data)
-void Moss_Simd_b_And(const uint8_t* a, const uint8_t* b, uint8_t* result);
-
-// Performs bitwise OR across 128 raw bit-flags (16 bytes input data)
-void Moss_Simd_b_Or(const uint8_t* a, const uint8_t* b, uint8_t* result);
-
-// Performs bitwise XOR across 128 raw bit-flags (16 bytes input data)
-void Moss_Simd_b_Xor(const uint8_t* a, const uint8_t* b, uint8_t* result);
-
-// Performs bitwise NOT inversion across 128 raw bit-flags (16 bytes input data)
-void Moss_Simd_b_Not(const uint8_t* src, uint8_t* result);
-
-// Compares if elements in a < b, and extracts the results into a scalar 4-bit integer mask
-int Moss_Simd_f_Movemask(const float* a, const float* b);
+MOSS_INLINE Moss_Simd128i Moss_Simd_b_And(Moss_Simd128i a, Moss_Simd128i b);
+MOSS_INLINE Moss_Simd128i Moss_Simd_b_Or(Moss_Simd128i a, Moss_Simd128i b);
+MOSS_INLINE Moss_Simd128i Moss_Simd_b_Xor(Moss_Simd128i a, Moss_Simd128i b);
+MOSS_INLINE Moss_Simd128i Moss_Simd_b_Not(Moss_Simd128i src);
+MOSS_INLINE Moss_Simd128i Moss_Simd_b_AndNot(Moss_Simd128i a, Moss_Simd128i b); // (~a) & b
 
 
 // ============================================================================
-// 8-Bit Integers / Characters (_c / 16 elements per 128-bit loop)
+// 8-Bit Integers / Characters (_c / 16 elements per 128-bit register)
 // ============================================================================
-
-// Component-wise signed 8-bit addition with standard wrapping
-void Moss_Simd_c_Add(const int8_t* a, const int8_t* b, int8_t* result);
-
-// Component-wise signed 8-bit subtraction with standard wrapping
-void Moss_Simd_c_Sub(const int8_t* a, const int8_t* b, int8_t* result);
-
-// Unsigned 8-bit saturating addition (Clamps automatically at 255. Perfect for RGBA)
-void Moss_Simd_c_AddSat(const uint8_t* a, const uint8_t* b, uint8_t* result);
-
-// Unsigned 8-bit saturating subtraction (Clamps automatically at 0)
-void Moss_Simd_c_SubSat(const uint8_t* a, const uint8_t* b, uint8_t* result);
-
-// Selects the minimum value component-by-component across 16 elements
-void Moss_Simd_c_Min(const uint8_t* a, const uint8_t* b, uint8_t* result);
-
-// Selects the maximum value component-by-component across 16 elements
-void Moss_Simd_c_Max(const uint8_t* a, const uint8_t* b, uint8_t* result);
+MOSS_INLINE Moss_Simd128i Moss_Simd_c_Add(Moss_Simd128i a, Moss_Simd128i b);     // Wrapping signed/unsigned
+MOSS_INLINE Moss_Simd128i Moss_Simd_c_Sub(Moss_Simd128i a, Moss_Simd128i b);     // Wrapping signed/unsigned
+MOSS_INLINE Moss_Simd128i Moss_Simd_c_AddSatU(Moss_Simd128i a, Moss_Simd128i b); // Unsigned saturating [0..255]
+MOSS_INLINE Moss_Simd128i Moss_Simd_c_SubSatU(Moss_Simd128i a, Moss_Simd128i b); // Unsigned saturating [0..255]
+MOSS_INLINE Moss_Simd128i Moss_Simd_c_MinU(Moss_Simd128i a, Moss_Simd128i b);    // Unsigned min
+MOSS_INLINE Moss_Simd128i Moss_Simd_c_MaxU(Moss_Simd128i a, Moss_Simd128i b);    // Unsigned max
 
 
 // ============================================================================
-// 16-Bit Integers / Shorts (_s / 8 elements per 128-bit loop)
+// 16-Bit Integers / Shorts (_s / 8 elements per 128-bit register)
 // ============================================================================
-
-// Component-wise signed 16-bit addition
-void Moss_Simd_s_Add(const int16_t* a, const int16_t* b, int16_t* result);
-
-// Component-wise signed 16-bit subtraction
-void Moss_Simd_s_Sub(const int16_t* a, const int16_t* b, int16_t* result);
-
-// Component-wise signed 16-bit multiplication (Useful for audio processing)
-void Moss_Simd_s_Mul(const int16_t* a, const int16_t* b, int16_t* result);
-
-// Shifts 8 packed 16-bit integers left by a constant count value
-void Moss_Simd_s_ShiftLeft(const int16_t* src, int count, int16_t* result);
-
-// Shifts 8 packed 16-bit integers right by a constant count value
-void Moss_Simd_s_ShiftRight(const int16_t* src, int count, int16_t* result);
+MOSS_INLINE Moss_Simd128i Moss_Simd_s_Add(Moss_Simd128i a, Moss_Simd128i b);
+MOSS_INLINE Moss_Simd128i Moss_Simd_s_Sub(Moss_Simd128i a, Moss_Simd128i b);
+MOSS_INLINE Moss_Simd128i Moss_Simd_s_MulLow(Moss_Simd128i a, Moss_Simd128i b);  // Low 16 bits of product
+MOSS_INLINE Moss_Simd128i Moss_Simd_s_ShiftLeft(Moss_Simd128i src, int count);
+MOSS_INLINE Moss_Simd128i Moss_Simd_s_ShiftRightA(Moss_Simd128i src, int count); // Arithmetic (sign-extending)
+MOSS_INLINE Moss_Simd128i Moss_Simd_s_ShiftRightL(Moss_Simd128i src, int count); // Logical (zero-filling)
 
 
 // ============================================================================
-// 32-Bit Integers (_i / 4 elements per 128-bit loop)
+// 32-Bit Integers (_i / 4 elements per 128-bit register)
 // ============================================================================
-
-// Component-wise signed 32-bit addition (Useful for ECS Entities / Identifiers)
-void Moss_Simd_i_Add(const int32_t* a, const int32_t* b, int32_t* result);
-
-// Component-wise signed 32-bit subtraction
-void Moss_Simd_i_Sub(const int32_t* a, const int32_t* b, int32_t* result);
-
-// Component-wise signed 32-bit multiplication
-void Moss_Simd_i_Mul(const int32_t* a, const int32_t* b, int32_t* result);
-
-// Compares if elements equal each other. Outputs 0xFFFFFFFF or 0x00000000 per index lane
-void Moss_Simd_i_Cmpeq(const int32_t* a, const int32_t* b, int32_t* result_mask);
+MOSS_INLINE Moss_Simd128i Moss_Simd_i_Set1(int32_t v);
+MOSS_INLINE Moss_Simd128i Moss_Simd_i_Add(Moss_Simd128i a, Moss_Simd128i b);
+MOSS_INLINE Moss_Simd128i Moss_Simd_i_Sub(Moss_Simd128i a, Moss_Simd128i b);
+MOSS_INLINE Moss_Simd128i Moss_Simd_i_Mul(Moss_Simd128i a, Moss_Simd128i b);
+MOSS_INLINE Moss_Simd128i Moss_Simd_i_Cmpeq(Moss_Simd128i a, Moss_Simd128i b);   // 0xFFFFFFFF or 0x00000000 per lane
 
 
 // ============================================================================
-// 32-Bit Floating Point (_f / 4 elements per 128-bit loop)
+// 32-Bit Floating Point (_f / 4 elements per 128-bit register)
 // ============================================================================
-
-// Component-wise 32-bit floating point addition
-void Moss_Simd_f_Add(const float* a, const float* b, float* result);
-
-// Component-wise 32-bit floating point subtraction
-void Moss_Simd_f_Sub(const float* a, const float* b, float* result);
-
-// Component-wise 32-bit floating point multiplication
-void Moss_Simd_f_Mul(const float* a, const float* b, float* result);
-
-// Component-wise 32-bit floating point division
-void Moss_Simd_f_Div(const float* a, const float* b, float* result);
-
-// Component-wise square root on 4 floating point variables
-void Moss_Simd_f_Sqrt(const float* src, float* result);
-
-// Fused Multiply-Add operation: Computes (a * b) + c with single-cycle rounding precision
-void Moss_Simd_f_FMA(const float* a, const float* b, const float* c, float* result);
-
-// Calculates a high-speed vector dot product across 3 active float dimensions
-float Moss_Simd_f_Dot3(const float* a, const float* b);
-
-// Selectively blends data blocks from a or b dynamically based on condition bits
-void Moss_Simd_f_Blend(const float* a, const float* b, const int32_t* mask, float* result);
+MOSS_INLINE Moss_Simd128f Moss_Simd_f_Set1(float v);
+MOSS_INLINE Moss_Simd128f Moss_Simd_f_Add(Moss_Simd128f a, Moss_Simd128f b);
+MOSS_INLINE Moss_Simd128f Moss_Simd_f_Sub(Moss_Simd128f a, Moss_Simd128f b);
+MOSS_INLINE Moss_Simd128f Moss_Simd_f_Mul(Moss_Simd128f a, Moss_Simd128f b);
+MOSS_INLINE Moss_Simd128f Moss_Simd_f_Div(Moss_Simd128f a, Moss_Simd128f b);
+MOSS_INLINE Moss_Simd128f Moss_Simd_f_Sqrt(Moss_Simd128f src);
+MOSS_INLINE Moss_Simd128f Moss_Simd_f_FMA(Moss_Simd128f a, Moss_Simd128f b, Moss_Simd128f c); // (a * b) + c
+MOSS_INLINE float         Moss_Simd_f_Dot3(Moss_Simd128f a, Moss_Simd128f b);
+MOSS_INLINE Moss_Simd128f Moss_Simd_f_Cmplt(Moss_Simd128f a, Moss_Simd128f b);   // Returns lane mask
+MOSS_INLINE int           Moss_Simd_f_Movemask(Moss_Simd128f mask);              // Extracts 4-bit scalar mask
+MOSS_INLINE Moss_Simd128f Moss_Simd_f_Blend(Moss_Simd128f a, Moss_Simd128f b, Moss_Simd128f mask);
 
 
 // ============================================================================
-// 64-Bit Floating Point / Doubles (_d / 2 elements per 128-bit loop)
+// 64-Bit Floating Point / Doubles (_d / 2 elements per 128-bit register)
 // ============================================================================
-
-// Component-wise 64-bit precision floating point addition
-void Moss_Simd_d_Add(const double* a, const double* b, double* result);
-
-// Component-wise 64-bit precision floating point subtraction
-void Moss_Simd_d_Sub(const double* a, const double* b, double* result);
-
-// Component-wise 64-bit precision floating point multiplication
-void Moss_Simd_d_Mul(const double* a, const double* b, double* result);
-
-// Component-wise 64-bit precision floating point division
-void Moss_Simd_d_Div(const double* a, const double* b, double* result);
+MOSS_INLINE Moss_Simd128d Moss_Simd_d_Set1(double v);
+MOSS_INLINE Moss_Simd128d Moss_Simd_d_Add(Moss_Simd128d a, Moss_Simd128d b);
+MOSS_INLINE Moss_Simd128d Moss_Simd_d_Sub(Moss_Simd128d a, Moss_Simd128d b);
+MOSS_INLINE Moss_Simd128d Moss_Simd_d_Mul(Moss_Simd128d a, Moss_Simd128d b);
+MOSS_INLINE Moss_Simd128d Moss_Simd_d_Div(Moss_Simd128d a, Moss_Simd128d b);
 
 
 // ============================================================================
 // High-End Register Scales (256-Bit / AVX2 Variations)
 // ============================================================================
+MOSS_INLINE Moss_Simd256i Moss_Simd256_i_Add(Moss_Simd256i a, Moss_Simd256i b);
+MOSS_INLINE Moss_Simd256f Moss_Simd256_f_Add(Moss_Simd256f a, Moss_Simd256f b);
+MOSS_INLINE Moss_Simd256d Moss_Simd256_d_Add(Moss_Simd256d a, Moss_Simd256d b);
 
-// Processes 8 signed integers simultaneously using 256-bit pipelines
-void Moss_Simd256_i_Add(const int32_t* a, const int32_t* b, int32_t* result);
-
-// Processes 8 floats simultaneously using 256-bit pipelines
-void Moss_Simd256_f_Add(const float* a, const float* b, float* result);
-
-// Processes 4 doubles simultaneously using 256-bit pipelines
-void Moss_Simd256_d_Add(const double* a, const double* b, double* result);
-*/
+MOSS_SUPPRESS_WARNINGS_END
 
 #endif // MOSS_STDINC_H

@@ -8,7 +8,7 @@
 
 #include <Moss/Moss_Physics.h>
 
-#include <Moss/Physics/Body/MotionProperties.h>
+#include <Moss/Physics/Body/Body.h>
 #include <Moss/Physics/SoftBody/SoftBodySharedSettings.h>
 #include <Moss/Physics/SoftBody/SoftBodyVertex.h>
 

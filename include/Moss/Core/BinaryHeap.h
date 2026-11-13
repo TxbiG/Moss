@@ -49,8 +49,7 @@ void BinaryHeapPush(Iterator inBegin, Iterator inEnd, Pred inPred)
 /// inPred is a function that returns true if the first element is less or equal than the second element.
 /// See: https://en.wikipedia.org/wiki/Binary_heap
 template <typename Iterator, typename Pred>
-void BinaryHeapPop(Iterator inBegin, Iterator inEnd, Pred inPred)
-{
+void BinaryHeapPop(Iterator inBegin, Iterator inEnd, Pred inPred) {
 	using diff_t = typename std::iterator_traits<Iterator>::difference_type;
 
 	// Begin by moving the highest element to the end, this is the popped element

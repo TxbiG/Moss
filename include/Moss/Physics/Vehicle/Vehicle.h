@@ -4,13 +4,13 @@ MOSS_SUPPRESS_WARNINGS_BEGIN
 
 #include <Moss/Physics/Collision/Shape/Shapes.h>
 
-enum class ETrackSide : uint8_t_t {
+enum class ETrackSide : uint8_t {
 	Left = 0,
 	Right = 1,
 	Num = 2
 };
 
-enum class ETransmissionMode : uint8_t_t {
+enum class ETransmissionMode : uint8_t {
 	Auto,																// Automatically shift gear up and down
 	Manual,																// Manual gear shift (call SetTransmissionInput)
 };
