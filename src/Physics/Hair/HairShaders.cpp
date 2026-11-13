@@ -5,7 +5,7 @@
 #include <Moss/Physics/Hair/HairShaders.h>
 #include <Moss/Shaders/HairStructs.h>
 
-JPH_NAMESPACE_BEGIN
+MOSS_NAMESPACE_BEGIN
 
 void HairShaders::Init(ComputeSystem *inComputeSystem)
 {
@@ -28,4 +28,4 @@ void HairShaders::Init(ComputeSystem *inComputeSystem)
 	mCalculateRenderPositionsCS = get(inComputeSystem->CreateComputeShader("HairCalculateRenderPositions", cHairPerRenderVertexBatch));
 }
 
-JPH_NAMESPACE_END
+MOSS_NAMESPACE_END

@@ -8,11 +8,11 @@
 #include <Moss/Physics/Collision/Shape/ScaleHelpers.h>
 #include <Moss/Physics/PhysicsSystem.h>
 #include <Moss/Core/Profiler.h>
-#ifdef JPH_DEBUG_RENDERER
+#ifdef MOSS_DEBUG_RENDERER
 	#include <Moss/Renderer/DebugRenderer.h>
 #endif
 
-JPH_NAMESPACE_BEGIN
+MOSS_NAMESPACE_BEGIN
 
 Hair::Hair(const HairSettings *inSettings, RVec3Arg inPosition, QuatArg inRotation, ObjectLayer inLayer) :
 	mSettings(inSettings),
@@ -53,24 +53,24 @@ void Hair::Init(ComputeSystem *inComputeSystem)
 
 	if (mScalpVerticesCB != nullptr)
 	{
-		mGlobalPoseTransformsCB = inComputeSystem->CreateComputeBuffer(ComputeBuffer::EType::RWBuffer, mSettings->mSimStrands.size(), sizeof(JPH_HairGlobalPoseTransform)).Get();
+		mGlobalPoseTransformsCB = inComputeSystem->CreateComputeBuffer(ComputeBuffer::EType::RWBuffer, mSettings->mSimStrands.size(), sizeof(MOSS_HairGlobalPoseTransform)).Get();
 	}
 	else
 	{
 		// No vertices provided externally and none in settings, use identity transforms
-		JPH_HairGlobalPoseTransform identity;
-		identity.mPosition = JPH_float3(0, 0, 0);
-		identity.mRotation = JPH_float4(0, 0, 0, 1);
-		Array<JPH_HairGlobalPoseTransform> identity_array(mSettings->mSimStrands.size(), identity);
-		mGlobalPoseTransformsCB = inComputeSystem->CreateComputeBuffer(ComputeBuffer::EType::RWBuffer, mSettings->mSimStrands.size(), sizeof(JPH_HairGlobalPoseTransform), identity_array.data()).Get();
+		MOSS_HairGlobalPoseTransform identity;
+		identity.mPosition = MOSS_float3(0, 0, 0);
+		identity.mRotation = MOSS_float4(0, 0, 0, 1);
+		Array<MOSS_HairGlobalPoseTransform> identity_array(mSettings->mSimStrands.size(), identity);
+		mGlobalPoseTransformsCB = inComputeSystem->CreateComputeBuffer(ComputeBuffer::EType::RWBuffer, mSettings->mSimStrands.size(), sizeof(MOSS_HairGlobalPoseTransform), identity_array.data()).Get();
 	}
 
-	mCollisionPlanesCB = inComputeSystem->CreateComputeBuffer(ComputeBuffer::EType::RWBuffer, num_vertices_padded, sizeof(JPH_HairCollisionPlane)).Get();
-	mMaterialsCB = inComputeSystem->CreateComputeBuffer(ComputeBuffer::EType::UploadBuffer, mSettings->mMaterials.size(), sizeof(JPH_HairMaterial)).Get();
-	mPreviousPositionsCB = inComputeSystem->CreateComputeBuffer(ComputeBuffer::EType::RWBuffer, num_vertices_padded, sizeof(JPH_HairPosition)).Get();
-	mPositionsCB = inComputeSystem->CreateComputeBuffer(ComputeBuffer::EType::RWBuffer, num_vertices_padded, sizeof(JPH_HairPosition)).Get();
-	mVelocitiesCB = inComputeSystem->CreateComputeBuffer(ComputeBuffer::EType::RWBuffer, num_vertices_padded, sizeof(JPH_HairVelocity)).Get();
-	mConstantsCB = inComputeSystem->CreateComputeBuffer(ComputeBuffer::EType::ConstantBuffer, 1, sizeof(JPH_HairUpdateContext)).Get();
+	mCollisionPlanesCB = inComputeSystem->CreateComputeBuffer(ComputeBuffer::EType::RWBuffer, num_vertices_padded, sizeof(MOSS_HairCollisionPlane)).Get();
+	mMaterialsCB = inComputeSystem->CreateComputeBuffer(ComputeBuffer::EType::UploadBuffer, mSettings->mMaterials.size(), sizeof(MOSS_HairMaterial)).Get();
+	mPreviousPositionsCB = inComputeSystem->CreateComputeBuffer(ComputeBuffer::EType::RWBuffer, num_vertices_padded, sizeof(MOSS_HairPosition)).Get();
+	mPositionsCB = inComputeSystem->CreateComputeBuffer(ComputeBuffer::EType::RWBuffer, num_vertices_padded, sizeof(MOSS_HairPosition)).Get();
+	mVelocitiesCB = inComputeSystem->CreateComputeBuffer(ComputeBuffer::EType::RWBuffer, num_vertices_padded, sizeof(MOSS_HairVelocity)).Get();
+	mConstantsCB = inComputeSystem->CreateComputeBuffer(ComputeBuffer::EType::ConstantBuffer, 1, sizeof(MOSS_HairUpdateContext)).Get();
 	mVelocityAndDensityCB = inComputeSystem->CreateComputeBuffer(ComputeBuffer::EType::RWBuffer, grid_size, sizeof(Float4)).Get();
 	if (!mRenderPositionsOverridden)
 		mRenderPositionsCB = inComputeSystem->CreateComputeBuffer(ComputeBuffer::EType::RWBuffer, num_render_vertices, sizeof(Float3)).Get();
@@ -186,7 +186,7 @@ void Hair::Update(float inDeltaTime, Mat44Arg inJointToHair, const Mat44 *inJoin
 
 	if (inJointMatrices != nullptr && mScalpJointMatricesCB != nullptr)
 	{
-		JPH_PROFILE("Prepare for Skinning");
+		MOSS_PROFILE("Prepare for Skinning");
 
 		Mat44 *joints = mScalpJointMatricesCB->Map<Mat44>(ComputeBuffer::EMode::Write);
 		mSettings->PrepareForScalpSkinning(inJointToHair, inJointMatrices, joints);
@@ -195,7 +195,7 @@ void Hair::Update(float inDeltaTime, Mat44Arg inJointToHair, const Mat44 *inJoin
 
 	if (ctx.mNeedsCollision)
 	{
-		JPH_PROFILE("Create Collision Shapes");
+		MOSS_PROFILE("Create Collision Shapes");
 
 		// First determine buffer sizes
 		uint32_t num_shapes = 0;
@@ -231,7 +231,7 @@ void Hair::Update(float inDeltaTime, Mat44Arg inJointToHair, const Mat44 *inJoin
 		if (mCollisionShapesCB == nullptr || mCollisionShapesCB->GetSize() < num_shapes)
 		{
 			mCollisionShapesCB = nullptr;
-			mCollisionShapesCB = inComputeSystem->CreateComputeBuffer(ComputeBuffer::EType::UploadBuffer, num_shapes, sizeof(JPH_HairCollisionShape)).Get();
+			mCollisionShapesCB = inComputeSystem->CreateComputeBuffer(ComputeBuffer::EType::UploadBuffer, num_shapes, sizeof(MOSS_HairCollisionShape)).Get();
 		}
 		if (mShapePlanesCB == nullptr || mShapePlanesCB->GetSize() < num_faces)
 		{
@@ -249,18 +249,18 @@ void Hair::Update(float inDeltaTime, Mat44Arg inJointToHair, const Mat44 *inJoin
 			mShapeIndicesCB = inComputeSystem->CreateComputeBuffer(ComputeBuffer::EType::UploadBuffer, num_indices, sizeof(uint32_t)).Get();
 		}
 
-		JPH_HairCollisionShape *collision_shapes = mCollisionShapesCB->Map<JPH_HairCollisionShape>(ComputeBuffer::EMode::Write);
+		MOSS_HairCollisionShape *collision_shapes = mCollisionShapesCB->Map<MOSS_HairCollisionShape>(ComputeBuffer::EMode::Write);
 		Float4 *shape_planes = mShapePlanesCB->Map<Float4>(ComputeBuffer::EMode::Write);
 		Float3 *shape_vertices = mShapeVerticesCB->Map<Float3>(ComputeBuffer::EMode::Write);
 		uint32_t *shape_indices = mShapeIndicesCB->Map<uint32_t>(ComputeBuffer::EMode::Write);
-		uint32_t *face_indices = (uint32_t *)JPH_STACK_ALLOC(max_vertices_per_face * sizeof(uint32_t));
-		Vec3 *points = (Vec3 *)JPH_STACK_ALLOC(max_points * sizeof(Vec3));
+		uint32_t *face_indices = (uint32_t *)MOSS_STACK_ALLOC(max_vertices_per_face * sizeof(uint32_t));
+		Vec3 *points = (Vec3 *)MOSS_STACK_ALLOC(max_points * sizeof(Vec3));
 
 		// Convert the hulls to compute buffers
 		Float4 *sp = shape_planes;
 		Float3 *sv = shape_vertices;
 		uint32_t *sh = shape_indices;
-		JPH_HairCollisionShape *cs = collision_shapes;
+		MOSS_HairCollisionShape *cs = collision_shapes;
 		uint32_t *si = shape_indices + num_header;
 		for (const LeafShape &shape : ctx.mShapes)
 			if (shape.mShape->GetSubType() == EShapeSubType::ConvexHull)
@@ -331,11 +331,11 @@ void Hair::Update(float inDeltaTime, Mat44Arg inJointToHair, const Mat44 *inJoin
 			}
 		*sh = 0; // Terminator
 		++sh;
-		JPH_ASSERT(uint32_t(cs - collision_shapes) == num_shapes);
-		JPH_ASSERT(uint32_t(sp - shape_planes) == num_faces);
-		JPH_ASSERT(uint32_t(sv - shape_vertices) == num_vertices);
-		JPH_ASSERT(uint32_t(sh - shape_indices) == num_header);
-		JPH_ASSERT(uint32_t(si - shape_indices) == num_indices);
+		MOSS_ASSERT(uint32_t(cs - collision_shapes) == num_shapes);
+		MOSS_ASSERT(uint32_t(sp - shape_planes) == num_faces);
+		MOSS_ASSERT(uint32_t(sv - shape_vertices) == num_vertices);
+		MOSS_ASSERT(uint32_t(sh - shape_indices) == num_header);
+		MOSS_ASSERT(uint32_t(si - shape_indices) == num_indices);
 
 		// Unmap buffers
 		mCollisionShapesCB->Unmap();
@@ -345,13 +345,13 @@ void Hair::Update(float inDeltaTime, Mat44Arg inJointToHair, const Mat44 *inJoin
 	}
 
 	{
-		JPH_PROFILE("Set materials");
+		MOSS_PROFILE("Set materials");
 
-		JPH_HairMaterial *materials = mMaterialsCB->Map<JPH_HairMaterial>(ComputeBuffer::EMode::Write);
+		MOSS_HairMaterial *materials = mMaterialsCB->Map<MOSS_HairMaterial>(ComputeBuffer::EMode::Write);
 		for (size_t i = 0, n = mSettings->mMaterials.size(); i < n; ++i)
 		{
 			const HairSettings::Material &m_in = mSettings->mMaterials[i];
-			JPH_HairMaterial &m_out = materials[i];
+			MOSS_HairMaterial &m_out = materials[i];
 
 			GradientSampler world_transform_influence(m_in.mWorldTransformInfluence);
 			m_out.mWorldTransformInfluence = world_transform_influence.ToFloat4();
@@ -383,9 +383,9 @@ void Hair::Update(float inDeltaTime, Mat44Arg inJointToHair, const Mat44 *inJoin
 	}
 
 	{
-		JPH_PROFILE("Set constants");
+		MOSS_PROFILE("Set constants");
 
-		JPH_HairUpdateContext *cdata = mConstantsCB->Map<JPH_HairUpdateContext>(ComputeBuffer::EMode::Write);
+		MOSS_HairUpdateContext *cdata = mConstantsCB->Map<MOSS_HairUpdateContext>(ComputeBuffer::EMode::Write);
 		cdata->cNumStrands = uint32_t(mSettings->mSimStrands.size());
 		cdata->cNumVertices = mSettings->GetNumVerticesPadded();
 		cdata->cNumGridPoints = (uint32_t)mSettings->mNeutralDensity.size();
@@ -412,7 +412,7 @@ void Hair::Update(float inDeltaTime, Mat44Arg inJointToHair, const Mat44 *inJoin
 	}
 
 	{
-		JPH_PROFILE("Set iteration constants");
+		MOSS_PROFILE("Set iteration constants");
 
 		// Ensure that we have the right number of constant buffers allocated
 		uint32_t old_size = uint32_t(mIterationConstantsCB.size());
@@ -420,24 +420,24 @@ void Hair::Update(float inDeltaTime, Mat44Arg inJointToHair, const Mat44 *inJoin
 		{
 			mIterationConstantsCB.resize(ctx.mNumIterations);
 			for (uint32_t i = old_size; i < ctx.mNumIterations; ++i)
-				mIterationConstantsCB[i] = inComputeSystem->CreateComputeBuffer(ComputeBuffer::EType::ConstantBuffer, 1, sizeof(JPH_HairIterationContext)).Get();
+				mIterationConstantsCB[i] = inComputeSystem->CreateComputeBuffer(ComputeBuffer::EType::ConstantBuffer, 1, sizeof(MOSS_HairIterationContext)).Get();
 		}
 
 		// Fill in the constant buffers
-		JPH_HairIterationContext iteration_data;
+		MOSS_HairIterationContext iteration_data;
 		for (uint32_t i = 0; i < ctx.mNumIterations; ++i)
 		{
 			iteration_data.cAccumulatedDeltaTime = ctx.mDeltaTime * (i + 1);
 			iteration_data.cIterationFraction = 1.0f / float(ctx.mNumIterations - i);
 
-			JPH_HairIterationContext *idata = mIterationConstantsCB[i]->Map<JPH_HairIterationContext>(ComputeBuffer::EMode::Write);
+			MOSS_HairIterationContext *idata = mIterationConstantsCB[i]->Map<MOSS_HairIterationContext>(ComputeBuffer::EMode::Write);
 			*idata = iteration_data;
 			mIterationConstantsCB[i]->Unmap();
 		}
 	}
 
 	{
-		JPH_PROFILE("Queue Compute");
+		MOSS_PROFILE("Queue Compute");
 
 		uint32_t dispatch_per_vertex = (mSettings->GetNumVerticesPadded() + cHairPerVertexBatch - 1) / cHairPerVertexBatch;
 		uint32_t dispatch_per_vertex_skip_first_vertex = (mSettings->GetNumVerticesPadded() - (uint32_t)mSettings->mSimStrands.size() + cHairPerVertexBatch - 1) / cHairPerVertexBatch; // Skip the first vertex of each strand
@@ -492,8 +492,8 @@ void Hair::Update(float inDeltaTime, Mat44Arg inJointToHair, const Mat44 *inJoin
 			// Create target buffers if they don't exist yet
 			if (mTargetPositionsCB == nullptr && needs_interpolate)
 			{
-				mTargetPositionsCB = inComputeSystem->CreateComputeBuffer(ComputeBuffer::EType::RWBuffer, mSettings->mSimStrands.size(), sizeof(JPH_HairPosition)).Get();
-				mTargetGlobalPoseTransformsCB = inComputeSystem->CreateComputeBuffer(ComputeBuffer::EType::RWBuffer, mSettings->mSimStrands.size(), sizeof(JPH_HairGlobalPoseTransform)).Get();
+				mTargetPositionsCB = inComputeSystem->CreateComputeBuffer(ComputeBuffer::EType::RWBuffer, mSettings->mSimStrands.size(), sizeof(MOSS_HairPosition)).Get();
+				mTargetGlobalPoseTransformsCB = inComputeSystem->CreateComputeBuffer(ComputeBuffer::EType::RWBuffer, mSettings->mSimStrands.size(), sizeof(MOSS_HairGlobalPoseTransform)).Get();
 			}
 
 			// Skin the strand roots to the scalp mesh
@@ -674,7 +674,7 @@ void Hair::ReadBackGPUState(ComputeQueue *inComputeQueue)
 	}
 
 	{
-		JPH_PROFILE("Transfer data from GPU");
+		MOSS_PROFILE("Transfer data from GPU");
 
 		// Read back the skinned vertices
 		if (mScalpVerticesCB != nullptr)
@@ -693,18 +693,18 @@ void Hair::ReadBackGPUState(ComputeQueue *inComputeQueue)
 	}
 
 	{
-		JPH_PROFILE("Reorder hair data");
+		MOSS_PROFILE("Reorder hair data");
 
 		// Reorder position and velocity data
-		const JPH_HairPosition *positions = mPositionsReadBackCB->Map<JPH_HairPosition>(ComputeBuffer::EMode::Read);
-		const JPH_HairVelocity *velocities = mVelocitiesReadBackCB->Map<JPH_HairVelocity>(ComputeBuffer::EMode::Read);
+		const MOSS_HairPosition *positions = mPositionsReadBackCB->Map<MOSS_HairPosition>(ComputeBuffer::EMode::Read);
+		const MOSS_HairVelocity *velocities = mVelocitiesReadBackCB->Map<MOSS_HairVelocity>(ComputeBuffer::EMode::Read);
 		size_t num_vertices = mSettings->mSimVertices.size();
 		if (mPositions == nullptr)
 			mPositions = new Float3 [num_vertices];
 		if (mRotations == nullptr)
 			mRotations = new Quat [num_vertices];
 		if (mVelocities == nullptr)
-			mVelocities = new JPH_HairVelocity [num_vertices];
+			mVelocities = new MOSS_HairVelocity [num_vertices];
 		uint32_t num_strands = (uint32_t)mSettings->mSimStrands.size();
 		for (uint32_t s = 0; s < num_strands; ++s)
 		{
@@ -748,7 +748,7 @@ void Hair::UnlockReadBackBuffers()
 		mRenderPositionsReadBackCB->Unmap();
 }
 
-#ifdef JPH_DEBUG_RENDERER
+#ifdef MOSS_DEBUG_RENDERER
 
 void Hair::Draw(const DrawSettings &inSettings, DebugRenderer *inRenderer)
 {
@@ -768,7 +768,7 @@ void Hair::Draw(const DrawSettings &inSettings, DebugRenderer *inRenderer)
 	// Draw the render strands
 	if (inSettings.mDrawRenderStrands)
 	{
-		JPH_PROFILE("Draw Render Strands");
+		MOSS_PROFILE("Draw Render Strands");
 
 		// Calculate a map of sim vertex index to strand index
 		Array<uint32_t> sim_vertex_to_strand;
@@ -865,7 +865,7 @@ void Hair::Draw(const DrawSettings &inSettings, DebugRenderer *inRenderer)
 	// Draw the rods
 	if (inSettings.mDrawRods)
 	{
-		JPH_PROFILE("Draw Rods");
+		MOSS_PROFILE("Draw Rods");
 
 		Color color = Color::Red;
 		Hash<uint32_t> hasher;
@@ -887,7 +887,7 @@ void Hair::Draw(const DrawSettings &inSettings, DebugRenderer *inRenderer)
 	// Draw the rods in their unloaded pose
 	if (inSettings.mDrawUnloadedRods)
 	{
-		JPH_PROFILE("Draw Unloaded Rods");
+		MOSS_PROFILE("Draw Unloaded Rods");
 
 		Color color = Color::Yellow;
 		Hash<uint32_t> hasher;
@@ -967,7 +967,7 @@ void Hair::Draw(const DrawSettings &inSettings, DebugRenderer *inRenderer)
 				for (uint32_t x = 0; x < mSettings->mGridSize.GetZ(); ++x)
 				{
 					float density = mSettings->GetNeutralDensity(x, y, z);
-					JPH_ASSERT(density >= 0.0f);
+					MOSS_ASSERT(density >= 0.0f);
 					if (density > 0.0f)
 					{
 						Vec3 pos = offset + Vec3(UVec4(x, y, z, 0).ToFloat()) * scale;
@@ -1026,6 +1026,6 @@ void Hair::Draw(const DrawSettings &inSettings, DebugRenderer *inRenderer)
 	UnlockReadBackBuffers();
 }
 
-#endif // JPH_DEBUG_RENDERER
+#endif // MOSS_DEBUG_RENDERER
 
-JPH_NAMESPACE_END
+MOSS_NAMESPACE_END

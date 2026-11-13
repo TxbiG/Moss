@@ -14,26 +14,26 @@
 #include <Moss/ObjectStream/TypeDeclarations.h>
 #include <Moss/Core/StreamUtils.h>
 
-JPH_NAMESPACE_BEGIN
+MOSS_NAMESPACE_BEGIN
 
-JPH_IMPLEMENT_SERIALIZABLE_NON_VIRTUAL(RagdollSettings::Part)
+MOSS_IMPLEMENT_SERIALIZABLE_NON_VIRTUAL(RagdollSettings::Part)
 {
-	JPH_ADD_BASE_CLASS(RagdollSettings::Part, BodyCreationSettings)
+	MOSS_ADD_BASE_CLASS(RagdollSettings::Part, BodyCreationSettings)
 
-	JPH_ADD_ATTRIBUTE(RagdollSettings::Part, mToParent)
+	MOSS_ADD_ATTRIBUTE(RagdollSettings::Part, mToParent)
 }
 
-JPH_IMPLEMENT_SERIALIZABLE_NON_VIRTUAL(RagdollSettings::AdditionalConstraint)
+MOSS_IMPLEMENT_SERIALIZABLE_NON_VIRTUAL(RagdollSettings::AdditionalConstraint)
 {
-	JPH_ADD_ATTRIBUTE(RagdollSettings::AdditionalConstraint, mBodyIdx)
-	JPH_ADD_ATTRIBUTE(RagdollSettings::AdditionalConstraint, mConstraint)
+	MOSS_ADD_ATTRIBUTE(RagdollSettings::AdditionalConstraint, mBodyIdx)
+	MOSS_ADD_ATTRIBUTE(RagdollSettings::AdditionalConstraint, mConstraint)
 }
 
-JPH_IMPLEMENT_SERIALIZABLE_NON_VIRTUAL(RagdollSettings)
+MOSS_IMPLEMENT_SERIALIZABLE_NON_VIRTUAL(RagdollSettings)
 {
-	JPH_ADD_ATTRIBUTE(RagdollSettings, mSkeleton)
-	JPH_ADD_ATTRIBUTE(RagdollSettings, mParts)
-	JPH_ADD_ATTRIBUTE(RagdollSettings, mAdditionalConstraints)
+	MOSS_ADD_ATTRIBUTE(RagdollSettings, mSkeleton)
+	MOSS_ADD_ATTRIBUTE(RagdollSettings, mParts)
+	MOSS_ADD_ATTRIBUTE(RagdollSettings, mAdditionalConstraints)
 }
 
 static inline BodyInterface &sRagdollGetBodyInterface(PhysicsSystem *inSystem, bool inLockBodies)
@@ -153,7 +153,7 @@ bool RagdollSettings::Stabilize()
 			for (int i : indices)
 				if (!mParts[i].mMassPropertiesOverride.DecomposePrincipalMomentsOfInertia(principals[i].mRotation, principals[i].mDiagonal))
 				{
-					JPH_ASSERT(false, "Failed to decompose the inertia tensor!");
+					MOSS_ASSERT(false, "Failed to decompose the inertia tensor!");
 					return false;
 				}
 
@@ -189,8 +189,8 @@ bool RagdollSettings::Stabilize()
 
 void RagdollSettings::CalculateConstraintPriorities(uint32_t inBasePriority)
 {
-	JPH_ASSERT(inBasePriority + (uint32_t)mParts.size() > inBasePriority, "Base priority is too high and will cause overflows");
-	JPH_ASSERT(mSkeleton->AreJointsCorrectlyOrdered());
+	MOSS_ASSERT(inBasePriority + (uint32_t)mParts.size() > inBasePriority, "Base priority is too high and will cause overflows");
+	MOSS_ASSERT(mSkeleton->AreJointsCorrectlyOrdered());
 
 	// Calculate priority for each part. Start with the base priority and increment towards the root
 	Array<uint32_t> priorities;
@@ -222,7 +222,7 @@ void RagdollSettings::CalculateConstraintPriorities(uint32_t inBasePriority)
 void RagdollSettings::DisableParentChildCollisions(const Mat44 *inJointMatrices, float inMinSeparationDistance)
 {
 	int joint_count = mSkeleton->GetJointCount();
-	JPH_ASSERT(joint_count == (int)mParts.size());
+	MOSS_ASSERT(joint_count == (int)mParts.size());
 
 	// Create a group filter table that disables collisions between parent and child
 	Ref<GroupFilterTable> group_filter = new GroupFilterTable(joint_count);
@@ -411,7 +411,7 @@ Ragdoll *RagdollSettings::CreateRagdoll(CollisionGroup::GroupID inCollisionGroup
 
 	// Create bodies and constraints
 	BodyInterface &bi = inSystem->GetBodyInterface();
-	Body **bodies = (Body **)JPH_STACK_ALLOC(mParts.size() * sizeof(Body *));
+	Body **bodies = (Body **)MOSS_STACK_ALLOC(mParts.size() * sizeof(Body *));
 	int joint_idx = 0;
 	for (const Part &p : mParts)
 	{
@@ -498,11 +498,11 @@ Ragdoll::~Ragdoll()
 
 void Ragdoll::AddToPhysicsSystem(EActivation inActivationMode, bool inLockBodies)
 {
-	// Scope for JPH_STACK_ALLOC
+	// Scope for MOSS_STACK_ALLOC
 	{
 		// Create copy of body ids since they will be shuffled
 		int num_bodies = (int)mBodyIDs.size();
-		BodyID *bodies = (BodyID *)JPH_STACK_ALLOC(num_bodies * sizeof(BodyID));
+		BodyID *bodies = (BodyID *)MOSS_STACK_ALLOC(num_bodies * sizeof(BodyID));
 		memcpy(bodies, mBodyIDs.data(), num_bodies * sizeof(BodyID));
 
 		// Insert bodies as a batch
@@ -520,11 +520,11 @@ void Ragdoll::RemoveFromPhysicsSystem(bool inLockBodies)
 	// Remove all constraints before removing the bodies
 	mSystem->RemoveConstraints((Constraint **)mConstraints.data(), (int)mConstraints.size());
 
-	// Scope for JPH_STACK_ALLOC
+	// Scope for MOSS_STACK_ALLOC
 	{
 		// Create copy of body ids since they will be shuffled
 		int num_bodies = (int)mBodyIDs.size();
-		BodyID *bodies = (BodyID *)JPH_STACK_ALLOC(num_bodies * sizeof(BodyID));
+		BodyID *bodies = (BodyID *)MOSS_STACK_ALLOC(num_bodies * sizeof(BodyID));
 		memcpy(bodies, mBodyIDs.data(), num_bodies * sizeof(BodyID));
 
 		// Remove all bodies as a batch
@@ -570,7 +570,7 @@ void Ragdoll::SetGroupID(CollisionGroup::GroupID inGroupID, bool inLockBodies)
 
 void Ragdoll::SetPose(const SkeletonPose &inPose, bool inLockBodies)
 {
-	JPH_ASSERT(inPose.GetSkeleton() == mRagdollSettings->mSkeleton);
+	MOSS_ASSERT(inPose.GetSkeleton() == mRagdollSettings->mSkeleton);
 
 	SetPose(inPose.GetRootOffset(), inPose.GetJointMatrices().data(), inLockBodies);
 }
@@ -588,7 +588,7 @@ void Ragdoll::SetPose(RVec3Arg inRootOffset, const Mat44 *inJointMatrices, bool 
 
 void Ragdoll::GetPose(SkeletonPose &outPose, bool inLockBodies)
 {
-	JPH_ASSERT(outPose.GetSkeleton() == mRagdollSettings->mSkeleton);
+	MOSS_ASSERT(outPose.GetSkeleton() == mRagdollSettings->mSkeleton);
 
 	RVec3 root_offset;
 	GetPose(root_offset, outPose.GetJointMatrices().data(), inLockBodies);
@@ -626,7 +626,7 @@ void Ragdoll::ResetWarmStart()
 
 void Ragdoll::DriveToPoseUsingKinematics(const SkeletonPose &inPose, float inDeltaTime, bool inLockBodies)
 {
-	JPH_ASSERT(inPose.GetSkeleton() == mRagdollSettings->mSkeleton);
+	MOSS_ASSERT(inPose.GetSkeleton() == mRagdollSettings->mSkeleton);
 
 	DriveToPoseUsingKinematics(inPose.GetRootOffset(), inPose.GetJointMatrices().data(), inDeltaTime, inLockBodies);
 }
@@ -644,7 +644,7 @@ void Ragdoll::DriveToPoseUsingKinematics(RVec3Arg inRootOffset, const Mat44 *inJ
 
 void Ragdoll::DriveToPoseUsingMotors(const SkeletonPose &inPose)
 {
-	JPH_ASSERT(inPose.GetSkeleton() == mRagdollSettings->mSkeleton);
+	MOSS_ASSERT(inPose.GetSkeleton() == mRagdollSettings->mSkeleton);
 
 	// Move bodies into the correct position using constraints
 	for (int i = 0; i < (int)inPose.GetJointMatrices().size(); ++i)
@@ -672,16 +672,16 @@ void Ragdoll::DriveToPoseUsingMotors(const SkeletonPose &inPose)
 				h_constraint->SetTargetOrientationBS(joint_state.mRotation);
 			}
 			else
-				JPH_ASSERT(false, "Constraint type not implemented!");
+				MOSS_ASSERT(false, "Constraint type not implemented!");
 		}
 	}
 }
 
 void Ragdoll::DriveToPoseUsingMotors(const SkeletonPose &inPrevPose, const SkeletonPose &inPose, float inDeltaTime)
 {
-	JPH_ASSERT(inPrevPose.GetSkeleton() == mRagdollSettings->mSkeleton);
-	JPH_ASSERT(inPose.GetSkeleton() == mRagdollSettings->mSkeleton);
-	JPH_ASSERT(inDeltaTime > 0.0f);
+	MOSS_ASSERT(inPrevPose.GetSkeleton() == mRagdollSettings->mSkeleton);
+	MOSS_ASSERT(inPose.GetSkeleton() == mRagdollSettings->mSkeleton);
+	MOSS_ASSERT(inDeltaTime > 0.0f);
 
 	// Move bodies into the correct position using constraints
 	for (int i = 0; i < (int)inPose.GetJointMatrices().size(); ++i)
@@ -716,7 +716,7 @@ void Ragdoll::DriveToPoseUsingMotors(const SkeletonPose &inPrevPose, const Skele
 				h_constraint->SetTargetOrientationBS(joint_state.mRotation);
 			}
 			else
-				JPH_ASSERT(false, "Constraint type not implemented!");
+				MOSS_ASSERT(false, "Constraint type not implemented!");
 		}
 	}
 }
@@ -782,4 +782,4 @@ AABox Ragdoll::GetWorldSpaceBounds(bool inLockBodies) const
 	return bounds;
 }
 
-JPH_NAMESPACE_END
+MOSS_NAMESPACE_END

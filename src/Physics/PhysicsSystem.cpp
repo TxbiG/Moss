@@ -3,7 +3,6 @@
 // SPDX-License-Identifier: MIT
 
 #include <Moss/Physics/PhysicsSystem.h>
-#include <Moss/Physics/PhysicsSettings.h>
 #include <Moss/Physics/PhysicsUpdateContext.h>
 #include <Moss/Physics/PhysicsStepListener.h>
 #include <Moss/Physics/Collision/BroadPhase/BroadPhaseBruteForce.h>

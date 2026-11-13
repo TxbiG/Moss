@@ -4,7 +4,7 @@
 
 #include <Moss/Physics/IslandBuilder.h>
 #include <Moss/Physics/Body/Body.h>
-#include <Moss/Physics/PhysicsSettings.h>
+#include <Moss/Physics/PhysicsSystem.h>
 #include <Moss/Core/Profiler.h>
 #include <Moss/Moss_stdinc.h>
 #include <Moss/Core/TempAllocator.h>

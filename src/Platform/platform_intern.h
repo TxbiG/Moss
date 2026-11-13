@@ -1,12 +1,7 @@
 #ifndef MOSS_PLATFORM_INTERNAL_H
 #define MOSS_PLATFORM_INTERNAL_H
 
-#ifndef NOMINMAX
-#define NOMINMAX
-#endif
-
 // Forward-declare structures so downstream signatures parse correctly
-struct Moss_Capture;
 struct Moss_Surface;
 struct Moss_Window;
 struct Moss_Monitor;

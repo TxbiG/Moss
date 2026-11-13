@@ -1,7 +1,7 @@
 #ifndef MOSS_PLATFORM_WIN32_H
 #define MOSS_PLATFORM_WIN32_H
 
-MOSS_SUPPRESS_WARNING_PUSH
+MOSS_SUPPRESS_WARNING_BEGIN
 MOSS_MSVC_SUPPRESS_WARNING(5039) // winbase.h(13179): warning C5039: 'TpSetCallbackCleanupGroup': pointer or reference to potentially throwing function passed to 'extern "C"' function under -EHc. Undefined behavior may occur if this function throws an exception.
 MOSS_MSVC2026_PLUS_SUPPRESS_WARNING(4865) // wingdi.h(2806,1): '<unnamed-enum-DISPLAYCONFIG_OUTPUT_TECHNOLOGY_OTHER>': the underlying type will change from 'int' to '__int64' when '/Zc:enumTypes' is specified on the command line
 MOSS_CLANG_SUPPRESS_WARNING("-Wreserved-macro-identifier") // Complains about _WIN32_WINNT being reserved
@@ -234,4 +234,5 @@ inline wchar_t* convertCharToWchar(const char* str) {
     MultiByteToWideChar(CP_UTF8, 0, str, -1, wstr, wlen);
     return wstr;
 }
+MOSS_SUPPRESS_WARNING_END
 #endif // MOSS_PLATFORM_WIN32_H

@@ -11,102 +11,102 @@
 #include <Moss/Core/StreamIn.h>
 #include <Moss/Core/StreamOut.h>
 
-JPH_NAMESPACE_BEGIN
+MOSS_NAMESPACE_BEGIN
 
-JPH_IMPLEMENT_SERIALIZABLE_NON_VIRTUAL(HairSettings)
+MOSS_IMPLEMENT_SERIALIZABLE_NON_VIRTUAL(HairSettings)
 {
-	JPH_ADD_ATTRIBUTE(HairSettings, mSimVertices)
-	JPH_ADD_ATTRIBUTE(HairSettings, mSimStrands)
-	JPH_ADD_ATTRIBUTE(HairSettings, mRenderVertices)
-	JPH_ADD_ATTRIBUTE(HairSettings, mRenderStrands)
-	JPH_ADD_ATTRIBUTE(HairSettings, mScalpVertices)
-	JPH_ADD_ATTRIBUTE(HairSettings, mScalpTriangles)
-	JPH_ADD_ATTRIBUTE(HairSettings, mScalpInverseBindPose)
-	JPH_ADD_ATTRIBUTE(HairSettings, mScalpSkinWeights)
-	JPH_ADD_ATTRIBUTE(HairSettings, mScalpNumSkinWeightsPerVertex)
-	JPH_ADD_ATTRIBUTE(HairSettings, mNumIterationsPerSecond)
-	JPH_ADD_ATTRIBUTE(HairSettings, mMaxDeltaTime)
-	JPH_ADD_ATTRIBUTE(HairSettings, mGridSize)
-	JPH_ADD_ATTRIBUTE(HairSettings, mSimulationBoundsPadding)
-	JPH_ADD_ATTRIBUTE(HairSettings, mInitialGravity)
-	JPH_ADD_ATTRIBUTE(HairSettings, mMaterials)
+	MOSS_ADD_ATTRIBUTE(HairSettings, mSimVertices)
+	MOSS_ADD_ATTRIBUTE(HairSettings, mSimStrands)
+	MOSS_ADD_ATTRIBUTE(HairSettings, mRenderVertices)
+	MOSS_ADD_ATTRIBUTE(HairSettings, mRenderStrands)
+	MOSS_ADD_ATTRIBUTE(HairSettings, mScalpVertices)
+	MOSS_ADD_ATTRIBUTE(HairSettings, mScalpTriangles)
+	MOSS_ADD_ATTRIBUTE(HairSettings, mScalpInverseBindPose)
+	MOSS_ADD_ATTRIBUTE(HairSettings, mScalpSkinWeights)
+	MOSS_ADD_ATTRIBUTE(HairSettings, mScalpNumSkinWeightsPerVertex)
+	MOSS_ADD_ATTRIBUTE(HairSettings, mNumIterationsPerSecond)
+	MOSS_ADD_ATTRIBUTE(HairSettings, mMaxDeltaTime)
+	MOSS_ADD_ATTRIBUTE(HairSettings, mGridSize)
+	MOSS_ADD_ATTRIBUTE(HairSettings, mSimulationBoundsPadding)
+	MOSS_ADD_ATTRIBUTE(HairSettings, mInitialGravity)
+	MOSS_ADD_ATTRIBUTE(HairSettings, mMaterials)
 }
 
-JPH_IMPLEMENT_SERIALIZABLE_NON_VIRTUAL(HairSettings::SkinWeight)
+MOSS_IMPLEMENT_SERIALIZABLE_NON_VIRTUAL(HairSettings::SkinWeight)
 {
-	JPH_ADD_ATTRIBUTE(HairSettings::SkinWeight, mJointIdx)
-	JPH_ADD_ATTRIBUTE(HairSettings::SkinWeight, mWeight)
+	MOSS_ADD_ATTRIBUTE(HairSettings::SkinWeight, mJointIdx)
+	MOSS_ADD_ATTRIBUTE(HairSettings::SkinWeight, mWeight)
 }
 
-JPH_IMPLEMENT_SERIALIZABLE_NON_VIRTUAL(HairSettings::SkinPoint)
+MOSS_IMPLEMENT_SERIALIZABLE_NON_VIRTUAL(HairSettings::SkinPoint)
 {
-	JPH_ADD_ATTRIBUTE(HairSettings::SkinPoint, mTriangleIndex)
-	JPH_ADD_ATTRIBUTE(HairSettings::SkinPoint, mU)
-	JPH_ADD_ATTRIBUTE(HairSettings::SkinPoint, mV)
+	MOSS_ADD_ATTRIBUTE(HairSettings::SkinPoint, mTriangleIndex)
+	MOSS_ADD_ATTRIBUTE(HairSettings::SkinPoint, mU)
+	MOSS_ADD_ATTRIBUTE(HairSettings::SkinPoint, mV)
 }
 
-JPH_IMPLEMENT_SERIALIZABLE_NON_VIRTUAL(HairSettings::SVertexInfluence)
+MOSS_IMPLEMENT_SERIALIZABLE_NON_VIRTUAL(HairSettings::SVertexInfluence)
 {
-	JPH_ADD_ATTRIBUTE(HairSettings::SVertexInfluence, mVertexIndex)
-	JPH_ADD_ATTRIBUTE(HairSettings::SVertexInfluence, mRelativePosition)
-	JPH_ADD_ATTRIBUTE(HairSettings::SVertexInfluence, mWeight)
+	MOSS_ADD_ATTRIBUTE(HairSettings::SVertexInfluence, mVertexIndex)
+	MOSS_ADD_ATTRIBUTE(HairSettings::SVertexInfluence, mRelativePosition)
+	MOSS_ADD_ATTRIBUTE(HairSettings::SVertexInfluence, mWeight)
 }
 
-JPH_IMPLEMENT_SERIALIZABLE_NON_VIRTUAL(HairSettings::RVertex)
+MOSS_IMPLEMENT_SERIALIZABLE_NON_VIRTUAL(HairSettings::RVertex)
 {
-	JPH_ADD_ATTRIBUTE(HairSettings::RVertex, mPosition)
-	JPH_ADD_ATTRIBUTE(HairSettings::RVertex, mInfluences)
+	MOSS_ADD_ATTRIBUTE(HairSettings::RVertex, mPosition)
+	MOSS_ADD_ATTRIBUTE(HairSettings::RVertex, mInfluences)
 }
 
-JPH_IMPLEMENT_SERIALIZABLE_NON_VIRTUAL(HairSettings::SVertex)
+MOSS_IMPLEMENT_SERIALIZABLE_NON_VIRTUAL(HairSettings::SVertex)
 {
-	JPH_ADD_ATTRIBUTE(HairSettings::SVertex, mPosition)
-	JPH_ADD_ATTRIBUTE(HairSettings::SVertex, mInvMass)
+	MOSS_ADD_ATTRIBUTE(HairSettings::SVertex, mPosition)
+	MOSS_ADD_ATTRIBUTE(HairSettings::SVertex, mInvMass)
 }
 
-JPH_IMPLEMENT_SERIALIZABLE_NON_VIRTUAL(HairSettings::RStrand)
+MOSS_IMPLEMENT_SERIALIZABLE_NON_VIRTUAL(HairSettings::RStrand)
 {
-	JPH_ADD_ATTRIBUTE(HairSettings::RStrand, mStartVtx)
-	JPH_ADD_ATTRIBUTE(HairSettings::RStrand, mEndVtx)
+	MOSS_ADD_ATTRIBUTE(HairSettings::RStrand, mStartVtx)
+	MOSS_ADD_ATTRIBUTE(HairSettings::RStrand, mEndVtx)
 }
 
-JPH_IMPLEMENT_SERIALIZABLE_NON_VIRTUAL(HairSettings::SStrand)
+MOSS_IMPLEMENT_SERIALIZABLE_NON_VIRTUAL(HairSettings::SStrand)
 {
-	JPH_ADD_BASE_CLASS(HairSettings::SStrand, HairSettings::RStrand)
+	MOSS_ADD_BASE_CLASS(HairSettings::SStrand, HairSettings::RStrand)
 
-		JPH_ADD_ATTRIBUTE(HairSettings::SStrand, mMaterialIndex)
+		MOSS_ADD_ATTRIBUTE(HairSettings::SStrand, mMaterialIndex)
 }
 
-JPH_IMPLEMENT_SERIALIZABLE_NON_VIRTUAL(HairSettings::Gradient)
+MOSS_IMPLEMENT_SERIALIZABLE_NON_VIRTUAL(HairSettings::Gradient)
 {
-	JPH_ADD_ATTRIBUTE(HairSettings::Gradient, mMin)
-	JPH_ADD_ATTRIBUTE(HairSettings::Gradient, mMax)
-	JPH_ADD_ATTRIBUTE(HairSettings::Gradient, mMinFraction)
-	JPH_ADD_ATTRIBUTE(HairSettings::Gradient, mMaxFraction)
+	MOSS_ADD_ATTRIBUTE(HairSettings::Gradient, mMin)
+	MOSS_ADD_ATTRIBUTE(HairSettings::Gradient, mMax)
+	MOSS_ADD_ATTRIBUTE(HairSettings::Gradient, mMinFraction)
+	MOSS_ADD_ATTRIBUTE(HairSettings::Gradient, mMaxFraction)
 }
 
-JPH_IMPLEMENT_SERIALIZABLE_NON_VIRTUAL(HairSettings::Material)
+MOSS_IMPLEMENT_SERIALIZABLE_NON_VIRTUAL(HairSettings::Material)
 {
-	JPH_ADD_ATTRIBUTE(HairSettings::Material, mEnableCollision)
-	JPH_ADD_ATTRIBUTE(HairSettings::Material, mEnableLRA)
-	JPH_ADD_ATTRIBUTE(HairSettings::Material, mLinearDamping)
-	JPH_ADD_ATTRIBUTE(HairSettings::Material, mAngularDamping)
-	JPH_ADD_ATTRIBUTE(HairSettings::Material, mMaxLinearVelocity)
-	JPH_ADD_ATTRIBUTE(HairSettings::Material, mMaxAngularVelocity)
-	JPH_ADD_ATTRIBUTE(HairSettings::Material, mGravityFactor)
-	JPH_ADD_ATTRIBUTE(HairSettings::Material, mFriction)
-	JPH_ADD_ATTRIBUTE(HairSettings::Material, mBendCompliance)
-	JPH_ADD_ATTRIBUTE(HairSettings::Material, mBendComplianceMultiplier)
-	JPH_ADD_ATTRIBUTE(HairSettings::Material, mStretchCompliance)
-	JPH_ADD_ATTRIBUTE(HairSettings::Material, mInertiaMultiplier)
-	JPH_ADD_ATTRIBUTE(HairSettings::Material, mHairRadius)
-	JPH_ADD_ATTRIBUTE(HairSettings::Material, mWorldTransformInfluence)
-	JPH_ADD_ATTRIBUTE(HairSettings::Material, mGridVelocityFactor)
-	JPH_ADD_ATTRIBUTE(HairSettings::Material, mGridDensityForceFactor)
-	JPH_ADD_ATTRIBUTE(HairSettings::Material, mGlobalPose)
-	JPH_ADD_ATTRIBUTE(HairSettings::Material, mSkinGlobalPose)
-	JPH_ADD_ATTRIBUTE(HairSettings::Material, mSimulationStrandsFraction)
-	JPH_ADD_ATTRIBUTE(HairSettings::Material, mGravityPreloadFactor)
+	MOSS_ADD_ATTRIBUTE(HairSettings::Material, mEnableCollision)
+	MOSS_ADD_ATTRIBUTE(HairSettings::Material, mEnableLRA)
+	MOSS_ADD_ATTRIBUTE(HairSettings::Material, mLinearDamping)
+	MOSS_ADD_ATTRIBUTE(HairSettings::Material, mAngularDamping)
+	MOSS_ADD_ATTRIBUTE(HairSettings::Material, mMaxLinearVelocity)
+	MOSS_ADD_ATTRIBUTE(HairSettings::Material, mMaxAngularVelocity)
+	MOSS_ADD_ATTRIBUTE(HairSettings::Material, mGravityFactor)
+	MOSS_ADD_ATTRIBUTE(HairSettings::Material, mFriction)
+	MOSS_ADD_ATTRIBUTE(HairSettings::Material, mBendCompliance)
+	MOSS_ADD_ATTRIBUTE(HairSettings::Material, mBendComplianceMultiplier)
+	MOSS_ADD_ATTRIBUTE(HairSettings::Material, mStretchCompliance)
+	MOSS_ADD_ATTRIBUTE(HairSettings::Material, mInertiaMultiplier)
+	MOSS_ADD_ATTRIBUTE(HairSettings::Material, mHairRadius)
+	MOSS_ADD_ATTRIBUTE(HairSettings::Material, mWorldTransformInfluence)
+	MOSS_ADD_ATTRIBUTE(HairSettings::Material, mGridVelocityFactor)
+	MOSS_ADD_ATTRIBUTE(HairSettings::Material, mGridDensityForceFactor)
+	MOSS_ADD_ATTRIBUTE(HairSettings::Material, mGlobalPose)
+	MOSS_ADD_ATTRIBUTE(HairSettings::Material, mSkinGlobalPose)
+	MOSS_ADD_ATTRIBUTE(HairSettings::Material, mSimulationStrandsFraction)
+	MOSS_ADD_ATTRIBUTE(HairSettings::Material, mGravityPreloadFactor)
 }
 
 void HairSettings::Gradient::SaveBinaryState(StreamOut &inStream) const
@@ -298,7 +298,7 @@ void HairSettings::Resample(Array<SVertex> &ioVertices, Array<SStrand> &ioStrand
 				cur_length += segment_length;
 				++v0;
 				++v1;
-				JPH_ASSERT(uint32_t(v1 - vertices.data()) < strand.mEndVtx);
+				MOSS_ASSERT(uint32_t(v1 - vertices.data()) < strand.mEndVtx);
 				segment_length = (Vec3(v1->mPosition) - Vec3(v0->mPosition)).Length();
 			}
 
@@ -312,7 +312,7 @@ void HairSettings::Resample(Array<SVertex> &ioVertices, Array<SStrand> &ioStrand
 		// Add the last vertex of the strand
 		ioVertices.push_back(vertices[strand.mEndVtx - 1]);
 
-		JPH_ASSERT(uint32_t(ioVertices.size()) == out_strand.mEndVtx);
+		MOSS_ASSERT(uint32_t(ioVertices.size()) == out_strand.mEndVtx);
 	}
 }
 
@@ -505,7 +505,7 @@ void HairSettings::Init(float &outMaxDistSqHairToScalp)
 			SVertex &v1 = mSimVertices[strand.mStartVtx];
 			Vec3 tangent = x[1];
 			v1.mLength = tangent.Length();
-			JPH_ASSERT(v1.mLength > 0.0f, "Rods of zero length are not supported!");
+			MOSS_ASSERT(v1.mLength > 0.0f, "Rods of zero length are not supported!");
 			tangent /= v1.mLength;
 			Vec3 normal = tangent.GetNormalizedPerpendicular();
 			Vec3 binormal = tangent.Cross(normal);
@@ -527,7 +527,7 @@ void HairSettings::Init(float &outMaxDistSqHairToScalp)
 			// Calculate the Bishop frame for the 2nd rod
 			Vec3 tangent2 = x[i + 1];
 			v1.mLength = tangent2.Length();
-			JPH_ASSERT(v1.mLength > 0.0f, "Rods of zero length are not supported!");
+			MOSS_ASSERT(v1.mLength > 0.0f, "Rods of zero length are not supported!");
 			tangent2 /= v1.mLength;
 			Vec3 t1_cross_t2 = tangent1.Cross(tangent2);
 			float sin_angle = t1_cross_t2.Length();
@@ -651,7 +651,7 @@ void HairSettings::InitCompute(ComputeSystem *inComputeSystem)
 		if (!mScalpVertices.empty() && !mScalpInverseBindPose.empty() && !mScalpSkinWeights.empty())
 		{
 			mScalpVerticesCB = inComputeSystem->CreateComputeBuffer(ComputeBuffer::EType::Buffer, mScalpVertices.size(), sizeof(Float3), mScalpVertices.data()).Get();
-			mScalpSkinWeightsCB = inComputeSystem->CreateComputeBuffer(ComputeBuffer::EType::Buffer, mScalpSkinWeights.size(), sizeof(JPH_HairSkinWeight), mScalpSkinWeights.data()).Get();
+			mScalpSkinWeightsCB = inComputeSystem->CreateComputeBuffer(ComputeBuffer::EType::Buffer, mScalpSkinWeights.size(), sizeof(MOSS_HairSkinWeight), mScalpSkinWeights.data()).Get();
 		}
 	}
 
@@ -661,7 +661,7 @@ void HairSettings::InitCompute(ComputeSystem *inComputeSystem)
 	for (size_t i = 0, n = mSimStrands.size(); i < n; ++i)
 	{
 		uint32_t count = mSimStrands[i].VertexCount();
-		JPH_ASSERT(count < 256);
+		MOSS_ASSERT(count < 256);
 		strand_vertex_counts[i] = (uint8_t)count;
 	}
 
@@ -671,7 +671,7 @@ void HairSettings::InitCompute(ComputeSystem *inComputeSystem)
 	for (size_t i = 0, n = mSimStrands.size(); i < n; ++i)
 	{
 		uint32_t material_index = mSimStrands[i].mMaterialIndex;
-		JPH_ASSERT(material_index < 256);
+		MOSS_ASSERT(material_index < 256);
 		strand_material_indices[i] = (uint8_t)material_index;
 	}
 
@@ -716,13 +716,13 @@ void HairSettings::InitCompute(ComputeSystem *inComputeSystem)
 				simulation_vertex_to_strand_idx[v] = uint32_t(&strand - mSimStrands.data());
 
 	// Create buffer for simulated vertex influences
-	Array<JPH_HairSVertexInfluence> svertex_influences;
+	Array<MOSS_HairSVertexInfluence> svertex_influences;
 	svertex_influences.resize(mRenderVertices.size() * cHairNumSVertexInfluences);
 	for (size_t v = 0, n = mRenderVertices.size(); v < n; ++v)
 		for (uint32_t a = 0; a < cHairNumSVertexInfluences; ++a)
 		{
-			JPH_HairSVertexInfluence &inf = svertex_influences[v * cHairNumSVertexInfluences + a];
-			inf = static_cast<const JPH_HairSVertexInfluence &>(mRenderVertices[v].mInfluences[a]);
+			MOSS_HairSVertexInfluence &inf = svertex_influences[v * cHairNumSVertexInfluences + a];
+			inf = static_cast<const MOSS_HairSVertexInfluence &>(mRenderVertices[v].mInfluences[a]);
 
 			// Remap vertex index to reflect the transposing of the position buffer
 			if (inf.mVertexIndex != cNoInfluence)
@@ -747,7 +747,7 @@ void HairSettings::InitCompute(ComputeSystem *inComputeSystem)
 	mStrandVertexCountsCB = inComputeSystem->CreateComputeBuffer(ComputeBuffer::EType::Buffer, strand_vertex_counts.size() / sizeof(uint32_t), sizeof(uint32_t), strand_vertex_counts.data()).Get();
 	mStrandMaterialIndexCB = inComputeSystem->CreateComputeBuffer(ComputeBuffer::EType::Buffer, strand_material_indices.size() / sizeof(uint32_t), sizeof(uint32_t), strand_material_indices.data()).Get();
 	mNeutralDensityCB = inComputeSystem->CreateComputeBuffer(ComputeBuffer::EType::Buffer, mNeutralDensity.size(), sizeof(float), mNeutralDensity.data()).Get();
-	mSVertexInfluencesCB = inComputeSystem->CreateComputeBuffer(ComputeBuffer::EType::Buffer, mRenderVertices.size() * cHairNumSVertexInfluences, sizeof(JPH_HairSVertexInfluence), svertex_influences.data()).Get();
+	mSVertexInfluencesCB = inComputeSystem->CreateComputeBuffer(ComputeBuffer::EType::Buffer, mRenderVertices.size() * cHairNumSVertexInfluences, sizeof(MOSS_HairSVertexInfluence), svertex_influences.data()).Get();
 }
 
 void HairSettings::SaveBinaryState(StreamOut &inStream) const
@@ -866,4 +866,4 @@ void HairSettings::SkinScalpVertices(Mat44Arg inJointToHair, const Mat44 *inJoin
 	}
 }
 
-JPH_NAMESPACE_END
+MOSS_NAMESPACE_END
