@@ -560,7 +560,7 @@
 #define MOSS_SUPPRESS_WARNING_PUSH		MOSS_PRAGMA(warning (push))
 #define MOSS_SUPPRESS_WARNING_POP		MOSS_PRAGMA(warning (pop))
 #define MOSS_MSVC_SUPPRESS_WARNING(w)	MOSS_PRAGMA(warning (disable : w))
-#if _MSC_VER >= 1920 && _MSC_VER < 1930
+#if MOSS_COMPILER_MSVC >= 1920 && MOSS_COMPILER_MSVC < 1930
 	#define MOSS_MSVC2019_SUPPRESS_WARNING(w) MOSS_MSVC_SUPPRESS_WARNING(w)
 #else
 	#define MOSS_MSVC2019_SUPPRESS_WARNING(w)
@@ -630,6 +630,23 @@
 	MOSS_MSVC_SUPPRESS_WARNING(4738) /* storing 32-bit float result in memory, possible loss of performance */ \
 	MOSS_MSVC2019_SUPPRESS_WARNING(5246) /* the initialization of a subobject should be wrapped in braces */
 
+#if defined(MOSS_COMPILER_MSVC)
+
+    #define MOSS_WARNING_PUSH __pragma(warning(push))
+    #define MOSS_WARNING_POP  __pragma(warning(pop))
+
+    #define MOSS_MSVC_SUPPRESS_WARNING(w) \
+        __pragma(warning(disable : w))
+
+    #if MOSS_COMPILER_MSVC >= 1950
+        #define MOSS_MSVC2026_PLUS_SUPPRESS_WARNING(w) \
+            MOSS_MSVC_SUPPRESS_WARNING(w)
+    #else
+        #define MOSS_MSVC2026_PLUS_SUPPRESS_WARNING(w)
+    #endif
+
+#endif
+
 // OS-specific includes
 #if defined(MOSS_PLATFORM_WINDOWS)
 	#define MOSS_BREAKPOINT		__debugbreak()
@@ -685,7 +702,7 @@
 	#define MOSS_INLINE __inline__ __attribute__((always_inline))
 #elif defined(MOSS_COMPILER_GCC)
 	// On gcc 14 using always_inline in debug mode causes error: "inlining failed in call to 'always_inline' 'XXX': function not considered for inlining"
-	#if __GNUC__ >= 14 && defined(MOSS_DEBUG)
+	#if MOSS_COMPILER_GCC >= 14 && defined(MOSS_DEBUG)
 		#define MOSS_INLINE inline
 	#else
 		#define MOSS_INLINE __inline__ __attribute__((always_inline))
@@ -697,9 +714,9 @@
 #endif
 
 #ifndef MOSS_CALL
-#if defined(MOSS_PLATFORM_WINDOWS) && !defined(__GNUC__)
+#if defined(MOSS_PLATFORM_WINDOWS) && !defined(MOSS_COMPILER_GCC)
 #define MOSS_CALL __cdecl
-#elif defined(MOSS_PLATFORM_WINDOWS) && defined(__GNUC__)
+#elif defined(MOSS_PLATFORM_WINDOWS) && defined(MOSS_COMPILER_GCC)
 #define MOSS_CALL __attribute__((cdecl))
 #else
 #define MOSS_CALL
@@ -1076,11 +1093,11 @@ inline bool MossAssertHelper(const char* expr, const char* file, uint32_t line, 
 	#endif
 #endif
 
-#if defined(__GNUC__) || defined(__clang__)
+#if defined(MOSS_COMPILER_GCC) || defined(MOSS_COMPILER_CLANG)
     // rw: 0 = read, 1 = write
     // locality: 0 = no temporal locality (NTA), 1 = low, 2 = moderate, 3 = high (T0)
     #define MOSS_PREFETCH(addr, rw, locality) __builtin_prefetch((addr), (rw), (locality))
-#elif defined(_MSC_VER) && (defined(_M_IX86) || defined(_M_X64))
+#elif defined(MOSS_COMPILER_MSVC) && (defined(_M_IX86) || defined(_M_X64))
     #include <xmmintrin.h>
     #define MOSS_PREFETCH(addr, rw, locality) _mm_prefetch((const char*)(addr), (locality))
 #else
@@ -1466,7 +1483,7 @@ inline uint32_t CountBits(uint32_t inValue) {
 #elif defined(MOSS_COMPILER_MSVC)
 	#if defined(MOSS_SIMD_SSE4_2)
 		return _mm_popcnt_u32(inValue);
-	#elif defined(MOSS_SIMD_NEON) && (_MSC_VER >= 1930) // _CountOneBits not available on MSVC2019
+	#elif defined(MOSS_SIMD_NEON) && (MOSS_COMPILER_MSVC >= 1930) // _CountOneBits not available on MSVC2019
 		return _CountOneBits(inValue);
 	#else
 		inValue = inValue - ((inValue >> 1) & 0x55555555);
@@ -1637,7 +1654,7 @@ MOSS_API float    Moss_rand_gaussian(float mean, float stddev);
 #endif
 
 // MSVC and GCC prior to version 12 don't define __builtin_shufflevector
-#if defined(MOSS_COMPILER_MSVC) || (defined(MOSS_COMPILER_GCC) && __GNUC__ < 12)
+#if defined(MOSS_COMPILER_MSVC) || (defined(MOSS_COMPILER_GCC) && MOSS_COMPILER_GCC < 12)
 #else
 	// Shuffle a vector
 	#define MOSS_NEON_SHUFFLE_F32x4(vec1, vec2, index1, index2, index3, index4) __builtin_shufflevector(vec1, vec2, index1, index2, index3, index4)
@@ -2167,14 +2184,14 @@ void RegisterDefaultAllocator() {
 // ============================================================================
 // Compiler Format Checking Annotations (MSVC SAL vs GCC/Clang Attributes)
 // ============================================================================
-#if defined(_MSC_VER)
+#if defined(MOSS_COMPILER_MSVC)
     #define MOSS_PRINTF_FORMAT_STRING _Printf_format_string_
     #define MOSS_SCANF_FORMAT_STRING  _Scanf_format_string_impl_
     #define MOSS_PRINTF_VARARG_FUNC(fmtarg)
     #define MOSS_PRINTF_VARARG_FUNCV(fmtarg)
     #define MOSS_SCANF_VARARG_FUNC(fmtarg)
     #define MOSS_SCANF_VARARG_FUNCV(fmtarg)
-#elif defined(__GNUC__) || defined(__clang__)
+#elif defined(MOSS_COMPILER_GCC) || defined(MOSS_COMPILER_CLANG)
     #define MOSS_PRINTF_FORMAT_STRING
     #define MOSS_SCANF_FORMAT_STRING
     #define MOSS_PRINTF_VARARG_FUNC(fmtarg)  __attribute__((format(__printf__, fmtarg, fmtarg + 1)))
@@ -2208,7 +2225,7 @@ void RegisterDefaultAllocator() {
 // ============================================================================
 #define MOSS_STRINGIFY_ARG(arg) #arg
 
-#if defined(_MSC_VER)
+#if defined(MOSS_COMPILER_MSVC)
     #define MOSS_stack_alloc(type, count) MOSS_static_cast(type*, _alloca(sizeof(type) * (count)))
 #else
     #define MOSS_stack_alloc(type, count) MOSS_static_cast(type*, alloca(sizeof(type) * (count)))

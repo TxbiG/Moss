@@ -2,45 +2,48 @@
 #define MOSS_PLATFORM_WIN32_H
 
 #include <Moss/Moss_stdinc.h>    // Defines Uint64, bool types, etc.
+#include <Moss/Moss_Platform.h>  // Defines GamepadAxis, etc.
+#include "../platform_intern.h"
 
+// Windows SDK warning suppressions
 MOSS_WARNING_PUSH
 
-MOSS_MSVC_SUPPRESS_WARNING(5039)
-MOSS_MSVC2026_PLUS_SUPPRESS_WARNING(4865)
+#if defined(MOSS_COMPILER_MSVC)
+    MOSS_MSVC_SUPPRESS_WARNING(5039)
+    MOSS_MSVC2026_PLUS_SUPPRESS_WARNING(4865)
+#endif
 
-MOSS_CLANG_WARNING_PUSH
-MOSS_CLANG_SUPPRESS_WARNING("-Wreserved-macro-identifier")
+#if defined(MOSS_COMPILER_CLANG)
+    MOSS_CLANG_WARNING_PUSH
+    MOSS_CLANG_SUPPRESS_WARNING("-Wreserved-macro-identifier")
+#endif
 
 #ifndef WINVER
-	#define WINVER 0x0A00 // Targeting Windows 10 and above
+    #define WINVER 0x0A00
 #endif
 
 #ifndef _WIN32_WINNT
-	#define _WIN32_WINNT 0x0A00
+    #define _WIN32_WINNT 0x0A00
 #endif
 
 #ifndef WIN32_LEAN_AND_MEAN
-	#define WIN32_LEAN_AND_MEAN
+    #define WIN32_LEAN_AND_MEAN
 #endif
 
 #ifndef NOMINMAX
-	#define NOMINMAX
+    #define NOMINMAX
 #endif
 
-#ifndef MOSS_COMPILER_MINGW
-	#include <Windows.h>
-#else
-	#include <windows.h>
-#endif
+#include <Windows.h>
 
-MOSS_CLANG_WARNING_POP
+#if defined(__clang__)
+    MOSS_CLANG_WARNING_POP
+#endif
 
 MOSS_WARNING_POP
 
 #include <sysinfoapi.h>
 
-#include <Moss/Moss_Platform.h>  // Defines GamepadAxis, etc.
-#include "../platform_intern.h"
 /*
 #include <wctype.h>
 #include <dwmapi.h>
@@ -242,5 +245,5 @@ inline wchar_t* convertCharToWchar(const char* str) {
     MultiByteToWideChar(CP_UTF8, 0, str, -1, wstr, wlen);
     return wstr;
 }
-MOSS_SUPPRESS_WARNING_END
+
 #endif // MOSS_PLATFORM_WIN32_H
