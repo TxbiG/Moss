@@ -1292,14 +1292,15 @@ enum {
 
 
 
-typedef uint32_t Moss_TimerID;
-typedef int Moss_SpinLock;
+using Moss_TimerID = uint32_t;
+using Moss_SpinLock = int;
 
 #define MOSS_MAX_TIME MAX_INT64
 #define MOSS_MIN_TIME MIN_INT64
-typedef int64_t Moss_Time; // Nanoseconds since Unix epoch (Jan 1, 1970 UTC)
 
-typedef struct Moss_DateTime {
+using Moss_Time = int64_t;	// Nanoseconds since Unix epoch (Jan 1, 1970 UTC)
+
+struct Moss_DateTime {
     int year;        // e.g., 2026
     int month;       // [1..12]
     int day;         // [1..31]
@@ -1319,18 +1320,12 @@ struct Moss_RNG {
 
 // Wrap atomic types in structs so callers cannot accidentally perform
 // non-atomic operations (like a->value++) without compiler errors.
-typedef struct Moss_AtomicInt { volatile int value; } Moss_AtomicInt;
-typedef struct Moss_AtomicU32 { volatile uint32_t value; } Moss_AtomicU32;
-typedef struct Moss_AtomicU64 { volatile uint64_t value; } Moss_AtomicU64;
+struct Moss_AtomicInt { volatile int value; };
+struct Moss_AtomicU32 { volatile uint32_t value; };
+struct Moss_AtomicU64 { volatile uint64_t value; };
 
 typedef uint64_t (MOSS_CALL *Moss_NSTimerCallback)(void* userdata, Moss_TimerID timerID, uint64_t intervalNS);
 typedef uint32_t (MOSS_CALL *Moss_TimerCallback)(void* userdata, Moss_TimerID timerID, uint32_t intervalMS);
-
-struct Moss_BumpAlloc {
-    uint8_t* buffer   = nullptr;
-    size_t   offset   = 0;
-    size_t   capacity = 0;
-};
 
 // Convert a value from degrees to radians
 MOSS_INLINE constexpr float DegreesToRadians(float value) { return value * (MOSS_PI / 180.0f); }
@@ -1691,10 +1686,10 @@ MOSS_INLINE float32x4_t NeonShuffleFloat32x4<1, 2, 0, 0>(float32x4_t inV1, float
 #endif // MOSS_SIMD_NEON
 
 
-#ifdef JPH_USE_RVV
+#ifdef MOSS_USE_RVV
 
 template <unsigned IndexX, unsigned IndexY, unsigned IndexZ, unsigned IndexW>
-JPH_INLINE vfloat32m1_t RVVShuffleFloat32x4(vfloat32m1_t inV0, vfloat32m1_t inV1)
+MOSS_INLINE vfloat32m1_t RVVShuffleFloat32x4(vfloat32m1_t inV0, vfloat32m1_t inV1)
 {
 	vfloat32m2_t combined = __riscv_vlmul_ext_v_f32m1_f32m2(inV0);
 	combined = __riscv_vslideup_vx_f32m2(combined, __riscv_vlmul_ext_v_f32m1_f32m2(inV1), 4, 8);
@@ -1708,20 +1703,20 @@ JPH_INLINE vfloat32m1_t RVVShuffleFloat32x4(vfloat32m1_t inV0, vfloat32m1_t inV1
 }
 
 template <>
-JPH_INLINE vfloat32m1_t RVVShuffleFloat32x4<0, 1, 2, 3>(vfloat32m1_t inV0, vfloat32m1_t inV1)
+MOSS_INLINE vfloat32m1_t RVVShuffleFloat32x4<0, 1, 2, 3>(vfloat32m1_t inV0, vfloat32m1_t inV1)
 {
 	return inV0;
 }
 
 template <>
-JPH_INLINE vfloat32m1_t RVVShuffleFloat32x4<0, 1, 4, 5>(vfloat32m1_t inV0, vfloat32m1_t inV1)
+MOSS_INLINE vfloat32m1_t RVVShuffleFloat32x4<0, 1, 4, 5>(vfloat32m1_t inV0, vfloat32m1_t inV1)
 {
 	vfloat32m1_t result = inV0;
 	return __riscv_vslideup_vx_f32m1(result, inV1, 2, 4);
 }
 
 template <>
-JPH_INLINE vfloat32m1_t RVVShuffleFloat32x4<1, 0, 3, 2>(vfloat32m1_t inV0, vfloat32m1_t inV1)
+MOSS_INLINE vfloat32m1_t RVVShuffleFloat32x4<1, 0, 3, 2>(vfloat32m1_t inV0, vfloat32m1_t inV1)
 {
 	// Avoids m2 extension overhead that the default implementation of RVVShuffleFloat32x4 has
 	const uint32 indices_raw[4] = { 1, 0, 3, 2 };
@@ -1730,26 +1725,26 @@ JPH_INLINE vfloat32m1_t RVVShuffleFloat32x4<1, 0, 3, 2>(vfloat32m1_t inV0, vfloa
 }
 
 template <>
-JPH_INLINE vfloat32m1_t RVVShuffleFloat32x4<2, 3, 0, 1>(vfloat32m1_t inV0, vfloat32m1_t inV1)
+MOSS_INLINE vfloat32m1_t RVVShuffleFloat32x4<2, 3, 0, 1>(vfloat32m1_t inV0, vfloat32m1_t inV1)
 {
 	vfloat32m1_t upper = __riscv_vslidedown_vx_f32m1(inV0, 2, 4);
 	return __riscv_vslideup_vx_f32m1(upper, inV0, 2, 4);
 }
 
 template <>
-JPH_INLINE vfloat32m1_t RVVShuffleFloat32x4<2, 3, 6, 7>(vfloat32m1_t inV0, vfloat32m1_t inV1)
+MOSS_INLINE vfloat32m1_t RVVShuffleFloat32x4<2, 3, 6, 7>(vfloat32m1_t inV0, vfloat32m1_t inV1)
 {
 	return __riscv_vslidedown_vx_f32m1_tu(inV1, inV0, 2, 2);
 }
 
 template <>
-JPH_INLINE vfloat32m1_t RVVShuffleFloat32x4<4, 5, 6, 7>(vfloat32m1_t inV0, vfloat32m1_t inV1)
+MOSS_INLINE vfloat32m1_t RVVShuffleFloat32x4<4, 5, 6, 7>(vfloat32m1_t inV0, vfloat32m1_t inV1)
 {
 	return inV1;
 }
 
 template <>
-JPH_INLINE vfloat32m1_t RVVShuffleFloat32x4<0, 2, 4, 6>(vfloat32m1_t inV0, vfloat32m1_t inV1)
+MOSS_INLINE vfloat32m1_t RVVShuffleFloat32x4<0, 2, 4, 6>(vfloat32m1_t inV0, vfloat32m1_t inV1)
 {
 	vfloat32m2_t combined = __riscv_vlmul_ext_v_f32m1_f32m2(inV0);
 	combined = __riscv_vslideup_vx_f32m2(combined, __riscv_vlmul_ext_v_f32m1_f32m2(inV1), 4, 8);
@@ -1763,7 +1758,7 @@ JPH_INLINE vfloat32m1_t RVVShuffleFloat32x4<0, 2, 4, 6>(vfloat32m1_t inV0, vfloa
 }
 
 template <>
-JPH_INLINE vfloat32m1_t RVVShuffleFloat32x4<1, 3, 5, 7>(vfloat32m1_t inV0, vfloat32m1_t inV1)
+MOSS_INLINE vfloat32m1_t RVVShuffleFloat32x4<1, 3, 5, 7>(vfloat32m1_t inV0, vfloat32m1_t inV1)
 {
 	vfloat32m2_t combined = __riscv_vlmul_ext_v_f32m1_f32m2(inV0);
 	combined = __riscv_vslideup_vx_f32m2(combined, __riscv_vlmul_ext_v_f32m1_f32m2(inV1), 4, 8);
@@ -1777,9 +1772,9 @@ JPH_INLINE vfloat32m1_t RVVShuffleFloat32x4<1, 3, 5, 7>(vfloat32m1_t inV0, vfloa
 }
 
 /// Given inV = (a, b, c, d), calculates (a + b) + (c + d) when cross platform determinism is on, otherwise calculates a + b + c + d (order undefined)
-JPH_INLINE vfloat32m1_t RVVSumElementsFloat32x4(vfloat32m1_t inV)
+MOSS_INLINE vfloat32m1_t RVVSumElementsFloat32x4(vfloat32m1_t inV)
 {
-#ifdef JPH_CROSS_PLATFORM_DETERMINISTIC
+#ifdef MOSS_CROSS_PLATFORM_DETERMINISTIC
 	const vfloat32m1_t shift1 = __riscv_vslidedown_vx_f32m1(inV, 1, 4);
 	const vfloat32m1_t sum_pairs = __riscv_vfadd_vv_f32m1(inV, shift1, 4);
 	const vfloat32m1_t shift2 = __riscv_vslidedown_vx_f32m1(sum_pairs, 2, 4);
@@ -1791,27 +1786,71 @@ JPH_INLINE vfloat32m1_t RVVSumElementsFloat32x4(vfloat32m1_t inV)
 	return sum;
 }
 
-#endif // JPH_USE_RVV
+#endif // MOSS_USE_RVV
 
-MOSS_API void Moss_CreateBumpAlloc(Moss_BumpAlloc* alloc, size_t size) {
-    MOSS_ASSERT(alloc && size > 0);
-    alloc->buffer   = static_cast<uint8_t*>(Allocate(size));
-    alloc->offset   = 0;
-    alloc->capacity = size;
+struct Moss_BumpAlloc {
+    uint8_t* buffer = nullptr;
+    size_t offset = 0;
+    size_t capacity = 0;
+};
+
+MOSS_API inline bool Moss_CreateBumpAlloc(Moss_BumpAlloc* alloc, size_t capacity) {
+    if (!alloc || capacity == 0)
+        return false;
+	
+	// Prevent accidental replacement of an existing allocation.
+    if (alloc->buffer)
+        return false;
+
+    alloc->buffer = static_cast<uint8_t*>(Allocate(capacity));
+
+    if (!alloc->buffer) {
+        alloc->offset = 0;
+        alloc->capacity = 0;
+        return false;
+    }
+
+    alloc->offset = 0;
+    alloc->capacity = capacity;
+
+    return true;
 }
 
-MOSS_INLINE void* Moss_BumpAlloc(Moss_BumpAlloc* alloc, size_t size, size_t alignment = 16) {
-    MOSS_ASSERT(alloc && (alignment & (alignment - 1)) == 0); // Power of 2 check
+MOSS_API inline char* Moss_AllocateBumpAlloc(Moss_BumpAlloc* alloc, size_t size, size_t alignment = 16) {
+    if (!alloc || !alloc->buffer || size == 0)
+        return nullptr;
 
-    // Align current offset up to requested boundary
-    size_t alignedOffset = (alloc->offset + (alignment - 1)) & ~(alignment - 1);
+    if (alignment == 0 || (alignment & (alignment - 1)) != 0)
+        return nullptr;
 
-    // Overflow-safe bounds check
-    if (alignedOffset > alloc->capacity || size > alloc->capacity - alignedOffset) { return nullptr; }
+    // Prevent overflow during alignment.
+    if (alloc->offset > SIZE_MAX - (alignment - 1))
+        return nullptr;
 
-    void* ptr = alloc->buffer + alignedOffset;
+	const uintptr_t base = reinterpret_cast<uintptr_t>(alloc->buffer);
+    if (alloc->offset > alloc->capacity)
+        return nullptr;
+
+    if (base > UINTPTR_MAX - alloc->offset)
+        return nullptr;
+
+    const uintptr_t current = base + alloc->offset;
+    const uintptr_t mask = alignment - 1;
+
+    if (current > UINTPTR_MAX - mask)
+        return nullptr;
+
+    const uintptr_t aligned = (current + mask) & ~mask;
+
+    const size_t alignedOffset = static_cast<size_t>(aligned - base);
+
+    if (alignedOffset > alloc->capacity || size > alloc->capacity - alignedOffset)
+        return nullptr;
+
+    char* result = reinterpret_cast<char*>(aligned);
     alloc->offset = alignedOffset + size;
-    return ptr;
+
+	return result;
 }
 
 MOSS_INLINE void Moss_ResetBumpAlloc(Moss_BumpAlloc* alloc) { if (alloc) alloc->offset = 0; }
@@ -1855,59 +1894,181 @@ MOSS_INLINE int64_t Moss_GetFileSize(const char* filepath) {
 }
 
 // Reads file into a caller-supplied buffer of size >= fileSize + 1
-MOSS_INLINE char* Moss_FileRead(const char* filepath, size_t* outFileSize, char* buffer, size_t bufferCapacity) {
-    if (!filepath || !outFileSize || !buffer) return nullptr;
-    *outFileSize = 0;
+MOSS_INLINE char* Moss_FileReadBinary(const char* filepath, size_t* outFileSize, char* buffer, size_t capacity) {
+    if (outFileSize)
+        *outFileSize = 0;
+
+    if (!filepath || !buffer)
+        return nullptr;
 
     FILE* file = fopen(filepath, "rb");
-    if (!file) return nullptr;
 
-    fseek(file, 0, SEEK_END);
+    if (!file)
+        return nullptr;
+
+    if (fseek(file, 0, SEEK_END) != 0) { fclose(file); return nullptr; }
+
     long rawSize = ftell(file);
-    fseek(file, 0, SEEK_SET);
 
-    if (rawSize < 0 || static_cast<size_t>(rawSize) + 1 > bufferCapacity) { fclose(file); return nullptr; }
+    if (rawSize < 0) { fclose(file); return nullptr; }
 
-    size_t size = static_cast<size_t>(rawSize);
-    size_t bytesRead = fread(buffer, 1, size, file);
-    fclose(file);
+    if (fseek(file, 0, SEEK_SET) != 0) { fclose(file); return nullptr; }
 
-    if (bytesRead != size) return nullptr;
+    const size_t size = static_cast<size_t>(rawSize);
 
-    buffer[size] = '\0'; // Null-terminate safely for text files
-    *outFileSize = size;
+    if (size > capacity) {
+        fclose(file);
+        return nullptr;
+    }
+
+    const size_t bytesRead = fread(buffer, 1, size, file);
+
+    const bool readSucceeded = bytesRead == size;
+    const bool closeSucceeded = fclose(file) == 0;
+
+    if (!readSucceeded || !closeSucceeded)
+        return nullptr;
+
+    if (outFileSize)
+        *outFileSize = bytesRead;
+
+    return buffer;
+}
+MOSS_INLINE char* Moss_FileReadBinary(const char* filepath, size_t* outFileSize, Moss_BumpAlloc* alloc) {
+    if (outFileSize)
+        *outFileSize = 0;
+
+    if (!filepath || !alloc || !alloc->buffer)
+        return nullptr;
+
+    const int64_t fileSize = Moss_GetFileSize(filepath);
+
+    if (fileSize < 0 || static_cast<uint64_t>(fileSize) > SIZE_MAX)
+        return nullptr;
+
+    const size_t allocationSize = fileSize > 0 ? static_cast<size_t>(fileSize) : 1;
+
+    const size_t previousOffset = alloc->offset;
+
+    char* buffer = Moss_AllocateBumpAlloc(alloc, allocationSize, alignof(char));
+
+    if (!buffer)
+        return nullptr;
+
+    char* result = Moss_FileReadBinary(filepath, outFileSize, buffer, allocationSize);
+
+    if (!result)
+        alloc->offset = previousOffset;
+
+    return result;
+}
+
+
+MOSS_INLINE char* Moss_FileReadText(const char* filepath, size_t* outFileSize, char* buffer, size_t capacity) {
+    if (outFileSize)
+        *outFileSize = 0;
+
+    if (!filepath || !buffer || capacity == 0)
+        return nullptr;
+
+    size_t bytesRead = 0;
+
+    if (!Moss_FileReadBinary(filepath, &bytesRead, buffer, capacity - 1)) { return nullptr; }
+
+    buffer[bytesRead] = '\0';
+
+    if (outFileSize)
+        *outFileSize = bytesRead;
+
     return buffer;
 }
 
 // Overload using Moss_BumpAlloc
 MOSS_INLINE char* Moss_FileRead(const char* filepath, size_t* outFileSize, Moss_BumpAlloc* alloc) {
-    int64_t size = Moss_GetFileSize(filepath);
-    if (size < 0) return nullptr;
+    if (outFileSize)
+        *outFileSize = 0;
 
-    size_t capacity = static_cast<size_t>(size) + 1;
-    char* buffer = static_cast<char*>(Moss_BumpAlloc(alloc, capacity, 16));
-    if (!buffer) return nullptr;
+    if (!filepath || !alloc || !alloc->buffer)
+        return nullptr;
 
-    return Moss_FileRead(filepath, outFileSize, buffer, capacity);
+	const int64_t fileSize = Moss_GetFileSize(filepath);
+
+	if (fileSize < 0 || static_cast<uint64_t>(fileSize) >= SIZE_MAX)
+        return nullptr;
+
+    const size_t capacity = static_cast<size_t>(fileSize) + 1;
+    const size_t previousOffset = alloc->offset;
+
+    char* buffer = Moss_AllocateBumpAlloc(alloc, capacity, alignof(char));
+
+    if (!buffer)
+        return nullptr;
+
+    char* result = Moss_FileReadText(filepath, outFileSize, buffer, capacity);
+
+    if (!result)
+        alloc->offset = previousOffset;
+
+    return result;
+}
+
+MOSS_INLINE char* Moss_FileReadText(const char* filepath, size_t* outFileSize, Moss_BumpAlloc* alloc) {
+    if (outFileSize) { *outFileSize = 0; }
+
+    if (!filepath || !alloc) { return nullptr; }
+
+    const int64_t fileSize = Moss_GetFileSize(filepath);
+
+    if (fileSize < 0 || static_cast<uint64_t>(fileSize) >= SIZE_MAX) { return nullptr; }
+
+    const size_t capacity = static_cast<size_t>(fileSize) + 1;
+    const size_t previousOffset = alloc->offset;
+
+    char* buffer = static_cast<char*>(Moss_AllocateBumpAlloc(alloc, capacity, 16));
+
+    if (!buffer)
+        return nullptr;
+
+    char* result = Moss_FileReadText(filepath, outFileSize, buffer, capacity);
+
+    if (!result) { alloc->offset = previousOffset; }
+
+    return result;
 }
 
 MOSS_INLINE bool Moss_FileWrite(const char* filepath, const void* buffer, size_t size) {
     if (!filepath || (!buffer && size > 0)) return false;
 
     FILE* file = fopen(filepath, "wb");
-    if (!file) return false;
 
-    size_t written = fwrite(buffer, 1, size, file);
-    fclose(file);
-    return written == size;
+    if (!file)
+        return false;
+
+    const size_t written = fwrite(buffer, 1, size, file);
+
+    const bool writeSucceeded = written == size;
+    const bool closeSucceeded = fclose(file) == 0;
+
+    return writeSucceeded && closeSucceeded;
 }
 
 MOSS_INLINE bool Moss_CopyFile(const char* srcPath, const char* dstPath, Moss_BumpAlloc* alloc) {
-    size_t fileSize = 0;
-    char* data = Moss_FileRead(srcPath, &fileSize, alloc);
-    if (!data) { return false; }
+	if (!srcPath || !dstPath || !alloc || !alloc->buffer)
+        return false;
 
-    return Moss_FileWrite(dstPath, data, fileSize);
+    const size_t previousOffset = alloc->offset;
+    size_t fileSize = 0;
+    char* data = Moss_FileReadBinary(srcPath, &fileSize, alloc);
+
+    if (!data)
+        return false;
+
+    const bool success = Moss_FileWrite(dstPath, data, fileSize);
+
+    // Release temporary allocation.
+    alloc->offset = previousOffset;
+
+    return success;
 }
 
 
