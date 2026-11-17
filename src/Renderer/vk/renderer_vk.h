@@ -214,6 +214,15 @@ struct Moss_PipelineState {
     VkFrontFace frontFace;
 };
 
+/*struct Moss_PipelineState {
+    VkDevice device;                // Vulkan device
+    VkPipeline pipeline;            // Vulkan pipeline object
+    VkPipelineLayout pipelineLayout;// Vulkan pipeline layout
+    VkDescriptorSet descriptorSet;  // Descriptor set for uniforms
+    VkBuffer uniformBuffer;         // Uniform buffer
+    VkDeviceMemory uniformMemory;   // Memory for uniform buffer
+};*/
+
 #define MOSS_MAX_COLOR_ATTACHMENTS 8
 
 struct Moss_Framebuffer {

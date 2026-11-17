@@ -601,7 +601,7 @@ MOSS_API void Moss_TextureBarrier(Moss_Renderer* renderer, Texture* texture, ERe
 MOSS_API Moss_Framebuffer* Moss_RendererGetBackbuffer(Moss_Renderer* renderer);
 MOSS_API void Moss_RenderSubViewport(Moss_GPUCommandBuffer* cmd, const SubViewport* sub_viewport, Moss_SubViewportRecordFn record, void* user_data);
 
-MOSS_API Moss_Renderer* Moss_RendererCreate(const Moss_RendererDesc* desc);
+MOSS_API Moss_Renderer* Moss_RendererCreate(Moss_Window* window, const Moss_RendererDesc* desc);
 MOSS_API Moss_Renderer* Moss_CreateRenderer(Moss_Window* window);
 MOSS_API void Moss_RendererDestroy(Moss_Renderer* renderer);
 MOSS_API void Moss_TerminateRenderer(Moss_Renderer* renderer);
@@ -641,6 +641,7 @@ struct Moss_FontAssetDesc {
 MOSS_API void Moss_RendererDrawMesh(Moss_Renderer* renderer, const Moss_DrawMeshDesc* desc);
 MOSS_API void Moss_RendererDrawModelDesc(Moss_Renderer* renderer, const Moss_DrawModelDesc* desc);
 MOSS_API void Moss_RendererDrawModel(Moss_Renderer* renderer, const Moss_Model* model, const float* transform);
+
 MOSS_API Moss_Font* Moss_RendererCreateFont(Moss_Renderer* renderer, const Moss_FontDesc* desc);
 MOSS_API void Moss_RendererDestroyFont(Moss_Renderer* renderer, Moss_Font* font);
 MOSS_API Moss_Font* Moss_FontLoad(const char* path, float pixel_size);
@@ -655,23 +656,13 @@ MOSS_API Moss_TextMeasure Moss_FontMeasureText(const Moss_Font* font, const char
 MOSS_API size_t Moss_FontBuildTextQuads(const Moss_DrawTextDesc* desc, Moss_FontVertex* out_vertices, size_t vertex_capacity);
 MOSS_API void Moss_RendererDrawText(Moss_Renderer* renderer, const Moss_DrawTextDesc* desc);
 MOSS_API uint32_t Moss_RendererGetFontBackendMask(void);
-MOSS_API bool Moss_RendererBackendSupportsFonts(Moss_GPUBackendType backend);
+
 MOSS_API void Moss_RendererDrawSprite(Moss_Renderer* renderer, const Moss_SpriteDesc* desc);
 MOSS_API Moss_SpriteBatch* Moss_RendererCreateSpriteBatch(Moss_Renderer* renderer, uint32_t capacity);
 MOSS_API void Moss_RendererDestroySpriteBatch(Moss_Renderer* renderer, Moss_SpriteBatch* batch);
 MOSS_API void Moss_SpriteBatchClear(Moss_SpriteBatch* batch);
 MOSS_API int Moss_SpriteBatchAdd(Moss_SpriteBatch* batch, const Moss_SpriteDesc* desc);
 MOSS_API void Moss_RendererDrawSpriteBatch(Moss_Renderer* renderer, const Moss_SpriteBatch* batch);
-
-MOSS_API Moss_DebugDrawList* Moss_RendererCreateDebugDrawList(Moss_Renderer* renderer, uint32_t capacity);
-MOSS_API void Moss_RendererDestroyDebugDrawList(Moss_Renderer* renderer, Moss_DebugDrawList* list);
-MOSS_API void Moss_DebugDrawListClear(Moss_DebugDrawList* list);
-MOSS_API int Moss_DebugDrawLine(Moss_DebugDrawList* list, const Moss_DebugLineDesc* desc);
-MOSS_API int Moss_DebugDrawBox(Moss_DebugDrawList* list, const Moss_DebugBoxDesc* desc);
-MOSS_API int Moss_DebugDrawSphere(Moss_DebugDrawList* list, const Moss_DebugSphereDesc* desc);
-MOSS_API int Moss_DebugDrawNavmesh(Moss_DebugDrawList* list, const Moss_DebugNavmeshDesc* desc);
-MOSS_API int Moss_DebugDrawPhysicsContact(Moss_DebugDrawList* list, const Moss_DebugPhysicsContactDesc* desc);
-MOSS_API void Moss_RendererDrawDebugList(Moss_Renderer* renderer, const Moss_DebugDrawList* list);
 
 MOSS_API Moss_Camera* Moss_CameraCreate2D(const Moss_Camera2DDesc* desc);
 MOSS_API void Moss_CameraSetPosition2D(Moss_Camera camera, Vec2 position);
@@ -690,6 +681,7 @@ MOSS_API Moss_ShadowMap* Moss_RendererCreateShadowMap(Moss_Renderer* renderer, c
 MOSS_API void Moss_RendererDestroyShadowMap(Moss_Renderer* renderer, Moss_ShadowMap* shadow_map);
 MOSS_API void Moss_RendererBeginShadowPass(Moss_Renderer* renderer, Moss_ShadowMap* shadow_map);
 MOSS_API void Moss_RendererEndShadowPass(Moss_Renderer* renderer, Moss_ShadowMap* shadow_map);
+
 MOSS_API void Moss_MeshDraw(Moss_Mesh* mesh);
 MOSS_API void Moss_ModelDraw(Moss_Model* model);
 
@@ -923,6 +915,17 @@ private:
 	TArray<Frame>						mFrames;
 };
 */
+
+
+MOSS_API Moss_DebugDrawList* Moss_RendererCreateDebugDrawList(Moss_Renderer* renderer, uint32_t capacity);
+MOSS_API void Moss_RendererDestroyDebugDrawList(Moss_Renderer* renderer, Moss_DebugDrawList* list);
+MOSS_API void Moss_DebugDrawListClear(Moss_DebugDrawList* list);
+MOSS_API int Moss_DebugDrawLine(Moss_DebugDrawList* list, const Moss_DebugLineDesc* desc);
+MOSS_API int Moss_DebugDrawBox(Moss_DebugDrawList* list, const Moss_DebugBoxDesc* desc);
+MOSS_API int Moss_DebugDrawSphere(Moss_DebugDrawList* list, const Moss_DebugSphereDesc* desc);
+MOSS_API int Moss_DebugDrawNavmesh(Moss_DebugDrawList* list, const Moss_DebugNavmeshDesc* desc);
+MOSS_API int Moss_DebugDrawPhysicsContact(Moss_DebugDrawList* list, const Moss_DebugPhysicsContactDesc* desc);
+MOSS_API void Moss_RendererDrawDebugList(Moss_Renderer* renderer, const Moss_DebugDrawList* list);
 
 //===========================================================
 // 2D Debug/Utils Rendering

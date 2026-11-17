@@ -1,17 +1,6 @@
 #include "Renderer/renderer_intern.h"
 
 // Forward+
-
-
-#include <Renderer/DX12/RendererDX12.h>
-#include <Renderer/DX12/RenderPrimitiveDX12.h>
-#include <Renderer/DX12/PipelineStateDX12.h>
-#include <Renderer/DX12/VertexShaderDX12.h>
-#include <Renderer/DX12/PixelShaderDX12.h>
-#include <Renderer/DX12/TextureDX12.h>
-#include <Renderer/DX12/RenderInstancesDX12.h>
-#include <Renderer/DX12/FatalErrorIfFailedDX12.h>
-#include <Window/ApplicationWindowWin.h>
 #include <Moss/Core/Profiler.h>
 #include <Utils/ReadData.h>
 #include <Utils/Log.h>

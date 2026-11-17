@@ -1,15 +1,5 @@
 #include "renderer_vk.h"
 
-typedef struct Moss_PipelineState {
-    VkDevice device;                // Vulkan device
-    VkPipeline pipeline;            // Vulkan pipeline object
-    VkPipelineLayout pipelineLayout;// Vulkan pipeline layout
-    VkDescriptorSet descriptorSet;  // Descriptor set for uniforms
-    VkBuffer uniformBuffer;         // Uniform buffer
-    VkDeviceMemory uniformMemory;   // Memory for uniform buffer
-} Moss_PipelineState;
-
-
 Moss_PipelineState* Moss_RendererCreatePipeline(Moss_Renderer* renderer, const Moss_PipelineDesc* desc) {
 
 }

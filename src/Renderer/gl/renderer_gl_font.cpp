@@ -43,7 +43,91 @@ Font::~Font() {
     if (vbo) { glDeleteBuffers(1, &vbo); }
     if (vao) { glDeleteVertexArrays(1, &vao); }
 }
-bool Font::load(const std::string& path, float pixelHeight) {
+
+void Font::bind() {
+    glEnable(GL_TEXTURE_2D);
+    glBindTexture(GL_TEXTURE_2D, textureID);
+}
+
+void Font::unbind() {
+    glBindTexture(GL_TEXTURE_2D, 0);
+}
+
+void Font::renderText(const std::string& text, float x, float y, const Mat44& viewProjection) {
+
+    struct Vertex {
+        float x, y;
+        float s, t;
+    };
+
+    std::vector<Vertex> vertices;
+    vertices.reserve(text.size() * 6);
+
+    float xpos = 0.0f; // Start at 0 because translation will move whole text
+
+    for (char c : text) {
+        if (c < 32 || c >= 128) continue;
+        stbtt_bakedchar* b = &charData[c - 32];
+
+        float x0 = xpos + b->xoff;
+        float y0 = baseline + b->yoff;
+        float x1 = x0 + (b->x1 - b->x0);
+        float y1 = y0 + (b->y1 - b->y0);
+
+        float s0 = b->x0 / (float)bitmapWidth;
+        float t0 = b->y0 / (float)bitmapHeight;
+        float s1 = b->x1 / (float)bitmapWidth;
+        float t1 = b->y1 / (float)bitmapHeight;
+
+        vertices.push_back({ x0, y0, s0, t0 });
+        vertices.push_back({ x1, y0, s1, t0 });
+        vertices.push_back({ x1, y1, s1, t1 });
+
+        vertices.push_back({ x0, y0, s0, t0 });
+        vertices.push_back({ x1, y1, s1, t1 });
+        vertices.push_back({ x0, y1, s0, t1 });
+
+        xpos += b->xadvance;
+    }
+
+    m_shader.bind();
+
+    // Textue bind
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, textureID);
+
+    m_shader.SetUniform("uFontTexture", 0);
+    m_shader.SetUniform("u_ViewProjection", viewProjection);
+
+    Mat44 model = Mat44::sTranslation(Vec3(x, y, -1.0f)); 
+    m_shader.SetUniform("u_Model", model);
+
+
+    // Draw
+    glBindVertexArray(vao);
+
+    glBindBuffer(GL_ARRAY_BUFFER, vbo);
+    glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(Vertex), vertices.data(), GL_DYNAMIC_DRAW);
+
+    glDrawArrays(GL_TRIANGLES, 0, (GLsizei)vertices.size());
+
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glBindVertexArray(0);
+
+    m_shader.unbind();
+}
+
+
+
+
+
+
+Moss_Font* Moss_RendererCreateFont(Moss_Renderer* renderer, const Moss_FontDesc* desc);
+
+void Moss_RendererDestroyFont(Moss_Renderer* renderer, Moss_Font* font);
+
+
+Moss_Font* Moss_FontLoad(const char* path, float pixel_size) {
     std::ifstream file(path, std::ios::binary | std::ios::ate);
     if (!file.is_open()) {
         MOSS_ERROR("Failed to open font: %s\n", path.c_str());
@@ -126,76 +210,19 @@ bool Font::load(const std::string& path, float pixelHeight) {
     return true;
 }
 
+Moss_Font* Moss_FontCreateFromMemory(const void* data, size_t data_size, float pixel_size);
+void Moss_FontDestroy(Moss_Font* font);
+const Moss_FontMetrics* Moss_FontGetMetrics(const Moss_Font* font);
+const Moss_FontGlyph* Moss_FontGetGlyph(const Moss_Font* font, uint32_t codepoint);
+const unsigned char* Moss_FontGetAtlasPixels(const Moss_Font* font, uint32_t* width, uint32_t* height, uint32_t* stride);
+Texture* Moss_FontGetAtlasTexture(Moss_Font* font);
+bool Moss_FontUploadAtlas(Moss_Renderer* renderer, Moss_Font* font);
+Moss_TextMeasure Moss_FontMeasureText(const Moss_Font* font, const char* text, float scale) {
 
-void Font::bind() {
-    glEnable(GL_TEXTURE_2D);
-    glBindTexture(GL_TEXTURE_2D, textureID);
 }
 
-void Font::unbind() {
-    glBindTexture(GL_TEXTURE_2D, 0);
-}
-
-void Font::renderText(const std::string& text, float x, float y, const Mat44& viewProjection) {
-
-    struct Vertex {
-        float x, y;
-        float s, t;
-    };
-
-    std::vector<Vertex> vertices;
-    vertices.reserve(text.size() * 6);
-
-    float xpos = 0.0f; // Start at 0 because translation will move whole text
-
-    for (char c : text) {
-        if (c < 32 || c >= 128) continue;
-        stbtt_bakedchar* b = &charData[c - 32];
-
-        float x0 = xpos + b->xoff;
-        float y0 = baseline + b->yoff;
-        float x1 = x0 + (b->x1 - b->x0);
-        float y1 = y0 + (b->y1 - b->y0);
-
-        float s0 = b->x0 / (float)bitmapWidth;
-        float t0 = b->y0 / (float)bitmapHeight;
-        float s1 = b->x1 / (float)bitmapWidth;
-        float t1 = b->y1 / (float)bitmapHeight;
-
-        vertices.push_back({ x0, y0, s0, t0 });
-        vertices.push_back({ x1, y0, s1, t0 });
-        vertices.push_back({ x1, y1, s1, t1 });
-
-        vertices.push_back({ x0, y0, s0, t0 });
-        vertices.push_back({ x1, y1, s1, t1 });
-        vertices.push_back({ x0, y1, s0, t1 });
-
-        xpos += b->xadvance;
-    }
-
-    m_shader.bind();
-
-    // Textue bind
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, textureID);
-
-    m_shader.SetUniform("uFontTexture", 0);
-    m_shader.SetUniform("u_ViewProjection", viewProjection);
-
-    Mat44 model = Mat44::sTranslation(Vec3(x, y, -1.0f)); 
-    m_shader.SetUniform("u_Model", model);
 
 
-    // Draw
-    glBindVertexArray(vao);
-
-    glBindBuffer(GL_ARRAY_BUFFER, vbo);
-    glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(Vertex), vertices.data(), GL_DYNAMIC_DRAW);
-
-    glDrawArrays(GL_TRIANGLES, 0, (GLsizei)vertices.size());
-
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-    glBindVertexArray(0);
-
-    m_shader.unbind();
-}
+size_t Moss_FontBuildTextQuads(const Moss_DrawTextDesc* desc, Moss_FontVertex* out_vertices, size_t vertex_capacity);
+void Moss_RendererDrawText(Moss_Renderer* renderer, const Moss_DrawTextDesc* desc);
+uint32_t Moss_RendererGetFontBackendMask(void);

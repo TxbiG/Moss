@@ -1,5 +1,5 @@
-#ifndef MOSS_RENDERER_INTERNAL_H
-#define MOSS_RENDERER_INTERNAL_H
+#ifndef MOSS_RENDERER_METAL_BACKEND_H
+#define MOSS_RENDERER_METAL_BACKEND_H
 
 #include "../renderer_intern.h"
 struct Moss_Renderer {
@@ -203,4 +203,4 @@ struct Moss_GPUCommandBuffer {
 };
 
 
-#endif // MOSS_RENDERER_INTERNAL_H
+#endif // MOSS_RENDERER_METAL_BACKEND_H
