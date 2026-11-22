@@ -41,7 +41,7 @@ void RenderPrimitiveDX12::CreateVertexBuffer(int inNumVtx, int inVtxSize, const 
 {
 	RenderPrimitive::CreateVertexBuffer(inNumVtx, inVtxSize, inData);
 
-	uint64 size = uint64(inNumVtx) * inVtxSize;
+	uint64_t size = uint64_t(inNumVtx) * inVtxSize;
 
 	if (inData != nullptr)
 	{
@@ -76,7 +76,7 @@ void RenderPrimitiveDX12::CreateIndexBuffer(int inNumIdx, const uint32_t *inData
 {
 	RenderPrimitive::CreateIndexBuffer(inNumIdx, inData);
 
-	uint64 size = uint64(inNumIdx) * sizeof(uint32_t);
+	uint64_t size = uint64_t(inNumIdx) * sizeof(uint32_t);
 
 	if (inData != nullptr)
 	{

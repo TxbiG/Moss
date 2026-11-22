@@ -55,9 +55,9 @@ public:
 
 	/// Access to the memory location that contains the member
 	template <class T>
-	inline T *					GetMemberPointer(void *inObject) const				{ return reinterpret_cast<T *>(reinterpret_cast<uint8 *>(inObject) + mMemberOffset); }
+	inline T *					GetMemberPointer(void *inObject) const				{ return reinterpret_cast<T *>(reinterpret_cast<uint8_t *>(inObject) + mMemberOffset); }
 	template <class T>
-	inline const T *			GetMemberPointer(const void *inObject) const		{ return reinterpret_cast<const T *>(reinterpret_cast<const uint8 *>(inObject) + mMemberOffset); }
+	inline const T *			GetMemberPointer(const void *inObject) const		{ return reinterpret_cast<const T *>(reinterpret_cast<const uint8_t *>(inObject) + mMemberOffset); }
 
 	/// In case this attribute contains an RTTI type, return it (note that a TArray<sometype> will return the rtti of sometype)
 	const RTTI *				GetMemberPrimitiveType() const

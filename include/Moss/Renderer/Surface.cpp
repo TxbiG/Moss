@@ -80,7 +80,7 @@ const Color FormatDescription::Decode(uint32_t inColor) const
 			uint32_t shift = CountTrailingZeros(mask);
 			uint32_t shifted_color = (inColor & mask) >> shift;
 			uint32_t shifted_mask = mask >> shift;
-			col(c) = uint8((255 * shifted_color + 127) / shifted_mask);
+			col(c) = uint8_t((255 * shifted_color + 127) / shifted_mask);
 		}
 		else
 			col(c) = 255;
@@ -170,8 +170,8 @@ void Surface::Clear(ColorArg inColor)
 	// Clear the image
 	for (int y = 0; y < height; ++y)
 	{
-		uint8 *d		= GetScanLine(y);
-		uint8 *d_end	= GetScanLine(y) + width * bpp;
+		uint8_t *d		= GetScanLine(y);
+		uint8_t *d_end	= GetScanLine(y) + width * bpp;
 
 		while (d < d_end)
 		{
@@ -198,7 +198,7 @@ SoftwareSurface::SoftwareSurface(int inWidth, int inHeight, ESurfaceFormat inFor
 
 	// Allocate pixel data
 	MOSS_ASSERT(mPixelLength > 0);
-	mPixelData = new uint8 [mPixelLength];
+	mPixelData = new uint8_t [mPixelLength];
 }
 
 SoftwareSurface::~SoftwareSurface()

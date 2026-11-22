@@ -22,7 +22,7 @@ public:
 #elif defined(MOSS_SIMD_NEON)
 	using Type = uint8x16_t;
 #else
-	using Type = struct { uint64 mData[2]; };
+	using Type = struct { uint64_t mData[2]; };
 #endif
 
 	/// Constructor
@@ -32,10 +32,10 @@ public:
 	MOSS_INLINE					BVec16(Type inRHS) : mValue(inRHS)					{ }
 
 	/// Create a vector from 16 bytes
-	MOSS_INLINE					BVec16(uint8 inB0, uint8 inB1, uint8 inB2, uint8 inB3, uint8 inB4, uint8 inB5, uint8 inB6, uint8 inB7, uint8 inB8, uint8 inB9, uint8 inB10, uint8 inB11, uint8 inB12, uint8 inB13, uint8 inB14, uint8 inB15);
+	MOSS_INLINE					BVec16(uint8_t inB0, uint8_t inB1, uint8_t inB2, uint8_t inB3, uint8_t inB4, uint8_t inB5, uint8_t inB6, uint8_t inB7, uint8_t inB8, uint8_t inB9, uint8_t inB10, uint8_t inB11, uint8_t inB12, uint8_t inB13, uint8_t inB14, uint8_t inB15);
 
-	/// Create a vector from two uint64's
-	MOSS_INLINE					BVec16(uint64 inV0, uint64 inV1);
+	/// Create a vector from two uint64_t's
+	MOSS_INLINE					BVec16(uint64_t inV0, uint64_t inV1);
 
 	/// Comparison
 	MOSS_INLINE bool				operator == (BVec16Arg inV2) const;
@@ -45,10 +45,10 @@ public:
 	static MOSS_INLINE BVec16	Zero();
 
 	/// Replicate int inV across all components
-	static MOSS_INLINE BVec16	Replicate(uint8 inV);
+	static MOSS_INLINE BVec16	Replicate(uint8_t inV);
 
 	/// Load 16 bytes from memory
-	static MOSS_INLINE BVec16	LoadByte16(const uint8 *inV);
+	static MOSS_INLINE BVec16	LoadByte16(const uint8_t *inV);
 
 	/// Equals (component wise), highest bit of each component that is set is considered true
 	static MOSS_INLINE BVec16	Equals(BVec16Arg inV1, BVec16Arg inV2);
@@ -66,8 +66,8 @@ public:
 	static MOSS_INLINE BVec16	Not(BVec16Arg inV1);
 
 	/// Get component by index
-	MOSS_INLINE uint8			operator [] (uint32_t inCoordinate) const				{ MOSS_ASSERT(inCoordinate < 16); return mU8[inCoordinate]; }
-	MOSS_INLINE uint8 &			operator [] (uint32_t inCoordinate)						{ MOSS_ASSERT(inCoordinate < 16); return mU8[inCoordinate]; }
+	MOSS_INLINE uint8_t			operator [] (uint32_t inCoordinate) const				{ MOSS_ASSERT(inCoordinate < 16); return mU8[inCoordinate]; }
+	MOSS_INLINE uint8_t &			operator [] (uint32_t inCoordinate)						{ MOSS_ASSERT(inCoordinate < 16); return mU8[inCoordinate]; }
 
 	/// Test if any of the components are true (true is when highest bit of component is set)
 	MOSS_INLINE bool				TestAnyTrue() const;
@@ -91,8 +91,8 @@ public:
 	union
 	{
 		Type					mValue;
-		uint8					mU8[16];
-		uint64					mU64[2];
+		uint8_t					mU8[16];
+		uint64_t					mU64[2];
 	};
 
 };

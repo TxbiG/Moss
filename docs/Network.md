@@ -177,7 +177,7 @@ ENetPeer*   enet_host_connect(ENetHost*, const ENetAddress*, size_t, uint32_t);
 int         enet_host_check_events(ENetHost*, ENetEvent*);
 int         enet_host_service(ENetHost*, ENetEvent*, uint32_t);
 void        enet_host_flush(ENetHost*);
-void        enet_host_broadcast(ENetHost*, uint8, ENetPacket *);
+void        enet_host_broadcast(ENetHost*, uint8_t, ENetPacket *);
 void        enet_host_compress(ENetHost*, const ENetCompressor *);
 int         enet_host_compress_with_range_coder(ENetHost * host);
 void        enet_host_channel_limit(ENetHost*, size_t);
@@ -185,8 +185,8 @@ void        enet_host_bandwidth_limit(ENetHost*, uint32_t, uint32_t);
 void        enet_host_bandwidth_throttle(ENetHost*);
 uint32_t      enet_host_random_seed(void);
 uint32_t      enet_host_random(ENetHost*);
-int                  enet_peer_send(ENetPeer*, uint8, ENetPacket*);
-ENetPacket*          enet_peer_receive(ENetPeer*, uint8 * channelID);
+int                  enet_peer_send(ENetPeer*, uint8_t, ENetPacket*);
+ENetPacket*          enet_peer_receive(ENetPeer*, uint8_t * channelID);
 void                 enet_peer_ping(ENetPeer*);
 void                 enet_peer_ping_interval(ENetPeer*, uint32_t);
 void                 enet_peer_timeout(ENetPeer*, uint32_t, uint32_t, uint32_t);
@@ -209,9 +209,9 @@ void                 enet_peer_on_disconnect(ENetPeer*);
 
 void*  enet_range_coder_create(void);
 void   enet_range_coder_destroy(void*);
-size_t enet_range_coder_compress(void*, const ENetBuffer*, size_t, size_t, uint8*, size_t);
-size_t enet_range_coder_decompress(void*, const uint8*, size_t, uint8*, size_t);
-size_t enet_protocol_command_size(uint8);
+size_t enet_range_coder_compress(void*, const ENetBuffer*, size_t, size_t, uint8_t*, size_t);
+size_t enet_range_coder_decompress(void*, const uint8_t*, size_t, uint8_t*, size_t);
+size_t enet_protocol_command_size(uint8_t);
 ```
 
 ## Examples

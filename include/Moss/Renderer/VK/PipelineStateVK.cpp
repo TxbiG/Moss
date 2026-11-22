@@ -25,7 +25,7 @@ PipelineStateVK::PipelineStateVK(RendererVK *inRenderer, const VertexShaderVK *i
 		case EInputDescription::Color:
 			temp_vtx.format = VK_FORMAT_R8G8B8A8_UNORM;
 			attribute_descriptions.push_back(temp_vtx);
-			temp_vtx.offset += 4 * sizeof(uint8);
+			temp_vtx.offset += 4 * sizeof(uint8_t);
 			break;
 
 		case EInputDescription::TexCoord:
@@ -38,7 +38,7 @@ PipelineStateVK::PipelineStateVK(RendererVK *inRenderer, const VertexShaderVK *i
 			instance_alignment = max(instance_alignment, 4u);
 			temp_instance.format = VK_FORMAT_R8G8B8A8_UNORM;
 			attribute_descriptions.push_back(temp_instance);
-			temp_instance.offset += 4 * sizeof(uint8);
+			temp_instance.offset += 4 * sizeof(uint8_t);
 			break;
 
 		case EInputDescription::InstanceTransform:

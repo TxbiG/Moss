@@ -119,7 +119,7 @@ private:
 	}
 
 	/// Update the control value for a bucket
-	MOSS_INLINE void			SetControlValue(size_type inIndex, uint8 inValue)
+	MOSS_INLINE void			SetControlValue(size_type inIndex, uint8_t inValue)
 	{
 		MOSS_ASSERT(inIndex < mMaxSize);
 		mControl[inIndex] = inValue;
@@ -135,14 +135,14 @@ private:
 	}
 
 	/// Get the index and control value for a particular key
-	MOSS_INLINE void			GetIndexAndControlValue(const Key &inKey, size_type &outIndex, uint8 &outControl) const
+	MOSS_INLINE void			GetIndexAndControlValue(const Key &inKey, size_type &outIndex, uint8_t &outControl) const
 	{
 		// Calculate hash
-		uint64 hash_value = Hash { } (inKey);
+		uint64_t hash_value = Hash { } (inKey);
 
 		// Split hash into index and control value
 		outIndex = size_type(hash_value >> 7) & (mMaxSize - 1);
-		outControl = cBucketUsed | uint8(hash_value);
+		outControl = cBucketUsed | uint8_t(hash_value);
 	}
 
 	/// Allocate space for the hash table
@@ -157,7 +157,7 @@ private:
 			mData = reinterpret_cast<KeyValue *>(AlignedAllocate(required_size, alignof(KeyValue)));
 		else
 			mData = reinterpret_cast<KeyValue *>(Allocate(required_size));
-		mControl = reinterpret_cast<uint8 *>(mData + mMaxSize);
+		mControl = reinterpret_cast<uint8_t *>(mData + mMaxSize);
 	}
 
 	/// Copy the contents of another hash table
@@ -173,7 +173,7 @@ private:
 
 		// Copy elements
 		uint32_t index = 0;
-		for (const uint8 *control = mControl, *control_end = mControl + mMaxSize; control != control_end; ++control, ++index)
+		for (const uint8_t *control = mControl, *control_end = mControl + mMaxSize; control != control_end; ++control, ++index)
 			if (*control & cBucketUsed)
 				new (mData + index) KeyValue(inRHS.mData[index]);
 		mSize = inRHS.mSize;
@@ -185,7 +185,7 @@ private:
 		// Move the old table to a temporary structure
 		size_type old_max_size = mMaxSize;
 		KeyValue *old_data = mData;
-		const uint8 *old_control = mControl;
+		const uint8_t *old_control = mControl;
 		mData = nullptr;
 		mControl = nullptr;
 		mSize = 0;
@@ -258,7 +258,7 @@ protected:
 
 		// Split hash into index and control value
 		size_type index;
-		uint8 control;
+		uint8_t control;
 		GetIndexAndControlValue(inKey, index, control);
 
 		// Keeps track of the index of the first deleted bucket we found
@@ -604,7 +604,7 @@ public:
 	/// Max number of elements that the table can hold
 	constexpr size_type		max_size() const
 	{
-		return size_type((uint64(max_bucket_count()) * cMaxLoadFactorNumerator) / cMaxLoadFactorDenominator);
+		return size_type((uint64_t(max_bucket_count()) * cMaxLoadFactorNumerator) / cMaxLoadFactorDenominator);
 	}
 
 	/// Get the max load factor for this table (max number of elements / number of buckets)
@@ -632,7 +632,7 @@ public:
 
 		// Split hash into index and control value
 		size_type index;
-		uint8 control;
+		uint8_t control;
 		GetIndexAndControlValue(inKey, index, control);
 
 		// Linear probing
@@ -709,7 +709,7 @@ public:
 		// a probe looking for some element needs to continue probing so we cannot mark the bucket as empty
 		// but must mark it as deleted instead.
 		// Note that we use: CountLeadingZeros(uint16) = CountLeadingZeros(uint32_t) - 16.
-		uint8 control_value = CountLeadingZeros(control_empty_before) - 16 + CountTrailingZeros(control_empty_after) < 16? cBucketEmpty : cBucketDeleted;
+		uint8_t control_value = CountLeadingZeros(control_empty_before) - 16 + CountTrailingZeros(control_empty_after) < 16? cBucketEmpty : cBucketDeleted;
 
 		// Mark the bucket as empty/deleted
 		SetControlValue(inIterator.mIndex, control_value);
@@ -753,7 +753,7 @@ public:
 		// Update the control value for all buckets
 		for (size_type i = 0; i < mMaxSize; ++i)
 		{
-			uint8 &control = mControl[i];
+			uint8_t &control = mControl[i];
 			switch (control)
 			{
 			case cBucketDeleted:
@@ -784,7 +784,7 @@ public:
 				{
 					// Split hash into index and control value
 					size_type src_index;
-					uint8 src_control;
+					uint8_t src_control;
 					GetIndexAndControlValue(HashTableDetail::sGetKey(mData[src]), src_index, src_control);
 
 					// Linear probing
@@ -841,23 +841,23 @@ private:
 	static constexpr bool	cNeedsAlignedAllocate = alignof(KeyValue) > (MOSS_CPU_ADDRESS_BITS == 32? 8 : 16);
 
 	/// Max load factor is cMaxLoadFactorNumerator / cMaxLoadFactorDenominator
-	static constexpr uint64	cMaxLoadFactorNumerator = 7;
-	static constexpr uint64	cMaxLoadFactorDenominator = 8;
+	static constexpr uint64_t	cMaxLoadFactorNumerator = 7;
+	static constexpr uint64_t	cMaxLoadFactorDenominator = 8;
 
 	/// If we can recover this fraction of deleted elements, we'll reshuffle the buckets in place rather than growing the table
-	static constexpr uint64 cMaxDeletedElementsNumerator = 1;
-	static constexpr uint64 cMaxDeletedElementsDenominator = 8;
+	static constexpr uint64_t cMaxDeletedElementsNumerator = 1;
+	static constexpr uint64_t cMaxDeletedElementsDenominator = 8;
 
 	/// Values that the control bytes can have
-	static constexpr uint8	cBucketEmpty = 0;
-	static constexpr uint8	cBucketDeleted = 0x7f;
-	static constexpr uint8	cBucketUsed = 0x80;	// Lowest 7 bits are lowest 7 bits of the hash value
+	static constexpr uint8_t	cBucketEmpty = 0;
+	static constexpr uint8_t	cBucketDeleted = 0x7f;
+	static constexpr uint8_t	cBucketUsed = 0x80;	// Lowest 7 bits are lowest 7 bits of the hash value
 
 	/// The buckets, an array of size mMaxSize
 	KeyValue *				mData = nullptr;
 
 	/// Control bytes, an array of size mMaxSize + 15
-	uint8 *					mControl = nullptr;
+	uint8_t *					mControl = nullptr;
 
 	/// Number of elements in the table
 	size_type				mSize = 0;

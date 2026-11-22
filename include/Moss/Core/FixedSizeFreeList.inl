@@ -56,7 +56,7 @@ uint32_t FixedSizeFreeList<Object>::ConstructObject(Parameters &&... inParameter
 	for (;;)
 	{
 		// Get first object from the linked list
-		uint64 first_free_object_and_tag = mFirstFreeObjectAndTag.load(memory_order_acquire);
+		uint64_t first_free_object_and_tag = mFirstFreeObjectAndTag.load(memory_order_acquire);
 		uint32_t first_free = uint32_t(first_free_object_and_tag);
 		if (first_free == cInvalidObjectIndex)
 		{
@@ -89,7 +89,7 @@ uint32_t FixedSizeFreeList<Object>::ConstructObject(Parameters &&... inParameter
 			uint32_t new_first_free = GetStorage(first_free).mNextFreeObject.load(memory_order_acquire);
 
 			// Construct a new first free object tag
-			uint64 new_first_free_object_and_tag = uint64(new_first_free) + (uint64(mAllocationTag.fetch_add(1, memory_order_relaxed)) << 32);
+			uint64_t new_first_free_object_and_tag = uint64_t(new_first_free) + (uint64_t(mAllocationTag.fetch_add(1, memory_order_relaxed)) << 32);
 
 			// Compare and swap
 			if (mFirstFreeObjectAndTag.compare_exchange_weak(first_free_object_and_tag, new_first_free_object_and_tag, memory_order_release))
@@ -147,14 +147,14 @@ void FixedSizeFreeList<Object>::DestructObjectBatch(Batch &ioBatch)
 		for (;;)
 		{
 			// Get first object from the list
-			uint64 first_free_object_and_tag = mFirstFreeObjectAndTag.load(memory_order_acquire);
+			uint64_t first_free_object_and_tag = mFirstFreeObjectAndTag.load(memory_order_acquire);
 			uint32_t first_free = uint32_t(first_free_object_and_tag);
 
 			// Make it the next pointer of the last object in the batch that is to be freed
 			storage.mNextFreeObject.store(first_free, memory_order_release);
 
 			// Construct a new first free object tag
-			uint64 new_first_free_object_and_tag = uint64(ioBatch.mFirstObjectIndex) + (uint64(mAllocationTag.fetch_add(1, memory_order_relaxed)) << 32);
+			uint64_t new_first_free_object_and_tag = uint64_t(ioBatch.mFirstObjectIndex) + (uint64_t(mAllocationTag.fetch_add(1, memory_order_relaxed)) << 32);
 
 			// Compare and swap
 			if (mFirstFreeObjectAndTag.compare_exchange_weak(first_free_object_and_tag, new_first_free_object_and_tag, memory_order_release))
@@ -185,14 +185,14 @@ void FixedSizeFreeList<Object>::DestructObject(uint32_t inObjectIndex)
 	for (;;)
 	{
 		// Get first object from the list
-		uint64 first_free_object_and_tag = mFirstFreeObjectAndTag.load(memory_order_acquire);
+		uint64_t first_free_object_and_tag = mFirstFreeObjectAndTag.load(memory_order_acquire);
 		uint32_t first_free = uint32_t(first_free_object_and_tag);
 
 		// Make it the next pointer of the last object in the batch that is to be freed
 		storage.mNextFreeObject.store(first_free, memory_order_release);
 
 		// Construct a new first free object tag
-		uint64 new_first_free_object_and_tag = uint64(inObjectIndex) + (uint64(mAllocationTag.fetch_add(1, memory_order_relaxed)) << 32);
+		uint64_t new_first_free_object_and_tag = uint64_t(inObjectIndex) + (uint64_t(mAllocationTag.fetch_add(1, memory_order_relaxed)) << 32);
 
 		// Compare and swap
 		if (mFirstFreeObjectAndTag.compare_exchange_weak(first_free_object_and_tag, new_first_free_object_and_tag, memory_order_release))

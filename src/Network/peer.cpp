@@ -91,7 +91,7 @@ int enet_peer_throttle (ENetPeer* peer, uint32_t rtt) {
     @retval 0 on success
     @retval < 0 on failure
 */
-int enet_peer_send (ENetPeer* peer, uint8 channelID, ENetPacket * packet) {
+int enet_peer_send (ENetPeer* peer, uint8_t channelID, ENetPacket * packet) {
    ENetChannel * channel;
    ENetProtocol command;
    size_t fragmentLength;
@@ -105,7 +105,7 @@ int enet_peer_send (ENetPeer* peer, uint8 channelID, ENetPacket * packet) {
 
    if (packet -> dataLength > fragmentLength) {
       uint32_t fragmentCount = (packet -> dataLength + fragmentLength - 1) / fragmentLength, fragmentNumber, fragmentOffset;
-      uint8 commandNumber;
+      uint8_t commandNumber;
       uint16 startSequenceNumber; 
       ENetList fragments;
       ENetOutgoingCommand * fragment;
@@ -196,7 +196,7 @@ int enet_peer_send (ENetPeer* peer, uint8 channelID, ENetPacket * packet) {
     @param channelID holds the channel ID of the channel the packet was received on success
     @returns a pointer to the packet, or NULL if there are no available incoming queued packets
 */
-ENetPacket* enet_peer_receive (ENetPeer * peer, uint8 * channelID) {
+ENetPacket* enet_peer_receive (ENetPeer * peer, uint8_t * channelID) {
    ENetIncomingCommand * incomingCommand;
    ENetPacket * packet;
    

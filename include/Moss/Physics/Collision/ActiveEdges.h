@@ -39,7 +39,7 @@ namespace ActiveEdges
 	/// @param inNormal Collision normal on the triangle (does not need to be normalized)
 	/// @param inMovementDirection Can be zero. This gives an indication of in which direction the motion is to determine if when we hit an inactive edge/triangle we should return the triangle normal.
 	/// @return Returns inNormal if an active edge was hit, otherwise returns inTriangleNormal
-	inline static Vec3					FixNormal(Vec3Arg inV0, Vec3Arg inV1, Vec3Arg inV2, Vec3Arg inTriangleNormal, uint8 inActiveEdges, Vec3Arg inPoint, Vec3Arg inNormal, Vec3Arg inMovementDirection)
+	inline static Vec3					FixNormal(Vec3Arg inV0, Vec3Arg inV1, Vec3Arg inV2, Vec3Arg inTriangleNormal, uint8_t inActiveEdges, Vec3Arg inPoint, Vec3Arg inNormal, Vec3Arg inMovementDirection)
 	{
 		// Check: All of the edges are active, we have the correct normal already. No need to call this function!
 		MOSS_ASSERT(inActiveEdges != 0b111);

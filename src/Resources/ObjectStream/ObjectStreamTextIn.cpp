@@ -29,7 +29,7 @@ bool ObjectStreamTextIn::ReadDataType(EOSDataType &outType)
 			outType = EOSDataType::Pointer;
 		else if (token == "array")
 			outType = EOSDataType::Array;
-		else if (token == "uint8")
+		else if (token == "uint8_t")
 			outType = EOSDataType::T_uint8;
 		else if (token == "uint16")
 			outType = EOSDataType::T_uint16;
@@ -37,7 +37,7 @@ bool ObjectStreamTextIn::ReadDataType(EOSDataType &outType)
 			outType = EOSDataType::T_int;
 		else if (token == "uint32_t")
 			outType = EOSDataType::T_uint32;
-		else if (token == "uint64")
+		else if (token == "uint64_t")
 			outType = EOSDataType::T_uint64;
 		else if (token == "float")
 			outType = EOSDataType::T_float;
@@ -101,7 +101,7 @@ bool ObjectStreamTextIn::ReadCount(uint32_t &outCount)
 	return ReadPrimitiveData(outCount);
 }
 
-bool ObjectStreamTextIn::ReadPrimitiveData(uint8 &outPrimitive)
+bool ObjectStreamTextIn::ReadPrimitiveData(uint8_t &outPrimitive)
 {
 	String token;
 	if (!ReadWord(token))
@@ -111,7 +111,7 @@ bool ObjectStreamTextIn::ReadPrimitiveData(uint8 &outPrimitive)
 	stream >> temporary;
 	if (!stream.fail())
 	{
-		outPrimitive = (uint8)temporary;
+		outPrimitive = (uint8_t)temporary;
 		return true;
 	}
 	return false;
@@ -153,7 +153,7 @@ bool ObjectStreamTextIn::ReadPrimitiveData(uint32_t &outPrimitive)
 	return !stream.fail();
 }
 
-bool ObjectStreamTextIn::ReadPrimitiveData(uint64 &outPrimitive)
+bool ObjectStreamTextIn::ReadPrimitiveData(uint64_t &outPrimitive)
 {
 	String token;
 	if (!ReadWord(token))

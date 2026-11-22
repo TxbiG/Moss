@@ -20,12 +20,12 @@ MOSS_SUPPRESS_WARNINGS_BEGIN
 #if defined(MOSS_PLATFORM_WINDOWS_UWP) || (defined(MOSS_PLATFORM_WINDOWS) && defined(MOSS_CPU_ARM))
 
 /// Functionality to get the processors cycle counter
-uint64 GetProcessorTickCount(); // Not inline to avoid having to include Windows.h
+uint64_t GetProcessorTickCount(); // Not inline to avoid having to include Windows.h
 
 #else
 
 /// Functionality to get the processors cycle counter
-MOSS_INLINE uint64 GetProcessorTickCount() {
+MOSS_INLINE uint64_t GetProcessorTickCount() {
 #if defined(MOSS_PLATFORM_BLUE)
 	return MOSS_PLATFORM_BLUE_GET_TICKS();
 #elif defined(MOSS_CPU_X86)
@@ -33,7 +33,7 @@ MOSS_INLINE uint64 GetProcessorTickCount() {
 #elif defined(MOSS_CPU_E2K)
 	return __rdtsc();
 #elif defined(MOSS_CPU_ARM) && defined(MOSS_SIMD_NEON)
-	uint64 val;
+	uint64_t val;
 	asm volatile("mrs %0, cntvct_el0" : "=r" (val));
 	return val;
 #elif defined(MOSS_CPU_LOONGARCH)
@@ -43,7 +43,7 @@ MOSS_INLINE uint64 GetProcessorTickCount() {
 	#else
 		__rdtime_t h = __rdtimeh_w();
 		__rdtime_t l = __rdtimel_w();
-		return ((uint64)h.value << 32) + l.value;
+		return ((uint64_t)h.value << 32) + l.value;
 	#endif
 #elif defined(MOSS_CPU_ARM) || defined(MOSS_CPU_RISCV) || defined(MOSS_CPU_WASM) || defined(MOSS_CPU_PPC)
 	return 0; // Not supported

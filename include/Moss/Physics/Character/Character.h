@@ -50,7 +50,7 @@ public:
 	}
 
 	/// Get the hash for this character ID
-	inline uint64 GetHash() const {
+	inline uint64_t GetHash() const {
 		return Hash<uint32_t>{} (mID);
 	}
 
@@ -136,12 +136,12 @@ public:
 	//@name Movement settings
 	EBackFaceMode						mBackFaceMode = EBackFaceMode::CollideWithBackFaces;	// When colliding with back faces, the character will not be able to move through back facing triangles. Use this if you have triangles that need to collide on both sides.
 	float								mPredictiveContactDistance = 0.1f;						// How far to scan outside of the shape for predictive contacts. A value of 0 will most likely cause the character to get stuck as it cannot properly calculate a sliding direction anymore. A value that's too high will cause ghost collisions.
-	uint8								mMaxCollisionIterations = 5;							// Max amount of collision loops
-	uint8								mMaxConstraintIterations = 15;							// How often to try stepping in the constraint solving
+	uint8_t								mMaxCollisionIterations = 5;							// Max amount of collision loops
+	uint8_t								mMaxConstraintIterations = 15;							// How often to try stepping in the constraint solving
 	float								mMinTimeRemaining = 1.0e-4f;							// Early out condition: If this much time is left to simulate we are done
 	float								mCollisionTolerance = 1.0e-3f;							// How far we're willing to penetrate geometry
 	float								mCharacterPadding = 0.02f;								// How far we try to stay away from the geometry, this ensures that the sweep will hit as little as possible lowering the collision cost and reducing the risk of getting stuck
-	uint8								mMaxNumHits = 256;										// Max num hits to collect in order to avoid excess of contact points collection
+	uint8_t								mMaxNumHits = 256;										// Max num hits to collect in order to avoid excess of contact points collection
 	float								mHitReductionCosMaxAngle = 0.999f;						// Cos(angle) where angle is the maximum angle between two hits contact normals that are allowed to be merged during hit reduction. Default is around 2.5 degrees. Set to -1 to turn off.
 	float								mPenetrationRecoverySpeed = 1.0f;						// This value governs how fast a penetration will be resolved, 0 = nothing is resolved, 1 = everything in one update
 
@@ -255,7 +255,7 @@ public:
 	SubShapeID GetGroundSubShapeID() const { return mGroundBodySubShapeID; }
 
 	// User data value of the body that we're standing on
-	uint64 GetGroundUserData() const { return mGroundUserData; }
+	uint64_t GetGroundUserData() const { return mGroundUserData; }
 
 	// Saving / restoring state for replay
 	virtual void						SaveState(StateRecorder &inStream) const;
@@ -288,7 +288,7 @@ protected:
 	Vec3								mGroundNormal = Vec3::Zero();
 	Vec3								mGroundVelocity = Vec3::Zero();
 	RefConst<PhysicsMaterial>			mGroundMaterial = PhysicsMaterial::Default;
-	uint64								mGroundUserData = 0;
+	uint64_t								mGroundUserData = 0;
 };
 
 
@@ -308,7 +308,7 @@ public:
 	/// @param inRotation Initial rotation for the character (usually only around Y)
 	/// @param inUserData Application specific value
 	/// @param inSystem Physics system that this character will be added to later
-										Character(const CharacterSettings *inSettings, RVec3Arg inPosition, QuatArg inRotation, uint64 inUserData, PhysicsSystem *inSystem);
+										Character(const CharacterSettings *inSettings, RVec3Arg inPosition, QuatArg inRotation, uint64_t inUserData, PhysicsSystem *inSystem);
 
 	/// Destructor
 	virtual								~Character() override;
@@ -420,7 +420,7 @@ public:
 	// @param inRotation Initial rotation for the character (usually only around the up-axis)
 	// @param inUserData Application specific value
 	// @param inSystem Physics system that this character will be added to
-	CharacterVirtual(const CharacterVirtualSettings *inSettings, RVec3Arg inPosition, QuatArg inRotation, uint64 inUserData, PhysicsSystem *inSystem);
+	CharacterVirtual(const CharacterVirtualSettings *inSettings, RVec3Arg inPosition, QuatArg inRotation, uint64_t inUserData, PhysicsSystem *inSystem);
 
 	// Constructor without user data
 	CharacterVirtual(const CharacterVirtualSettings *inSettings, RVec3Arg inPosition, QuatArg inRotation, PhysicsSystem *inSystem) : CharacterVirtual(inSettings, inPosition, inRotation, 0, inSystem) { }
@@ -487,8 +487,8 @@ public:
 	float GetCharacterPadding() const { return mCharacterPadding; }
 
 	// Max num hits to collect in order to avoid excess of contact points collection
-	uint8 GetMaxNumHits() const { return mMaxNumHits; }
-	void SetMaxNumHits(uint8 inMaxHits) { mMaxNumHits = inMaxHits; }
+	uint8_t GetMaxNumHits() const { return mMaxNumHits; }
+	void SetMaxNumHits(uint8_t inMaxHits) { mMaxNumHits = inMaxHits; }
 
 	// Cos(angle) where angle is the maximum angle between two hits contact normals that are allowed to be merged during hit reduction. Default is around 2.5 degrees. Set to -1 to turn off.
 	float GetHitReductionCosMaxAngle() const { return mHitReductionCosMaxAngle; }
@@ -505,8 +505,8 @@ public:
 	void SetShapeOffset(Vec3Arg inShapeOffset) { mShapeOffset = inShapeOffset; UpdateInnerBodyTransform(); }
 
 	// Access to the user data, can be used for anything by the application
-	uint64 GetUserData() const { return mUserData; }
-	void SetUserData(uint64 inUserData);
+	uint64_t GetUserData() const { return mUserData; }
+	void SetUserData(uint64_t inUserData);
 
 	// Optional inner rigid body that proxies the character in the world. Can be used to update body properties.
 	BodyID GetInnerBodyID() const { return mInnerBodyID; }
@@ -662,7 +662,7 @@ public:
 		bool operator != (const ContactKey &inRHS) const { return !(*this == inRHS); }
 
 		// Hash of this structure
-		uint64 GetHash() const {
+		uint64_t GetHash() const {
 			static_assert(sizeof(BodyID) + sizeof(CharacterID) + sizeof(SubShapeID) == sizeof(ContactKey), "No padding expected");
 			return HashBytes(this, sizeof(ContactKey));
 		}
@@ -691,7 +691,7 @@ public:
 		EMotionType						mMotionTypeB;						// Motion type of B, used to determine the priority of the contact
 		bool							mIsSensorB;							// If B is a sensor
 		const CharacterVirtual*		mCharacterB = nullptr;					// Character we're colliding with (if not nullptr). Note that this may be a dangling pointer when accessed through GetActiveContacts(), use mCharacterIDB instead.
-		uint64							mUserData;							// User data of B
+		uint64_t							mUserData;							// User data of B
 		const PhysicsMaterial*			mMaterial;							// Material of B
 		bool							mHadCollision = false;				// If the character actually collided with the contact (can be false if a predictive contact never becomes a real one)
 		bool							mWasDiscarded = false;				// If the contact validate callback chose to discard this contact or when the body is a sensor
@@ -756,9 +756,9 @@ private:
 	// Collision collector that collects hits for CollideShape
 	class ContactCollector : public CollideShapeCollector {
 	public:
-		 ContactCollector(PhysicsSystem *inSystem, const CharacterVirtual *inCharacter, uint8 inMaxHits, float inHitReductionCosMaxAngle, Vec3Arg inUp, RVec3Arg inBaseOffset, TempContactList &outContacts) : mBaseOffset(inBaseOffset), mUp(inUp), mSystem(inSystem), mCharacter(inCharacter), mContacts(outContacts), mMaxHits(inMaxHits), mHitReductionCosMaxAngle(inHitReductionCosMaxAngle) { }
+		 ContactCollector(PhysicsSystem *inSystem, const CharacterVirtual *inCharacter, uint8_t inMaxHits, float inHitReductionCosMaxAngle, Vec3Arg inUp, RVec3Arg inBaseOffset, TempContactList &outContacts) : mBaseOffset(inBaseOffset), mUp(inUp), mSystem(inSystem), mCharacter(inCharacter), mContacts(outContacts), mMaxHits(inMaxHits), mHitReductionCosMaxAngle(inHitReductionCosMaxAngle) { }
 
-		virtual void SetUserData(uint64 inUserData) override { mOtherCharacter = reinterpret_cast<CharacterVirtual *>(inUserData); }
+		virtual void SetUserData(uint64_t inUserData) override { mOtherCharacter = reinterpret_cast<CharacterVirtual *>(inUserData); }
 
 		virtual void AddHit(const CollideShapeResult &inResult) override;
 
@@ -768,7 +768,7 @@ private:
 		const CharacterVirtual*			mCharacter;
 		CharacterVirtual*				mOtherCharacter = nullptr;
 		TempContactList&				mContacts;
-		uint8							mMaxHits;
+		uint8_t							mMaxHits;
 		float							mHitReductionCosMaxAngle;
 		bool							mMaxHitsExceeded = false;
 	};
@@ -778,7 +778,7 @@ private:
 	public:
 		ContactCastCollector(PhysicsSystem *inSystem, const CharacterVirtual *inCharacter, Vec3Arg inDisplacement, Vec3Arg inUp, const IgnoredContactList &inIgnoredContacts, RVec3Arg inBaseOffset, Contact &outContact) : mBaseOffset(inBaseOffset), mDisplacement(inDisplacement), mUp(inUp), mSystem(inSystem), mCharacter(inCharacter), mIgnoredContacts(inIgnoredContacts), mContact(outContact) { }
 
-		virtual void SetUserData(uint64 inUserData) override { mOtherCharacter = reinterpret_cast<CharacterVirtual *>(inUserData); }
+		virtual void SetUserData(uint64_t inUserData) override { mOtherCharacter = reinterpret_cast<CharacterVirtual *>(inUserData); }
 
 		virtual void AddHit(const ShapeCastResult &inResult) override;
 
@@ -875,12 +875,12 @@ private:
 	// Movement settings
 	EBackFaceMode						mBackFaceMode;											// When colliding with back faces, the character will not be able to move through back facing triangles. Use this if you have triangles that need to collide on both sides.
 	float								mPredictiveContactDistance;								// How far to scan outside of the shape for predictive contacts. A value of 0 will most likely cause the character to get stuck as it cannot properly calculate a sliding direction anymore. A value that's too high will cause ghost collisions.
-	uint8								mMaxCollisionIterations;								// Max amount of collision loops
-	uint8								mMaxConstraintIterations;								// How often to try stepping in the constraint solving
+	uint8_t								mMaxCollisionIterations;								// Max amount of collision loops
+	uint8_t								mMaxConstraintIterations;								// How often to try stepping in the constraint solving
 	float								mMinTimeRemaining;										// Early out condition: If this much time is left to simulate we are done
 	float								mCollisionTolerance;									// How far we're willing to penetrate geometry
 	float								mCharacterPadding;										// How far we try to stay away from the geometry, this ensures that the sweep will hit as little as possible lowering the collision cost and reducing the risk of getting stuck
-	uint8								mMaxNumHits;											// Max num hits to collect in order to avoid excess of contact points collection
+	uint8_t								mMaxNumHits;											// Max num hits to collect in order to avoid excess of contact points collection
 	float								mHitReductionCosMaxAngle;								// Cos(angle) where angle is the maximum angle between two hits contact normals that are allowed to be merged during hit reduction. Default is around 2.5 degrees. Set to -1 to turn off.
 	float								mPenetrationRecoverySpeed;								// This value governs how fast a penetration will be resolved, 0 = nothing is resolved, 1 = everything in one update
 	bool								mEnhancedInternalEdgeRemoval;							// Set to indicate that extra effort should be made to try to remove ghost contacts (collisions with internal edges of a mesh). This is more expensive but makes bodies move smoother over a mesh with convex edges.
@@ -928,7 +928,7 @@ private:
 	mutable bool						mMaxHitsExceeded = false;
 
 	// User data, can be used for anything by the application
-	uint64								mUserData = 0;
+	uint64_t								mUserData = 0;
 
 	// The inner rigid body that proxies the character in the world
 	BodyID								mInnerBodyID;
@@ -1072,7 +1072,7 @@ public:
 	}
 
 	/// Hash of this structure
-	inline uint64						GetHash() const
+	inline uint64_t						GetHash() const
 	{
 		static_assert(sizeof(BodyID) + sizeof(CharacterID) + sizeof(SubShapeID) == sizeof(CharacterContactKey), "No padding expected");
 		return HashBytes(this, sizeof(CharacterContactKey));
@@ -1104,7 +1104,7 @@ public:
 	EMotionType							mMotionTypeB;											///< Motion type of B, used to determine the priority of the contact
 	bool								mIsSensorB;												///< If B is a sensor
 	const CharacterVirtual *			mCharacterB = nullptr;									///< Character we're colliding with (if not nullptr). Note that this may be a dangling pointer when accessed through GetActiveContacts(), use mCharacterIDB instead.
-	uint64								mUserData;												///< User data of B
+	uint64_t								mUserData;												///< User data of B
 	const PhysicsMaterial *				mMaterial;												///< Material of B
 	bool								mHadCollision = false;									///< If the character actually collided with the contact (can be false if a predictive contact never becomes a real one)
 	bool								mWasDiscarded = false;									///< If the contact validate callback chose to discard this contact or when the body is a sensor
@@ -1117,7 +1117,7 @@ public:
 class MOSS_API BodyAccess {
 public:
 	/// Access rules, used to detect race conditions during simulation
-	enum class EAccess : uint8 {
+	enum class EAccess : uint8_t {
 		None		= 0,
 		Read		= 1,
 		ReadWrite	= 3,
@@ -1145,7 +1145,7 @@ public:
 
 	/// Check if we have permission
 	static inline bool sCheckRights(EAccess inRights, EAccess inDesiredRights) {
-		return (uint8(inRights) & uint8(inDesiredRights)) == uint8(inDesiredRights);
+		return (uint8_t(inRights) & uint8_t(inDesiredRights)) == uint8_t(inDesiredRights);
 	}
 
 	/// Access to read/write velocities
@@ -1168,11 +1168,11 @@ public:
 
 	/// Called whenever a body activates, note this can be called from any thread so make sure your code is thread safe.
 	/// At the time of the callback the body inBodyID will be locked and no bodies can be written/activated/deactivated from the callback.
-	virtual void			OnBodyActivated(const BodyID &inBodyID, uint64 inBodyUserData) = 0;
+	virtual void			OnBodyActivated(const BodyID &inBodyID, uint64_t inBodyUserData) = 0;
 
 	/// Called whenever a body deactivates, note this can be called from any thread so make sure your code is thread safe.
 	/// At the time of the callback the body inBodyID will be locked and no bodies can be written/activated/deactivated from the callback.
-	virtual void			OnBodyDeactivated(const BodyID &inBodyID, uint64 inBodyUserData) = 0;
+	virtual void			OnBodyDeactivated(const BodyID &inBodyID, uint64_t inBodyUserData) = 0;
 };
 
 MOSS_SUPPRESS_WARNINGS_END

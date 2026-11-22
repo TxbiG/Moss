@@ -27,8 +27,8 @@ Vec4::Vec4(float inX, float inY, float inZ, float inW)
 #if defined(MOSS_SIMD_SSE)
 	mValue = _mm_set_ps(inW, inZ, inY, inX);
 #elif defined(MOSS_SIMD_NEON)
-	uint32x2_t xy = vcreate_u32(static_cast<uint64>(BitCast<uint32_t>(inX)) | (static_cast<uint64>(BitCast<uint32_t>(inY)) << 32));
-	uint32x2_t zw = vcreate_u32(static_cast<uint64>(BitCast<uint32_t>(inZ)) | (static_cast<uint64>(BitCast<uint32_t>(inW)) << 32));
+	uint32x2_t xy = vcreate_u32(static_cast<uint64_t>(BitCast<uint32_t>(inX)) | (static_cast<uint64_t>(BitCast<uint32_t>(inY)) << 32));
+	uint32x2_t zw = vcreate_u32(static_cast<uint64_t>(BitCast<uint32_t>(inZ)) | (static_cast<uint64_t>(BitCast<uint32_t>(inW)) << 32));
 	mValue = vreinterpretq_f32_u32(vcombine_u32(xy, zw));
 #else
 	this->mF32[0] = inX;
@@ -109,7 +109,7 @@ Vec4 Vec4::GatherFloat4(const float *inBase, const UVec4 inOffsets)
 	#ifdef MOSS_SIMD_AVX2
 		return _mm_i32gather_ps(inBase, inOffsets.mValue, Scale);
 	#else
-		const uint8 *base = reinterpret_cast<const uint8 *>(inBase);
+		const uint8_t *base = reinterpret_cast<const uint8_t *>(inBase);
 		Type x = _mm_load_ss(reinterpret_cast<const float *>(base + inOffsets.GetX() * Scale));
 		Type y = _mm_load_ss(reinterpret_cast<const float *>(base + inOffsets.GetY() * Scale));
 		Type xy = _mm_unpacklo_ps(x, y);
@@ -119,7 +119,7 @@ Vec4 Vec4::GatherFloat4(const float *inBase, const UVec4 inOffsets)
 		return _mm_movelh_ps(xy, zw);
 	#endif
 #else
-	const uint8 *base = reinterpret_cast<const uint8 *>(inBase);
+	const uint8_t *base = reinterpret_cast<const uint8_t *>(inBase);
 	float x = *reinterpret_cast<const float *>(base + inOffsets.GetX() * Scale);
 	float y = *reinterpret_cast<const float *>(base + inOffsets.GetY() * Scale);
 	float z = *reinterpret_cast<const float *>(base + inOffsets.GetZ() * Scale);

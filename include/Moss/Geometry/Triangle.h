@@ -170,7 +170,7 @@ public:
 	}
 
 	// Get the hash value of this structure
-	uint64			GetHash() const
+	uint64_t			GetHash() const
 	{
 		static_assert(sizeof(IndexedTriangleNoMaterial) == 3* sizeof(uint32_t), "Class should have no padding");
 		return HashBytes(this, sizeof(IndexedTriangleNoMaterial));
@@ -214,7 +214,7 @@ public:
 	}
 
 	// Get the hash value of this structure
-	uint64			GetHash() const
+	uint64_t			GetHash() const
 	{
 		static_assert(sizeof(IndexedTriangle) == 5* sizeof(uint32_t), "Class should have no padding");
 		return HashBytes(this, sizeof(IndexedTriangle));

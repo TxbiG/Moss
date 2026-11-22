@@ -19,10 +19,10 @@ public:
 	enum class EInputDescription
 	{
 		Position,						///< 3 float position
-		Color,							///< 4 uint8 color
+		Color,							///< 4 uint8_t color
 		Normal,							///< 3 float normal
 		TexCoord,						///< 2 float texture coordinate
-		InstanceColor,					///< 4 uint8 per instance color
+		InstanceColor,					///< 4 uint8_t per instance color
 		InstanceTransform,				///< 4x4 float per instance transform
 		InstanceInvTransform,			///< 4x4 float per instance inverse transform
 	};

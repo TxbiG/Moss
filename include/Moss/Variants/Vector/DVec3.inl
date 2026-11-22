@@ -47,7 +47,7 @@ DVec3::DVec3(double inX, double inY, double inZ)
 	mValue.mLow = _mm_set_pd(inY, inX);
 	mValue.mHigh = _mm_set1_pd(inZ);
 #elif defined(MOSS_SIMD_NEON)
-	mValue.val[0] = vcombine_f64(vcreate_f64(BitCast<uint64>(inX)), vcreate_f64(BitCast<uint64>(inY)));
+	mValue.val[0] = vcombine_f64(vcreate_f64(BitCast<uint64_t>(inX)), vcreate_f64(BitCast<uint64_t>(inY)));
 	mValue.val[1] = vdupq_n_f64(inZ);
 #elif defined(MOSS_SIMD_RVV)
 	vfloat64m2_t v = __riscv_vfmv_v_f_f64m2(inZ, 4);
@@ -95,7 +95,7 @@ void DVec3::CheckW() const
 {
 #ifdef MOSS_FLOATING_POINT_EXCEPTIONS_ENABLED
 	// Avoid asserts when both components are NaN
-	MOSS_ASSERT(reinterpret_cast<const uint64 *>(mF64)[2] == reinterpret_cast<const uint64 *>(mF64)[3]);
+	MOSS_ASSERT(reinterpret_cast<const uint64_t *>(mF64)[2] == reinterpret_cast<const uint64_t *>(mF64)[3]);
 #endif // MOSS_FLOATING_POINT_EXCEPTIONS_ENABLED
 }
 
@@ -457,7 +457,7 @@ DVec3 DVec3::Select(DVec3Arg inNotSet, DVec3Arg inSet, DVec3Arg inControl)
 	const vuint64m2_t control = __riscv_vreinterpret_v_f64m2_u64m2(control_double);
 
 	// Generate RVV bool mask from UVec4
-	const uint64 sign_bit_mask = 0x8000000000000000u;
+	const uint64_t sign_bit_mask = 0x8000000000000000u;
 	const vuint64m2_t r = __riscv_vand_vx_u64m2(control, sign_bit_mask, 3);
 	const vbool32_t rvv_mask = __riscv_vmsne_vx_u64m2_b32(r, 0x0, 3);
 	const vfloat64m2_t merged = __riscv_vmerge_vvm_f64m2(not_set, set, rvv_mask, 3);
@@ -466,7 +466,7 @@ DVec3 DVec3::Select(DVec3Arg inNotSet, DVec3Arg inSet, DVec3Arg inControl)
 #else
 	DVec3 result;
 	for (int i = 0; i < 3; i++)
-		result.mF64[i] = (BitCast<uint64>(inControl.mF64[i]) & (uint64(1) << 63))? inSet.mF64[i] : inNotSet.mF64[i];
+		result.mF64[i] = (BitCast<uint64_t>(inControl.mF64[i]) & (uint64_t(1) << 63))? inSet.mF64[i] : inNotSet.mF64[i];
 #ifdef MOSS_FLOATING_POINT_EXCEPTIONS_ENABLED
 	result.mF64[3] = result.mF64[2];
 #endif // MOSS_FLOATING_POINT_EXCEPTIONS_ENABLED
@@ -485,15 +485,15 @@ DVec3 DVec3::Or(DVec3Arg inV1, DVec3Arg inV2)
 				   vreinterpretq_f64_u64(vorrq_u64(vreinterpretq_u64_f64(inV1.mValue.val[1]), vreinterpretq_u64_f64(inV2.mValue.val[1]))) });
 #elif defined(MOSS_SIMD_RVV)
 	DVec3 or_result;
-	const vuint64m2_t v1 = __riscv_vle64_v_u64m2(reinterpret_cast<const uint64 *>(inV1.mF64), 3);
-	const vuint64m2_t v2 = __riscv_vle64_v_u64m2(reinterpret_cast<const uint64 *>(inV2.mF64), 3);
+	const vuint64m2_t v1 = __riscv_vle64_v_u64m2(reinterpret_cast<const uint64_t *>(inV1.mF64), 3);
+	const vuint64m2_t v2 = __riscv_vle64_v_u64m2(reinterpret_cast<const uint64_t *>(inV2.mF64), 3);
 	const vuint64m2_t res = __riscv_vor_vv_u64m2(v1, v2, 3);
-	__riscv_vse64_v_u64m2(reinterpret_cast<uint64 *>(or_result.mF64), res, 3);
+	__riscv_vse64_v_u64m2(reinterpret_cast<uint64_t *>(or_result.mF64), res, 3);
 	return or_result;
 #else
-	return DVec3(BitCast<double>(BitCast<uint64>(inV1.mF64[0]) | BitCast<uint64>(inV2.mF64[0])),
-				 BitCast<double>(BitCast<uint64>(inV1.mF64[1]) | BitCast<uint64>(inV2.mF64[1])),
-				 BitCast<double>(BitCast<uint64>(inV1.mF64[2]) | BitCast<uint64>(inV2.mF64[2])));
+	return DVec3(BitCast<double>(BitCast<uint64_t>(inV1.mF64[0]) | BitCast<uint64_t>(inV2.mF64[0])),
+				 BitCast<double>(BitCast<uint64_t>(inV1.mF64[1]) | BitCast<uint64_t>(inV2.mF64[1])),
+				 BitCast<double>(BitCast<uint64_t>(inV1.mF64[2]) | BitCast<uint64_t>(inV2.mF64[2])));
 #endif
 }
 
@@ -508,15 +508,15 @@ DVec3 DVec3::Xor(DVec3Arg inV1, DVec3Arg inV2)
 				   vreinterpretq_f64_u64(veorq_u64(vreinterpretq_u64_f64(inV1.mValue.val[1]), vreinterpretq_u64_f64(inV2.mValue.val[1]))) });
 #elif defined(MOSS_SIMD_RVV)
 	DVec3 xor_result;
-	const vuint64m2_t v1 = __riscv_vle64_v_u64m2(reinterpret_cast<const uint64 *>(inV1.mF64), 3);
-	const vuint64m2_t v2 = __riscv_vle64_v_u64m2(reinterpret_cast<const uint64 *>(inV2.mF64), 3);
+	const vuint64m2_t v1 = __riscv_vle64_v_u64m2(reinterpret_cast<const uint64_t *>(inV1.mF64), 3);
+	const vuint64m2_t v2 = __riscv_vle64_v_u64m2(reinterpret_cast<const uint64_t *>(inV2.mF64), 3);
 	const vuint64m2_t res = __riscv_vxor_vv_u64m2(v1, v2, 3);
-	__riscv_vse64_v_u64m2(reinterpret_cast<uint64 *>(xor_result.mF64), res, 3);
+	__riscv_vse64_v_u64m2(reinterpret_cast<uint64_t *>(xor_result.mF64), res, 3);
 	return xor_result;
 #else
-	return DVec3(BitCast<double>(BitCast<uint64>(inV1.mF64[0]) ^ BitCast<uint64>(inV2.mF64[0])),
-				 BitCast<double>(BitCast<uint64>(inV1.mF64[1]) ^ BitCast<uint64>(inV2.mF64[1])),
-				 BitCast<double>(BitCast<uint64>(inV1.mF64[2]) ^ BitCast<uint64>(inV2.mF64[2])));
+	return DVec3(BitCast<double>(BitCast<uint64_t>(inV1.mF64[0]) ^ BitCast<uint64_t>(inV2.mF64[0])),
+				 BitCast<double>(BitCast<uint64_t>(inV1.mF64[1]) ^ BitCast<uint64_t>(inV2.mF64[1])),
+				 BitCast<double>(BitCast<uint64_t>(inV1.mF64[2]) ^ BitCast<uint64_t>(inV2.mF64[2])));
 #endif
 }
 
@@ -531,15 +531,15 @@ DVec3 DVec3::And(DVec3Arg inV1, DVec3Arg inV2)
 				   vreinterpretq_f64_u64(vandq_u64(vreinterpretq_u64_f64(inV1.mValue.val[1]), vreinterpretq_u64_f64(inV2.mValue.val[1]))) });
 #elif defined(MOSS_SIMD_RVV)
 	DVec3 and_result;
-	const vuint64m2_t v1 = __riscv_vle64_v_u64m2(reinterpret_cast<const uint64 *>(inV1.mF64), 3);
-	const vuint64m2_t v2 = __riscv_vle64_v_u64m2(reinterpret_cast<const uint64 *>(inV2.mF64), 3);
+	const vuint64m2_t v1 = __riscv_vle64_v_u64m2(reinterpret_cast<const uint64_t *>(inV1.mF64), 3);
+	const vuint64m2_t v2 = __riscv_vle64_v_u64m2(reinterpret_cast<const uint64_t *>(inV2.mF64), 3);
 	const vuint64m2_t res = __riscv_vand_vv_u64m2(v1, v2, 3);
-	__riscv_vse64_v_u64m2(reinterpret_cast<uint64 *>(and_result.mF64), res, 3);
+	__riscv_vse64_v_u64m2(reinterpret_cast<uint64_t *>(and_result.mF64), res, 3);
 	return and_result;
 #else
-	return DVec3(BitCast<double>(BitCast<uint64>(inV1.mF64[0]) & BitCast<uint64>(inV2.mF64[0])),
-				 BitCast<double>(BitCast<uint64>(inV1.mF64[1]) & BitCast<uint64>(inV2.mF64[1])),
-				 BitCast<double>(BitCast<uint64>(inV1.mF64[2]) & BitCast<uint64>(inV2.mF64[2])));
+	return DVec3(BitCast<double>(BitCast<uint64_t>(inV1.mF64[0]) & BitCast<uint64_t>(inV2.mF64[0])),
+				 BitCast<double>(BitCast<uint64_t>(inV1.mF64[1]) & BitCast<uint64_t>(inV2.mF64[1])),
+				 BitCast<double>(BitCast<uint64_t>(inV1.mF64[2]) & BitCast<uint64_t>(inV2.mF64[2])));
 #endif
 }
 
@@ -550,7 +550,7 @@ int DVec3::GetTrues() const
 #elif defined(MOSS_SIMD_SSE)
 	return (_mm_movemask_pd(mValue.mLow) + (_mm_movemask_pd(mValue.mHigh) << 2)) & 0x7;
 #else
-	return int((BitCast<uint64>(mF64[0]) >> 63) | ((BitCast<uint64>(mF64[1]) >> 63) << 1) | ((BitCast<uint64>(mF64[2]) >> 63) << 2));
+	return int((BitCast<uint64_t>(mF64[0]) >> 63) | ((BitCast<uint64_t>(mF64[1]) >> 63) << 1) | ((BitCast<uint64_t>(mF64[2]) >> 63) << 2));
 #endif
 }
 
@@ -1013,7 +1013,7 @@ DVec3 DVec3::Cross(DVec3Arg inV2) const
 	__m256d t3 = _mm256_sub_pd(t1, t2);
 	return _mm256_permute4x64_pd(t3, _MM_SHUFFLE(0, 0, 2, 1)); // Assure Z and W are the same
 #elif defined(MOSS_SIMD_RVV)
-	const uint64 indices[3] = { 1, 2, 0 };
+	const uint64_t indices[3] = { 1, 2, 0 };
 	const vuint64m2_t gather_indices = __riscv_vle64_v_u64m2(indices, 3);
 	const vfloat64m2_t v0 = __riscv_vle64_v_f64m2(mF64, 3);
 	const vfloat64m2_t v1 = __riscv_vle64_v_f64m2(inV2.mF64, 3);
@@ -1162,7 +1162,7 @@ DVec3 DVec3::GetSign() const
 DVec3 DVec3::PrepareRoundToZero() const
 {
 	// Float has 23 bit mantissa, double 52 bit mantissa => we lose 29 bits when converting from double to float
-	constexpr uint64 cDoubleToFloatMantissaLoss = (1U << 29) - 1;
+	constexpr uint64_t cDoubleToFloatMantissaLoss = (1U << 29) - 1;
 
 #if defined(MOSS_SIMD_AVX)
 	return _mm256_and_pd(mValue, _mm256_castsi256_pd(_mm256_set1_epi64x(int64_t(~cDoubleToFloatMantissaLoss))));
@@ -1183,9 +1183,9 @@ DVec3 DVec3::PrepareRoundToZero() const
 	__riscv_vse64_v_f64m2(res.mF64, chopped_f64, 3);
 	return res;
 #else
-	double x = BitCast<double>(BitCast<uint64>(mF64[0]) & ~cDoubleToFloatMantissaLoss);
-	double y = BitCast<double>(BitCast<uint64>(mF64[1]) & ~cDoubleToFloatMantissaLoss);
-	double z = BitCast<double>(BitCast<uint64>(mF64[2]) & ~cDoubleToFloatMantissaLoss);
+	double x = BitCast<double>(BitCast<uint64_t>(mF64[0]) & ~cDoubleToFloatMantissaLoss);
+	double y = BitCast<double>(BitCast<uint64_t>(mF64[1]) & ~cDoubleToFloatMantissaLoss);
+	double z = BitCast<double>(BitCast<uint64_t>(mF64[2]) & ~cDoubleToFloatMantissaLoss);
 
 	return DVec3(x, y, z);
 #endif
@@ -1194,7 +1194,7 @@ DVec3 DVec3::PrepareRoundToZero() const
 DVec3 DVec3::PrepareRoundToInf() const
 {
 	// Float has 23 bit mantissa, double 52 bit mantissa => we lose 29 bits when converting from double to float
-	constexpr uint64 cDoubleToFloatMantissaLoss = (1U << 29) - 1;
+	constexpr uint64_t cDoubleToFloatMantissaLoss = (1U << 29) - 1;
 
 #if defined(MOSS_SIMD_AVX512)
 	__m256i mantissa_loss = _mm256_set1_epi64x(cDoubleToFloatMantissaLoss);
@@ -1242,9 +1242,9 @@ DVec3 DVec3::PrepareRoundToInf() const
 	__riscv_vse64_v_f64m2(res.mF64, select_f64, 3);
 	return res;
 #else
-	uint64 ux = BitCast<uint64>(mF64[0]);
-	uint64 uy = BitCast<uint64>(mF64[1]);
-	uint64 uz = BitCast<uint64>(mF64[2]);
+	uint64_t ux = BitCast<uint64_t>(mF64[0]);
+	uint64_t uy = BitCast<uint64_t>(mF64[1]);
+	uint64_t uz = BitCast<uint64_t>(mF64[2]);
 
 	double x = BitCast<double>((ux & cDoubleToFloatMantissaLoss) == 0? ux : (ux | cDoubleToFloatMantissaLoss));
 	double y = BitCast<double>((uy & cDoubleToFloatMantissaLoss) == 0? uy : (uy | cDoubleToFloatMantissaLoss));

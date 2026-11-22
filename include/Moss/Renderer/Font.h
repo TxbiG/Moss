@@ -60,8 +60,8 @@ private:
 	int							mVerticalTexels;									///< Number of texels vertically, determines the scale of mStartV
 	uint16						mStartU[cNumChars] = {};							///< Start U in texels
 	uint16						mStartV[cNumChars] = {};							///< Start V in texels
-	uint8						mWidth[cNumChars] = {};								///< Width of character in texels
-	uint8						mSpacing[cNumChars][cNumChars] = {};				///< Spacing between characters in texels
+	uint8_t						mWidth[cNumChars] = {};								///< Width of character in texels
+	uint8_t						mSpacing[cNumChars][cNumChars] = {};				///< Spacing between characters in texels
 
 	/// Structures used for drawing
 	Renderer *					mRenderer;											///< Our renderer

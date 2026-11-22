@@ -25,11 +25,11 @@ public:
 	virtual bool				ReadIdentifier(Identifier &outIdentifier) override;
 	virtual bool				ReadCount(uint32_t &outCount) override;
 
-	virtual bool				ReadPrimitiveData(uint8 &outPrimitive) override;
+	virtual bool				ReadPrimitiveData(uint8_t &outPrimitive) override;
 	virtual bool				ReadPrimitiveData(uint16 &outPrimitive) override;
 	virtual bool				ReadPrimitiveData(int &outPrimitive) override;
 	virtual bool				ReadPrimitiveData(uint32_t &outPrimitive) override;
-	virtual bool				ReadPrimitiveData(uint64 &outPrimitive) override;
+	virtual bool				ReadPrimitiveData(uint64_t &outPrimitive) override;
 	virtual bool				ReadPrimitiveData(float &outPrimitive) override;
 	virtual bool				ReadPrimitiveData(double &outPrimitive) override;
 	virtual bool				ReadPrimitiveData(bool &outPrimitive) override;

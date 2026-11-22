@@ -68,13 +68,13 @@ private:
 
 /// Helper class that needs to be put on the stack to update the state of the floating point control word.
 /// This state is kept per thread.
-template <uint64 Value, uint64 Mask>
+template <uint64_t Value, uint64_t Mask>
 class FPControlWord : public NonCopyable
 {
 public:
 				FPControlWord()
 	{
-		uint64 val;
+		uint64_t val;
 		asm volatile("mrs %0, fpcr" : "=r" (val));
 		mPrevState = val;
 		val &= ~Mask;
@@ -84,7 +84,7 @@ public:
 
 				~FPControlWord()
 	{
-		uint64 val;
+		uint64_t val;
 		asm volatile("mrs %0, fpcr" : "=r" (val));
 		val &= ~Mask;
 		val |= mPrevState & Mask;
@@ -92,7 +92,7 @@ public:
 	}
 
 private:
-	uint64		mPrevState;
+	uint64_t		mPrevState;
 };
 
 #elif defined(MOSS_CPU_ARM)

@@ -39,7 +39,7 @@ bool Font::Create(const char *inFontName, int inCharHeight)
 	constexpr int cSpacingV = 2; // Number of pixels to put vertically between characters
 
 	// Read font data
-	TArray<uint8> font_data = ReadData((String("Fonts/") + inFontName + ".ttf").c_str());
+	TArray<uint8_t> font_data = ReadData((String("Fonts/") + inFontName + ".ttf").c_str());
 
 	// Construct a font info
 	stbtt_fontinfo font;
@@ -104,13 +104,13 @@ try_again:;
 		MOSS_ASSERT(w <= 0xff);
 		mStartU[idx] = uint16(x);
 		mStartV[idx] = uint16(y);
-		mWidth[idx] = uint8(w + 1);
+		mWidth[idx] = uint8_t(w + 1);
 
 		// Copy the character data
 		for (int y2 = 0; y2 < h; ++y2)
 		{
-			uint8 *src = bitmap + y2 * w;
-			uint8 *dst = surface->GetScanLine(y + yoff + y2) + x + xoff;
+			uint8_t *src = bitmap + y2 * w;
+			uint8_t *dst = surface->GetScanLine(y + yoff + y2) + x + xoff;
 			memcpy(dst, src, w);
 		}
 
@@ -128,7 +128,7 @@ try_again:;
 			int advance;
 			stbtt_GetCodepointHMetrics(&font, c1, &advance, nullptr);
 			int spacing = Clamp(int(scale * (advance + stbtt_GetCodepointKernAdvance(&font, c1, c2))), 0, 0xff);
-			mSpacing[idx1][idx2] = (uint8)spacing;
+			mSpacing[idx1][idx2] = (uint8_t)spacing;
 		}
 
 	// Unlock surface

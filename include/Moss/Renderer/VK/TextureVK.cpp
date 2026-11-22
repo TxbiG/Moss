@@ -58,7 +58,7 @@ TextureVK::TextureVK(RendererVK *inRenderer, const Surface *inSurface) :
 	void *data;
 	vkMapMemory(device, staging_buffer.mMemory, staging_buffer.mOffset, image_size, 0, &data);
 	for (int y = 0; y < mHeight; ++y)
-		memcpy(reinterpret_cast<uint8 *>(data) + y * mWidth * bpp, surface->GetData() + y * surface->GetStride(), mWidth * bpp);
+		memcpy(reinterpret_cast<uint8_t *>(data) + y * mWidth * bpp, surface->GetData() + y * surface->GetStride(), mWidth * bpp);
 	vkUnmapMemory(device, staging_buffer.mMemory);
 	surface->UnLock();
 

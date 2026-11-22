@@ -19,8 +19,8 @@ MOSS_SUPPRESS_WARNINGS_BEGIN
 
 #ifdef MOSS_SHARED_LIBRARY
 /// Functions called when a profiler measurement starts or stops, need to be overridden by the user.
-using ProfileStartMeasurementFunction = void (*)(const char *inName, uint32_t inColor, uint8 *ioUserData);
-using ProfileEndMeasurementFunction = void (*)(uint8 *ioUserData);
+using ProfileStartMeasurementFunction = void (*)(const char *inName, uint32_t inColor, uint8_t *ioUserData);
+using ProfileEndMeasurementFunction = void (*)(uint8_t *ioUserData);
 
 MOSS_API extern ProfileStartMeasurementFunction ProfileStartMeasurement;
 MOSS_API extern ProfileEndMeasurementFunction ProfileEndMeasurement;
@@ -44,7 +44,7 @@ public:
 #endif
 
 private:
-	uint8							mUserData[64];
+	uint8_t							mUserData[64];
 };
 
 MOSS_SUPPRESS_WARNINGS_END
@@ -133,7 +133,7 @@ private:
 								Aggregator(const char *inName)										: mName(inName) { }
 
 		/// Accumulate results for a measurement
-		void					AccumulateMeasurement(uint64 inCyclesInCallWithChildren)
+		void					AccumulateMeasurement(uint64_t inCyclesInCallWithChildren)
 		{
 			mCallCounter++;
 			mTotalCyclesInCallWithChildren += inCyclesInCallWithChildren;
@@ -152,9 +152,9 @@ private:
 
 		/// Statistics
 		uint32_t					mCallCounter = 0;													///< Number of times AccumulateMeasurement was called
-		uint64					mTotalCyclesInCallWithChildren = 0;									///< Total amount of cycles spent in this scope
-		uint64					mMinCyclesInCallWithChildren = 0xffffffffffffffffUL;				///< Minimum amount of cycles spent per call
-		uint64					mMaxCyclesInCallWithChildren = 0;									///< Maximum amount of cycles spent per call
+		uint64_t					mTotalCyclesInCallWithChildren = 0;									///< Total amount of cycles spent in this scope
+		uint64_t					mMinCyclesInCallWithChildren = 0xffffffffffffffffUL;				///< Minimum amount of cycles spent per call
+		uint64_t					mMaxCyclesInCallWithChildren = 0;									///< Maximum amount of cycles spent per call
 	};
 
 	using Threads = TArray<ThreadSamples>;
@@ -168,14 +168,14 @@ private:
 	void						UpdateReferenceTime();
 
 	/// Get the amount of ticks per second, note that this number will never be fully accurate as the amount of ticks per second may vary with CPU load, so this number is only to be used to give an indication of time for profiling purposes
-	uint64						GetProcessorTicksPerSecond() const;
+	uint64_t						GetProcessorTicksPerSecond() const;
 
 	/// Dump profiling statistics
 	void						DumpInternal();
 	void						DumpChart(const char *inTag, const Threads &inThreads, const KeyToAggregator &inKeyToAggregators, const Aggregators &inAggregators);
 
 	std::mutex					mLock;																///< Lock that protects mThreads
-	uint64						mReferenceTick;														///< Tick count at the start of the frame
+	uint64_t						mReferenceTick;														///< Tick count at the start of the frame
 	std::chrono::high_resolution_clock::time_point mReferenceTime;									///< Time at the start of the frame
 	TArray<ProfileThread *>		mThreads;															///< List of all active threads
 	bool						mDump = false;														///< When true, the samples are dumped next frame
@@ -190,10 +190,10 @@ public:
 
 	const char *				mName;																///< User defined name of this item
 	uint32_t						mColor;																///< Color to use for this sample
-	uint8						mDepth;																///< Calculated depth
-	uint8						mUnused[3];
-	uint64						mStartCycle;														///< Cycle counter at start of measurement
-	uint64						mEndCycle;															///< Cycle counter at end of measurement
+	uint8_t						mDepth;																///< Calculated depth
+	uint8_t						mUnused[3];
+	uint64_t						mStartCycle;														///< Cycle counter at start of measurement
+	uint64_t						mEndCycle;															///< Cycle counter at end of measurement
 };
 
 /// Collects all samples of a single thread

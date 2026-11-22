@@ -20,8 +20,8 @@ public:
 		Float3							mRootBoundsMin;
 		Float3							mRootBoundsMax;
 		uint32_t							mRootProperties;
-		uint8							mBlockIDBits;			// Number of bits to address a triangle block
-		uint8							mPadding[3] = { 0 };
+		uint8_t							mBlockIDBits;			// Number of bits to address a triangle block
+		uint8_t							mPadding[3] = { 0 };
 	};
 
 	/// Size of the header (an empty struct is always > 0 bytes so this needs a separate variable)
@@ -58,7 +58,7 @@ public:
 	class EncodingContext {
 	public:
 		/// Mimics the size a call to NodeAllocate() would add to the buffer
-		void PrepareNodeAllocate(const AABBTreeBuilder::Node *inNode, uint64 &ioBufferSize) const {
+		void PrepareNodeAllocate(const AABBTreeBuilder::Node *inNode, uint64_t &ioBufferSize) const {
 			// We don't emit nodes for leafs
 			if (!inNode->HasChildren())
 				return;
@@ -183,7 +183,7 @@ public:
 			inRoot->mBounds.mMin.StoreFloat3(&outHeader->mRootBoundsMin);
 			inRoot->mBounds.mMax.StoreFloat3(&outHeader->mRootBoundsMax);
 			outHeader->mRootProperties = uint32_t(offset) + (inRoot->GetTriangleCount() << TRIANGLE_COUNT_SHIFT);
-			outHeader->mBlockIDBits = uint8(32 - CountLeadingZeros(uint32_t(highest_triangle_block)));
+			outHeader->mBlockIDBits = uint8_t(32 - CountLeadingZeros(uint32_t(highest_triangle_block)));
 			if (inRoot->GetTriangleCount() >= TRIANGLE_COUNT_MASK) {
 				outError = "NodeCodecQuadTreeHalfFloat: Too many triangles";
 				return false;
@@ -205,7 +205,7 @@ public:
 		}
 
 		/// Convert a triangle block ID to the start of the triangle buffer
-		inline static const void* sGetTriangleBlockStart(const uint8 *inBufferStart, uint32_t inTriangleBlockID) {
+		inline static const void* sGetTriangleBlockStart(const uint8_t *inBufferStart, uint32_t inTriangleBlockID) {
 			return inBufferStart + (inTriangleBlockID << OFFSET_NON_SIGNIFICANT_BITS);
 		}
 
@@ -217,7 +217,7 @@ public:
 
 		/// Walk the node tree calling the Visitor::VisitNodes for each node encountered and Visitor::VisitTriangles for each triangle encountered
 		template <class TriangleContext, class Visitor>
-		MOSS_INLINE void WalkTree(const uint8 *inBufferStart, const TriangleContext &inTriangleContext, Visitor &ioVisitor) {
+		MOSS_INLINE void WalkTree(const uint8_t *inBufferStart, const TriangleContext &inTriangleContext, Visitor &ioVisitor) {
 			do {
 				// Test if node contains triangles
 				uint32_t node_properties = mNodeStack[mTop];

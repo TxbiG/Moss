@@ -24,11 +24,11 @@ void ObjectStreamTextOut::WriteDataType(EOSDataType inType)
 	case EOSDataType::Instance:		WriteWord("instance ");		break;
 	case EOSDataType::Pointer:		WriteWord("pointer ");		break;
 	case EOSDataType::Array:		WriteWord("array ");		break;
-	case EOSDataType::T_uint8:		WriteWord("uint8");			break;
+	case EOSDataType::T_uint8:		WriteWord("uint8_t");			break;
 	case EOSDataType::T_uint16:		WriteWord("uint16");		break;
 	case EOSDataType::T_int:		WriteWord("int");			break;
 	case EOSDataType::T_uint32:		WriteWord("uint32_t");		break;
-	case EOSDataType::T_uint64:		WriteWord("uint64");		break;
+	case EOSDataType::T_uint64:		WriteWord("uint64_t");		break;
 	case EOSDataType::T_float:		WriteWord("float");			break;
 	case EOSDataType::T_double:		WriteWord("double");		break;
 	case EOSDataType::T_bool:		WriteWord("bool");			break;
@@ -63,7 +63,7 @@ void ObjectStreamTextOut::WriteCount(uint32_t inCount)
 	WriteWord(std::to_string(inCount));
 }
 
-void ObjectStreamTextOut::WritePrimitiveData(const uint8 &inPrimitive)
+void ObjectStreamTextOut::WritePrimitiveData(const uint8_t &inPrimitive)
 {
 	WriteWord(std::to_string(inPrimitive));
 }
@@ -83,7 +83,7 @@ void ObjectStreamTextOut::WritePrimitiveData(const uint32_t &inPrimitive)
 	WriteWord(std::to_string(inPrimitive));
 }
 
-void ObjectStreamTextOut::WritePrimitiveData(const uint64 &inPrimitive)
+void ObjectStreamTextOut::WritePrimitiveData(const uint64_t &inPrimitive)
 {
 	WriteWord(std::to_string(inPrimitive));
 }

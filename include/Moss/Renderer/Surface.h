@@ -137,14 +137,14 @@ public:
 	inline bool					IsLockedForReadWrite() const										{ return IsLockedForRead() && IsLockedForWrite(); }
 
 	/// Access to the image data
-	inline const uint8 *		GetData() const														{ MOSS_ASSERT(IsLockedForRead()); return mData; }
-	inline uint8 *				GetData()															{ MOSS_ASSERT(IsLockedForWrite()); return mData; }
+	inline const uint8_t *		GetData() const														{ MOSS_ASSERT(IsLockedForRead()); return mData; }
+	inline uint8_t *				GetData()															{ MOSS_ASSERT(IsLockedForWrite()); return mData; }
 	inline int					GetStride() const													{ MOSS_ASSERT(IsLocked()); return mStride; }
 	inline int					GetLength() const													{ MOSS_ASSERT(IsLocked()); return mLength; }
 
 	/// Get start of a specific scanline
-	inline const uint8 *		GetScanLine(int inScanLine) const									{ MOSS_ASSERT(inScanLine >= 0 && inScanLine < GetHeight()); return GetData() + inScanLine * GetStride(); }
-	inline uint8 *				GetScanLine(int inScanLine)											{ MOSS_ASSERT(inScanLine >= 0 && inScanLine < GetHeight()); return GetData() + inScanLine * GetStride(); }
+	inline const uint8_t *		GetScanLine(int inScanLine) const									{ MOSS_ASSERT(inScanLine >= 0 && inScanLine < GetHeight()); return GetData() + inScanLine * GetStride(); }
+	inline uint8_t *				GetScanLine(int inScanLine)											{ MOSS_ASSERT(inScanLine >= 0 && inScanLine < GetHeight()); return GetData() + inScanLine * GetStride(); }
 
 protected:
 	/// These functions must be overridden by the hardware buffer
@@ -159,7 +159,7 @@ protected:
 
 	mutable ESurfaceLockMode	mLockMode;
 	mutable int					mStride;															///< Width of one scanline in bytes
-	mutable uint8 *				mData;																///< Pointer to image data, starting at top-left of locked rectangle
+	mutable uint8_t *				mData;																///< Pointer to image data, starting at top-left of locked rectangle
 };
 
 /// Class that contains an image in arbitrary format, backed by normal memory (not device specific)
@@ -175,7 +175,7 @@ protected:
 	virtual void				HardwareLock() const override;
 	virtual void				HardwareUnLock() const override;
 
-	uint8 *						mPixelData;
+	uint8_t *						mPixelData;
 	int							mPixelStride;
 	int							mPixelLength;
 };

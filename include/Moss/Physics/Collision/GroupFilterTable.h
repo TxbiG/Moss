@@ -123,7 +123,7 @@ protected:
 
 private:
 	uint32_t			mNumSubGroups;		// The number of subgroups that this group filter supports
-	TArray<uint8>	mTable;				// The table of bits that indicates which pairs collide
+	TArray<uint8_t>	mTable;				// The table of bits that indicates which pairs collide
 };
 
 MOSS_SUPPRESS_WARNINGS_END

@@ -154,7 +154,7 @@ private:
 		return new_pointer;
 	}
 
-	alignas(T) uint8		mElements[N * sizeof(T)];
+	alignas(T) uint8_t		mElements[N * sizeof(T)];
 	size_type				mNumElementsUsed = 0;
 };
 

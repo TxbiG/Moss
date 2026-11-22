@@ -281,10 +281,10 @@ public:
 	}
 
 	/// Get hash for this array
-	uint64					GetHash() const
+	uint64_t					GetHash() const
 	{
 		// Hash length first
-		uint64 ret = Hash<uint32_t> { } (uint32_t(size()));
+		uint64_t ret = Hash<uint32_t> { } (uint32_t(size()));
 
 		// Then hash elements
 		for (const T *element = reinterpret_cast<const T *>(mElements), *element_end = reinterpret_cast<const T *>(mElements) + mSize; element < element_end; ++element)
@@ -296,7 +296,7 @@ public:
 protected:
 	struct alignas(T) Storage
 	{
-		uint8			mData[sizeof(T)];
+		uint8_t			mData[sizeof(T)];
 	};
 
 	static_assert(sizeof(T) == sizeof(Storage), "Mismatch in size");

@@ -28,7 +28,7 @@ public:
 	using Type = uint32_t;
 
 	/// Type that is bigger than the underlying storage type for operations that would otherwise overflow
-	using BiggerType = uint64;
+	using BiggerType = uint64_t;
 
 	static_assert(sizeof(BiggerType) > sizeof(Type), "The calculation below assumes BiggerType is a bigger type than Type");
 

@@ -1045,7 +1045,7 @@ struct ENetTransportPeer {
 struct {
    ENetTransportEventType type;
    ENetTransportPeer *peer;
-   const uint8 *data;
+   const uint8_t *data;
    size_t data_len;
    int channel; // opaque; map to ENet channels if needed
 };
@@ -1057,7 +1057,7 @@ struct ENetTransport {
 
    int (*init)(ENetTransportConfig*);
    int (*poll)(ENetTransportEvent*, int);
-   int (*send)(ENetTransportPeer*, const uint8*, size_t);
+   int (*send)(ENetTransportPeer*, const uint8_t*, size_t);
    void (*close_peer)(ENetTransportPeer*);
    void (*shutdown)(void);
 };
@@ -1072,7 +1072,7 @@ void enet_transport_destroy(ENetTransport *t);
 int enet_transport_poll(ENetTransport *t, ENetTransportEvent *events, int capacity, int timeout_ms);
 
 /* send on a peer; returns bytes sent or negative on error
-int enet_transport_send(ENetTransport *t, ENetTransportPeer *peer, const uint8 *data, size_t len, int channel);
+int enet_transport_send(ENetTransport *t, ENetTransportPeer *peer, const uint8_t *data, size_t len, int channel);
 
 /* connect / close 
 int enet_transport_connect(ENetTransport *t, ENetTransportPeer *peer, const char *host, uint16_t port);
@@ -1100,9 +1100,9 @@ MOSS_API void enet_transport_handle_event(ENetHost* host, const ENetTransportEve
 MOSS_API void enet_peer_reset(ENetPeer* peer);
 MOSS_API void enet_peer_timeout(ENetPeer* peer);
 MOSS_API void enet_peer_ping(ENetPeer* peer);
-MOSS_API size_t enet_packet_encode(const NetPacket* packet, uint8* outBuffer, size_t bufferSize);
-MOSS_API bool enet_packet_decode(NetPacket* outPacket, const uint8* buffer, size_t bufferSize);
-MOSS_API void enet_fragment_send(ENetPeer* peer, uint8 channelId, const uint8* data, size_t size);
+MOSS_API size_t enet_packet_encode(const NetPacket* packet, uint8_t* outBuffer, size_t bufferSize);
+MOSS_API bool enet_packet_decode(NetPacket* outPacket, const uint8_t* buffer, size_t bufferSize);
+MOSS_API void enet_fragment_send(ENetPeer* peer, uint8_t channelId, const uint8_t* data, size_t size);
 MOSS_API bool enet_fragment_receive(ENetPeer* peer, const NetPacket* fragment, NetPacket* outPacket);
 MOSS_API void enet_bandwidth_update(ENetHost* host, float deltaTime);
 MOSS_API size_t enet_peer_send_window(const ENetPeer* peer);
@@ -1112,7 +1112,7 @@ MOSS_API void enet_peer_disconnect(ENetPeer* peer, uint32_t reason);
 MOSS_API void enet_peer_disconnect_now(ENetPeer* peer);
 MOSS_API void enet_peer_get_stats(const ENetPeer* peer, float* rtt, float* packetLoss, uint32_t* sent, uint32_t* received);
 MOSS_API void enet_host_flush(ENetHost* host);
-MOSS_API void enet_host_broadcast(ENetHost* host, uint8 channelId, const uint8* data, size_t size);
+MOSS_API void enet_host_broadcast(ENetHost* host, uint8_t channelId, const uint8_t* data, size_t size);
 MOSS_API void enet_host_set_protocol_id(ENetHost* host, uint16_t protocolId);
 MOSS_API uint16_t enet_host_get_protocol_id(const ENetHost* host);
 
@@ -1134,9 +1134,9 @@ NetSocket* net_socket_create(uint16_t port);
 
 void net_socket_close(NetSocket* socket);
 
-int net_socket_send(NetSocket* socket, ENetAddress* address, const uint8* data, size_t size);
+int net_socket_send(NetSocket* socket, ENetAddress* address, const uint8_t* data, size_t size);
 
-int net_socket_receive(NetSocket* socket, ENetAddress* outAddress, uint8* buffer, size_t bufferSize);
+int net_socket_receive(NetSocket* socket, ENetAddress* outAddress, uint8_t* buffer, size_t bufferSize);
 
 
 // =============================================
@@ -1145,8 +1145,8 @@ int net_socket_receive(NetSocket* socket, ENetAddress* outAddress, uint8* buffer
 
 struct NetPacketHeader {
    uint16_t protocolId;
-   uint8  flags;
-   uint8  channelId;
+   uint8_t  flags;
+   uint8_t  channelId;
    uint16_t sequence;
    uint16_t ack;
    uint32_t ackBits;
@@ -1154,12 +1154,12 @@ struct NetPacketHeader {
 
 struct NetPacket {
     NetPacketHeader header;
-    uint8* payload;
+    uint8_t* payload;
     size_t payloadSize;
 } NetPacket;
 
 struct NetChannel {
-    uint8 id;
+    uint8_t id;
     bool reliable;
     uint16_t nextSendSeq;
     uint16_t nextRecvSeq;
@@ -1170,11 +1170,11 @@ struct NetChannel {
 struct ReliablePacket {
     uint16_t sequence;
     uint32_t sendTime;
-    uint8 retries;
+    uint8_t retries;
     NetPacket* packet;
 } ReliablePacket;
 
-void net_channel_send(NetPeer* peer, uint8 channelId, const uint8* data, size_t size, bool reliable);
+void net_channel_send(NetPeer* peer, uint8_t channelId, const uint8_t* data, size_t size, bool reliable);
 
 void net_reliability_update(NetPeer* peer, float deltaTime);
 
@@ -1184,8 +1184,8 @@ void net_reliability_update(NetPeer* peer, float deltaTime);
 // =============================================
 
 struct NetCryptoContext {
-    uint8 encryptionKey[32];
-    uint8 hmacKey[32];
+    uint8_t encryptionKey[32];
+    uint8_t hmacKey[32];
     uint64_t nonce;
 } NetCryptoContext;
 
@@ -1195,8 +1195,8 @@ struct NetHandshake {
     bool verified;
 } NetHandshake;
 
-bool net_security_encrypt(NetCryptoContext*, uint8* data, size_t);
-bool net_security_decrypt(NetCryptoContext*, uint8* data, size_t);
+bool net_security_encrypt(NetCryptoContext*, uint8_t* data, size_t);
+bool net_security_decrypt(NetCryptoContext*, uint8_t* data, size_t);
 
 bool net_handshake_process(NetPeer* peer, NetPacket* packet);
 
@@ -1236,8 +1236,8 @@ void net_host_update(NetHost* host, float deltaTime);
 struct NetEvent {
     NetEventType type;
     NetPeer* peer;
-    uint8 channelId;
-    uint8* data;
+    uint8_t channelId;
+    uint8_t* data;
     size_t dataSize;
 } NetEvent;
 
@@ -1265,7 +1265,7 @@ struct ENetTransportPeer {
 struct {
    ENetTransportEventType type;
    ENetTransportPeer *peer;
-   const uint8 *data;
+   const uint8_t *data;
    size_t data_len;
    int channel;
 } ENetTransportEvent;
@@ -1285,7 +1285,7 @@ struct ENetTransport {
    ENetTransportCaps caps;
    int (*init)(ENetTransportConfig*);
    int (*poll)(ENetTransportEvent*, int);
-   int (*send)(ENetTransportPeer*, const uint8*, size_t);
+   int (*send)(ENetTransportPeer*, const uint8_t*, size_t);
    void (*close_peer)(ENetTransportPeer*);
    void (*shutdown)(void);
 };
@@ -1299,7 +1299,7 @@ ENetTransport* enet_transport_create(
 
 void enet_transport_destroy(ENetTransport*);
 int enet_transport_poll(ENetTransport*, ENetTransportEvent*, int, int);
-int enet_transport_send(ENetTransport*, ENetTransportPeer*, const uint8*, size_t, int);
+int enet_transport_send(ENetTransport*, ENetTransportPeer*, const uint8_t*, size_t, int);
 int enet_transport_connect(ENetTransport*, ENetTransportPeer*, const char*, uint16_t);
 int enet_transport_close_peer(ENetTransport*, ENetTransportPeer*);
 
@@ -1336,7 +1336,7 @@ MOSS_API uint32_t enet_host_transport_caps(ENetHost*);
 struct ENetHttpServer ENetHttpServer;
 struct ENetHttpRequest ENetHttpRequest;
 
-enum class ENetHttpMethod : uint8 {
+enum class ENetHttpMethod : uint8_t {
     ENET_HTTP_GET,
     ENET_HTTP_POST,
     ENET_HTTP_PUT,
@@ -1464,7 +1464,7 @@ struct NetPeer {
 } NetPeer;
 
 struct NetChannel {
-    uint8 id;
+    uint8_t id;
     bool reliable;
 
     uint16_t nextSendSeq;
@@ -1487,22 +1487,22 @@ struct NetHost {
 struct NetEvent {
     NetEventType type;
     NetPeer* peer;
-    uint8 channelId;
-    uint8* data;
+    uint8_t channelId;
+    uint8_t* data;
     size_t dataSize;
 } NetEvent;
 
 struct ENetStreamFrame {
    uint32_t length;
-   uint8  data[];
+   uint8_t  data[];
 } ENetStreamFrame;
 
 
 #pragma pack(push, 1)
 struct ENetTCPFrameHeader {
     uint32_t length;     // payload size (network byte order)
-    uint8  channelID;
-    uint8  flags;      // 
+    uint8_t  channelID;
+    uint8_t  flags;      // 
 } ENetTCPFrameHeader;
 #pragma pack(pop)
 

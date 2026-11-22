@@ -8,13 +8,13 @@
 
 MOSS_SUPPRESS_WARNINGS_BEGIN
 
-BVec16::BVec16(uint8 inB0, uint8 inB1, uint8 inB2, uint8 inB3, uint8 inB4, uint8 inB5, uint8 inB6, uint8 inB7, uint8 inB8, uint8 inB9, uint8 inB10, uint8 inB11, uint8 inB12, uint8 inB13, uint8 inB14, uint8 inB15)
+BVec16::BVec16(uint8_t inB0, uint8_t inB1, uint8_t inB2, uint8_t inB3, uint8_t inB4, uint8_t inB5, uint8_t inB6, uint8_t inB7, uint8_t inB8, uint8_t inB9, uint8_t inB10, uint8_t inB11, uint8_t inB12, uint8_t inB13, uint8_t inB14, uint8_t inB15)
 {
 #if defined(MOSS_SIMD_SSE)
 	mValue = _mm_set_epi8(char(inB15), char(inB14), char(inB13), char(inB12), char(inB11), char(inB10), char(inB9), char(inB8), char(inB7), char(inB6), char(inB5), char(inB4), char(inB3), char(inB2), char(inB1), char(inB0));
 #elif defined(MOSS_SIMD_NEON)
-	uint8x8_t v1 = vcreate_u8(uint64(inB0) | (uint64(inB1) << 8) | (uint64(inB2) << 16) | (uint64(inB3) << 24) | (uint64(inB4) << 32) | (uint64(inB5) << 40) | (uint64(inB6) << 48) | (uint64(inB7) << 56));
-	uint8x8_t v2 = vcreate_u8(uint64(inB8) | (uint64(inB9) << 8) | (uint64(inB10) << 16) | (uint64(inB11) << 24) | (uint64(inB12) << 32) | (uint64(inB13) << 40) | (uint64(inB14) << 48) | (uint64(inB15) << 56));
+	uint8x8_t v1 = vcreate_u8(uint64_t(inB0) | (uint64_t(inB1) << 8) | (uint64_t(inB2) << 16) | (uint64_t(inB3) << 24) | (uint64_t(inB4) << 32) | (uint64_t(inB5) << 40) | (uint64_t(inB6) << 48) | (uint64_t(inB7) << 56));
+	uint8x8_t v2 = vcreate_u8(uint64_t(inB8) | (uint64_t(inB9) << 8) | (uint64_t(inB10) << 16) | (uint64_t(inB11) << 24) | (uint64_t(inB12) << 32) | (uint64_t(inB13) << 40) | (uint64_t(inB14) << 48) | (uint64_t(inB15) << 56));
 	mValue = vcombine_u8(v1, v2);
 #else
 	mU8[0] = inB0;
@@ -36,7 +36,7 @@ BVec16::BVec16(uint8 inB0, uint8 inB1, uint8 inB2, uint8 inB3, uint8 inB4, uint8
 #endif
 }
 
-BVec16::BVec16(uint64 inV0, uint64 inV1)
+BVec16::BVec16(uint64_t inV0, uint64_t inV1)
 {
 	mU64[0] = inV0;
 	mU64[1] = inV1;
@@ -58,14 +58,14 @@ BVec16 BVec16::Zero()
 #endif
 }
 
-BVec16 BVec16::Replicate(uint8 inV)
+BVec16 BVec16::Replicate(uint8_t inV)
 {
 #if defined(MOSS_SIMD_SSE)
 	return _mm_set1_epi8(char(inV));
 #elif defined(MOSS_SIMD_NEON)
 	return vdupq_n_u8(inV);
 #else
-	uint64 v(inV);
+	uint64_t v(inV);
 	v |= v << 8;
 	v |= v << 16;
 	v |= v << 32;
@@ -73,7 +73,7 @@ BVec16 BVec16::Replicate(uint8 inV)
 #endif
 }
 
-BVec16 BVec16::LoadByte16(const uint8 *inV)
+BVec16 BVec16::LoadByte16(const uint8_t *inV)
 {
 #if defined(MOSS_SIMD_SSE)
 	return _mm_loadu_si128(reinterpret_cast<const __m128i *>(inV));
@@ -91,8 +91,8 @@ BVec16 BVec16::Equals(BVec16Arg inV1, BVec16Arg inV2)
 #elif defined(MOSS_SIMD_NEON)
 	return vceqq_u8(inV1.mValue, inV2.mValue);
 #else
-	auto equals = [](uint64 inV1, uint64 inV2) {
-		uint64 r = inV1 ^ ~inV2; // Bits that are equal are 1
+	auto equals = [](uint64_t inV1, uint64_t inV2) {
+		uint64_t r = inV1 ^ ~inV2; // Bits that are equal are 1
 		r &= r << 1; // Combine bit 0 through 1
 		r &= r << 2; // Combine bit 0 through 3
 		r &= r << 4; // Combine bit 0 through 7

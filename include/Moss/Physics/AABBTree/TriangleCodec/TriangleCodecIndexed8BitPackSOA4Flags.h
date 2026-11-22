@@ -72,8 +72,8 @@ public:
 	/// A block of 4 triangles
 	struct TriangleBlock
 	{
-		uint8						mIndices[3][4];				// 8 bit indices to triangle vertices for 4 triangles in the form mIndices[vertex][triangle] where vertex in [0, 2] and triangle in [0, 3]
-		uint8						mFlags[4];					// Triangle flags (could contain material and active edges)
+		uint8_t						mIndices[3][4];				// 8 bit indices to triangle vertices for 4 triangles in the form mIndices[vertex][triangle] where vertex in [0, 2] and triangle in [0, 3]
+		uint8_t						mFlags[4];					// Triangle flags (could contain material and active edges)
 	};
 
 	static_assert(sizeof(TriangleBlock) == 16, "Compiler added padding");
@@ -91,8 +91,8 @@ public:
 	/// A triangle header, will be followed by one or more TriangleBlocks
 	struct TriangleBlockHeader
 	{
-		const VertexData *			GetVertexData() const		{ return reinterpret_cast<const VertexData *>(reinterpret_cast<const uint8 *>(this) + ((mFlags & OFFSET_TO_VERTICES_MASK) << OFFSET_NON_SIGNIFICANT_BITS)); }
-		const TriangleBlock *		GetTriangleBlock() const	{ return reinterpret_cast<const TriangleBlock *>(reinterpret_cast<const uint8 *>(this) + sizeof(TriangleBlockHeader)); }
+		const VertexData *			GetVertexData() const		{ return reinterpret_cast<const VertexData *>(reinterpret_cast<const uint8_t *>(this) + ((mFlags & OFFSET_TO_VERTICES_MASK) << OFFSET_NON_SIGNIFICANT_BITS)); }
+		const TriangleBlock *		GetTriangleBlock() const	{ return reinterpret_cast<const TriangleBlock *>(reinterpret_cast<const uint8_t *>(this) + sizeof(TriangleBlockHeader)); }
 		const uint32_t *				GetUserData() const			{ uint32_t offset = mFlags >> OFFSET_TO_VERTICES_BITS; return offset == 0? nullptr : reinterpret_cast<const uint32_t *>(GetTriangleBlock() + offset); }
 
 		uint32_t						mFlags;
@@ -144,7 +144,7 @@ public:
 		}
 
 		/// Mimics the size a call to Pack() would add to the buffer
-		void						PreparePack(const IndexedTriangle *inTriangles, uint32_t inNumTriangles, bool inStoreUserData, uint64 &ioBufferSize)
+		void						PreparePack(const IndexedTriangle *inTriangles, uint32_t inNumTriangles, bool inStoreUserData, uint64_t &ioBufferSize)
 		{
 			// Add triangle block header
 			ioBufferSize += sizeof(TriangleBlockHeader);
@@ -183,14 +183,14 @@ public:
 		}
 
 		/// Mimics the size the Finalize() call would add to ioBufferSize
-		void						FinalizePreparePack(uint64 &ioBufferSize)
+		void						FinalizePreparePack(uint64_t &ioBufferSize)
 		{
 			// Remember where the vertices are going to start in the output buffer
 			MOSS_ASSERT(IsAligned(ioBufferSize, 4));
 			mVerticesStartIdx = size_t(ioBufferSize);
 
 			// Add vertices to buffer
-			ioBufferSize += uint64(mVertexCount) * sizeof(VertexData);
+			ioBufferSize += uint64_t(mVertexCount) * sizeof(VertexData);
 
 			// Reserve the amount of memory we need for the vertices
 			mVertices.reserve(mVertexCount);
@@ -266,7 +266,7 @@ public:
 							outError = "TriangleCodecIndexed8BitPackSOA4Flags: Offset doesn't fit in 8 bit";
 							return size_t(-1);
 						}
-						block->mIndices[vertex_nr][block_tri_idx] = (uint8)vertex_offset;
+						block->mIndices[vertex_nr][block_tri_idx] = (uint8_t)vertex_offset;
 
 						// Store flags
 						uint32_t flags = triangle_available? inTriangles[t + block_tri_idx].mMaterialIndex : 0;
@@ -275,7 +275,7 @@ public:
 							outError = "TriangleCodecIndexed8BitPackSOA4Flags: Material index doesn't fit in 8 bit";
 							return size_t(-1);
 						}
-						block->mFlags[block_tri_idx] = (uint8)flags;
+						block->mFlags[block_tri_idx] = (uint8_t)flags;
 					}
 			}
 
@@ -506,7 +506,7 @@ public:
 		}
 
 		/// Get flags for entire triangle block
-		MOSS_INLINE static void		sGetFlags(const void *inTriangleStart, uint32_t inNumTriangles, uint8 *outTriangleFlags)
+		MOSS_INLINE static void		sGetFlags(const void *inTriangleStart, uint32_t inNumTriangles, uint8_t *outTriangleFlags)
 		{
 			MOSS_ASSERT(inNumTriangles > 0);
 			const TriangleBlockHeader *header = reinterpret_cast<const TriangleBlockHeader *>(inTriangleStart);
@@ -525,7 +525,7 @@ public:
 		}
 
 		/// Get flags for a particular triangle
-		MOSS_INLINE static uint8		sGetFlags(const void *inTriangleStart, int inTriangleIndex)
+		MOSS_INLINE static uint8_t		sGetFlags(const void *inTriangleStart, int inTriangleIndex)
 		{
 			const TriangleBlockHeader *header = reinterpret_cast<const TriangleBlockHeader *>(inTriangleStart);
 			const TriangleBlock *first_block = header->GetTriangleBlock();
@@ -533,7 +533,7 @@ public:
 		}
 
 		/// Unpacks triangles and flags, convenience function
-		MOSS_INLINE void				Unpack(const void *inTriangleStart, uint32_t inNumTriangles, Vec3 *outTriangles, uint8 *outTriangleFlags) const
+		MOSS_INLINE void				Unpack(const void *inTriangleStart, uint32_t inNumTriangles, Vec3 *outTriangles, uint8_t *outTriangleFlags) const
 		{
 			Unpack(inTriangleStart, inNumTriangles, outTriangles);
 			sGetFlags(inTriangleStart, inNumTriangles, outTriangleFlags);

@@ -38,7 +38,7 @@ public:
 	inline T *				FromOffset(uint32_t inOffset) const;
 
 private:
-	uint8 *					mObjectStore = nullptr;			///< This contains a contiguous list of objects (possibly of varying size)
+	uint8_t *					mObjectStore = nullptr;			///< This contains a contiguous list of objects (possibly of varying size)
 	uint32_t					mObjectStoreSizeBytes = 0;		///< The size of mObjectStore in bytes
 	atomic<uint32_t>			mWriteOffset { 0 };				///< Next offset to write to in mObjectStore
 };
@@ -114,10 +114,10 @@ public:
 	/// Insert a new element, returns null if map full.
 	/// Multiple threads can be inserting in the map at the same time.
 	template <class... Params>
-	inline KeyValue *		Create(LFHMAllocatorContext &ioContext, const Key &inKey, uint64 inKeyHash, int inExtraBytes, Params &&... inConstructorParams);
+	inline KeyValue *		Create(LFHMAllocatorContext &ioContext, const Key &inKey, uint64_t inKeyHash, int inExtraBytes, Params &&... inConstructorParams);
 
 	/// Find an element, returns null if not found
-	inline const KeyValue *	Find(const Key &inKey, uint64 inKeyHash) const;
+	inline const KeyValue *	Find(const Key &inKey, uint64_t inKeyHash) const;
 
 	/// Value of an invalid handle
 	const static uint32_t		cInvalidHandle = uint32_t(-1);

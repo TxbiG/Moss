@@ -323,7 +323,7 @@ static Moss_PathInfo moss_path_info_from_find_data(const WIN32_FIND_DATAA* fd) {
     Moss_PathInfo info = {};
     if (!fd) return info;
     info.type = (fd->dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) ? Moss_PathType::DIRECTORY : Moss_PathType::FILE;
-    info.size = ((uint64)fd->nFileSizeHigh << 32) | fd->nFileSizeLow;
+    info.size = ((uint64_t)fd->nFileSizeHigh << 32) | fd->nFileSizeLow;
     info.readable = true;
     info.writable = (fd->dwFileAttributes & FILE_ATTRIBUTE_READONLY) == 0;
     info.executable = false;
@@ -468,7 +468,7 @@ bool Moss_EnumerateStorageDirectory(Moss_Storage *storage, const char *path, Mos
     return true;
 }
 
-bool Moss_GetStorageFileSize(Moss_Storage *storage, const char *path, uint64 *length) {
+bool Moss_GetStorageFileSize(Moss_Storage *storage, const char *path, uint64_t *length) {
     char full[MAX_PATH];
     moss_storage_fullpath(storage, path, full);
 
@@ -479,7 +479,7 @@ bool Moss_GetStorageFileSize(Moss_Storage *storage, const char *path, uint64 *le
     LARGE_INTEGER size;
     size.HighPart = data.nFileSizeHigh;
     size.LowPart  = data.nFileSizeLow;
-    *length = (uint64)size.QuadPart;
+    *length = (uint64_t)size.QuadPart;
     return true;
 }
 
@@ -581,7 +581,7 @@ Moss_Storage* Moss_OpenFileStorage(const char *path) {
     return s;
 }
 
-bool Moss_ReadStorageFile(Moss_Storage *storage, const char *path, void *destination, uint64 length) {
+bool Moss_ReadStorageFile(Moss_Storage *storage, const char *path, void *destination, uint64_t length) {
     char full[MAX_PATH];
     wsprintfA(full, "%s\\%s", storage->root, path);
 
@@ -595,7 +595,7 @@ bool Moss_ReadStorageFile(Moss_Storage *storage, const char *path, void *destina
     return ok;
 }
 
-bool Moss_WriteStorageFile(Moss_Storage *storage, const char *path, const void *source, uint64 length) {
+bool Moss_WriteStorageFile(Moss_Storage *storage, const char *path, const void *source, uint64_t length) {
     char full[MAX_PATH];
     wsprintfA(full, "%s\\%s", storage->root, path);
 

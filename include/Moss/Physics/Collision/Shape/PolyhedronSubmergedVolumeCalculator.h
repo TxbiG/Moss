@@ -176,7 +176,7 @@ public:
 		for (int p = 0; p < inNumPoints; ++p)
 		{
 			// Calculate values
-			Vec3 transformed_point = inTransform * *reinterpret_cast<const Vec3 *>(reinterpret_cast<const uint8 *>(inPoints) + p * inPointStride);
+			Vec3 transformed_point = inTransform * *reinterpret_cast<const Vec3 *>(reinterpret_cast<const uint8_t *>(inPoints) + p * inPointStride);
 			float dist = inSurface.SignedDistance(transformed_point);
 			bool above = dist >= 0.0f;
 

@@ -238,7 +238,7 @@ ENetPeer* enet_host_connect(ENetHost * host, const ENetAddress * address, size_t
     @param channelID channel on which to broadcast
     @param packet packet to broadcast
 */
-void enet_host_broadcast(ENetHost* host, uint8 channelID, ENetPacket* packet) {
+void enet_host_broadcast(ENetHost* host, uint8_t channelID, ENetPacket* packet) {
   ENetPeer* currentPeer;
 
   for (currentPeer = host -> peers; currentPeer < & host -> peers [host -> peerCount]; ++ currentPeer) {

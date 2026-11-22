@@ -26,7 +26,7 @@ public:
 	/// @param inActiveEdges bit 0 = edge v0..v1 is active, bit 1 = edge v1..v2 is active, bit 2 = edge v2..v0 is active
 	/// An active edge is an edge that is not connected to another triangle in such a way that it is impossible to collide with the edge
 	/// @param inSubShapeID2 The sub shape ID for the triangle
-	void Cast(Vec3Arg inV0, Vec3Arg inV1, Vec3Arg inV2, uint8 inActiveEdges, const SubShapeID &inSubShapeID2);
+	void Cast(Vec3Arg inV0, Vec3Arg inV1, Vec3Arg inV2, uint8_t inActiveEdges, const SubShapeID &inSubShapeID2);
 
 protected:
 	Vec3							mStart;								// Starting location of the sphere
@@ -40,7 +40,7 @@ protected:
 
 private:
 	void	AddHit(bool inBackFacing, const SubShapeID &inSubShapeID2, float inFraction, Vec3Arg inContactPointA, Vec3Arg inContactPointB, Vec3Arg inContactNormal);
-	void	AddHitWithActiveEdgeDetection(Vec3Arg inV0, Vec3Arg inV1, Vec3Arg inV2, bool inBackFacing, Vec3Arg inTriangleNormal, uint8 inActiveEdges, const SubShapeID &inSubShapeID2, float inFraction, Vec3Arg inContactPointA, Vec3Arg inContactPointB, Vec3Arg inContactNormal);
+	void	AddHitWithActiveEdgeDetection(Vec3Arg inV0, Vec3Arg inV1, Vec3Arg inV2, bool inBackFacing, Vec3Arg inTriangleNormal, uint8_t inActiveEdges, const SubShapeID &inSubShapeID2, float inFraction, Vec3Arg inContactPointA, Vec3Arg inContactPointB, Vec3Arg inContactNormal);
 	float	RayCylinder(Vec3Arg inRayDirection, Vec3Arg inCylinderA, Vec3Arg inCylinderB, float inRadius) const;
 
 	float	mScaleSign;							// Sign of the scale, -1 if object is inside out, 1 if not

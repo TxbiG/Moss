@@ -529,7 +529,7 @@ Ref<VertexShader> RendererDX12::CreateVertexShader(const char *inName)
 
 	// Read shader source file
 	String file_name = String("Shaders/DX/") + inName + ".hlsl";
-	TArray<uint8> data = ReadData(file_name.c_str());
+	TArray<uint8_t> data = ReadData(file_name.c_str());
 
 	// Compile source
 	ComPtr<ID3DBlob> shader_blob, error_blob;
@@ -569,7 +569,7 @@ Ref<PixelShader> RendererDX12::CreatePixelShader(const char *inName)
 
 	// Read shader source file
 	String file_name = String("Shaders/DX/") + inName + ".hlsl";
-	TArray<uint8> data = ReadData(file_name.c_str());
+	TArray<uint8_t> data = ReadData(file_name.c_str());
 
 	// Compile source
 	ComPtr<ID3DBlob> shader_blob, error_blob;
@@ -615,7 +615,7 @@ RenderInstances *RendererDX12::CreateRenderInstances()
 	return new RenderInstancesDX12(this);
 }
 
-ComPtr<ID3D12Resource> RendererDX12::CreateD3DResource(D3D12_HEAP_TYPE inHeapType, D3D12_RESOURCE_STATES inResourceState, uint64 inSize)
+ComPtr<ID3D12Resource> RendererDX12::CreateD3DResource(D3D12_HEAP_TYPE inHeapType, D3D12_RESOURCE_STATES inResourceState, uint64_t inSize)
 {
 	// Create a new resource
 	D3D12_RESOURCE_DESC desc;
@@ -643,7 +643,7 @@ ComPtr<ID3D12Resource> RendererDX12::CreateD3DResource(D3D12_HEAP_TYPE inHeapTyp
 	return resource;
 }
 
-void RendererDX12::CopyD3DResource(ID3D12Resource *inDest, const void *inSrc, uint64 inSize)
+void RendererDX12::CopyD3DResource(ID3D12Resource *inDest, const void *inSrc, uint64_t inSize)
 {
 	// Copy data to destination buffer
 	void *data;
@@ -653,7 +653,7 @@ void RendererDX12::CopyD3DResource(ID3D12Resource *inDest, const void *inSrc, ui
 	inDest->Unmap(0, nullptr);
 }
 
-void RendererDX12::CopyD3DResource(ID3D12Resource *inDest, ID3D12Resource *inSrc, uint64 inSize)
+void RendererDX12::CopyD3DResource(ID3D12Resource *inDest, ID3D12Resource *inSrc, uint64_t inSize)
 {
 	// Start a commandlist for the upload
 	ID3D12GraphicsCommandList *list = mUploadQueue.Start();
@@ -675,7 +675,7 @@ void RendererDX12::CopyD3DResource(ID3D12Resource *inDest, ID3D12Resource *inSrc
 	mUploadQueue.ExecuteAndWait();
 }
 
-ComPtr<ID3D12Resource> RendererDX12::CreateD3DResourceOnDefaultHeap(const void *inData, uint64 inSize)
+ComPtr<ID3D12Resource> RendererDX12::CreateD3DResourceOnDefaultHeap(const void *inData, uint64_t inSize)
 {
 	ComPtr<ID3D12Resource> upload = CreateD3DResourceOnUploadHeap(inSize);
 	ComPtr<ID3D12Resource> resource = CreateD3DResource(D3D12_HEAP_TYPE_DEFAULT, D3D12_RESOURCE_STATE_COMMON, inSize);
@@ -685,7 +685,7 @@ ComPtr<ID3D12Resource> RendererDX12::CreateD3DResourceOnDefaultHeap(const void *
 	return resource;
 }
 
-ComPtr<ID3D12Resource> RendererDX12::CreateD3DResourceOnUploadHeap(uint64 inSize)
+ComPtr<ID3D12Resource> RendererDX12::CreateD3DResourceOnUploadHeap(uint64_t inSize)
 {
 	// Try cache first
 	ResourceCache::iterator i = mResourceCache.find(inSize);
@@ -699,7 +699,7 @@ ComPtr<ID3D12Resource> RendererDX12::CreateD3DResourceOnUploadHeap(uint64 inSize
 	return CreateD3DResource(D3D12_HEAP_TYPE_UPLOAD, D3D12_RESOURCE_STATE_GENERIC_READ, inSize);
 }
 
-void RendererDX12::RecycleD3DResourceOnUploadHeap(ID3D12Resource *inResource, uint64 inSize)
+void RendererDX12::RecycleD3DResourceOnUploadHeap(ID3D12Resource *inResource, uint64_t inSize)
 {
 	if (!mIsExiting)
 		mDelayCached[mFrameIndex][inSize].push_back(inResource);

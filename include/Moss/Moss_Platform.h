@@ -599,14 +599,14 @@ struct Moss_PenMotionEvent {
 struct Moss_PenProximityEvent {
     //Moss_EventType type; // Moss_EVENT_PEN_PROXIMITY_IN or Moss_EVENT_PEN_PROXIMITY_OUT */
     uint32_t reserved;
-    uint64 timestamp;   // In nanoseconds, populated using Moss_GetTicksNS() */
+    uint64_t timestamp;   // In nanoseconds, populated using Moss_GetTicksNS() */
     Moss_PenID id;        // The pen instance id */
 };
 
 struct Moss_PenTouchEvent {
     //Moss_EventType type;     // Moss_EVENT_PEN_DOWN or Moss_EVENT_PEN_UP */
     uint32_t reserved;
-    uint64 timestamp;       // In nanoseconds, populated using Moss_GetTicksNS() */
+    uint64_t timestamp;       // In nanoseconds, populated using Moss_GetTicksNS() */
     Moss_PenID id;        // The pen instance id */
     Moss_PenInputFlags pen_state;   // Complete pen input state at time of event */
     float x;                // X coordinate, relative to window */
@@ -1886,7 +1886,7 @@ MOSS_API bool Moss_EnumerateStorageDirectory(Moss_Storage* storage, const char* 
  * @param length Number of bytes or duration, as indicated by the parameter type.
  * @return `true` if the operation succeeds or the queried condition is met; otherwise, `false`.
  */
-MOSS_API bool Moss_GetStorageFileSize(Moss_Storage* storage, const char *path, uint64* length);
+MOSS_API bool Moss_GetStorageFileSize(Moss_Storage* storage, const char *path, uint64_t* length);
 /**
  * @brief Retrieves the storage space remaining.
  * @param storage Value for `storage`.
@@ -1947,7 +1947,7 @@ MOSS_API Moss_Storage* Moss_OpenUserStorage(const char* org, const char* app, Mo
  * @param length Number of bytes or duration, as indicated by the parameter type.
  * @return `true` if the operation succeeds or the queried condition is met; otherwise, `false`.
  */
-MOSS_API bool Moss_ReadStorageFile(Moss_Storage* storage, const char* path, void* destination, uint64 length);
+MOSS_API bool Moss_ReadStorageFile(Moss_Storage* storage, const char* path, void* destination, uint64_t length);
 /**
  * @brief Performs the remove storage path.
  * @param storage Value for `storage`.
@@ -1977,7 +1977,7 @@ MOSS_API bool Moss_StorageReady(Moss_Storage* storage);
  * @param length Number of bytes or duration, as indicated by the parameter type.
  * @return `true` if the operation succeeds or the queried condition is met; otherwise, `false`.
  */
-MOSS_API bool Moss_WriteStorageFile(Moss_Storage* storage, const char* path, const void* source, uint64 length);
+MOSS_API bool Moss_WriteStorageFile(Moss_Storage* storage, const char* path, const void* source, uint64_t length);
 
 
 // Mobile Android / IOS App Creation

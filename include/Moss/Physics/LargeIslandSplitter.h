@@ -87,7 +87,7 @@ public:
 		inline void			StartFirstBatch()
 		{
 			uint32_t split_index = mNumSplits > 0? 0 : cNonParallelSplitIdx;
-			mStatus.store(uint64(split_index) << StatusSplitShift, memory_order_release);
+			mStatus.store(uint64_t(split_index) << StatusSplitShift, memory_order_release);
 		}
 
 		/// Fetch the next batch to process
@@ -96,7 +96,7 @@ public:
 		/// Mark a batch as processed
 		void				MarkBatchProcessed(uint32_t inNumProcessed, bool &outLastIteration, bool &outFinalBatch);
 
-		enum EIterationStatus : uint64
+		enum EIterationStatus : uint64_t
 		{
 			StatusIterationMask		= 0xffff000000000000,
 			StatusIterationShift	= 48,
@@ -105,17 +105,17 @@ public:
 			StatusItemMask			= 0x00000000ffffffff,
 		};
 
-		static inline int	sGetIteration(uint64 inStatus)
+		static inline int	sGetIteration(uint64_t inStatus)
 		{
 			return int((inStatus & StatusIterationMask) >> StatusIterationShift);
 		}
 
-		static inline uint32_t	sGetSplit(uint64 inStatus)
+		static inline uint32_t	sGetSplit(uint64_t inStatus)
 		{
 			return uint32_t((inStatus & StatusSplitMask) >> StatusSplitShift);
 		}
 
-		static inline uint32_t	sGetItem(uint64 inStatus)
+		static inline uint32_t	sGetItem(uint64_t inStatus)
 		{
 			return uint32_t(inStatus & StatusItemMask);
 		}
@@ -126,7 +126,7 @@ public:
 		int					mNumIterations;										// Number of iterations to do
 		int					mNumVelocitySteps;									// Number of velocity steps to do (cached for 2nd sub step)
 		int					mNumPositionSteps;									// Number of position steps to do
-		atomic<uint64>		mStatus;											// Status of the split, see EIterationStatus
+		atomic<uint64_t>		mStatus;											// Status of the split, see EIterationStatus
 		atomic<uint32_t>		mItemsProcessed;									// Number of items that have been marked as processed
 	};
 

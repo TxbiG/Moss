@@ -86,7 +86,7 @@ struct Wav {
     uint32_t byteRate = 0;
     uint16 blockAlign = 0;
     uint16 bitsPerSample = 0;
-    uint8 dataChunkId[4] = {};
+    uint8_t dataChunkId[4] = {};
     uint32_t dataChunkSize = 0;
 
     // Raw PCM data
@@ -207,8 +207,8 @@ void Moss_EnumerateMicrophone();
 // Populate internal speaker list.
 void Moss_EnumerateSpeakers();
 
-static uint32_t ReadU32LE(const uint8* data) { return data[0] | (data[1] << 8) | (data[2] << 16) | (data[3] << 24); }
-static uint16 ReadU16LE(const uint8* data) { return data[0] | (data[1] << 8); }
+static uint32_t ReadU32LE(const uint8_t* data) { return data[0] | (data[1] << 8) | (data[2] << 16) | (data[3] << 24); }
+static uint16 ReadU16LE(const uint8_t* data) { return data[0] | (data[1] << 8); }
 
 Wav* CreateWav(const char* path) {
     std::ifstream file(path, std::ios::binary | std::ios::ate);
@@ -217,7 +217,7 @@ Wav* CreateWav(const char* path) {
     size_t fileSize = static_cast<size_t>(file.tellg());
     file.seekg(0, std::ios::beg);
 
-    std::vector<uint8> buffer(fileSize);
+    std::vector<uint8_t> buffer(fileSize);
     if (!file.read(reinterpret_cast<char*>(buffer.data()), fileSize)) return nullptr;
 
     size_t pos = 0;

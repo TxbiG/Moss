@@ -184,7 +184,7 @@ public:
 
 private:
 	uint32_t			mNumBroadPhaseLayers;		// The total number of broadphase layers
-	TArray<uint8>	mTable;						// The table of bits that indicates which layers collide
+	TArray<uint8_t>	mTable;						// The table of bits that indicates which layers collide
 };
 
 MOSS_SUPPRESS_WARNINGS_END

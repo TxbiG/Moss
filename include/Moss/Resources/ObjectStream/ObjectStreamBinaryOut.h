@@ -25,11 +25,11 @@ public:
 	virtual void				WriteIdentifier(Identifier inIdentifier) override;
 	virtual void				WriteCount(uint32_t inCount) override;
 
-	virtual void				WritePrimitiveData(const uint8 &inPrimitive) override;
+	virtual void				WritePrimitiveData(const uint8_t &inPrimitive) override;
 	virtual void				WritePrimitiveData(const uint16 &inPrimitive) override;
 	virtual void				WritePrimitiveData(const int &inPrimitive) override;
 	virtual void				WritePrimitiveData(const uint32_t &inPrimitive) override;
-	virtual void				WritePrimitiveData(const uint64 &inPrimitive) override;
+	virtual void				WritePrimitiveData(const uint64_t &inPrimitive) override;
 	virtual void				WritePrimitiveData(const float &inPrimitive) override;
 	virtual void				WritePrimitiveData(const double &inPrimitive) override;
 	virtual void				WritePrimitiveData(const bool &inPrimitive) override;

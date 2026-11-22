@@ -3,11 +3,11 @@
 // SPDX-License-Identifier: MIT
 
 // Note: Order is important, an enum is created and its value is stored in a binary stream!
-MOSS_DECLARE_PRIMITIVE(uint8)
+MOSS_DECLARE_PRIMITIVE(uint8_t)
 MOSS_DECLARE_PRIMITIVE(uint16)
 MOSS_DECLARE_PRIMITIVE(int)
 MOSS_DECLARE_PRIMITIVE(uint32_t)
-MOSS_DECLARE_PRIMITIVE(uint64)
+MOSS_DECLARE_PRIMITIVE(uint64_t)
 MOSS_DECLARE_PRIMITIVE(float)
 MOSS_DECLARE_PRIMITIVE(bool)
 MOSS_DECLARE_PRIMITIVE(String)

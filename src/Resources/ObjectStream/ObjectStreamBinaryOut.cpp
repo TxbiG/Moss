@@ -37,7 +37,7 @@ void ObjectStreamBinaryOut::WriteCount(uint32_t inCount)
 	mStream.write((const char *)&inCount, sizeof(inCount));
 }
 
-void ObjectStreamBinaryOut::WritePrimitiveData(const uint8 &inPrimitive)
+void ObjectStreamBinaryOut::WritePrimitiveData(const uint8_t &inPrimitive)
 {
 	mStream.write((const char *)&inPrimitive, sizeof(inPrimitive));
 }
@@ -57,7 +57,7 @@ void ObjectStreamBinaryOut::WritePrimitiveData(const uint32_t &inPrimitive)
 	mStream.write((const char *)&inPrimitive, sizeof(inPrimitive));
 }
 
-void ObjectStreamBinaryOut::WritePrimitiveData(const uint64 &inPrimitive)
+void ObjectStreamBinaryOut::WritePrimitiveData(const uint64_t &inPrimitive)
 {
 	mStream.write((const char *)&inPrimitive, sizeof(inPrimitive));
 }

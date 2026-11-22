@@ -77,12 +77,12 @@ enum class EOverrideMassProperties : uint8_t {
 	MassAndInertiaProvided				// Tells the system to take the mass and inertia from mMassPropertiesOverride
 };
 
-enum class ECanSleep : uint8  {
+enum class ECanSleep : uint8_t  {
 	CannotSleep = 0,																		//< Object cannot go to sleep
 	CanSleep = 1,																			//< Object can go to sleep
 };
 
-enum class EActivation : uint8 { 
+enum class EActivation : uint8_t { 
 	Activate, 
 	DontActivate 
 };
@@ -190,7 +190,7 @@ public:
 
 
 // Structure that holds a body pair
-struct alignas(uint64) BodyPair {
+struct alignas(uint64_t) BodyPair {
 	MOSS_OVERRIDE_NEW_DELETE
 
 	// Constructor
@@ -198,19 +198,19 @@ struct alignas(uint64) BodyPair {
 	BodyPair(BodyID inA, BodyID inB) : mBodyA(inA), mBodyB(inB) { }
 
 	// Equals operator
-	bool operator == (const BodyPair &inRHS) const 	{ return *reinterpret_cast<const uint64*>(this) == *reinterpret_cast<const uint64*>(&inRHS); }
+	bool operator == (const BodyPair &inRHS) const 	{ return *reinterpret_cast<const uint64_t*>(this) == *reinterpret_cast<const uint64_t*>(&inRHS); }
 
 	// Smaller than operator, used for consistently ordering body pairs
-	bool operator < (const BodyPair &inRHS) const 	{ return *reinterpret_cast<const uint64*>(this) < *reinterpret_cast<const uint64*>(&inRHS); }
+	bool operator < (const BodyPair &inRHS) const 	{ return *reinterpret_cast<const uint64_t*>(this) < *reinterpret_cast<const uint64_t*>(&inRHS); }
 
 	// Get the hash value of this object
-	uint64 GetHash() const							{ return Hash64(*reinterpret_cast<const uint64*>(this)); }
+	uint64_t GetHash() const							{ return Hash64(*reinterpret_cast<const uint64_t*>(this)); }
 
 	BodyID					mBodyA;
 	BodyID					mBodyB;
 };
 
-static_assert(sizeof(BodyPair) == sizeof(uint64), "Mismatch in class size");
+static_assert(sizeof(BodyPair) == sizeof(uint64_t), "Mismatch in class size");
 
 // Class that contains all bodies
 class MOSS_API BodyManager : public NonCopyable {
@@ -702,7 +702,7 @@ public:
 	Vec3					mAngularVelocity = Vec3::Zero();								///< World space angular velocity (rad/s)
 
 	/// User data value (can be used by application)
-	uint64					mUserData = 0;
+	uint64_t					mUserData = 0;
 
 	///@name Collision settings
 	ObjectLayer				mObjectLayer = 0;												///< The collision layer this body belongs to (determines if two objects can collide)
@@ -747,11 +747,11 @@ public:
 
 	// Called whenever a body activates, note this can be called from any thread so make sure your code is thread safe.
 	// At the time of the callback the body inBodyID will be locked and no bodies can be written/activated/deactivated from the callback.
-	virtual void			OnBodyActivated(const BodyID &inBodyID, uint64 inBodyUserData) = 0;
+	virtual void			OnBodyActivated(const BodyID &inBodyID, uint64_t inBodyUserData) = 0;
 
 	// Called whenever a body deactivates, note this can be called from any thread so make sure your code is thread safe.
 	// At the time of the callback the body inBodyID will be locked and no bodies can be written/activated/deactivated from the callback.
-	virtual void			OnBodyDeactivated(const BodyID &inBodyID, uint64 inBodyUserData) = 0;
+	virtual void			OnBodyDeactivated(const BodyID &inBodyID, uint64_t inBodyUserData) = 0;
 };
 
 
@@ -977,8 +977,8 @@ public:
 	TransformedShape			GetTransformedShape(const BodyID &inBodyID) const;
 
 	// Get the user data for a body
-	uint64						GetUserData(const BodyID &inBodyID) const;
-	void						SetUserData(const BodyID &inBodyID, uint64 inUserData) const;
+	uint64_t						GetUserData(const BodyID &inBodyID) const;
+	void						SetUserData(const BodyID &inBodyID, uint64_t inUserData) const;
 
 	// Get the material for a particular sub shape
 	const PhysicsMaterial *		GetMaterial(const BodyID &inBodyID, const SubShapeID &inSubShapeID) const;
@@ -1789,8 +1789,8 @@ public:
 	MotionProperties *		GetMotionPropertiesUnchecked()									{ return mMotionProperties; }
 
 	// Access to the user data, can be used for anything by the application
-	uint64					GetUserData() const												{ return mUserData; }
-	void					SetUserData(uint64 inUserData)									{ mUserData = inUserData; }
+	uint64_t					GetUserData() const												{ return mUserData; }
+	void					SetUserData(uint64_t inUserData)									{ mUserData = inUserData; }
 
 	// Get surface normal of a particular sub shape and its world space surface position on this body
 	inline Vec3				GetWorldSpaceSurfaceNormal(const SubShapeID &inSubShapeID, RVec3Arg inPosition) const;
@@ -1897,7 +1897,7 @@ private:
 	// 8 byte aligned
 	RefConst<Shape>			mShape;															// Shape representing the volume of this body
 	MotionProperties *		mMotionProperties = nullptr;									// If this is a keyframed or dynamic object, this object holds all information about the movement
-	uint64					mUserData = 0;													// User data, can be used for anything by the application
+	uint64_t					mUserData = 0;													// User data, can be used for anything by the application
 	CollisionGroup			mCollisionGroup;												// The collision group this body belongs to (determines if two objects can collide)
 
 	// 4 byte aligned

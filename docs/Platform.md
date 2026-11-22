@@ -274,7 +274,7 @@ MOSS_API bool Moss_CloseStorage(Moss_Storage *storage);
 MOSS_API bool Moss_CopyStorageFile(Moss_Storage *storage, const char *oldpath, const char *newpath);
 MOSS_API bool Moss_CreateStorageDirectory(Moss_Storage *storage, const char *path);
 MOSS_API bool Moss_EnumerateStorageDirectory(Moss_Storage *storage, const char *path, Moss_EnumerateDirectoryCallback callback, void *userdata);
-MOSS_API bool Moss_GetStorageFileSize(Moss_Storage *storage, const char *path, uint64 *length);
+MOSS_API bool Moss_GetStorageFileSize(Moss_Storage *storage, const char *path, uint64_t *length);
 MOSS_API uint64_t Moss_GetStorageSpaceRemaining(Moss_Storage *storage);
 MOSS_API bool Moss_GetStoragePathInfo(Moss_Storage *storage, const char *path, Moss_PathInfo *info);
 MOSS_API char** Moss_GlobStorageDirectory(Moss_Storage *storage, const char *path, const char *pattern, Moss_GlobFlags flags, int *count);
@@ -282,11 +282,11 @@ MOSS_API Moss_Storage* Moss_OpenFileStorage(const char *path);
 MOSS_API Moss_Storage* Moss_OpenStorage(const Moss_Storage *iface, void *userdata);
 MOSS_API Moss_Storage* Moss_OpenTitleStorage(const char *override, Moss_PropertiesID props);
 MOSS_API Moss_Storage* Moss_OpenUserStorage(const char *org, const char *app, Moss_PropertiesID props);
-MOSS_API bool Moss_ReadStorageFile(Moss_Storage *storage, const char *path, void *destination, uint64 length);
+MOSS_API bool Moss_ReadStorageFile(Moss_Storage *storage, const char *path, void *destination, uint64_t length);
 MOSS_API bool Moss_RemoveStoragePath(Moss_Storage *storage, const char *path);
 MOSS_API bool Moss_RenameStoragePath(Moss_Storage *storage, const char *oldpath, const char *newpath);
 MOSS_API bool Moss_StorageReady(Moss_Storage *storage);
-MOSS_API bool Moss_WriteStorageFile(Moss_Storage *storage, const char *path, const void *source, uint64 length);
+MOSS_API bool Moss_WriteStorageFile(Moss_Storage *storage, const char *path, const void *source, uint64_t length);
 ```
 
 ## Examples

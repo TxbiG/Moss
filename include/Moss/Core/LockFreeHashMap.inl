@@ -20,7 +20,7 @@ inline void LFHMAllocator::Init(uint32_t inObjectStoreSizeBytes)
 	MOSS_ASSERT(mObjectStore == nullptr);
 
 	mObjectStoreSizeBytes = inObjectStoreSizeBytes;
-	mObjectStore = reinterpret_cast<uint8 *>(AlignedAllocate(inObjectStoreSizeBytes, 16));
+	mObjectStore = reinterpret_cast<uint8_t *>(AlignedAllocate(inObjectStoreSizeBytes, 16));
 }
 
 inline void LFHMAllocator::Clear()
@@ -61,7 +61,7 @@ inline void LFHMAllocator::Allocate(uint32_t inBlockSize, uint32_t &ioBegin, uin
 template <class T>
 inline uint32_t LFHMAllocator::ToOffset(const T *inData) const
 {
-	const uint8 *data = reinterpret_cast<const uint8 *>(inData);
+	const uint8_t *data = reinterpret_cast<const uint8_t *>(inData);
 	MOSS_ASSERT(data >= mObjectStore && data < mObjectStore + mObjectStoreSizeBytes);
 	return uint32_t(data - mObjectStore);
 }
@@ -168,7 +168,7 @@ void LockFreeHashMap<Key, Value>::SetNumBuckets(uint32_t inNumBuckets)
 
 template <class Key, class Value>
 template <class... Params>
-inline typename LockFreeHashMap<Key, Value>::KeyValue *LockFreeHashMap<Key, Value>::Create(LFHMAllocatorContext &ioContext, const Key &inKey, uint64 inKeyHash, int inExtraBytes, Params &&... inConstructorParams)
+inline typename LockFreeHashMap<Key, Value>::KeyValue *LockFreeHashMap<Key, Value>::Create(LFHMAllocatorContext &ioContext, const Key &inKey, uint64_t inKeyHash, int inExtraBytes, Params &&... inConstructorParams)
 {
 	// This is not a multi map, test the key hasn't been inserted yet
 	MOSS_ASSERT(Find(inKey, inKeyHash) == nullptr);
@@ -211,7 +211,7 @@ inline typename LockFreeHashMap<Key, Value>::KeyValue *LockFreeHashMap<Key, Valu
 }
 
 template <class Key, class Value>
-inline const typename LockFreeHashMap<Key, Value>::KeyValue *LockFreeHashMap<Key, Value>::Find(const Key &inKey, uint64 inKeyHash) const
+inline const typename LockFreeHashMap<Key, Value>::KeyValue *LockFreeHashMap<Key, Value>::Find(const Key &inKey, uint64_t inKeyHash) const
 {
 	// Get the offset to the keyvalue object from the bucket with corresponding hash
 	uint32_t offset = mBuckets[inKeyHash & (mNumBuckets - 1)].load(memory_order_acquire);

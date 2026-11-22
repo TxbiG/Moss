@@ -26,11 +26,11 @@ MOSS_SUPPRESS_WARNINGS_BEGIN
 
 #if defined(MOSS_PLATFORM_WINDOWS_UWP) || (defined(MOSS_PLATFORM_WINDOWS) && defined(MOSS_CPU_ARM))
 
-uint64 GetProcessorTickCount()
+uint64_t GetProcessorTickCount()
 {
 	LARGE_INTEGER count;
 	QueryPerformanceCounter(&count);
-	return uint64(count.QuadPart);
+	return uint64_t(count.QuadPart);
 }
 
 #endif // MOSS_PLATFORM_WINDOWS_UWP || (MOSS_PLATFORM_WINDOWS && MOSS_CPU_ARM)

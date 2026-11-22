@@ -49,13 +49,13 @@ class FPExceptionDisableOverflow : public FPControlWord<_EM_OVERFLOW, _EM_OVERFL
 #elif defined(MOSS_CPU_ARM)
 
 /// Invalid operation exception bit
-static constexpr uint64 FP_IOE = 1 << 8;
+static constexpr uint64_t FP_IOE = 1 << 8;
 
 /// Enable divide by zero exception bit
-static constexpr uint64 FP_DZE = 1 << 9;
+static constexpr uint64_t FP_DZE = 1 << 9;
 
 /// Enable floating point overflow bit
-static constexpr uint64 FP_OFE = 1 << 10;
+static constexpr uint64_t FP_OFE = 1 << 10;
 
 /// Enable floating point divide by zero exception, overflow exceptions and exceptions on invalid numbers
 class FPExceptionsEnable : public FPControlWord<FP_IOE | FP_DZE | FP_OFE, FP_IOE | FP_DZE | FP_OFE> { };

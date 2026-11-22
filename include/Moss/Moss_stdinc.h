@@ -48,7 +48,7 @@
  *   - Enables warning suppression and compiler-specific optimization attributes.
  *
  * - **Type Normalization**
- *   - Defines fixed-size integer and float types (uint8, int16, float32, etc).
+ *   - Defines fixed-size integer and float types (uint8_t, int16, float32, etc).
  *   - Establishes Moss-specific aliases for cross-language consistency.
  *
  * - **Macros & Attributes**
@@ -620,7 +620,7 @@
 	MOSS_MSVC_SUPPRESS_WARNING(4583) /* 'X': destructor is not implicitly called */				\
 	MOSS_MSVC_SUPPRESS_WARNING(4582) /* 'X': constructor is not implicitly called */				\
 	MOSS_MSVC_SUPPRESS_WARNING(5219) /* implicit conversion from 'X' to 'Y', possible loss of data  */ \
-	MOSS_MSVC_SUPPRESS_WARNING(4826) /* Conversion from 'X *' to 'MOSS::uint64' is sign-extended. This may cause unexpected runtime behavior. (32-bit) */ \
+	MOSS_MSVC_SUPPRESS_WARNING(4826) /* Conversion from 'X *' to 'MOSS::uint64_t' is sign-extended. This may cause unexpected runtime behavior. (32-bit) */ \
 	MOSS_MSVC_SUPPRESS_WARNING(5264) /* 'X': 'const' variable is not used */						\
 	MOSS_MSVC_SUPPRESS_WARNING(4251) /* class 'X' needs to have DLL-interface to be used by clients of class 'Y' */ \
 	MOSS_MSVC_SUPPRESS_WARNING(4738) /* storing 32-bit float result in memory, possible loss of performance */ \
@@ -1134,10 +1134,10 @@ using int16 = signed short;
 using int32 = signed int;
 using int64 = signed long long;
 
-using uint8 = unsigned char;
+using uint8_t = unsigned char;
 using uint16 = unsigned short;
 using uint32_t = unsigned int;
-using uint64 = unsigned long long;
+using uint64_t = unsigned long long;
 
 // Signed
 
@@ -1152,14 +1152,14 @@ using uint64 = unsigned long long;
 
 // Unsigned
 
-#define MAX_UINT8   ((uint8)(0xFF))
+#define MAX_UINT8   ((uint8_t)(0xFF))
 #define MAX_UINT16  ((uint16)(0xFFFF))
 #define MAX_UINT32  ((uint32_t)(0xFFFFFFFFu))
-#define MAX_UINT64  ((uint64)(0xFFFFFFFFFFFFFFFF))
-#define MIN_UINT8   ((uint8)0x00)
+#define MAX_UINT64  ((uint64_t)(0xFFFFFFFFFFFFFFFF))
+#define MIN_UINT8   ((uint8_t)0x00)
 #define MIN_UINT16  ((uint16)0x0000)
 #define MIN_UINT32  ((uint32_t)0x00000000)
-#define MIN_UINT64  ((uint64)(0x0000000000000000))
+#define MIN_UINT64  ((uint64_t)(0x0000000000000000))
 
 // Unit conversion constants & macros
 
@@ -1177,10 +1177,10 @@ using uint64 = unsigned long long;
 #define MOSS_US_TO_NS(us)        ((uint64_t)(us) * MOSS_NS_PER_US)
 
 // Assert sizes of types
-static_assert(sizeof(uint8) == 1, "Invalid size of uint8");
+static_assert(sizeof(uint8_t) == 1, "Invalid size of uint8_t");
 static_assert(sizeof(uint16) == 2, "Invalid size of uint16");
 static_assert(sizeof(uint32_t) == 4, "Invalid size of uint32_t");
-static_assert(sizeof(uint64) == 8, "Invalid size of uint64");
+static_assert(sizeof(uint64_t) == 8, "Invalid size of uint64_t");
 static_assert(sizeof(void *) == (MOSS_CPU_ADDRESS_BITS == 64? 8 : 4), "Invalid size of pointer" );
 
 static constexpr float cLargeFloat = 1.0e15f;
@@ -1391,16 +1391,16 @@ constexpr bool IsPowerOf2(T inV) { return (inV & (inV - 1)) == 0; }
 
 // Align inV up to the next inAlignment bytes
 template <typename T>
-inline T AlignUp(T inV, uint64 inAlignment) {
+inline T AlignUp(T inV, uint64_t inAlignment) {
 	MOSS_ASSERT(IsPowerOf2(inAlignment));
-	return T((uint64(inV) + inAlignment - 1) & ~(inAlignment - 1));
+	return T((uint64_t(inV) + inAlignment - 1) & ~(inAlignment - 1));
 }
 
 // Check if inV is inAlignment aligned
 template <typename T>
-inline bool IsAligned(T inV, uint64 inAlignment) {
+inline bool IsAligned(T inV, uint64_t inAlignment) {
 	MOSS_ASSERT(IsPowerOf2(inAlignment));
-	return (uint64(inV) & (inAlignment - 1)) == 0;
+	return (uint64_t(inV) & (inAlignment - 1)) == 0;
 }
 
 // Compute number of trailing zero bits (how many low bits are zero)

@@ -2461,7 +2461,7 @@ private:
 		SwingYZFree				= SwingYFree | SwingZFree
 	};
 
-	uint8						mRotationFlags;
+	uint8_t						mRotationFlags;
 
 	// Constants
 	ESwingType					mSwingType = ESwingType::Cone;
@@ -2940,8 +2940,8 @@ public:
 		mDrawConstraintSize(inSettings.mDrawConstraintSize),
 #endif // MOSS_DEBUG_RENDERER
 		mConstraintPriority(inSettings.mConstraintPriority),
-		mNumVelocityStepsOverride(uint8(inSettings.mNumVelocityStepsOverride)),
-		mNumPositionStepsOverride(uint8(inSettings.mNumPositionStepsOverride)),
+		mNumVelocityStepsOverride(uint8_t(inSettings.mNumVelocityStepsOverride)),
+		mNumPositionStepsOverride(uint8_t(inSettings.mNumPositionStepsOverride)),
 		mEnabled(inSettings.mEnabled),
 		mUserData(inSettings.mUserData)
 	{
@@ -2964,11 +2964,11 @@ public:
 	void						SetConstraintPriority(uint32_t inPriority)	{ mConstraintPriority = inPriority; }
 
 	/// Used only when the constraint is active. Override for the number of solver velocity iterations to run, 0 means use the default in PhysicsSettings::mNumVelocitySteps. The number of iterations to use is the max of all contacts and constraints in the island.
-	void						SetNumVelocityStepsOverride(uint32_t inN)		{ MOSS_ASSERT(inN < 256); mNumVelocityStepsOverride = uint8(inN); }
+	void						SetNumVelocityStepsOverride(uint32_t inN)		{ MOSS_ASSERT(inN < 256); mNumVelocityStepsOverride = uint8_t(inN); }
 	uint32_t						GetNumVelocityStepsOverride() const			{ return mNumVelocityStepsOverride; }
 
 	/// Used only when the constraint is active. Override for the number of solver position iterations to run, 0 means use the default in PhysicsSettings::mNumPositionSteps. The number of iterations to use is the max of all contacts and constraints in the island.
-	void						SetNumPositionStepsOverride(uint32_t inN)		{ MOSS_ASSERT(inN < 256); mNumPositionStepsOverride = uint8(inN); }
+	void						SetNumPositionStepsOverride(uint32_t inN)		{ MOSS_ASSERT(inN < 256); mNumPositionStepsOverride = uint8_t(inN); }
 	uint32_t						GetNumPositionStepsOverride() const			{ return mNumPositionStepsOverride; }
 
 	/// Enable / disable this constraint. This can e.g. be used to implement a breakable constraint by detecting that the constraint impulse
@@ -2981,8 +2981,8 @@ public:
 	bool						GetEnabled() const							{ return mEnabled; }
 
 	/// Access to the user data, can be used for anything by the application
-	uint64						GetUserData() const							{ return mUserData; }
-	void						SetUserData(uint64 inUserData)				{ mUserData = inUserData; }
+	uint64_t						GetUserData() const							{ return mUserData; }
+	void						SetUserData(uint64_t inUserData)				{ mUserData = inUserData; }
 
 	/// Notify the constraint that the shape of a body has changed and that its center of mass has moved by inDeltaCOM.
 	/// Bodies don't know which constraints are connected to them so the user is responsible for notifying the relevant constraints when a body changes.
@@ -3053,16 +3053,16 @@ private:
 	uint32_t						mConstraintPriority = 0;
 
 	/// Used only when the constraint is active. Override for the number of solver velocity iterations to run, 0 means use the default in PhysicsSettings::mNumVelocitySteps. The number of iterations to use is the max of all contacts and constraints in the island.
-	uint8						mNumVelocityStepsOverride = 0;
+	uint8_t						mNumVelocityStepsOverride = 0;
 
 	/// Used only when the constraint is active. Override for the number of solver position iterations to run, 0 means use the default in PhysicsSettings::mNumPositionSteps. The number of iterations to use is the max of all contacts and constraints in the island.
-	uint8						mNumPositionStepsOverride = 0;
+	uint8_t						mNumPositionStepsOverride = 0;
 
 	/// If this constraint is currently enabled
 	bool						mEnabled = true;
 
 	/// User data value (can be used by application)
-	uint64						mUserData;
+	uint64_t						mUserData;
 };
 
 class MOSS_API TwoBodyConstraintSettings : public ConstraintSettings {
@@ -4273,11 +4273,11 @@ private:
 	Quat						mConstraintToBody2;
 
 	// Limits
-	uint8						mFreeAxis = 0;												// Bitmask of free axis (bit 0 = TranslationX)
-	uint8						mFixedAxis = 0;												// Bitmask of fixed axis (bit 0 = TranslationX)
+	uint8_t						mFreeAxis = 0;												// Bitmask of free axis (bit 0 = TranslationX)
+	uint8_t						mFixedAxis = 0;												// Bitmask of fixed axis (bit 0 = TranslationX)
 	bool						mTranslationMotorActive = false;							// If any of the translational frictions / motors are active
 	bool						mRotationMotorActive = false;								// If any of the rotational frictions / motors are active
-	uint8						mRotationPositionMotorActive = 0;							// Bitmask of axis that have position motor active (bit 0 = RotationX)
+	uint8_t						mRotationPositionMotorActive = 0;							// Bitmask of axis that have position motor active (bit 0 = RotationX)
 	bool						mHasSpringLimits = false;									// If any of the limit springs have a non-zero frequency/stiffness
 	float						mLimitMin[EAxis::Num];
 	float						mLimitMax[EAxis::Num];

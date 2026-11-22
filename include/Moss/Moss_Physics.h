@@ -275,20 +275,20 @@ enum class EGroundState {
 	NotSupported = 2, 
 	InAir = 3, 
 };
-enum class ETransmissionMode : uint8 { 
+enum class ETransmissionMode : uint8_t { 
 	Auto, 
 	Manual 
 };
 
-enum class EConstraintType : uint8 { 
+enum class EConstraintType : uint8_t { 
 	Constraint, 
 	TwoBodyConstraint 
 };
-enum class EConstraintSpace : uint8 { 
+enum class EConstraintSpace : uint8_t { 
 	LocalToBodyCOM, 
 	WorldSpace 
 };
-enum class EMotionQuality : uint8 { 
+enum class EMotionQuality : uint8_t { 
 	Discrete, 
 	LinearCast 
 };
@@ -298,12 +298,12 @@ enum class EOverrideMassProperties {
 	MassAndInertiaProvided 
 };
 
-enum class EMotorState : uint8 { 
+enum class EMotorState : uint8_t { 
 	Off, 
 	Velocity, 
 	Position 
 };
-enum class ESwingType : uint8 { 
+enum class ESwingType : uint8_t { 
 	Cone, 
 	Pyramid 
 };
@@ -321,7 +321,7 @@ enum class ECollisionCollectorType {
 	AnyHit = 3 
 };
 
-enum class ETrackSide : uint8 { 
+enum class ETrackSide : uint8_t { 
 	Left, 
 	Right, 
 	Num 
@@ -341,7 +341,7 @@ enum class ESixDOFConstraintAxis {
 	Force32 = 0x7FFFFFFF
 };
 
-enum class ESpringMode : uint8 { 
+enum class ESpringMode : uint8_t { 
 	FrequencyAndDamping, 
 	StiffnessAndDamping 
 };

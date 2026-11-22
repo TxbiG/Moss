@@ -135,7 +135,7 @@ public:
 	inline T *				GetPtr() const									{ return mPtr; }
 
 	/// Get hash for this object
-	uint64					GetHash() const
+	uint64_t					GetHash() const
 	{
 		return Hash<T *> { } (mPtr);
 	}
@@ -197,7 +197,7 @@ public:
 	inline const T *		GetPtr() const									{ return mPtr; }
 
 	/// Get hash for this object
-	uint64					GetHash() const
+	uint64_t					GetHash() const
 	{
 		return Hash<const T *> { } (mPtr);
 	}

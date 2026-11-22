@@ -251,10 +251,10 @@ public:
 
 #ifdef MOSS_TRACK_BROADPHASE_STATS
 	/// Sum up all the ticks spent in the various layers
-	uint64						GetTicks100Pct() const;
+	uint64_t						GetTicks100Pct() const;
 
 	/// Trace the stats of this tree to the TTY
-	void						ReportStats(uint64 inTicks100Pct) const;
+	void						ReportStats(uint64_t inTicks100Pct) const;
 #endif // MOSS_TRACK_BROADPHASE_STATS
 
 private:
@@ -347,21 +347,21 @@ private:
 
 	struct Stat
 	{
-		uint64					mNumQueries = 0;
-		uint64					mNodesVisited = 0;
-		uint64					mBodiesVisited = 0;
-		uint64					mHitsReported = 0;
-		uint64					mTotalTicks = 0;
-		uint64					mCollectorTicks = 0;
+		uint64_t					mNumQueries = 0;
+		uint64_t					mNodesVisited = 0;
+		uint64_t					mBodiesVisited = 0;
+		uint64_t					mHitsReported = 0;
+		uint64_t					mTotalTicks = 0;
+		uint64_t					mCollectorTicks = 0;
 	};
 
 	using LayerToStats = TMap<String, Stat>;
 
 	/// Sum up all the ticks in a layer
-	uint64						GetTicks100Pct(const LayerToStats &inLayer) const;
+	uint64_t						GetTicks100Pct(const LayerToStats &inLayer) const;
 
 	/// Trace the stats of a single query type to the TTY
-	void						ReportStats(const char *inName, const LayerToStats &inLayer, uint64 inTicks100Pct) const;
+	void						ReportStats(const char *inName, const LayerToStats &inLayer, uint64_t inTicks100Pct) const;
 
 	mutable LayerToStats		mCastRayStats;
 	mutable LayerToStats		mCollideAABoxStats;

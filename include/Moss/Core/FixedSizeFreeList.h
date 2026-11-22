@@ -66,7 +66,7 @@ private:
 	atomic<uint32_t>			mAllocationTag;
 
 	/// Index of first free object, the first 32 bits of an object are used to point to the next free object
-	atomic<uint64>			mFirstFreeObjectAndTag;
+	atomic<uint64_t>			mFirstFreeObjectAndTag;
 
 	/// The first free object to use when the free list is empty (may need to allocate a new page)
 	atomic<uint32_t>			mFirstFreeObjectInNewPage;

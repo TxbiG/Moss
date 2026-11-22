@@ -38,7 +38,7 @@ static unsigned int _parseHex ( const char** pchCursor ){
     return nVal;
 }
 
-static int ParseIPv4OrIPv6 ( const char** ppszText, uint8* abyAddr, uint16* pnPort, int* pbIsIPv6 )
+static int ParseIPv4OrIPv6 ( const char** ppszText, uint8_t* abyAddr, uint16* pnPort, int* pbIsIPv6 )
 {
     unsigned char* abyAddrLocal;
     unsigned char abyDummyAddr[16];
@@ -272,7 +272,7 @@ int enet_address_equal_host(const ENetAddress * firstAddress, const ENetAddress 
 {
     if (firstAddress->type != secondAddress->type) return 0;
     if (firstAddress->port != secondAddress->port) return 0;
-    if (firstAddress->type == ENetAddressType::IPV4) { if (memcmp(&firstAddress->host.v4[0], &secondAddress->host.v4[0], 4*sizeof(uint8)) != 0) { return 0; } }
+    if (firstAddress->type == ENetAddressType::IPV4) { if (memcmp(&firstAddress->host.v4[0], &secondAddress->host.v4[0], 4*sizeof(uint8_t)) != 0) { return 0; } }
     else if (firstAddress->type == ENetAddressType::IPV6) { if (memcmp(&firstAddress->host.v6[0], &secondAddress->host.v6[0], 8 * sizeof(uint16)) != 0) { return 0; } }
     return 1;
 }
@@ -298,7 +298,7 @@ int enet_address_is_any(const ENetAddress * address) {
     switch (address->type)
     {
         case ENetAddressType::IPV4: 
-            { uint8 zero[4] = { 0 }; return memcmp(&address->host.v4[0], zero, 4 * sizeof(uint8)) != 0; }
+            { uint8_t zero[4] = { 0 }; return memcmp(&address->host.v4[0], zero, 4 * sizeof(uint8_t)) != 0; }
         case ENetAddressType::IPV6: 
             { uint16 zero[8] = { 0 }; return memcmp(&address->host.v6[0], zero, 8 * sizeof(uint16)) != 0; }
         default:
@@ -417,7 +417,7 @@ int enet_address_get_host_ip(const ENetAddress * address, char * name, size_t na
 
 
 int enet_address_set_host_ip(ENetAddress * address, const char * name) {
-    uint8 result[16];
+    uint8_t result[16];
     int isIPv6;
     uint16 port;
 
@@ -469,7 +469,7 @@ void enet_address_build_loopback(ENetAddress * address, ENetAddressType type) {
 
     switch (type) {
         case ENetAddressType::IPV4: {
-            uint8 loopbackIpV4[4] = { 127, 0, 0, 1 };
+            uint8_t loopbackIpV4[4] = { 127, 0, 0, 1 };
 
             memcpy(&address->host.v4, loopbackIpV4, sizeof(address->host.v4));
             address->port = ENET_PORT_ANY;
@@ -491,13 +491,13 @@ void enet_address_build_loopback(ENetAddress * address, ENetAddressType type) {
 
 void enet_address_convert_ipv6(ENetAddress * address)
 {
-    uint8 ipv4[4];
+    uint8_t ipv4[4];
 
     if (address->type == ENetAddressType::IPV4)
     {
         /* Turn into IPv4-mapped IPv6 */
         address->type = ENetAddressType::IPV6;
-        memcpy(&ipv4[0], &address->host.v4[0], 4 * sizeof(uint8)); /* save IPv4 before modifying the IPv6 because of the union */
+        memcpy(&ipv4[0], &address->host.v4[0], 4 * sizeof(uint8_t)); /* save IPv4 before modifying the IPv6 because of the union */
 
         address->host.v6[0] = 0;
         address->host.v6[1] = 0;

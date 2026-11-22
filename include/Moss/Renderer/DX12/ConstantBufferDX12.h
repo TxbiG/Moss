@@ -11,7 +11,7 @@ class ConstantBufferDX12
 {
 public:
 	/// Constructor
-										ConstantBufferDX12(RendererDX12 *inRenderer, uint64 inBufferSize);
+										ConstantBufferDX12(RendererDX12 *inRenderer, uint64_t inBufferSize);
 										~ConstantBufferDX12();
 
 	/// Map / unmap buffer (get pointer to data). This will discard all data in the buffer.
@@ -28,5 +28,5 @@ private:
 
 	RendererDX12 *						mRenderer;
 	ComPtr<ID3D12Resource>				mBuffer;
-	uint64								mBufferSize;
+	uint64_t								mBufferSize;
 };

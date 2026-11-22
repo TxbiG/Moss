@@ -673,10 +673,10 @@ public:
 	}
 
 	/// Get hash for this TArray
-	uint64					GetHash() const
+	uint64_t					GetHash() const
 	{
 		// Hash length first
-		uint64 ret = Hash<uint32_t> { } (uint32_t(size()));
+		uint64_t ret = Hash<uint32_t> { } (uint32_t(size()));
 
 		// Then hash elements
 		for (const T *element = mElements, *element_end = mElements + mSize; element < element_end; ++element)

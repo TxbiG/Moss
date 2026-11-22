@@ -35,10 +35,10 @@ public:
 	struct BodyPairQueue
 	{
 		atomic<uint32_t>		mWriteIdx { 0 };										// Next index to write in mBodyPair array (need to add thread index * mMaxBodyPairsPerQueue and modulo mMaxBodyPairsPerQueue)
-		uint8				mPadding1[MOSS_CACHE_LINE_SIZE - sizeof(atomic<uint32_t>)];// Moved to own cache line to avoid conflicts with consumer jobs
+		uint8_t				mPadding1[MOSS_CACHE_LINE_SIZE - sizeof(atomic<uint32_t>)];// Moved to own cache line to avoid conflicts with consumer jobs
 
 		atomic<uint32_t>		mReadIdx { 0 };											// Next index to read in mBodyPair array (need to add thread index * mMaxBodyPairsPerQueue and modulo mMaxBodyPairsPerQueue)
-		uint8				mPadding2[MOSS_CACHE_LINE_SIZE - sizeof(atomic<uint32_t>)];// Moved to own cache line to avoid conflicts with producer/consumer jobs
+		uint8_t				mPadding2[MOSS_CACHE_LINE_SIZE - sizeof(atomic<uint32_t>)];// Moved to own cache line to avoid conflicts with producer/consumer jobs
 	};
 
 	using BodyPairQueues = TStaticArray<BodyPairQueue, cMaxConcurrency>;
@@ -62,22 +62,22 @@ public:
 		uint32_t				mNumActiveBodiesAtStepStart;							// Number of bodies that were active at the start of the physics update step. Only these bodies will receive gravity (they are the first N in the active body list).
 
 		atomic<uint32_t>		mDetermineActiveConstraintReadIdx { 0 };				// Next constraint for determine active constraints
-		uint8				mPadding1[MOSS_CACHE_LINE_SIZE - sizeof(atomic<uint32_t>)];// Padding to avoid sharing cache line with the next atomic
+		uint8_t				mPadding1[MOSS_CACHE_LINE_SIZE - sizeof(atomic<uint32_t>)];// Padding to avoid sharing cache line with the next atomic
 
 		atomic<uint32_t>		mNumActiveConstraints { 0 };							// Number of constraints in the mActiveConstraints array
-		uint8				mPadding2[MOSS_CACHE_LINE_SIZE - sizeof(atomic<uint32_t>)];// Padding to avoid sharing cache line with the next atomic
+		uint8_t				mPadding2[MOSS_CACHE_LINE_SIZE - sizeof(atomic<uint32_t>)];// Padding to avoid sharing cache line with the next atomic
 
 		atomic<uint32_t>		mSetupVelocityConstraintsReadIdx { 0 };					// Next constraint for setting up velocity constraints
-		uint8				mPadding3[MOSS_CACHE_LINE_SIZE - sizeof(atomic<uint32_t>)];// Padding to avoid sharing cache line with the next atomic
+		uint8_t				mPadding3[MOSS_CACHE_LINE_SIZE - sizeof(atomic<uint32_t>)];// Padding to avoid sharing cache line with the next atomic
 
 		atomic<uint32_t>		mStepListenerReadIdx { 0 };								// Next step listener to call
-		uint8				mPadding4[MOSS_CACHE_LINE_SIZE - sizeof(atomic<uint32_t>)];// Padding to avoid sharing cache line with the next atomic
+		uint8_t				mPadding4[MOSS_CACHE_LINE_SIZE - sizeof(atomic<uint32_t>)];// Padding to avoid sharing cache line with the next atomic
 
 		atomic<uint32_t>		mApplyGravityReadIdx { 0 };								// Next body to apply gravity to
-		uint8				mPadding5[MOSS_CACHE_LINE_SIZE - sizeof(atomic<uint32_t>)];// Padding to avoid sharing cache line with the next atomic
+		uint8_t				mPadding5[MOSS_CACHE_LINE_SIZE - sizeof(atomic<uint32_t>)];// Padding to avoid sharing cache line with the next atomic
 
 		atomic<uint32_t>		mActiveBodyReadIdx { 0 };								// Index of fist active body that has not yet been processed by the broadphase
-		uint8				mPadding6[MOSS_CACHE_LINE_SIZE - sizeof(atomic<uint32_t>)];// Padding to avoid sharing cache line with the next atomic
+		uint8_t				mPadding6[MOSS_CACHE_LINE_SIZE - sizeof(atomic<uint32_t>)];// Padding to avoid sharing cache line with the next atomic
 
 		BodyPairQueues		mBodyPairQueues;										// Queues in which to put body pairs that need to be tested by the narrowphase
 

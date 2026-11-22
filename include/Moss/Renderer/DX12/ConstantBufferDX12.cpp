@@ -8,7 +8,7 @@
 #include <Renderer/DX12/RendererDX12.h>
 #include <Renderer/DX12/FatalErrorIfFailedDX12.h>
 
-ConstantBufferDX12::ConstantBufferDX12(RendererDX12 *inRenderer, uint64 inBufferSize) :
+ConstantBufferDX12::ConstantBufferDX12(RendererDX12 *inRenderer, uint64_t inBufferSize) :
 	mRenderer(inRenderer)
 {
 	mBuffer = mRenderer->CreateD3DResourceOnUploadHeap(inBufferSize);

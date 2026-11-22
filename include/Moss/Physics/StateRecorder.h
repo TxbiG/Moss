@@ -17,7 +17,7 @@ MOSS_SUPPRESS_WARNING_PUSH
 MOSS_GCC_SUPPRESS_WARNING("-Wshadow") // GCC complains about the 'Constraints' value conflicting with the 'Constraints' typedef
 
 /// A bit field that determines which aspects of the simulation to save
-enum class EStateRecorderState : uint8 {
+enum class EStateRecorderState : uint8_t {
 	None				= 0,											// Save nothing
 	Global				= 1,											// save global physics system state (delta time, gravity, etc.)
 	Bodies				= 2,											// Save the state of bodies
@@ -31,25 +31,25 @@ MOSS_SUPPRESS_WARNING_POP
 /// Bitwise OR operator for EStateRecorderState
 constexpr EStateRecorderState operator | (EStateRecorderState inLHS, EStateRecorderState inRHS)
 {
-	return EStateRecorderState(uint8(inLHS) | uint8(inRHS));
+	return EStateRecorderState(uint8_t(inLHS) | uint8_t(inRHS));
 }
 
 /// Bitwise AND operator for EStateRecorderState
 constexpr EStateRecorderState operator & (EStateRecorderState inLHS, EStateRecorderState inRHS)
 {
-	return EStateRecorderState(uint8(inLHS) & uint8(inRHS));
+	return EStateRecorderState(uint8_t(inLHS) & uint8_t(inRHS));
 }
 
 /// Bitwise XOR operator for EStateRecorderState
 constexpr EStateRecorderState operator ^ (EStateRecorderState inLHS, EStateRecorderState inRHS)
 {
-	return EStateRecorderState(uint8(inLHS) ^ uint8(inRHS));
+	return EStateRecorderState(uint8_t(inLHS) ^ uint8_t(inRHS));
 }
 
 /// Bitwise NOT operator for EStateRecorderState
 constexpr EStateRecorderState operator ~ (EStateRecorderState inAllowedDOFs)
 {
-	return EStateRecorderState(~uint8(inAllowedDOFs));
+	return EStateRecorderState(~uint8_t(inAllowedDOFs));
 }
 
 /// Bitwise OR assignment operator for EStateRecorderState

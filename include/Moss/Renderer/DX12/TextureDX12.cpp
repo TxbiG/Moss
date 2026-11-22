@@ -77,7 +77,7 @@ TextureDX12::TextureDX12(RendererDX12 *inRenderer, const Surface *inSurface) :
 
 	// Copy data to upload texture
 	surface->Lock(ESurfaceLockMode::Read);
-	uint8 *upload_data;
+	uint8_t *upload_data;
 	D3D12_RANGE range = { 0, 0 }; // We're not going to read
 	FatalErrorIfFailed(upload_resource->Map(0, &range, (void **)&upload_data));
 	for (int y = 0; y < mHeight; ++y)

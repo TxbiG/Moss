@@ -144,7 +144,7 @@ static const ENetSymbol emptyContext = { 0, 0, 0, 0, 0, 0, 0, 0, 0 };
             if (node -> value < value_) under -= parentCount; total -= parentCount;         \
         }})
 
-typedef struct _ENetExclude { uint8 value; uint16 under; } ENetExclude;
+typedef struct _ENetExclude { uint8_t value; uint16 under; } ENetExclude;
 
 #define ENET_CONTEXT_DECODE_EXCLUDE(context, total, minimum) {              \
     uint16 under = 0;                                                       \
@@ -265,7 +265,7 @@ ENET_CONTEXT_DECODE(context, symbol_, code, value_, under_, count_, update, mini
     })                                                                                                                                                                                              \
 
 typedef struct _ENetSymbol {
-    uint8 value; uint8 count; uint16 under; uint16 left, right; /* binary indexed tree of symbols */
+    uint8_t value; uint8_t count; uint16 under; uint16 left, right; /* binary indexed tree of symbols */
     uint16 symbols; uint16 escapes; uint16 total; uint16 parent;/* context defined by this symbol */
 } ENetSymbol;
 
@@ -322,10 +322,10 @@ static uint16 enet_symbol_rescale (ENetSymbol * symbol)
     return total;
 }
 
-size_t enet_range_coder_compress (void * context, const ENetBuffer * inBuffers, size_t inBufferCount, size_t inLimit, uint8 * outData, size_t outLimit) {
+size_t enet_range_coder_compress (void * context, const ENetBuffer * inBuffers, size_t inBufferCount, size_t inLimit, uint8_t * outData, size_t outLimit) {
     ENetRangeCoder * rangeCoder = (ENetRangeCoder *) context;
-    uint8* outStart = outData, * outEnd = & outData [outLimit];
-    const uint8 * inData, * inEnd;
+    uint8_t* outStart = outData, * outEnd = & outData [outLimit];
+    const uint8_t * inData, * inEnd;
     uint32_t encodeLow = 0, encodeRange = ~0;
     ENetSymbol * root;
     uint16 predicted = 0;
@@ -334,7 +334,7 @@ size_t enet_range_coder_compress (void * context, const ENetBuffer * inBuffers, 
     if (rangeCoder == NULL || inBufferCount <= 0 || inLimit <= 0)
       return 0;
 
-    inData = (const uint8 *) inBuffers -> data;
+    inData = (const uint8_t *) inBuffers -> data;
     inEnd = & inData [inBuffers -> dataLength];
     inBuffers ++;
     inBufferCount --;
@@ -347,13 +347,13 @@ size_t enet_range_coder_compress (void * context, const ENetBuffer * inBuffers, 
 #ifdef ENET_CONTEXT_EXCLUSION
         const ENetSymbol * childContext = & emptyContext;
 #endif
-        uint8 value;
+        uint8_t value;
         uint16 count, under, * parent = & predicted, total;
         if (inData >= inEnd)
         {
             if (inBufferCount <= 0)
               break;
-            inData = (const uint8 *) inBuffers -> data;
+            inData = (const uint8_t *) inBuffers -> data;
             inEnd = & inData [inBuffers -> dataLength];
             inBuffers ++;
             inBufferCount --;
@@ -420,10 +420,10 @@ size_t enet_range_coder_compress (void * context, const ENetBuffer * inBuffers, 
 
 #define ENET_CONTEXT_NOT_EXCLUDED(value_, after, before)
 
-size_t enet_range_coder_decompress (void* context, const uint8* inData, size_t inLimit, uint8* outData, size_t outLimit) {
+size_t enet_range_coder_decompress (void* context, const uint8_t* inData, size_t inLimit, uint8_t* outData, size_t outLimit) {
     ENetRangeCoder * rangeCoder = (ENetRangeCoder*) context;
-    uint8* outStart = outData, * outEnd = &outData [outLimit];
-    const uint8* inEnd = & inData [inLimit];
+    uint8_t* outStart = outData, * outEnd = &outData [outLimit];
+    const uint8_t* inEnd = & inData [inLimit];
     uint32_t decodeLow = 0, decodeCode = 0, decodeRange = ~0;
     ENetSymbol* root;
     uint16 predicted = 0;
@@ -446,7 +446,7 @@ size_t enet_range_coder_decompress (void* context, const uint8* inData, size_t i
 #ifdef ENET_CONTEXT_EXCLUSION
         const ENetSymbol * childContext = & emptyContext;
 #endif
-        uint8 value = 0;
+        uint8_t value = 0;
         uint16 code, under, count, bottom, * parent = & predicted, total;
 
         for (subcontext = & rangeCoder -> symbols [predicted];

@@ -48,11 +48,11 @@ public:
 	virtual bool				ReadCount(uint32_t &outCount) = 0;
 
 	///@name Read primitives
-	virtual bool				ReadPrimitiveData(uint8 &outPrimitive) = 0;
+	virtual bool				ReadPrimitiveData(uint8_t &outPrimitive) = 0;
 	virtual bool				ReadPrimitiveData(uint16 &outPrimitive) = 0;
 	virtual bool				ReadPrimitiveData(int &outPrimitive) = 0;
 	virtual bool				ReadPrimitiveData(uint32_t &outPrimitive) = 0;
-	virtual bool				ReadPrimitiveData(uint64 &outPrimitive) = 0;
+	virtual bool				ReadPrimitiveData(uint64_t_t &outPrimitive) = 0;
 	virtual bool				ReadPrimitiveData(float &outPrimitive) = 0;
 	virtual bool				ReadPrimitiveData(double &outPrimitive) = 0;
 	virtual bool				ReadPrimitiveData(bool &outPrimitive) = 0;
@@ -84,11 +84,11 @@ public:
 	virtual void				WriteCount(uint32_t inCount) = 0;
 
 	///@name Write primitives
-	virtual void				WritePrimitiveData(const uint8 &inPrimitive) = 0;
+	virtual void				WritePrimitiveData(const uint8_t &inPrimitive) = 0;
 	virtual void				WritePrimitiveData(const uint16 &inPrimitive) = 0;
 	virtual void				WritePrimitiveData(const int &inPrimitive) = 0;
 	virtual void				WritePrimitiveData(const uint32_t &inPrimitive) = 0;
-	virtual void				WritePrimitiveData(const uint64 &inPrimitive) = 0;
+	virtual void				WritePrimitiveData(const uint64_t_t &inPrimitive) = 0;
 	virtual void				WritePrimitiveData(const float &inPrimitive) = 0;
 	virtual void				WritePrimitiveData(const double &inPrimitive) = 0;
 	virtual void				WritePrimitiveData(const bool &inPrimitive) = 0;

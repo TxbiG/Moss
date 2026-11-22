@@ -823,7 +823,7 @@ public:
 	Quat				mRotation { Quat::Identity() };	// Initial rotation of the soft body
 
 	// User data value (can be used by application)
-	uint64				mUserData = 0;
+	uint64_t				mUserData = 0;
 
 	//@name Collision settings
 	ObjectLayer			mObjectLayer = 0;					// The collision layer this body belongs to (determines if two objects can collide)
@@ -901,7 +901,7 @@ public:
 	Vec3					mAngularVelocity = Vec3::Zero();								// World space angular velocity (rad/s)
 
 	// User data value (can be used by application)
-	uint64					mUserData = 0;
+	uint64_t					mUserData = 0;
 
 	//@name Collision settings
 	ObjectLayer				mObjectLayer = 0;												// The collision layer this body belongs to (determines if two objects can collide)
@@ -949,7 +949,7 @@ public:
 									SoftBodyShape()											: Shape(EShapeType::SoftBody, EShapeSubType::SoftBody) { }
 
 	/// Determine amount of bits needed to encode sub shape id
-	uint							GetSubShapeIDBits() const;
+	uint32_t							GetSubShapeIDBits() const;
 
 	/// Convert a sub shape ID back to a face index
 	uint32_t							GetFaceIndex(const SubShapeID &inSubShapeID) const;
@@ -958,7 +958,7 @@ public:
 	virtual bool					MustBeStatic() const override							{ return false; }
 	virtual Vec3					GetCenterOfMass() const override						{ return Vec3::Zero(); }
 	virtual AABox					GetLocalBounds() const override;
-	virtual uint					GetSubShapeIDBitsRecursive() const override				{ return GetSubShapeIDBits(); }
+	virtual uint32_t					GetSubShapeIDBitsRecursive() const override				{ return GetSubShapeIDBits(); }
 	virtual float					GetInnerRadius() const override							{ return 0.0f; }
 	virtual MassProperties			GetMassProperties() const override						{ return MassProperties(); }
 	virtual const PhysicsMaterial *	GetMaterial(const SubShapeID &inSubShapeID) const override;
@@ -975,7 +975,7 @@ public:
 	virtual bool					CastRay(const RayCast &inRay, const SubShapeIDCreator &inSubShapeIDCreator, RayCastResult &ioHit) const override;
 	virtual void					CastRay(const RayCast &inRay, const RayCastSettings &inRayCastSettings, const SubShapeIDCreator &inSubShapeIDCreator, CastRayCollector &ioCollector, const ShapeFilter &inShapeFilter = { }) const override;
 	virtual void					CollidePoint(Vec3Arg inPoint, const SubShapeIDCreator &inSubShapeIDCreator, CollidePointCollector &ioCollector, const ShapeFilter &inShapeFilter = { }) const override;
-	virtual void					CollideSoftBodyVertices(Mat44Arg inCenterOfMassTransform, Vec3Arg inScale, const CollideSoftBodyVertexIterator &inVertices, uint inNumVertices, int inCollidingShapeIndex) const override;
+	virtual void					CollideSoftBodyVertices(Mat44Arg inCenterOfMassTransform, Vec3Arg inScale, const CollideSoftBodyVertexIterator &inVertices, uint32_t inNumVertices, int inCollidingShapeIndex) const override;
 	virtual void					GetTrianglesStart(GetTrianglesContext &ioContext, const AABox &inBox, Vec3Arg inPositionCOM, QuatArg inRotation, Vec3Arg inScale) const override;
 	virtual int						GetTrianglesNext(GetTrianglesContext &ioContext, int inMaxTrianglesRequested, Float3 *outTriangleVertices, const PhysicsMaterial **outMaterials = nullptr) const override;
 	virtual Stats					GetStats() const override;

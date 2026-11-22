@@ -145,7 +145,7 @@ MOSS_API void          EndGridContainer();
 // Rects
 // Rects
 /*! @brief X.*/
-//MOSS_API void          TextureRect(uint64 user_texture_id, const Float2& Moss_age_size, const Float2& uv0 = Float2(0, 0), const Float2& uv1 = Float2(1, 1));
+//MOSS_API void          TextureRect(uint64_t user_texture_id, const Float2& Moss_age_size, const Float2& uv0 = Float2(0, 0), const Float2& uv1 = Float2(1, 1));
 /*! @brief X.*/
 MOSS_API void          ColorRect(Color color, const Float2& size);
 

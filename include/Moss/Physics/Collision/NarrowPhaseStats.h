@@ -27,16 +27,16 @@ MOSS_SUPPRESS_WARNINGS_BEGIN
 class NarrowPhaseStat {
 public:
 	/// Trace an individual stat in CSV form.
-	void ReportStats(const char *inName, EShapeSubType inType1, EShapeSubType inType2, uint64 inTicks100Pct) const;
+	void ReportStats(const char *inName, EShapeSubType inType1, EShapeSubType inType2, uint64_t inTicks100Pct) const;
 
 	/// Trace the collected broadphase stats in CSV form.
 	/// This report can be used to judge and tweak the efficiency of the broadphase.
 	static void sReportStats();
 
-	atomic<uint64>			mNumQueries = 0;
-	atomic<uint64>			mHitsReported = 0;
-	atomic<uint64>			mTotalTicks = 0;
-	atomic<uint64>			mChildTicks = 0;
+	atomic<uint64_t>			mNumQueries = 0;
+	atomic<uint64_t>			mHitsReported = 0;
+	atomic<uint64_t>			mTotalTicks = 0;
+	atomic<uint64_t>			mChildTicks = 0;
 
 	static NarrowPhaseStat	sCollideShape[NumSubShapeTypes][NumSubShapeTypes];
 	static NarrowPhaseStat	sCastShape[NumSubShapeTypes][NumSubShapeTypes];
@@ -52,7 +52,7 @@ public:
 	}
 
 	~TrackNarrowPhaseStat() {
-		uint64 delta_ticks = GetProcessorTickCount() - mStart;
+		uint64_t delta_ticks = GetProcessorTickCount() - mStart;
 
 		// Notify parent of time spent in child
 		if (mParent != nullptr)
@@ -69,7 +69,7 @@ public:
 
 	NarrowPhaseStat &		mStat;
 	TrackNarrowPhaseStat *	mParent;
-	uint64					mStart;
+	uint64_t					mStart;
 
 	static thread_local TrackNarrowPhaseStat *sRoot;
 };
@@ -81,7 +81,7 @@ public:
 
 	~TrackNarrowPhaseCollector() {
 		// Mark time spent in collector as 'child' time for the parent
-		uint64 delta_ticks = GetProcessorTickCount() - mStart;
+		uint64_t delta_ticks = GetProcessorTickCount() - mStart;
 		if (TrackNarrowPhaseStat::Root != nullptr)
 			TrackNarrowPhaseStat::Root->mStat.mChildTicks += delta_ticks;
 
@@ -91,7 +91,7 @@ public:
 	}
 
 private:
-	uint64					mStart;
+	uint64_t					mStart;
 };
 
 MOSS_SUPPRESS_WARNINGS_END

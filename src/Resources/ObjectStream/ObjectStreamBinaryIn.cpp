@@ -45,9 +45,9 @@ bool ObjectStreamBinaryIn::ReadCount(uint32_t &outCount)
 	return true;
 }
 
-bool ObjectStreamBinaryIn::ReadPrimitiveData(uint8 &outPrimitive)
+bool ObjectStreamBinaryIn::ReadPrimitiveData(uint8_t &outPrimitive)
 {
-	uint8 primitive;
+	uint8_t primitive;
 	mStream.read((char *)&primitive, sizeof(primitive));
 	if (mStream.fail()) return false;
 	outPrimitive = primitive;
@@ -81,9 +81,9 @@ bool ObjectStreamBinaryIn::ReadPrimitiveData(uint32_t &outPrimitive)
 	return true;
 }
 
-bool ObjectStreamBinaryIn::ReadPrimitiveData(uint64 &outPrimitive)
+bool ObjectStreamBinaryIn::ReadPrimitiveData(uint64_t &outPrimitive)
 {
-	uint64 primitive;
+	uint64_t primitive;
 	mStream.read((char *)&primitive, sizeof(primitive));
 	if (mStream.fail()) return false;
 	outPrimitive = primitive;

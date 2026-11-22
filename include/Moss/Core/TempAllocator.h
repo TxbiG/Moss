@@ -35,7 +35,7 @@ public:
 
 	/// Constructs the allocator with a maximum allocatable size of inSize
 	explicit						TempAllocatorImpl(size_t inSize) :
-		mBase(static_cast<uint8 *>(AlignedAllocate(inSize, MOSS_RVECTOR_ALIGNMENT))),
+		mBase(static_cast<uint8_t *>(AlignedAllocate(inSize, MOSS_RVECTOR_ALIGNMENT))),
 		mSize(inSize)
 	{
 	}
@@ -116,7 +116,7 @@ public:
 	}
 
 private:
-	uint8 *							mBase;							///< Base address of the memory block
+	uint8_t *							mBase;							///< Base address of the memory block
 	size_t							mSize;							///< Size of the memory block
 	size_t							mTop = 0;						///< End of currently allocated area
 };

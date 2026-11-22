@@ -161,7 +161,7 @@ private:
 	};
 
 	/// State of the result
-	enum class EState : uint8
+	enum class EState : uint8_t
 	{
 		Invalid,
 		Valid,

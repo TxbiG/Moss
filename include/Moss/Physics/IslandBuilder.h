@@ -17,49 +17,48 @@ class MOSS_API IslandBuilder : public NonCopyable
 {
 public:
 	// Destructor
-							~IslandBuilder();
+	~IslandBuilder();
 
 	// Initialize the island builder with the maximum amount of bodies that could be active
-	void					Init(uint32_t inMaxActiveBodies);
+	void Init(uint32_t inMaxActiveBodies);
 
 	// Prepare for simulation step by allocating space for the contact constraints
-	void					PrepareContactConstraints(uint32_t inMaxContactConstraints, TempAllocator *inTempAllocator);
+	void PrepareContactConstraints(uint32_t inMaxContactConstraints, TempAllocator *inTempAllocator);
 
 	// Prepare for simulation step by allocating space for the non-contact constraints
-	void					PrepareNonContactConstraints(uint32_t inNumConstraints, TempAllocator *inTempAllocator);
+	void PrepareNonContactConstraints(uint32_t inNumConstraints, TempAllocator *inTempAllocator);
 
 	// Link two bodies by their index in the BodyManager::mActiveBodies list to form islands
-	void					LinkBodies(uint32_t inFirst, uint32_t inSecond);
+	void LinkBodies(uint32_t inFirst, uint32_t inSecond);
 
 	// Link a constraint to a body by their index in the BodyManager::mActiveBodies
-	void					LinkConstraint(uint32_t inConstraintIndex, uint32_t inIndexInActiveBodyList);
+	void LinkConstraint(uint32_t inConstraintIndex, uint32_t inIndexInActiveBodyList);
 
 	// Link a contact to a body by their index in the BodyManager::mActiveBodies
-	void					LinkContact(uint32_t inContactIndex, uint32_t inIndexInActiveBodyList);
+	void LinkContact(uint32_t inContactIndex, uint32_t inIndexInActiveBodyList);
 
 	// Finalize the islands after all bodies have been Link()-ed
-	void					Finalize(const BodyID *inActiveBodies, uint32_t inNumActiveBodies, uint32_t inNumContacts, TempAllocator *inTempAllocator);
+	void Finalize(const BodyID *inActiveBodies, uint32_t inNumActiveBodies, uint32_t inNumContacts, TempAllocator *inTempAllocator);
 
 	// Get the amount of islands formed
 	uint32_t					GetNumIslands() const							{ return mNumIslands; }
 
 	// Get iterator for a particular island, return false if there are no constraints
-	void					GetBodiesInIsland(uint32_t inIslandIndex, BodyID *&outBodiesBegin, BodyID *&outBodiesEnd) const;
-	bool					GetConstraintsInIsland(uint32_t inIslandIndex, uint32_t *&outConstraintsBegin, uint32_t *&outConstraintsEnd) const;
-	bool					GetContactsInIsland(uint32_t inIslandIndex, uint32_t *&outContactsBegin, uint32_t *&outContactsEnd) const;
+	void GetBodiesInIsland(uint32_t inIslandIndex, BodyID *&outBodiesBegin, BodyID *&outBodiesEnd) const;
+	bool GetConstraintsInIsland(uint32_t inIslandIndex, uint32_t *&outConstraintsBegin, uint32_t *&outConstraintsEnd) const;
+	bool GetContactsInIsland(uint32_t inIslandIndex, uint32_t *&outContactsBegin, uint32_t *&outContactsEnd) const;
 
 	// The number of position iterations for each island
-	void					SetNumPositionSteps(uint32_t inIslandIndex, uint inNumPositionSteps)	{ MOSS_ASSERT(inIslandIndex < mNumIslands); MOSS_ASSERT(inNumPositionSteps < 256); mNumPositionSteps[inIslandIndex] = uint8(inNumPositionSteps); }
-	uint					GetNumPositionSteps(uint32_t inIslandIndex) const						{ MOSS_ASSERT(inIslandIndex < mNumIslands); return mNumPositionSteps[inIslandIndex]; }
+	void SetNumPositionSteps(uint32_t inIslandIndex,  inNumPositionSteps)	{ MOSS_ASSERT(inIslandIndex < mNumIslands); MOSS_ASSERT(inNumPositionSteps < 256); mNumPositionSteps[inIslandIndex] = uint8_t(inNumPositionSteps); }
+	uint32_t GetNumPositionSteps(uint32_t inIslandIndex) const				{ MOSS_ASSERT(inIslandIndex < mNumIslands); return mNumPositionSteps[inIslandIndex]; }
 
 #ifdef MOSS_TRACK_SIMULATION_STATS
-	struct IslandStats
-	{
-		atomic<uint64>		mVelocityConstraintTicks = 0;
-		atomic<uint64>		mPositionConstraintTicks = 0;
-		atomic<uint64>		mUpdateBoundsTicks = 0;
-		uint8				mNumVelocitySteps = 0;
-		uint8				mNumPositionSteps = 0;												// Tracking this a 2nd time since IslandBuilder::mNumPositionSteps is not filled in when there are no constraints or for large islands.
+	struct IslandStats {
+		atomic<uint64_t>		mVelocityConstraintTicks = 0;
+		atomic<uint64_t>		mPositionConstraintTicks = 0;
+		atomic<uint64_t>		mUpdateBoundsTicks = 0;
+		uint8_t				mNumVelocitySteps = 0;
+		uint8_t				mNumPositionSteps = 0;												// Tracking this a 2nd time since IslandBuilder::mNumPositionSteps is not filled in when there are no constraints or for large islands.
 		bool				mIsLargeIsland = false;
 	};
 
@@ -112,7 +111,7 @@ private:
 
 	uint32_t *				mIslandsSorted = nullptr;						// A list of island indices in order of most constraints first
 
-	uint8 *					mNumPositionSteps = nullptr;					// Number of position steps for each island
+	uint8_t *					mNumPositionSteps = nullptr;					// Number of position steps for each island
 
 #ifdef MOSS_TRACK_SIMULATION_STATS
 	IslandStats *			mIslandStats = nullptr;							// Per island statistics

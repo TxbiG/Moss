@@ -210,7 +210,7 @@ void RagdollSettings::CalculateConstraintPriorities(uint32_t inBasePriority)
 	}
 
 	// Copy the priorities to the constraints
-	for (uint i = 0, n = (uint)mParts.size(); i < n; ++i)
+	for (uint32_t i = 0, n = (uint32_t)mParts.size(); i < n; ++i)
 		if (mParts[i].mToParent != nullptr)
 			mParts[i].mToParent->mConstraintPriority = priorities[i];
 

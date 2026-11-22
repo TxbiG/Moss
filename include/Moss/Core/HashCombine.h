@@ -15,12 +15,12 @@ MOSS_SUPPRESS_WARNINGS_BEGIN
 /// @param inSize Number of bytes
 /// @param inSeed Seed of the hash (can be used to pass in the hash of a previous operation, otherwise leave default)
 /// @return Hash
-inline uint64 HashBytes(const void *inData, uint64 inSize, uint64 inSeed = 0xcbf29ce484222325UL)
+inline uint64_t HashBytes(const void *inData, uint64_t inSize, uint64_t inSeed = 0xcbf29ce484222325UL)
 {
-	uint64 hash = inSeed;
-	for (const uint8 *data = reinterpret_cast<const uint8 *>(inData); data < reinterpret_cast<const uint8 *>(inData) + inSize; ++data)
+	uint64_t hash = inSeed;
+	for (const uint8_t *data = reinterpret_cast<const uint8_t *>(inData); data < reinterpret_cast<const uint8_t *>(inData) + inSize; ++data)
 	{
-		hash ^= uint64(*data);
+		hash ^= uint64_t(*data);
 		hash *= 0x100000001b3UL;
 	}
 	return hash;
@@ -28,12 +28,12 @@ inline uint64 HashBytes(const void *inData, uint64 inSize, uint64 inSeed = 0xcbf
 
 /// Calculate the FNV-1a hash of inString.
 /// @see https://en.wikipedia.org/wiki/Fowler%E2%80%93Noll%E2%80%93Vo_hash_function
-constexpr uint64 HashString(const char *inString, uint64 inSeed = 0xcbf29ce484222325UL)
+constexpr uint64_t HashString(const char *inString, uint64_t inSeed = 0xcbf29ce484222325UL)
 {
-	uint64 hash = inSeed;
+	uint64_t hash = inSeed;
 	for (const char *c = inString; *c != 0; ++c)
 	{
-		hash ^= uint64(*c);
+		hash ^= uint64_t(*c);
 		hash *= 0x100000001b3UL;
 	}
 	return hash;
@@ -43,9 +43,9 @@ constexpr uint64 HashString(const char *inString, uint64 inSeed = 0xcbf29ce48422
 /// See: http://web.archive.org/web/20071223173210/http://www.concentric.net/~Ttwang/tech/inthash.htm
 /// @param inValue Value to hash
 /// @return Hash
-inline uint64 Hash64(uint64 inValue)
+inline uint64_t Hash64(uint64_t inValue)
 {
-	uint64 hash = inValue;
+	uint64_t hash = inValue;
 	hash = (~hash) + (hash << 21); // hash = (hash << 21) - hash - 1;
 	hash = hash ^ (hash >> 24);
 	hash = (hash + (hash << 3)) + (hash << 8); // hash * 265
@@ -60,7 +60,7 @@ inline uint64 Hash64(uint64 inValue)
 template <class T>
 struct Hash
 {
-	uint64		operator () (const T &inValue) const
+	uint64_t		operator () (const T &inValue) const
 	{
 		return inValue.GetHash();
 	}
@@ -70,7 +70,7 @@ struct Hash
 template <>
 struct Hash<float>
 {
-	uint64		operator () (float inValue) const
+	uint64_t		operator () (float inValue) const
 	{
 		float value = inValue == 0.0f? 0.0f : inValue; // Convert -0.0f to 0.0f
 		return HashBytes(&value, sizeof(value));
@@ -81,7 +81,7 @@ struct Hash<float>
 template <>
 struct Hash<double>
 {
-	uint64		operator () (double inValue) const
+	uint64_t		operator () (double inValue) const
 	{
 		double value = inValue == 0.0? 0.0 : inValue; // Convert -0.0 to 0.0
 		return HashBytes(&value, sizeof(value));
@@ -92,7 +92,7 @@ struct Hash<double>
 template <>
 struct Hash<const char *>
 {
-	uint64		operator () (const char *inValue) const
+	uint64_t		operator () (const char *inValue) const
 	{
 		return HashString(inValue);
 	}
@@ -102,9 +102,9 @@ struct Hash<const char *>
 template <>
 struct Hash<std::string_view>
 {
-	uint64		operator () (const std::string_view &inValue) const
+	uint64_t		operator () (const std::string_view &inValue) const
 	{
-		return HashBytes(inValue.data(), uint64(inValue.size()));
+		return HashBytes(inValue.data(), uint64_t(inValue.size()));
 	}
 };
 
@@ -112,9 +112,9 @@ struct Hash<std::string_view>
 template <>
 struct Hash<String>
 {
-	uint64		operator () (const String &inValue) const
+	uint64_t		operator () (const String &inValue) const
 	{
-		return HashBytes(inValue.data(), uint64(inValue.size()));
+		return HashBytes(inValue.data(), uint64_t(inValue.size()));
 	}
 };
 
@@ -122,7 +122,7 @@ struct Hash<String>
 template <class T>
 struct Hash<T *>
 {
-	uint64		operator () (T *inValue) const
+	uint64_t		operator () (T *inValue) const
 	{
 		return HashBytes(&inValue, sizeof(inValue));
 	}
@@ -133,7 +133,7 @@ struct Hash<T *>
 template <>													\
 struct Hash<type>											\
 {															\
-	uint64		operator () (const type &inValue) const		\
+	uint64_t		operator () (const type &inValue) const		\
 	{														\
 		return HashBytes(&inValue, sizeof(inValue));		\
 	}														\
@@ -143,17 +143,17 @@ struct Hash<type>											\
 MOSS_DEFINE_TRIVIAL_HASH(char)
 MOSS_DEFINE_TRIVIAL_HASH(int)
 MOSS_DEFINE_TRIVIAL_HASH(uint32_t)
-MOSS_DEFINE_TRIVIAL_HASH(uint64)
+MOSS_DEFINE_TRIVIAL_HASH(uint64_t)
 
 /// Helper function that hashes a single value into ioSeed
 /// Based on https://github.com/jonmaiga/mx3 by Jon Maiga
 template <typename T>
-inline void HashCombine(uint64 &ioSeed, const T &inValue)
+inline void HashCombine(uint64_t &ioSeed, const T &inValue)
 {
-	constexpr uint64 c = 0xbea225f9eb34556dUL;
+	constexpr uint64_t c = 0xbea225f9eb34556dUL;
 
-	uint64 h = ioSeed;
-	uint64 x = Hash<T> { } (inValue);
+	uint64_t h = ioSeed;
+	uint64_t x = Hash<T> { } (inValue);
 
 	// See: https://github.com/jonmaiga/mx3/blob/master/mx3.h
 	// mix_stream(h, x)
@@ -187,10 +187,10 @@ inline void HashCombine(uint64 &ioSeed, const T &inValue)
 ///
 ///		MOSS_MAKE_HASHABLE(SomeHashKey, t.key1, t.key2, t.key3)
 template <typename FirstValue, typename... Values>
-inline uint64 HashCombineArgs(const FirstValue &inFirstValue, Values... inValues)
+inline uint64_t HashCombineArgs(const FirstValue &inFirstValue, Values... inValues)
 {
 	// Prime the seed by hashing the first value
-	uint64 seed = Hash<FirstValue> { } (inFirstValue);
+	uint64_t seed = Hash<FirstValue> { } (inFirstValue);
 
 	// Hash all remaining values together using a fold expression
 	(HashCombine(seed, inValues), ...);
@@ -201,7 +201,7 @@ inline uint64 HashCombineArgs(const FirstValue &inFirstValue, Values... inValues
 #define MOSS_MAKE_HASH_STRUCT(type, name, ...)				\
 	struct [[nodiscard]] name								\
 	{														\
-		uint64 operator()(const type &t) const		\
+		uint64_t operator()(const type &t) const		\
 		{													\
 			return HashCombineArgs(__VA_ARGS__);		\
 		}													\

@@ -45,13 +45,13 @@ public:
 	unique_ptr<ConstantBufferDX12>	CreateConstantBuffer(uint32_t inBufferSize);
 
 	/// Create a buffer on the default heap (usable for permanent buffers)
-	ComPtr<ID3D12Resource>			CreateD3DResourceOnDefaultHeap(const void *inData, uint64 inSize);
+	ComPtr<ID3D12Resource>			CreateD3DResourceOnDefaultHeap(const void *inData, uint64_t inSize);
 
 	/// Create buffer on the upload heap (usable for temporary buffers).
-	ComPtr<ID3D12Resource>			CreateD3DResourceOnUploadHeap(uint64 inSize);
+	ComPtr<ID3D12Resource>			CreateD3DResourceOnUploadHeap(uint64_t inSize);
 
 	/// Recycle a buffer on the upload heap. This puts it back in a cache and will reuse it when it is certain the GPU is no longer referencing it.
-	void							RecycleD3DResourceOnUploadHeap(ID3D12Resource *inResource, uint64 inSize);
+	void							RecycleD3DResourceOnUploadHeap(ID3D12Resource *inResource, uint64_t inSize);
 
 	/// Keeps a reference to the resource until the current frame has finished
 	void							RecycleD3DObject(ID3D12Object *inResource);
@@ -75,13 +75,13 @@ private:
 	void							CreateDepthBuffer();
 
 	// Function to create a ID3D12Resource on specified heap with specified state
-	ComPtr<ID3D12Resource>			CreateD3DResource(D3D12_HEAP_TYPE inHeapType, D3D12_RESOURCE_STATES inResourceState, uint64 inSize);
+	ComPtr<ID3D12Resource>			CreateD3DResource(D3D12_HEAP_TYPE inHeapType, D3D12_RESOURCE_STATES inResourceState, uint64_t inSize);
 
 	// Copy CPU memory into a ID3D12Resource
-	void							CopyD3DResource(ID3D12Resource *inDest, const void *inSrc, uint64 inSize);
+	void							CopyD3DResource(ID3D12Resource *inDest, const void *inSrc, uint64_t inSize);
 
 	// Copy a CPU resource to a GPU resource
-	void							CopyD3DResource(ID3D12Resource *inDest, ID3D12Resource *inSrc, uint64 inSize);
+	void							CopyD3DResource(ID3D12Resource *inDest, ID3D12Resource *inSrc, uint64_t inSize);
 
 	// DirectX interfaces
 	ComPtr<IDXGIFactory4>			mDXGIFactory;
@@ -109,7 +109,7 @@ private:
 	ComPtr<ID3D12Fence>				mFence;								///< Fence object, used to signal the end of a frame
 	UINT64							mFenceValues[cFrameCount] = {};		///< Values that were used to signal completion of one of the two frames
 
-	using ResourceCache = UnorderedMap<uint64, TArray<ComPtr<ID3D12Resource>>>;
+	using ResourceCache = UnorderedMap<uint64_t, TArray<ComPtr<ID3D12Resource>>>;
 
 	ResourceCache					mResourceCache;						///< Cache items ready to be reused
 	ResourceCache					mDelayCached[cFrameCount];			///< List of reusable ID3D12Resources that are potentially referenced by the GPU so can be used only when the GPU finishes

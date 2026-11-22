@@ -794,7 +794,7 @@ public:
 	void								EndFrame();
 
 	/// Control commands written into the stream
-	enum class ECommand : uint8
+	enum class ECommand : uint8_t
 	{
 		CreateBatch,
 		CreateBatchIndexed,

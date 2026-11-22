@@ -18,7 +18,7 @@ public:
 	/// Constructors
 							StridedPtr() = default;
 							StridedPtr(const StridedPtr &inRHS) = default;
-							StridedPtr(T *inPtr, int inStride = sizeof(T))			: mPtr(const_cast<uint8 *>(reinterpret_cast<const uint8 *>(inPtr))), mStride(inStride) { }
+							StridedPtr(T *inPtr, int inStride = sizeof(T))			: mPtr(const_cast<uint8_t *>(reinterpret_cast<const uint8_t *>(inPtr))), mStride(inStride) { }
 
 	/// Assignment
 	inline StridedPtr &		operator = (const StridedPtr &inRHS) = default;
@@ -47,7 +47,7 @@ public:
 	/// Access value
 	inline T &				operator * () const										{ return *reinterpret_cast<T *>(mPtr); }
 	inline T *				operator -> () const									{ return reinterpret_cast<T *>(mPtr); }
-	inline T &				operator [] (int inOffset) const						{ uint8 *ptr = mPtr + inOffset * mStride; return *reinterpret_cast<T *>(ptr); }
+	inline T &				operator [] (int inOffset) const						{ uint8_t *ptr = mPtr + inOffset * mStride; return *reinterpret_cast<T *>(ptr); }
 
 	/// Explicit conversion
 	inline T *				GetPtr() const											{ return reinterpret_cast<T *>(mPtr); }
@@ -56,7 +56,7 @@ public:
 	inline int				GetStride() const										{ return mStride; }
 
 private:
-	uint8 *					mPtr = nullptr;											/// Pointer to element
+	uint8_t *					mPtr = nullptr;											/// Pointer to element
 	int						mStride = 0;											/// Stride (number of bytes) between elements
 };
 

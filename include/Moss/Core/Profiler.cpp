@@ -15,8 +15,8 @@ MOSS_SUPPRESS_WARNINGS_BEGIN
 
 #if defined(MOSS_EXTERNAL_PROFILE) && defined(MOSS_SHARED_LIBRARY)
 
-ProfileStartMeasurementFunction ProfileStartMeasurement = [](const char *, uint32_t, uint8 *) { };
-ProfileEndMeasurementFunction ProfileEndMeasurement = [](uint8 *) { };
+ProfileStartMeasurementFunction ProfileStartMeasurement = [](const char *, uint32_t, uint8_t *) { };
+ProfileEndMeasurementFunction ProfileEndMeasurement = [](uint8_t *) { };
 
 #elif defined(MOSS_PROFILE_ENABLED)
 
@@ -50,9 +50,9 @@ void Profiler::UpdateReferenceTime()
 	mReferenceTime = std::chrono::high_resolution_clock::now();
 }
 
-uint64 Profiler::GetProcessorTicksPerSecond() const
+uint64_t Profiler::GetProcessorTicksPerSecond() const
 {
-	uint64 ticks = GetProcessorTickCount();
+	uint64_t ticks = GetProcessorTickCount();
 	std::chrono::high_resolution_clock::time_point time = std::chrono::high_resolution_clock::now();
 
 	return (ticks - mReferenceTick) * 1000000000ULL / std::chrono::duration_cast<std::chrono::nanoseconds>(time - mReferenceTime).count();
@@ -102,7 +102,7 @@ void Profiler::RemoveThread(ProfileThread *inThread)
 void Profiler::sAggregate(int inDepth, uint32_t inColor, ProfileSample *&ioSample, const ProfileSample *inEnd, Aggregators &ioAggregators, KeyToAggregator &ioKeyToAggregator)
 {
 	// Store depth
-	ioSample->mDepth = uint8(min(255, inDepth));
+	ioSample->mDepth = uint8_t(min(255, inDepth));
 
 	// Update color
 	if (ioSample->mColor == 0)
@@ -111,7 +111,7 @@ void Profiler::sAggregate(int inDepth, uint32_t inColor, ProfileSample *&ioSampl
 		inColor = ioSample->mColor;
 
 	// Start accumulating totals
-	uint64 cycles_this_with_children = ioSample->mEndCycle - ioSample->mStartCycle;
+	uint64_t cycles_this_with_children = ioSample->mEndCycle - ioSample->mStartCycle;
 
 	// Loop over following samples until we find a sample that starts on or after our end
 	ProfileSample *sample;
@@ -161,7 +161,7 @@ void Profiler::DumpInternal()
 		threads.push_back({ t->mThreadName, t->mSamples, t->mSamples + t->mCurrentSample });
 
 	// Shift all samples so that the first sample is at zero
-	uint64 min_cycle = 0xffffffffffffffffUL;
+	uint64_t min_cycle = 0xffffffffffffffffUL;
 	for (const ThreadSamples &t : threads)
 		if (t.mSamplesBegin < t.mSamplesEnd)
 			min_cycle = min(min_cycle, t.mSamplesBegin[0].mStartCycle);
@@ -551,7 +551,7 @@ void Profiler::DumpChart(const char *inTag, const Threads &inThreads, const KeyT
 )";
 
 	// Get cycles per second
-	uint64 cycles_per_second = GetProcessorTicksPerSecond();
+	uint64_t cycles_per_second = GetProcessorTicksPerSecond();
 	f << "var cycles_per_second = " << cycles_per_second << ";\n";
 
 	// Dump samples

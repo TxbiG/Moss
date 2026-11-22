@@ -993,7 +993,7 @@ JSONTEST_FIXTURE_LOCAL(ValueTest, integers) {
   JSONTEST_ASSERT_EQUAL(true, val.asBool());
   JSONTEST_ASSERT_STRING_EQUAL("-9.22337e+18", val.asString());
 
-  // uint64 max
+  // uint64_t max
   val = Json::Value(double(kuint64max));
 
   JSONTEST_ASSERT_EQUAL(Json::realValue, val.type());
@@ -1265,7 +1265,7 @@ JSONTEST_FIXTURE_LOCAL(ValueTest, integers) {
       "1e+19",
       normalizeFloatingPointStr(JsonTest::ToJsonString(val.asString())));
 
-  // uint64 max
+  // uint64_t max
   val = Json::Value(Json::UInt64(kuint64max));
 
   JSONTEST_ASSERT_EQUAL(Json::uintValue, val.type());
@@ -1288,7 +1288,7 @@ JSONTEST_FIXTURE_LOCAL(ValueTest, integers) {
   JSONTEST_ASSERT_EQUAL(true, val.asBool());
   JSONTEST_ASSERT_STRING_EQUAL("18446744073709551615", val.asString());
 
-  // uint64 max (floating point constructor). Note that kuint64max is not
+  // uint64_t max (floating point constructor). Note that kuint64max is not
   // exactly representable as a double, and will be rounded up to be higher.
   val = Json::Value(uint64ToDouble(kuint64max));
 

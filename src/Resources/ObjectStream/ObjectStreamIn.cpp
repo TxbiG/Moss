@@ -145,7 +145,7 @@ void *ObjectStreamIn::Read(const RTTI *inRTTI)
 
 				// Increment refcount if it was a referencing pointer
 				if (link.mRefCountOffset != -1)
-					++(*(uint32_t *)(((uint8 *)obj_info.mInstance) + link.mRefCountOffset));
+					++(*(uint32_t *)(((uint8_t *)obj_info.mInstance) + link.mRefCountOffset));
 
 				// Add referenced object to the list
 				if (referenced_objects.find(obj_info.mInstance) == referenced_objects.end())
@@ -481,7 +481,7 @@ bool ObjectStreamIn::SkipAttributeData(int inArrayDepth, EOSDataType inDataType,
 
 				case EOSDataType::T_uint8:
 					{
-						uint8 temporary;
+						uint8_t temporary;
 						continue_reading = ReadPrimitiveData(temporary);
 						break;
 					}
@@ -509,7 +509,7 @@ bool ObjectStreamIn::SkipAttributeData(int inArrayDepth, EOSDataType inDataType,
 
 				case EOSDataType::T_uint64:
 					{
-						uint64 temporary;
+						uint64_t temporary;
 						continue_reading = ReadPrimitiveData(temporary);
 						break;
 					}

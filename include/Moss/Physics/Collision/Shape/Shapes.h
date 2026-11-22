@@ -74,7 +74,7 @@ using PhysicsMaterialRefC = RefConst<PhysicsMaterial>;
 using PhysicsMaterialList = TArray<PhysicsMaterialRefC>;
 
 /// Shapes are categorized in groups, each shape can return which group it belongs to through its Shape::GetType function.
-enum class EShapeType : uint8 {
+enum class EShapeType : uint8_t {
 	Convex,							// Used by ConvexShape, all shapes that use the generic convex vs convex collision detection system (box, sphere, capsule, tapered capsule, cylinder, triangle)
 	
 	Compound,						// Used by CompoundShape
@@ -99,7 +99,7 @@ enum class EBackFaceMode : uint8_t {
 };
 
 /// This enumerates all shape types, each shape can return its type through Shape::GetSubType
-enum class EShapeSubType : uint8 {
+enum class EShapeSubType : uint8_t {
 	// Convex shapes
 	Sphere,
 	Box,
@@ -213,7 +213,7 @@ public:
 	void							ClearCachedResult()													{ mCachedResult.Clear(); }
 
 	/// User data (to be used freely by the application)
-	uint64							mUserData = 0;
+	uint64_t							mUserData = 0;
 
 protected:
 	mutable ShapeResult				mCachedResult;
@@ -256,8 +256,8 @@ public:
 	inline EShapeSubType			GetSubType() const													{ return mShapeSubType; }
 
 	/// User data (to be used freely by the application)
-	uint64							GetUserData() const													{ return mUserData; }
-	void							SetUserData(uint64 inUserData)										{ mUserData = inUserData; }
+	uint64_t							GetUserData() const													{ return mUserData; }
+	void							SetUserData(uint64_t inUserData)										{ mUserData = inUserData; }
 
 	/// Check if this shape can only be used to create a static body or if it can also be dynamic/kinematic
 	virtual bool					MustBeStatic() const												{ return false; }
@@ -321,7 +321,7 @@ public:
 	virtual void					GetSupportingFace([[maybe_unused]] const SubShapeID &inSubShapeID, [[maybe_unused]] Vec3Arg inDirection, [[maybe_unused]] Vec3Arg inScale, [[maybe_unused]] Mat44Arg inCenterOfMassTransform, [[maybe_unused]] SupportingFace &outVertices) const { /* Nothing */ }
 
 	/// Get the user data of a particular sub shape ID. Corresponds with the value stored in Shape::GetUserData of the leaf shape pointed to by inSubShapeID.
-	virtual uint64					GetSubShapeUserData([[maybe_unused]] const SubShapeID &inSubShapeID) const			{ return mUserData; }
+	virtual uint64_t					GetSubShapeUserData([[maybe_unused]] const SubShapeID &inSubShapeID) const			{ return mUserData; }
 
 	/// Get the direct child sub shape and its transform for a sub shape ID.
 	/// @param inSubShapeID Sub shape ID that indicates the path to the leaf shape
@@ -400,7 +400,7 @@ public:
 	ShapeResult						ScaleShape(Vec3Arg inScale) const;
 
 	/// An opaque buffer that holds shape specific information during GetTrianglesStart/Next.
-	struct alignas(16)				GetTrianglesContext { uint8 mData[4288]; };
+	struct alignas(16)				GetTrianglesContext { uint8_t mData[4288]; };
 
 	/// This is the minimum amount of triangles that should be requested through GetTrianglesNext.
 	static constexpr int			cGetTrianglesMinTrianglesRequested = 32;
@@ -513,7 +513,7 @@ protected:
 	static void						sCollidePointUsingRayCast(const Shape &inShape, Vec3Arg inPoint, const SubShapeIDCreator &inSubShapeIDCreator, CollidePointCollector &ioCollector, const ShapeFilter &inShapeFilter);
 
 private:
-	uint64							mUserData = 0;
+	uint64_t							mUserData = 0;
 	EShapeType						mShapeType;
 	EShapeSubType					mShapeSubType;
 };
@@ -610,7 +610,7 @@ public:
 	class alignas(16) SupportBuffer
 	{
 	public:
-		uint8						mData[4160];
+		uint8_t						mData[4160];
 	};
 
 	/// How the GetSupport function should behave
@@ -1102,7 +1102,7 @@ public:
 	virtual void					GetSupportingFace(const SubShapeID &inSubShapeID, Vec3Arg inDirection, Vec3Arg inScale, Mat44Arg inCenterOfMassTransform, SupportingFace &outVertices) const override;
 
 	// See Shape::GetSubShapeUserData
-	virtual uint64					GetSubShapeUserData(const SubShapeID &inSubShapeID) const override;
+	virtual uint64_t					GetSubShapeUserData(const SubShapeID &inSubShapeID) const override;
 
 	// See Shape
 	virtual void					SaveSubShapeState(ShapeList &outSubShapes) const override;
@@ -1297,7 +1297,7 @@ public:
 	/// inSampleCount: inSampleCount / mBlockSize must be minimally 2 and a power of 2 is the most efficient in terms of performance and storage.
 	/// inSamples: inSampleCount^2 vertices.
 	/// inMaterialIndices: (inSampleCount - 1)^2 indices that index into inMaterialList.
-									HeightFieldShapeSettings(const float *inSamples, Vec3Arg inOffset, Vec3Arg inScale, uint32_t inSampleCount, const uint8 *inMaterialIndices = nullptr, const PhysicsMaterialList &inMaterialList = PhysicsMaterialList());
+									HeightFieldShapeSettings(const float *inSamples, Vec3Arg inOffset, Vec3Arg inScale, uint32_t inSampleCount, const uint8_t *inMaterialIndices = nullptr, const PhysicsMaterialList &inMaterialList = PhysicsMaterialList());
 
 	// See: ShapeSettings
 	virtual ShapeResult				Create() const override;
@@ -1343,7 +1343,7 @@ public:
 	TArray<float>					mHeightSamples;
 
 	/// An array of (mSampleCount - 1)^2 material indices.
-	TArray<uint8>					mMaterialIndices;
+	TArray<uint8_t>					mMaterialIndices;
 
 	/// The materials of square at (x, y) is: mMaterials[mMaterialIndices[x + y * (mSampleCount - 1)]]
 	PhysicsMaterialList				mMaterials;
@@ -1484,7 +1484,7 @@ public:
 	/// @param inSizeY Number of samples in Y direction
 	/// @param outMaterials Returned material indices, must be at least inSizeX * inSizeY uint8s. Values are returned in x-major order.
 	/// @param inMaterialsStride Stride in uint8s between two consecutive rows of outMaterials (can be negative if the data is upside down).
-	void							GetMaterials(uint32_t inX, uint32_t inY, uint32_t inSizeX, uint32_t inSizeY, uint8 *outMaterials, intptr_t inMaterialsStride) const;
+	void							GetMaterials(uint32_t inX, uint32_t inY, uint32_t inSizeX, uint32_t inSizeY, uint8_t *outMaterials, intptr_t inMaterialsStride) const;
 
 	/// Set the material indices of a block of data.
 	/// Beware this can create a race condition if you're running collision queries in parallel. See class documentation for more information.
@@ -1497,7 +1497,7 @@ public:
 	/// @param inMaterialList The material list to use for the new material indices or nullptr if the material list should not be updated
 	/// @param inAllocator Allocator to use for temporary memory
 	/// @return True if the material indices were set, false if the total number of materials exceeded 256
-	bool							SetMaterials(uint32_t inX, uint32_t inY, uint32_t inSizeX, uint32_t inSizeY, const uint8 *inMaterials, intptr_t inMaterialsStride, const PhysicsMaterialList *inMaterialList, TempAllocator &inAllocator);
+	bool							SetMaterials(uint32_t inX, uint32_t inY, uint32_t inSizeX, uint32_t inSizeY, const uint8_t *inMaterials, intptr_t inMaterialsStride, const PhysicsMaterialList *inMaterialList, TempAllocator &inAllocator);
 
 	// See Shape
 	virtual void					SaveBinaryState(StreamOut &inStream) const override;
@@ -1550,11 +1550,11 @@ private:
 	/// Get the range block offset and stride for GetBlockOffsetAndScale
 	static inline void				sGetRangeBlockOffsetAndStride(uint32_t inNumBlocks, uint32_t inMaxLevel, uint32_t &outRangeBlockOffset, uint32_t &outRangeBlockStride);
 
-	/// For block (inBlockX, inBlockY) get the offset and scale needed to decode a uint8 height sample to a uint16
+	/// For block (inBlockX, inBlockY) get the offset and scale needed to decode a uint8_t height sample to a uint16
 	inline void						GetBlockOffsetAndScale(uint32_t inBlockX, uint32_t inBlockY, uint32_t inRangeBlockOffset, uint32_t inRangeBlockStride, float &outBlockOffset, float &outBlockScale) const;
 
 	/// Get the height sample at position (inX, inY)
-	inline uint8					GetHeightSample(uint32_t inX, uint32_t inY) const;
+	inline uint8_t					GetHeightSample(uint32_t inX, uint32_t inY) const;
 
 	/// Faster version of GetPosition when block offset and scale are already known
 	inline Vec3						GetPosition(uint32_t inX, uint32_t inY, float inBlockOffset, float inBlockScale, bool &outNoCollision) const;
@@ -1567,7 +1567,7 @@ private:
 	inline void						DecodeSubShapeID(const SubShapeID &inSubShapeID, uint32_t &outX, uint32_t &outY, uint32_t &outTriangle) const;
 
 	/// Get the edge flags for a triangle
-	inline uint8					GetEdgeFlags(uint32_t inX, uint32_t inY, uint32_t inTriangle) const;
+	inline uint8_t					GetEdgeFlags(uint32_t inX, uint32_t inY, uint32_t inTriangle) const;
 
 	// Helper functions called by CollisionDispatch
 	static void						sCollideConvexVsHeightField(const Shape *inShape1, const Shape *inShape2, Vec3Arg inScale1, Vec3Arg inScale2, Mat44Arg inCenterOfMassTransform1, Mat44Arg inCenterOfMassTransform2, const SubShapeIDCreator &inSubShapeIDCreator1, const SubShapeIDCreator &inSubShapeIDCreator2, const CollideShapeSettings &inCollideShapeSettings, CollideShapeCollector &ioCollector, const ShapeFilter &inShapeFilter);
@@ -1604,17 +1604,17 @@ private:
 	uint32_t							mHeightSamplesSize = 0;						// Size of mHeightSamples in bytes
 	uint32_t							mRangeBlocksSize = 0;						// Size of mRangeBlocks in elements
 	uint32_t							mActiveEdgesSize = 0;						// Size of mActiveEdges in bytes
-	uint8							mBitsPerSample = 8;							// See HeightFieldShapeSettings::mBitsPerSample
-	uint8							mSampleMask = 0xff;							// All bits set for a sample: (1 << mBitsPerSample) - 1, used to indicate that there's no collision
+	uint8_t							mBitsPerSample = 8;							// See HeightFieldShapeSettings::mBitsPerSample
+	uint8_t							mSampleMask = 0xff;							// All bits set for a sample: (1 << mBitsPerSample) - 1, used to indicate that there's no collision
 	uint16							mMinSample = HeightFieldShapeConstants::cNoCollisionValue16; // Min and max value in mHeightSamples quantized to 16 bit, for calculating bounding box
 	uint16							mMaxSample = HeightFieldShapeConstants::cNoCollisionValue16;
 	RangeBlock *					mRangeBlocks = nullptr;						// Hierarchical grid of range data describing the height variations within 1 block. The grid for level <level> starts at offset sGridOffsets[<level>]
-	uint8 *							mHeightSamples = nullptr;					// mBitsPerSample-bit height samples. Value [0, mMaxHeightValue] maps to highest detail grid in mRangeBlocks [mMin, mMax]. mNoCollisionValue is reserved to indicate no collision.
-	uint8 *							mActiveEdges = nullptr;						// (mSampleCount - 1)^2 * 3-bit active edge flags.
+	uint8_t *							mHeightSamples = nullptr;					// mBitsPerSample-bit height samples. Value [0, mMaxHeightValue] maps to highest detail grid in mRangeBlocks [mMin, mMax]. mNoCollisionValue is reserved to indicate no collision.
+	uint8_t *							mActiveEdges = nullptr;						// (mSampleCount - 1)^2 * 3-bit active edge flags.
 
 	/// Materials
 	PhysicsMaterialList				mMaterials;									// The materials of square at (x, y) is: mMaterials[mMaterialIndices[x + y * (mSampleCount - 1)]]
-	TArray<uint8>					mMaterialIndices;							// Compressed to the minimum amount of bits per material index (mSampleCount - 1) * (mSampleCount - 1) * mNumBitsPerMaterialIndex bits of data
+	TArray<uint8_t>					mMaterialIndices;							// Compressed to the minimum amount of bits per material index (mSampleCount - 1) * (mSampleCount - 1) * mNumBitsPerMaterialIndex bits of data
 	uint32_t							mNumBitsPerMaterialIndex = 0;				// Number of bits per material index
 
 #ifdef MOSS_DEBUG_RENDERER
@@ -1747,7 +1747,7 @@ public:
 	virtual const Shape *			GetLeafShape(const SubShapeID &inSubShapeID, SubShapeID &outRemainder) const override;
 
 	// See Shape::GetSubShapeUserData
-	virtual uint64					GetSubShapeUserData(const SubShapeID &inSubShapeID) const override;
+	virtual uint64_t					GetSubShapeUserData(const SubShapeID &inSubShapeID) const override;
 
 	// See Shape::GetSubShapeTransformedShape
 	virtual TransformedShape		GetSubShapeTransformedShape(const SubShapeID &inSubShapeID, Vec3Arg inPositionCOM, QuatArg inRotation, Vec3Arg inScale, SubShapeID &outRemainder) const override;

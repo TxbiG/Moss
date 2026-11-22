@@ -20,13 +20,13 @@ ENetPacket* enet_packet_create (const void * data, size_t dataLength, uint32_t f
     ENetPacket* packet = (ENetPacket*) enet_malloc (sizeof (ENetPacket));
     if (packet == NULL) return NULL;
 
-    if (flags & ENetPacketFlag::NO_ALLOCATE) packet->data = (uint8*) data;
+    if (flags & ENetPacketFlag::NO_ALLOCATE) packet->data = (uint8_t*) data;
     else
     if (dataLength <= 0)
       packet->data = NULL;
     else
     {
-      packet->data = (uint8*) enet_malloc(dataLength);
+      packet->data = (uint8_t*) enet_malloc(dataLength);
       if (packet -> data == NULL)
       {
         enet_free (packet);
@@ -66,7 +66,7 @@ void enet_packet_destroy (ENetPacket * packet) {
     @returns 0 on success, < 0 on failure
 */
 int enet_packet_resize (ENetPacket * packet, size_t dataLength) {
-    uint8 * newData;
+    uint8_t * newData;
    
     if (dataLength <= packet -> dataLength || (packet -> flags & ENetPacketFlag::NO_ALLOCATE))
     {
@@ -75,7 +75,7 @@ int enet_packet_resize (ENetPacket * packet, size_t dataLength) {
        return 0;
     }
 
-    newData = (uint8 *) enet_malloc (dataLength);
+    newData = (uint8_t *) enet_malloc (dataLength);
     if (newData == NULL)
       return -1;
 
@@ -135,7 +135,7 @@ uint32_t enet_crc32 (const ENetBuffer * buffers, size_t bufferCount)
 
     while (bufferCount -- > 0)
     {
-        const uint8* data = (const uint8 *) buffers -> data, *dataEnd = &data [buffers -> dataLength];
+        const uint8_t* data = (const uint8_t *) buffers -> data, *dataEnd = &data [buffers -> dataLength];
 
         while (data < dataEnd) { crc = (crc >> 8) ^ crcTable [(crc & 0xFF) ^ *data++]; }
         ++ buffers;

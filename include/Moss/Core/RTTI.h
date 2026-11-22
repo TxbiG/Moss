@@ -333,7 +333,7 @@ public:																												\
 //////////////////////////////////////////////////////////////////////////////////////////
 
 /// Define very dirty macro to get the offset of a baseclass into a class
-#define MOSS_BASE_CLASS_OFFSET(inClass, inBaseClass)	((int(uint64((inBaseClass *)((inClass *)0x10000))))-0x10000)
+#define MOSS_BASE_CLASS_OFFSET(inClass, inBaseClass)	((int(uint64_t((inBaseClass *)((inClass *)0x10000))))-0x10000)
 
 // MOSS_ADD_BASE_CLASS
 #define MOSS_ADD_BASE_CLASS(class_name, base_class_name) inRTTI.AddBaseClass(MOSS_RTTI(base_class_name), MOSS_BASE_CLASS_OFFSET(class_name, base_class_name));

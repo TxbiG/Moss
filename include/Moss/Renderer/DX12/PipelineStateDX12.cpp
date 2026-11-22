@@ -27,7 +27,7 @@ PipelineStateDX12::PipelineStateDX12(RendererDX12 *inRenderer, const VertexShade
 
 		case EInputDescription::Color:
 			input_description.push_back({ "COLOR", 0, DXGI_FORMAT_R8G8B8A8_UNORM, 0, vertex_offset, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 });
-			vertex_offset += 4 * sizeof(uint8);
+			vertex_offset += 4 * sizeof(uint8_t);
 			break;
 
 		case EInputDescription::Normal:
@@ -42,7 +42,7 @@ PipelineStateDX12::PipelineStateDX12(RendererDX12 *inRenderer, const VertexShade
 
 		case EInputDescription::InstanceColor:
 			input_description.push_back({ "INSTANCE_COLOR", 0, DXGI_FORMAT_R8G8B8A8_UNORM, 1, instance_offset, D3D12_INPUT_CLASSIFICATION_PER_INSTANCE_DATA, 1 });
-			instance_offset += 4 * sizeof(uint8);
+			instance_offset += 4 * sizeof(uint8_t);
 			break;
 
 		case EInputDescription::InstanceTransform:

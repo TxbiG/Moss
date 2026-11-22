@@ -274,7 +274,7 @@ public:
 	static MOSS_INLINE Type		FixW(TypeArg inValue);
 
 	/// Representations of true and false for boolean operations
-	inline static const double cTrue = BitCast<double>(~uint64(0));
+	inline static const double cTrue = BitCast<double>(~uint64_t(0));
 	inline static const double cFalse = 0.0;
 
 	union

@@ -34,7 +34,7 @@ PipelineStateMTL::PipelineStateMTL(RendererMTL *inRenderer, const VertexShaderMT
 			vertex_descriptor.attributes[index].format = MTLVertexFormatUChar4;
 			vertex_descriptor.attributes[index].offset = vertex_offset;
 			vertex_descriptor.attributes[index].bufferIndex = 0;
-			vertex_offset += 4 * sizeof(uint8);
+			vertex_offset += 4 * sizeof(uint8_t);
 			++index;
 			break;
 
@@ -50,7 +50,7 @@ PipelineStateMTL::PipelineStateMTL(RendererMTL *inRenderer, const VertexShaderMT
 			vertex_descriptor.attributes[index].format = MTLVertexFormatUChar4;
 			vertex_descriptor.attributes[index].offset = instance_offset;
 			vertex_descriptor.attributes[index].bufferIndex = 1;
-			instance_offset += 4 * sizeof(uint8);
+			instance_offset += 4 * sizeof(uint8_t);
 			++index;
 			break;
 

@@ -42,7 +42,7 @@ public:
 		// Since the tree can be huge for very large meshes, we don't want
 		// to reallocate the buffer as it may cause out of memory situations.
 		// This loop mimics the construction loop below.
-		uint64 total_size = HeaderSize + TriangleHeaderSize;
+		uint64_t total_size = HeaderSize + TriangleHeaderSize;
 		size_t node_count = 1; // Start with root node
 		size_t to_process_max_size = 1; // Track size of queues so we can do a single reserve below
 		size_t to_process_triangles_max_size = 0;

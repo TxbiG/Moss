@@ -10,7 +10,7 @@
 MOSS_SUPPRESS_WARNINGS_BEGIN
 
 /// Underlying data type for ByteBuffer
-using ByteBufferVector = TArray<uint8, STLAlignedAllocator<uint8_t, MOSS_CACHE_LINE_SIZE>>;
+using ByteBufferVector = TArray<uint8_t, STLAlignedAllocator<uint8_t, MOSS_CACHE_LINE_SIZE>>;
 
 /// Simple byte buffer, aligned to a cache line
 class ByteBuffer : public ByteBufferVector {
@@ -50,7 +50,7 @@ public:
 	void			AppendVector(const TArray<Type> &inData)
 	{
 		size_t size = inData.size() * sizeof(Type);
-		uint8 *data = Allocate<uint8>(size);
+		uint8_t *data = Allocate<uint8_t>(size);
 		memcpy(data, &inData[0], size);
 	}
 

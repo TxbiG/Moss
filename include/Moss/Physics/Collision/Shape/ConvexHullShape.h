@@ -130,7 +130,7 @@ public:
 	/// @return Number of vertices in face, if this is bigger than inMaxVertices, not all vertices were retrieved.
 	inline uint32_t				GetFaceVertices(uint32_t inFaceIndex, uint32_t inMaxVertices, uint32_t *outVertices) const {
 		const Face &face = mFaces[inFaceIndex];
-		const uint8 *first_vertex = mVertexIdx.data() + face.mFirstVertex;
+		const uint8_t *first_vertex = mVertexIdx.data() + face.mFirstVertex;
 		uint32_t num_vertices = min<uint32_t>(face.mNumVertices, inMaxVertices);
 		for (uint32_t i = 0; i < num_vertices; ++i)
 			outVertices[i] = first_vertex[i];
@@ -184,7 +184,7 @@ private:
 	TArray<Point>			mPoints;					// Points on the convex hull surface
 	TArray<Face>				mFaces;					// Faces of the convex hull surface
 	TArray<Plane>			mPlanes;					// Planes for the faces (1-on-1 with mFaces TArray, separate because they need to be 16 byte aligned)
-	TArray<uint8>			mVertexIdx;					// A list of vertex indices (indexing in mPoints) for each of the faces
+	TArray<uint8_t>			mVertexIdx;					// A list of vertex indices (indexing in mPoints) for each of the faces
 	float					mConvexRadius = 0.0f;		// Convex radius
 	float					mVolume;					// Total volume of the convex hull
 	float					mInnerRadius = FLT_MAX;		// Radius of the biggest sphere that fits entirely in the convex hull

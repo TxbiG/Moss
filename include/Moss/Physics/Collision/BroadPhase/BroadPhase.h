@@ -37,7 +37,7 @@ using CollideShapeBodyCollector = CollisionCollector<BodyID, CollisionCollectorT
 
 class BroadPhaseLayer {
 public:
-	using Type = uint8;
+	using Type = uint8_t;
 
 	MOSS_INLINE						BroadPhaseLayer() = default;
 	MOSS_INLINE explicit constexpr	BroadPhaseLayer(Type inValue) : mValue(inValue) { }

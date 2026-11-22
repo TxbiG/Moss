@@ -653,8 +653,8 @@ public:
 									VehicleCollisionTesterCastSphere(ObjectLayer inObjectLayer, float inRadius, Vec3Arg inUp = Vec3::AxisY(), float inMaxSlopeAngle = DegreesToRadians(80.0f)) : VehicleCollisionTester(inObjectLayer), mRadius(inRadius), mUp(inUp), mCosMaxSlopeAngle(Cos(inMaxSlopeAngle)) { }
 
 	// See: VehicleCollisionTester
-	virtual bool					Collide(PhysicsSystem &inPhysicsSystem, const VehicleConstraint &inVehicleConstraint, uint inWheelIndex, RVec3Arg inOrigin, Vec3Arg inDirection, const BodyID &inVehicleBodyID, Body *&outBody, SubShapeID &outSubShapeID, RVec3 &outContactPosition, Vec3 &outContactNormal, float &outSuspensionLength) const override;
-	virtual void					PredictContactProperties(PhysicsSystem &inPhysicsSystem, const VehicleConstraint &inVehicleConstraint, uint inWheelIndex, RVec3Arg inOrigin, Vec3Arg inDirection, const BodyID &inVehicleBodyID, Body *&ioBody, SubShapeID &ioSubShapeID, RVec3 &ioContactPosition, Vec3 &ioContactNormal, float &ioSuspensionLength) const override;
+	virtual bool					Collide(PhysicsSystem &inPhysicsSystem, const VehicleConstraint &inVehicleConstraint, uint32_t inWheelIndex, RVec3Arg inOrigin, Vec3Arg inDirection, const BodyID &inVehicleBodyID, Body *&outBody, SubShapeID &outSubShapeID, RVec3 &outContactPosition, Vec3 &outContactNormal, float &outSuspensionLength) const override;
+	virtual void					PredictContactProperties(PhysicsSystem &inPhysicsSystem, const VehicleConstraint &inVehicleConstraint, uint32_t inWheelIndex, RVec3Arg inOrigin, Vec3Arg inDirection, const BodyID &inVehicleBodyID, Body *&ioBody, SubShapeID &ioSubShapeID, RVec3 &ioContactPosition, Vec3 &ioContactNormal, float &ioSuspensionLength) const override;
 
 private:
 	float							mRadius;
@@ -674,8 +674,8 @@ public:
 	explicit						VehicleCollisionTesterCastCylinder(ObjectLayer inObjectLayer, float inConvexRadiusFraction = 0.1f) : VehicleCollisionTester(inObjectLayer), mConvexRadiusFraction(inConvexRadiusFraction) { MOSS_ASSERT(mConvexRadiusFraction >= 0.0f && mConvexRadiusFraction <= 1.0f); }
 
 	// See: VehicleCollisionTester
-	virtual bool					Collide(PhysicsSystem &inPhysicsSystem, const VehicleConstraint &inVehicleConstraint, uint inWheelIndex, RVec3Arg inOrigin, Vec3Arg inDirection, const BodyID &inVehicleBodyID, Body *&outBody, SubShapeID &outSubShapeID, RVec3 &outContactPosition, Vec3 &outContactNormal, float &outSuspensionLength) const override;
-	virtual void					PredictContactProperties(PhysicsSystem &inPhysicsSystem, const VehicleConstraint &inVehicleConstraint, uint inWheelIndex, RVec3Arg inOrigin, Vec3Arg inDirection, const BodyID &inVehicleBodyID, Body *&ioBody, SubShapeID &ioSubShapeID, RVec3 &ioContactPosition, Vec3 &ioContactNormal, float &ioSuspensionLength) const override;
+	virtual bool					Collide(PhysicsSystem &inPhysicsSystem, const VehicleConstraint &inVehicleConstraint, uint32_t inWheelIndex, RVec3Arg inOrigin, Vec3Arg inDirection, const BodyID &inVehicleBodyID, Body *&outBody, SubShapeID &outSubShapeID, RVec3 &outContactPosition, Vec3 &outContactNormal, float &outSuspensionLength) const override;
+	virtual void					PredictContactProperties(PhysicsSystem &inPhysicsSystem, const VehicleConstraint &inVehicleConstraint, uint32_t inWheelIndex, RVec3Arg inOrigin, Vec3Arg inDirection, const BodyID &inVehicleBodyID, Body *&ioBody, SubShapeID &ioSubShapeID, RVec3 &ioContactPosition, Vec3 &ioContactNormal, float &ioSuspensionLength) const override;
 
 private:
 	float							mConvexRadiusFraction;
@@ -743,8 +743,8 @@ public:
 	/// Restores the contents in binary form to inStream.
 	void					RestoreBinaryState(StreamIn &inStream);
 
-	uint					mDrivenWheel;								// Which wheel on the track is connected to the engine
-	TArray<uint>				mWheels;									// Indices of wheels that are inside this track, should include the driven wheel too
+	uint32_t					mDrivenWheel;								// Which wheel on the track is connected to the engine
+	TArray<uint32_t>				mWheels;									// Indices of wheels that are inside this track, should include the driven wheel too
 	float					mInertia = 10.0f;							// Moment of inertia (kg m^2) of the track and its wheels as seen on the driven wheel
 	float					mAngularDamping = 0.5f;						// Damping factor of track and its wheels: dw/dt = -c * w as seen on the driven wheel
 	float					mMaxBrakeTorque = 15000.0f;					// How much torque (Nm) the brakes can apply on the driven wheel

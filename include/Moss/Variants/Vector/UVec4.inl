@@ -9,8 +9,8 @@ UVec4::UVec4(uint32_t inX, uint32_t inY, uint32_t inZ, uint32_t inW)
 #if defined(MOSS_SIMD_SSE)
 	mValue = _mm_set_epi32(int(inW), int(inZ), int(inY), int(inX));
 #elif defined(MOSS_SIMD_NEON)
-	uint32x2_t xy = vcreate_u32(static_cast<uint64>(inX) | (static_cast<uint64>(inY) << 32));
-	uint32x2_t zw = vcreate_u32(static_cast<uint64>(inZ) | (static_cast<uint64>(inW) << 32));
+	uint32x2_t xy = vcreate_u32(static_cast<uint64_t>(inX) | (static_cast<uint64_t>(inY) << 32));
+	uint32x2_t zw = vcreate_u32(static_cast<uint64_t>(inZ) | (static_cast<uint64_t>(inW) << 32));
 	mValue = vcombine_u32(xy, zw);
 #else
 	mU32[0] = inX;
@@ -101,7 +101,7 @@ UVec4 UVec4::GatherInt4(const uint32_t *inBase, const UVec4 inOffsets)
 #ifdef MOSS_SIMD_AVX2
 	return _mm_i32gather_epi32(reinterpret_cast<const int *>(inBase), inOffsets.mValue, Scale);
 #else
-	const uint8 *base = reinterpret_cast<const uint8 *>(inBase);
+	const uint8_t *base = reinterpret_cast<const uint8_t *>(inBase);
 	uint32_t x = *reinterpret_cast<const uint32_t *>(base + inOffsets.GetX() * Scale);
 	uint32_t y = *reinterpret_cast<const uint32_t *>(base + inOffsets.GetY() * Scale);
 	uint32_t z = *reinterpret_cast<const uint32_t *>(base + inOffsets.GetZ() * Scale);

@@ -28,10 +28,10 @@ typedef signed short int16;
 typedef signed int int32;
 typedef signed long long int64;
 
-typedef unsigned char uint8;
+typedef unsigned char uint8_t;
 typedef unsigned short uint16;
 typedef unsigned int uint32_t;
-typedef unsigned long long uint64;
+typedef unsigned long long uint64_t;
 ```
 ## Signed Integers & Unsigned Integers
 ```cpp
@@ -41,10 +41,10 @@ typedef signed short int16;
 typedef signed int int32;
 typedef signed long long int64;
 
-typedef unsigned char uint8;
+typedef unsigned char uint8_t;
 typedef unsigned short uint16;
 typedef unsigned int uint32_t;
-typedef unsigned long long uint64;
+typedef unsigned long long uint64_t;
 ```
 #### Macros
 ```cpp
@@ -58,14 +58,14 @@ typedef unsigned long long uint64;
 #define MIN_INT32   ((int32)(~0x7FFFFFFF))
 #define MIN_INT64   ((int64)(~0x7FFFFFFFFFFFFFFF))
 
-#define MAX_UINT8   ((uint8)(0xFF))
+#define MAX_UINT8   ((uint8_t)(0xFF))
 #define MAX_UINT16  ((uint16)(0xFFFF))
 #define MAX_UINT32  ((uint32_t)(0xFFFFFFFFu))
-#define MAX_UINT64  ((uint64)(0xFFFFFFFFFFFFFFFF))
-#define MIN_UINT8   ((uint8)0x00)
+#define MAX_UINT64  ((uint64_t)(0xFFFFFFFFFFFFFFFF))
+#define MIN_UINT8   ((uint8_t)0x00)
 #define MIN_UINT16  ((uint16)0x0000)
 #define MIN_UINT32  ((uint32_t)0x00000000)
-#define MIN_UINT64  ((uint64)(0x0000000000000000))
+#define MIN_UINT64  ((uint64_t)(0x0000000000000000))
 ```
 ## Geometry Types
 | Type | Purpose |

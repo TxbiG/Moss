@@ -28,7 +28,7 @@ class FPFlushDenormals : public FPControlWord<_DN_FLUSH, _MCW_DN> { };
 #elif defined(MOSS_CPU_ARM)
 
 /// Flush denormals to zero bit
-static constexpr uint64 FP_FZ = 1 << 24;
+static constexpr uint64_t FP_FZ = 1 << 24;
 
 /// Helper class that needs to be put on the stack to enable flushing denormals to zero
 /// This can make floating point operations much faster when working with very small numbers

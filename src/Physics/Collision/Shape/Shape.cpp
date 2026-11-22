@@ -4,6 +4,8 @@
 
 
 #include <Moss/Physics/Collision/Shape/Shapes.h>
+#include <Moss/Physics/AABBTree/TriangleCodec/TriangleCodecIndexed8BitPackSOA4Flags.h>
+#include <Moss/Physics/AABBTree/NodeCodec/NodeCodecQuadTreeHalfFloat.h>
 #ifndef MOSS_DEBUG_RENDERER
 	#include <Moss/Moss_Renderer.h>
 #endif // MOSS_DEBUG_RENDERER

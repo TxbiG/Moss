@@ -44,7 +44,7 @@ const RTTI *RTTI::GetBaseClass(int inIdx) const
 uint32_t RTTI::GetHash() const
 {
 	// Perform diffusion step to get from 64 to 32 bits (see https://en.wikipedia.org/wiki/Fowler%E2%80%93Noll%E2%80%93Vo_hash_function)
-	uint64 hash = HashString(mName);
+	uint64_t hash = HashString(mName);
 	return (uint32_t)(hash ^ (hash >> 32));
 }
 
@@ -113,7 +113,7 @@ const void *RTTI::CastTo(const void *inObject, const RTTI *inRTTI) const
 	for (const BaseClass &b : mBaseClasses)
 	{
 		// Cast the pointer to the base class
-		const void *casted = (const void *)(((const uint8 *)inObject) + b.mOffset);
+		const void *casted = (const void *)(((const uint8_t *)inObject) + b.mOffset);
 
 		// Test base class
 		const void *rv = b.mRTTI->CastTo(casted, inRTTI);

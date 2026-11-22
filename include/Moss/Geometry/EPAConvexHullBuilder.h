@@ -106,7 +106,7 @@ public:
 		/// Struct that stores both a triangle or a next pointer in case the triangle is unused
 		union alignas(Triangle) Block
 		{
-			uint8		mTriangle[sizeof(Triangle)];
+			uint8_t		mTriangle[sizeof(Triangle)];
 			Block *		mNextFree;
 		};
 
