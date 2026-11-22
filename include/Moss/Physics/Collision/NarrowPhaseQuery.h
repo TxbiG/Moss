@@ -7,6 +7,7 @@
 #include <Moss/Physics/Body/Body.h>
 #include <Moss/Physics/Collision/ShapeFilter.h>
 #include <Moss/Physics/Collision/BroadPhase/BroadPhase.h>
+#include <Moss/Physics/Collision/CollisionCollectorImpl.h>
 #include <Moss/Physics/Collision/RayCast.h>
 #include <Moss/Physics/Collision/ShapeCast.h>
 
@@ -18,25 +19,24 @@ class RayCastResult;
 
 /// Class that provides an interface for doing precise collision detection against the broad and then the narrow phase.
 /// Unlike a BroadPhaseQuery, the NarrowPhaseQuery will test against shapes and will return collision information against triangles, spheres etc.
-class MOSS_API NarrowPhaseQuery : public NonCopyable
-{
+class MOSS_API NarrowPhaseQuery : public NonCopyable {
 public:
 	/// Initialize the interface (should only be called by PhysicsSystem)
-	void						Init(BodyLockInterface &inBodyLockInterface, BroadPhaseQuery &inBroadPhaseQuery) { mBodyLockInterface = &inBodyLockInterface; mBroadPhaseQuery = &inBroadPhaseQuery; }
+	void Init(BodyLockInterface &inBodyLockInterface, BroadPhaseQuery &inBroadPhaseQuery) { mBodyLockInterface = &inBodyLockInterface; mBroadPhaseQuery = &inBroadPhaseQuery; }
 
 	/// Cast a ray and find the closest hit. Returns true if it finds a hit. Hits further than ioHit.mFraction will not be considered and in this case ioHit will remain unmodified (and the function will return false).
 	/// Convex objects will be treated as solid (meaning if the ray starts inside, you'll get a hit fraction of 0) and back face hits against triangles are returned.
 	/// If you want the surface normal of the hit use Body::GetWorldSpaceSurfaceNormal(ioHit.mSubShapeID2, inRay.GetPointOnRay(ioHit.mFraction)) on body with ID ioHit.mBodyID.
-	bool						CastRay(const RRayCast &inRay, RayCastResult &ioHit, const BroadPhaseLayerFilter &inBroadPhaseLayerFilter = { }, const ObjectLayerFilter &inObjectLayerFilter = { }, const BodyFilter &inBodyFilter = { }) const;
+	bool CastRay(const RRayCast &inRay, RayCastResult &ioHit, const BroadPhaseLayerFilter &inBroadPhaseLayerFilter = { }, const ObjectLayerFilter &inObjectLayerFilter = { }, const BodyFilter &inBodyFilter = { }) const;
 
 	/// Cast a ray, allows collecting multiple hits. Note that this version is more flexible but also slightly slower than the CastRay function that returns only a single hit.
 	/// If you want the surface normal of the hit use Body::GetWorldSpaceSurfaceNormal(collected sub shape ID, inRay.GetPointOnRay(collected fraction)) on body with collected body ID.
-	void						CastRay(const RRayCast &inRay, const RayCastSettings &inRayCastSettings, CastRayCollector &ioCollector, const BroadPhaseLayerFilter &inBroadPhaseLayerFilter = { }, const ObjectLayerFilter &inObjectLayerFilter = { }, const BodyFilter &inBodyFilter = { }, const ShapeFilter &inShapeFilter = { }) const;
+	void CastRay(const RRayCast &inRay, const RayCastSettings &inRayCastSettings, CastRayCollector &ioCollector, const BroadPhaseLayerFilter &inBroadPhaseLayerFilter = { }, const ObjectLayerFilter &inObjectLayerFilter = { }, const BodyFilter &inBodyFilter = { }, const ShapeFilter &inShapeFilter = { }) const;
 
 	/// Check if inPoint is inside any shapes. For this tests all shapes are treated as if they were solid.
 	/// For a mesh shape, this test will only provide sensible information if the mesh is a closed manifold.
 	/// For each shape that collides, ioCollector will receive a hit
-	void						CollidePoint(RVec3Arg inPoint, CollidePointCollector &ioCollector, const BroadPhaseLayerFilter &inBroadPhaseLayerFilter = { }, const ObjectLayerFilter &inObjectLayerFilter = { }, const BodyFilter &inBodyFilter = { }, const ShapeFilter &inShapeFilter = { }) const;
+	void CollidePoint(RVec3Arg inPoint, CollidePointCollector &ioCollector, const BroadPhaseLayerFilter &inBroadPhaseLayerFilter = { }, const ObjectLayerFilter &inObjectLayerFilter = { }, const BodyFilter &inBodyFilter = { }, const ShapeFilter &inShapeFilter = { }) const;
 
 	/// Collide a shape with the system
 	/// @param inShape Shape to test
@@ -63,14 +63,14 @@ public:
 	/// @param inObjectLayerFilter Filter that filters at layer level
 	/// @param inBodyFilter Filter that filters at body level
 	/// @param inShapeFilter Filter that filters at shape level
-	void						CastShape(const RShapeCast &inShapeCast, const ShapeCastSettings &inShapeCastSettings, RVec3Arg inBaseOffset, CastShapeCollector &ioCollector, const BroadPhaseLayerFilter &inBroadPhaseLayerFilter = { }, const ObjectLayerFilter &inObjectLayerFilter = { }, const BodyFilter &inBodyFilter = { }, const ShapeFilter &inShapeFilter = { }) const;
+	void CastShape(const RShapeCast &inShapeCast, const ShapeCastSettings &inShapeCastSettings, RVec3Arg inBaseOffset, CastShapeCollector &ioCollector, const BroadPhaseLayerFilter &inBroadPhaseLayerFilter = { }, const ObjectLayerFilter &inObjectLayerFilter = { }, const BodyFilter &inBodyFilter = { }, const ShapeFilter &inShapeFilter = { }) const;
 
 	/// Collect all leaf transformed shapes that fall inside world space box inBox
-	void						CollectTransformedShapes(const AABox &inBox, TransformedShapeCollector &ioCollector, const BroadPhaseLayerFilter &inBroadPhaseLayerFilter = { }, const ObjectLayerFilter &inObjectLayerFilter = { }, const BodyFilter &inBodyFilter = { }, const ShapeFilter &inShapeFilter = { }) const;
+	void CollectTransformedShapes(const AABox &inBox, TransformedShapeCollector &ioCollector, const BroadPhaseLayerFilter &inBroadPhaseLayerFilter = { }, const ObjectLayerFilter &inObjectLayerFilter = { }, const BodyFilter &inBodyFilter = { }, const ShapeFilter &inShapeFilter = { }) const;
 
 private:
-	BodyLockInterface *			mBodyLockInterface = nullptr;
-	BroadPhaseQuery *			mBroadPhaseQuery = nullptr;
+	BodyLockInterface*			mBodyLockInterface = nullptr;
+	BroadPhaseQuery*			mBroadPhaseQuery = nullptr;
 };
 
 MOSS_SUPPRESS_WARNINGS_END

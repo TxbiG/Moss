@@ -14,6 +14,7 @@
 #include <Moss/Geometry/Triangle.h>
 #include <Moss/Resources/ObjectStream/SerializableObject.h>
 
+#include <Moss/Moss_GPU.h>
 
 MOSS_SUPPRESS_WARNINGS_BEGIN
 
@@ -341,7 +342,7 @@ public:
 	UVec4				mGridSize { 32, 32, 32, 0 };				// Number of grid cells used to simulate the hair. W unused.
 	Vec3				mSimulationBoundsPadding = Vec3::Replicate(0.1f); // Padding around the simulation bounds to ensure that the grid is large enough and that we detect collisions with the hairs. This is added on all sides after calculating the bounds in the neutral pose.
 	Vec3				mInitialGravity { 0, -9.81f, 0 };			// Initial gravity in local space of the hair, used to calculate the unloaded rest pose
-	TArray<Material>		mMaterials;									// Materials used by the hair strands
+	TArray<HairMaterial>		mMaterials;									// Materials used by the hair strands
 
 	// Values computed by Init
 	TArray<SkinPoint>	mSkinPoints;								// For each simulated vertex, where it is attached to the scalp mesh

@@ -3,7 +3,6 @@
 // SPDX-License-Identifier: MIT
 
 #include <Moss/Physics/Hair/Hair.h>
-#include <Moss/Physics/Hair/HairShaders.h>
 #include <Moss/Physics/Collision/Shape/ConvexHullShape.h>
 #include <Moss/Physics/Collision/Shape/ScaleHelpers.h>
 #include <Moss/Physics/PhysicsSystem.h>
@@ -11,6 +10,8 @@
 #ifdef MOSS_DEBUG_RENDERER
 	#include <Moss/Renderer/DebugRenderer.h>
 #endif
+
+#include <Moss/Moss_GPU.h>
 
 MOSS_NAMESPACE_BEGIN
 

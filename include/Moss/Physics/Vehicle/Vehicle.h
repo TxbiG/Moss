@@ -1,8 +1,23 @@
 #pragma once
 
 MOSS_SUPPRESS_WARNINGS_BEGIN
-
 #include <Moss/Physics/Collision/Shape/Shapes.h>
+#include <Moss/Physics/Constraints/Constraints.h>
+#include <Moss/Physics/Constraints/SpringSettings.h>
+#include <Moss/Physics/PhysicsStepListener.h>
+#include <Moss/Physics/Body/Body.h>
+#include <Moss/Core/LinearCurve.h>
+
+
+class VehicleController;
+class VehicleConstraint;
+class VehicleCollisionTester;
+class Wheel;
+class WheelSettings;
+class VehicleAntiRollBar;
+class VehicleTrack;
+class VehicleDifferentialSettings;
+class PhysicsSystem;
 
 enum class ETrackSide : uint8_t {
 	Left = 0,
@@ -15,6 +30,10 @@ enum class ETransmissionMode : uint8_t {
 	Manual,																// Manual gear shift (call SetTransmissionInput)
 };
 
+using Wheels = TArray<Wheel*>;
+using VehicleTracks = VehicleTrack[(int)ETrackSide::Num];
+using VehicleAntiRollBars = TArray<VehicleAntiRollBar>;
+ 
 class VehicleControllerSettings : public SerializableObject, public RefTarget<VehicleControllerSettings> {
 public:
 	MOSS_OVERRIDE_NEW_DELETE
@@ -1177,11 +1196,6 @@ protected:
 
 static_assert(MOSS_CPU_ADDRESS_BITS != 64 || sizeof(Body) == MOSS_IF_SINGLE_PRECISION_ELSE(128, 160), "Body size is incorrect");
 static_assert(alignof(Body) == MOSS_RVECTOR_ALIGNMENT, "Body should properly align");
-
-
-using Wheels = TArray<Wheel*>;
-using VehicleTracks = VehicleTrack[(int)ETrackSide::Num];
-using VehicleAntiRollBars = TArray<VehicleAntiRollBar>;
 
 
 MOSS_SUPPRESS_WARNINGS_END

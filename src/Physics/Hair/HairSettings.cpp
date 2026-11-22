@@ -10,6 +10,7 @@
 #include <Moss/Core/QuickSort.h>
 #include <Moss/Core/StreamIn.h>
 #include <Moss/Core/StreamOut.h>
+#include <Moss/Moss_GPU.h>
 
 MOSS_NAMESPACE_BEGIN
 

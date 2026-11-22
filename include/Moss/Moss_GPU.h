@@ -99,8 +99,8 @@ using Moss_BindlessHandle = uint32_t;
 struct VertexShader;
 struct PixelShader;
 struct ComputeShader;
-struct Compute_Queue;
-struct Compute_Buffer;
+struct ComputeQueue;
+struct ComputeBuffer;
 
 struct Moss_Rect {
     int32_t x = 0;

@@ -2,12 +2,12 @@
 // SPDX-FileCopyrightText: 2026 Jorrit Rouwe
 // SPDX-License-Identifier: MIT
 
-#include <Moss/Physics/Hair/HairShaders.h>
+#include <Moss/Physics/Hair/Hair.h>
+#include <Moss/Moss_GPU.h>
 
 MOSS_NAMESPACE_BEGIN
 
-void HairShaders::Init(ComputeSystem *inComputeSystem)
-{
+void HairShaders::Init(ComputeSystem *inComputeSystem) {
 	auto get = [](const ComputeShaderResult &inResult) { return inResult.IsValid()? inResult.Get() : nullptr; };
 
 	mTeleportCS = get(inComputeSystem->CreateComputeShader("HairTeleport", cHairPerVertexBatch));

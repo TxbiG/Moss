@@ -24,15 +24,14 @@ MOSS_SUPPRESS_WARNING_POP
 MOSS_SUPPRESS_WARNINGS_BEGIN
 
 /// Structure that tracks narrow phase timing information for a particular combination of shapes
-class NarrowPhaseStat
-{
+class NarrowPhaseStat {
 public:
 	/// Trace an individual stat in CSV form.
-	void					ReportStats(const char *inName, EShapeSubType inType1, EShapeSubType inType2, uint64 inTicks100Pct) const;
+	void ReportStats(const char *inName, EShapeSubType inType1, EShapeSubType inType2, uint64 inTicks100Pct) const;
 
 	/// Trace the collected broadphase stats in CSV form.
 	/// This report can be used to judge and tweak the efficiency of the broadphase.
-	static void				sReportStats();
+	static void sReportStats();
 
 	atomic<uint64>			mNumQueries = 0;
 	atomic<uint64>			mHitsReported = 0;
@@ -47,17 +46,12 @@ public:
 class TrackNarrowPhaseStat
 {
 public:
-							TrackNarrowPhaseStat(NarrowPhaseStat &inStat) :
-		mStat(inStat),
-		mParent(sRoot),
-		mStart(GetProcessorTickCount())
-	{
+	TrackNarrowPhaseStat(NarrowPhaseStat &inStat) : mStat(inStat), mParent(sRoot), mStart(GetProcessorTickCount()) {
 		// Make this the new root of the chain
 		sRoot = this;
 	}
 
-							~TrackNarrowPhaseStat()
-	{
+	~TrackNarrowPhaseStat() {
 		uint64 delta_ticks = GetProcessorTickCount() - mStart;
 
 		// Notify parent of time spent in child
@@ -81,16 +75,11 @@ public:
 };
 
 /// Object that tracks the start and end of a hit being processed by a collision collector
-class TrackNarrowPhaseCollector
-{
+class TrackNarrowPhaseCollector {
 public:
-							TrackNarrowPhaseCollector() :
-		mStart(GetProcessorTickCount())
-	{
-	}
+	TrackNarrowPhaseCollector() : mStart(GetProcessorTickCount()) { }
 
-							~TrackNarrowPhaseCollector()
-	{
+	~TrackNarrowPhaseCollector() {
 		// Mark time spent in collector as 'child' time for the parent
 		uint64 delta_ticks = GetProcessorTickCount() - mStart;
 		if (TrackNarrowPhaseStat::Root != nullptr)
@@ -106,5 +95,4 @@ private:
 };
 
 MOSS_SUPPRESS_WARNINGS_END
-
 #endif // MOSS_TRACK_NARROWPHASE_STATS
