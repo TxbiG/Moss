@@ -52,7 +52,7 @@ public:
 	virtual bool				ReadPrimitiveData(uint16 &outPrimitive) = 0;
 	virtual bool				ReadPrimitiveData(int &outPrimitive) = 0;
 	virtual bool				ReadPrimitiveData(uint32_t &outPrimitive) = 0;
-	virtual bool				ReadPrimitiveData(uint64_t_t &outPrimitive) = 0;
+	virtual bool				ReadPrimitiveData(uint64_t &outPrimitive) = 0;
 	virtual bool				ReadPrimitiveData(float &outPrimitive) = 0;
 	virtual bool				ReadPrimitiveData(double &outPrimitive) = 0;
 	virtual bool				ReadPrimitiveData(bool &outPrimitive) = 0;
@@ -88,7 +88,7 @@ public:
 	virtual void				WritePrimitiveData(const uint16 &inPrimitive) = 0;
 	virtual void				WritePrimitiveData(const int &inPrimitive) = 0;
 	virtual void				WritePrimitiveData(const uint32_t &inPrimitive) = 0;
-	virtual void				WritePrimitiveData(const uint64_t_t &inPrimitive) = 0;
+	virtual void				WritePrimitiveData(const uint64_t &inPrimitive) = 0;
 	virtual void				WritePrimitiveData(const float &inPrimitive) = 0;
 	virtual void				WritePrimitiveData(const double &inPrimitive) = 0;
 	virtual void				WritePrimitiveData(const bool &inPrimitive) = 0;
