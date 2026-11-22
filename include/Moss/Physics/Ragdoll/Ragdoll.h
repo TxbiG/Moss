@@ -6,7 +6,7 @@
 #include <Moss/Core/Reference.h>
 #include <Moss/Core/Result.h>
 #include <Moss/Physics/Body/Body.h>
-#include <Moss/Physics/Constraints/TwoBodyConstraint.h>
+#include <Moss/Physics/Constraints/Constraints.h>
 #include <Moss/Skeleton/Skeleton.h>
 #include <Moss/Skeleton/SkeletonPose.h>
 #include <Moss/Physics/EActivation.h>

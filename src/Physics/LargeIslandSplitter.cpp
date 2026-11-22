@@ -3,8 +3,7 @@
 
 #include <Moss/Physics/LargeIslandSplitter.h>
 #include <Moss/Physics/IslandBuilder.h>
-#include <Moss/Physics/Constraints/CalculateSolverSteps.h>
-#include <Moss/Physics/Constraints/Constraint.h>
+#include <Moss/Physics/Constraints/Constraints.h>
 #include <Moss/Physics/Constraints/ContactConstraintManager.h>
 #include <Moss/Physics/Body/BodyManager.h>
 #include <Moss/Core/Profiler.h>

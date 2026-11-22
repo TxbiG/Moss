@@ -3,7 +3,6 @@
 // SPDX-License-Identifier: MIT
 
 #include <Moss/Physics/Hair/HairShaders.h>
-#include <Moss/Shaders/HairStructs.h>
 
 MOSS_NAMESPACE_BEGIN
 

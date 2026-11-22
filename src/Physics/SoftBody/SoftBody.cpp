@@ -8,10 +8,9 @@
 	#include <Moss/Moss_Renderer.h>
 #endif // MOSS_DEBUG_RENDERER
 
-#include <Moss/ObjectStream/TypeDeclarations.h>
+#include <Moss/Resources/ObjectStream/TypeDeclarations.h>
 #include <Moss/Core/StreamIn.h>
 #include <Moss/Core/StreamOut.h>
-#include <Moss/ObjectStream/TypeDeclarations.h>
 #include <Moss/Core/StreamIn.h>
 #include <Moss/Core/StreamOut.h>
 #include <Moss/Core/QuickSort.h>

@@ -10,7 +10,7 @@
 #include <Moss/Core/NonCopyable.h>
 
 #include <Moss/Core/Reference.h>
-#include <Moss/Geometry/AABox.h>
+#include <Moss/Variants/AABB3.h>
 #include <Moss/Geometry/Triangle.h>
 #include <Moss/Resources/ObjectStream/SerializableObject.h>
 

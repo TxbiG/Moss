@@ -9,13 +9,11 @@
 #endif // MOSS_DEBUG_RENDERER
 
 
-#include <Moss/Physics/Vehicle/TrackedVehicleController.h>
+#include <Moss/Physics/Vehicle/Vehicle.h>
 #include <Moss/Physics/PhysicsSystem.h>
-#include <Moss/ObjectStream/TypeDeclarations.h>
-#include <Moss/Physics/Vehicle/VehicleController.h>
+#include <Moss/Resources/ObjectStream/TypeDeclarations.h>
 #include <Moss/Core/Factory.h>
-#include <Moss/Physics/Vehicle/VehicleConstraint.h>
-#include <Moss/Physics/Vehicle/VehicleController.h>
+
 
 MOSS_SUPPRESS_WARNINGS_BEGIN
 

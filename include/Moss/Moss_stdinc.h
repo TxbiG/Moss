@@ -631,12 +631,11 @@
     #define MOSS_WARNING_PUSH __pragma(warning(push))
     #define MOSS_WARNING_POP  __pragma(warning(pop))
 
-    #define MOSS_MSVC_SUPPRESS_WARNING(w) \
-        __pragma(warning(disable : w))
+	#undef MOSS_MSVC_SUPPRESS_WARNING
+    #define MOSS_MSVC_SUPPRESS_WARNING(w) __pragma(warning(disable : w))
 
     #if MOSS_COMPILER_MSVC >= 1950
-        #define MOSS_MSVC2026_PLUS_SUPPRESS_WARNING(w) \
-            MOSS_MSVC_SUPPRESS_WARNING(w)
+        #define MOSS_MSVC2026_PLUS_SUPPRESS_WARNING(w) MOSS_MSVC_SUPPRESS_WARNING(w)
     #else
         #define MOSS_MSVC2026_PLUS_SUPPRESS_WARNING(w)
     #endif

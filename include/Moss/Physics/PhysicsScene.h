@@ -6,8 +6,8 @@
 
 #include <Moss/Core/Reference.h>
 #include <Moss/Physics/Body/Body.h>
-#include <Moss/Physics/SoftBody/SoftBodyCreationSettings.h>
-#include <Moss/Physics/Constraints/TwoBodyConstraint.h>
+#include <Moss/Physics/SoftBody/SoftBody.h>
+#include <Moss/Physics/Constraints/Constraints.h>
 
 MOSS_SUPPRESS_WARNINGS_BEGIN
 
