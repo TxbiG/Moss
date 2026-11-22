@@ -273,14 +273,10 @@
 // Determine compiler
 #if defined(__clang__)
 	#define MOSS_COMPILER_CLANG
-#elif defined(__GNUC__)
-	#define MOSS_COMPILER_GCC
+#elif defined(__GNUC__) && !defined(__clang__)
+	#define MOSS_COMPILER_GCC __GNUC__
 #elif defined(_MSC_VER)
 	#define MOSS_COMPILER_MSVC 1943
-#endif
-
-#if (defined(__MINGW64__) || defined(__MINGW32__))
-	#define MOSS_COMPILER_MINGW
 #endif
 
 
@@ -1882,6 +1878,9 @@ MOSS_INLINE void Moss_FreeBumpAlloc(Moss_BumpAlloc* alloc) {
 }
 
 
+#if !defined(_WIN32)
+    #include <sys/stat.h>
+#endif
 
 MOSS_INLINE int64_t Moss_GetFileTimeStamp(const char* filepath) {
     if (!filepath) return -1;
