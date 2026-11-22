@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include <Moss/Physics/Collision/Shape/Shape.h>
+#include <Moss/Physics/Collision/Shape/Shapes.h>
 #include <Moss/Physics/Collision/Shape/SubShapeID.h>
 #include <Moss/Physics/Collision/Shape/SphereShape.h>
 

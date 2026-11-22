@@ -5,9 +5,9 @@
 #pragma once
 
 #include <Moss/Core/FixedSizeFreeList.h>
-#include <Moss/Core/Atomics.h>
+#include <Moss/Moss_stdinc.h>
 #include <Moss/Core/NonCopyable.h>
-#include <Moss/Physics/Body/BodyManager.h>
+#include <Moss/Physics/Body/Body.h>
 #include <Moss/Physics/Collision/BroadPhase/BroadPhase.h>
 
 //#define MOSS_DUMP_BROADPHASE_TREE
@@ -17,8 +17,7 @@ MOSS_SUPPRESS_WARNINGS_BEGIN
 /// Internal tree structure in broadphase, is essentially a quad AABB tree.
 /// Tree is lockless (except for UpdatePrepare/Finalize() function), modifying objects in the tree will widen the aabbs of parent nodes to make the node fit.
 /// During the UpdatePrepare/Finalize() call the tree is rebuilt to achieve a tight fit again.
-class MOSS_API QuadTree : public NonCopyable
-{
+class MOSS_API QuadTree : public NonCopyable {
 public:
 	MOSS_OVERRIDE_NEW_DELETE
 

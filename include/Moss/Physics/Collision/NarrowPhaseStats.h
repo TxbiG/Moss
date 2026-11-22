@@ -5,7 +5,7 @@
 #pragma once
 
 #include <Moss/Core/TickCounter.h>
-#include <Moss/Physics/Collision/Shape/Shape.h>
+#include <Moss/Physics/Collision/Shape/Shapes.h>
 
 MOSS_SUPPRESS_WARNING_PUSH
 MOSS_CLANG_SUPPRESS_WARNING("-Wc++98-compat-pedantic")

@@ -5,7 +5,7 @@
 #pragma once
 
 #include <Moss/Physics/Collision/ObjectLayer.h>
-#include <Moss/Physics/Collision/Shape/Shape.h>
+#include <Moss/Physics/Collision/Shape/Shapes.h>
 #include <Moss/Core/StridedPtr.h>
 #include <Moss/Core/NonCopyable.h>
 

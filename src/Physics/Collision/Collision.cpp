@@ -1,9 +1,65 @@
-// Jolt Physics Library (https://github.com/jrouwe/JoltPhysics)
+// Moss Physics Library (https://github.com/jrouwe/JoltPhysics)
 // SPDX-FileCopyrightText: 2021 Jorrit Rouwe
 // SPDX-License-Identifier: MIT
 
 
-#include <Moss/Physics/Collision/Collisions.h>
+//#include <Moss/Physics/Collision/Collisions.h>
+#include <Moss/Moss_stdinc.h>
+#include <Moss/Resources/ObjectStream/SerializableAttributeTyped.h>
+#include <Moss/Resources/ObjectStream/SerializableObject.h>
+
+#include <Moss/Physics/Collision/CollisionGroup.h>
+#include <Moss/Physics/Collision/CollisionCollector.h>
+#include <Moss/Physics/Collision/CollisionDispatch.h>
+#include <Moss/Physics/Collision/CollideShape.h>
+#include <Moss/Physics/Collision/ContactListener.h>
+#include <Moss/Physics/Collision/GroupFilter.h>
+#include <Moss/Physics/Collision/TransformedShape.h>
+#include <Moss/Physics/Collision/CastConvexVsTriangles.h>
+#include <Moss/Physics/Collision/CastSphereVsTriangles.h>
+#include <Moss/Physics/Collision/CollideConvexVsTriangles.h>
+#include <Moss/Physics/Collision/CollideSphereVsTriangles.h>
+
+#include <Moss/Physics/Collision/ManifoldBetweenTwoFaces.h>
+#include <Moss/Physics/Collision/NarrowPhaseQuery.h>
+#include <Moss/Physics/Collision/NarrowPhaseStats.h>
+#include <Moss/Physics/Collision/EstimateCollisionResponse.h>
+#include <Moss/Physics/Collision/PhysicsMaterialSimple.h>
+#include <Moss/Physics/Collision/CollisionCollectorImpl.h>
+#include <Moss/Physics/Collision/InternalEdgeRemovingCollector.h>
+
+#include <Moss/Physics/Collision/RayCast.h>
+#include <Moss/Physics/Collision/AABoxCast.h>
+#include <Moss/Physics/Collision/ShapeCast.h>
+#include <Moss/Physics/Collision/CastResult.h>
+
+#include <Moss/Physics/Collision/BroadPhase/BroadPhase.h>
+#include <Moss/Physics/Collision/BroadPhase/BroadPhaseQuadTree.h>
+#include <Moss/Physics/Collision/BroadPhase/QuadTree.h>
+
+#include <Moss/Physics/Collision/Shape/ScaleHelpers.h>
+#include <Moss/Physics/Collision/Shape/ConvexShape.h>
+#include <Moss/Physics/Collision/Shape/SphereShape.h>
+
+#include <Moss/Physics/Collision/ActiveEdges.h>
+
+#include <Moss/Geometry/ClosestPoint.h>
+#include <Moss/Geometry/EPAPenetrationDepth.h>
+#include <Moss/Geometry/ClipPoly.h>
+#include <Moss/Geometry/RaySphere.h>
+#include <Moss/Geometry/AABox4.h>
+#include <Moss/Geometry/RayAABox.h>
+#include <Moss/Geometry/OrientedBox.h>
+
+#include <Moss/Physics/Body/Body.h>
+#include <Moss/Physics/Body/BodyManager.h>
+#include <Moss/Physics/Body/BodyPair.h>
+
+#include <Moss/Physics/PhysicsLock.h>
+
+#include <Moss/Core/QuickSort.h>
+#include <Moss/Core/STLLocalAllocator.h>
+
 #ifndef MOSS_DEBUG_RENDERER
 	#include <Moss/Moss_Renderer.h>
 #endif // MOSS_DEBUG_RENDERER
@@ -30,8 +86,8 @@ static constexpr uint8_t sClosestFeatureToActiveEdgesMask[] = {
 	// 0b111: Vertex 1, 2 & 3 -> interior, guarded by an if
 };
 
-CollisionDispatch::CollideShape CollisionDispatch::CollideShape[NumSubShapeTypes][NumSubShapeTypes];
-CollisionDispatch::CastShape CollisionDispatch::CastShape[NumSubShapeTypes][NumSubShapeTypes];
+CollisionDispatch::CollideShape CollideShape[NumSubShapeTypes][NumSubShapeTypes];
+CollisionDispatch::CastShape CastShape[NumSubShapeTypes][NumSubShapeTypes];
 
 
 #ifdef MOSS_TRACK_NARROWPHASE_STATS
@@ -41,28 +97,24 @@ NarrowPhaseStat	NarrowPhaseStat::CastShape[NumSubShapeTypes][NumSubShapeTypes];
 thread_local TrackNarrowPhaseStat *TrackNarrowPhaseStat::Root = nullptr;
 #endif
 
-MOSS_IMPLEMENT_SERIALIZABLE_NON_VIRTUAL(CollisionGroup)
-{
+MOSS_IMPLEMENT_SERIALIZABLE_NON_VIRTUAL(CollisionGroup) {
 	MOSS_ADD_ATTRIBUTE(CollisionGroup, mGroupFilter)
 	MOSS_ADD_ATTRIBUTE(CollisionGroup, mGroupID)
 	MOSS_ADD_ATTRIBUTE(CollisionGroup, mSubGroupID)
 }
 
-MOSS_IMPLEMENT_SERIALIZABLE_ABSTRACT_BASE(GroupFilter)
-{
+MOSS_IMPLEMENT_SERIALIZABLE_ABSTRACT_BASE(GroupFilter) {
 	MOSS_ADD_BASE_CLASS(GroupFilter, SerializableObject)
 }
 
-MOSS_IMPLEMENT_SERIALIZABLE_VIRTUAL(GroupFilterTable)
-{
+MOSS_IMPLEMENT_SERIALIZABLE_VIRTUAL(GroupFilterTable) {
 	MOSS_ADD_BASE_CLASS(GroupFilterTable, GroupFilter)
 
 	MOSS_ADD_ATTRIBUTE(GroupFilterTable, mNumSubGroups)
 	MOSS_ADD_ATTRIBUTE(GroupFilterTable, mTable)
 }
 
-MOSS_IMPLEMENT_SERIALIZABLE_VIRTUAL(PhysicsMaterialSimple)
-{
+MOSS_IMPLEMENT_SERIALIZABLE_VIRTUAL(PhysicsMaterialSimple) {
 	MOSS_ADD_BASE_CLASS(PhysicsMaterialSimple, PhysicsMaterial)
 
 	MOSS_ADD_ATTRIBUTE(PhysicsMaterialSimple, mDebugName)
@@ -97,8 +149,7 @@ bool TransformedShape::CastRay(const RRayCast &inRay, RayCastResult &ioHit) cons
 	return false;
 }
 
-void TransformedShape::CastRay(const RRayCast &inRay, const RayCastSettings &inRayCastSettings, CastRayCollector &ioCollector, const ShapeFilter &inShapeFilter) const
-{
+void TransformedShape::CastRay(const RRayCast &inRay, const RayCastSettings &inRayCastSettings, CastRayCollector &ioCollector, const ShapeFilter &inShapeFilter) const {
 	if (mShape != nullptr)
 	{
 		// Set the context on the collector and filter
@@ -170,7 +221,7 @@ void TransformedShape::CastShape(const RShapeCast &inShapeCast, const ShapeCastS
 	}
 }
 
-void TransformedShape::CollectTransformedShapes(const AABox &inBox, TransformedShapeCollector &ioCollector, const ShapeFilter &inShapeFilter) const
+void TransformedShape::CollectTransformedShapes(const AABB3 &inBox, TransformedShapeCollector &ioCollector, const ShapeFilter &inShapeFilter) const
 {
 	if (mShape != nullptr)
 	{
@@ -207,19 +258,19 @@ void TransformedShape::CollectTransformedShapes(const AABox &inBox, TransformedS
 		MyCollector collector(ioCollector, mShapePositionCOM);
 
 		// Take box to local space for the shape
-		AABox box = inBox;
+		AABB3 box = inBox;
 		box.Translate(-mShapePositionCOM);
 
 		mShape->CollectTransformedShapes(box, Vec3::Zero(), mShapeRotation, GetShapeScale(), mSubShapeIDCreator, collector, inShapeFilter);
 	}
 }
 
-void TransformedShape::GetTrianglesStart(GetTrianglesContext &ioContext, const AABox &inBox, RVec3Arg inBaseOffset) const
+void TransformedShape::GetTrianglesStart(GetTrianglesContext &ioContext, const AABB3 &inBox, RVec3Arg inBaseOffset) const
 {
 	if (mShape != nullptr)
 	{
 		// Take box to local space for the shape
-		AABox box = inBox;
+		AABB3 box = inBox;
 		box.Translate(-inBaseOffset);
 
 		mShape->GetTrianglesStart(ioContext, box, Vec3(mShapePositionCOM - inBaseOffset), mShapeRotation, GetShapeScale());
@@ -580,7 +631,7 @@ void CollideConvexVsTriangles::Collide(Vec3Arg inV0, Vec3Arg inV1, Vec3Arg inV2,
 		return;
 
 	// Get bounding box for triangle
-	AABox triangle_bbox = AABox::FromTwoPoints(v0, v1);
+	AABB3 triangle_bbox = AABB3::FromTwoPoints(v0, v1);
 	triangle_bbox.Encapsulate(v2);
 
 	// Get intersection between triangle and shape box, if there is none, we're done
@@ -1578,7 +1629,7 @@ void NarrowPhaseQuery::CollideShape(const Shape *inShape, Vec3Arg inShapeScale, 
 	};
 
 	// Calculate bounds for shape and expand by max separation distance
-	AABox bounds = inShape->GetWorldSpaceBounds(inCenterOfMassTransform, inShapeScale);
+	AABB3 bounds = inShape->GetWorldSpaceBounds(inCenterOfMassTransform, inShapeScale);
 	bounds.ExpandBy(Vec3::Replicate(inCollideShapeSettings.mMaxSeparationDistance));
 
 	// Do broadphase test
@@ -1669,12 +1720,12 @@ void NarrowPhaseQuery::CastShape(const RShapeCast &inShapeCast, const ShapeCastS
 	mBroadPhaseQuery->CastAABox({ inShapeCast.mShapeWorldBounds, inShapeCast.mDirection }, collector, inBroadPhaseLayerFilter, inObjectLayerFilter);
 }
 
-void NarrowPhaseQuery::CollectTransformedShapes(const AABox &inBox, TransformedShapeCollector &ioCollector, const BroadPhaseLayerFilter &inBroadPhaseLayerFilter, const ObjectLayerFilter &inObjectLayerFilter, const BodyFilter &inBodyFilter, const ShapeFilter &inShapeFilter) const
+void NarrowPhaseQuery::CollectTransformedShapes(const AABB3 &inBox, TransformedShapeCollector &ioCollector, const BroadPhaseLayerFilter &inBroadPhaseLayerFilter, const ObjectLayerFilter &inObjectLayerFilter, const BodyFilter &inBodyFilter, const ShapeFilter &inShapeFilter) const
 {
 	class MyCollector : public CollideShapeBodyCollector
 	{
 	public:
-							MyCollector(const AABox &inBox, TransformedShapeCollector &ioCollector, const BodyLockInterface &inBodyLockInterface, const BodyFilter &inBodyFilter, const ShapeFilter &inShapeFilter) :
+							MyCollector(const AABB3 &inBox, TransformedShapeCollector &ioCollector, const BodyLockInterface &inBodyLockInterface, const BodyFilter &inBodyFilter, const ShapeFilter &inShapeFilter) :
 			CollideShapeBodyCollector(ioCollector),
 			mBox(inBox),
 			mCollector(ioCollector),
@@ -1721,7 +1772,7 @@ void NarrowPhaseQuery::CollectTransformedShapes(const AABox &inBox, TransformedS
 			}
 		}
 
-		const AABox &					mBox;
+		const AABB3 &					mBox;
 		TransformedShapeCollector &		mCollector;
 		const BodyLockInterface &		mBodyLockInterface;
 		const BodyFilter &				mBodyFilter;
@@ -2206,7 +2257,7 @@ void BroadPhaseQuadTree::CastRay(const RayCast &inRay, RayCastBodyCollector &ioC
 	}
 }
 
-void BroadPhaseQuadTree::CollideAABox(const AABox &inBox, CollideShapeBodyCollector &ioCollector, const BroadPhaseLayerFilter &inBroadPhaseLayerFilter, const ObjectLayerFilter &inObjectLayerFilter) const
+void BroadPhaseQuadTree::CollideAABox(const AABB3 &inBox, CollideShapeBodyCollector &ioCollector, const BroadPhaseLayerFilter &inBroadPhaseLayerFilter, const ObjectLayerFilter &inObjectLayerFilter) const
 {
 	MOSS_PROFILE_FUNCTION();
 
@@ -2365,12 +2416,12 @@ void BroadPhaseQuadTree::FindCollidingPairs(BodyID *ioActiveBodies, int inNumAct
 	}
 }
 
-AABox BroadPhaseQuadTree::GetBounds() const
+AABB3 BroadPhaseQuadTree::GetBounds() const
 {
 	// Prevent this from running in parallel with node deletion in FrameSync(), see notes there
 	shared_lock lock(mQueryLocks[mQueryLockIdx]);
 
-	AABox bounds;
+	AABB3 bounds;
 	for (BroadPhaseLayer::Type l = 0; l < mNumLayers; ++l)
 		bounds.Encapsulate(mLayers[l].GetBounds());
 	return bounds;
@@ -2482,7 +2533,7 @@ void BroadPhaseBruteForce::CastRay(const RayCast &inRay, RayCastBodyCollector &i
 		if (inObjectLayerFilter.ShouldCollide(body.GetObjectLayer()))
 		{
 			// Test intersection with ray
-			const AABox &bounds = body.GetWorldSpaceBounds();
+			const AABB3 &bounds = body.GetWorldSpaceBounds();
 			float fraction = RayAABox(origin, inv_direction, bounds.mMin, bounds.mMax);
 			if (fraction < early_out_fraction)
 			{
@@ -2497,7 +2548,7 @@ void BroadPhaseBruteForce::CastRay(const RayCast &inRay, RayCastBodyCollector &i
 	}
 }
 
-void BroadPhaseBruteForce::CollideAABox(const AABox &inBox, CollideShapeBodyCollector &ioCollector, const BroadPhaseLayerFilter &inBroadPhaseLayerFilter, const ObjectLayerFilter &inObjectLayerFilter) const
+void BroadPhaseBruteForce::CollideAABox(const AABB3 &inBox, CollideShapeBodyCollector &ioCollector, const BroadPhaseLayerFilter &inBroadPhaseLayerFilter, const ObjectLayerFilter &inObjectLayerFilter) const
 {
 	shared_lock lock(mMutex);
 
@@ -2510,7 +2561,7 @@ void BroadPhaseBruteForce::CollideAABox(const AABox &inBox, CollideShapeBodyColl
 		if (inObjectLayerFilter.ShouldCollide(body.GetObjectLayer()))
 		{
 			// Test intersection with box
-			const AABox &bounds = body.GetWorldSpaceBounds();
+			const AABB3 &bounds = body.GetWorldSpaceBounds();
 			if (bounds.Overlaps(inBox))
 			{
 				// Store hit
@@ -2537,7 +2588,7 @@ void BroadPhaseBruteForce::CollideSphere(Vec3Arg inCenter, float inRadius, Colli
 		if (inObjectLayerFilter.ShouldCollide(body.GetObjectLayer()))
 		{
 			// Test intersection with box
-			const AABox &bounds = body.GetWorldSpaceBounds();
+			const AABB3 &bounds = body.GetWorldSpaceBounds();
 			if (bounds.GetSqDistanceTo(inCenter) <= radius_sq)
 			{
 				// Store hit
@@ -2562,7 +2613,7 @@ void BroadPhaseBruteForce::CollidePoint(Vec3Arg inPoint, CollideShapeBodyCollect
 		if (inObjectLayerFilter.ShouldCollide(body.GetObjectLayer()))
 		{
 			// Test intersection with box
-			const AABox &bounds = body.GetWorldSpaceBounds();
+			const AABB3 &bounds = body.GetWorldSpaceBounds();
 			if (bounds.Contains(inPoint))
 			{
 				// Store hit
@@ -2587,7 +2638,7 @@ void BroadPhaseBruteForce::CollideOrientedBox(const OrientedBox &inBox, CollideS
 		if (inObjectLayerFilter.ShouldCollide(body.GetObjectLayer()))
 		{
 			// Test intersection with box
-			const AABox &bounds = body.GetWorldSpaceBounds();
+			const AABB3 &bounds = body.GetWorldSpaceBounds();
 			if (inBox.Overlaps(bounds))
 			{
 				// Store hit
@@ -2618,7 +2669,7 @@ void BroadPhaseBruteForce::CastAABoxNoLock(const AABoxCast &inBox, CastShapeBody
 		if (inObjectLayerFilter.ShouldCollide(body.GetObjectLayer()))
 		{
 			// Test intersection with ray
-			const AABox &bounds = body.GetWorldSpaceBounds();
+			const AABB3 &bounds = body.GetWorldSpaceBounds();
 			float fraction = RayAABox(origin, inv_direction, bounds.mMin - extent, bounds.mMax + extent);
 			if (fraction < early_out_fraction)
 			{
@@ -2651,7 +2702,7 @@ void BroadPhaseBruteForce::FindCollidingPairs(BodyID *ioActiveBodies, int inNumA
 		const ObjectLayer layer1 = body1.GetObjectLayer();
 
 		// Expand the bounding box by the speculative contact distance
-		AABox bounds1 = body1.GetWorldSpaceBounds();
+		AABB3 bounds1 = body1.GetWorldSpaceBounds();
 		bounds1.ExpandBy(Vec3::Replicate(inSpeculativeContactDistance));
 
 		// For all other bodies
@@ -2669,7 +2720,7 @@ void BroadPhaseBruteForce::FindCollidingPairs(BodyID *ioActiveBodies, int inNumA
 				continue;
 
 			// Check if bounds overlap
-			const AABox &bounds2 = body2.GetWorldSpaceBounds();
+			const AABB3 &bounds2 = body2.GetWorldSpaceBounds();
 			if (!bounds1.Overlaps(bounds2))
 				continue;
 
@@ -2679,11 +2730,11 @@ void BroadPhaseBruteForce::FindCollidingPairs(BodyID *ioActiveBodies, int inNumA
 	}
 }
 
-AABox BroadPhaseBruteForce::GetBounds() const
+AABB3 BroadPhaseBruteForce::GetBounds() const
 {
 	shared_lock lock(mMutex);
 
-	AABox bounds;
+	AABB3 bounds;
 	for (BodyID b : mBodyIDs)
 		bounds.Encapsulate(mBodyManager->GetBody(b).GetWorldSpaceBounds());
 	return bounds;
@@ -2725,14 +2776,14 @@ QuadTree::Node::Node(bool inIsChanged) :
 	mChildNodeID[3] = NodeID::Invalid();
 }
 
-void QuadTree::Node::GetChildBounds(int inChildIndex, AABox &outBounds) const
+void QuadTree::Node::GetChildBounds(int inChildIndex, AABB3 &outBounds) const
 {
 	// Read bounding box in order min -> max
 	outBounds.mMin = Vec3(mBoundsMinX[inChildIndex], mBoundsMinY[inChildIndex], mBoundsMinZ[inChildIndex]);
 	outBounds.mMax = Vec3(mBoundsMaxX[inChildIndex], mBoundsMaxY[inChildIndex], mBoundsMaxZ[inChildIndex]);
 }
 
-void QuadTree::Node::SetChildBounds(int inChildIndex, const AABox &inBounds)
+void QuadTree::Node::SetChildBounds(int inChildIndex, const AABB3 &inBounds)
 {
 	// Bounding boxes provided to the quad tree should never be larger than cLargeFloat because this may trigger overflow exceptions
 	// e.g. when squaring the value while testing sphere overlaps
@@ -2767,7 +2818,7 @@ void QuadTree::Node::InvalidateChildBounds(int inChildIndex)
 	mBoundsMaxZ[inChildIndex] = -cLargeFloat;
 }
 
-void QuadTree::Node::GetNodeBounds(AABox &outBounds) const
+void QuadTree::Node::GetNodeBounds(AABB3 &outBounds) const
 {
 	// Get first child bounds
 	GetChildBounds(0, outBounds);
@@ -2775,13 +2826,13 @@ void QuadTree::Node::GetNodeBounds(AABox &outBounds) const
 	// Encapsulate other child bounds
 	for (int child_idx = 1; child_idx < 4; ++child_idx)
 	{
-		AABox tmp;
+		AABB3 tmp;
 		GetChildBounds(child_idx, tmp);
 		outBounds.Encapsulate(tmp);
 	}
 }
 
-bool QuadTree::Node::EncapsulateChildBounds(int inChildIndex, const AABox &inBounds)
+bool QuadTree::Node::EncapsulateChildBounds(int inChildIndex, const AABB3 &inBounds)
 {
 	bool changed = AtomicMin(mBoundsMinX[inChildIndex], inBounds.mMin.GetX());
 	changed |= AtomicMin(mBoundsMinY[inChildIndex], inBounds.mMin.GetY());
@@ -2796,7 +2847,7 @@ bool QuadTree::Node::EncapsulateChildBounds(int inChildIndex, const AABox &inBou
 // QuadTree
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-const AABox QuadTree::cInvalidBounds(Vec3::Replicate(cLargeFloat), Vec3::Replicate(-cLargeFloat));
+const AABB3 QuadTree::cInvalidBounds(Vec3::Replicate(cLargeFloat), Vec3::Replicate(-cLargeFloat));
 
 void QuadTree::GetBodyLocation(const TrackingVector &inTracking, BodyID inBodyID, uint32_t &outNodeIdx, uint32_t &outChildIdx) const
 {
@@ -2878,7 +2929,7 @@ uint32_t QuadTree::AllocateNode(bool inIsChanged)
 		// using a lot more nodes than you would if you added them in batches.
 		// Please look at BodyInterface::AddBodiesPrepare/AddBodiesFinalize.
 		//
-		// If you have created a wrapper around Jolt then a possible solution is to activate a mode during loading
+		// If you have created a wrapper around Moss then a possible solution is to activate a mode during loading
 		// that queues up any bodies that need to be added. When loading is done, insert all of them as a single batch.
 		// This could be implemented as a 'start batching' / 'end batching' call to switch in and out of that mode.
 		// The rest of the code can then just use the regular 'add single body' call on your wrapper and doesn't need to know
@@ -2928,13 +2979,13 @@ void QuadTree::DiscardOldTree()
 	}
 }
 
-AABox QuadTree::GetBounds() const
+AABB3 QuadTree::GetBounds() const
 {
 	uint32_t node_idx = GetCurrentRoot().mIndex;
 	MOSS_ASSERT(node_idx != cInvalidNodeIndex);
 	const Node &node = mAllocator->Get(node_idx);
 
-	AABox bounds;
+	AABB3 bounds;
 	node.GetNodeBounds(bounds);
 	return bounds;
 }
@@ -3048,7 +3099,7 @@ void QuadTree::UpdatePrepare(const BodyVector &inBodies, TrackingVector &ioTrack
 		constexpr uint32_t cMaxDepthMarkChanged = 5;
 
 		// Build new tree
-		AABox root_bounds;
+		AABB3 root_bounds;
 		root_node_id = BuildTree(inBodies, ioTracking, node_ids, num_node_ids, cMaxDepthMarkChanged, root_bounds);
 
 		if (root_node_id.IsBody()) {
@@ -3180,7 +3231,7 @@ void QuadTree::Partition4(NodeID *ioNodeIDs, Vec3 *ioNodeCenters, int inBegin, i
 	outSplit[4] = inEnd;
 }
 
-AABox QuadTree::GetNodeOrBodyBounds(const BodyVector &inBodies, NodeID inNodeID) const
+AABB3 QuadTree::GetNodeOrBodyBounds(const BodyVector &inBodies, NodeID inNodeID) const
 {
 	if (inNodeID.IsNode())
 	{
@@ -3188,7 +3239,7 @@ AABox QuadTree::GetNodeOrBodyBounds(const BodyVector &inBodies, NodeID inNodeID)
 		uint32_t node_idx = inNodeID.GetNodeIndex();
 		const Node &node = mAllocator->Get(node_idx);
 
-		AABox bounds;
+		AABB3 bounds;
 		node.GetNodeBounds(bounds);
 		return bounds;
 	}
@@ -3199,7 +3250,7 @@ AABox QuadTree::GetNodeOrBodyBounds(const BodyVector &inBodies, NodeID inNodeID)
 	}
 }
 
-QuadTree::NodeID QuadTree::BuildTree(const BodyVector &inBodies, TrackingVector &ioTracking, NodeID *ioNodeIDs, int inNumber, uint32_t inMaxDepthMarkChanged, AABox &outBounds)
+QuadTree::NodeID QuadTree::BuildTree(const BodyVector &inBodies, TrackingVector &ioTracking, NodeID *ioNodeIDs, int inNumber, uint32_t inMaxDepthMarkChanged, AABB3 &outBounds)
 {
 	// Trivial case: No bodies in tree
 	if (inNumber == 0)
@@ -3276,7 +3327,7 @@ QuadTree::NodeID QuadTree::BuildTree(const BodyVector &inBodies, TrackingVector 
 			// Store this node's properties in the parent node
 			Node &parent_node = mAllocator->Get(prev_stack.mNodeIdx);
 			parent_node.mChildNodeID[prev_stack.mChildIdx] = NodeID::FromNodeIndex(cur_stack.mNodeIdx);
-			parent_node.SetChildBounds(prev_stack.mChildIdx, AABox(cur_stack.mNodeBoundsMin, cur_stack.mNodeBoundsMax));
+			parent_node.SetChildBounds(prev_stack.mChildIdx, AABB3(cur_stack.mNodeBoundsMin, cur_stack.mNodeBoundsMax));
 
 			// Pop entry from stack
 			--top;
@@ -3292,7 +3343,7 @@ QuadTree::NodeID QuadTree::BuildTree(const BodyVector &inBodies, TrackingVector 
 			{
 				// Get body info
 				NodeID child_node_id = ioNodeIDs[low];
-				AABox bounds = GetNodeOrBodyBounds(inBodies, child_node_id);
+				AABB3 bounds = GetNodeOrBodyBounds(inBodies, child_node_id);
 
 				// Update node
 				Node &node = mAllocator->Get(cur_stack.mNodeIdx);
@@ -3362,7 +3413,7 @@ void QuadTree::MarkNodeAndParentsChanged(uint32_t inNodeIndex)
 	while (node_idx != cInvalidNodeIndex);
 }
 
-void QuadTree::WidenAndMarkNodeAndParentsChanged(uint32_t inNodeIndex, const AABox &inNewBounds)
+void QuadTree::WidenAndMarkNodeAndParentsChanged(uint32_t inNodeIndex, const AABB3 &inNewBounds)
 {
 	uint32_t node_idx = inNodeIndex;
 
@@ -3404,7 +3455,7 @@ void QuadTree::WidenAndMarkNodeAndParentsChanged(uint32_t inNodeIndex, const AAB
 	}
 }
 
-bool QuadTree::TryInsertLeaf(TrackingVector &ioTracking, int inNodeIndex, NodeID inLeafID, const AABox &inLeafBounds, int inLeafNumBodies)
+bool QuadTree::TryInsertLeaf(TrackingVector &ioTracking, int inNodeIndex, NodeID inLeafID, const AABB3 &inLeafBounds, int inLeafNumBodies)
 {
 	// Tentatively assign the node as parent
 	bool leaf_is_node = inLeafID.IsNode();
@@ -3443,7 +3494,7 @@ bool QuadTree::TryInsertLeaf(TrackingVector &ioTracking, int inNodeIndex, NodeID
 	return false;
 }
 
-bool QuadTree::TryCreateNewRoot(TrackingVector &ioTracking, atomic<uint32_t> &ioRootNodeIndex, NodeID inLeafID, const AABox &inLeafBounds, int inLeafNumBodies)
+bool QuadTree::TryCreateNewRoot(TrackingVector &ioTracking, atomic<uint32_t> &ioRootNodeIndex, NodeID inLeafID, const AABB3 &inLeafBounds, int inLeafNumBodies)
 {
 	// Fetch old root
 	uint32_t root_idx = ioRootNodeIndex;
@@ -3455,7 +3506,7 @@ bool QuadTree::TryCreateNewRoot(TrackingVector &ioTracking, atomic<uint32_t> &io
 
 	// First child is current root, note that since the tree may be modified concurrently we cannot assume that the bounds of our child will be correct so we set a very large bounding box
 	new_root.mChildNodeID[0] = NodeIDF::romNodeIndex(root_idx);
-	new_root.SetChildBounds(0, AABox(Vec3::Replicate(-cLargeFloat), Vec3::Replicate(cLargeFloat)));
+	new_root.SetChildBounds(0, AABB3(Vec3::Replicate(-cLargeFloat), Vec3::Replicate(cLargeFloat)));
 
 	// Second child is new leaf
 	new_root.mChildNodeID[1] = inLeafID;
@@ -3628,7 +3679,7 @@ void QuadTree::NotifyBodiesAABBChanged(const BodyVector &inBodies, const Trackin
 		MOSS_ASSERT(body->GetID() == *cur, "Provided BodyID doesn't match BodyID in body manager");
 
 		// Get the new bounding box
-		const AABox &new_bounds = body->GetWorldSpaceBounds();
+		const AABB3 &new_bounds = body->GetWorldSpaceBounds();
 
 		// Get location of body
 		uint32_t node_idx, child_idx;
@@ -3811,13 +3862,13 @@ void QuadTree::CastRay(const RayCast &inRay, RayCastBodyCollector &ioCollector, 
 	WalkTree(inObjectLayerFilter, inTracking, visitor MOSS_IF_TRACK_BROADPHASE_STATS(, mCastRayStats));
 }
 
-void QuadTree::CollideAABox(const AABox &inBox, CollideShapeBodyCollector &ioCollector, const ObjectLayerFilter &inObjectLayerFilter, const TrackingVector &inTracking) const
+void QuadTree::CollideAABox(const AABB3 &inBox, CollideShapeBodyCollector &ioCollector, const ObjectLayerFilter &inObjectLayerFilter, const TrackingVector &inTracking) const
 {
 	class Visitor
 	{
 	public:
 		/// Constructor
-		MOSS_INLINE					Visitor(const AABox &inBox, CollideShapeBodyCollector &ioCollector) :
+		MOSS_INLINE					Visitor(const AABB3 &inBox, CollideShapeBodyCollector &ioCollector) :
 			mBox(inBox),
 			mCollector(ioCollector)
 		{
@@ -3851,7 +3902,7 @@ void QuadTree::CollideAABox(const AABox &inBox, CollideShapeBodyCollector &ioCol
 		}
 
 	private:
-		const AABox &				mBox;
+		const AABB3 &				mBox;
 		CollideShapeBodyCollector &	mCollector;
 	};
 
@@ -4039,7 +4090,7 @@ void QuadTree::CastAABox(const AABoxCast &inBox, CastShapeBodyCollector &ioColle
 		/// Visit nodes, returns number of hits found and sorts ioChildNodeIDs so that they are at the beginning of the vector.
 		MOSS_INLINE int				VisitNodes(Vec4Arg inBoundsMinX, Vec4Arg inBoundsMinY, Vec4Arg inBoundsMinZ, Vec4Arg inBoundsMaxX, Vec4Arg inBoundsMaxY, Vec4Arg inBoundsMaxZ, UVec4 &ioChildNodeIDs, int inStackTop)
 		{
-			// Enlarge them by the casted aabox extents
+			// Enlarge them by the casted AABB3 extents
 			Vec4 bounds_min_x = inBoundsMinX, bounds_min_y = inBoundsMinY, bounds_min_z = inBoundsMinZ, bounds_max_x = inBoundsMaxX, bounds_max_y = inBoundsMaxY, bounds_max_z = inBoundsMaxZ;
 			AABox4EnlargeWithExtent(mExtent, bounds_min_x, bounds_min_y, bounds_min_z, bounds_max_x, bounds_max_y, bounds_max_z);
 
@@ -4091,7 +4142,7 @@ void QuadTree::FindCollidingPairs(const BodyVector &inBodies, const BodyID *inAc
 		MOSS_ASSERT(!body1.IsStatic());
 
 		// Expand the bounding box by the speculative contact distance
-		AABox bounds1 = body1.GetWorldSpaceBounds();
+		AABB3 bounds1 = body1.GetWorldSpaceBounds();
 		bounds1.ExpandBy(Vec3::Replicate(inSpeculativeContactDistance));
 
 		// Test each body with the tree
@@ -4177,7 +4228,7 @@ void QuadTree::ValidateTree(const BodyVector &inBodies, const TrackingVector &in
 
 	// To avoid call overhead, create a stack in place
 	MOSS_SUPPRESS_WARNING_PUSH
-	MOSS_CLANG_SUPPRESS_WARNING("-Wunused-member-function") // The default constructor of StackEntry is unused when using Jolt's Array class but not when using std::vector
+	MOSS_CLANG_SUPPRESS_WARNING("-Wunused-member-function") // The default constructor of StackEntry is unused when using Moss's Array class but not when using std::vector
 	struct StackEntry
 	{
 						StackEntry() = default;
@@ -4220,9 +4271,9 @@ void QuadTree::ValidateTree(const BodyVector &inBodies, const TrackingVector &in
 
 					// Validate that the bounding box is bigger or equal to the bounds in the tree
 					// Bounding box could also be invalid if all children of our child were removed
-					AABox child_bounds;
+					AABB3 child_bounds;
 					node.GetChildBounds(i, child_bounds);
-					AABox real_child_bounds;
+					AABB3 real_child_bounds;
 					mAllocator->Get(child_idx).GetNodeBounds(real_child_bounds);
 					MOSS_ASSERT(child_bounds.Contains(real_child_bounds) || !real_child_bounds.IsValid());
 				}
@@ -4242,7 +4293,7 @@ void QuadTree::ValidateTree(const BodyVector &inBodies, const TrackingVector &in
 					body->ValidateCachedBounds();
 
 					// Validate that the node bounds are bigger or equal to the body bounds
-					AABox body_bounds;
+					AABB3 body_bounds;
 					node.GetChildBounds(i, body_bounds);
 					MOSS_ASSERT(body_bounds.Contains(body->GetWorldSpaceBounds()));
 				}
@@ -4292,7 +4343,7 @@ void QuadTree::DumpTree(const NodeID &inRoot, const char *inFileNamePrefix) cons
 			const Node &node = mAllocator->Get(node_idx);
 
 			// Get bounding box
-			AABox bounds;
+			AABB3 bounds;
 			node.GetNodeBounds(bounds);
 
 			// Output node
@@ -4378,8 +4429,7 @@ void QuadTree::ReportStats(uint64_t inTicks100Pct) const
 
 #endif // MOSS_TRACK_BROADPHASE_STATS
 
-uint32_t QuadTree::GetMaxTreeDepth(const NodeID &inNodeID) const
-{
+uint32_t QuadTree::GetMaxTreeDepth(const NodeID &inNodeID) const {
 	// Reached a leaf?
 	if (!inNodeID.IsValid() || inNodeID.IsBody())
 		return 0;
