@@ -69,6 +69,9 @@ public:
 	/// Clamp a vector between min and max (component wise)
 	static MOSS_INLINE Vec2		Clamp(Vec2 inV, Vec2 inMin, Vec2 inMax);
 
+	//static MOSS_INLINE float	Clamp(float inV, float inMin, float inMax);
+
+	//static float MOSS_INLINE WrapAngle(float a);
 	/// Equals (component wise)
 	static MOSS_INLINE UVec4	Equals(Vec2 inV1, Vec2 inV2);
 

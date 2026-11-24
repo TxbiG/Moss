@@ -246,81 +246,6 @@ enum class EShapeSubType {
 	HeightField = 13,
 	SoftBody = 14
 };
-
-enum class EConstraintSubType {
-	Fixed,
-	Point,
-	Hinge,
-	Slider,
-	Distance,
-	Cone,
-	SwingTwist,
-	SixDOF,
-	Path,
-	Vehicle,
-	RackAndPinion,
-	Gear,
-	Pulley,
-
-	// User defined constraint types start here
-	User1,
-	User2,
-	User3,
-	User4
-};
-
-enum class EGroundState { 
-	OnGround = 0, 
-	OnSteepGround = 1, 
-	NotSupported = 2, 
-	InAir = 3, 
-};
-enum class ETransmissionMode : uint8_t { 
-	Auto, 
-	Manual 
-};
-
-enum class EConstraintType : uint8_t { 
-	Constraint, 
-	TwoBodyConstraint 
-};
-enum class EConstraintSpace : uint8_t { 
-	LocalToBodyCOM, 
-	WorldSpace 
-};
-enum class EMotionQuality : uint8_t { 
-	Discrete, 
-	LinearCast 
-};
-enum class EOverrideMassProperties { 
-	CalculateMassAndInertia, 
-	CalculateInertia, 
-	MassAndInertiaProvided 
-};
-
-enum class EMotorState : uint8_t { 
-	Off, 
-	Velocity, 
-	Position 
-};
-enum class ESwingType : uint8_t { 
-	Cone, 
-	Pyramid 
-};
-
-/*! @brief  Accept this contact or Reject this contact  */
-enum class SoftBodyValidateResult { 
-	AcceptContact, 
-	RejectContact 
-};
-
-enum class ECollisionCollectorType { 
-	AllHit = 0, 
-	AllHitSorted = 1, 
-	ClosestHit = 2, 
-	AnyHit = 3 
-};
-
 enum class ETrackSide : uint8_t { 
 	Left, 
 	Right, 
@@ -453,49 +378,6 @@ struct RayCastSettings {
 	bool treatConvexAsSolid/* = true*/;
 } RayCastSettings;
 
-class SpringSettings {
-public:
-	// Constructor
-	SpringSettings() = default;
-	SpringSettings(const SpringSettings &) = default;
-	SpringSettings& operator = (const SpringSettings &) = default;
-	SpringSettings(ESpringMode inMode, float inFrequencyOrStiffness, float inDamping) : mode(inMode), frequency(inFrequencyOrStiffness), damping(inDamping) { }
-
-	// Saves the contents of the spring settings in binary form to inStream.
-	void SaveBinaryState(StreamOut &inStream) const;
-
-	// Restores contents from the binary stream inStream.
-	void RestoreBinaryState(StreamIn &inStream);
-
-	// Check if the spring has a valid frequency / stiffness, if not the spring will be hard
-	inline bool	HasStiffness() const { return frequency > 0.0f; }
-
-	// Selects the way in which the spring is defined
-	// If the mode is StiffnessAndDamping then mFrequency becomes the stiffness (k) and mDamping becomes the damping ratio (c) in the spring equation F = -k * x - c * v. Otherwise the properties are as documented.
-	ESpringMode mode = ESpringMode::FrequencyAndDamping;
-
-	union {
-		// Valid when mSpringMode = ESpringMode::FrequencyAndDamping.
-		// If mFrequency > 0 the constraint will be soft and mFrequency specifies the oscillation frequency in Hz.
-		// If mFrequency <= 0, mDamping is ignored and the constraint will have hard limits (as hard as the time step / the number of velocity / position solver steps allows).
-		float frequency = 0.0f;
-
-		// Valid when mSpringMode = ESpringMode::StiffnessAndDamping.
-		// If mStiffness > 0 the constraint will be soft and mStiffness specifies the stiffness (k) in the spring equation F = -k * x - c * v for a linear or T = -k * theta - c * w for an angular spring.
-		// If mStiffness <= 0, mDamping is ignored and the constraint will have hard limits (as hard as the time step / the number of velocity / position solver steps allows).
-		//
-		// Note that stiffness values are large numbers. To calculate a ballpark value for the needed stiffness you can use:
-		// force = stiffness * delta_spring_length = mass * gravity <=> stiffness = mass * gravity / delta_spring_length.
-		// So if your object weighs 1500 kg and the spring compresses by 2 meters, you need a stiffness in the order of 1500 * 9.81 / 2 ~ 7500 N/m.
-		float stiffness;
-	};
-
-	// When mSpringMode = ESpringMode::FrequencyAndDamping mDamping is the damping ratio (0 = no damping, 1 = critical damping).
-	// When mSpringMode = ESpringMode::StiffnessAndDamping mDamping is the damping (c) in the spring equation F = -k * x - c * v for a linear or T = -k * theta - c * w for an angular spring.
-	// Note that if you set mDamping = 0, you will not get an infinite oscillation. Because we integrate physics using an explicit Euler scheme, there is always energy loss.
-	// This is done to keep the simulation from exploding, because with a damping of 0 and even the slightest rounding error, the oscillation could become bigger and bigger until the simulation explodes.
-	float damping = 0.0f;
-};
 
 struct SubShapeIDPair {
 	BodyID     Body1ID;

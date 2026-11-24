@@ -177,7 +177,9 @@ public:
 	MOSS_OVERRIDE_NEW_DELETE
 
 	/// Constructor / Destructor
-	PhysicsSystem()	: mContactManager(mPhysicsSettings) MOSS_IF_ENABLE_ASSERTS(, mConstraintManager(&mBodyManager)) { }
+	PhysicsSystem()	: mContactManager(mPhysicsSettings), 
+	MOSS_IF_ENABLE_ASSERTS(, mConstraintManager(&mBodyManager)) 
+	{ }
 	~PhysicsSystem();
 
 	/// The maximum value that can be passed to Init for inMaxBodies.

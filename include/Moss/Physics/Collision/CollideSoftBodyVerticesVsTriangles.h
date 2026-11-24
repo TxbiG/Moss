@@ -10,30 +10,22 @@
 MOSS_SUPPRESS_WARNINGS_BEGIN
 
 /// Collision detection helper that collides soft body vertices vs triangles
-class MOSS_API CollideSoftBodyVerticesVsTriangles
-{
+class MOSS_API CollideSoftBodyVerticesVsTriangles {
 public:
-						CollideSoftBodyVerticesVsTriangles(Mat44Arg inCenterOfMassTransform, Vec3Arg inScale) :
-		mTransform(inCenterOfMassTransform * Mat44::Scale(inScale)),
-		mInvTransform(mTransform.Inversed()),
-		mNormalSign(ScaleHelpers::IsInsideOut(inScale)? -1.0f : 1.0f)
-	{
-	}
+	CollideSoftBodyVerticesVsTriangles(Mat44Arg inCenterOfMassTransform, Vec3Arg inScale) : mTransform(inCenterOfMassTransform * Mat44::Scale(inScale)),
+		mInvTransform(mTransform.Inversed()), mNormalSign(ScaleHelpers::IsInsideOut(inScale)? -1.0f : 1.0f) { }
 
-	MOSS_INLINE void		StartVertex(const CollideSoftBodyVertexIterator &inVertex)
-	{
+	MOSS_INLINE void StartVertex(const CollideSoftBodyVertexIterator &inVertex) {
 		mLocalPosition = mInvTransform * inVertex.GetPosition();
 		mClosestDistanceSq = FLT_MAX;
 	}
 
-	MOSS_INLINE void		ProcessTriangle(Vec3Arg inV0, Vec3Arg inV1, Vec3Arg inV2)
-	{
+	MOSS_INLINE void ProcessTriangle(Vec3Arg inV0, Vec3Arg inV1, Vec3Arg inV2) {
 		// Get the closest point from the vertex to the triangle
 		uint32_t set;
 		Vec3 closest_point = ClosestPoint::GetClosestPointOnTriangle(inV0 - mLocalPosition, inV1 - mLocalPosition, inV2 - mLocalPosition, set);
 		float dist_sq = closest_point.LengthSq();
-		if (dist_sq < mClosestDistanceSq)
-		{
+		if (dist_sq < mClosestDistanceSq) {
 			mV0 = inV0;
 			mV1 = inV1;
 			mV2 = inV2;
@@ -43,31 +35,26 @@ public:
 		}
 	}
 
-	MOSS_INLINE void		FinishVertex(const CollideSoftBodyVertexIterator &ioVertex, int inCollidingShapeIndex) const
-	{
-		if (mClosestDistanceSq < FLT_MAX)
-		{
+	MOSS_INLINE void FinishVertex(const CollideSoftBodyVertexIterator &ioVertex, int inCollidingShapeIndex) const {
+		if (mClosestDistanceSq < FLT_MAX) {
 			// Convert triangle to world space
 			Vec3 v0 = mTransform * mV0;
 			Vec3 v1 = mTransform * mV1;
 			Vec3 v2 = mTransform * mV2;
 			Vec3 triangle_normal = mNormalSign * (v1 - v0).Cross(v2 - v0).NormalizedOr(Vec3::AxisY());
 
-			if (mSet == 0b111)
-			{
+			if (mSet == 0b111) {
 				// Closest is interior to the triangle, use plane as collision plane but don't allow more than 0.1 m penetration
 				// because otherwise a triangle half a level a way will have a huge penetration if it is back facing
 				float penetration = min(triangle_normal.Dot(v0 - ioVertex.GetPosition()), 0.1f);
 				if (ioVertex.UpdatePenetration(penetration))
 					ioVertex.SetCollision(Plane::FromPointAndNormal(v0, triangle_normal), inCollidingShapeIndex);
 			}
-			else
-			{
+			else {
 				// Closest point is on an edge or vertex, use closest point as collision plane
 				Vec3 closest_point = mTransform * (mLocalPosition + mClosestPoint);
 				Vec3 normal = ioVertex.GetPosition() - closest_point;
-				if (normal.Dot(triangle_normal) > 0.0f) // Ignore back facing edges
-				{
+				if (normal.Dot(triangle_normal) > 0.0f) { // Ignore back facing edges
 					float normal_length = normal.Length();
 					float penetration = -normal_length;
 					if (ioVertex.UpdatePenetration(penetration))
@@ -84,7 +71,7 @@ public:
 	Vec3				mClosestPoint;
 	float				mNormalSign;
 	float				mClosestDistanceSq;
-	uint32_t				mSet;
+	uint32_t			mSet;
 };
 
 MOSS_SUPPRESS_WARNINGS_END

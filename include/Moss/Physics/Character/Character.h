@@ -297,8 +297,7 @@ protected:
 // This object usually represents the player or a humanoid AI. It uses a single rigid body,
 // usually with a capsule shape to simulate movement and collision for the character.
 // The character is a keyframed object, the application controls it by setting the velocity.
-class MOSS_API Character : public CharacterBase
-{
+class MOSS_API Character : public CharacterBase {
 public:
 	MOSS_OVERRIDE_NEW_DELETE
 

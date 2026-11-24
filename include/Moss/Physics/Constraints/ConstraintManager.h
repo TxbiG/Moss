@@ -4,6 +4,7 @@
 #include <Moss/Core/HashCombine.h>
 #include <Moss/Core/NonCopyable.h>
 #include <Moss/Variants/TStaticArray.h>
+#include <Moss/Variants/Vector/TVec.h>
 #include <Moss/Core/LockFreeHashMap.h>
 
 
@@ -22,9 +23,14 @@ class StateRecorderFilter;
 class DebugRenderer;
 #endif // MOSS_DEBUG_RENDERER
 
+
+enum class ESpringMode : uint8_t { 
+	FrequencyAndDamping, 
+	StiffnessAndDamping 
+};
+
 // Class used to calculate the total number of velocity and position steps
-class CalculateSolverSteps
-{
+class CalculateSolverSteps {
 public:
 	/// Constructor
 	MOSS_INLINE explicit			CalculateSolverSteps(const PhysicsSettings &inSettings) : mSettings(inSettings) { }
@@ -329,8 +335,7 @@ private:
 	static_assert(alignof(CachedContactPoint) == 4, "Assuming 4 byte aligned");
 
 	/// A single cached manifold
-	class CachedManifold
-	{
+	class CachedManifold {
 	public:
 		/// Calculate size in bytes needed beyond the size of the class to store inNumContactPoints
 		static int				sGetRequiredExtraSize(int inNumContactPoints)						{ return max(0, inNumContactPoints - 1) * sizeof(CachedContactPoint); }

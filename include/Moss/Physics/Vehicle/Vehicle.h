@@ -3,8 +3,7 @@
 MOSS_SUPPRESS_WARNINGS_BEGIN
 #include <Moss/Physics/Collision/Shape/Shapes.h>
 #include <Moss/Physics/Constraints/Constraints.h>
-#include <Moss/Physics/Constraints/SpringSettings.h>
-#include <Moss/Physics/PhysicsStepListener.h>
+#include <Moss/Physics/PhysicsSystem.h>
 #include <Moss/Physics/Body/Body.h>
 #include <Moss/Core/LinearCurve.h>
 

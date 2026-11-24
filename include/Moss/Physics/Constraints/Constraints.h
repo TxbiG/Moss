@@ -7,12 +7,87 @@
 #include <Moss/Physics/Constraints/ConstraintManager.h>  // IslandBuilder, ContactConstraintManager
 #include <Moss/Renderer/DebugRenderer.h>
 #include <Moss/Physics/Vehicle/Vehicle.h>                // MotorSettings lives here
-
+#include <Moss/Variants/Matrix/TMatrix.h>
 
 MOSS_SUPPRESS_WARNINGS_BEGIN
 
 
 class Body;
+
+
+enum class EConstraintSubType {
+	Fixed,
+	Point,
+	Hinge,
+	Slider,
+	Distance,
+	Cone,
+	SwingTwist,
+	SixDOF,
+	Path,
+	Vehicle,
+	RackAndPinion,
+	Gear,
+	Pulley,
+
+	// User defined constraint types start here
+	User1,
+	User2,
+	User3,
+	User4
+};
+
+enum class EGroundState { 
+	OnGround = 0, 
+	OnSteepGround = 1, 
+	NotSupported = 2, 
+	InAir = 3, 
+};
+enum class ETransmissionMode : uint8_t { 
+	Auto, 
+	Manual 
+};
+
+enum class EConstraintType : uint8_t { 
+	Constraint, 
+	TwoBodyConstraint 
+};
+enum class EConstraintSpace : uint8_t { 
+	LocalToBodyCOM, 
+	WorldSpace 
+};
+enum class EMotionQuality : uint8_t { 
+	Discrete, 
+	LinearCast 
+};
+enum class EOverrideMassProperties { 
+	CalculateMassAndInertia, 
+	CalculateInertia, 
+	MassAndInertiaProvided 
+};
+
+enum class EMotorState : uint8_t { 
+	Off, 
+	Velocity, 
+	Position 
+};
+enum class ESwingType : uint8_t { 
+	Cone, 
+	Pyramid 
+};
+
+/*! @brief  Accept this contact or Reject this contact  */
+enum class SoftBodyValidateResult { 
+	AcceptContact, 
+	RejectContact 
+};
+
+enum class ECollisionCollectorType { 
+	AllHit = 0, 
+	AllHitSorted = 1, 
+	ClosestHit = 2, 
+	AnyHit = 3 
+};
 
 
 enum class EPathRotationConstraintType {
@@ -23,6 +98,52 @@ enum class EPathRotationConstraintType {
 	ConstrainToPath,				// Fully constrain the rotation of body 2 to the path (following the tangent and normal of the path)
 	FullyConstrained,				// Fully constrain the rotation of the body 2 to the rotation of body 1
 };
+
+
+class SpringSettings {
+public:
+	// Constructor
+	SpringSettings() = default;
+	SpringSettings(const SpringSettings &) = default;
+	SpringSettings& operator = (const SpringSettings &) = default;
+	SpringSettings(ESpringMode inMode, float inFrequencyOrStiffness, float inDamping) : mode(inMode), frequency(inFrequencyOrStiffness), damping(inDamping) { }
+
+	// Saves the contents of the spring settings in binary form to inStream.
+	void SaveBinaryState(StreamOut &inStream) const;
+
+	// Restores contents from the binary stream inStream.
+	void RestoreBinaryState(StreamIn &inStream);
+
+	// Check if the spring has a valid frequency / stiffness, if not the spring will be hard
+	inline bool	HasStiffness() const { return frequency > 0.0f; }
+
+	// Selects the way in which the spring is defined
+	// If the mode is StiffnessAndDamping then mFrequency becomes the stiffness (k) and mDamping becomes the damping ratio (c) in the spring equation F = -k * x - c * v. Otherwise the properties are as documented.
+	ESpringMode mode = ESpringMode::FrequencyAndDamping;
+
+	union {
+		// Valid when mSpringMode = ESpringMode::FrequencyAndDamping.
+		// If mFrequency > 0 the constraint will be soft and mFrequency specifies the oscillation frequency in Hz.
+		// If mFrequency <= 0, mDamping is ignored and the constraint will have hard limits (as hard as the time step / the number of velocity / position solver steps allows).
+		float frequency = 0.0f;
+
+		// Valid when mSpringMode = ESpringMode::StiffnessAndDamping.
+		// If mStiffness > 0 the constraint will be soft and mStiffness specifies the stiffness (k) in the spring equation F = -k * x - c * v for a linear or T = -k * theta - c * w for an angular spring.
+		// If mStiffness <= 0, mDamping is ignored and the constraint will have hard limits (as hard as the time step / the number of velocity / position solver steps allows).
+		//
+		// Note that stiffness values are large numbers. To calculate a ballpark value for the needed stiffness you can use:
+		// force = stiffness * delta_spring_length = mass * gravity <=> stiffness = mass * gravity / delta_spring_length.
+		// So if your object weighs 1500 kg and the spring compresses by 2 meters, you need a stiffness in the order of 1500 * 9.81 / 2 ~ 7500 N/m.
+		float stiffness;
+	};
+
+	// When mSpringMode = ESpringMode::FrequencyAndDamping mDamping is the damping ratio (0 = no damping, 1 = critical damping).
+	// When mSpringMode = ESpringMode::StiffnessAndDamping mDamping is the damping (c) in the spring equation F = -k * x - c * v for a linear or T = -k * theta - c * w for an angular spring.
+	// Note that if you set mDamping = 0, you will not get an infinite oscillation. Because we integrate physics using an explicit Euler scheme, there is always energy loss.
+	// This is done to keep the simulation from exploding, because with a damping of 0 and even the slightest rounding error, the oscillation could become bigger and bigger until the simulation explodes.
+	float damping = 0.0f;
+};
+
 
 class AngleConstraintPart {
 	/// Internal helper function to update velocities of bodies after Lagrange multiplier is calculated
@@ -86,7 +207,8 @@ public:
 	///	@param inC Value of the constraint equation (C)
 	///	@param inFrequency Oscillation frequency (Hz)
 	///	@param inDamping Damping factor (0 = no damping, 1 = critical damping)
-	inline void	CalculateConstraintPropertiesWithFrequencyAndDamping(float inDeltaTime, const Body& inBody1, const Body& inBody2, Vec3Arg inWorldSpaceAxis, float inBias, float inC, float inFrequency, float inDamping) {
+	inline void	CalculateConstraintPropertiesWithFrequencyAndDamping(float inDeltaTime, const Body& inBody1, const Body& inBody2, Vec3Arg inWorldSpaceAxis, 
+		float inBias, float inC, float inFrequency, float inDamping) {
 		float inv_effective_mass = CalculateInverseEffectiveMass(inBody1, inBody2, inWorldSpaceAxis);
 
 		if (inv_effective_mass == 0.0f)
@@ -105,7 +227,8 @@ public:
 	///	@param inC Value of the constraint equation (C)
 	///	@param inStiffness Spring stiffness k.
 	///	@param inDamping Spring damping coefficient c.
-	inline void CalculateConstraintPropertiesWithStiffnessAndDamping(float inDeltaTime, const Body& inBody1, const Body& inBody2, Vec3Arg inWorldSpaceAxis, float inBias, float inC, float inStiffness, float inDamping) {
+	inline void CalculateConstraintPropertiesWithStiffnessAndDamping(float inDeltaTime, const Body& inBody1, const Body& inBody2, Vec3Arg inWorldSpaceAxis, 
+		float inBias, float inC, float inStiffness, float inDamping) {
 		float inv_effective_mass = CalculateInverseEffectiveMass(inBody1, inBody2, inWorldSpaceAxis);
 
 		if (inv_effective_mass == 0.0f)
@@ -115,15 +238,18 @@ public:
 	}
 
 	/// Selects one of the above functions based on the spring settings
-	inline void CalculateConstraintPropertiesWithSettings(float inDeltaTime, const Body& inBody1, const Body& inBody2, Vec3Arg inWorldSpaceAxis, float inBias, float inC, const SpringSettings& inSpringSettings) {
+	inline void CalculateConstraintPropertiesWithSettings(float inDeltaTime, const Body& inBody1, const Body& inBody2, Vec3Arg inWorldSpaceAxis, float inBias, 
+		float inC, const SpringSettings& inSpringSettings) {
 		float inv_effective_mass = CalculateInverseEffectiveMass(inBody1, inBody2, inWorldSpaceAxis);
 
 		if (inv_effective_mass == 0.0f)
 			Deactivate();
-		else if (inSpringSettings.mMode == ESpringMode::FrequencyAndDamping)
-			mSpringPart.CalculateSpringPropertiesWithFrequencyAndDamping(inDeltaTime, inv_effective_mass, inBias, inC, inSpringSettings.mFrequency, inSpringSettings.mDamping, mEffectiveMass);
+		else if (inSpringSettings.mode == ESpringMode::FrequencyAndDamping)
+			mSpringPart.CalculateSpringPropertiesWithFrequencyAndDamping(inDeltaTime, inv_effective_mass, inBias, inC, inSpringSettings.frequency, 
+				inSpringSettings.damping, mEffectiveMass);
 		else
-			mSpringPart.CalculateSpringPropertiesWithStiffnessAndDamping(inDeltaTime, inv_effective_mass, inBias, inC, inSpringSettings.mStiffness, inSpringSettings.mDamping, mEffectiveMass);
+			mSpringPart.CalculateSpringPropertiesWithStiffnessAndDamping(inDeltaTime, inv_effective_mass, inBias, inC, inSpringSettings.stiffness, 
+				inSpringSettings.damping, mEffectiveMass);
 	}
 
 	/// Deactivate this constraint
@@ -275,7 +401,8 @@ private:
 public:
 	/// Calculate properties used during the functions below
 	/// All input vectors are in world space
-	inline void CalculateConstraintProperties(const Body& inBody1, Mat44Arg inRotation1, Vec3Arg inR1PlusU, const Body& inBody2, Mat44Arg inRotation2, Vec3Arg inR2, Vec3Arg inN1, Vec3Arg inN2) {
+	inline void CalculateConstraintProperties(const Body& inBody1, Mat44Arg inRotation1, Vec3Arg inR1PlusU, const Body& inBody2, Mat44Arg inRotation2, 
+		Vec3Arg inR2, Vec3Arg inN1, Vec3Arg inN2) {
 		MOSS_ASSERT(inN1.IsNormalized(1.0e-5f));
 		MOSS_ASSERT(inN2.IsNormalized(1.0e-5f));
 
@@ -629,13 +756,13 @@ public:
 			Mat44 inv_i1 = mp1->GetInverseInertiaForRotation(inRotation1);
 			summed_inv_mass = mp1->GetInverseMass();
 
-			Mat44 r1x = Mat44::sCrossProduct(mR1);
+			Mat44 r1x = Mat44::CrossProduct(mR1);
 			mInvI1_R1X = inv_i1.Multiply3x3(r1x);
 			inv_effective_mass = r1x.Multiply3x3(inv_i1).Multiply3x3RightTransposed(r1x);
 		}
 		else {
 			mInvI1_R1X = Mat44::NaN();
-			MOSS_ERROR("had to store as NaN.")
+			MOSS_ERROR("had to store as NaN.");
 
 			summed_inv_mass = 0.0f;
 			inv_effective_mass = Mat44::Zero();
@@ -646,16 +773,16 @@ public:
 			Mat44 inv_i2 = mp2->GetInverseInertiaForRotation(inRotation2);
 			summed_inv_mass += mp2->GetInverseMass();
 
-			Mat44 r2x = Mat44::sCrossProduct(mR2);
+			Mat44 r2x = Mat44::CrossProduct(mR2);
 			mInvI2_R2X = inv_i2.Multiply3x3(r2x);
 			inv_effective_mass += r2x.Multiply3x3(inv_i2).Multiply3x3RightTransposed(r2x);
 		}
 		else {
 			mInvI2_R2X = Mat44::NaN();
-			MOSS_ERROR("had to store as NaN.")
+			MOSS_ERROR("had to store as NaN.");
 		}
 
-		inv_effective_mass += Mat44::sScale(summed_inv_mass);
+		inv_effective_mass += Mat44::Scale(summed_inv_mass);
 		if (!mEffectiveMass.SetInversed3x3(inv_effective_mass))
 			Deactivate();
 	}
@@ -1158,7 +1285,8 @@ public:
 	///	@param inC Value of the constraint equation (C).
 	///	@param inFrequency Oscillation frequency (Hz).
 	///	@param inDamping Damping factor (0 = no damping, 1 = critical damping).
-	inline void	CalculateConstraintPropertiesWithFrequencyAndDamping(float inDeltaTime, const Body& inBody1, Vec3Arg inR1PlusU, const Body& inBody2, Vec3Arg inR2, Vec3Arg inWorldSpaceAxis, float inBias, float inC, float inFrequency, float inDamping) {
+	inline void	CalculateConstraintPropertiesWithFrequencyAndDamping(float inDeltaTime, const Body& inBody1, Vec3Arg inR1PlusU, const Body& inBody2, Vec3Arg inR2, 
+		Vec3Arg inWorldSpaceAxis, float inBias, float inC, float inFrequency, float inDamping) {
 		float inv_effective_mass = CalculateInverseEffectiveMass(inBody1, inR1PlusU, inBody2, inR2, inWorldSpaceAxis);
 
 		if (inv_effective_mass == 0.0f)
@@ -1178,7 +1306,8 @@ public:
 	///	@param inC Value of the constraint equation (C).
 	///	@param inStiffness Spring stiffness k.
 	///	@param inDamping Spring damping coefficient c.
-	inline void	CalculateConstraintPropertiesWithStiffnessAndDamping(float inDeltaTime, const Body& inBody1, Vec3Arg inR1PlusU, const Body& inBody2, Vec3Arg inR2, Vec3Arg inWorldSpaceAxis, float inBias, float inC, float inStiffness, float inDamping) {
+	inline void	CalculateConstraintPropertiesWithStiffnessAndDamping(float inDeltaTime, const Body& inBody1, Vec3Arg inR1PlusU, const Body& inBody2, 
+		Vec3Arg inR2, Vec3Arg inWorldSpaceAxis, float inBias, float inC, float inStiffness, float inDamping) {
 		float inv_effective_mass = CalculateInverseEffectiveMass(inBody1, inR1PlusU, inBody2, inR2, inWorldSpaceAxis);
 
 		if (inv_effective_mass == 0.0f)
@@ -1188,15 +1317,18 @@ public:
 	}
 
 	/// Selects one of the above functions based on the spring settings
-	inline void CalculateConstraintPropertiesWithSettings(float inDeltaTime, const Body& inBody1, Vec3Arg inR1PlusU, const Body& inBody2, Vec3Arg inR2, Vec3Arg inWorldSpaceAxis, float inBias, float inC, const SpringSettings& inSpringSettings) {
+	inline void CalculateConstraintPropertiesWithSettings(float inDeltaTime, const Body& inBody1, Vec3Arg inR1PlusU, const Body& inBody2, 
+		Vec3Arg inR2, Vec3Arg inWorldSpaceAxis, float inBias, float inC, const SpringSettings& inSpringSettings) {
 		float inv_effective_mass = CalculateInverseEffectiveMass(inBody1, inR1PlusU, inBody2, inR2, inWorldSpaceAxis);
 
 		if (inv_effective_mass == 0.0f)
 			Deactivate();
-		else if (inSpringSettings.mMode == ESpringMode::FrequencyAndDamping)
-			mSpringPart.CalculateSpringPropertiesWithFrequencyAndDamping(inDeltaTime, inv_effective_mass, inBias, inC, inSpringSettings.mFrequency, inSpringSettings.mDamping, mEffectiveMass);
+		else if (inSpringSettings.mode == ESpringMode::FrequencyAndDamping)
+			mSpringPart.CalculateSpringPropertiesWithFrequencyAndDamping(inDeltaTime, inv_effective_mass, inBias, inC, 
+				inSpringSettings.frequency, inSpringSettings.damping, mEffectiveMass);
 		else
-			mSpringPart.CalculateSpringPropertiesWithStiffnessAndDamping(inDeltaTime, inv_effective_mass, inBias, inC, inSpringSettings.mStiffness, inSpringSettings.mDamping, mEffectiveMass);
+			mSpringPart.CalculateSpringPropertiesWithStiffnessAndDamping(inDeltaTime, inv_effective_mass, inBias, inC, 
+				inSpringSettings.stiffness, inSpringSettings.damping, mEffectiveMass);
 	}
 
 	/// Deactivate this constraint
@@ -1734,7 +1866,7 @@ public:
 	/// Calculate properties used during the functions below
 	inline void	CalculateConstraintProperties(const Body& inBody1, Mat44Arg inRotation1, const Body& inBody2, Mat44Arg inRotation2, QuatArg inInvInitialOrientation) {
 		// Calculate: JP = 1/2 A ML(q1^*) MR(q2 r0^*) A^T
-		Mat44 jp = (Mat44::sQuatLeftMultiply(0.5f* inBody1.GetRotation().Conjugated())* Mat44::sQuatRightMultiply(inBody2.GetRotation()* inInvInitialOrientation)).GetRotationSafe();
+		Mat44 jp = (Mat44::QuatLeftMultiply(0.5f* inBody1.GetRotation().Conjugated())* Mat44::QuatRightMultiply(inBody2.GetRotation()* inInvInitialOrientation)).GetRotationSafe();
 
 		// Calculate properties used during constraint solving
 		Mat44 inv_i1 = inBody1.IsDynamic()? inBody1.GetMotionProperties()->GetInverseInertiaForRotation(inRotation1) : Mat44::Zero();
@@ -2229,7 +2361,7 @@ public:
 				// q = Quat::Rotation(Vec3::sAxisZ(), z)* Quat::Rotation(Vec3::AxisY(), y)
 				// [q.x, q.y, q.z, q.w] = [-sin(y / 2)* sin(z / 2), sin(y / 2)* cos(z / 2), cos(y / 2)* sin(z / 2), cos(y / 2)* cos(z / 2)]
 				// So we can calculate y / 2 = atan2(q.y, q.w) and z / 2 = atan2(q.z, q.w)
-				Vec4 half_angle = Vec4::sATan2(ioSwing.GetXYZW().Swizzle<SWIZZLE_Y, SWIZZLE_Y, SWIZZLE_Z, SWIZZLE_Z>(), ioSwing.GetXYZW().SplatW());
+				Vec4 half_angle = Vec4::ATan2(ioSwing.GetXYZW().Swizzle<SWIZZLE_Y, SWIZZLE_Y, SWIZZLE_Z, SWIZZLE_Z>(), ioSwing.GetXYZW().SplatW());
 				Vec4 min_half_angle(mSwingYHalfMinAngle, mSwingYHalfMinAngle, mSwingZHalfMinAngle, mSwingZHalfMinAngle);
 				Vec4 max_half_angle(mSwingYHalfMaxAngle, mSwingYHalfMaxAngle, mSwingZHalfMaxAngle, mSwingZHalfMaxAngle);
 				Vec4 clamped_half_angle = Vec4::Min(Vec4::Max(half_angle, min_half_angle), max_half_angle);
@@ -2855,8 +2987,7 @@ private:
 
 
 /// A constraint manager manages all constraints of the same type
-class ConstraintManager : public NonCopyable
-{
+class ConstraintManager : public NonCopyable {
 public:
 	MOSS_OVERRIDE_NEW_DELETE
 
@@ -2917,8 +3048,8 @@ public:
 	bool					RestoreState(StateRecorder &inStream);
 
 	/// Lock all constraints. This should only be done during PhysicsSystem::Update().
-	void					LockAllConstraints()						{ PhysicsLock::sLock(mConstraintsMutex MOSS_IF_ENABLE_ASSERTS(, mLockContext, EPhysicsLockTypes::ConstraintsList)); }
-	void					UnlockAllConstraints()						{ PhysicsLock::sUnlock(mConstraintsMutex MOSS_IF_ENABLE_ASSERTS(, mLockContext, EPhysicsLockTypes::ConstraintsList)); }
+	void					LockAllConstraints()						{ PhysicsLock::Lock(mConstraintsMutex MOSS_IF_ENABLE_ASSERTS(, mLockContext, EPhysicsLockTypes::ConstraintsList)); }
+	void					UnlockAllConstraints()						{ PhysicsLock::Unlock(mConstraintsMutex MOSS_IF_ENABLE_ASSERTS(, mLockContext, EPhysicsLockTypes::ConstraintsList)); }
 
 private:
 #ifdef MOSS_DEBUG
@@ -2928,9 +3059,10 @@ private:
 	mutable Mutex			mConstraintsMutex;
 };
 
+class ConstraintSettings;
+
 /// Base class for all physics constraints. A constraint removes one or more degrees of freedom for a rigid body.
-class MOSS_API Constraint : public RefTarget<Constraint>, public NonCopyable
-{
+class MOSS_API Constraint : public RefTarget<Constraint>, public NonCopyable {
 public:
 	MOSS_OVERRIDE_NEW_DELETE
 

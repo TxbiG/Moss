@@ -188,7 +188,7 @@ public:
 
 	/// The material determines the simulation parameters for a hair strand
 	struct MOSS_API HairMaterial {
-		MOSS_DECLARE_SERIALIZABLE_NON_VIRTUAL(MOSS_API, Material)
+		MOSS_DECLARE_SERIALIZABLE_NON_VIRTUAL(MOSS_API, HairMaterial)
 
 		/// Returns if this material needs a density/velocity grid
 		bool			NeedsGrid() const							{ return mGridVelocityFactor.mMin != 0.0f || mGridVelocityFactor.mMax != 0.0f || mGridDensityForceFactor != 0.0f; }

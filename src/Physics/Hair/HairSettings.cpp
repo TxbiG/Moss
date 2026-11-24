@@ -14,8 +14,7 @@
 
 MOSS_NAMESPACE_BEGIN
 
-MOSS_IMPLEMENT_SERIALIZABLE_NON_VIRTUAL(HairSettings)
-{
+MOSS_IMPLEMENT_SERIALIZABLE_NON_VIRTUAL(HairSettings) {
 	MOSS_ADD_ATTRIBUTE(HairSettings, mSimVertices)
 	MOSS_ADD_ATTRIBUTE(HairSettings, mSimStrands)
 	MOSS_ADD_ATTRIBUTE(HairSettings, mRenderVertices)
@@ -33,61 +32,51 @@ MOSS_IMPLEMENT_SERIALIZABLE_NON_VIRTUAL(HairSettings)
 	MOSS_ADD_ATTRIBUTE(HairSettings, mMaterials)
 }
 
-MOSS_IMPLEMENT_SERIALIZABLE_NON_VIRTUAL(HairSettings::SkinWeight)
-{
+MOSS_IMPLEMENT_SERIALIZABLE_NON_VIRTUAL(HairSettings::SkinWeight) {
 	MOSS_ADD_ATTRIBUTE(HairSettings::SkinWeight, mJointIdx)
 	MOSS_ADD_ATTRIBUTE(HairSettings::SkinWeight, mWeight)
 }
 
-MOSS_IMPLEMENT_SERIALIZABLE_NON_VIRTUAL(HairSettings::SkinPoint)
-{
+MOSS_IMPLEMENT_SERIALIZABLE_NON_VIRTUAL(HairSettings::SkinPoint) {
 	MOSS_ADD_ATTRIBUTE(HairSettings::SkinPoint, mTriangleIndex)
 	MOSS_ADD_ATTRIBUTE(HairSettings::SkinPoint, mU)
 	MOSS_ADD_ATTRIBUTE(HairSettings::SkinPoint, mV)
 }
 
-MOSS_IMPLEMENT_SERIALIZABLE_NON_VIRTUAL(HairSettings::SVertexInfluence)
-{
+MOSS_IMPLEMENT_SERIALIZABLE_NON_VIRTUAL(HairSettings::SVertexInfluence) {
 	MOSS_ADD_ATTRIBUTE(HairSettings::SVertexInfluence, mVertexIndex)
 	MOSS_ADD_ATTRIBUTE(HairSettings::SVertexInfluence, mRelativePosition)
 	MOSS_ADD_ATTRIBUTE(HairSettings::SVertexInfluence, mWeight)
 }
 
-MOSS_IMPLEMENT_SERIALIZABLE_NON_VIRTUAL(HairSettings::RVertex)
-{
+MOSS_IMPLEMENT_SERIALIZABLE_NON_VIRTUAL(HairSettings::RVertex) {
 	MOSS_ADD_ATTRIBUTE(HairSettings::RVertex, mPosition)
 	MOSS_ADD_ATTRIBUTE(HairSettings::RVertex, mInfluences)
 }
 
-MOSS_IMPLEMENT_SERIALIZABLE_NON_VIRTUAL(HairSettings::SVertex)
-{
+MOSS_IMPLEMENT_SERIALIZABLE_NON_VIRTUAL(HairSettings::SVertex) {
 	MOSS_ADD_ATTRIBUTE(HairSettings::SVertex, mPosition)
 	MOSS_ADD_ATTRIBUTE(HairSettings::SVertex, mInvMass)
 }
 
-MOSS_IMPLEMENT_SERIALIZABLE_NON_VIRTUAL(HairSettings::RStrand)
-{
+MOSS_IMPLEMENT_SERIALIZABLE_NON_VIRTUAL(HairSettings::RStrand) {
 	MOSS_ADD_ATTRIBUTE(HairSettings::RStrand, mStartVtx)
 	MOSS_ADD_ATTRIBUTE(HairSettings::RStrand, mEndVtx)
 }
 
-MOSS_IMPLEMENT_SERIALIZABLE_NON_VIRTUAL(HairSettings::SStrand)
-{
+MOSS_IMPLEMENT_SERIALIZABLE_NON_VIRTUAL(HairSettings::SStrand) {
 	MOSS_ADD_BASE_CLASS(HairSettings::SStrand, HairSettings::RStrand)
-
-		MOSS_ADD_ATTRIBUTE(HairSettings::SStrand, mMaterialIndex)
+	MOSS_ADD_ATTRIBUTE(HairSettings::SStrand, mMaterialIndex)
 }
 
-MOSS_IMPLEMENT_SERIALIZABLE_NON_VIRTUAL(HairSettings::Gradient)
-{
+MOSS_IMPLEMENT_SERIALIZABLE_NON_VIRTUAL(HairSettings::Gradient) {
 	MOSS_ADD_ATTRIBUTE(HairSettings::Gradient, mMin)
 	MOSS_ADD_ATTRIBUTE(HairSettings::Gradient, mMax)
 	MOSS_ADD_ATTRIBUTE(HairSettings::Gradient, mMinFraction)
 	MOSS_ADD_ATTRIBUTE(HairSettings::Gradient, mMaxFraction)
 }
 
-MOSS_IMPLEMENT_SERIALIZABLE_NON_VIRTUAL(HairSettings::Material)
-{
+MOSS_IMPLEMENT_SERIALIZABLE_NON_VIRTUAL(HairSettings::HairMaterial) {
 	MOSS_ADD_ATTRIBUTE(HairSettings::Material, mEnableCollision)
 	MOSS_ADD_ATTRIBUTE(HairSettings::Material, mEnableLRA)
 	MOSS_ADD_ATTRIBUTE(HairSettings::Material, mLinearDamping)
@@ -110,24 +99,21 @@ MOSS_IMPLEMENT_SERIALIZABLE_NON_VIRTUAL(HairSettings::Material)
 	MOSS_ADD_ATTRIBUTE(HairSettings::Material, mGravityPreloadFactor)
 }
 
-void HairSettings::Gradient::SaveBinaryState(StreamOut &inStream) const
-{
+void HairSettings::Gradient::SaveBinaryState(StreamOut &inStream) const {
 	inStream.Write(mMin);
 	inStream.Write(mMax);
 	inStream.Write(mMinFraction);
 	inStream.Write(mMaxFraction);
 }
 
-void HairSettings::Gradient::RestoreBinaryState(StreamIn &inStream)
-{
+void HairSettings::Gradient::RestoreBinaryState(StreamIn &inStream) {
 	inStream.Read(mMin);
 	inStream.Read(mMax);
 	inStream.Read(mMinFraction);
 	inStream.Read(mMaxFraction);
 }
 
-void HairSettings::InitRenderAndSimulationStrands(const Array<SVertex> &inVertices, const Array<SStrand> &inStrands)
-{
+void HairSettings::InitRenderAndSimulationStrands(const Array<SVertex> &inVertices, const Array<SStrand> &inStrands) {
 	// Copy original strands to render strands
 	mRenderVertices.resize(inVertices.size());
 	for (uint32_t i = 0, n = uint32_t(inVertices.size()); i < n; ++i)
@@ -137,7 +123,7 @@ void HairSettings::InitRenderAndSimulationStrands(const Array<SVertex> &inVertic
 		mRenderStrands[i] = RStrand(inStrands[i].mStartVtx, inStrands[i].mEndVtx);
 
 	// Create buffer that holds indices to the strands
-	Array<uint32_t> indices_shuffle;
+	TArray<uint32_t> indices_shuffle;
 	indices_shuffle.resize(inStrands.size());
 	for (uint32_t i = 0, n = uint32_t(inStrands.size()); i < n; ++i)
 		indices_shuffle[i] = i;
@@ -149,8 +135,7 @@ void HairSettings::InitRenderAndSimulationStrands(const Array<SVertex> &inVertic
 
 	// Loop over all materials
 	Array<uint32_t>::iterator begin_material = indices_shuffle.begin();
-	while (begin_material < indices_shuffle.end())
-	{
+	while (begin_material < indices_shuffle.end()) {
 		uint32_t material_index = inStrands[*begin_material].mMaterialIndex;
 
 		// Find end of this material
@@ -165,17 +150,14 @@ void HairSettings::InitRenderAndSimulationStrands(const Array<SVertex> &inVertic
 		size_t num_simulated = max<size_t>(size_t(ceil(double(mMaterials[material_index].mSimulationStrandsFraction) * double(end_material - begin_material))), 1);
 		Array<uint32_t>::iterator end_simulation = begin_material + num_simulated;
 		QuickSort(begin_material, end_simulation, std::less<uint32_t>()); // Sort simulated strands back to original order
-		for (Array<uint32_t>::const_iterator idx = begin_material; idx < end_simulation; ++idx)
-		{
+		for (Array<uint32_t>::const_iterator idx = begin_material; idx < end_simulation; ++idx) {
 			// Add simulation strand
 			const HairSettings::SStrand &sim_strand = inStrands[*idx];
 			mSimStrands.push_back(HairSettings::SStrand((uint32_t)mSimVertices.size(), (uint32_t)mSimVertices.size() + sim_strand.VertexCount(), sim_strand.mMaterialIndex));
 
-			for (uint32_t v = sim_strand.mStartVtx; v < sim_strand.mEndVtx; ++v)
-			{
+			for (uint32_t v = sim_strand.mStartVtx; v < sim_strand.mEndVtx; ++v) {
 				// Link render vertex to simulation vertex
 				mRenderVertices[v].mInfluences[0].mVertexIndex = uint32_t(mSimVertices.size());
-
 				// Add simulation vertex
 				mSimVertices.push_back(inVertices[v]);
 			}
@@ -464,7 +446,7 @@ void HairSettings::Init(float &outMaxDistSqHairToScalp)
 		// First element unused
 		x[0] = r[0] = g[0] = k[0] = Vec3::NaN();
 
-		const HairSettings::Material &material = mMaterials[strand.mMaterialIndex];
+		const HairSettings::HairMaterial &material = mMaterials[strand.mMaterialIndex];
 		HairSettings::GradientSampler gravity_sampler(material.mGravityFactor);
 		for (uint32_t i = 1; i < vertex_count; ++i)
 		{
@@ -767,7 +749,7 @@ void HairSettings::SaveBinaryState(StreamOut &inStream) const
 	inStream.Write(mGridSize);
 	inStream.Write(mSimulationBoundsPadding);
 	inStream.Write(mInitialGravity);
-	inStream.Write(mMaterials, [](const Material &inElement, StreamOut &inS) {
+	inStream.Write(mMaterials, [](const HairMaterial &inElement, StreamOut &inS) {
 		inS.Write(inElement.mEnableCollision);
 		inS.Write(inElement.mEnableLRA);
 		inS.Write(inElement.mLinearDamping);
@@ -812,7 +794,7 @@ void HairSettings::RestoreBinaryState(StreamIn &inStream)
 	inStream.Read(mGridSize);
 	inStream.Read(mSimulationBoundsPadding);
 	inStream.Read(mInitialGravity);
-	inStream.Read(mMaterials, [](StreamIn &inS, Material &outElement) {
+	inStream.Read(mMaterials, [](StreamIn &inS, HairMaterial &outElement) {
 		inS.Read(outElement.mEnableCollision);
 		inS.Read(outElement.mEnableLRA);
 		inS.Read(outElement.mLinearDamping);

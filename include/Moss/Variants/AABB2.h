@@ -55,6 +55,9 @@ public:
     // Grow/shrink
     void ExpandBy(RVec2 amount) { mBox = Vec4( mBox.GetX() - amount.GetX(), mBox.GetY() - amount.GetY(), mBox.GetZ() + amount.GetX(), mBox.GetW() + amount.GetY() ); }
 
+    //Vec2 Extents() const { return (max-min)*0.5f; }
+    //void Include(Vec2 p) { min=Min(min,p); max=Max(max,p); }
+
     void EnsureMinimalEdgeLength(float min_edge) {
         float sizeX = mBox.GetZ() - mBox.GetX();
         float sizeY = mBox.GetW() - mBox.GetY();
