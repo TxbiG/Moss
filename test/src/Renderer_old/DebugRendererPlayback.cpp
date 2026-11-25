@@ -63,7 +63,7 @@ void DebugRendererPlayback::Parse(StreamIn &inStream)
 			uint32_t geometry_id;
 			inStream.Read(geometry_id);
 
-			AABox bounds;
+			AABB3 bounds;
 			inStream.Read(bounds.mMin);
 			inStream.Read(bounds.mMax);
 

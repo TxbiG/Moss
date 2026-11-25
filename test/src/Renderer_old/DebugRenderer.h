@@ -58,9 +58,9 @@ public:
 	virtual void			DrawLine(RVec3Arg inFrom, RVec3Arg inTo, Color inColor) = 0;
 
 	/// Draw wireframe box
-	void					DrawWireBox(const AABox &inBox, Color inColor);
+	void					DrawWireBox(const AABB3 &inBox, Color inColor);
 	void					DrawWireBox(const OrientedBox &inBox, Color inColor);
-	void					DrawWireBox(RMat44Arg inMatrix, const AABox &inBox, Color inColor);
+	void					DrawWireBox(RMat44Arg inMatrix, const AABB3 &inBox, Color inColor);
 
 	/// Draw a marker on a position
 	void					DrawMarker(RVec3Arg inPosition, Color inColor, float inSize);
@@ -103,8 +103,8 @@ public:
 	virtual void			DrawTriangle(RVec3Arg inV1, RVec3Arg inV2, RVec3Arg inV3, Color inColor, ECastShadow inCastShadow = ECastShadow::Off) = 0;
 
 	/// Draw a box
-	void					DrawBox(const AABox &inBox, Color inColor, ECastShadow inCastShadow = ECastShadow::On, EDrawMode inDrawMode = EDrawMode::Solid);
-	void					DrawBox(RMat44Arg inMatrix, const AABox &inBox, Color inColor, ECastShadow inCastShadow = ECastShadow::On, EDrawMode inDrawMode = EDrawMode::Solid);
+	void					DrawBox(const AABB3 &inBox, Color inColor, ECastShadow inCastShadow = ECastShadow::On, EDrawMode inDrawMode = EDrawMode::Solid);
+	void					DrawBox(RMat44Arg inMatrix, const AABB3 &inBox, Color inColor, ECastShadow inCastShadow = ECastShadow::On, EDrawMode inDrawMode = EDrawMode::Solid);
 
 	/// Draw a sphere
 	void					DrawSphere(RVec3Arg inCenter, float inRadius, Color inColor, ECastShadow inCastShadow = ECastShadow::On, EDrawMode inDrawMode = EDrawMode::Solid);
@@ -215,15 +215,15 @@ public:
 		MOSS_OVERRIDE_NEW_DELETE
 
 		/// Constructor
-							Geometry(const AABox &inBounds) : mBounds(inBounds) { }
-							Geometry(const Batch &inBatch, const AABox &inBounds) : mBounds(inBounds) { mLODs.push_back({ inBatch, cLargeFloat }); }
+							Geometry(const AABB3 &inBounds) : mBounds(inBounds) { }
+							Geometry(const Batch &inBatch, const AABB3 &inBounds) : mBounds(inBounds) { mLODs.push_back({ inBatch, cLargeFloat }); }
 
 		/// Determine which LOD to render
 		/// @param inCameraPosition Current position of the camera
 		/// @param inWorldSpaceBounds World space bounds for this geometry (transform mBounds by model space matrix)
 		/// @param inLODScaleSq is the squared scale of the model matrix, it is multiplied with the LOD distances in inGeometry to calculate the real LOD distance (so a number > 1 will force a higher LOD).
 		/// @return The selected LOD.
-		const LOD &			GetLOD(Vec3Arg inCameraPosition, const AABox &inWorldSpaceBounds, float inLODScaleSq) const
+		const LOD &			GetLOD(Vec3Arg inCameraPosition, const AABB3 &inWorldSpaceBounds, float inLODScaleSq) const
 		{
 			float dist_sq = inWorldSpaceBounds.GetSqDistanceTo(inCameraPosition);
 			for (const LOD &lod : mLODs)
@@ -237,14 +237,14 @@ public:
 		TArray<LOD>			mLODs;
 
 		/// Bounding box that encapsulates all LODs
-		AABox				mBounds;
+		AABB3				mBounds;
 	};
 
 	/// Handle for a lodded triangle batch
 	using GeometryRef = Ref<Geometry>;
 
 	/// Calculate bounding box for a batch of triangles
-	static AABox			sCalculateBounds(const Vertex *inVertices, int inVertexCount);
+	static AABB3			sCalculateBounds(const Vertex *inVertices, int inVertexCount);
 
 	/// Create a batch of triangles that can be drawn efficiently
 	virtual Batch			CreateTriangleBatch(const Triangle *inTriangles, int inTriangleCount) = 0;
@@ -255,7 +255,7 @@ public:
 
 	/// Create a primitive for a convex shape using its support function
 	using SupportFunction = function<Vec3 (Vec3Arg inDirection)>;
-	Batch					CreateTriangleBatchForConvex(SupportFunction inGetSupport, int inLevel, AABox *outBounds = nullptr);
+	Batch					CreateTriangleBatchForConvex(SupportFunction inGetSupport, int inLevel, AABB3 *outBounds = nullptr);
 	GeometryRef				CreateTriangleGeometryForConvex(SupportFunction inGetSupport);
 
 	/// Determines which polygons are culled
@@ -275,7 +275,7 @@ public:
 	/// @param inCullMode determines which polygons are culled.
 	/// @param inCastShadow determines if this geometry should cast a shadow or not.
 	/// @param inDrawMode determines if we draw the geometry solid or in wireframe.
-	virtual void			DrawGeometry(RMat44Arg inModelMatrix, const AABox &inWorldSpaceBounds, float inLODScaleSq, Color inModelColor, const GeometryRef &inGeometry, ECullMode inCullMode = ECullMode::CullBackFace, ECastShadow inCastShadow = ECastShadow::On, EDrawMode inDrawMode = EDrawMode::Solid) = 0;
+	virtual void			DrawGeometry(RMat44Arg inModelMatrix, const AABB3 &inWorldSpaceBounds, float inLODScaleSq, Color inModelColor, const GeometryRef &inGeometry, ECullMode inCullMode = ECullMode::CullBackFace, ECastShadow inCastShadow = ECastShadow::On, EDrawMode inDrawMode = EDrawMode::Solid) = 0;
 	void					DrawGeometry(RMat44Arg inModelMatrix, Color inModelColor, const GeometryRef &inGeometry, ECullMode inCullMode = ECullMode::CullBackFace, ECastShadow inCastShadow = ECastShadow::On, EDrawMode inDrawMode = EDrawMode::Solid) { DrawGeometry(inModelMatrix, inGeometry->mBounds.Transformed(inModelMatrix), max(max(inModelMatrix.GetAxisX().LengthSq(), inModelMatrix.GetAxisY().LengthSq()), inModelMatrix.GetAxisZ().LengthSq()), inModelColor, inGeometry, inCullMode, inCastShadow, inDrawMode); }
 
 	/// Draw text

@@ -97,12 +97,9 @@ bool TriangleSplitterMean::Split(const Range &inTriangles, Range &outLeft, Range
 
 
 
-TriangleSplitterBinning::TriangleSplitterBinning(const VertexList &inVertices, const IndexedTriangleList &inTriangles, uint32_t inMinNumBins, uint32_t inMaxNumBins, uint32_t inNumTrianglesPerBin) :
-	TriangleSplitter(inVertices, inTriangles),
-	mMinNumBins(inMinNumBins),
-	mMaxNumBins(inMaxNumBins),
-	mNumTrianglesPerBin(inNumTrianglesPerBin)
-{
+TriangleSplitterBinning::TriangleSplitterBinning(const VertexList &inVertices, const IndexedTriangleList &inTriangles, uint32_t inMinNumBins, uint32_t inMaxNumBins, 
+	uint32_t inNumTrianglesPerBin) : TriangleSplitter(inVertices, inTriangles), mMinNumBins(inMinNumBins), mMaxNumBins(inMaxNumBins), mNumTrianglesPerBin(inNumTrianglesPerBin)
+{ 
 	mBins.resize(mMaxNumBins * 3); // mMaxNumBins per dimension
 }
 
@@ -111,7 +108,7 @@ bool TriangleSplitterBinning::Split(const Range &inTriangles, Range &outLeft, Ra
 	const uint32_t *end = mSortedTriangleIdx.data() + inTriangles.mEnd;
 
 	// Calculate bounds for this range
-	AABox centroid_bounds;
+	AABB3 centroid_bounds;
 	for (const uint32_t *t = begin; t < end; ++t)
 		centroid_bounds.Encapsulate(Vec3::LoadFloat3Unsafe(mCentroids[*t]));
 
@@ -150,7 +147,7 @@ bool TriangleSplitterBinning::Split(const Range &inTriangles, Range &outLeft, Ra
 	for (const uint32_t *t = begin; t < end; ++t) {
 		Vec3 centroid_pos = Vec3::LoadFloat3Unsafe(mCentroids[*t]);
 
-		AABox triangle_bounds = AABox::FromTriangle(mVertices, mTriangles[*t]);
+		AABB3 triangle_bounds = AABB3::FromTriangle(mVertices, mTriangles[*t]);
 
 		Vec3 bin_no_f = (centroid_pos - bounds_min) / bounds_size * float(num_bins);
 		UVec4 bin_no = UVec4::Min(bin_no_f.ToInt(), UVec4::Replicate(num_bins - 1));
@@ -175,7 +172,7 @@ bool TriangleSplitterBinning::Split(const Range &inTriangles, Range &outLeft, Ra
 		Bin *bins_dim = &mBins[num_bins * dim];
 
 		// Calculate totals left to right
-		AABox prev_bounds;
+		AABB3 prev_bounds;
 		int prev_triangles = 0;
 		for (uint32_t b = 0; b < num_bins; ++b) {
 			Bin &bin = bins_dim[b];

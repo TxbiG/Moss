@@ -18,7 +18,7 @@ public:
 	TriangleSplitter(const VertexList &inVertices, const IndexedTriangleList &inTriangles);
 
 	/// Virtual destructor
-	virtual						~TriangleSplitter() = default;
+	virtual ~TriangleSplitter() = default;
 
 	struct Stats {
 		const char*			mSplitterName = nullptr;
@@ -70,7 +70,7 @@ protected:
 	const VertexList&			mVertices;				// Vertices of the indexed triangles
 	const IndexedTriangleList&	mTriangles;				// Unsorted triangles
 	TArray<Float3>				mCentroids;				// Unsorted centroids of triangles
-	TArray<uint32_t>					mSortedTriangleIdx;	// Indices to sort triangles
+	TArray<uint32_t>			mSortedTriangleIdx;	// Indices to sort triangles
 };
 
 
@@ -96,13 +96,13 @@ private:
 
 	struct Bin {
 		// Properties of this bin
-		AABox				mBounds;
+		AABB3				mBounds;
 		float				mMinCentroid;
 		uint32_t				mNumTriangles;
 
 		// Accumulated data from left most / right most bin to current (including this bin)
-		AABox				mBoundsAccumulatedLeft;
-		AABox				mBoundsAccumulatedRight;
+		AABB3				mBoundsAccumulatedLeft;
+		AABB3				mBoundsAccumulatedRight;
 		uint32_t				mNumTrianglesAccumulatedLeft;
 		uint32_t				mNumTrianglesAccumulatedRight;
 	};

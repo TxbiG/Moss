@@ -90,7 +90,7 @@ static void sIndexifyVerticesRecursively(const TriangleList &inTriangles, uint32
 	}
 
 	// Calculate bounds
-	AABox bounds;
+	AABB3 bounds;
 	for (const uint32_t *v = ioVertexIndices, *v_end = ioVertexIndices + inNumVertices; v < v_end; ++v)
 		bounds.Encapsulate(sIndexifyGetVec3(inTriangles, *v));
 

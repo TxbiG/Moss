@@ -80,7 +80,7 @@ DebugRenderer::~DebugRenderer()
 	sInstance = nullptr;
 }
 
-void DebugRenderer::DrawWireBox(const AABox &inBox, ColorArg inColor)
+void DebugRenderer::DrawWireBox(const AABB3 &inBox, ColorArg inColor)
 {
 	MOSS_PROFILE_FUNCTION();
 
@@ -138,7 +138,7 @@ void DebugRenderer::DrawWireBox(const OrientedBox &inBox, ColorArg inColor)
 	DrawLine(v7, v8, inColor);
 }
 
-void DebugRenderer::DrawWireBox(RMat44Arg inMatrix, const AABox &inBox, ColorArg inColor)
+void DebugRenderer::DrawWireBox(RMat44Arg inMatrix, const AABB3 &inBox, ColorArg inColor)
 {
 	MOSS_PROFILE_FUNCTION();
 
@@ -493,19 +493,19 @@ void DebugRenderer::Initialize()
 		// Back
 		CreateQuad(box_indices, box_vertices, v0, v1, v5, v4);
 
-		mBox = new Geometry(CreateTriangleBatch(box_vertices, box_indices), AABox(Vec3(-1, -1, -1), Vec3(1, 1, 1)));
+		mBox = new Geometry(CreateTriangleBatch(box_vertices, box_indices), AABB3(Vec3(-1, -1, -1), Vec3(1, 1, 1)));
 	}
 
 	// Support function that returns a unit sphere
 	auto sphere_support = [](Vec3Arg inDirection) { return inDirection; };
 
 	// Construct geometries
-	mSphere = new Geometry(AABox(Vec3(-1, -1, -1), Vec3(1, 1, 1)));
-	mCapsuleBottom = new Geometry(AABox(Vec3(-1, -1, -1), Vec3(1, 0, 1)));
-	mCapsuleTop = new Geometry(AABox(Vec3(-1, 0, -1), Vec3(1, 1, 1)));
-	mCapsuleMid = new Geometry(AABox(Vec3(-1, -1, -1), Vec3(1, 1, 1)));
-	mOpenCone = new Geometry(AABox(Vec3(-1, 0, -1), Vec3(1, 1, 1)));
-	mCylinder = new Geometry(AABox(Vec3(-1, -1, -1), Vec3(1, 1, 1)));
+	mSphere = new Geometry(AABB3(Vec3(-1, -1, -1), Vec3(1, 1, 1)));
+	mCapsuleBottom = new Geometry(AABB3(Vec3(-1, -1, -1), Vec3(1, 0, 1)));
+	mCapsuleTop = new Geometry(AABB3(Vec3(-1, 0, -1), Vec3(1, 1, 1)));
+	mCapsuleMid = new Geometry(AABB3(Vec3(-1, -1, -1), Vec3(1, 1, 1)));
+	mOpenCone = new Geometry(AABB3(Vec3(-1, 0, -1), Vec3(1, 1, 1)));
+	mCylinder = new Geometry(AABB3(Vec3(-1, -1, -1), Vec3(1, 1, 1)));
 
 	// Iterate over levels
 	for (int level = sMaxLevel; level >= 1; --level)
@@ -625,9 +625,9 @@ void DebugRenderer::Initialize()
 	}
 }
 
-AABox DebugRenderer::sCalculateBounds(const Vertex *inVertices, int inVertexCount)
+AABB3 DebugRenderer::sCalculateBounds(const Vertex *inVertices, int inVertexCount)
 {
-	AABox bounds;
+	AABB3 bounds;
 	for (const Vertex *v = inVertices, *v_end = inVertices + inVertexCount; v < v_end; ++v)
 		bounds.Encapsulate(Vec3(v->mPosition));
 	return bounds;
@@ -672,7 +672,7 @@ DebugRenderer::Batch DebugRenderer::CreateTriangleBatch(const VertexList &inVert
 	return CreateTriangleBatch(&vertices[0], (int)vertices.size(), &inTriangles[0].mIdx[0], (int)(3 * inTriangles.size()));
 }
 
-DebugRenderer::Batch DebugRenderer::CreateTriangleBatchForConvex(SupportFunction inGetSupport, int inLevel, AABox *outBounds)
+DebugRenderer::Batch DebugRenderer::CreateTriangleBatchForConvex(SupportFunction inGetSupport, int inLevel, AABB3 *outBounds)
 {
 	MOSS_PROFILE_FUNCTION();
 
@@ -704,7 +704,7 @@ DebugRenderer::GeometryRef DebugRenderer::CreateTriangleGeometryForConvex(Suppor
 		float distance = sLODDistanceForLevel[sMaxLevel - level];
 
 		// Create triangle batch and only calculate bounds for highest LOD level
-		AABox bounds;
+		AABB3 bounds;
 		Batch batch = CreateTriangleBatchForConvex(inGetSupport, level, geometry == nullptr? &bounds : nullptr);
 
 		// Construct geometry in the first iteration
@@ -718,7 +718,7 @@ DebugRenderer::GeometryRef DebugRenderer::CreateTriangleGeometryForConvex(Suppor
 	return geometry;
 }
 
-void DebugRenderer::DrawBox(const AABox &inBox, ColorArg inColor, ECastShadow inCastShadow, EDrawMode inDrawMode)
+void DebugRenderer::DrawBox(const AABB3 &inBox, ColorArg inColor, ECastShadow inCastShadow, EDrawMode inDrawMode)
 {
 	MOSS_PROFILE_FUNCTION();
 
@@ -727,7 +727,7 @@ void DebugRenderer::DrawBox(const AABox &inBox, ColorArg inColor, ECastShadow in
 	DrawGeometry(m, inColor, mBox, ECullMode::CullBackFace, inCastShadow, inDrawMode);
 }
 
-void DebugRenderer::DrawBox(RMat44Arg inMatrix, const AABox &inBox, ColorArg inColor, ECastShadow inCastShadow, EDrawMode inDrawMode)
+void DebugRenderer::DrawBox(RMat44Arg inMatrix, const AABB3 &inBox, ColorArg inColor, ECastShadow inCastShadow, EDrawMode inDrawMode)
 {
 	MOSS_PROFILE_FUNCTION();
 
@@ -759,8 +759,8 @@ void DebugRenderer::DrawCapsule(RMat44Arg inMatrix, float inHalfHeightOfCylinder
 	Mat44 scale_matrix = Mat44::sScale(inRadius);
 
 	// Calculate world space bounding box
-	AABox local_bounds(Vec3(-inRadius, -inHalfHeightOfCylinder - inRadius, -inRadius), Vec3(inRadius, inHalfHeightOfCylinder + inRadius, inRadius));
-	AABox world_bounds = local_bounds.Transformed(inMatrix);
+	AABB3 local_bounds(Vec3(-inRadius, -inHalfHeightOfCylinder - inRadius, -inRadius), Vec3(inRadius, inHalfHeightOfCylinder + inRadius, inRadius));
+	AABB3 world_bounds = local_bounds.Transformed(inMatrix);
 
 	float radius_sq = Square(inRadius);
 
@@ -1076,7 +1076,7 @@ void DebugRenderer::DrawTaperedCylinder(RMat44Arg inMatrix, float inTop, float i
 	if (geometry == nullptr)
 	{
 		float max_radius = max(inTopRadius, inBottomRadius);
-		geometry = new Geometry(AABox(Vec3(-max_radius, inBottom, -max_radius), Vec3(max_radius, inTop, max_radius)));
+		geometry = new Geometry(AABB3(Vec3(-max_radius, inBottom, -max_radius), Vec3(max_radius, inTop, max_radius)));
 
 		for (int level = sMaxLevel; level >= 1; --level)
 			geometry->mLODs.push_back({ CreateCylinder(inTop, inBottom, inTopRadius, inBottomRadius, level), sLODDistanceForLevel[sMaxLevel - level] });

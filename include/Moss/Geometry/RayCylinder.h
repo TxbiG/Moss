@@ -305,7 +305,7 @@ MOSS_INLINE Vec4 RayTriangle4(Vec3Arg inOrigin, Vec3Arg inDirection, Vec4Arg inV
 
 
 
-// Helper structure holding the reciprocal of a ray for Ray vs AABox testing
+// Helper structure holding the reciprocal of a ray for Ray vs AABB3 testing
 class RayInvDirection {
 public:
 	/// Constructors

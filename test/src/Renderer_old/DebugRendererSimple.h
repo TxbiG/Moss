@@ -60,7 +60,7 @@ protected:
 	/// Implementation of DebugRenderer interface
 	virtual Batch				CreateTriangleBatch(const Triangle *inTriangles, int inTriangleCount) override;
 	virtual Batch				CreateTriangleBatch(const Vertex *inVertices, int inVertexCount, const uint32_t *inIndices, int inIndexCount) override;
-	virtual void				DrawGeometry(RMat44Arg inModelMatrix, const AABox &inWorldSpaceBounds, float inLODScaleSq, ColorArg inModelColor, const GeometryRef &inGeometry, ECullMode inCullMode, ECastShadow inCastShadow, EDrawMode inDrawMode) override;
+	virtual void				DrawGeometry(RMat44Arg inModelMatrix, const AABB3 &inWorldSpaceBounds, float inLODScaleSq, ColorArg inModelColor, const GeometryRef &inGeometry, ECullMode inCullMode, ECastShadow inCastShadow, EDrawMode inDrawMode) override;
 
 private:
 	/// Implementation specific batch object

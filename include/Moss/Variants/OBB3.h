@@ -26,7 +26,7 @@ public:
 		// Chapter 4.4.1, page 103-105.
 		// Note that the code is swapped around: A is the aabox and B is the oriented box (this saves us from having to invert the orientation of the oriented box)
 
-		// Convert AABox to center / extent representation
+		// Convert AABB3 to center / extent representation
 		RVec3 a_center = inBox.GetCenter();
 		RVec3 a_half_extents = inBox.GetExtent();
 

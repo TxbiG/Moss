@@ -872,13 +872,6 @@ using FreeFunction = void (*)(void *inBlock);
 using AlignedAllocateFunction = void *(*)(size_t inSize, size_t inAlignment);
 using AlignedFreeFunction = void (*)(void *inBlock);
 
-// User defined allocation / free functions
-MOSS_API extern AllocateFunction Allocate;
-MOSS_API extern ReallocateFunction Reallocate;
-MOSS_API extern FreeFunction Free;
-MOSS_API extern AlignedAllocateFunction AlignedAllocate;
-MOSS_API extern AlignedFreeFunction AlignedFree;
-
 // Register platform default allocation / free functions
 MOSS_API void RegisterDefaultAllocator();
 
@@ -1800,6 +1793,21 @@ MOSS_INLINE vfloat32m1_t RVVSumElementsFloat32x4(vfloat32m1_t inV)
 
 #endif // MOSS_USE_RVV
 
+
+#ifndef MOSS_DISABLE_CUSTOM_ALLOCATOR
+
+// User defined allocation / free functions (MUST be extern in the header, in global namespace)
+MOSS_API extern AllocateFunction Allocate;
+MOSS_API extern ReallocateFunction Reallocate;
+MOSS_API extern FreeFunction Free;
+MOSS_API extern AlignedAllocateFunction AlignedAllocate;
+MOSS_API extern AlignedFreeFunction AlignedFree;
+
+void RegisterDefaultAllocator();
+
+#endif // MOSS_DISABLE_CUSTOM_ALLOCATOR
+
+
 struct Moss_BumpAlloc {
     uint8_t* buffer = nullptr;
     size_t offset = 0;
@@ -2160,23 +2168,6 @@ MOSS_ALLOC_SCOPE void MOSS_ALLOC_FN(AlignedFree)(void *inBlock)
 	free(inBlock);
 #endif
 }
-
-#ifndef MOSS_DISABLE_CUSTOM_ALLOCATOR
-
-AllocateFunction Allocate = nullptr;
-ReallocateFunction Reallocate = nullptr;
-FreeFunction Free = nullptr;
-AlignedAllocateFunction AlignedAllocate = nullptr;
-AlignedFreeFunction AlignedFree = nullptr;
-
-void RegisterDefaultAllocator() {
-	Allocate = AllocateImpl;
-	Reallocate = ReallocateImpl;
-	Free = FreeImpl;
-	AlignedAllocate = AlignedAllocateImpl;
-	AlignedFree = AlignedFreeImpl;
-}
-#endif // MOSS_DISABLE_CUSTOM_ALLOCATOR
 
 
 // ============================================================================

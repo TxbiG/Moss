@@ -43,7 +43,7 @@ DebugRenderer::Batch DebugRendererSimple::CreateTriangleBatch(const Vertex *inVe
 	return batch;
 }
 
-void DebugRendererSimple::DrawGeometry(RMat44Arg inModelMatrix, const AABox &inWorldSpaceBounds, float inLODScaleSq, ColorArg inModelColor, const GeometryRef &inGeometry, ECullMode inCullMode, ECastShadow inCastShadow, EDrawMode inDrawMode)
+void DebugRendererSimple::DrawGeometry(RMat44Arg inModelMatrix, const AABB3 &inWorldSpaceBounds, float inLODScaleSq, ColorArg inModelColor, const GeometryRef &inGeometry, ECullMode inCullMode, ECastShadow inCastShadow, EDrawMode inDrawMode)
 {
 	// Figure out which LOD to use
 	const LOD *lod = inGeometry->mLODs.data();

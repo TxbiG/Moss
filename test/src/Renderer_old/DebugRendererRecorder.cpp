@@ -60,7 +60,7 @@ DebugRenderer::Batch DebugRendererRecorder::CreateTriangleBatch(const Vertex *in
 	return new BatchImpl(batch_id);
 }
 
-void DebugRendererRecorder::DrawGeometry(RMat44Arg inModelMatrix, const AABox &inWorldSpaceBounds, float inLODScaleSq, ColorArg inModelColor, const GeometryRef &inGeometry, ECullMode inCullMode, ECastShadow inCastShadow, EDrawMode inDrawMode)
+void DebugRendererRecorder::DrawGeometry(RMat44Arg inModelMatrix, const AABB3 &inWorldSpaceBounds, float inLODScaleSq, ColorArg inModelColor, const GeometryRef &inGeometry, ECullMode inCullMode, ECastShadow inCastShadow, EDrawMode inDrawMode)
 {
 	lock_guard lock(mMutex);
 
