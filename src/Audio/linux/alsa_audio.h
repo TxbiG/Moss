@@ -97,7 +97,8 @@ struct ALSAPlayback {
     unsigned int sampleRate = 44100;
     int channels = 2;
     snd_pcm_format_t format = SND_PCM_FORMAT_FLOAT_LE;
-    using RenderCallback = std::function<size_t(float* buffer, size_t frames)>
+    using RenderCallback = std::function<size_t(float* buffer, size_t frames)>;
+    RenderCallback renderCallback;
     std::atomic<bool> running{false};
     std::thread playbackThread;
 };
