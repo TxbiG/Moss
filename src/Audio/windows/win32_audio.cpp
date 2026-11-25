@@ -913,18 +913,6 @@ static void Moss_AudioSourceResetWav(Moss_AudioSource* src) {
     static_cast<Moss_WavSourceData*>(src->userdata)->byte_offset = 0;
 }
 
-static void Moss_AudioSourceDestroyWav(Moss_AudioSource* src) {
-    if (!src) {
-        return;
-    }
-    Moss_WavSourceData* data = static_cast<Moss_WavSourceData*>(src->userdata);
-    if (data) {
-        RemoveWav(data->wav);
-        delete data;
-    }
-    std::free(src);
-}
-
 static Moss_AudioSource* Moss_AudioLoadWaveSourceFromPath(const char* filename) {
     if (!Moss_AudioFileLooksLikeWave(filename)) {
         return nullptr;

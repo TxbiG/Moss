@@ -101,15 +101,9 @@ Wav* loadWav(const char* path) {
     return wav;
 }
 
-void RemoveWav(Wav* wav) {
-    if (!wav) return;
-    delete[] wav->dataBegin;
-    delete wav;
-}
-
-void SetAudioListener2D(Float2* position) { if (position) g_listener2D.position = *position; }
-void SetAudioListener3D(Float3* position) { if (position) g_listener3D.position = *position; }
-void SetAudioListenerVelocity3D(Float3* velocity) { if (velocity) g_listener3D.velocity = *velocity; }
+void SetAudioListener2D(Float2* position) { if (position) g_listener2D.position = Vec2(position->x, position->y); }
+void SetAudioListener3D(Float3* position) { if (position) g_listener3D.position = Vec3(position->x, position->y, position->z); }
+void SetAudioListenerVelocity3D(Float3* velocity) { if (velocity) g_listener3D.velocity = Vec3(velocity->x, velocity->y, velocity->z); }
 
 static bool PlayWavWithALSA(AudioStream* stream) {
     if (!stream || !stream->wav || !stream->wav->dataBegin || stream->wav->blockAlign == 0) {
@@ -249,39 +243,6 @@ void AudioStream3D::play() {
 }
 void AudioStream3D::stop() { stream.stop(); }
 
-bool Speaker::start() {
-    if (!alsa.renderCallback || !alsa.handle)
-        return false;
-
-    alsa.running = true;
-    alsa.playbackThread = std::thread([]() {
-        const int frames = 512;
-        const int channels = alsa.channels;
-        float buffer[frames * channels];
-
-        while (alsa.running) {
-            memset(buffer, 0, sizeof(buffer));
-
-            size_t filled = alsa.renderCallback(buffer, frames);
-
-            int err = snd_pcm_writei(alsa.handle, buffer, frames);
-            if (err == -EPIPE) { snd_pcm_prepare(alsa.handle); } 
-            else if (err < 0) { fprintf(stderr, "ALSA write error: %s\n", snd_strerror(err)); }
-        }
-    });
-    return true;
-}
-
-void Speaker::stop() {
-    alsa.running = false;
-    if (alsa.playbackThread.joinable())
-        alsa.playbackThread.join();
-}
-
-void Speaker::setRenderCallback(RenderCallback cb) {
-    alsa.renderCallback = std::move(cb);
-}
-
 void Moss_AudioStreamSetVolume(AudioStream* audiostream, float volume) { if (audiostream) audiostream->setVolume(volume); }
 void Moss_AudioStreamSetPitch(AudioStream* audiostream, float pitch) { if (audiostream) audiostream->setPitch(pitch); }
 void Moss_AudioStreamSetPlaybackRate(AudioStream* audiostream, float rate) { if (audiostream) audiostream->setPlaybackRate(rate); }
@@ -300,7 +261,3 @@ void Moss_AudioStream3DSetPitch(AudioStream3D* audiostream, float pitch) { if (a
 void Moss_AudioStream3DSetPlaybackRate(AudioStream3D* audiostream, float rate) { if (audiostream) audiostream->stream.setPlaybackRate(rate); }
 void Moss_AudioStream3DSetPan(AudioStream3D* audiostream, float pan) { if (audiostream) { audiostream->pan = std::clamp(pan, -1.0f, 1.0f); audiostream->stream.setPan(audiostream->pan); } }
 void Moss_AudioStream3DSetLoop(AudioStream3D* audiostream, bool loop) { if (audiostream) audiostream->stream.setLooping(loop); }
-
-void SetAudioListener2D(Float2* position) { if (position) g_listener2D.position = Vec2(position->GetX(), position->GetY()); }
-void SetAudioListener3D(Float3* position) { if (position) g_listener3D.position = Vec3(position->GetX(), position->GetY(), position->GetZ()); }
-void SetAudioListenerVelocity3D(Float3* velocity) { if (velocity) g_listener3D.velocity = Vec3(velocity->GetX(), velocity->GetY(), velocity->GetZ()); }

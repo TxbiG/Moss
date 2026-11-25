@@ -60,7 +60,7 @@ struct AudioChannel {
     float volume;            // 0..1
     uint8_t muted;
 
-    AudioEffect* effects;    // linked list
+    AudioEffect* effects = nullptr;    // linked list
 };
 
 
@@ -263,7 +263,7 @@ Wav* CreateWav(const char* path) {
     return wav;
 }
 
-inline void RemoveWav(Wav* wav) { if (wav) { delete[] wav->dataBegin;  delete wav; } }
+inline void RemoveWav(Wav* wav) { if (wav) { delete[] wav->dataBegin; delete wav; } }
 
 
 // This is used to help build the pan Matrix
