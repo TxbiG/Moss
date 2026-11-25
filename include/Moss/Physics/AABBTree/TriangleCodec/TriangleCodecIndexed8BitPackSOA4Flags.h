@@ -5,6 +5,7 @@
 #pragma once
 
 #include <Moss/Geometry/RayCylinder.h>
+#include <iterator>
 
 MOSS_SUPPRESS_WARNINGS_BEGIN
 
@@ -202,8 +203,7 @@ public:
 
 		/// Pack the triangles in inContainer to ioBuffer. This stores the mMaterialIndex of a triangle in the 8 bit flags.
 		/// Returns size_t(-1) on error.
-		size_t						Pack(const IndexedTriangle *inTriangles, uint32_t inNumTriangles, bool inStoreUserData, ByteBuffer &ioBuffer, const char *&outError)
-		{
+		size_t Pack(const IndexedTriangle *inTriangles, uint32_t inNumTriangles, bool inStoreUserData, ByteBuffer &ioBuffer, const char *&outError) {
 			MOSS_ASSERT(inNumTriangles > 0);
 
 			// Determine position of triangles start

@@ -431,7 +431,7 @@ public:
 
 			MOSS_ERROR("mInvI1_R1PlusUxN1 and mInvI1_R1PlusUxN2 set to NaN.");
 
-			inv_effective_mass = Mat22::Zero();
+			inv_effective_mass = Mat22::sZero();
 		}
 
 		if (inBody2.IsDynamic()) {
@@ -2347,7 +2347,7 @@ public:
 			// Two degrees of freedom
 			if (mSwingType == ESwingType::Cone) {
 				// Use ellipse to solve limits
-				Ellipsee ellipse(mSinSwingYHalfMaxAngle, mSinSwingZHalfMaxAngle);
+				Ellipse ellipse(mSinSwingYHalfMaxAngle, mSinSwingZHalfMaxAngle);
 				Float2 point(ioSwing.GetY(), ioSwing.GetZ());
 				if (!ellipse.IsInside(point)) {
 					Float2 closest = ellipse.GetClosestPoint(point);
@@ -3059,7 +3059,41 @@ private:
 	mutable Mutex			mConstraintsMutex;
 };
 
-class ConstraintSettings;
+// Class used to store the configuration of a constraint. Allows run-time creation of constraints.
+class MOSS_API ConstraintSettings : public SerializableObject, public RefTarget<ConstraintSettings> {
+	MOSS_DECLARE_SERIALIZABLE_VIRTUAL(MOSS_API, ConstraintSettings)
+public:
+	using ConstraintResult = Result<Ref<ConstraintSettings>>;
+
+	// Saves the contents of the constraint settings in binary form to inStream.
+	virtual void				SaveBinaryState(StreamOut& inStream) const;
+
+	// Creates a constraint of the correct type and restores its contents from the binary stream inStream.
+	static ConstraintResult		sRestoreFromBinaryState(StreamIn& inStream);
+
+	// If this constraint is enabled initially. Use Constraint::SetEnabled to toggle after creation.
+	bool						mEnabled = true;
+
+	// Priority of the constraint when solving. Higher numbers have are more likely to be solved correctly.
+	// Note that if you want a deterministic simulation and you cannot guarantee the order in which constraints are added/removed, you can make the priority for all constraints unique to get a deterministic ordering.
+	uint32_t						mConstraintPriority = 0;
+
+	// Used only when the constraint is active. Override for the number of solver velocity iterations to run, 0 means use the default in PhysicsSettings::mNumVelocitySteps. The number of iterations to use is the max of all contacts and constraints in the island.
+	uint32_t						mNumVelocityStepsOverride = 0;
+
+	// Used only when the constraint is active. Override for the number of solver position iterations to run, 0 means use the default in PhysicsSettings::mNumPositionSteps. The number of iterations to use is the max of all contacts and constraints in the island.
+	uint32_t						mNumPositionStepsOverride = 0;
+
+	// Size of constraint when drawing it through the debug renderer
+	float						mDrawConstraintSize = 1.0f;
+
+	// User data value (can be used by application)
+	uint64_t					mUserData = 0;
+
+protected:
+	// This function should not be called directly, it is used by sRestoreFromBinaryState.
+	virtual void				RestoreBinaryState(StreamIn& inStream);
+};
 
 /// Base class for all physics constraints. A constraint removes one or more degrees of freedom for a rigid body.
 class MOSS_API Constraint : public RefTarget<Constraint>, public NonCopyable {
@@ -3212,7 +3246,7 @@ class MOSS_API FixedConstraintSettings final : public TwoBodyConstraintSettings
 
 public:
 	// See: ConstraintSettings::SaveBinaryState
-	virtual void				SaveBinaryState(StreamOut& inStream) const override;
+	//virtual void				SaveBinaryState(StreamOut& inStream) const override;
 
 	/// Create an instance of this constraint
 	virtual TwoBodyConstraint*	Create(Body& inBody1, Body& inBody2) const override;
@@ -3235,7 +3269,7 @@ public:
 
 protected:
 	// See: ConstraintSettings::RestoreBinaryState
-	virtual void				RestoreBinaryState(StreamIn& inStream) override;
+	//virtual void				RestoreBinaryState(StreamIn& inStream) override;
 };
 
 /// A fixed constraint welds two bodies together removing all degrees of freedom between them.
@@ -3294,7 +3328,7 @@ class MOSS_API DistanceConstraintSettings final : public TwoBodyConstraintSettin
 
 public:
 	// See: ConstraintSettings::SaveBinaryState
-	virtual void				SaveBinaryState(StreamOut& inStream) const override;
+	//virtual void				SaveBinaryState(StreamOut& inStream) const override;
 
 	/// Create an instance of this constraint
 	virtual TwoBodyConstraint*	Create(Body& inBody1, Body& inBody2) const override;
@@ -3319,7 +3353,7 @@ public:
 
 protected:
 	// See: ConstraintSettings::RestoreBinaryState
-	virtual void				RestoreBinaryState(StreamIn& inStream) override;
+	//virtual void				RestoreBinaryState(StreamIn& inStream) override;
 };
 
 
@@ -3329,7 +3363,7 @@ class MOSS_API DistanceConstraintSettings final : public TwoBodyConstraintSettin
 
 public:
 	// See: ConstraintSettings::SaveBinaryState
-	virtual void				SaveBinaryState(StreamOut& inStream) const override;
+	//virtual void				SaveBinaryState(StreamOut& inStream) const override;
 
 	/// Create an instance of this constraint
 	virtual TwoBodyConstraint*	Create(Body& inBody1, Body& inBody2) const override;
@@ -3354,7 +3388,7 @@ public:
 
 protected:
 	// See: ConstraintSettings::RestoreBinaryState
-	virtual void				RestoreBinaryState(StreamIn& inStream) override;
+	//virtual void				RestoreBinaryState(StreamIn& inStream) override;
 };
 /// This constraint is a stiff spring that holds 2 points at a fixed distance from each other
 class MOSS_API DistanceConstraint final : public TwoBodyConstraint
@@ -3436,7 +3470,7 @@ class MOSS_API PointConstraintSettings final : public TwoBodyConstraintSettings
 
 public:
 	// See: ConstraintSettings::SaveBinaryState
-	virtual void				SaveBinaryState(StreamOut& inStream) const override;
+	//virtual void				SaveBinaryState(StreamOut& inStream) const override;
 
 	/// Create an instance of this constraint
 	virtual TwoBodyConstraint*	Create(Body& inBody1, Body& inBody2) const override;
@@ -3453,7 +3487,7 @@ public:
 
 protected:
 	// See: ConstraintSettings::RestoreBinaryState
-	virtual void				RestoreBinaryState(StreamIn& inStream) override;
+	//virtual void				RestoreBinaryState(StreamIn& inStream) override;
 };
 
 /// A point constraint constrains 2 bodies on a single point (removing 3 degrees of freedom)
@@ -3517,7 +3551,7 @@ class MOSS_API HingeConstraintSettings final : public TwoBodyConstraintSettings
 
 public:
 	// See: ConstraintSettings::SaveBinaryState
-	virtual void				SaveBinaryState(StreamOut& inStream) const override;
+	//virtual void				SaveBinaryState(StreamOut& inStream) const override;
 
 	/// Create an instance of this constraint
 	virtual TwoBodyConstraint*	Create(Body& inBody1, Body& inBody2) const override;
@@ -3556,7 +3590,7 @@ public:
 
 protected:
 	// See: ConstraintSettings::RestoreBinaryState
-	virtual void				RestoreBinaryState(StreamIn& inStream) override;
+	//virtual void				RestoreBinaryState(StreamIn& inStream) override;
 };
 
 /// A hinge constraint constrains 2 bodies on a single point and allows only a single axis of rotation
@@ -3701,7 +3735,7 @@ class MOSS_API SliderConstraintSettings final : public TwoBodyConstraintSettings
 
 public:
 	// See: ConstraintSettings::SaveBinaryState
-	virtual void				SaveBinaryState(StreamOut& inStream) const override;
+	//virtual void				SaveBinaryState(StreamOut& inStream) const override;
 
 	/// Create an instance of this constraint.
 	/// Note that the rotation constraint will be solved from body 1. This means that if body 1 and body 2 have different masses / inertias (kinematic body = infinite mass / inertia), body 1 should be the heaviest body.
@@ -3742,7 +3776,7 @@ public:
 
 protected:
 	// See: ConstraintSettings::RestoreBinaryState
-	virtual void				RestoreBinaryState(StreamIn& inStream) override;
+	//virtual void				RestoreBinaryState(StreamIn& inStream) override;
 };
 
 /// A slider constraint allows movement in only 1 axis (and no rotation). Also known as a prismatic constraint.
@@ -3884,7 +3918,7 @@ class MOSS_API ConeConstraintSettings final : public TwoBodyConstraintSettings
 
 public:
 	// See: ConstraintSettings::SaveBinaryState
-	virtual void				SaveBinaryState(StreamOut& inStream) const override;
+	//virtual void				SaveBinaryState(StreamOut& inStream) const override;
 
 	/// Create an instance of this constraint
 	virtual TwoBodyConstraint*	Create(Body& inBody1, Body& inBody2) const override;
@@ -3905,7 +3939,7 @@ public:
 
 protected:
 	// See: ConstraintSettings::RestoreBinaryState
-	virtual void				RestoreBinaryState(StreamIn& inStream) override;
+	//virtual void				RestoreBinaryState(StreamIn& inStream) override;
 };
 
 /// A cone constraint constraints 2 bodies to a single point and limits the swing between the twist axis within a cone:
@@ -4008,7 +4042,7 @@ class MOSS_API SwingTwistConstraintSettings final : public TwoBodyConstraintSett
 
 public:
 	// See: ConstraintSettings::SaveBinaryState
-	virtual void				SaveBinaryState(StreamOut& inStream) const override;
+	////virtual void				SaveBinaryState(StreamOut& inStream) const override;
 
 	/// Create an instance of this constraint
 	virtual TwoBodyConstraint*	Create(Body& inBody1, Body& inBody2) const override;
@@ -4046,7 +4080,7 @@ public:
 
 protected:
 	// See: ConstraintSettings::RestoreBinaryState
-	virtual void				RestoreBinaryState(StreamIn& inStream) override;
+	//virtual void				RestoreBinaryState(StreamIn& inStream) override;
 };
 
 /// A swing twist constraint is a specialized constraint for humanoid ragdolls that allows limited rotation only
@@ -4200,7 +4234,7 @@ public:
 	};
 
 	// See: ConstraintSettings::SaveBinaryState
-	virtual void				SaveBinaryState(StreamOut& inStream) const override;
+	//virtual void				SaveBinaryState(StreamOut& inStream) const override;
 
 	/// Create an instance of this constraint
 	virtual TwoBodyConstraint*	Create(Body& inBody1, Body& inBody2) const override;
@@ -4262,7 +4296,7 @@ public:
 
 protected:
 	// See: ConstraintSettings::RestoreBinaryState
-	virtual void				RestoreBinaryState(StreamIn& inStream) override;
+	//virtual void				RestoreBinaryState(StreamIn& inStream) override;
 };
 
 /// 6 Degree Of Freedom Constraint. Allows control over each of the 6 degrees of freedom.
@@ -4456,7 +4490,7 @@ class MOSS_API GearConstraintSettings final : public TwoBodyConstraintSettings
 
 public:
 	// See: ConstraintSettings::SaveBinaryState
-	virtual void				SaveBinaryState(StreamOut& inStream) const override;
+	//virtual void				SaveBinaryState(StreamOut& inStream) const override;
 
 	/// Create an instance of this constraint.
 	virtual TwoBodyConstraint*	Create(Body& inBody1, Body& inBody2) const override;
@@ -4484,7 +4518,7 @@ public:
 
 protected:
 	// See: ConstraintSettings::RestoreBinaryState
-	virtual void				RestoreBinaryState(StreamIn& inStream) override;
+	////virtual void				RestoreBinaryState(StreamIn& inStream) override;
 };
 
 /// A gear constraint constrains the rotation of body1 to the rotation of body 2 using a gear.
@@ -4610,7 +4644,7 @@ class MOSS_API PathConstraintSettings final : public TwoBodyConstraintSettings
 
 public:
 	// See: ConstraintSettings::SaveBinaryState
-	virtual void					SaveBinaryState(StreamOut &inStream) const override;
+	//virtual void					SaveBinaryState(StreamOut &inStream) const override;
 
 	/// Create an instance of this constraint
 	virtual TwoBodyConstraint *		Create(Body &inBody1, Body &inBody2) const override;
@@ -4638,7 +4672,7 @@ public:
 
 protected:
 	// See: ConstraintSettings::RestoreBinaryState
-	virtual void					RestoreBinaryState(StreamIn &inStream) override;
+	//virtual void					RestoreBinaryState(StreamIn &inStream) override;
 };
 
 /// Path constraint, used to constrain the degrees of freedom between two bodies to a path
@@ -4822,7 +4856,7 @@ class MOSS_API FixedConstraintSettings final : public TwoBodyConstraintSettings
 
 public:
 	// See: ConstraintSettings::SaveBinaryState
-	virtual void				SaveBinaryState(StreamOut &inStream) const override;
+	//virtual void				SaveBinaryState(StreamOut &inStream) const override {};
 
 	/// Create an instance of this constraint
 	virtual TwoBodyConstraint *	Create(Body &inBody1, Body &inBody2) const override;
@@ -4845,7 +4879,7 @@ public:
 
 protected:
 	// See: ConstraintSettings::RestoreBinaryState
-	virtual void				RestoreBinaryState(StreamIn &inStream) override;
+	//virtual void				RestoreBinaryState(StreamIn &inStream) override;
 };
 
 /// A fixed constraint welds two bodies together removing all degrees of freedom between them.
@@ -4959,7 +4993,7 @@ class MOSS_API PulleyConstraintSettings final : public TwoBodyConstraintSettings
 
 public:
 	// See: ConstraintSettings::SaveBinaryState
-	virtual void				SaveBinaryState(StreamOut &inStream) const override;
+	//virtual void				SaveBinaryState(StreamOut &inStream) const override;
 
 	/// Create an instance of this constraint
 	virtual TwoBodyConstraint *	Create(Body &inBody1, Body &inBody2) const override;
@@ -4990,7 +5024,7 @@ public:
 
 protected:
 	// See: ConstraintSettings::RestoreBinaryState
-	virtual void				RestoreBinaryState(StreamIn &inStream) override;
+	//virtual void				RestoreBinaryState(StreamIn &inStream) override;
 };
 
 /// A pulley constraint.
@@ -5080,7 +5114,7 @@ class MOSS_API RackAndPinionConstraintSettings final : public TwoBodyConstraintS
 
 public:
 	// See: ConstraintSettings::SaveBinaryState
-	virtual void				SaveBinaryState(StreamOut &inStream) const override;
+	//virtual void				SaveBinaryState(StreamOut &inStream) const override;
 
 	/// Create an instance of this constraint.
 	/// Body1 should be the pinion (gear) and body 2 the rack (slider).
@@ -5110,7 +5144,7 @@ public:
 
 protected:
 	// See: ConstraintSettings::RestoreBinaryState
-	virtual void				RestoreBinaryState(StreamIn &inStream) override;
+	//virtual void				RestoreBinaryState(StreamIn &inStream) override;
 };
 
 /// A rack and pinion constraint constrains the rotation of body1 to the translation of body 2.
