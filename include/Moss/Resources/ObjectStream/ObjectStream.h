@@ -49,7 +49,7 @@ public:
 
 	///@name Read primitives
 	virtual bool				ReadPrimitiveData(uint8_t &outPrimitive) = 0;
-	virtual bool				ReadPrimitiveData(uint16 &outPrimitive) = 0;
+	virtual bool				ReadPrimitiveData(uint16_t &outPrimitive) = 0;
 	virtual bool				ReadPrimitiveData(int &outPrimitive) = 0;
 	virtual bool				ReadPrimitiveData(uint32_t &outPrimitive) = 0;
 	virtual bool				ReadPrimitiveData(uint64_t &outPrimitive) = 0;
@@ -85,7 +85,7 @@ public:
 
 	///@name Write primitives
 	virtual void				WritePrimitiveData(const uint8_t &inPrimitive) = 0;
-	virtual void				WritePrimitiveData(const uint16 &inPrimitive) = 0;
+	virtual void				WritePrimitiveData(const uint16_t &inPrimitive) = 0;
 	virtual void				WritePrimitiveData(const int &inPrimitive) = 0;
 	virtual void				WritePrimitiveData(const uint32_t &inPrimitive) = 0;
 	virtual void				WritePrimitiveData(const uint64_t &inPrimitive) = 0;

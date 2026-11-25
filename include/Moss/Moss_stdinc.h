@@ -1147,11 +1147,11 @@ inline bool MossAssertHelper(const char* expr, const char* file, uint32_t line, 
 // Unsigned
 
 #define MAX_UINT8   ((uint8_t)(0xFF))
-#define MAX_UINT16  ((uint16)(0xFFFF))
+#define MAX_UINT16  ((uint16_t)(0xFFFF))
 #define MAX_UINT32  ((uint32_t)(0xFFFFFFFFu))
 #define MAX_UINT64  ((uint64_t)(0xFFFFFFFFFFFFFFFF))
 #define MIN_UINT8   ((uint8_t)0x00)
-#define MIN_UINT16  ((uint16)0x0000)
+#define MIN_UINT16  ((uint16_t)0x0000)
 #define MIN_UINT32  ((uint32_t)0x00000000)
 #define MIN_UINT64  ((uint64_t)(0x0000000000000000))
 

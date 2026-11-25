@@ -4,7 +4,7 @@
 
 // Note: Order is important, an enum is created and its value is stored in a binary stream!
 MOSS_DECLARE_PRIMITIVE(uint8_t)
-MOSS_DECLARE_PRIMITIVE(uint16)
+MOSS_DECLARE_PRIMITIVE(uint16_t)
 MOSS_DECLARE_PRIMITIVE(int)
 MOSS_DECLARE_PRIMITIVE(uint32_t)
 MOSS_DECLARE_PRIMITIVE(uint64_t)

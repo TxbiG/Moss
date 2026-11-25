@@ -8,7 +8,7 @@
 
 MOSS_SUPPRESS_WARNINGS_BEGIN
 
-using HalfFloat = uint16;
+using HalfFloat = uint16_t;
 
 // Define half float constant values
 static constexpr HalfFloat HALF_FLT_MAX				= 0x7bff;
