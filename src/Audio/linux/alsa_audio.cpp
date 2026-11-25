@@ -241,7 +241,7 @@ void AudioStream3D::play() {
     Vec3 delta = position - listener->position;
     const float distance = delta.Length();
     const float distFactor = std::max(0.0f, 1.0f - (distance / std::max(maxDistance, 0.001f)));
-    const float computedPan = std::clamp(delta.x / std::max(maxDistance, 0.001f), -1.0f, 1.0f);
+    const float computedPan = std::clamp(delta.GetX() / std::max(maxDistance, 0.001f), -1.0f, 1.0f);
 
     stream.setVolume(distFactor);
     stream.setPan(computedPan);
@@ -301,6 +301,6 @@ void Moss_AudioStream3DSetPlaybackRate(AudioStream3D* audiostream, float rate) {
 void Moss_AudioStream3DSetPan(AudioStream3D* audiostream, float pan) { if (audiostream) { audiostream->pan = std::clamp(pan, -1.0f, 1.0f); audiostream->stream.setPan(audiostream->pan); } }
 void Moss_AudioStream3DSetLoop(AudioStream3D* audiostream, bool loop) { if (audiostream) audiostream->stream.setLooping(loop); }
 
-void SetAudioListener2D(Float2* position) { if (position) g_listener2D.position = Vec2(position->x, position->y); }
-void SetAudioListener3D(Float3* position) { if (position) g_listener3D.position = Vec3(position->x, position->y, position->z); }
-void SetAudioListenerVelocity3D(Float3* velocity) { if (velocity) g_listener3D.velocity = Vec3(velocity->x, velocity->y, velocity->z); }
+void SetAudioListener2D(Float2* position) { if (position) g_listener2D.position = Vec2(position->GetX(), position->GetY()); }
+void SetAudioListener3D(Float3* position) { if (position) g_listener3D.position = Vec3(position->GetX(), position->GetY(), position->GetZ()); }
+void SetAudioListenerVelocity3D(Float3* velocity) { if (velocity) g_listener3D.velocity = Vec3(velocity->GetX(), velocity->GetY(), velocity->GetZ()); }

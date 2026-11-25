@@ -339,6 +339,8 @@ MOSS_API void Moss_AudioRemoveChannelEffect(ChannelID channel, AudioEffect* effe
  */
 MOSS_API void Moss_AudioRemoveAllChannelEffects(ChannelID channel);
 
+MOSS_API AudioChannel* Moss_AudioGetChannel(ChannelID id);
+
 /**
  * @brief Creates a non-spatial audio stream.
  * @return Pointer to the stream, or `nullptr` if creation fails.

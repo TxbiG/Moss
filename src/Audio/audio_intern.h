@@ -190,7 +190,7 @@ void Moss_RemoveMicrophone(Moss_Microphone* mic);
 
 
 void Audio_MixChannel(ChannelID id, float* buffer, uint32_t frames, uint32_t channels) {
-    AudioChannel* ch = GetChannel(id);
+    AudioChannel* ch = Moss_AudioGetChannel(id);
     if (!ch || ch->muted) return;
 
     // 1. Effects
