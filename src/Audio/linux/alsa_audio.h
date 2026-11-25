@@ -37,9 +37,6 @@ struct Moss_Microphone {
     void* micUserData = nullptr;
 };
 
-extern Moss_Microphone mic;
-std::unordered_map<ChannelID, AudioChannel> g_channels;
-
 struct AudioStream {
     snd_pcm_t* pcm = nullptr;
     Wav* wav = nullptr;

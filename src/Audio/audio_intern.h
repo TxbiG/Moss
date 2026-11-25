@@ -16,6 +16,10 @@
 #define SOUND_SPEED 2043.0f
 #define MAX_CHANNELS 10
 
+
+extern Moss_Microphone mic;
+std::unordered_map<ChannelID, AudioChannel> g_channels;
+
 enum class AudioFormat : uint32_t{
     UNKNOWN = 0x0000u,  // Unspecified audio format.
     U8      = 0x0008u,  // Unsigned 8-bit samples.

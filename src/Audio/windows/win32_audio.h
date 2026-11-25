@@ -56,8 +56,6 @@ struct Moss_Microphone {
     void* micUserData = nullptr;
 };
 
-extern Moss_Microphone mic;
-
 // AudioStreamMicrophone
 struct AudioStream {
     IXAudio2SourceVoice* sourceVoice = nullptr;

@@ -47,8 +47,6 @@ struct Moss_Microphone {
     void* micUserData = nullptr;
 };
 
-extern Moss_Microphone mic;
-
 struct AudioStream {
     AudioQueueRef queue = nullptr;
     AudioQueueBufferRef buffers[3]{};
