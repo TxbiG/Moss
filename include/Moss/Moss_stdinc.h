@@ -794,6 +794,17 @@ MOSS_SUPPRESS_WARNINGS_STD_END
 
 MOSS_SUPPRESS_WARNINGS_BEGIN
 // Commonly used STL types
+
+using std::uint8_t;
+using std::uint16_t;
+using std::uint32_t;
+using std::uint64_t;
+using std::int8_t;
+using std::int16_t;
+using std::int32_t;
+using std::int64_t;
+
+
 using std::min;
 using std::max;
 using std::abs;
@@ -1122,26 +1133,16 @@ inline bool MossAssertHelper(const char* expr, const char* file, uint32_t line, 
 
 #define ArraySize(x) (sizeof(x)) / (sizeof((x)[0]))
 
-using int8 = signed char;
-using int16 = signed short;
-using int32 = signed int;
-using int64 = signed long long;
-
-using uint8_t = unsigned char;
-using uint16 = unsigned short;
-using uint32_t = unsigned int;
-using uint64_t = unsigned long long;
-
 // Signed
 
-#define MAX_INT8    ((int8)(0x7F))
-#define MAX_INT16   ((int16)(0x7FFF))
-#define MAX_INT32   ((int32)(0x7FFFFFFF))
-#define MAX_INT64   ((int64)(0x7FFFFFFFFFFFFFFF))
-#define MIN_INT8    ((int8)(~0x7F))
-#define MIN_INT16   ((int16)~0x7FFF)
-#define MIN_INT32   ((int32)(~0x7FFFFFFF))
-#define MIN_INT64   ((int64)(~0x7FFFFFFFFFFFFFFF))
+#define MAX_INT8    ((int8_t)(0x7F))
+#define MAX_INT16   ((int16_t)(0x7FFF))
+#define MAX_INT32   ((int32_t)(0x7FFFFFFF))
+#define MAX_INT64   ((int64_t)(0x7FFFFFFFFFFFFFFF))
+#define MIN_INT8    ((int8_t)(~0x7F))
+#define MIN_INT16   ((int16_t)~0x7FFF)
+#define MIN_INT32   ((int32_t)(~0x7FFFFFFF))
+#define MIN_INT64   ((int64_t)(~0x7FFFFFFFFFFFFFFF))
 
 // Unsigned
 
