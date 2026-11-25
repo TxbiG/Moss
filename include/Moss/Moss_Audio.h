@@ -85,6 +85,7 @@ Edit the audio raw
 // Forward declarations
 class PhysicsSystem;
 struct AudioEffect;
+struct AudioChannel;
 struct AudioStream;
 struct AudioStream2D;
 struct AudioStream3D;
