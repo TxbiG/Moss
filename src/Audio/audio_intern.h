@@ -80,12 +80,12 @@ struct Wav {
     uint32_t format = 0;
     uint32_t formatChunkId = 0;
     uint32_t formatChunkSize = 0;
-    uint16 audioFormat = 0;
-    uint16 numChannels = 0;
+    uint16_t audioFormat = 0;
+    uint16_t numChannels = 0;
     uint32_t sampleRate = 0;
     uint32_t byteRate = 0;
-    uint16 blockAlign = 0;
-    uint16 bitsPerSample = 0;
+    uint16_t blockAlign = 0;
+    uint16_t bitsPerSample = 0;
     uint8_t dataChunkId[4] = {};
     uint32_t dataChunkSize = 0;
 
@@ -119,7 +119,7 @@ typedef struct {
     uint32_t write_pos;
 } MicSourceData;
 
-
+// Helpers
 uint32_t mic_read(Moss_AudioSource* src, float* out, uint32_t frames) {
     MicSourceData* data = (MicSourceData*)src->userdata;
 
@@ -189,7 +189,7 @@ void Audio_MixChannel(ChannelID id, float* buffer, uint32_t frames, uint32_t cha
     if (!ch || ch->muted) return;
 
     // 1. Effects
-    for (AudioEffect_t* fx = ch->effects; fx; fx = fx->next)
+    for (AudioEffect* fx = ch->effects; fx; fx = fx->next)
         fx->process(buffer, frames, channels, fx->state);
 
     // 2. Volume
@@ -208,7 +208,7 @@ void Moss_EnumerateMicrophone();
 void Moss_EnumerateSpeakers();
 
 static uint32_t ReadU32LE(const uint8_t* data) { return data[0] | (data[1] << 8) | (data[2] << 16) | (data[3] << 24); }
-static uint16 ReadU16LE(const uint8_t* data) { return data[0] | (data[1] << 8); }
+static uint16_t ReadU16LE(const uint16_t* data) { return data[0] | (data[1] << 8); }
 
 Wav* CreateWav(const char* path) {
     std::ifstream file(path, std::ios::binary | std::ios::ate);
@@ -824,7 +824,7 @@ inline Vec2 WallNormal(const Wall& w) { Vec2 edge = w.b - w.a; return Vec2{ -edg
 }
 //
 inline Vec2 Reflect(const Vec2& dir, const Vec2& normal) { return dir - 2.0f * dir.Dot(normal) * normal; }
-
+/*
 inline bool RayIntersectsSegment(const Ray2D& ray, const Wall& seg, float& outT) {
     Vec2 v1 = ray.origin - seg.a;
     Vec2 v2 = seg.b - seg.a;
@@ -906,7 +906,7 @@ void CastMultiBounceRays2D(const SoundSource2D& src, const Listener2D& listener,
             outReflections.push_back({hitPos, reflectedDir, ray.gain});
     }
 }
-
+*/
 
 // ============================================
 // RayListener3D
@@ -940,13 +940,12 @@ struct Listener3D {
     Vec3 up;
 };
 
-/*! */
+/*
 bool CastAudioRay(const PhysicsSystem& physics, const Vec3& from, const Vec3& to, RayCastResult& outHit) {
     RRayCast ray(from, to - from);
     return physics.GetNarrowPhaseQuery().CastRay(ray, outHit);
 }
 
-/*! */
 void CastReflectionRays(const PhysicsSystem& physics, const SoundSource3D& src, const Listener3D& listener, std::vector<ReflectionHit>& outReflections) {
     RayCastResult hit;
     if (!CastAudioRay(physics, src.position, listener.position, hit)) return;
@@ -1078,17 +1077,11 @@ inline AudioResult Compute2DAudioWithReflections(const SoundSource2D& src, const
     return result;
 }
 
-/*! */
 inline Vec3 Right(const Listener3D& l) { return l.forward.Cross(l.up).Normalized(); }
-/*! */
 inline Vec3 Reflect(const Vec3& dir, const Vec3& normal) { return dir - 2.0f * dir.Dot(normal) * normal; }
-/*! */
 inline float NormalizeAzimuth(float az) { while (az < -180.0f) az += 360.0f; while (az > 180.0f) az -= 360.0f; return az; }
-/*! */
 inline float ClampElevation(float el) { return std::clamp(el, -45.0f, 90.0f); }
-/*! */
 inline int Quantize(float angle, int step) { return int(std::round(angle / step) * step); }
-/*! */
 bool RayIntersectsTriangle(const Vec3& rayOrigin, const Vec3& rayDir, const AudioTriangle& tri, float& outT) {
     constexpr float EPS = 1e-6f;
     Vec3 edge1 = tri.b - tri.a;
@@ -1111,7 +1104,7 @@ bool RayIntersectsTriangle(const Vec3& rayOrigin, const Vec3& rayDir, const Audi
     if (t > EPS) { outT = t; return true; }
     return false;
 }
-/*! */
+
 bool IsOccluded(const SoundSource3D& src, const Listener3D& listener, const std::vector<AudioTriangle>& world) {
     Vec3 toListener = listener.position - src.position;
     float maxDist = toListener.Length();
@@ -1129,22 +1122,22 @@ bool IsOccluded(const SoundSource3D& src, const Listener3D& listener, const std:
     }
     return false;
 }
-/*! */
+
 float ComputePan(const SoundSource3D& src, const Listener3D& listener) {
     Vec3 toSound = (src.position - listener.position).Normalized();
     Vec3 right = Right(listener);
     return std::clamp(toSound.Dot(right), -1.0f, 1.0f);
 }
-/*! */
+
 float ComputeFrontBack(const SoundSource3D& src, const Listener3D& listener) {
     Vec3 toSound = (src.position - listener.position).Normalized();
     return std::clamp(toSound.Dot(listener.forward), -1.0f, 1.0f);
 }
-/*! */
+
 inline float ApplyFrontBackAttenuation(float volume, float fb) { if (fb < 0.0f) volume *= 0.7f; return volume; }
-/*! */
+
 inline float ApplyBackStereoNarrowing(float pan, float fb) { if (fb < 0.0f) pan *= 0.5f; return pan; }
-/*! */
+
 float ComputeDoppler(const Vec3& srcVel, const Vec3& listenerVel, const SoundSource3D& src, const Listener3D& listener) {
     Vec3 dir = (src.position - listener.position).Normalized();
     float vls = std::clamp(listenerVel.Dot(dir), -300.0f, 300.0f);
@@ -1153,7 +1146,6 @@ float ComputeDoppler(const Vec3& srcVel, const Vec3& listenerVel, const SoundSou
     return std::clamp((speedOfSound + vls) / (speedOfSound + vss), 0.5f, 2.0f);
 }
 
-/*! */
 float ComputeOcclusion(const PhysicsSystem& physics, const SoundSource3D& src, const Listener3D& listener) {
     RayCastResult hit;
     if (CastAudioRay(physics, src.position, listener.position, hit))
@@ -1161,14 +1153,13 @@ float ComputeOcclusion(const PhysicsSystem& physics, const SoundSource3D& src, c
     return 1.0f;
 }
 
-/*! */
 Angles ComputeHRTFAngles(const Vec3& dir, const Listener3D& listener) {
     Vec3 right = listener.forward.Cross(listener.up).Normalized();
     float azimuth = atan2f(dir.Dot(right), dir.Dot(listener.forward));
     float elevation = asinf(dir.Dot(listener.up));
     return { azimuth * 180.0f / MOSS_PI, elevation * 180.0f / MOSS_PI };
 }
-/*! */
+
 const HRTF& GetHRTF(float azimuthDeg, float elevationDeg) {
     static HRTF dummy;
     azimuthDeg  = NormalizeAzimuth(azimuthDeg);
@@ -1183,7 +1174,6 @@ const HRTF& GetHRTF(float azimuthDeg, float elevationDeg) {
     return azIt != elIt->second.end() ? azIt->second : dummy;
 }
 
-/*! */
 void Convolve(const float* input, int samples, const std::vector<float>& ir, float* output) {
     for (int i = 0; i < samples; ++i) {
         output[i] = 0.0f;
@@ -1191,7 +1181,7 @@ void Convolve(const float* input, int samples, const std::vector<float>& ir, flo
             if (i - k >= 0) output[i] += input[i - k] * ir[k];
     }
 }
-/*! */
+
 void ApplyHRTF(const float* mono, int samples, const HRTF& hrtf, float* outL, float* outR, float gain) {
     std::vector<float> l(samples), r(samples);
     Convolve(mono, samples, hrtf.left,  l.data());
@@ -1202,7 +1192,6 @@ void ApplyHRTF(const float* mono, int samples, const HRTF& hrtf, float* outL, fl
     }
 }
 
-/*! */
 void ProcessSoundDirect(const PhysicsSystem& physics, const SoundSource3D& src, const Listener3D& listener, const Vec3& srcVel, const Vec3& listenerVel, 
     const float* monoInput, int samples, float* outL, float* outR, float& leftGain, float& rightGain) {
     // Reset output buffers
@@ -1239,7 +1228,7 @@ void ProcessSoundDirect(const PhysicsSystem& physics, const SoundSource3D& src, 
     leftGain  = samples > 0 ? outL[0] : volume * 0.707f;
     rightGain = samples > 0 ? outR[0] : volume * 0.707f;
 }
-
+*/
 /* RayTrace is lacking 
 Multi-bounce reflections
 Late reverberation / decay
@@ -1250,7 +1239,7 @@ Temporal smoothing and optimized multi-source mixing
 
 
 
-
+/*
 void CastMultiBounce2DRays(const SoundSource2D& src, const Listener2D& listener, const std::vector<Wall>& walls, std::vector<ReflectionHit2D>& outReflections, int maxBounces = 3, float attenuation = 0.3f) {
     struct RayBounce {
         Vec2 origin;
@@ -1366,7 +1355,7 @@ void ProcessSound(const PhysicsSystem& physics, const SoundSource3D& src, const 
 
     // Temporal smoothing (optional, requires previous buffer)
 }
-
+*/
 
 
 
