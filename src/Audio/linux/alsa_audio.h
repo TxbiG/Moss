@@ -38,6 +38,7 @@ struct Moss_Microphone {
 };
 
 extern Moss_Microphone mic;
+std::unordered_map<ChannelID, AudioChannel> g_channels;
 
 struct AudioStream {
     snd_pcm_t* pcm = nullptr;
@@ -86,6 +87,19 @@ struct AudioStream3D {
 
     void play();
     void stop();
+};
+
+
+
+struct ALSAPlayback {
+    snd_pcm_t* handle = nullptr;
+    snd_pcm_hw_params_t* hwParams = nullptr;
+    unsigned int sampleRate = 44100;
+    int channels = 2;
+    snd_pcm_format_t format = SND_PCM_FORMAT_FLOAT_LE;
+    Speaker::RenderCallback renderCallback;
+    std::atomic<bool> running{false};
+    std::thread playbackThread;
 };
 
 #endif // MOSS_LINUX_ALSA_AUDIO_H

@@ -14,6 +14,7 @@
 //#include <Moss/Physics/PhysicsSystem.h>
 
 #define SOUND_SPEED 2043.0f
+#define MAX_CHANNELS 10
 
 enum class AudioFormat : uint32_t{
     UNKNOWN = 0x0000u,  // Unspecified audio format.
@@ -178,6 +179,8 @@ struct RayAudioListener3D : public AudioListener3D {
     Moss_AudioRaycast3DCallback raycast = nullptr;
     void* raycastUserData = nullptr;
 };
+
+
 
 
 typedef void (*Moss_MicrophoneCallback)(void* user_data, const void* data, size_t size);
