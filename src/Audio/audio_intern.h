@@ -18,7 +18,7 @@
 
 
 extern Moss_Microphone mic;
-std::unordered_map<ChannelID, AudioChannel> g_channels;
+extern std::unordered_map<ChannelID, AudioChannel> g_channels;
 
 enum class AudioFormat : uint32_t{
     UNKNOWN = 0x0000u,  // Unspecified audio format.
