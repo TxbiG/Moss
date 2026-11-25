@@ -1172,7 +1172,7 @@ inline bool MossAssertHelper(const char* expr, const char* file, uint32_t line, 
 
 // Assert sizes of types
 static_assert(sizeof(uint8_t) == 1, "Invalid size of uint8_t");
-static_assert(sizeof(uint16) == 2, "Invalid size of uint16");
+static_assert(sizeof(uint16_t) == 2, "Invalid size of uint16");
 static_assert(sizeof(uint32_t) == 4, "Invalid size of uint32_t");
 static_assert(sizeof(uint64_t) == 8, "Invalid size of uint64_t");
 static_assert(sizeof(void *) == (MOSS_CPU_ADDRESS_BITS == 64? 8 : 4), "Invalid size of pointer" );
