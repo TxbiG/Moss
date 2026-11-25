@@ -147,14 +147,16 @@ void mic_callback(void* user, const void* input, size_t bytes) {
     }
 }
 
-struct AudioStream2D_t {
-    AudioStream stream;
+
+/*
+struct AudioStream2D {
+    AudioStream stream = nullptr;
     Vec2 position;
     Vec3 velocity;
     float maxDistance;
     float currentPan = 0.0f;
 };
-
+*/
 struct RayAudioListener2D : public AudioListener2D {
     float occlusion = 0.0f;
     float reflectionGain = 0.0f;
@@ -208,7 +210,7 @@ void Moss_EnumerateMicrophone();
 void Moss_EnumerateSpeakers();
 
 static uint32_t ReadU32LE(const uint8_t* data) { return data[0] | (data[1] << 8) | (data[2] << 16) | (data[3] << 24); }
-static uint16_t ReadU16LE(const uint16_t* data) { return data[0] | (data[1] << 8); }
+static uint16_t ReadU16LE(const uint8_t* data) { return data[0] | (data[1] << 8); }
 
 Wav* CreateWav(const char* path) {
     std::ifstream file(path, std::ios::binary | std::ios::ate);

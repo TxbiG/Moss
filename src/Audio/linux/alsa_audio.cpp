@@ -14,9 +14,6 @@
 
 #include <alsa/asoundlib.h>
 
-namespace Moss {
-namespace Audio {
-
 struct ALSAPlayback {
     snd_pcm_t* handle = nullptr;
     snd_pcm_hw_params_t* hwParams = nullptr;
@@ -314,5 +311,5 @@ void Moss_AudioStream3DSetPlaybackRate(AudioStream3D* audiostream, float rate) {
 void Moss_AudioStream3DSetPan(AudioStream3D* audiostream, float pan) { if (audiostream) { audiostream->pan = std::clamp(pan, -1.0f, 1.0f); audiostream->stream.setPan(audiostream->pan); } }
 void Moss_AudioStream3DSetLoop(AudioStream3D* audiostream, bool loop) { if (audiostream) audiostream->stream.setLooping(loop); }
 
-} // namespace Audio
-} // namespace Moss
+
+//AudioChannel* GetChannel(ChannelID id) {}
