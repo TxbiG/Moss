@@ -357,8 +357,6 @@ void Moss_AudioListenerSetOrientation(AudioListener3D* listener, const Vec3& for
 
 bool Moss_IsSpeakerDeviceReady();
 
-void Moss_AudioSpeakerOpen();
-
 void Moss_AudioSpeakerPause();
 
 void Moss_AudioSpeakerResume();

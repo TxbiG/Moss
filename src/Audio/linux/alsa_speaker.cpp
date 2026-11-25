@@ -26,9 +26,9 @@ static bool g_SpeakerPaused = false;
 // -----------------------------
 bool Moss_IsSpeakerDeviceReady() { return g_PCM != nullptr; }
 
-void Moss_AudioSpeakerOpen() {
-    if (g_PCM) { return true; }
-    if (snd_pcm_open(&g_PCM, "default", SND_PCM_STREAM_PLAYBACK, 0) < 0) { return; }
+bool Moss_AudioSpeakerOpen() {
+    if (g_PCM) { return false; }
+    if (snd_pcm_open(&g_PCM, "default", SND_PCM_STREAM_PLAYBACK, 0) < 0) { return false; }
 
     snd_pcm_set_params(g_PCM, SND_PCM_FORMAT_S16_LE, SND_PCM_ACCESS_RW_INTERLEAVED, 2, 48000, 1, 500000);
 

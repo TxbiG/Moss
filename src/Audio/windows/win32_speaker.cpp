@@ -32,17 +32,18 @@ bool Moss_IsSpeakerDeviceReady() {
     return g_xaudio2 && g_masteringVoice;
 }
 
-void Moss_AudioSpeakerOpen() {
-    if (Moss_IsSpeakerDeviceReady()) return;
+bool Moss_AudioSpeakerOpen() {
+    if (!Moss_IsSpeakerDeviceReady()) return false;
 
     HRESULT hr = XAudio2Create(&g_xaudio2, 0, XAUDIO2_DEFAULT_PROCESSOR);
-    if (FAILED(hr)) return;
+    if (FAILED(hr)) return false;
 
     hr = g_xaudio2->CreateMasteringVoice(&g_masteringVoice);
     if (FAILED(hr)) {
         g_xaudio2->Release();
         g_xaudio2 = nullptr;
     }
+    return true;
 }
 
 void Moss_AudioSpeakerPause() {

@@ -437,7 +437,7 @@ MOSS_API bool Moss_AudioRayTraceFromListener2D(RayAudioListener2D* listener, con
 MOSS_API bool Moss_AudioRayTraceFromListener3D(RayAudioListener3D* listener, const Vec3* source_position, Moss_AudioRayTraceResult* out_result);
 MOSS_API float Moss_AudioRayTraceComputeGain(const Moss_AudioRayTraceResult* result);
 MOSS_API bool Moss_IsSpeakerDeviceReady();
-MOSS_API void Moss_AudioSpeakerOpen();
+MOSS_API bool Moss_AudioSpeakerOpen();
 MOSS_API void Moss_AudioSpeakerPause();
 MOSS_API void Moss_AudioSpeakerResume();
 MOSS_API bool Moss_AudioSpeakerIsPaused();

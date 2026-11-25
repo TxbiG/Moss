@@ -596,7 +596,7 @@ MOSS_API float Moss_AudioRayTraceComputeGain(const Moss_AudioRayTraceResult* res
 MOSS_API bool Moss_IsSpeakerDeviceReady();
 /** @brief Opens or initializes the selected speaker output device.
  */
-MOSS_API void Moss_AudioSpeakerOpen();
+MOSS_API bool Moss_AudioSpeakerOpen();
 
 /** @brief Pauses speaker audio output.
  */

@@ -148,7 +148,7 @@ void Moss_AudioListenerSetOrientation(
 ## Speaker Device
 ```cpp
 bool Moss_IsSpeakerDeviceReady();
-void Moss_AudioSpeakerOpen();
+bool Moss_AudioSpeakerOpen();
 void Moss_AudioSpeakerPause();
 void Moss_AudioSpeakerResume();
 bool Moss_AudioSpeakerIsPaused();
@@ -360,7 +360,7 @@ Moss_AudioStream3DRemove(stream3D);
 Example
 ```cpp
 // Open default speaker device
-Moss_AudioSpeakerOpen();
+if (!Moss_AudioSpeakerOpen()) { return 0; }
 
 // List available speakers
 int count = Moss_ListSpeakerDevices();
