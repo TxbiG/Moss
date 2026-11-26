@@ -534,7 +534,7 @@ bool Body::ApplyBuoyancyImpulse(float inTotalVolume, float inSubmergedVolume, Ve
 		// Determine area of the local space bounding box in the direction of the relative velocity between the fluid and the center of buoyancy
 		float area = 0.0f;
 		float relative_center_of_buoyancy_velocity_len_sq = relative_center_of_buoyancy_velocity.LengthSq();
-		if (relative_center_of_buoyancy_velocity_len_sq > 1.0e-12f)
+		if (relative_center_of_buoyancy_velocity_len_sq > MOSS_ZERO_EPSILON)
 		{
 			Vec3 local_relative_center_of_buoyancy_velocity = GetRotation().Conjugated() * relative_center_of_buoyancy_velocity;
 			area = local_relative_center_of_buoyancy_velocity.Abs().Dot(size.Swizzle<SWIZZLE_Y, SWIZZLE_Z, SWIZZLE_X>() * size.Swizzle<SWIZZLE_Z, SWIZZLE_X, SWIZZLE_Y>()) / sqrt(relative_center_of_buoyancy_velocity_len_sq);

@@ -43,7 +43,7 @@ public:
 	MOSS_INLINE bool		operator != (DMat44Arg inM2) const						{ return !(*this == inM2); }
 
 	/// Test if two matrices are close
-	MOSS_INLINE bool		IsClose(DMat44Arg inM2, float inMaxDistSq = 1.0e-12f) const;
+	MOSS_INLINE bool		IsClose(DMat44Arg inM2, float inMaxDistSq = MOSS_ZERO_EPSILON) const;
 
 	/// Multiply matrix by matrix
 	MOSS_INLINE DMat44		operator * (Mat44Arg inM) const;

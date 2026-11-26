@@ -13,7 +13,7 @@ class TransformedShape;
 class CollisionCollectorTraitsCastRay {
 public:
 	/// For rays the early out fraction is the fraction along the line to order hits.
-	static constexpr float InitialEarlyOutFraction = 1.0f + FLT_EPSILON;	// Furthest hit: Fraction is 1 + epsilon
+	static constexpr float InitialEarlyOutFraction = 1.0f + MOSS_FLOAT_EPSILON;	// Furthest hit: Fraction is 1 + epsilon
 	static constexpr float ShouldEarlyOutFraction = 0.0f;					// Closest hit: Fraction is 0
 };
 
@@ -21,7 +21,7 @@ public:
 class CollisionCollectorTraitsCastShape {
 public:
 	/// For rays the early out fraction is the fraction along the line to order hits.
-	static constexpr float InitialEarlyOutFraction = 1.0f + FLT_EPSILON;	// Furthest hit: Fraction is 1 + epsilon
+	static constexpr float InitialEarlyOutFraction = 1.0f + MOSS_FLOAT_EPSILON;	// Furthest hit: Fraction is 1 + epsilon
 	static constexpr float ShouldEarlyOutFraction = -FLT_MAX;				// Deepest hit: Penetration is infinite
 };
 

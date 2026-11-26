@@ -831,7 +831,7 @@ void SoftBodySharedSettings::CalculateBendConstraintConstants()
 		Vec3 n1 = e0.Cross(e1);
 		Vec3 n2 = e2.Cross(e0);
 		float denom = sqrt(n1.LengthSq() * n2.LengthSq());
-		if (denom < 1.0e-12f)
+		if (denom < MOSS_ZERO_EPSILON)
 			b.mInitialAngle = 0.0f;
 		else
 		{
@@ -2016,7 +2016,7 @@ void SoftBodyMotionProperties::ApplyDihedralBendConstraints(const SoftBodyUpdate
 
 		// Calculate -lambda
 		float denom = w0 * d0c.LengthSq() + w1 * d1c.LengthSq() + w2 * d2c.LengthSq() + w3 * d3c.LengthSq() + b->mCompliance * inv_dt_sq;
-		if (denom < 1.0e-12f)
+		if (denom < MOSS_ZERO_EPSILON)
 			continue;
 		float minus_lambda = c / denom;
 
@@ -2067,7 +2067,7 @@ void SoftBodyMotionProperties::ApplyVolumeConstraints(const SoftBodyUpdateContex
 
 		// Calculate -lambda
 		float denom = w1 * d1c.LengthSq() + w2 * d2c.LengthSq() + w3 * d3c.LengthSq() + w4 * d4c.LengthSq() + v->mCompliance * inv_dt_sq;
-		if (denom < 1.0e-12f)
+		if (denom < MOSS_ZERO_EPSILON)
 			continue;
 		float minus_lambda = c / denom;
 
@@ -2165,7 +2165,7 @@ void SoftBodyMotionProperties::ApplyEdgeConstraints(const SoftBodyUpdateContext 
 
 		// Apply correction
 		float denom = length * (v0.mInvMass + v1.mInvMass + e->mCompliance * inv_dt_sq);
-		if (denom < 1.0e-12f)
+		if (denom < MOSS_ZERO_EPSILON)
 			continue;
 		Vec3 correction = delta * (length - e->mRestLength) / denom;
 		v0.mPosition = x0 + v0.mInvMass * correction;

@@ -450,7 +450,7 @@ float ConvexHullBuilder::DetermineCoplanarDistance() const
 	Vec3 vmax = Vec3::Zero();
 	for (Vec3 v : mPositions)
 		vmax = Vec3::Max(vmax, v.Abs());
-	return 3.0f * FLT_EPSILON * (vmax.GetX() + vmax.GetY() + vmax.GetZ());
+	return 3.0f * MOSS_FLOAT_EPSILON * (vmax.GetX() + vmax.GetY() + vmax.GetZ());
 }
 
 int ConvexHullBuilder::GetNumVerticesUsed() const
@@ -1503,7 +1503,7 @@ void ConvexHullBuilder::GetCenterOfMassAndVolume(Vec3 &outCenterOfMass, float &o
 	}
 
 	// Calculate center of mass, fall back to average point in case there is no volume (everything is on a plane in this case)
-	if (outVolume > FLT_EPSILON)
+	if (outVolume > MOSS_FLOAT_EPSILON)
 		outCenterOfMass /= 4.0f * outVolume;
 	else
 		outCenterOfMass = v4;
@@ -1821,7 +1821,7 @@ ConvexHullBuilder2D::EResult ConvexHullBuilder2D::Initialize(int inIdx1, int inI
 	Vec3 vmax = Vec3::Zero();
 	for (Vec3 v : mPositions)
 		vmax = Vec3::Max(vmax, v.Abs());
-	float colinear_tolerance_sq = Square(2.0f * FLT_EPSILON * (vmax.GetX() + vmax.GetY()));
+	float colinear_tolerance_sq = Square(2.0f * MOSS_FLOAT_EPSILON * (vmax.GetX() + vmax.GetY()));
 
 	// Increase desired tolerance if accuracy doesn't allow it
 	float tolerance_sq = max(colinear_tolerance_sq, Square(inTolerance));

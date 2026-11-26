@@ -25,17 +25,17 @@ Shape2D Shape2D::Polygon(const std::vector<Vec2>& points) {
     for (Vec2 v : points) if (std::isfinite(v.x) && std::isfinite(v.y)) p.push_back(v);
     if (p.size()<3) return s;
     std::sort(p.begin(),p.end(),[](Vec2 a,Vec2 b){ return a.x==b.x ? a.y<b.y : a.x<b.x; });
-    p.erase(std::unique(p.begin(),p.end(),[](Vec2 a,Vec2 b){ return (a-b).LengthSquared()<1.0e-12f; }),p.end());
+    p.erase(std::unique(p.begin(),p.end(),[](Vec2 a,Vec2 b){ return (a-b).LengthSquared()<MOSS_ZERO_EPSILON; }),p.end());
     if (p.size()<3) return s;
     std::vector<Vec2> hull;
     for (Vec2 v : p) {
-        while (hull.size()>=2 && Cross(hull.back()-hull[hull.size()-2],v-hull.back())<=kEpsilon) hull.pop_back();
+        while (hull.size()>=2 && Cross(hull.back()-hull[hull.size()-2],v-hull.back())<=MOSS_EPSILON) hull.pop_back();
         hull.push_back(v);
     }
     const size_t lower=hull.size();
     for (int i=int(p.size())-2;i>=0;--i) {
         Vec2 v=p[size_t(i)];
-        while (hull.size()>lower && Cross(hull.back()-hull[hull.size()-2],v-hull.back())<=kEpsilon) hull.pop_back();
+        while (hull.size()>lower && Cross(hull.back()-hull[hull.size()-2],v-hull.back())<=MOSS_EPSILON) hull.pop_back();
         hull.push_back(v);
     }
     if (!hull.empty()) hull.pop_back();
@@ -48,27 +48,27 @@ Shape2D Shape2D::Polygon(const std::vector<Vec2>& points) {
         const float cr=Cross(a,b); area2+=cr; centroid+=(a+b)*cr;
         Vec2 e=b-a; s.polygon.normals.push_back(NormalizeOr({e.y,-e.x}));
     }
-    if (std::abs(area2)>kEpsilon) centroid/= (3.0f*area2);
+    if (std::abs(area2)>MOSS_EPSILON) centroid/= (3.0f*area2);
     s.polygon.centroid=centroid;
     return s;
 }
 
 Shape2D Shape2D::Capsule(Vec2 a,Vec2 b,float radius,int arcSegments) {
-    radius=std::max(radius,kEpsilon); arcSegments=std::max(2,arcSegments);
+    radius=std::max(radius,MOSS_EPSILON); arcSegments=std::max(2,arcSegments);
     Vec2 axis=NormalizeOr(b-a); float angle=std::atan2(axis.y,axis.x);
     std::vector<Vec2> points; points.reserve(size_t(2*(arcSegments+1)));
-    for(int i=0;i<=arcSegments;++i) { float t=-0.5f*kPi+kPi*float(i)/float(arcSegments); float q=angle+t; points.push_back(b+Vec2{std::cos(q),std::sin(q)}*radius); }
-    for(int i=0;i<=arcSegments;++i) { float t=0.5f*kPi+kPi*float(i)/float(arcSegments); float q=angle+t; points.push_back(a+Vec2{std::cos(q),std::sin(q)}*radius); }
+    for(int i=0;i<=arcSegments;++i) { float t= -0.5f *MOSS_PI + MOSS_PI * float(i)/float(arcSegments); float q=angle+t; points.push_back(b+Vec2{std::cos(q),std::sin(q)}*radius); }
+    for(int i=0;i<=arcSegments;++i) { float t= 0.5f * MOSS_PI + MOSS_PI * float(i)/float(arcSegments); float q=angle+t; points.push_back(a+Vec2{std::cos(q),std::sin(q)}*radius); }
     return Polygon(points);
 }
 Shape2D Shape2D::RoundedBox(Vec2 half,float radius,Vec2 center,float angle,int arcSegments) {
-    half.x=std::max(half.x,kEpsilon); half.y=std::max(half.y,kEpsilon);
+    half.x=std::max(half.x,MOSS_EPSILON); half.y=std::max(half.y,MOSS_EPSILON);
     radius=Clamp(radius,0.0f,std::min(half.x,half.y)); arcSegments=std::max(1,arcSegments);
-    if(radius<=kEpsilon) return Box(half,center,angle);
+    if(radius<=MOSS_EPSILON) return Box(half,center,angle);
     std::vector<Vec2> points; points.reserve(size_t(4*(arcSegments+1)));
     const Vec2 corners[4]={{half.x-radius,half.y-radius},{-half.x+radius,half.y-radius},{-half.x+radius,-half.y+radius},{half.x-radius,-half.y+radius}};
-    const float starts[4]={0.0f,0.5f*kPi,kPi,1.5f*kPi};
-    for(int c=0;c<4;++c) for(int i=0;i<=arcSegments;++i) { float a=starts[c]+0.5f*kPi*float(i)/float(arcSegments); points.push_back(center+Rot2(angle).Apply(corners[c]+Vec2{std::cos(a),std::sin(a)}*radius)); }
+    const float starts[4]={0.0f, 0.5f * MOSS_PI, MOSS_PI, 1.5f * MOSS_PI};
+    for(int c=0;c<4;++c) for(int i=0;i<=arcSegments;++i) { float a=starts[c]+0.5f*MOSS_PI*float(i)/float(arcSegments); points.push_back(center+Rot2(angle).Apply(corners[c]+Vec2{std::cos(a),std::sin(a)}*radius)); }
     return Polygon(points);
 }
 
@@ -81,7 +81,7 @@ bool Shape2D::IsValid() const {
     switch(type) {
     case ShapeType::Circle: return std::isfinite(circle.radius) && circle.radius>0.0f && std::isfinite(circle.center.x) && std::isfinite(circle.center.y);
     case ShapeType::Polygon: return polygon.vertices.size()>=3 && polygon.vertices.size()==polygon.normals.size() && std::all_of(polygon.vertices.begin(),polygon.vertices.end(),[](Vec2 p){return std::isfinite(p.x)&&std::isfinite(p.y);});
-    case ShapeType::Edge: return std::isfinite(edge.a.x)&&std::isfinite(edge.a.y)&&std::isfinite(edge.b.x)&&std::isfinite(edge.b.y)&&(edge.b-edge.a).LengthSquared()>kEpsilon*kEpsilon;
+    case ShapeType::Edge: return std::isfinite(edge.a.x)&&std::isfinite(edge.a.y)&&std::isfinite(edge.b.x)&&std::isfinite(edge.b.y)&&(edge.b-edge.a).LengthSquared()>MOSS_EPSILON*MOSS_EPSILON;
     case ShapeType::Chain: return chain.vertices.size()>=2 && std::all_of(chain.vertices.begin(),chain.vertices.end(),[](Vec2 p){return std::isfinite(p.x)&&std::isfinite(p.y);});
     case ShapeType::Compound: return compound && !compound->children.empty() && std::all_of(compound->children.begin(),compound->children.end(),[](const CompoundChild2D& c){return c.shape.IsValid()&&std::isfinite(c.transform.position.x)&&std::isfinite(c.transform.position.y)&&std::isfinite(c.transform.angle);});
     }
@@ -91,19 +91,19 @@ bool Shape2D::IsValid() const {
 MassData ComputeMass(const Shape2D& shape, float density) {
     MassData md; density=std::max(0.0f,density);
     if (shape.type==ShapeType::Circle) {
-        const float area=kPi*shape.circle.radius*shape.circle.radius;
+        const float area=MOSS_PI*shape.circle.radius*shape.circle.radius;
         md.mass=density*area; md.center=shape.circle.center;
         md.inertia=md.mass*(0.5f*shape.circle.radius*shape.circle.radius+shape.circle.center.LengthSquared());
     } else if (shape.type==ShapeType::Compound && shape.compound) {
         Vec2 weighted{}; float total=0.0f, inertia=0.0f;
         for (const auto& child : shape.compound->children) {
             const float childDensity=(std::isfinite(child.density)&&child.density>=0.0f)?child.density:density;
-            MassData part=ComputeMass(child.shape,childDensity); if(part.mass<=kEpsilon) continue;
+            MassData part=ComputeMass(child.shape,childDensity); if(part.mass<=MOSS_EPSILON) continue;
             Vec2 centre=child.transform.position+Rot2(child.transform.angle).Apply(part.center);
             total+=part.mass; weighted+=centre*part.mass;
             inertia+=part.inertia+part.mass*(child.transform.position.LengthSquared()+2.0f*Dot(child.transform.position,Rot2(child.transform.angle).Apply(part.center)));
         }
-        if(total>kEpsilon){md.mass=total;md.center=weighted/total;md.inertia=inertia;}
+        if(total>MOSS_EPSILON){md.mass=total;md.center=weighted/total;md.inertia=inertia;}
     } else if (shape.type==ShapeType::Polygon) {
         float area2=0.0f, inertia6=0.0f; Vec2 c{};
         const auto& v=shape.polygon.vertices;
@@ -114,7 +114,7 @@ MassData ComputeMass(const Shape2D& shape, float density) {
             const float inty=a.y*a.y+a.y*b.y+b.y*b.y;
             inertia6+=d*(intx+inty);
         }
-        if (std::abs(area2)>kEpsilon) {
+        if (std::abs(area2)>MOSS_EPSILON) {
             const float area=0.5f*area2;
             md.mass=density*std::abs(area);
             md.center=c/(3.0f*area2);
@@ -153,13 +153,13 @@ bool TestPoint(const Shape2D& shape, const Transform2D& xf, Vec2 point) {
         return true;
     }
     if (shape.type==ShapeType::Edge) {
-        Vec2 d=shape.edge.b-shape.edge.a; float t=Clamp(Dot(p-shape.edge.a,d)/std::max(d.LengthSquared(),kEpsilon),0.0f,1.0f);
+        Vec2 d=shape.edge.b-shape.edge.a; float t=Clamp(Dot(p-shape.edge.a,d)/std::max(d.LengthSquared(),MOSS_EPSILON),0.0f,1.0f);
         return (p-(shape.edge.a+t*d)).LengthSquared()<0.01f;
     }
     size_t chainCount=shape.chain.vertices.size()-1+(shape.chain.loop?1:0);
     for (size_t i=0;i<chainCount;++i) {
         Vec2 a=shape.chain.vertices[i], d=shape.chain.vertices[(i+1)%shape.chain.vertices.size()]-a;
-        float t=Clamp(Dot(p-a,d)/std::max(d.LengthSquared(),kEpsilon),0.0f,1.0f);
+        float t=Clamp(Dot(p-a,d)/std::max(d.LengthSquared(),MOSS_EPSILON),0.0f,1.0f);
         if ((p-(a+t*d)).LengthSquared()<0.01f) return true;
     }
     return false;
@@ -244,12 +244,12 @@ std::vector<Vec2> WorldVertices(const PolygonShape& p,const Transform2D& xf) {
     std::vector<Vec2> v; v.reserve(p.vertices.size()); for(Vec2 x:p.vertices) v.push_back(xf.Apply(x)); return v;
 }
 Vec2 ClosestPointSegment(Vec2 p,Vec2 a,Vec2 b) {
-    Vec2 d=b-a; float t=Clamp(Dot(p-a,d)/std::max(d.LengthSquared(),kEpsilon),0.0f,1.0f); return a+t*d;
+    Vec2 d=b-a; float t=Clamp(Dot(p-a,d)/std::max(d.LengthSquared(),MOSS_EPSILON),0.0f,1.0f); return a+t*d;
 }
 bool CollideCircleCircle(const CircleShape& a,const Transform2D& xa,const CircleShape& b,const Transform2D& xb,Manifold2D& m) {
     Vec2 ca=xa.Apply(a.center), cb=xb.Apply(b.center), d=cb-ca;
     const float r=a.radius+b.radius, d2=d.LengthSquared(); if(d2>r*r) return false;
-    float dist=std::sqrt(std::max(d2,0.0f)); m.normal=dist>kEpsilon?d/dist:Vec2{1,0};
+    float dist=std::sqrt(std::max(d2,0.0f)); m.normal=dist>MOSS_EPSILON?d/dist:Vec2{1,0};
     m.penetration=r-dist; m.pointCount=1; m.points[0].point=ca+m.normal*(a.radius-0.5f*m.penetration); m.points[0].separation=-m.penetration; m.points[0].featureId=0x10000001u; return true;
 }
 bool CollideCirclePolygon(const CircleShape& circle,const Transform2D& xc,const PolygonShape& poly,const Transform2D& xp,Manifold2D& m) {
@@ -268,7 +268,7 @@ bool CollideCirclePolygon(const CircleShape& circle,const Transform2D& xc,const 
     if(!inside && dist>circle.radius) return false;
     Vec2 n;
     if(inside) n=-Rot2(xp.angle).Apply(poly.normals[face]);
-    else n=dist>kEpsilon?(closest-c)/dist:Rot2(xp.angle).Apply(poly.normals[face]);
+    else n=dist>MOSS_EPSILON?(closest-c)/dist:Rot2(xp.angle).Apply(poly.normals[face]);
     m.normal=n; m.penetration=inside?circle.radius+std::max(0.0f,-maxSep):circle.radius-dist;
     m.pointCount=1; m.points[0].point=closest; m.points[0].separation=-m.penetration; m.points[0].featureId=0x20000000u|uint32_t(closestFace&0xffffu); return true;
 }
@@ -345,15 +345,15 @@ Vec2 SmoothChainNormal(const EdgeShape& edge,const Transform2D& xf,Vec2 queryPoi
 bool CollideEdgeCircle(const EdgeShape& edge,const Transform2D& xe,const CircleShape& circle,const Transform2D& xc,Manifold2D& m) {
     Vec2 a=xe.Apply(edge.a), b=xe.Apply(edge.b), c=xc.Apply(circle.center); Vec2 segment=b-a;
     const float length2=segment.LengthSquared();
-    const float t=Clamp(Dot(c-a,segment)/std::max(length2,kEpsilon),0.0f,1.0f);
+    const float t=Clamp(Dot(c-a,segment)/std::max(length2,MOSS_EPSILON),0.0f,1.0f);
     Vec2 q=a+segment*t,d=c-q;
     float ds=d.LengthSquared(); if(ds>circle.radius*circle.radius) return false;
     Vec2 tangent=NormalizeOr(segment),front=Vec2{tangent.y,-tangent.x};
     if(edge.oneSided && Dot(front,c-a)<-0.005f) return false;
     float dist=std::sqrt(std::max(ds,0.0f));
-    Vec2 n=dist>kEpsilon?d/dist:front;
+    Vec2 n=dist>MOSS_EPSILON?d/dist:front;
     if(edge.oneSided)n=SmoothChainNormal(edge,xe,c,t,front);
-    else if(dist<=kEpsilon)n=front;
+    else if(dist<=MOSS_EPSILON)n=front;
     if(edge.oneSided && Dot(n,front)<0.0f) n=front;
     m.normal=n; m.penetration=circle.radius-dist; m.pointCount=1; m.points[0].point=q; m.points[0].separation=-m.penetration;
     const uint32_t feature=t<=0.015f?0u:(t>=0.985f?1u:2u);
@@ -371,7 +371,7 @@ bool CollideEdgePolygon(const EdgeShape& edge,const Transform2D& xe,const Polygo
     const float edgeLength=(b-a).Length();
     const float along=Dot(point-a,tangent);
     if(along < -0.05f || along > edgeLength+0.05f) return false;
-    const float t=Clamp(along/std::max(edgeLength,kEpsilon),0.0f,1.0f);
+    const float t=Clamp(along/std::max(edgeLength,MOSS_EPSILON),0.0f,1.0f);
     if(edge.oneSided)n=SmoothChainNormal(edge,xe,center,t,front);
     m.normal=n; m.penetration=std::max(0.0f,-minD); m.pointCount=1;
     m.points[0].point=point-n*minD; m.points[0].separation=-m.penetration;
@@ -515,13 +515,13 @@ void ApplyImpulse(BodyInternal& b,Vec2 impulse,Vec2 r,float sign) {
 struct CachedImpulse { uint32_t feature[2]{0,0}; float normal[2]{0,0}; float tangent[2]{0,0}; };
 
 bool RayCircle(Vec2 p1,Vec2 p2,Vec2 center,float radius,float& fraction,Vec2& normal) {
-    Vec2 d=p2-p1, m=p1-center; float a=Dot(d,d); if(a<kEpsilon) return false;
+    Vec2 d=p2-p1, m=p1-center; float a=Dot(d,d); if(a<MOSS_EPSILON) return false;
     float b=Dot(m,d), c=Dot(m,m)-radius*radius; float disc=b*b-a*c; if(disc<0) return false;
     float t=(-b-std::sqrt(disc))/a; if(t<0 || t>1) { t=(-b+std::sqrt(disc))/a; if(t<0||t>1) return false; }
     fraction=t; normal=NormalizeOr(p1+d*t-center); return true;
 }
 bool RaySegment(Vec2 p1,Vec2 p2,Vec2 a,Vec2 b,float& fraction,Vec2& normal) {
-    Vec2 r=p2-p1,s=b-a; float den=Cross(r,s); if(std::abs(den)<kEpsilon) return false;
+    Vec2 r=p2-p1,s=b-a; float den=Cross(r,s); if(std::abs(den)<MOSS_EPSILON) return false;
     float t=Cross(a-p1,s)/den, u=Cross(a-p1,r)/den; if(t<0||t>1||u<0||u>1) return false;
     fraction=t; Vec2 edge=NormalizeOr(s); normal={edge.y,-edge.x}; if(Dot(normal,r)>0) normal=-normal; return true;
 }
@@ -537,14 +537,14 @@ bool RayShape(const Shape2D& shape,const Transform2D& xf,Vec2 p1,Vec2 p2,float& 
     }
     auto v=WorldVertices(shape.polygon,xf); float tmin=0,tmax=1; Vec2 hitNormal{}; Vec2 d=p2-p1;
     for(size_t i=0;i<v.size();++i) { Vec2 n=Rot2(xf.angle).Apply(shape.polygon.normals[i]); float numerator=Dot(n,v[i]-p1), denominator=Dot(n,d);
-        if(std::abs(denominator)<kEpsilon) { if(numerator<0) return false; continue; }
+        if(std::abs(denominator)<MOSS_EPSILON) { if(numerator<0) return false; continue; }
         float t=numerator/denominator;
         if(denominator<0) { if(t>tmin){tmin=t;hitNormal=n;} }
         else tmax=std::min(tmax,t);
         if(tmin>tmax) return false;
     }
     if(tmin<0||tmin>1) return false;
-    fraction=tmin; normal=hitNormal.LengthSquared()>kEpsilon?hitNormal:NormalizeOr(-d,{0,1}); return true;
+    fraction=tmin; normal=hitNormal.LengthSquared()>MOSS_EPSILON?hitNormal:NormalizeOr(-d,{0,1}); return true;
 }
 }
 
@@ -681,10 +681,10 @@ struct PhysicsWorld2D::Impl {
         b.state.localCenter=md.center;
         b.state.worldCenter=b.state.transform.Apply(md.center);
         if(b.state.type!=BodyType::Dynamic) { b.state.mass=b.state.inverseMass=b.state.inertia=b.state.inverseInertia=0; return; }
-        b.state.mass=std::max(md.mass,kEpsilon); b.state.inverseMass=1.0f/b.state.mass;
+        b.state.mass=std::max(md.mass,MOSS_EPSILON); b.state.inverseMass=1.0f/b.state.mass;
         const float centerInertia=std::max(0.0f, md.inertia-md.mass*md.center.LengthSquared());
-        b.state.inertia=b.fixedRotation?0.0f:std::max(centerInertia,kEpsilon);
-        b.state.inverseInertia=(b.fixedRotation||centerInertia<=kEpsilon)?0.0f:1.0f/centerInertia;
+        b.state.inertia=b.fixedRotation?0.0f:std::max(centerInertia,MOSS_EPSILON);
+        b.state.inverseInertia=(b.fixedRotation||centerInertia<=MOSS_EPSILON)?0.0f:1.0f/centerInertia;
     }
     void Wake(BodyInternal& b) { if(b.state.type==BodyType::Dynamic) { b.state.awake=true; b.sleepTime=0.0f; } }
     static Vec2 WorldCenter(const BodyInternal& b) { return b.state.transform.Apply(b.state.localCenter); }
@@ -785,8 +785,8 @@ struct PhysicsWorld2D::Impl {
                 if(side < -0.05f || Dot(relative,n)>0.1f) continue;
             }
             currentPairs.insert(key);if(pairHasSensor)currentSensorPairs.insert(key);
-            const bool activeA=(A->state.type==BodyType::Dynamic&&A->state.awake) || (A->state.type==BodyType::Kinematic&&(A->state.linearVelocity.LengthSquared()>kEpsilon||std::abs(A->state.angularVelocity)>kEpsilon));
-            const bool activeB=(B->state.type==BodyType::Dynamic&&B->state.awake) || (B->state.type==BodyType::Kinematic&&(B->state.linearVelocity.LengthSquared()>kEpsilon||std::abs(B->state.angularVelocity)>kEpsilon));
+            const bool activeA=(A->state.type==BodyType::Dynamic&&A->state.awake) || (A->state.type==BodyType::Kinematic&&(A->state.linearVelocity.LengthSquared()>MOSS_EPSILON||std::abs(A->state.angularVelocity)>MOSS_EPSILON));
+            const bool activeB=(B->state.type==BodyType::Dynamic&&B->state.awake) || (B->state.type==BodyType::Kinematic&&(B->state.linearVelocity.LengthSquared()>MOSS_EPSILON||std::abs(B->state.angularVelocity)>MOSS_EPSILON));
             if(activeA||activeB){Wake(*A);Wake(*B);}
             for(const Manifold2D& manifold:manifolds) {
                 if(manifold.isSensor) continue;
@@ -843,18 +843,18 @@ struct PhysicsWorld2D::Impl {
             k12=InvMass(*A)+InvMass(*B)+InvI(*A)*Cross(rA[0],n)*Cross(rA[1],n)+InvI(*B)*Cross(rB[0],n)*Cross(rB[1],n);
             const float det=k11*k22-k12*k12;const float old1=c.manifold.points[0].normalImpulse,old2=c.manifold.points[1].normalImpulse;
             bool solved=false;float x1=0.0f,x2=0.0f;
-            if(det>kEpsilon*kEpsilon){const float invDet=1.0f/det;const float b1=vn[0]+c.manifold.points[0].velocityBias-k11*old1-k12*old2;const float b2=vn[1]+c.manifold.points[1].velocityBias-k12*old1-k22*old2;
+            if(det>MOSS_EPSILON*MOSS_EPSILON){const float invDet=1.0f/det;const float b1=vn[0]+c.manifold.points[0].velocityBias-k11*old1-k12*old2;const float b2=vn[1]+c.manifold.points[1].velocityBias-k12*old1-k22*old2;
                 x1=-(k22*b1-k12*b2)*invDet;x2=-(-k12*b1+k11*b2)*invDet;
                 if(x1>=0.0f&&x2>=0.0f)solved=true;
-                if(!solved&&k22>kEpsilon){x1=0.0f;x2=-b2/k22;if(x2>=0.0f&&k12*x2+b1>=0.0f)solved=true;}
-                if(!solved&&k11>kEpsilon){x2=0.0f;x1=-b1/k11;if(x1>=0.0f&&k12*x1+b2>=0.0f)solved=true;}
+                if(!solved&&k22>MOSS_EPSILON){x1=0.0f;x2=-b2/k22;if(x2>=0.0f&&k12*x2+b1>=0.0f)solved=true;}
+                if(!solved&&k11>MOSS_EPSILON){x2=0.0f;x1=-b1/k11;if(x1>=0.0f&&k12*x1+b2>=0.0f)solved=true;}
                 if(!solved&&b1>=0.0f&&b2>=0.0f){x1=x2=0.0f;solved=true;}
             }
             if(solved){c.manifold.points[0].normalImpulse=x1;c.manifold.points[1].normalImpulse=x2;const float d1=x1-old1,d2=x2-old2;ApplyImpulse(*A,n*d1,rA[0],-1);ApplyImpulse(*B,n*d1,rB[0],1);ApplyImpulse(*A,n*d2,rA[1],-1);ApplyImpulse(*B,n*d2,rB[1],1);}
-            else for(uint8_t pi=0;pi<2;++pi){auto&cp=c.manifold.points[pi];float k=pi==0?k11:k22;if(k<=kEpsilon)continue;float lambda=-(vn[pi]+cp.velocityBias)/k;float old=cp.normalImpulse;cp.normalImpulse=std::max(old+lambda,0.0f);lambda=cp.normalImpulse-old;ApplyImpulse(*A,n*lambda,rA[pi],-1);ApplyImpulse(*B,n*lambda,rB[pi],1);}
-        } else if(count==1&&k11>kEpsilon){auto&cp=c.manifold.points[0];float lambda=-(vn[0]+cp.velocityBias)/k11;float old=cp.normalImpulse;cp.normalImpulse=std::max(old+lambda,0.0f);lambda=cp.normalImpulse-old;ApplyImpulse(*A,n*lambda,rA[0],-1);ApplyImpulse(*B,n*lambda,rB[0],1);}
+            else for(uint8_t pi=0;pi<2;++pi){auto&cp=c.manifold.points[pi];float k=pi==0?k11:k22;if(k<=MOSS_EPSILON)continue;float lambda=-(vn[pi]+cp.velocityBias)/k;float old=cp.normalImpulse;cp.normalImpulse=std::max(old+lambda,0.0f);lambda=cp.normalImpulse-old;ApplyImpulse(*A,n*lambda,rA[pi],-1);ApplyImpulse(*B,n*lambda,rB[pi],1);}
+        } else if(count==1&&k11>MOSS_EPSILON){auto&cp=c.manifold.points[0];float lambda=-(vn[0]+cp.velocityBias)/k11;float old=cp.normalImpulse;cp.normalImpulse=std::max(old+lambda,0.0f);lambda=cp.normalImpulse-old;ApplyImpulse(*A,n*lambda,rA[0],-1);ApplyImpulse(*B,n*lambda,rB[0],1);}
         for(uint8_t pi=0;pi<count;++pi){auto&cp=c.manifold.points[pi];Vec2 rv=(B->state.linearVelocity+Cross(B->state.angularVelocity,rB[pi]))-(A->state.linearVelocity+Cross(A->state.angularVelocity,rA[pi]));float rtA=Cross(rA[pi],t),rtB=Cross(rB[pi],t);float kt=InvMass(*A)+InvMass(*B)+InvI(*A)*rtA*rtA+InvI(*B)*rtB*rtB;
-            if(kt>kEpsilon){float lambda=-Dot(rv,t)/kt;float maxFriction=c.friction*cp.normalImpulse;float old=cp.tangentImpulse;cp.tangentImpulse=Clamp(old+lambda,-maxFriction,maxFriction);lambda=cp.tangentImpulse-old;Vec2 impulse=t*lambda;ApplyImpulse(*A,impulse,rA[pi],-1);ApplyImpulse(*B,impulse,rB[pi],1);}}
+            if(kt>MOSS_EPSILON){float lambda=-Dot(rv,t)/kt;float maxFriction=c.friction*cp.normalImpulse;float old=cp.tangentImpulse;cp.tangentImpulse=Clamp(old+lambda,-maxFriction,maxFriction);lambda=cp.tangentImpulse-old;Vec2 impulse=t*lambda;ApplyImpulse(*A,impulse,rA[pi],-1);ApplyImpulse(*B,impulse,rB[pi],1);}}
     }
     void SolveContactVelocityBatch4(ContactConstraint* batch[4]) {
         BodyInternal* A[4]{};BodyInternal* B[4]{};Vec2 rA[4]{},rB[4]{},n[4]{},t[4]{};
@@ -908,12 +908,12 @@ struct PhysicsWorld2D::Impl {
         auto found=std::find_if(manifolds.begin(),manifolds.end(),[&](const Manifold2D& m){return m.childIndexA==c.manifold.childIndexA&&m.childIndexB==c.manifold.childIndexB;});
         if(found==manifolds.end()) return;
         const Manifold2D& m=*found;Vec2 n=m.normal;
-        for(uint8_t pi=0;pi<m.pointCount;++pi){Vec2 p=m.points[pi].point,rA=p-WorldCenter(*A),rB=p-WorldCenter(*B);float rnA=Cross(rA,n),rnB=Cross(rB,n);float k=InvMass(*A)+InvMass(*B)+InvI(*A)*rnA*rnA+InvI(*B)*rnB*rnB;float penetration=std::max(-m.points[pi].separation-settings.contactSlop,0.0f);if(k>kEpsilon&&penetration>0){float impulse=Clamp(settings.baumgarte*penetration/k,0.0f,0.2f);Vec2 P=n*impulse;ApplyPositionImpulse(*A,P,rA,-1);ApplyPositionImpulse(*B,P,rB,1);}}
+        for(uint8_t pi=0;pi<m.pointCount;++pi){Vec2 p=m.points[pi].point,rA=p-WorldCenter(*A),rB=p-WorldCenter(*B);float rnA=Cross(rA,n),rnB=Cross(rB,n);float k=InvMass(*A)+InvMass(*B)+InvI(*A)*rnA*rnA+InvI(*B)*rnB*rnB;float penetration=std::max(-m.points[pi].separation-settings.contactSlop,0.0f);if(k>MOSS_EPSILON&&penetration>0){float impulse=Clamp(settings.baumgarte*penetration/k,0.0f,0.2f);Vec2 P=n*impulse;ApplyPositionImpulse(*A,P,rA,-1);ApplyPositionImpulse(*B,P,rB,1);}}
     }
 
     void SolveJointVelocity(JointInternal& j,float dt) {
         if(!j.enabled)return;
-        if(j.type==JointType::Mouse){if(j.mouseAppliedThisStep)return;j.mouseAppliedThisStep=true;BodyInternal*B=Body(j.b);if(!B||B->state.type!=BodyType::Dynamic)return;float im=InvMass(*B),ii=InvI(*B);Vec2 point=B->state.transform.position+WorldVector(*B,j.anchorB),r=point-WorldCenter(*B);Vec2 velocity=B->state.linearVelocity+Cross(B->state.angularVelocity,r);float effective=1.0f/std::max(im+ii*r.LengthSquared(),kEpsilon);float omega=2.0f*kPi*std::max(0.0f,j.frequency);float stiffness=effective*omega*omega,damping=2.0f*effective*std::max(0.0f,j.damping)*omega;Vec2 force=(j.target-point)*stiffness-velocity*damping;float mag=force.Length();if(mag>j.maxForce&&mag>kEpsilon)force*=j.maxForce/mag;Vec2 impulse=force*dt;ApplyImpulse(*B,impulse,r,1);j.impulse+=impulse;return;}
+        if(j.type==JointType::Mouse){if(j.mouseAppliedThisStep)return;j.mouseAppliedThisStep=true;BodyInternal*B=Body(j.b);if(!B||B->state.type!=BodyType::Dynamic)return;float im=InvMass(*B),ii=InvI(*B);Vec2 point=B->state.transform.position+WorldVector(*B,j.anchorB),r=point-WorldCenter(*B);Vec2 velocity=B->state.linearVelocity+Cross(B->state.angularVelocity,r);float effective=1.0f/std::max(im+ii*r.LengthSquared(),MOSS_EPSILON);float omega=2.0f*MOSS_PI*std::max(0.0f,j.frequency);float stiffness=effective*omega*omega,damping=2.0f*effective*std::max(0.0f,j.damping)*omega;Vec2 force=(j.target-point)*stiffness-velocity*damping;float mag=force.Length();if(mag>j.maxForce&&mag>MOSS_EPSILON)force*=j.maxForce/mag;Vec2 impulse=force*dt;ApplyImpulse(*B,impulse,r,1);j.impulse+=impulse;return;}
         BodyInternal* A=Body(j.a); BodyInternal* B=Body(j.b); if(!A||!B) return;
         float imA=InvMass(*A), imB=InvMass(*B), iiA=InvI(*A), iiB=InvI(*B); if(imA+imB+iiA+iiB<=0) return;
         Vec2 pA=A->state.transform.position+WorldVector(*A,j.anchorA),pB=B->state.transform.position+WorldVector(*B,j.anchorB);
@@ -924,7 +924,7 @@ struct PhysicsWorld2D::Impl {
             const float error=WrapAngle(B->state.transform.angle+ratio*A->state.transform.angle-j.constant);
             const float relative=B->state.angularVelocity+ratio*A->state.angularVelocity;
             const float k=iiB+ratio*ratio*iiA;
-            if(k>kEpsilon) {
+            if(k>MOSS_EPSILON) {
                 const float constraintImpulse=-(relative+0.2f*error/dt)/k;
                 A->state.angularVelocity+=ratio*constraintImpulse*iiA;
                 B->state.angularVelocity+=constraintImpulse*iiB;
@@ -944,7 +944,7 @@ struct PhysicsWorld2D::Impl {
             const float C=lenA+j.ratio*lenB-j.constant;
             const float crA=Cross(rA,uA),crB=Cross(rB,uB);
             const float k=imA+iiA*crA*crA+j.ratio*j.ratio*(imB+iiB*crB*crB);
-            if(k>kEpsilon) {
+            if(k>MOSS_EPSILON) {
                 const float cdot=Dot(va,uA)+j.ratio*Dot(vb,uB);
                 const float lambda=-(cdot+0.15f*C/dt)/k;
                 ApplyImpulse(*A,uA*lambda,rA,1.0f);
@@ -959,11 +959,11 @@ struct PhysicsWorld2D::Impl {
             const float k22=imA+imB+iiA*rA.x*rA.x+iiB*rB.x*rB.x;
             Vec2 delta=Mat22{k11,k12,k12,k22}.Inverse()*(-(vb-va));
             Vec2 old=j.impulse, proposed=old+delta; const float maxImpulse=j.maxForce*dt;
-            if(proposed.Length()>maxImpulse&&proposed.Length()>kEpsilon) proposed*=maxImpulse/proposed.Length();
+            if(proposed.Length()>maxImpulse&&proposed.Length()>MOSS_EPSILON) proposed*=maxImpulse/proposed.Length();
             delta=proposed-old; j.impulse=proposed;
             ApplyImpulse(*A,delta,rA,-1.0f); ApplyImpulse(*B,delta,rB,1.0f);
             const float angularMass=iiA+iiB;
-            if(angularMass>kEpsilon) {
+            if(angularMass>MOSS_EPSILON) {
                 float lambda=-(B->state.angularVelocity-A->state.angularVelocity)/angularMass;
                 const float oldTorque=j.motorImpulse; const float maxTorque=j.maxTorque*dt;
                 j.motorImpulse=Clamp(oldTorque+lambda,-maxTorque,maxTorque); lambda=j.motorImpulse-oldTorque;
@@ -983,17 +983,17 @@ struct PhysicsWorld2D::Impl {
             const float k22=imA+imB+iiA*ra.x*ra.x+iiB*rb.x*rb.x;
             Vec2 delta=Mat22{k11,k12,k12,k22}.Inverse()*(targetVelocity-(vB-vA));
             Vec2 old=j.impulse,proposed=old+delta; const float maxImpulse=j.maxForce*dt;
-            if(proposed.Length()>maxImpulse&&proposed.Length()>kEpsilon) proposed*=maxImpulse/proposed.Length();
+            if(proposed.Length()>maxImpulse&&proposed.Length()>MOSS_EPSILON) proposed*=maxImpulse/proposed.Length();
             delta=proposed-old;j.impulse=proposed;ApplyImpulse(*A,delta,ra,-1);ApplyImpulse(*B,delta,rb,1);
             const float angleError=WrapAngle(B->state.transform.angle-A->state.transform.angle-j.angularOffset);
             const float targetOmega=-j.correctionFactor*angleError/dt;
             const float angularMass=iiA+iiB;
-            if(angularMass>kEpsilon){float lambda=(targetOmega-(B->state.angularVelocity-A->state.angularVelocity))/angularMass;float oldT=j.motorImpulse;float maxT=j.maxTorque*dt;j.motorImpulse=Clamp(oldT+lambda,-maxT,maxT);lambda=j.motorImpulse-oldT;A->state.angularVelocity-=lambda*iiA;B->state.angularVelocity+=lambda*iiB;}
+            if(angularMass>MOSS_EPSILON){float lambda=(targetOmega-(B->state.angularVelocity-A->state.angularVelocity))/angularMass;float oldT=j.motorImpulse;float maxT=j.maxTorque*dt;j.motorImpulse=Clamp(oldT+lambda,-maxT,maxT);lambda=j.motorImpulse-oldT;A->state.angularVelocity-=lambda*iiA;B->state.angularVelocity+=lambda*iiB;}
             return;
         }
         if(j.type==JointType::Distance || j.type==JointType::Rope) {
-            Vec2 d=pB-pA; float len=d.Length(); if(len<kEpsilon)return; Vec2 n=d/len;
-            float k=imA+imB+iiA*Cross(rA,n)*Cross(rA,n)+iiB*Cross(rB,n)*Cross(rB,n); if(k<kEpsilon)return;
+            Vec2 d=pB-pA; float len=d.Length(); if(len<MOSS_EPSILON)return; Vec2 n=d/len;
+            float k=imA+imB+iiA*Cross(rA,n)*Cross(rA,n)+iiB*Cross(rB,n)*Cross(rB,n); if(k<MOSS_EPSILON)return;
             float error=0.0f;
             if(j.type==JointType::Rope){if(len<=j.maxLength)return;error=len-j.maxLength;}
             else if(j.minLength<0 && j.maxLength<0) error=len-j.length;
@@ -1001,7 +1001,7 @@ struct PhysicsWorld2D::Impl {
             else if(j.maxLength>=0 && len>j.maxLength) error=len-j.maxLength;
             else return;
             float bias=0.0f;
-            if(j.frequency>0) { float omega=2*kPi*j.frequency, mass=1.0f/k, damp=2*mass*j.damping*omega, stiff=mass*omega*omega; float gamma=dt*(damp+dt*stiff); gamma=gamma>kEpsilon?1.0f/gamma:0; bias=error*dt*stiff*gamma; k+=gamma; }
+            if(j.frequency>0) { float omega=2*MOSS_PI*j.frequency, mass=1.0f/k, damp=2*mass*j.damping*omega, stiff=mass*omega*omega; float gamma=dt*(damp+dt*stiff); gamma=gamma>MOSS_EPSILON?1.0f/gamma:0; bias=error*dt*stiff*gamma; k+=gamma; }
             else bias=0.15f*error/dt;
             float lambda=-(Dot(vb-va,n)+bias)/k;
             if(j.type==JointType::Rope)lambda=std::min(0.0f,lambda);
@@ -1020,25 +1020,25 @@ struct PhysicsWorld2D::Impl {
             float rel=B->state.angularVelocity-A->state.angularVelocity;
             if(j.type==JointType::Weld) {
                 float target=WrapAngle(B->state.transform.angle-A->state.transform.angle-j.referenceAngle);
-                float k=iiA+iiB; if(k>kEpsilon) {float lambda=-(rel+0.2f*target/dt)/k; ApplyImpulse(*A,{}, {},0); A->state.angularVelocity-=lambda*iiA;B->state.angularVelocity+=lambda*iiB; j.angularImpulse+=lambda;}
+                float k=iiA+iiB; if(k>MOSS_EPSILON) {float lambda=-(rel+0.2f*target/dt)/k; ApplyImpulse(*A,{}, {},0); A->state.angularVelocity-=lambda*iiA;B->state.angularVelocity+=lambda*iiB; j.angularImpulse+=lambda;}
             } else if(j.enableLimit) {
                 float angle=WrapAngle(B->state.transform.angle-A->state.transform.angle-j.referenceAngle);
-                float lambda=0; if(angle<j.lower) lambda=-(rel+0.2f*(angle-j.lower)/dt)/std::max(iiA+iiB,kEpsilon);
-                else if(angle>j.upper) lambda=-(rel+0.2f*(angle-j.upper)/dt)/std::max(iiA+iiB,kEpsilon);
+                float lambda=0; if(angle<j.lower) lambda=-(rel+0.2f*(angle-j.lower)/dt)/std::max(iiA+iiB,MOSS_EPSILON);
+                else if(angle>j.upper) lambda=-(rel+0.2f*(angle-j.upper)/dt)/std::max(iiA+iiB,MOSS_EPSILON);
                 if(lambda!=0){ A->state.angularVelocity-=lambda*iiA;B->state.angularVelocity+=lambda*iiB;j.limitImpulse+=lambda; }
             }
             if(j.type==JointType::Revolute&&j.enableMotor) {
-                float k=iiA+iiB; if(k>kEpsilon) {float lambda=(j.motorSpeed-rel)/k; float old=j.motorImpulse; float max=j.maxMotor*dt; j.motorImpulse=Clamp(old+lambda,-max,max); lambda=j.motorImpulse-old; A->state.angularVelocity-=lambda*iiA;B->state.angularVelocity+=lambda*iiB;}
+                float k=iiA+iiB; if(k>MOSS_EPSILON) {float lambda=(j.motorSpeed-rel)/k; float old=j.motorImpulse; float max=j.maxMotor*dt; j.motorImpulse=Clamp(old+lambda,-max,max); lambda=j.motorImpulse-old; A->state.angularVelocity-=lambda*iiA;B->state.angularVelocity+=lambda*iiB;}
             }
             return;
         }
         Vec2 axis=NormalizeOr(WorldVector(*A,j.axisA)); Vec2 perp=axis.Perpendicular(); Vec2 d=pB-pA;
         float cdot=Dot(vb-va,perp);
         float k=imA+imB+iiA*Cross(rA,perp)*Cross(rA,perp)+iiB*Cross(rB,perp)*Cross(rB,perp);
-        if(k>kEpsilon) {float lambda=-cdot/k; Vec2 imp=perp*lambda;ApplyImpulse(*A,imp,rA,-1);ApplyImpulse(*B,imp,rB,1);j.impulse+=imp;}
+        if(k>MOSS_EPSILON) {float lambda=-cdot/k; Vec2 imp=perp*lambda;ApplyImpulse(*A,imp,rA,-1);ApplyImpulse(*B,imp,rB,1);j.impulse+=imp;}
         float translation=Dot(d,axis), axisSpeed=Dot(vb-va,axis);
         if(j.type==JointType::Wheel && j.frequency>0) {
-            float omega=2*kPi*j.frequency, invMass=std::max(imA+imB,kEpsilon), mass=1.0f/invMass;
+            float omega=2*MOSS_PI*j.frequency, invMass=std::max(imA+imB,MOSS_EPSILON), mass=1.0f/invMass;
             float stiffness=mass*omega*omega, damping=2*mass*j.damping*omega;
             float lambda=-(axisSpeed+dt*stiffness*translation)/(invMass+dt*damping+dt*dt*stiffness);
             Vec2 imp=axis*lambda;ApplyImpulse(*A,imp,rA,-1);ApplyImpulse(*B,imp,rB,1);
@@ -1046,18 +1046,18 @@ struct PhysicsWorld2D::Impl {
         if(j.type==JointType::Prismatic) {
             // A prismatic pair may slide on its axis but must preserve relative angle.
             float angularMass=iiA+iiB;
-            if(angularMass>kEpsilon) {float lambda=-(B->state.angularVelocity-A->state.angularVelocity)/angularMass;A->state.angularVelocity-=lambda*iiA;B->state.angularVelocity+=lambda*iiB;}
+            if(angularMass>MOSS_EPSILON) {float lambda=-(B->state.angularVelocity-A->state.angularVelocity)/angularMass;A->state.angularVelocity-=lambda*iiA;B->state.angularVelocity+=lambda*iiB;}
             if(j.enableLimit) {
-                float lambda=0; if(translation<j.lower) lambda=-(axisSpeed+0.2f*(translation-j.lower)/dt)/std::max(imA+imB,kEpsilon);
-                else if(translation>j.upper) lambda=-(axisSpeed+0.2f*(translation-j.upper)/dt)/std::max(imA+imB,kEpsilon);
+                float lambda=0; if(translation<j.lower) lambda=-(axisSpeed+0.2f*(translation-j.lower)/dt)/std::max(imA+imB,MOSS_EPSILON);
+                else if(translation>j.upper) lambda=-(axisSpeed+0.2f*(translation-j.upper)/dt)/std::max(imA+imB,MOSS_EPSILON);
                 Vec2 imp=axis*lambda;ApplyImpulse(*A,imp,rA,-1);ApplyImpulse(*B,imp,rB,1);
             }
             if(j.enableMotor) {
-                float effective=imA+imB; if(effective>kEpsilon) {float lambda=(j.motorSpeed-axisSpeed)/effective;float old=j.motorImpulse;float max=j.maxMotor*dt;j.motorImpulse=Clamp(old+lambda,-max,max);lambda=j.motorImpulse-old;Vec2 imp=axis*lambda;ApplyImpulse(*A,imp,rA,-1);ApplyImpulse(*B,imp,rB,1);}
+                float effective=imA+imB; if(effective>MOSS_EPSILON) {float lambda=(j.motorSpeed-axisSpeed)/effective;float old=j.motorImpulse;float max=j.maxMotor*dt;j.motorImpulse=Clamp(old+lambda,-max,max);lambda=j.motorImpulse-old;Vec2 imp=axis*lambda;ApplyImpulse(*A,imp,rA,-1);ApplyImpulse(*B,imp,rB,1);}
             }
         } else if(j.type==JointType::Wheel && j.enableMotor) {
             // Wheel motor drives relative rotation, not suspension-axis translation.
-            float effective=iiA+iiB; if(effective>kEpsilon) {
+            float effective=iiA+iiB; if(effective>MOSS_EPSILON) {
                 float relative=B->state.angularVelocity-A->state.angularVelocity;
                 float lambda=(j.motorSpeed-relative)/effective, old=j.motorImpulse, max=j.maxMotor*dt;
                 j.motorImpulse=Clamp(old+lambda,-max,max); lambda=j.motorImpulse-old;
@@ -1073,7 +1073,7 @@ struct PhysicsWorld2D::Impl {
         if(j.type==JointType::Gear) {
             const float error=WrapAngle(B->state.transform.angle+j.ratio*A->state.transform.angle-j.constant);
             const float k=iiB+j.ratio*j.ratio*iiA;
-            if(k>kEpsilon&&std::abs(error)>1.0e-4f){const float lambda=-Clamp(error,-0.2f,0.2f)*0.2f/k;ApplyAngularPositionImpulse(*A,j.ratio*lambda,-1);ApplyAngularPositionImpulse(*B,lambda,1);}
+            if(k>MOSS_EPSILON&&std::abs(error)>1.0e-4f){const float lambda=-Clamp(error,-0.2f,0.2f)*0.2f/k;ApplyAngularPositionImpulse(*A,j.ratio*lambda,-1);ApplyAngularPositionImpulse(*B,lambda,1);}
             return;
         }
         if(j.type==JointType::Pulley) {
@@ -1082,7 +1082,7 @@ struct PhysicsWorld2D::Impl {
             const float error=lenA+j.ratio*lenB-j.constant;
             const float crA=Cross(rA,uA),crB=Cross(rB,uB);
             const float k=imA+iiA*crA*crA+j.ratio*j.ratio*(imB+iiB*crB*crB);
-            if(k>kEpsilon&&std::abs(error)>1.0e-4f){const float lambda=-Clamp(error,-0.2f,0.2f)*0.2f/k;ApplyPositionImpulse(*A,uA*lambda,rA,1);ApplyPositionImpulse(*B,uB*(j.ratio*lambda),rB,1);}
+            if(k>MOSS_EPSILON&&std::abs(error)>1.0e-4f){const float lambda=-Clamp(error,-0.2f,0.2f)*0.2f/k;ApplyPositionImpulse(*A,uA*lambda,rA,1);ApplyPositionImpulse(*B,uB*(j.ratio*lambda),rB,1);}
             return;
         }
         if(j.type==JointType::Motor) {
@@ -1093,27 +1093,27 @@ struct PhysicsWorld2D::Impl {
             Vec2 correction=Mat22{k11,k12,k12,k22}.Inverse()*(-error*0.2f);
             ApplyPositionImpulse(*A,correction,ra,-1);ApplyPositionImpulse(*B,correction,rb,1);
             const float angleError=WrapAngle(B->state.transform.angle-A->state.transform.angle-j.angularOffset);
-            const float inv=iiA+iiB;if(inv>kEpsilon){const float lambda=-Clamp(angleError,-0.2f,0.2f)*0.2f/inv;ApplyAngularPositionImpulse(*A,lambda,-1);ApplyAngularPositionImpulse(*B,lambda,1);}
+            const float inv=iiA+iiB;if(inv>MOSS_EPSILON){const float lambda=-Clamp(angleError,-0.2f,0.2f)*0.2f/inv;ApplyAngularPositionImpulse(*A,lambda,-1);ApplyAngularPositionImpulse(*B,lambda,1);}
             return;
         }
         if(j.type==JointType::Distance || j.type==JointType::Rope) {
-            float len=d.Length(); if(len<kEpsilon || (j.type==JointType::Distance&&j.frequency>0))return; float error=0.0f;
+            float len=d.Length(); if(len<MOSS_EPSILON || (j.type==JointType::Distance&&j.frequency>0))return; float error=0.0f;
             if(j.type==JointType::Rope){if(len<=j.maxLength)return;error=len-j.maxLength;}
             else if(j.minLength<0 && j.maxLength<0) error=len-j.length;
             else if(j.minLength>=0 && len<j.minLength) error=len-j.minLength;
             else if(j.maxLength>=0 && len>j.maxLength) error=len-j.maxLength;
             else return;
-            Vec2 n=NormalizeOr(d);float crA=Cross(rA,n),crB=Cross(rB,n);float k=imA+imB+iiA*crA*crA+iiB*crB*crB;if(k>kEpsilon){float lambda=-Clamp(error,-0.2f,0.2f)*0.2f/k;Vec2 P=n*lambda;ApplyPositionImpulse(*A,P,rA,-1);ApplyPositionImpulse(*B,P,rB,1);}
+            Vec2 n=NormalizeOr(d);float crA=Cross(rA,n),crB=Cross(rB,n);float k=imA+imB+iiA*crA*crA+iiB*crB*crB;if(k>MOSS_EPSILON){float lambda=-Clamp(error,-0.2f,0.2f)*0.2f/k;Vec2 P=n*lambda;ApplyPositionImpulse(*A,P,rA,-1);ApplyPositionImpulse(*B,P,rB,1);}
         } else if(j.type==JointType::Prismatic || j.type==JointType::Wheel) {
             Vec2 axis=NormalizeOr(WorldVector(*A,j.axisA)); Vec2 perp=axis.Perpendicular();
             float error=Dot(d,perp);
             float crA=Cross(rA,perp),crB=Cross(rB,perp);
             float k=imA+imB+iiA*crA*crA+iiB*crB*crB;
-            if(k>kEpsilon) {float lambda=-Clamp(error,-0.2f,0.2f)*0.2f/k;Vec2 P=perp*lambda;ApplyPositionImpulse(*A,P,rA,-1);ApplyPositionImpulse(*B,P,rB,1);}
+            if(k>MOSS_EPSILON) {float lambda=-Clamp(error,-0.2f,0.2f)*0.2f/k;Vec2 P=perp*lambda;ApplyPositionImpulse(*A,P,rA,-1);ApplyPositionImpulse(*B,P,rB,1);}
             if(j.type==JointType::Prismatic) {
                 float angleError=WrapAngle(B->state.transform.angle-A->state.transform.angle-j.referenceAngle);
-                float inv=iiA+iiB;if(inv>kEpsilon){float lambda=-Clamp(angleError,-0.2f,0.2f)*0.2f/inv;ApplyAngularPositionImpulse(*A,lambda,-1);ApplyAngularPositionImpulse(*B,lambda,1);}
-                if(j.enableLimit){float tr=Dot(d,axis),limitError=tr<j.lower?tr-j.lower:(tr>j.upper?tr-j.upper:0.0f);if(limitError!=0&&imA+imB>kEpsilon){Vec2 P=axis*(-Clamp(limitError,-0.2f,0.2f)*0.2f/(imA+imB));ApplyPositionImpulse(*A,P,{},-1);ApplyPositionImpulse(*B,P,{},1);}}
+                float inv=iiA+iiB;if(inv>MOSS_EPSILON){float lambda=-Clamp(angleError,-0.2f,0.2f)*0.2f/inv;ApplyAngularPositionImpulse(*A,lambda,-1);ApplyAngularPositionImpulse(*B,lambda,1);}
+                if(j.enableLimit){float tr=Dot(d,axis),limitError=tr<j.lower?tr-j.lower:(tr>j.upper?tr-j.upper:0.0f);if(limitError!=0&&imA+imB>MOSS_EPSILON){Vec2 P=axis*(-Clamp(limitError,-0.2f,0.2f)*0.2f/(imA+imB));ApplyPositionImpulse(*A,P,{},-1);ApplyPositionImpulse(*B,P,{},1);}}
             }
         } else {
             float k11=imA+imB+iiA*rA.y*rA.y+iiB*rB.y*rB.y,k12=-iiA*rA.x*rA.y-iiB*rB.x*rB.y,k22=imA+imB+iiA*rA.x*rA.x+iiB*rB.x*rB.x;
@@ -1122,7 +1122,7 @@ struct PhysicsWorld2D::Impl {
             float angleError=WrapAngle(B->state.transform.angle-A->state.transform.angle-j.referenceAngle);
             if(j.type==JointType::Weld || (j.type==JointType::Revolute&&j.enableLimit)) {
                 if(j.type==JointType::Revolute) angleError=angleError<j.lower?angleError-j.lower:(angleError>j.upper?angleError-j.upper:0.0f);
-                float inv=iiA+iiB;if(inv>kEpsilon&&std::abs(angleError)>1.0e-4f){float lambda=-Clamp(angleError,-0.2f,0.2f)*0.2f/inv;ApplyAngularPositionImpulse(*A,lambda,-1);ApplyAngularPositionImpulse(*B,lambda,1);}
+                float inv=iiA+iiB;if(inv>MOSS_EPSILON&&std::abs(angleError)>1.0e-4f){float lambda=-Clamp(angleError,-0.2f,0.2f)*0.2f/inv;ApplyAngularPositionImpulse(*A,lambda,-1);ApplyAngularPositionImpulse(*B,lambda,1);}
             }
         }
     }
@@ -1205,7 +1205,7 @@ struct PhysicsWorld2D::Impl {
             const float rnA=Cross(ra,n),rnB=Cross(rb,n);
             const float effective=InvMass(*A)+InvMass(*B)+InvI(*A)*rnA*rnA+InvI(*B)*rnB*rnB;
             bool applied=false;
-            if(vn< -1.0e-5f&&effective>kEpsilon){
+            if(vn< -1.0e-5f&&effective>MOSS_EPSILON){
                 const float restitution=std::max(A->material.restitution,B->material.restitution);
                 const float impulse=-(1.0f+restitution)*vn/effective;
                 const Vec2 P=n*impulse;
@@ -1293,7 +1293,7 @@ struct PhysicsWorld2D::Impl {
         const auto positionEnd=ProfileClock::now();
         profile.positionSolveMilliseconds += std::chrono::duration<double,std::milli>(positionEnd-positionStart).count();
         impulseCache.clear(); for(const auto& c:contacts){CachedImpulse cached;for(uint8_t i=0;i<c.manifold.pointCount;++i){cached.feature[i]=c.manifold.points[i].featureId;cached.normal[i]=c.manifold.points[i].normalImpulse;cached.tangent[i]=c.manifold.points[i].tangentImpulse;}impulseCache[c.cacheKey]=cached;}
-        for(JointID id=0;id<joints.size();++id){auto&j=joints[id];if(!j.enabled)continue;float invDt=1.0f/std::max(dt,kEpsilon);Vec2 force=j.impulse*invDt;float torque=std::abs(j.angularImpulse+j.motorImpulse+j.limitImpulse)*invDt;if(force.Length()>j.breakForce||torque>j.breakTorque){jointBreakEvents.push_back({id,j.a,j.b,force,torque});j.enabled=false;}}
+        for(JointID id=0;id<joints.size();++id){auto&j=joints[id];if(!j.enabled)continue;float invDt=1.0f/std::max(dt,MOSS_EPSILON);Vec2 force=j.impulse*invDt;float torque=std::abs(j.angularImpulse+j.motorImpulse+j.limitImpulse)*invDt;if(force.Length()>j.breakForce||torque>j.breakTorque){jointBreakEvents.push_back({id,j.a,j.b,force,torque});j.enabled=false;}}
         for(auto& b:bodies) if(b.state.id!=InvalidBodyID) {
             if(clearForces){b.state.force={};b.state.torque=0;}
             if(b.state.type==BodyType::Dynamic&&b.allowSleep) {
@@ -1318,7 +1318,7 @@ BodyID PhysicsWorld2D::CreateBody(const BodyDef& def) {
     BodyInternal b; b.state.id=BodyID(impl_->bodies.size()); b.state.type=def.type;b.state.transform={def.position,def.angle};b.state.linearVelocity=def.linearVelocity;b.state.angularVelocity=def.angularVelocity;
     b.state.awake=def.initiallyAwake;b.state.enabled=def.enabled;b.state.isSensor=def.isSensor;b.state.bullet=def.bullet;b.state.userData=def.userData;b.state.name=def.name;
     b.shape=def.shape;b.material=def.material;b.filter=def.filter;b.fixedRotation=def.fixedRotation;b.allowSleep=def.allowSleep;b.oneWayPlatform=def.oneWayPlatform;b.oneWayNormal=NormalizeOr(def.oneWayNormal);b.gravityScale=def.gravityScale;b.linearDamping=def.linearDamping;b.angularDamping=def.angularDamping;b.previousPosition=def.position;b.previousAngle=def.angle;
-    impl_->RecomputeMass(b,def.material.density); if(def.type==BodyType::Dynamic&&b.state.mass<=kEpsilon)return InvalidBodyID;
+    impl_->RecomputeMass(b,def.material.density); if(def.type==BodyType::Dynamic&&b.state.mass<=MOSS_EPSILON)return InvalidBodyID;
     impl_->bodies.push_back(std::move(b));
     impl_->SyncProxy(impl_->bodies.back());
     return BodyID(impl_->bodies.size()-1);
@@ -1349,7 +1349,7 @@ bool PhysicsWorld2D::ApplyAngularImpulse(BodyID id,float impulse,bool wake){auto
 bool PhysicsWorld2D::SetBodyEnabled(BodyID id,bool e){auto*b=impl_->Body(id);if(!b)return false;b->state.enabled=e;impl_->SyncProxy(*b);if(e)impl_->Wake(*b);return true;}
 bool PhysicsWorld2D::SetBodyGravityScale(BodyID id,float scale){auto*b=impl_->Body(id);if(!b||!std::isfinite(scale))return false;b->gravityScale=scale;impl_->Wake(*b);return true;}
 bool PhysicsWorld2D::SetBodyDamping(BodyID id,float linear,float angular){auto*b=impl_->Body(id);if(!b||!std::isfinite(linear)||!std::isfinite(angular)||linear<0||angular<0)return false;b->linearDamping=linear;b->angularDamping=angular;impl_->Wake(*b);return true;}
-bool PhysicsWorld2D::SetBodyShape(BodyID id,const Shape2D&s,float density){auto*b=impl_->Body(id);if(!b||!s.IsValid()||!std::isfinite(density)||density<0||(b->state.type==BodyType::Dynamic&&(density<=0||ComputeMass(s,density).mass<=kEpsilon)))return false;b->shape=s;impl_->RecomputeMass(*b,density);impl_->SyncProxy(*b);impl_->Wake(*b);return true;}
+bool PhysicsWorld2D::SetBodyShape(BodyID id,const Shape2D&s,float density){auto*b=impl_->Body(id);if(!b||!s.IsValid()||!std::isfinite(density)||density<0||(b->state.type==BodyType::Dynamic&&(density<=0||ComputeMass(s,density).mass<=MOSS_EPSILON)))return false;b->shape=s;impl_->RecomputeMass(*b,density);impl_->SyncProxy(*b);impl_->Wake(*b);return true;}
 bool PhysicsWorld2D::SetBodyMaterial(BodyID id,const Material2D&m){auto*b=impl_->Body(id);if(!b||!std::isfinite(m.density)||m.density<0||(b->state.type==BodyType::Dynamic&&m.density<=0)||!std::isfinite(m.friction)||m.friction<0||!std::isfinite(m.restitution)||m.restitution<0)return false;b->material=m;impl_->RecomputeMass(*b,m.density);impl_->SyncProxy(*b);return true;}
 bool PhysicsWorld2D::SetBodyFilter(BodyID id,const CollisionFilter&f){auto*b=impl_->Body(id);if(!b)return false;b->filter=f;return true;}
 void PhysicsWorld2D::SetGravity(Vec2 g){if(std::isfinite(g.x)&&std::isfinite(g.y))impl_->settings.gravity=g;}
@@ -1396,7 +1396,7 @@ JointID PhysicsWorld2D::CreatePulleyJoint(const PulleyJointDef& d) {
 }
 JointID PhysicsWorld2D::CreateGearJoint(const GearJointDef& d) {
     BodyInternal* a=impl_->Body(d.bodyA);BodyInternal* b=impl_->Body(d.bodyB);
-    if(!a||!b||d.bodyA==d.bodyB||!std::isfinite(d.ratio)||std::abs(d.ratio)<kEpsilon||!std::isfinite(d.motorSpeed)||!std::isfinite(d.maxMotorTorque)||d.maxMotorTorque<0)return InvalidJointID;
+    if(!a||!b||d.bodyA==d.bodyB||!std::isfinite(d.ratio)||std::abs(d.ratio)<MOSS_EPSILON||!std::isfinite(d.motorSpeed)||!std::isfinite(d.maxMotorTorque)||d.maxMotorTorque<0)return InvalidJointID;
     JointInternal j;j.type=JointType::Gear;j.a=d.bodyA;j.b=d.bodyB;j.ratio=d.ratio;j.constant=std::isfinite(d.constant)?d.constant:b->state.transform.angle+d.ratio*a->state.transform.angle;j.motorSpeed=d.motorSpeed;j.maxMotor=d.maxMotorTorque;j.enableMotor=d.enableMotor;j.collideConnected=d.collideConnected;impl_->joints.push_back(j);return JointID(impl_->joints.size()-1);
 }
 bool PhysicsWorld2D::SetJointMotor(JointID id,float speed,float maxForce,bool enabled) {
@@ -1544,7 +1544,7 @@ Ragdoll2D CreateRagdoll2D(PhysicsWorld2D& world,const RagdollDef& def){
     r.bones.resize(def.bones.size(),InvalidBodyID);r.boneNames.reserve(def.bones.size());for(const auto& bone:def.bones)r.boneNames.push_back(bone.name);
     for(size_t i=0;i<def.bones.size();++i){const auto& bd=def.bones[i];Transform2D xf{def.position,def.angle};if(bd.parent>=0){if(size_t(bd.parent)>=i||r.bones[size_t(bd.parent)]==InvalidBodyID){r.Destroy(world);return r;}auto* parent=world.GetBody(r.bones[size_t(bd.parent)]);xf.position=parent->transform.Apply(bd.localPosition);xf.angle=parent->transform.angle;}else{xf.position=def.position+Rot2(def.angle).Apply(bd.localPosition);}
         BodyDef body;body.type=BodyType::Dynamic;body.shape=bd.shape;body.position=xf.position;body.angle=xf.angle;body.material={def.friction,def.restitution,1.0f};body.filter=def.filter;if(!def.collideSelf)body.filter.groupIndex=ragdollGroup;body.name=bd.name;body.fixedRotation=false;
-        MassData md=ComputeMass(body.shape,1.0f);if(md.mass>kEpsilon)body.material.density=std::max(0.001f,bd.mass/md.mass);
+        MassData md=ComputeMass(body.shape,1.0f);if(md.mass>MOSS_EPSILON)body.material.density=std::max(0.001f,bd.mass/md.mass);
         BodyID id=world.CreateBody(body);if(id==InvalidBodyID){r.Destroy(world);return r;}r.bones[i]=id;
         if(bd.parent>=0){RevoluteJointDef j;j.bodyA=r.bones[size_t(bd.parent)];j.bodyB=id;j.localAnchorA=bd.parentAnchor;j.localAnchorB=bd.childAnchor;j.enableLimit=bd.enableLimit;j.lowerAngle=bd.lowerAngle;j.upperAngle=bd.upperAngle;JointID jid=world.CreateRevoluteJoint(j);if(jid==InvalidJointID){r.Destroy(world);return r;}r.joints.push_back(jid);r.jointParentBone.push_back(uint32_t(bd.parent));r.jointChildBone.push_back(uint32_t(i));}
     }
@@ -1763,14 +1763,14 @@ KinematicCharacterController2D::KinematicCharacterController2D(PhysicsWorld2D& w
     :world_(&world),body_(body),settings_(settings) {}
 
 bool KinematicCharacterController2D::TryStep(Vec2 remaining,Vec2& position,CharacterMoveResult2D& result) {
-    if(!settings_.enableStepClimbing||settings_.stepHeight<=0.0f||remaining.LengthSquared()<kEpsilon*kEpsilon)return false;
+    if(!settings_.enableStepClimbing||settings_.stepHeight<=0.0f||remaining.LengthSquared()<MOSS_EPSILON*MOSS_EPSILON)return false;
     const BodyState* body=world_?world_->GetBody(body_):nullptr;const Shape2D* shape=world_?world_->GetBodyShape(body_):nullptr;if(!body||!shape)return false;
     const Vec2 up=NormalizeOr(settings_.upDirection,{0,1});Transform2D xf=body->transform;xf.position=position;
     auto upHit=world_->ShapeCast(*shape,xf,up*settings_.stepHeight,0.0f,{},body_,settings_.skinWidth);
     if(upHit&&upHit->fraction<0.999f)return false;
     position+=up*settings_.stepHeight;xf.position=position;
     auto forwardHit=world_->ShapeCast(*shape,xf,remaining,0.0f,{},body_,settings_.skinWidth);
-    float moved=forwardHit?std::max(0.0f,forwardHit->fraction-settings_.skinWidth/std::max(remaining.Length(),kEpsilon)):1.0f;
+    float moved=forwardHit?std::max(0.0f,forwardHit->fraction-settings_.skinWidth/std::max(remaining.Length(),MOSS_EPSILON)):1.0f;
     if(moved<=0.05f)return false;
     position+=remaining*moved;xf.position=position;
     const float downDistance=settings_.stepHeight+settings_.snapDistance;
@@ -1778,7 +1778,7 @@ bool KinematicCharacterController2D::TryStep(Vec2 remaining,Vec2& position,Chara
     if(!downHit)return false;
     Vec2 normal=-downHit->normal;
     if(Dot(normal,up)<std::cos(settings_.maxSlopeAngle))return false;
-    float downFraction=std::max(0.0f,downHit->fraction-settings_.skinWidth/std::max(downDistance,kEpsilon));
+    float downFraction=std::max(0.0f,downHit->fraction-settings_.skinWidth/std::max(downDistance,MOSS_EPSILON));
     position-=up*(downDistance*downFraction);result.grounded=true;result.groundNormal=normal;result.groundBody=downHit->body;result.stepped=true;result.sweepCount+=3;return true;
 }
 
@@ -1800,7 +1800,7 @@ CharacterMoveResult2D KinematicCharacterController2D::Move(Vec2 displacement) {
         Transform2D xf=body->transform;xf.position=position;
         auto hit=world_->ShapeCast(*shape,xf,remaining,0.0f,{},body_,settings_.skinWidth);++result.sweepCount;
         if(!hit){position+=remaining;remaining={};break;}
-        const float length=remaining.Length();const float safeFraction=Clamp(hit->fraction-settings_.skinWidth/std::max(length,kEpsilon),0.0f,1.0f);
+        const float length=remaining.Length();const float safeFraction=Clamp(hit->fraction-settings_.skinWidth/std::max(length,MOSS_EPSILON),0.0f,1.0f);
         position+=remaining*safeFraction;remaining*=1.0f-safeFraction;
         Vec2 surfaceNormal=-NormalizeOr(hit->normal,up);
         if(Dot(surfaceNormal,up)>=std::cos(settings_.maxSlopeAngle)){
@@ -1815,7 +1815,7 @@ CharacterMoveResult2D KinematicCharacterController2D::Move(Vec2 displacement) {
     if(settings_.enableGroundSnap&&!result.grounded&&Dot(displacement,up)<=0.0f&&settings_.snapDistance>0.0f){
         Transform2D xf=body->transform;xf.position=position;
         auto snap=world_->ShapeCast(*shape,xf,-up*settings_.snapDistance,0.0f,{},body_,settings_.skinWidth);++result.sweepCount;
-        if(snap){Vec2 n=-snap->normal;if(Dot(n,up)>=std::cos(settings_.maxSlopeAngle)){float f=std::max(0.0f,snap->fraction-settings_.skinWidth/std::max(settings_.snapDistance,kEpsilon));position-=up*(settings_.snapDistance*f);result.grounded=true;result.groundNormal=n;result.groundBody=snap->body;}}
+        if(snap){Vec2 n=-snap->normal;if(Dot(n,up)>=std::cos(settings_.maxSlopeAngle)){float f=std::max(0.0f,snap->fraction-settings_.skinWidth/std::max(settings_.snapDistance,MOSS_EPSILON));position-=up*(settings_.snapDistance*f);result.grounded=true;result.groundNormal=n;result.groundBody=snap->body;}}
     }
     world_->SetTransform(body_,position,body->transform.angle,true);
     if(result.grounded&&result.groundBody!=InvalidBodyID){
@@ -1838,7 +1838,7 @@ bool PhysicsWorld2D::SetBodyType(BodyID id, BodyType type) {
     if (type == BodyType::Dynamic) {
         const float m = b->massOverride ? b->massOverrideData.mass
                                         : ComputeMass(b->shape, b->material.density).mass;
-        if (m <= kEpsilon) return false;
+        if (m <= MOSS_EPSILON) return false;
     }
     b->state.type = type;
     impl_->RecomputeMass(*b, b->material.density);   // zeroes mass/inertia for non-dynamic
@@ -1899,7 +1899,7 @@ bool PhysicsWorld2D::SetBodyMassData(BodyID id, const MassData& mass) {
     if (!b || b->state.type != BodyType::Dynamic) return false;
     if (!std::isfinite(mass.mass) || !std::isfinite(mass.inertia) ||
         !std::isfinite(mass.center.x) || !std::isfinite(mass.center.y) ||
-        mass.mass <= kEpsilon || mass.inertia < 0.0f) return false;
+        mass.mass <= MOSS_EPSILON || mass.inertia < 0.0f) return false;
     const Vec2 oldCenter = b->state.worldCenter;
     b->massOverride = true;
     b->massOverrideData = mass;
@@ -2011,7 +2011,7 @@ bool PhysicsWorld2D::SetJointEnabled(JointID id, bool enabled) {
 bool PhysicsWorld2D::SetDistanceJointLength(JointID id, float length, float minLength, float maxLength) {
     auto* j = impl_->LiveJoint(id);
     if (!j || j->type != JointType::Distance) return false;
-    if (!std::isfinite(length) || length <= kEpsilon || !std::isfinite(minLength) || !std::isfinite(maxLength)) return false;
+    if (!std::isfinite(length) || length <= MOSS_EPSILON || !std::isfinite(minLength) || !std::isfinite(maxLength)) return false;
     j->length = length;
     j->minLength = minLength;                // negative = unset, same as DistanceJointDef
     j->maxLength = maxLength;

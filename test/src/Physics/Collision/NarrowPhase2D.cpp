@@ -58,18 +58,18 @@ SupportPoint MinkowskiSupport(const Shape2D& a,const Transform2D& xa,const Shape
 }
 
 bool ReduceSimplex(std::vector<SupportPoint>& s,Vec2& closest) {
-    if(s.size()==1){s[0].weight=1.0f;closest=s[0].w;return closest.LengthSquared()<=1.0e-12f;}
+    if(s.size()==1){s[0].weight=1.0f;closest=s[0].w;return closest.LengthSquared()<=MOSS_ZERO_EPSILON;}
     if(s.size()==2){
         Vec2 a=s[0].w,b=s[1].w,ab=b-a;float den=ab.LengthSquared();float t=den>kEpsilon?Clamp(-Dot(a,ab)/den,0.0f,1.0f):0.0f;
         if(t<=1.0e-6f){SupportPoint p=s[0];p.weight=1.0f;s.assign(1,p);closest=p.w;}
         else if(t>=1.0f-1.0e-6f){SupportPoint p=s[1];p.weight=1.0f;s.assign(1,p);closest=p.w;}
         else{s[0].weight=1.0f-t;s[1].weight=t;closest=a+(b-a)*t;}
-        return closest.LengthSquared()<=1.0e-12f;
+        return closest.LengthSquared()<=MOSS_ZERO_EPSILON;
     }
     if(s.size()>=3){
         const Vec2 a=s[0].w,b=s[1].w,c=s[2].w;
         const float den=Cross(b-a,c-a);
-        if(std::abs(den)>1.0e-12f){
+        if(std::abs(den)>MOSS_ZERO_EPSILON){
             const float wa=Cross(b,c)/den,wb=Cross(c,a)/den,wc=Cross(a,b)/den;
             if(wa>=-1.0e-6f&&wb>=-1.0e-6f&&wc>=-1.0e-6f){s[0].weight=std::max(0.0f,wa);s[1].weight=std::max(0.0f,wb);s[2].weight=std::max(0.0f,wc);float sum=s[0].weight+s[1].weight+s[2].weight;if(sum>0){for(auto&x:s)x.weight/=sum;}closest={};return true;}
         }
@@ -79,7 +79,7 @@ bool ReduceSimplex(std::vector<SupportPoint>& s,Vec2& closest) {
             SupportPoint p0=s[size_t(e[0])],p1=s[size_t(e[1])];Vec2 d=p1.w-p0.w;float d2=d.LengthSquared();float t=d2>kEpsilon?Clamp(-Dot(p0.w,d)/d2,0.0f,1.0f):0.0f;Vec2 q=p0.w+d*t;float q2=q.LengthSquared();
             if(q2<best){best=q2;bestPoint=q;bestSimplex.clear();if(t<=1.0e-6f){p0.weight=1.0f;bestSimplex.push_back(p0);}else if(t>=1.0f-1.0e-6f){p1.weight=1.0f;bestSimplex.push_back(p1);}else{p0.weight=1.0f-t;p1.weight=t;bestSimplex.push_back(p0);bestSimplex.push_back(p1);}}
         }
-        s=std::move(bestSimplex);closest=bestPoint;return closest.LengthSquared()<=1.0e-12f;
+        s=std::move(bestSimplex);closest=bestPoint;return closest.LengthSquared()<=MOSS_ZERO_EPSILON;
     }
     return false;
 }
@@ -91,11 +91,11 @@ ShapeDistance2D GJKDistance(const Shape2D& a,const Transform2D& xa,const Shape2D
     for(uint32_t iter=0;iter<40;++iter){
         result.iterations=iter+1;
         if(ReduceSimplex(simplex,closest)){overlap=true;break;}
-        const float dist2=closest.LengthSquared();if(dist2<=1.0e-12f){overlap=true;break;}
+        const float dist2=closest.LengthSquared();if(dist2<=MOSS_ZERO_EPSILON){overlap=true;break;}
         direction=-closest;
         SupportPoint p=MinkowskiSupport(a,xa,b,xb,direction);
         const float progress=Dot(p.w,direction)-Dot(closest,direction);
-        bool duplicate=false;for(const auto& q:simplex)if((q.w-p.w).LengthSquared()<1.0e-12f){duplicate=true;break;}
+        bool duplicate=false;for(const auto& q:simplex)if((q.w-p.w).LengthSquared()<MOSS_ZERO_EPSILON){duplicate=true;break;}
         if(duplicate || progress<=1.0e-6f*std::max(1.0f,std::sqrt(dist2)))break;
         simplex.push_back(p);
         if(simplex.size()>3)simplex.erase(simplex.begin());

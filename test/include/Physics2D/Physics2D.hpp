@@ -412,7 +412,7 @@ private:
 
 struct MOSS_API CharacterSettings2D {
     float skinWidth=0.02f;
-    float maxSlopeAngle=50.0f*kPi/180.0f;
+    float maxSlopeAngle=50.0f*MOSS_PI/180.0f;
     float stepHeight=0.3f;
     float snapDistance=0.08f;
     int maxSlideIterations=5;

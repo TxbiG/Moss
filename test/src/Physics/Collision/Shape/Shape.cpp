@@ -5067,7 +5067,7 @@ bool ConvexHullShape::CastRayHelper(const RayCast &inRay, float &outMinFraction,
 		const Plane &p = mPlanes.front();
 		Vec3 plane_normal = p.GetNormal();
 		float direction_projection = inRay.mDirection.Dot(plane_normal);
-		if (abs(direction_projection) >= 1.0e-12f)
+		if (abs(direction_projection) >= MOSS_ZERO_EPSILON)
 		{
 			// Calculate intersection point
 			float distance_to_plane = inRay.mOrigin.Dot(plane_normal) + p.GetConstant();
@@ -5076,7 +5076,7 @@ bool ConvexHullShape::CastRayHelper(const RayCast &inRay, float &outMinFraction,
 			{
 				// Does not hit plane, no hit
 				outMinFraction = 0.0f;
-				outMaxFraction = 1.0f + FLT_EPSILON;
+				outMaxFraction = 1.0f + MOSS_FLOAT_EPSILON;
 				return false;
 			}
 			Vec3 intersection_point = inRay.mOrigin + fraction * inRay.mDirection;
@@ -5093,7 +5093,7 @@ bool ConvexHullShape::CastRayHelper(const RayCast &inRay, float &outMinFraction,
 				{
 					// Outside polygon, no hit
 					outMinFraction = 0.0f;
-					outMaxFraction = 1.0f + FLT_EPSILON;
+					outMaxFraction = 1.0f + MOSS_FLOAT_EPSILON;
 					return false;
 				}
 				p1 = p2;
@@ -5108,7 +5108,7 @@ bool ConvexHullShape::CastRayHelper(const RayCast &inRay, float &outMinFraction,
 		{
 			// Parallel ray doesn't hit
 			outMinFraction = 0.0f;
-			outMaxFraction = 1.0f + FLT_EPSILON;
+			outMaxFraction = 1.0f + MOSS_FLOAT_EPSILON;
 			return false;
 		}
 	}
@@ -5117,7 +5117,7 @@ bool ConvexHullShape::CastRayHelper(const RayCast &inRay, float &outMinFraction,
 		// Clip ray against all planes
 		int fractions_set = 0;
 		bool all_inside = true;
-		float min_fraction = 0.0f, max_fraction = 1.0f + FLT_EPSILON;
+		float min_fraction = 0.0f, max_fraction = 1.0f + MOSS_FLOAT_EPSILON;
 		for (const Plane &p : mPlanes)
 		{
 			// Check if the ray origin is behind this plane
@@ -5128,7 +5128,7 @@ bool ConvexHullShape::CastRayHelper(const RayCast &inRay, float &outMinFraction,
 
 			// Check if plane is parallel to ray
 			float direction_projection = inRay.mDirection.Dot(plane_normal);
-			if (abs(direction_projection) >= 1.0e-12f)
+			if (abs(direction_projection) >= MOSS_ZERO_EPSILON)
 			{
 				// Get intersection fraction between ray and plane
 				float fraction = -distance_to_plane / direction_projection;
@@ -5163,7 +5163,7 @@ bool ConvexHullShape::CastRayHelper(const RayCast &inRay, float &outMinFraction,
 		{
 			// Degenerate case, either the ray is parallel to all planes or the ray has zero length
 			outMinFraction = 0.0f;
-			outMaxFraction = 1.0f + FLT_EPSILON;
+			outMaxFraction = 1.0f + MOSS_FLOAT_EPSILON;
 
 			// Return if the origin is inside the hull
 			return all_inside;

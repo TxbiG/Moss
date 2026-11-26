@@ -76,7 +76,7 @@ public:
             settings_.finalDriveRatio=std::max(0.001f,std::isfinite(settings_.finalDriveRatio)?settings_.finalDriveRatio:1.0f);
             settings_.engineTorqueCurve.erase(std::remove_if(settings_.engineTorqueCurve.begin(),settings_.engineTorqueCurve.end(),[](const EngineTorquePoint2D&p){return !std::isfinite(p.rpm)||!std::isfinite(p.torque)||p.rpm<0.0f;}),settings_.engineTorqueCurve.end());
             std::stable_sort(settings_.engineTorqueCurve.begin(),settings_.engineTorqueCurve.end(),[](const EngineTorquePoint2D&a,const EngineTorquePoint2D&b){return a.rpm<b.rpm;});
-            engineOmega_=std::max(1.0f,settings_.idleRPM)*2.0f*kPi/60.0f;
+            engineOmega_=std::max(1.0f,settings_.idleRPM)*2.0f*MOSS_PI/60.0f;
             for(auto& state:states_)state.temperature=settings_.ambientTemperature;
         }
 
@@ -110,22 +110,22 @@ public:
         }
         const float wheelOmega=drivenWeight>kEpsilon?drivenOmega/drivenWeight:0.0f;
         float ratio=CurrentGearRatio();
-        engineRPM_=std::abs(engineOmega_)*60.0f/(2.0f*kPi);
+        engineRPM_=std::abs(engineOmega_)*60.0f/(2.0f*MOSS_PI);
         if(settings_.automaticTransmission&&gear_>0){
             if(engineRPM_>settings_.upshiftRPM&&gear_<int(settings_.forwardGearRatios.size())){++gear_;ratio=CurrentGearRatio();}
             else if(engineRPM_<settings_.downshiftRPM&&gear_>1){--gear_;ratio=CurrentGearRatio();}
         }
         engineRPM_=Clamp(engineRPM_,settings_.idleRPM,settings_.redlineRPM);
-        const float engineOmega=std::max(engineRPM_*2.0f*kPi/60.0f,1.0f);
+        const float engineOmega=std::max(engineRPM_*2.0f*MOSS_PI/60.0f,1.0f);
         engineTorque_=TorqueAtRPM(engineRPM_)*std::abs(throttle_);
         engineTorque_=std::min(engineTorque_,std::max(0.0f,settings_.maxEnginePower)/engineOmega);
         const float targetEngineOmega=wheelOmega*ratio*settings_.finalDriveRatio;
         const float clutchSlip=engineOmega_-targetEngineOmega;
         const float clutchTorque=gear_==0?0.0f:Clamp(clutchSlip*std::max(0.0f,settings_.clutchStiffness),-std::max(0.0f,settings_.clutchCapacity),std::max(0.0f,settings_.clutchCapacity))*Clamp(settings_.clutchEngagement,0.0f,1.0f);
-        const float idleGovernor=(settings_.idleRPM*2.0f*kPi/60.0f-engineOmega_)*std::max(0.0f,settings_.idleGovernorStrength)*std::max(0.0f,settings_.engineInertia);
+        const float idleGovernor=(settings_.idleRPM*2.0f*MOSS_PI/60.0f-engineOmega_)*std::max(0.0f,settings_.idleGovernorStrength)*std::max(0.0f,settings_.engineInertia);
         const float drag=settings_.engineDragTorque*(engineOmega_>0.0f?1.0f:-1.0f);
-        engineOmega_=Clamp(engineOmega_+(engineTorque_+idleGovernor-clutchTorque-drag)/std::max(settings_.engineInertia,0.001f)*dt,0.0f,settings_.redlineRPM*2.0f*kPi/60.0f);
-        engineRPM_=Clamp(engineOmega_*60.0f/(2.0f*kPi),0.0f,settings_.redlineRPM);
+        engineOmega_=Clamp(engineOmega_+(engineTorque_+idleGovernor-clutchTorque-drag)/std::max(settings_.engineInertia,0.001f)*dt,0.0f,settings_.redlineRPM*2.0f*MOSS_PI/60.0f);
+        engineRPM_=Clamp(engineOmega_*60.0f/(2.0f*MOSS_PI),0.0f,settings_.redlineRPM);
         // Clutch slip is solved with finite capacity and engine inertia, rather
         // than deriving RPM algebraically from wheel speed. This supports launch,
         // throttle blips, clutch slip and engine braking.
@@ -174,7 +174,7 @@ public:
             const Vec2 chassisVelocity=chassis->linearVelocity+Cross(chassis->angularVelocity,hit->point-chassis->worldCenter);
             const Vec2 relativeVelocity=chassisVelocity-groundVelocity;
             const float normalSpeed=Dot(relativeVelocity,state.contactNormal);
-            const float omega=2.0f*kPi*std::max(0.0f,def.springFrequencyHz);
+            const float omega=2.0f*MOSS_PI*std::max(0.0f,def.springFrequencyHz);
             const float wheelMass=chassis->mass/float(std::max<size_t>(1,defs_.size()));
             const float springK=wheelMass*omega*omega,damper=2.0f*wheelMass*std::max(0.0f,def.dampingRatio)*omega;
             const float normalForce=Clamp(springK*compression-damper*normalSpeed,0.0f,std::max(0.0f,def.maxSuspensionForce));

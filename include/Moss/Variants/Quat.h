@@ -33,7 +33,7 @@ public:
 	///@{
 
 	/// If this quaternion is close to inRHS. Note that q and -q represent the same rotation, this is not checked here.
-	inline bool					IsClose(const Quat inRHS, float inMaxDistSq = 1.0e-12f) const		{ return mValue.IsClose(inRHS.mValue, inMaxDistSq); }
+	inline bool					IsClose(const Quat inRHS, float inMaxDistSq = MOSS_ZERO_EPSILON) const		{ return mValue.IsClose(inRHS.mValue, inMaxDistSq); }
 
 	/// If the length of this quaternion is 1 +/- inTolerance
 	inline bool					IsNormalized(float inTolerance = 1.0e-5f) const					{ return mValue.IsNormalized(inTolerance); }

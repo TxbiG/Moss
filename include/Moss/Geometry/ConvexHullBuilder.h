@@ -131,7 +131,7 @@ public:
 
 private:
 	/// Minimal square area of a triangle (used for merging and checking if a triangle is degenerate)
-	static constexpr float cMinTriangleAreaSq = 1.0e-12f;
+	static constexpr float cMinTriangleAreaSq = MOSS_ZERO_EPSILON;
 
 #ifdef MOSS_CONVEX_BUILDER_DEBUG
 	/// Factor to scale convex hull when debug drawing the construction process

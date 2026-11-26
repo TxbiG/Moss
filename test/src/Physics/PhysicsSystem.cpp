@@ -2096,7 +2096,7 @@ void PhysicsSystem::JobResolveCCDContacts(PhysicsUpdateContext *ioContext, Physi
 							// Calculate friction direction by removing normal velocity from the relative velocity
 							Vec3 friction_direction = relative_velocity - normal_velocity * ccd_body->mContactNormal;
 							float friction_direction_len_sq = friction_direction.LengthSq();
-							if (friction_direction_len_sq > 1.0e-12f)
+							if (friction_direction_len_sq > MOSS_ZERO_EPSILON)
 							{
 								// Normalize friction direction
 								friction_direction /= sqrt(friction_direction_len_sq);

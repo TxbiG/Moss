@@ -16,6 +16,7 @@
 #define SOUND_SPEED 2043.0f
 #define MAX_CHANNELS 10
 
+//TODO FUTURE: Change audiolistener Vecs to Vec4 for 2D and TVec/Mat3x2 for 3D
 
 extern Moss_Microphone mic;
 extern std::unordered_map<ChannelID, AudioChannel> g_channels;

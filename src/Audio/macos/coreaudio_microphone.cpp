@@ -277,7 +277,7 @@ static void Moss_EnumerateMicrophonesInto(Moss_Microphone* micHandle) {
         return;
 
     micHandle->microphoneNames.clear();
-    AudioObjectPropertyAddress address = { kAudioHardwarePropertyDevices, kAudioObjectPropertyScopeGlobal, kAudioObjectPropertyElementMaster };
+    AudioObjectPropertyAddress address = { kAudioHardwarePropertyDevices, kAudioObjectPropertyScopeGlobal, kAudioObjectPropertyElementMain };
     UInt32 size = 0;
     if (AudioObjectGetPropertyDataSize(kAudioObjectSystemObject, &address, 0, nullptr, &size) != noErr) {
         micHandle->microphoneNames.emplace_back("default");
@@ -291,7 +291,7 @@ static void Moss_EnumerateMicrophonesInto(Moss_Microphone* micHandle) {
     }
 
     for (AudioDeviceID device : devices) {
-        AudioObjectPropertyAddress streamAddress = { kAudioDevicePropertyStreamConfiguration, kAudioObjectPropertyScopeInput, kAudioObjectPropertyElementMaster };
+        AudioObjectPropertyAddress streamAddress = { kAudioDevicePropertyStreamConfiguration, kAudioObjectPropertyScopeInput, kAudioObjectPropertyElementMain };
         UInt32 streamSize = 0;
         if (AudioObjectGetPropertyDataSize(device, &streamAddress, 0, nullptr, &streamSize) != noErr || streamSize == 0)
             continue;
@@ -308,7 +308,7 @@ static void Moss_EnumerateMicrophonesInto(Moss_Microphone* micHandle) {
             continue;
 
         CFStringRef name = nullptr;
-        AudioObjectPropertyAddress nameAddress = { kAudioObjectPropertyName, kAudioObjectPropertyScopeGlobal, kAudioObjectPropertyElementMaster };
+        AudioObjectPropertyAddress nameAddress = { kAudioObjectPropertyName, kAudioObjectPropertyScopeGlobal, kAudioObjectPropertyElementMain };
         UInt32 nameSize = sizeof(name);
         if (AudioObjectGetPropertyData(device, &nameAddress, 0, nullptr, &nameSize, &name) == noErr && name) {
             char text[256] = {};

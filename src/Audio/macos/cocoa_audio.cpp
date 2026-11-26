@@ -9,7 +9,7 @@
 double GetDefaultOutputDeviceSampleRate() {
     AudioDeviceID deviceID = 0;
     UInt32 size = sizeof(deviceID);
-    AudioObjectPropertyAddress addr = { kAudioHardwarePropertyDefaultOutputDevice, kAudioObjectPropertyScopeGlobal, kAudioObjectPropertyElementMaster };
+    AudioObjectPropertyAddress addr = { kAudioHardwarePropertyDefaultOutputDevice, kAudioObjectPropertyScopeGlobal, kAudioObjectPropertyElementMain };
 
     OSStatus status = AudioObjectGetPropertyData(kAudioObjectSystemObject, &addr, 0, nullptr, &size, &deviceID);
     if (status != noErr) return 44100.0; // fallback
@@ -28,7 +28,7 @@ double GetDefaultOutputDeviceSampleRate() {
 UInt32 GetDefaultOutputDeviceChannelCount() {
     AudioDeviceID deviceID = 0;
     UInt32 size = sizeof(deviceID);
-    AudioObjectPropertyAddress addr = { kAudioHardwarePropertyDefaultOutputDevice, kAudioObjectPropertyScopeGlobal, kAudioObjectPropertyElementMaster };
+    AudioObjectPropertyAddress addr = { kAudioHardwarePropertyDefaultOutputDevice, kAudioObjectPropertyScopeGlobal, kAudioObjectPropertyElementMain };
 
     OSStatus status = AudioObjectGetPropertyData(kAudioObjectSystemObject, &addr, 0, nullptr, &size, &deviceID);
     if (status != noErr) return 2; // fallback

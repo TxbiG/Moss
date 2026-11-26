@@ -523,7 +523,7 @@ void CharacterVirtual::GetAdjustedBodyVelocity(const Body& inBody, Vec3 &outLine
 Vec3 CharacterVirtual::CalculateCharacterGroundVelocity(RVec3Arg inCenterOfMass, Vec3Arg inLinearVelocity, Vec3Arg inAngularVelocity, float inDeltaTime) const {
 	// Get angular velocity
 	float angular_velocity_len_sq = inAngularVelocity.LengthSq();
-	if (angular_velocity_len_sq < 1.0e-12f)
+	if (angular_velocity_len_sq < MOSS_ZERO_EPSILON)
 		return inLinearVelocity;
 	float angular_velocity_len = sqrt(angular_velocity_len_sq);
 

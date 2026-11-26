@@ -194,7 +194,7 @@ MOSS_INLINE float RayCapsule(Vec3Arg inRayOrigin, Vec3Arg inRayDirection, float 
 /// Adapted from: http://en.wikipedia.org/wiki/M%C3%B6ller%E2%80%93Trumbore_intersection_algorithm
 MOSS_INLINE float RayTriangle(Vec3Arg inOrigin, Vec3Arg inDirection, Vec3Arg inV0, Vec3Arg inV1, Vec3Arg inV2) {
 	// Epsilon
-	Vec3 epsilon = Vec3::Replicate(1.0e-12f);
+	Vec3 epsilon = Vec3::Replicate(MOSS_ZERO_EPSILON);
 
 	// Zero & one
 	Vec3 zero = Vec3::Zero();
@@ -241,7 +241,7 @@ MOSS_INLINE float RayTriangle(Vec3Arg inOrigin, Vec3Arg inDirection, Vec3Arg inV
 /// Intersect ray with 4 triangles in SOA format, returns 4 vector of closest points or FLT_MAX if no hit (uses bit tricks to do less divisions)
 MOSS_INLINE Vec4 RayTriangle4(Vec3Arg inOrigin, Vec3Arg inDirection, Vec4Arg inV0X, Vec4Arg inV0Y, Vec4Arg inV0Z, Vec4Arg inV1X, Vec4Arg inV1Y, Vec4Arg inV1Z, Vec4Arg inV2X, Vec4Arg inV2Y, Vec4Arg inV2Z) {
 	// Epsilon
-	Vec4 epsilon = Vec4::Replicate(1.0e-12f);
+	Vec4 epsilon = Vec4::Replicate(MOSS_ZERO_EPSILON);
 
 	// Zero
 	Vec4 zero = Vec4::Zero();

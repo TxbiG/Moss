@@ -2023,7 +2023,7 @@ float Moss_RecastObstacleAvoidanceQuery::processSample(const float* vcand, const
 	// (see how the penalty is calculated below to understand)
 	float minPen = minPenalty - vpen - vcpen;
 	float tThresold = (m_params.weightToi / minPen - 0.1f) * m_params.horizTime;
-	if (tThresold - m_params.horizTime > -FLT_EPSILON)
+	if (tThresold - m_params.horizTime > -MOSS_FLOAT_EPSILON)
 		return minPenalty; // already too much
 
 	// Find min time of impact and exit amongst all obstacles.

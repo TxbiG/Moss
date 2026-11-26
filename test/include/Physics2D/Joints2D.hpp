@@ -23,7 +23,7 @@ struct MOSS_API RevoluteJointDef {
     BodyID bodyA=InvalidBodyID, bodyB=InvalidBodyID;
     Vec2 localAnchorA{}, localAnchorB{};
     bool enableLimit=false;
-    float lowerAngle=-kPi, upperAngle=kPi;
+    float lowerAngle=-MOSS_PI, upperAngle=MOSS_PI;
     bool enableMotor=false;
     float motorSpeed=0.0f;
     float maxMotorTorque=0.0f;

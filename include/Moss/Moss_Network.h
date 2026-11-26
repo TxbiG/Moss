@@ -86,7 +86,7 @@ Modified ENet6 v6.1.2 by SirLynix https://github.com/SirLynix/enet6/
  *  - UDP / ENet-style protocol ........ IMPLEMENTED
  *  - TCP transport & framing .......... IMPLEMENTED
  *  - WebRTC (data + signaling hooks) .. IMPLEMENTED
- *  - HTTP/REST (async, TLS, server) ... IMPLEMENTED (v1)
+ *  - HTTP/REST (async, TLS, server) ... IMPLEMENTED
  *
  * Partially Implemented / Scaffolded:
  *  - WebSocket (native support; WASM bridge pending)
@@ -105,6 +105,7 @@ Modified ENet6 v6.1.2 by SirLynix https://github.com/SirLynix/enet6/
 
 #include <stdlib.h>
 #include <cstdint>
+#include <cstddef>
 
 #if defined(MOSS_PLATFORM_WINDOWS)
 
@@ -125,6 +126,13 @@ Modified ENet6 v6.1.2 by SirLynix https://github.com/SirLynix/enet6/
         #endif
     #endif
 
+    // Must come before any Windows header: avoids the old winsock.h clash and the min/max macros.
+    #ifndef WIN32_LEAN_AND_MEAN
+        #define WIN32_LEAN_AND_MEAN
+    #endif
+    #ifndef NOMINMAX
+        #define NOMINMAX
+    #endif
     #include <winsock2.h>
     #include <ws2tcpip.h>
 
@@ -280,11 +288,19 @@ enum class ENetAddressType : uint8_t {
 };
 
 enum class ENetSocketWait : uint8_t { 
-   NONE = (1 << 0), 
+   NONE = 0, 
    SEND = (1 << 1), 
    RECEIVE = (1 << 2), 
    INTERRUPT = (1 << 3) 
 };
+
+// enet_socket_wait() takes its condition as a plain uint32_t mask; these let it be tested and built from ENetSocketWait flags.
+constexpr uint32_t operator&(uint32_t mask, ENetSocketWait flag) { return mask & static_cast<uint32_t>(flag); }
+constexpr uint32_t operator|(ENetSocketWait a, ENetSocketWait b) { return static_cast<uint32_t>(a) | static_cast<uint32_t>(b); }
+inline uint32_t& operator|=(uint32_t& mask, ENetSocketWait flag) { mask |= static_cast<uint32_t>(flag); return mask; }
+// 	Implement complete bitmask operators
+
+
 
 enum class ENetSocketOption : uint16_t {
    NET_OPT_NONBLOCK  = (1 << 0), 
@@ -727,14 +743,21 @@ struct ENetCallbacks {
     void (MOSS_CALL* no_memory) (void);
 };
 
-#ifdef MOSS_COMPILER_MSVC
-#pragma pack(pop)
-#endif
-
 /*! @brief Initializes ENet globally. Must be called prior to using any functions in ENet. */
 MOSS_API int Moss_Init_Network(void);
 /*! @brief Initializes ENet globally with callbacks. Must be called prior to using any functions in ENet. */
 MOSS_API int enet_initialize_with_callbacks(const ENetCallbacks * inits);
+/*! @brief Non-blocking receive for STREAM (TCP) sockets that tells would-block apart from end-of-stream.
+    @returns > 0 bytes received; 0 = no data right now (would block / interrupted); -1 = peer closed the connection (end of stream); -2 = error.
+    enet_socket_receive() cannot make this distinction (it returns 0 for both), which makes a truncated transfer look finished. */
+MOSS_API int enet_socket_receive_stream(ENetSocket socket, void* data, size_t length);
+/*! @brief Non-blocking send for STREAM (TCP) sockets, never raises SIGPIPE. @returns > 0 bytes sent; 0 = would block; < 0 = error. */
+MOSS_API int enet_socket_send_stream(ENetSocket socket, const void* data, size_t length);
+
+/*! @brief Allocates through the callbacks set with enet_initialize_with_callbacks (malloc by default). Calls no_memory() on failure. */
+MOSS_API void* enet_malloc(size_t size);
+/*! @brief Frees memory obtained from enet_malloc. */
+MOSS_API void  enet_free(void* memory);
 /*! @brief Shuts down ENet globally. Should be called when a program that has initialized ENet exits. */
 MOSS_API void Moss_TerminateNetwork(void);
 
@@ -978,170 +1001,706 @@ MOSS_API void* enet_peer_get_data(const ENetPeer*);
 /*! @brief X.*/
 MOSS_API void enet_peer_set_data(ENetPeer*, const void*);
 
+// =============================================
+// WebSocket (RFC 6455 framing)
+// =============================================
+// Event-driven WebSocket frame/message layer, merged into Moss_Network from the
+// Wslay library (c) 2011, 2012 Tatsuhiro Tsujikawa, MIT licensed - see websocket.cpp
+// for the full licence text.
+//
+// This layer handles framing, fragmentation, masking, ping/pong, close handshakes
+// and UTF-8 validation. It does NOT perform the HTTP Upgrade handshake or TLS:
+// do those first on your TCP socket, then hand the connected socket to a context
+// created below. All I/O goes through the callbacks you supply and is expected to
+// be non-blocking.
+//
+// Typical use:
+//   1. enet_ws_event_context_client_init() / _server_init() with your callbacks.
+//   2. When the socket is readable   -> enet_ws_event_recv(ctx).
+//   3. enet_ws_event_queue_msg(ctx, ...) to queue outgoing text/binary messages.
+//   4. When the socket is writable or enet_ws_event_want_write() is 1 -> enet_ws_event_send(ctx).
+//   5. enet_ws_event_context_free(ctx) once the connection is closed.
+
+/*! @brief Signed size type used by the WebSocket I/O callbacks (portable replacement for POSIX ssize_t). */
+using ENetSSize = std::ptrdiff_t;
+
+/* Reserved bits: RSV1, RSV2, RSV3. rsv is built as ((RSV1 << 2) | (RSV2 << 1) | RSV3). */
+#define ENET_WS_RSV_NONE ((uint8_t) 0)
+#define ENET_WS_RSV1_BIT (((uint8_t) 1) << 2)
+#define ENET_WS_RSV2_BIT (((uint8_t) 1) << 1)
+#define ENET_WS_RSV3_BIT (((uint8_t) 1) << 0)
+
+#define ENET_WS_GET_RSV1(rsv) (((rsv) >> 2) & 1)
+#define ENET_WS_GET_RSV2(rsv) (((rsv) >> 1) & 1)
+#define ENET_WS_GET_RSV3(rsv) ((rsv) & 1)
+
+/* Returns 1 if opcode is a control frame opcode, otherwise 0. */
+#define ENET_WS_IS_CTRL_FRAME(opcode) (((opcode) >> 3) & 1)
+
+enum ENetWSError {
+   ENET_WS_ERR_WANT_READ        = -100,
+   ENET_WS_ERR_WANT_WRITE       = -101,
+   ENET_WS_ERR_PROTO            = -200,
+   ENET_WS_ERR_INVALID_ARGUMENT = -300,
+   ENET_WS_ERR_INVALID_CALLBACK = -301,
+   ENET_WS_ERR_NO_MORE_MSG      = -302,
+   ENET_WS_ERR_CALLBACK_FAILURE = -400,
+   ENET_WS_ERR_WOULDBLOCK       = -401,
+   ENET_WS_ERR_NOMEM            = -500
+};
+
+/* Close status codes defined in RFC 6455. */
+enum ENetWSStatusCode {
+   ENET_WS_CODE_NORMAL_CLOSURE           = 1000,
+   ENET_WS_CODE_GOING_AWAY               = 1001,
+   ENET_WS_CODE_PROTOCOL_ERROR           = 1002,
+   ENET_WS_CODE_UNSUPPORTED_DATA         = 1003,
+   ENET_WS_CODE_NO_STATUS_RCVD           = 1005,
+   ENET_WS_CODE_ABNORMAL_CLOSURE         = 1006,
+   ENET_WS_CODE_INVALID_FRAME_PAYLOAD_DATA = 1007,
+   ENET_WS_CODE_POLICY_VIOLATION         = 1008,
+   ENET_WS_CODE_MESSAGE_TOO_BIG          = 1009,
+   ENET_WS_CODE_MANDATORY_EXT            = 1010,
+   ENET_WS_CODE_INTERNAL_SERVER_ERROR    = 1011,
+   ENET_WS_CODE_TLS_HANDSHAKE            = 1015
+};
+
+enum ENetWSIOFlags {
+   /* There is more data to send. */
+   ENET_WS_MSG_MORE = 1
+};
+
+/* Opcodes defined in RFC 6455. */
+enum ENetWSOpcode {
+   ENET_WS_CONTINUATION_FRAME = 0x0u,
+   ENET_WS_TEXT_FRAME         = 0x1u,
+   ENET_WS_BINARY_FRAME       = 0x2u,
+   ENET_WS_CONNECTION_CLOSE   = 0x8u,
+   ENET_WS_PING               = 0x9u,
+   ENET_WS_PONG               = 0xau
+};
+
+/* Opaque contexts. */
+struct enet_ws_frame_context;
+struct enet_ws_event_context;
+using enet_ws_frame_context_ptr = enet_ws_frame_context*;
+using enet_ws_event_context_ptr = enet_ws_event_context*;
+
+/*! @brief Frame-level I/O description used by enet_ws_frame_send() / enet_ws_frame_recv(). */
+struct enet_ws_frame_iocb {
+   uint8_t  fin;             /* 1 for the final frame of a message, otherwise 0 */
+   uint8_t  rsv;             /* reserved bits, ((RSV1 << 2) | (RSV2 << 1) | RSV3); must be 0 unless an extension is negotiated */
+   uint8_t  opcode;          /* 4 bit opcode */
+   uint64_t payload_length;  /* payload length [0, 2**63-1] */
+   uint8_t  mask;            /* 1 for a masked frame, otherwise 0 */
+   const uint8_t* data;      /* part of the payload data */
+   size_t   data_length;     /* number of bytes in data */
+};
+
+struct enet_ws_event_on_msg_recv_arg {
+   uint8_t  rsv;             /* reserved bits: (RSV1 << 2) | (RSV2 << 1) | RSV3 */
+   uint8_t  opcode;
+   const uint8_t* msg;       /* received message */
+   size_t   msg_length;
+   uint16_t status_code;     /* only for ENET_WS_CONNECTION_CLOSE; 0 if the close frame carried no status code */
+};
+
+struct enet_ws_event_on_frame_recv_start_arg {
+   uint8_t  fin;
+   uint8_t  rsv;
+   uint8_t  opcode;
+   uint64_t payload_length;
+};
+
+struct enet_ws_event_on_frame_recv_chunk_arg {
+   const uint8_t* data;
+   size_t   data_length;
+};
+
+union enet_ws_event_msg_source {
+   int   fd;
+   void* data;
+};
+
+struct enet_ws_event_msg {
+   uint8_t        opcode;
+   const uint8_t* msg;
+   size_t         msg_length;
+};
+
+/* Frame-level callbacks. */
+/*! @brief Send at most len bytes. Return bytes sent, or -1 on error (0 is treated as an error). flags may contain ENET_WS_MSG_MORE. */
+using enet_ws_frame_send_callback = ENetSSize (MOSS_CALL*)(const uint8_t* data, size_t len, int flags, void* user_data);
+/*! @brief Fill at most len bytes into buf. Return bytes filled, or -1 on error (0 is treated as an error). */
+using enet_ws_frame_recv_callback = ENetSSize (MOSS_CALL*)(uint8_t* buf, size_t len, int flags, void* user_data);
+/*! @brief Write exactly len bytes of mask key into buf. Return 0 on success, -1 on error. */
+using enet_ws_frame_genmask_callback = int (MOSS_CALL*)(uint8_t* buf, size_t len, void* user_data);
+
+struct enet_ws_frame_callbacks {
+   enet_ws_frame_send_callback    send_callback;
+   enet_ws_frame_recv_callback    recv_callback;
+   enet_ws_frame_genmask_callback genmask_callback;
+};
+
+/* Event-level callbacks. */
+/*! @brief Invoked when a message has been completely received. */
+using enet_ws_event_on_msg_recv_callback = void (MOSS_CALL*)(enet_ws_event_context_ptr ctx, const enet_ws_event_on_msg_recv_arg* arg, void* user_data);
+/*! @brief Invoked once when a new frame starts to be received. */
+using enet_ws_event_on_frame_recv_start_callback = void (MOSS_CALL*)(enet_ws_event_context_ptr ctx, const enet_ws_event_on_frame_recv_start_arg* arg, void* user_data);
+/*! @brief Invoked when a chunk of frame payload has been received. */
+using enet_ws_event_on_frame_recv_chunk_callback = void (MOSS_CALL*)(enet_ws_event_context_ptr ctx, const enet_ws_event_on_frame_recv_chunk_arg* arg, void* user_data);
+/*! @brief Invoked when a frame has been completely received. */
+using enet_ws_event_on_frame_recv_end_callback = void (MOSS_CALL*)(enet_ws_event_context_ptr ctx, void* user_data);
+/*! @brief Read at most len bytes from the peer into buf and return the count. On error return -1 and call enet_ws_event_set_error() with ENET_WS_ERR_CALLBACK_FAILURE, or ENET_WS_ERR_WOULDBLOCK if the cause is EAGAIN/EWOULDBLOCK. */
+using enet_ws_event_recv_callback = ENetSSize (MOSS_CALL*)(enet_ws_event_context_ptr ctx, uint8_t* buf, size_t len, int flags, void* user_data);
+/*! @brief Send at most len bytes to the peer and return the count. Error handling as for the recv callback. */
+using enet_ws_event_send_callback = ENetSSize (MOSS_CALL*)(enet_ws_event_context_ptr ctx, const uint8_t* data, size_t len, int flags, void* user_data);
+/*! @brief Write a new 4 byte mask key into buf. Only needed for client contexts (only client traffic is masked). Return 0 on success. */
+using enet_ws_event_genmask_callback = int (MOSS_CALL*)(enet_ws_event_context_ptr ctx, uint8_t* buf, size_t len, void* user_data);
+/*! @brief Read message data from source for a fragmented message. Return bytes stored; set *eof to 1 at end of data; return 0 if no data is available right now; return -1 and set ENET_WS_ERR_CALLBACK_FAILURE on error. */
+using enet_ws_event_fragmented_msg_callback = ENetSSize (MOSS_CALL*)(enet_ws_event_context_ptr ctx, uint8_t* buf, size_t len, const enet_ws_event_msg_source* source, int* eof, void* user_data);
+
+struct enet_ws_event_callbacks {
+   enet_ws_event_recv_callback                  recv_callback;
+   enet_ws_event_send_callback                  send_callback;
+   enet_ws_event_genmask_callback               genmask_callback;
+   enet_ws_event_on_frame_recv_start_callback   on_frame_recv_start_callback;
+   enet_ws_event_on_frame_recv_chunk_callback   on_frame_recv_chunk_callback;
+   enet_ws_event_on_frame_recv_end_callback     on_frame_recv_end_callback;
+   enet_ws_event_on_msg_recv_callback           on_msg_recv_callback;
+};
+
+struct enet_ws_event_fragmented_msg {
+   uint8_t                               opcode;
+   enet_ws_event_msg_source              source;        /* where read_callback gets the message data from */
+   enet_ws_event_fragmented_msg_callback read_callback;
+};
+
+// ---- Frame API (low level) ----
+/*! @brief Allocates a frame context. Free it with enet_ws_frame_context_free(). Returns 0 or ENET_WS_ERR_NOMEM. */
+MOSS_API int  enet_ws_frame_context_init(enet_ws_frame_context_ptr* ctx, const enet_ws_frame_callbacks* callbacks, void* user_data);
+/*! @brief Deallocates a frame context. */
+MOSS_API void enet_ws_frame_context_free(enet_ws_frame_context_ptr ctx);
+/*! @brief Sends the frame described by iocb. Returns the number of payload bytes sent, ENET_WS_ERR_WANT_WRITE if none could be sent, ENET_WS_ERR_INVALID_ARGUMENT if iocb is invalid, or ENET_WS_ERR_INVALID_CALLBACK if a callback failed. May send only part of the data: adjust iocb->data / data_length and call again. */
+MOSS_API ENetSSize enet_ws_frame_send(enet_ws_frame_context_ptr ctx, enet_ws_frame_iocb* iocb);
+/*! @brief Receives a frame into iocb. Returns the number of payload bytes received, ENET_WS_ERR_WANT_READ if none, ENET_WS_ERR_PROTO on a protocol violation, or ENET_WS_ERR_INVALID_CALLBACK if a callback failed. Call again until the frame is complete. */
+MOSS_API ENetSSize enet_ws_frame_recv(enet_ws_frame_context_ptr ctx, enet_ws_frame_iocb* iocb);
+
+// ---- Event API (recommended) ----
+/*! @brief Initializes *ctx as a WebSocket server. Returns 0 or ENET_WS_ERR_NOMEM. */
+MOSS_API int  enet_ws_event_context_server_init(enet_ws_event_context_ptr* ctx, const enet_ws_event_callbacks* callbacks, void* user_data);
+/*! @brief Initializes *ctx as a WebSocket client (outgoing frames are masked, so genmask_callback is required). Returns 0 or ENET_WS_ERR_NOMEM. */
+MOSS_API int  enet_ws_event_context_client_init(enet_ws_event_context_ptr* ctx, const enet_ws_event_callbacks* callbacks, void* user_data);
+/*! @brief Releases all resources held by ctx. */
+MOSS_API void enet_ws_event_context_free(enet_ws_event_context_ptr ctx);
+
+/*! @brief Sets the allowed reserved bits: ENET_WS_RSV1_BIT (permessage-deflate, RFC 7692) or ENET_WS_RSV_NONE (default). */
+MOSS_API void enet_ws_event_config_set_allowed_rsv_bits(enet_ws_event_context_ptr ctx, uint8_t rsv);
+/*! @brief val == 0 buffers whole non-control messages (default); otherwise delivers them frame by frame (msg_length is then 0).
+ *         Must not be called after the first enet_ws_event_recv(). */
+MOSS_API void enet_ws_event_config_set_no_buffering(enet_ws_event_context_ptr ctx, int val);
+/*! @brief Maximum receivable message length (default (1u << 31) - 1). Larger messages close the connection with ENET_WS_CODE_MESSAGE_TOO_BIG.
+ *         Set this: it is your memory-exhaustion guard against hostile peers. */
+MOSS_API void enet_ws_event_config_set_max_recv_msg_length(enet_ws_event_context_ptr ctx, uint64_t val);
+/*! @brief Replaces the callbacks set at init time. */
+MOSS_API void enet_ws_event_config_set_callbacks(enet_ws_event_context_ptr ctx, const enet_ws_event_callbacks* callbacks);
+
+/*! @brief Receives messages until the recv callback reports ENET_WS_ERR_WOULDBLOCK. Auto-queues a close reply to a close frame and a pong to a ping.
+ *         Returns 0, or a negative error (ENET_WS_ERR_CALLBACK_FAILURE / ENET_WS_ERR_NOMEM). After a negative return, close the connection. */
+MOSS_API int enet_ws_event_recv(enet_ws_event_context_ptr ctx);
+/*! @brief Sends queued messages until the send callback reports ENET_WS_ERR_WOULDBLOCK. Returns 0 or a negative error; after a negative return, close the connection. */
+MOSS_API int enet_ws_event_send(enet_ws_event_context_ptr ctx);
+
+/*! @brief Queues a message (control or non-control, sent unfragmented). Returns 0, ENET_WS_ERR_NO_MORE_MSG, ENET_WS_ERR_INVALID_ARGUMENT or ENET_WS_ERR_NOMEM. */
+MOSS_API int enet_ws_event_queue_msg(enet_ws_event_context_ptr ctx, const enet_ws_event_msg* arg);
+/*! @brief As enet_ws_event_queue_msg() but lets you set reserved bits. */
+MOSS_API int enet_ws_event_queue_msg_ex(enet_ws_event_context_ptr ctx, const enet_ws_event_msg* arg, uint8_t rsv);
+/*! @brief Queues a fragmented non-control message whose data is produced by arg->read_callback. */
+MOSS_API int enet_ws_event_queue_fragmented_msg(enet_ws_event_context_ptr ctx, const enet_ws_event_fragmented_msg* arg);
+/*! @brief As enet_ws_event_queue_fragmented_msg() but lets you set reserved bits. */
+MOSS_API int enet_ws_event_queue_fragmented_msg_ex(enet_ws_event_context_ptr ctx, const enet_ws_event_fragmented_msg* arg, uint8_t rsv);
+/*! @brief Queues a close frame. If status_code is 0 the frame has no payload. reason_length must be < 123. */
+MOSS_API int enet_ws_event_queue_close(enet_ws_event_context_ptr ctx, uint16_t status_code, const uint8_t* reason, size_t reason_length);
+
+/*! @brief Tells the library a callback failed (ENET_WS_ERR_CALLBACK_FAILURE or ENET_WS_ERR_WOULDBLOCK). Call from inside your callbacks. */
+MOSS_API void enet_ws_event_set_error(enet_ws_event_context_ptr ctx, int val);
+/*! @brief 1 if the library wants to read more from the peer. */
+MOSS_API int  enet_ws_event_want_read(enet_ws_event_context_ptr ctx);
+/*! @brief 1 if there are queued messages waiting to be sent. */
+MOSS_API int  enet_ws_event_want_write(enet_ws_event_context_ptr ctx);
+/*! @brief Stops reading from the peer. */
+MOSS_API void enet_ws_event_shutdown_read(enet_ws_event_context_ptr ctx);
+/*! @brief Stops writing to the peer. */
+MOSS_API void enet_ws_event_shutdown_write(enet_ws_event_context_ptr ctx);
+MOSS_API int  enet_ws_event_get_read_enabled(enet_ws_event_context_ptr ctx);
+MOSS_API int  enet_ws_event_get_write_enabled(enet_ws_event_context_ptr ctx);
+/*! @brief 1 if a close frame has been received from the peer. */
+MOSS_API int  enet_ws_event_get_close_received(enet_ws_event_context_ptr ctx);
+/*! @brief 1 if a close frame has been sent to the peer. */
+MOSS_API int  enet_ws_event_get_close_sent(enet_ws_event_context_ptr ctx);
+/*! @brief Status code in the received close frame (ENET_WS_CODE_ABNORMAL_CLOSURE if none yet, ENET_WS_CODE_NO_STATUS_RCVD if it had no code). */
+MOSS_API uint16_t enet_ws_event_get_status_code_received(enet_ws_event_context_ptr ctx);
+/*! @brief Status code in the sent close frame (same conventions as above). */
+MOSS_API uint16_t enet_ws_event_get_status_code_sent(enet_ws_event_context_ptr ctx);
+/*! @brief Number of queued messages. */
+MOSS_API size_t enet_ws_event_get_queued_msg_count(enet_ws_event_context_ptr ctx);
+/*! @brief Sum of queued message lengths (counts messages queued with enet_ws_event_queue_msg() / _queue_close()). */
+MOSS_API size_t enet_ws_event_get_queued_msg_length(enet_ws_event_context_ptr ctx);
 
 
+// ===============================================
+// Crypto & encoding helpers
+// ===============================================
+// Small, dependency-free primitives the HTTP / WebSocket layers need. They are public because
+// games need them too (patch verification, request signing, idempotency keys).
+// Not a substitute for a full crypto library: for signatures (Ed25519) or AEAD use libsodium / Monocypher.
 
-//////////////////////////////////////////////////////////////////////
+/** Encoded length of `inputLength` bytes as padded base64, excluding the NUL terminator. */
+MOSS_API size_t enet_base64_encoded_size(size_t inputLength);
+/** Writes padded base64 plus a NUL. Returns characters written (excluding NUL), or 0 if outCapacity is too small. */
+MOSS_API size_t enet_base64_encode(const void* data, size_t length, char* out, size_t outCapacity);
+/** Strict RFC 4648 decode (padding required, no whitespace). Returns 0 on success, -1 on invalid input or small buffer. */
+MOSS_API int    enet_base64_decode(const char* text, size_t length, uint8_t* out, size_t outCapacity, size_t* outLength);
 
-/*
-#define NET_FLAG_RELIABLE      0x01
-#define NET_FLAG_FRAGMENT     0x02
-#define NET_FLAG_HANDSHAKE    0x04
-#define NET_FLAG_ENCRYPTED    0x08
+/** SHA-1. Only for protocol compatibility (WebSocket handshake). Do not use it for security decisions. */
+MOSS_API void   enet_sha1(const void* data, size_t length, uint8_t out[20]);
 
-enum class ENetTransportType {
+struct ENetSha256 {
+   uint32_t state[8];
+   uint64_t length;      // bytes processed
+   uint8_t  buffer[64];
+   size_t   bufferLength;
+};
+MOSS_API void enet_sha256_init(ENetSha256* ctx);
+MOSS_API void enet_sha256_update(ENetSha256* ctx, const void* data, size_t length);
+MOSS_API void enet_sha256_final(ENetSha256* ctx, uint8_t out[32]);
+MOSS_API void enet_sha256(const void* data, size_t length, uint8_t out[32]);
+MOSS_API void enet_hmac_sha256(const void* key, size_t keyLength, const void* data, size_t length, uint8_t out[32]);
+
+/** Lower-case hex. `out` needs 2 * length + 1 bytes. */
+MOSS_API void enet_hex_encode(const uint8_t* data, size_t length, char* out);
+
+/** Cryptographically secure random bytes from the OS. Returns 0 on success, -1 on failure (never falls back to a weak source). */
+MOSS_API int  enet_random_bytes(void* out, size_t length);
+/** Constant-time comparison. Returns 1 if equal. Use it for tokens, MACs and hashes. */
+MOSS_API int  enet_secure_equals(const void* a, const void* b, size_t length);
+/** Random (version 4) UUID, NUL terminated. Returns 0 on success. Use it as an Idempotency-Key for purchases and other retried writes. */
+MOSS_API int  enet_make_uuid_v4(char out[37]);
+
+// ===============================================
+// TLS (pluggable backend)
+// ===============================================
+// Moss does not ship its own TLS stack. Register one backend per platform:
+//   Windows -> SChannel, Apple -> Network.framework / Secure Transport, Linux/Android -> OpenSSL / mbedTLS / BoringSSL,
+//   consoles -> the platform SDK's SSL library. tls_openssl.cpp is a complete reference backend.
+// https:// and wss:// FAIL CLOSED (ENET_HTTP_ERR_TLS_FAILED) while no backend is registered; they never fall back to plaintext.
+
+struct ENetTransportSecurity {
+   const char* cert_file;        // client certificate for mutual TLS (optional)
+   const char* key_file;         // matching private key (optional)
+   const char* ca_file;          // PEM bundle of trusted roots; NULL = the platform / system trust store
+   int         skip_verification;// 0 (the default) = verify the certificate chain AND the host name. Non-zero is for local development only.
+};
+
+struct ENetTlsBackend {
+   /** Performs the client handshake on an already connected, NON-BLOCKING socket and verifies the peer per `security`.
+    *  Must give up within timeoutMs. Returns an opaque connection, or NULL on failure. `security` may be NULL (= defaults). */
+   void* (*connect)(ENetSocket socket, const char* host, const ENetTransportSecurity* security, uint32_t timeoutMs);
+   /** Non-blocking read. >0 bytes read; 0 = would block (wait for the socket, then retry); -1 = peer closed cleanly
+    *  (authenticated close_notify); -2 = error, including a close WITHOUT close_notify (possible truncation attack). */
+   int   (*read)(void* connection, void* buffer, size_t length);
+   /** Non-blocking write. >0 bytes written; 0 = would block; <0 = error. */
+   int   (*write)(void* connection, const void* data, size_t length);
+   /** Closes the TLS session (best effort) and frees the connection. Does not close the socket. */
+   void  (*close)(void* connection);
+};
+
+/** Registers the backend used by every HTTP / WebSocket connection. Call once at startup (before the first request). NULL unregisters. */
+MOSS_API void                  enet_tls_set_backend(const ENetTlsBackend* backend);
+MOSS_API const ENetTlsBackend* enet_tls_get_backend(void);
+/** OpenSSL reference backend. Defined by tls_openssl.cpp: add that file to the build and link OpenSSL 1.1.1+ / 3.x to use it. */
+MOSS_API const ENetTlsBackend* enet_tls_openssl_backend(void);
+
+// ===============================================
+// HTTP client
+// ===============================================
+// Designed for a game loop: requests run on a small worker pool (blocking DNS / TCP / TLS happen there),
+// and every callback is delivered on YOUR thread from enet_http_poll(). Nothing blocks the frame.
+//
+// Security defaults: plaintext http:// is refused except to loopback (development); credentials in the URL are refused;
+// CR/LF and other control characters in URLs and headers are refused (request smuggling); redirects are NOT followed unless
+// asked, never downgrade https to http, and drop Authorization / Cookie when they leave the original origin; responses are
+// size-limited; Content-Length / chunked framing is validated and truncated bodies are errors.
+
+enum class ENetHttpMethod : uint8_t {
+   ENET_HTTP_GET, 
+   ENET_HTTP_POST, 
+   ENET_HTTP_PUT, 
+   ENET_HTTP_DELETE, 
+   ENET_HTTP_PATCH, 
+   ENET_HTTP_HEAD
+};
+
+enum class ENetHttpError : int32_t {
+   ENET_HTTP_OK = 0,
+   /* transport-level */
+   ENET_HTTP_ERR_DNS_FAILURE, 
+   ENET_HTTP_ERR_CONNECT_FAILED, 
+   ENET_HTTP_ERR_TLS_FAILED,
+   ENET_HTTP_ERR_TIMEOUT, 
+   ENET_HTTP_ERR_CANCELED,
+   /* protocol-level */
+   ENET_HTTP_ERR_INVALID_RESPONSE, ENET_HTTP_ERR_TOO_LARGE,
+   /* client misuse */
+   ENET_HTTP_ERR_INVALID_ARGUMENT, 
+   ENET_HTTP_ERR_INTERNAL,
+   /* added with the implementation */
+   ENET_HTTP_ERR_IO,                 // socket error / connection dropped mid-transfer
+   ENET_HTTP_ERR_INTEGRITY,          // downloaded data failed its SHA-256 / size check
+   ENET_HTTP_ERR_TOO_MANY_REDIRECTS,
+   ENET_HTTP_ERR_INSECURE,           // refused: plaintext to a non-loopback host, or an https -> http redirect
+   ENET_HTTP_ERR_HANDSHAKE_REJECTED  // WebSocket upgrade refused by the server (see http_status, e.g. 401 / 403)
+};
+
+struct ENetHttpHeader { const char* name; const char* value; };
+
+struct ENetHttpTLSConfig { const ENetTransportSecurity* security; };
+
+namespace ENetHttpFlag {
+   /** Allow plaintext http:// / ws:// to non-loopback hosts. Never ship this on for login or store traffic. */
+   constexpr uint32_t ALLOW_INSECURE = 1u << 0;
+}
+
+/** Called on a WORKER thread for streaming downloads. Return 0 to accept / continue, non-zero to abort (ENET_HTTP_ERR_CANCELED). */
+struct ENetHttpSink {
+   /** Called once with the final (post-redirect) status and headers. contentLength is UINT64_MAX when unknown. */
+   int  (*on_headers)(void* user, int status, const ENetHttpHeader* headers, size_t headerCount, uint64_t contentLength);
+   int  (*on_data)(void* user, const uint8_t* data, size_t length);
+   void* user;
+};
+
+struct ENetHttpRequestDesc {
+   ENetHttpMethod        method;
+   const char*           url;
+   const ENetHttpHeader* headers;
+   size_t                header_count;
+   const void*           body;
+   size_t                body_size;
+   const ENetHttpTLSConfig* tls;
+   uint32_t              timeout_ms;          // per attempt, including redirects (for streamed bodies: max silence between reads); 0 = 15000
+   /* ---- added fields (zero = safe default) ---- */
+   uint32_t              flags;               // ENetHttpFlag bits
+   uint32_t              max_redirects;       // 0 = do not follow redirects
+   uint64_t              max_response_bytes;  // buffered responses only; 0 = 8 MiB
+   uint32_t              max_retries;         // 0 = none. Only idempotent methods, or requests carrying an Idempotency-Key header
+   uint32_t              retry_backoff_ms;    // base delay, doubled per attempt with jitter; 0 = 250
+   const ENetHttpSink*   sink;                // streams the body instead of buffering it (disables retries)
+};
+
+/** Fills a descriptor with sensible values: 15 s timeout, 3 redirects, 8 MiB limit, no retries. Recommended over zero-init. */
+MOSS_API void enet_http_request_desc_init(ENetHttpRequestDesc* desc, ENetHttpMethod method, const char* url);
+
+struct ENetHttpResponse {
+   int                   http_status;   // e.g. 200, 404; 0 if no response was received
+   ENetHttpError         error;
+   const ENetHttpHeader* headers;
+   size_t                header_count;
+   const void*           body;          // NULL when a sink consumed the body
+   size_t                body_size;     // bytes delivered
+   const char*           final_url;     // URL of the last request (after redirects)
+   uint32_t              attempts;      // 1 + retries used
+   void*                 internal_;     // private: owner of a result returned by enet_http_perform(); leave untouched
+};
+
+struct ENetHttpRequest;
+using ENetHttpResponseCallback = void (*)(const ENetHttpResponse* response, void* userData);
+
+struct ENetHttpConfig {
+   uint32_t    worker_threads;   // 0 = 2
+   const char* user_agent;       // NULL = "Moss/1.0"
+};
+
+/** Optional. Called implicitly with defaults by the first request. Returns 0, or -1 if already initialised. */
+MOSS_API int  enet_http_init(const ENetHttpConfig* config);
+/** Cancels everything, joins the workers and drops undelivered callbacks. Safe to call when not initialised. */
+MOSS_API void enet_http_shutdown(void);
+
+/** Queues a request. The descriptor and everything it points to are copied. The callback runs from enet_http_poll() on the
+ *  calling thread and the response is valid only during it. Returns a handle (release it with enet_http_request_release) or NULL. */
+MOSS_API ENetHttpRequest* enet_http_request_async(const ENetHttpRequestDesc* desc, ENetHttpResponseCallback cb, void* userData);
+/** Delivers finished callbacks on this thread. Call once per frame. Returns how many callbacks ran. */
+MOSS_API int  enet_http_poll(void);
+/** Aborts a request; its callback still fires once with ENET_HTTP_ERR_CANCELED (unless already finished). */
+MOSS_API void enet_http_request_cancel(ENetHttpRequest* request);
+/** Drops your handle. If the request is still running it is cancelled and its callback is suppressed. */
+MOSS_API void enet_http_request_release(ENetHttpRequest* request);
+
+/** Blocking variant: do NOT call from the game thread. Free the result with enet_http_response_free(). Returns the error code. */
+MOSS_API ENetHttpError enet_http_perform(const ENetHttpRequestDesc* desc, ENetHttpResponse* out);
+MOSS_API void          enet_http_response_free(ENetHttpResponse* response);
+
+/** Case-insensitive header lookup in a response. Returns NULL when absent. */
+MOSS_API const char* enet_http_response_header(const ENetHttpResponse* response, const char* name);
+
+// ---- Sessions: base URL + default headers + bearer token (login, profiles, store, leaderboards) ----
+struct ENetHttpSession;
+
+/** `baseUrl` is an origin such as "https://api.example.com" (optionally with a path prefix). */
+MOSS_API ENetHttpSession* enet_http_session_create(const char* baseUrl);
+MOSS_API void             enet_http_session_destroy(ENetHttpSession* session);
+/** Adds / replaces a default header sent with every request. Returns 0, or -1 if the name or value is invalid. */
+MOSS_API int              enet_http_session_set_header(ENetHttpSession* session, const char* name, const char* value);
+/** Sets the Authorization: Bearer token (NULL clears it). The token is only ever sent to the session's own origin. */
+MOSS_API void             enet_http_session_set_bearer_token(ENetHttpSession* session, const char* token);
+MOSS_API void             enet_http_session_set_tls(ENetHttpSession* session, const ENetTransportSecurity* security);
+MOSS_API void             enet_http_session_set_flags(ENetHttpSession* session, uint32_t flags);
+/** `desc->url` is a PATH on the session's origin (must start with '/', e.g. "/v1/leaderboards/top?n=10"); other fields as for a plain
+ *  request. The session adds the origin, default headers and the bearer token. A 401 is delivered like any other response: refresh your
+ *  token, call set_bearer_token and resubmit. */
+MOSS_API ENetHttpRequest* enet_http_session_request_async(ENetHttpSession* session, const ENetHttpRequestDesc* desc, ENetHttpResponseCallback cb, void* userData);
+
+// ---- Downloads: patching and content updates ----
+struct ENetHttpDownloadResult {
+   ENetHttpError error;
+   int           http_status;
+   uint64_t      bytes;      // size of the finished file
+   int           verified;   // 1 if the SHA-256 (and size, when given) matched
+   int           resumed;    // 1 if an earlier partial download was continued
+};
+using ENetHttpProgressCallback = void (*)(uint64_t bytesDone, uint64_t bytesTotal /* 0 = unknown */, void* userData);
+using ENetHttpDownloadCallback = void (*)(const ENetHttpDownloadResult* result, void* userData);
+
+struct ENetHttpDownloadDesc {
+   const char*           url;
+   const char*           dest_path;             // final file; data is written to "<dest_path>.part" and renamed on success
+   const char*           expected_sha256_hex;   // 64 hex chars. Strongly recommended; REQUIRED to resume a partial file safely
+   uint64_t              expected_size;         // 0 = unknown
+   const ENetHttpHeader* headers;
+   size_t                header_count;
+   const ENetHttpTLSConfig* tls;
+   uint32_t              timeout_ms;            // per attempt; 0 = 60000
+   uint32_t              max_redirects;         // CDNs usually redirect: 3 is typical
+   uint32_t              flags;
+};
+
+/** Streams a file to disk with HTTP Range resume and SHA-256 verification. Progress and completion arrive from enet_http_poll(). */
+MOSS_API ENetHttpRequest* enet_http_download_async(const ENetHttpDownloadDesc* desc, ENetHttpProgressCallback progress, ENetHttpDownloadCallback done, void* userData);
+
+// ===============================================
+// WebSocket connection (handshake + framing over TCP / TLS)
+// ===============================================
+// Client: enet_websocket_connect() returns immediately; DNS, TCP, TLS and the HTTP Upgrade run on the worker pool.
+// Server: enet_websocket_accept() takes a socket you already accepted and completes the Upgrade inside enet_websocket_poll().
+// Drive both by calling enet_websocket_poll() every frame until it returns 0.
+//
+// Security: wss:// is verified like https://. Send tokens in the Authorization header (ENetWebSocketDesc::headers), never in the URL
+// (URLs end up in logs). Servers should set allowed_origins when browsers can reach them (cross-site WebSocket hijacking) and
+// validate the token in `authorize`. Messages are size-limited (default 1 MiB) so a peer cannot exhaust memory.
+
+struct ENetWebSocket;
+
+enum class ENetWebSocketState : uint8_t { CONNECTING, OPEN, CLOSING, CLOSED };
+enum class ENetWebSocketEventType : uint8_t {
+   OPEN,      // handshake complete (client: subprotocol set)
+   TEXT,      // UTF-8 text message
+   BINARY,
+   PONG,
+   CLOSE,     // orderly close; close_code holds the status
+   FAILURE    // handshake rejected, I/O error, protocol violation or timeout; see error / http_status
+};
+
+struct ENetWebSocketEvent {
+   ENetWebSocketEventType type;
+   const uint8_t*         data;         // valid until the next poll / destroy
+   size_t                 length;
+   uint16_t               close_code;   // CLOSE
+   ENetHttpError          error;        // FAILURE
+   int                    http_status;  // FAILURE during the handshake (e.g. 401), else 0
+   const char*            subprotocol;  // OPEN: negotiated subprotocol or ""
+};
+
+struct ENetWebSocketDesc {
+   const char*              url;                 // ws:// or wss://
+   const ENetHttpHeader*    headers;             // e.g. Authorization: Bearer ...
+   size_t                   header_count;
+   const char*              subprotocols;        // comma separated offer, e.g. "moss.v1, moss.v0"; NULL = none
+   const char*              origin;              // optional Origin header
+   const ENetHttpTLSConfig* tls;
+   uint32_t                 connect_timeout_ms;  // 0 = 10000
+   size_t                   max_message_bytes;   // 0 = 1 MiB
+   size_t                   max_queued_bytes;    // outgoing queue limit; 0 = 4 MiB
+   uint32_t                 ping_interval_ms;    // 0 = no keep-alive pings
+   uint32_t                 idle_timeout_ms;     // 0 = none; fail if nothing is received for this long
+   uint32_t                 flags;               // ENetHttpFlag bits
+};
+
+struct ENetWebSocketRequest {                    // what a server sees during the Upgrade
+   const char*           path;                    // request target, including the query string
+   const char*           host;
+   const char*           origin;                  // "" when absent
+   const char*           subprotocols;            // client's offer, "" when absent
+   const ENetHttpHeader* headers;                 // all request headers
+   size_t                header_count;
+};
+/** Return 0 to accept, or the HTTP status to reject with (401, 403, 429, ...). Runs on the thread calling enet_websocket_poll(). */
+using ENetWebSocketAuthorizeCallback = int (*)(const ENetWebSocketRequest* request, void* userData);
+
+struct ENetWebSocketServerDesc {
+   const char* const*  allowed_origins;       // NULL = do not check Origin
+   size_t              allowed_origin_count;
+   int                 require_origin;        // non-zero: requests without an Origin header are rejected too
+   const char*         subprotocols;          // server's supported list, comma separated; the first client-offered match is chosen
+   ENetWebSocketAuthorizeCallback authorize;  // optional
+   void*               user;
+   uint32_t            handshake_timeout_ms;  // 0 = 5000
+   size_t              max_message_bytes;     // 0 = 1 MiB
+   size_t              max_queued_bytes;      // 0 = 4 MiB
+   uint32_t            ping_interval_ms;
+   uint32_t            idle_timeout_ms;
+};
+
+MOSS_API ENetWebSocket* enet_websocket_connect(const ENetWebSocketDesc* desc);
+/** Takes ownership of `socket` (a connected socket from enet_socket_accept). Plain TCP: terminate TLS in front (reverse proxy) or accept wss yourself. */
+MOSS_API ENetWebSocket* enet_websocket_accept(ENetSocket socket, const ENetWebSocketServerDesc* desc);
+/** Pumps I/O and returns the next event (1) or 0 when there is none. Call in a loop each frame. */
+MOSS_API int  enet_websocket_poll(ENetWebSocket* ws, ENetWebSocketEvent* event);
+/** Return 0 on success, -1 if not open, -2 if the outgoing queue limit would be exceeded, -3 on invalid text/argument. Data is copied. */
+MOSS_API int  enet_websocket_send_text(ENetWebSocket* ws, const char* text, size_t length);
+MOSS_API int  enet_websocket_send_binary(ENetWebSocket* ws, const void* data, size_t length);
+MOSS_API int  enet_websocket_send_ping(ENetWebSocket* ws, const void* data, size_t length);
+/** Starts the closing handshake (code 0 = none; reason may be NULL). Keep polling until CLOSE arrives (it times out after 5 s). */
+MOSS_API int  enet_websocket_close(ENetWebSocket* ws, uint16_t code, const char* reason);
+MOSS_API ENetWebSocketState enet_websocket_state(const ENetWebSocket* ws);
+/** Immediately drops the connection (no closing handshake) and frees everything. Safe while a connect is still in progress. */
+MOSS_API void enet_websocket_destroy(ENetWebSocket* ws);
+
+/** Handshake primitives for custom transports and tests. client key = 24 base64 chars + NUL; accept key = 28 chars + NUL. */
+MOSS_API int enet_ws_generate_client_key(char out[25]);
+MOSS_API int enet_ws_compute_accept_key(const char* clientKey, char out[29]);
+
+// ===============================================
+// Transport abstraction (UDP / TCP / WebSocket / ...)
+// ===============================================
+// A transport moves bytes between endpoints. Datagram transports (UDP) rely on the
+// ENet reliability layer; stream transports (TCP, WebSocket) already provide
+// RELIABLE | ORDERED delivery, so the session layer can skip ack/retransmit for them.
+// Declarations below are the planned interface; backends are not implemented yet.
+
+enum class ENetTransportType : uint8_t {
    UDP,          // core gameplay
    TCP,          // services, chat
-   WEBSOCKET,    // browsers
+   WEBSOCKET,    // matchmaking, leaderboards, chat, browsers
    WEBRTC,       // P2P / browsers
    WEBTRANSPORT  // QUIC
 };
 
-enum class ENetTransportEventType {
+enum class ENetTransportEventType : uint8_t {
    CONNECT,
    ACCEPT,
    RECEIVE,
    DISCONNECT,
-   ERROR
+   FAILURE        // was ERROR: collides with the ERROR macro from <wingdi.h> on Windows
 };
 
-enum class ENetTransportCaps {
-   UNRELIABLE = 1 << 0,
-   RELIABLE   = 1 << 1,
-   ORDERED    = 1 << 2,
-   UNORDERED  = 1 << 3
-};
-
-enum NetEventType {
-   CONNECT,
-   DISCONNECT,
-   RECEIVE
-} NetEventType;
-
-enum NetConnectionState {
-   DISCONNECTED,
-   CONNECTING,
-   HANDSHAKE,
-   CONNECTED,
-   DISCONNECTING
-} NetConnectionState;
+/** Capability bits reported by a transport (combine with |). */
+namespace ENetTransportCaps {
+   constexpr uint32_t UNRELIABLE = 1u << 0;
+   constexpr uint32_t RELIABLE   = 1u << 1;
+   constexpr uint32_t ORDERED    = 1u << 2;
+   constexpr uint32_t UNORDERED  = 1u << 3;
+}
 
 struct ENetTransportConfig {
    int backlog;
    int heartbeat_ms;
-   const char *ws_path;
-   const char *ws_subprotocol;
-   const char *webrtc_stun_servers;
-   const char *webrtc_turn_servers;
-   const char *quic_cert_file;
-   const char *quic_key_file;
-} ENetTransportConfig;
-
+   const char* ws_path;
+   const char* ws_subprotocol;
+   const char* webrtc_stun_servers;
+   const char* webrtc_turn_servers;
+   const char* quic_cert_file;
+   const char* quic_key_file;
+};
 
 struct ENetTransportPeer {
-   void *backend_ctx;
-} ENetTransportPeer;
+   void* backend_ctx;
+};
 
-struct {
+struct ENetTransportEvent {
    ENetTransportEventType type;
-   ENetTransportPeer *peer;
-   const uint8_t *data;
-   size_t data_len;
-   int channel; // opaque; map to ENet channels if needed
+   ENetTransportPeer*     peer;
+   const uint8_t*         data;
+   size_t                 data_len;
+   int                    channel; // opaque; map to ENet channels if needed
 };
 
-
-// place this in internal
+/** Backend vtable. `state` is the backend's own instance data and is passed back as `self`. */
 struct ENetTransport {
-   ENetTransportCaps caps;
+   uint32_t caps;   // ENetTransportCaps bits
+   void*    state;
 
-   int (*init)(ENetTransportConfig*);
-   int (*poll)(ENetTransportEvent*, int);
-   int (*send)(ENetTransportPeer*, const uint8_t*, size_t);
-   void (*close_peer)(ENetTransportPeer*);
-   void (*shutdown)(void);
+   int  (*init)(ENetTransport* self, const ENetTransportConfig* config);
+   int  (*poll)(ENetTransport* self, ENetTransportEvent* events, int capacity, int timeoutMs);
+   int  (*send)(ENetTransport* self, ENetTransportPeer* peer, const uint8_t* data, size_t len, int channel);
+   void (*close_peer)(ENetTransport* self, ENetTransportPeer* peer);
+   void (*shutdown)(ENetTransport* self);
 };
 
-struct ENetTransport ENetTransport;
+/** Factory / lifecycle. */
+MOSS_API ENetTransport* enet_transport_create(ENetTransportType type, const char* bindHost, uint16_t port, const ENetTransportConfig* cfg);
+MOSS_API void           enet_transport_destroy(ENetTransport* transport);
+/** Non-blocking poll; fills up to `capacity` events and returns the count. */
+MOSS_API int            enet_transport_poll(ENetTransport* transport, ENetTransportEvent* events, int capacity, int timeoutMs);
+/** Returns bytes sent, or negative on error. */
+MOSS_API int            enet_transport_send(ENetTransport* transport, ENetTransportPeer* peer, const uint8_t* data, size_t len, int channel);
+MOSS_API int            enet_transport_connect(ENetTransport* transport, ENetTransportPeer* peer, const char* host, uint16_t port);
+MOSS_API int            enet_transport_close_peer(ENetTransport* transport, ENetTransportPeer* peer);
 
-// factory / lifecycle 
-ENetTransport* enet_transport_create(ENetTransportType type, const char *bind_host, uint16_t port, const ENetTransportConfig *cfg);
-void enet_transport_destroy(ENetTransport *t);
-
-// poll: non-blocking; fills events up to capacity, returns count
-int enet_transport_poll(ENetTransport *t, ENetTransportEvent *events, int capacity, int timeout_ms);
-
-/* send on a peer; returns bytes sent or negative on error
-int enet_transport_send(ENetTransport *t, ENetTransportPeer *peer, const uint8_t *data, size_t len, int channel);
-
-/* connect / close 
-int enet_transport_connect(ENetTransport *t, ENetTransportPeer *peer, const char *host, uint16_t port);
-
-int enet_transport_close_peer(ENetTransport *t, ENetTransportPeer *peer);
-
-/*! @brief X @param X X. 
-MOSS_API ENetHost* enet_host_create_with_transport(const ENetAddress* address, size_t peerCount, size_t channelLimit, uint32_t incomingBandwidth, uint32_t outgoingBandwidth, ENetTransportType transport);
-
-/*! @brief X @param X X. 
-MOSS_API ENetPeer* enet_host_connect(ENetHost* host, const ENetAddress* address, size_t channelCount, uint32_t data);
-
-/*! @param endpoint URL or address 
+MOSS_API ENetHost* enet_host_create_with_transport(const ENetAddress* address, size_t peerCount, size_t channelLimit,
+                                                   uint32_t incomingBandwidth, uint32_t outgoingBandwidth, ENetTransportType transport);
+/** @param endpoint URL or address string. */
 MOSS_API ENetPeer* enet_host_connect_ex(ENetHost* host, const char* endpoint, size_t channelCount, uint32_t data);
+MOSS_API uint32_t  enet_host_transport_caps(ENetHost* host);
 
-/*! @brief X @param X X. 
-MOSS_API uint32_t enet_host_transport_caps(ENetHost* host);
 
-/////////////////////////////////////////////////////////////////////////
 
-// =============================================
-// Protocal plane
-// =============================================
-MOSS_API void enet_transport_handle_event(ENetHost* host, const ENetTransportEvent* tevent);
-MOSS_API void enet_peer_reset(ENetPeer* peer);
-MOSS_API void enet_peer_timeout(ENetPeer* peer);
-MOSS_API void enet_peer_ping(ENetPeer* peer);
+
+
+
+struct NetPacket;
+struct NetPeer;
+
+enum class NetEventType : uint8_t { CONNECT, DISCONNECT, RECEIVE };
+enum class NetConnectionState : uint8_t { DISCONNECTED, CONNECTING, HANDSHAKE, CONNECTED, DISCONNECTING };
+
+constexpr uint8_t NET_FLAG_RELIABLE  = 0x01;
+constexpr uint8_t NET_FLAG_FRAGMENT  = 0x02;
+constexpr uint8_t NET_FLAG_HANDSHAKE = 0x04;
+constexpr uint8_t NET_FLAG_ENCRYPTED = 0x08;
+
+// ---- Protocol plane ----
+MOSS_API void   enet_transport_handle_event(ENetHost* host, const ENetTransportEvent* tevent);
 MOSS_API size_t enet_packet_encode(const NetPacket* packet, uint8_t* outBuffer, size_t bufferSize);
-MOSS_API bool enet_packet_decode(NetPacket* outPacket, const uint8_t* buffer, size_t bufferSize);
-MOSS_API void enet_fragment_send(ENetPeer* peer, uint8_t channelId, const uint8_t* data, size_t size);
-MOSS_API bool enet_fragment_receive(ENetPeer* peer, const NetPacket* fragment, NetPacket* outPacket);
-MOSS_API void enet_bandwidth_update(ENetHost* host, float deltaTime);
+MOSS_API bool   enet_packet_decode(NetPacket* outPacket, const uint8_t* buffer, size_t bufferSize);
+MOSS_API void   enet_fragment_send(ENetPeer* peer, uint8_t channelId, const uint8_t* data, size_t size);
+MOSS_API bool   enet_fragment_receive(ENetPeer* peer, const NetPacket* fragment, NetPacket* outPacket);
+MOSS_API void   enet_bandwidth_update(ENetHost* host, float deltaTime);
 MOSS_API size_t enet_peer_send_window(const ENetPeer* peer);
-MOSS_API int enet_peer_create_channel(ENetPeer* peer, bool reliable, bool ordered);
-MOSS_API void enet_peer_reset_channels(ENetPeer* peer);
-MOSS_API void enet_peer_disconnect(ENetPeer* peer, uint32_t reason);
-MOSS_API void enet_peer_disconnect_now(ENetPeer* peer);
-MOSS_API void enet_peer_get_stats(const ENetPeer* peer, float* rtt, float* packetLoss, uint32_t* sent, uint32_t* received);
-MOSS_API void enet_host_flush(ENetHost* host);
-MOSS_API void enet_host_broadcast(ENetHost* host, uint8_t channelId, const uint8_t* data, size_t size);
-MOSS_API void enet_host_set_protocol_id(ENetHost* host, uint16_t protocolId);
+MOSS_API int    enet_peer_create_channel(ENetPeer* peer, bool reliable, bool ordered);
+MOSS_API void   enet_peer_reset_channels(ENetPeer* peer);
+MOSS_API void   enet_peer_get_stats(const ENetPeer* peer, float* rtt, float* packetLoss, uint32_t* sent, uint32_t* received);
+MOSS_API void   enet_host_set_protocol_id(ENetHost* host, uint16_t protocolId);
 MOSS_API uint16_t enet_host_get_protocol_id(const ENetHost* host);
 
-
-
-
-
-
-
-// =============================================
-// Low-level socket & packet model
-// =============================================
+// ---- Low-level socket & packet model ----
 struct NetSocket {
    int handle;
    ENetAddress localAddress;
 };
 
 NetSocket* net_socket_create(uint16_t port);
-
-void net_socket_close(NetSocket* socket);
-
-int net_socket_send(NetSocket* socket, ENetAddress* address, const uint8_t* data, size_t size);
-
-int net_socket_receive(NetSocket* socket, ENetAddress* outAddress, uint8_t* buffer, size_t bufferSize);
-
-
-// =============================================
-// Packet & protocol mechanics
-// =============================================
+void       net_socket_close(NetSocket* socket);
+int        net_socket_send(NetSocket* socket, ENetAddress* address, const uint8_t* data, size_t size);
+int        net_socket_receive(NetSocket* socket, ENetAddress* outAddress, uint8_t* buffer, size_t bufferSize);
 
 struct NetPacketHeader {
    uint16_t protocolId;
@@ -1150,398 +1709,158 @@ struct NetPacketHeader {
    uint16_t sequence;
    uint16_t ack;
    uint32_t ackBits;
-} NetPacketHeader;
+};
 
 struct NetPacket {
-    NetPacketHeader header;
-    uint8_t* payload;
-    size_t payloadSize;
-} NetPacket;
+   NetPacketHeader header;
+   uint8_t* payload;
+   size_t   payloadSize;
+};
+
+struct PacketQueue {        // layout TBD
+   NetPacket** items;
+   size_t head, tail, capacity;
+};
 
 struct NetChannel {
-    uint8_t id;
-    bool reliable;
-    uint16_t nextSendSeq;
-    uint16_t nextRecvSeq;
-    PacketQueue outgoing;
-    PacketQueue incoming;
-} NetChannel;
+   uint8_t  id;
+   bool     reliable;
+   uint16_t nextSendSeq;
+   uint16_t nextRecvSeq;
+   PacketQueue outgoing;
+   PacketQueue incoming;
+};
 
 struct ReliablePacket {
-    uint16_t sequence;
-    uint32_t sendTime;
-    uint8_t retries;
-    NetPacket* packet;
-} ReliablePacket;
+   uint16_t sequence;
+   uint32_t sendTime;
+   uint8_t  retries;
+   NetPacket* packet;
+};
 
 void net_channel_send(NetPeer* peer, uint8_t channelId, const uint8_t* data, size_t size, bool reliable);
-
 void net_reliability_update(NetPeer* peer, float deltaTime);
 
-
-// =============================================
-// Security & handshake
-// =============================================
-
+// ---- Security & handshake ----
+// Key exchange and connect tokens are still to be designed; do not ship the fields below as-is.
 struct NetCryptoContext {
-    uint8_t encryptionKey[32];
-    uint8_t hmacKey[32];
-    uint64_t nonce;
-} NetCryptoContext;
+   uint8_t  encryptionKey[32];
+   uint8_t  hmacKey[32];
+   uint64_t nonce;
+};
 
 struct NetHandshake {
-    uint32_t challenge;
-    uint32_t response;
-    bool verified;
-} NetHandshake;
+   uint32_t challenge;
+   uint32_t response;
+   bool     verified;
+};
 
 bool net_security_encrypt(NetCryptoContext*, uint8_t* data, size_t);
 bool net_security_decrypt(NetCryptoContext*, uint8_t* data, size_t);
-
 bool net_handshake_process(NetPeer* peer, NetPacket* packet);
 
-
-// =============================================
-// Peer & host state
-// =============================================
-
+// ---- Peer & host state ----
 struct NetPeer {
    ENetAddress address;
-   uint32_t peerId;
-   uint16_t localSequence;
-   uint16_t remoteSequence;
-   float lastReceiveTime;
-   float rtt;
-   float packetLoss;
-   bool connected;
-} NetPeer;
+   uint32_t    peerId;
+   uint16_t    localSequence;
+   uint16_t    remoteSequence;
+   float       lastReceiveTime;
+   float       rtt;
+   float       packetLoss;
+   bool        connected;
+};
 
 struct NetHost {
-    NetSocket* socket;
-    NetPeer* peers;
-    size_t maxPeers;
-    NetCryptoContext crypto;
-    float currentTime;
-} NetHost;
+   NetSocket*       socket;
+   NetPeer*         peers;
+   size_t           maxPeers;
+   NetCryptoContext crypto;
+   float            currentTime;
+};
 
 NetHost* net_host_create(uint16_t port, size_t maxPeers);
-void net_host_destroy(NetHost* host);
-void net_host_update(NetHost* host, float deltaTime);
+void     net_host_destroy(NetHost* host);
+void     net_host_update(NetHost* host, float deltaTime);
 
-
-// =============================================
-// Events & NAT traversal
-// =============================================
-
+// ---- Events & NAT traversal ----
 struct NetEvent {
-    NetEventType type;
-    NetPeer* peer;
-    uint8_t channelId;
-    uint8_t* data;
-    size_t dataSize;
-} NetEvent;
+   NetEventType type;
+   NetPeer*     peer;
+   uint8_t      channelId;
+   uint8_t*     data;
+   size_t       dataSize;
+};
 
-void (*NetEventCallback)(NetEvent*, void*);
-
+using NetEventCallback = void (*)(NetEvent*, void*);
 void net_host_set_callback(NetHost*, NetEventCallback, void* userData);
 
 struct NetNATState {
-    bool punchInProgress;
-    uint32_t retries;
-} NetNATState;
+   bool     punchInProgress;
+   uint32_t retries;
+};
 
 void net_nat_start_punch(NetPeer*);
 void net_nat_update(NetPeer*, float deltaTime);
 
-
-// ===============================================
-// Transport abstraction (UDP / TCP / WS / WebRTC)
-// ===============================================
-
-struct ENetTransportPeer {
-   void *backend_ctx;
-} ENetTransportPeer;
-
-struct {
-   ENetTransportEventType type;
-   ENetTransportPeer *peer;
-   const uint8_t *data;
-   size_t data_len;
-   int channel;
-} ENetTransportEvent;
-
-struct ENetTransportConfig {
-   int backlog;
-   int heartbeat_ms;
-   const char *ws_path;
-   const char *ws_subprotocol;
-   const char *webrtc_stun_servers;
-   const char *webrtc_turn_servers;
-   const char *quic_cert_file;
-   const char *quic_key_file;
-} ENetTransportConfig;
-
-struct ENetTransport {
-   ENetTransportCaps caps;
-   int (*init)(ENetTransportConfig*);
-   int (*poll)(ENetTransportEvent*, int);
-   int (*send)(ENetTransportPeer*, const uint8_t*, size_t);
-   void (*close_peer)(ENetTransportPeer*);
-   void (*shutdown)(void);
-};
-
-ENetTransport* enet_transport_create(
-   ENetTransportType type,
-   const char *bind_host,
-   uint16_t port,
-   const ENetTransportConfig *cfg
-);
-
-void enet_transport_destroy(ENetTransport*);
-int enet_transport_poll(ENetTransport*, ENetTransportEvent*, int, int);
-int enet_transport_send(ENetTransport*, ENetTransportPeer*, const uint8_t*, size_t, int);
-int enet_transport_connect(ENetTransport*, ENetTransportPeer*, const char*, uint16_t);
-int enet_transport_close_peer(ENetTransport*, ENetTransportPeer*);
-
-// =============================================
-// Public ENet host API
-// =============================================
-
-MOSS_API ENetHost* enet_host_create_with_transport(
-   const ENetAddress*,
-   size_t peerCount,
-   size_t channelLimit,
-   uint32_t incomingBandwidth,
-   uint32_t outgoingBandwidth,
-   ENetTransportType transport
-);
-
-MOSS_API ENetPeer* enet_host_connect(
-   ENetHost*, const ENetAddress*, size_t, uint32_t
-);
-
-MOSS_API ENetPeer* enet_host_connect_ex(
-   ENetHost*, const char* endpoint, size_t, uint32_t
-);
-
-MOSS_API uint32_t enet_host_transport_caps(ENetHost*);
-
-
-
-
-// =============================================
-// HTTP/REST
-// =============================================
-
-struct ENetHttpServer ENetHttpServer;
-struct ENetHttpRequest ENetHttpRequest;
-
-enum class ENetHttpMethod : uint8_t {
-    ENET_HTTP_GET,
-    ENET_HTTP_POST,
-    ENET_HTTP_PUT,
-    ENET_HTTP_DELETE,
-    ENET_HTTP_PATCH,
-    ENET_HTTP_HEAD
-} ENetHttpMethod;
-
-enum class ENetHttpError : int32_t {
-    ENET_HTTP_OK = 0,
-
-    /* Transport-level 
-    ENET_HTTP_ERR_DNS_FAILURE,
-    ENET_HTTP_ERR_CONNECT_FAILED,
-    ENET_HTTP_ERR_TLS_FAILED,
-    ENET_HTTP_ERR_TIMEOUT,
-    ENET_HTTP_ERR_CANCELED,
-
-    /* Protocol-level 
-    ENET_HTTP_ERR_INVALID_RESPONSE,
-    ENET_HTTP_ERR_TOO_LARGE,
-
-    /* Client misuse 
-    ENET_HTTP_ERR_INVALID_ARGUMENT,
-    ENET_HTTP_ERR_INTERNAL
-} ENetHttpError;
-
-struct ENetHttpHeader {
-    const char* name;
-    const char* value;
-} ENetHttpHeader;
-
-struct ENetHttpServerRequest {
-    ENetHttpMethod method;
-    const ENetHttpHeader* headers;
-    size_t header_count;
-    const void* body;
-    size_t body_size;
-};
-
-struct ENetTransportSecurity {
-    const char* cert_file;   // server.pem
-    const char* key_file;    // server.key
-    const char* ca_file;     // ca.pem (optional)
-    int verify_peer;         // 1 = verify client/server cert
-} ENetTransportSecurity;
-
-struct ENetHttpTLSConfig {
-    const ENetTransportSecurity* security;
-} ENetHttpTLSConfig;
-
-struct ENetHttpRequestDesc {
-    ENetHttpMethod method;
-    const char*    url;
-
-    const ENetHttpHeader* headers;
-    size_t                header_count;
-
-    const void* body;
-    size_t      body_size;
-
-    const ENetHttpTLSConfig* tls;
-    uint32_t timeout_ms;
-} ENetHttpRequestDesc;
-
-struct ENetHttpResponse {
-    int http_status;  /* e.g. 200, 404 
-    ENetHttpError error;
-
-    const ENetHttpHeader* headers;
-    size_t header_count;
-
-    const void* body;
-    size_t body_size;
-} ENetHttpResponse;
-
-struct ENetHttpServerResponse {
-    int status;
-    const ENetHttpHeader* headers;
-    size_t header_count;
-    const void* body;
-    size_t body_size;
-} ENetHttpServerResponse;
-
-void (*ENetHttpEndpointHandler)(const ENetHttpServerRequest* request, ENetHttpServerResponse* response, void* userData);
-void (*ENetHttpResponseCallback)(const ENetHttpResponse* response, void* userData);
-
-/*! @brief X @param X X. 
-MOSS_API ENetHttpServer* enet_http_server_start( const char* bindAddress, enet_uint16_t port);
-
-/*! @brief X @param X X. 
-MOSS_API void enet_http_server_stop(ENetHttpServer* server);
-
-/*! @brief X @param X X. 
-MOSS_API void enet_http_register_endpoint(ENetHttpServer* server, const char* path, ENetHttpEndpointHandler handler, void* userData);
-
-
-MOSS_API ENetHost* enet_host_create_secure(const ENetAddress* address, size_t peerCount, size_t channelLimit, 
-   uint32_t incomingBandwidth, uint32_t outgoingBandwidth, ENetTransportType transport, const ENetTransportSecurity* security);
-
-MOSS_API ENetHttpRequest* enet_http_request_async(const ENetHttpRequestDesc* desc,ENetHttpResponseCallback cb, void* userData);
-MOSS_API void enet_http_request_cancel(ENetHttpRequest* request);
-MOSS_API void enet_http_request_release(ENetHttpRequest* request);
-
-
-
-
-
-int (*ENetConnectValidator)(ENetPeer* peer, const void* data, size_t dataLength);
-
-MOSS_API void enet_host_set_connect_validator(ENetHost* host, ENetConnectValidator validator);
-
-struct NetPeer {
-   ENetAddress address;
-   uint32_t peerId;
-
-   uint16_t localSequence;
-   uint16_t remoteSequence;
-
-   float lastReceiveTime;
-   float rtt;
-   float packetLoss;
-
-   bool connected;
-} NetPeer;
-
-struct NetChannel {
-    uint8_t id;
-    bool reliable;
-
-    uint16_t nextSendSeq;
-    uint16_t nextRecvSeq;
-
-    PacketQueue outgoing;
-    PacketQueue incoming;
-} NetChannel;
-
-
-struct NetHost {
-    NetSocket* socket;
-    NetPeer* peers;
-    size_t maxPeers;
-
-    NetCryptoContext crypto;
-    float currentTime;
-} NetHost;
-
-struct NetEvent {
-    NetEventType type;
-    NetPeer* peer;
-    uint8_t channelId;
-    uint8_t* data;
-    size_t dataSize;
-} NetEvent;
-
+// ---- Stream framing for TCP ----
 struct ENetStreamFrame {
    uint32_t length;
-   uint8_t  data[];
-} ENetStreamFrame;
-
+   uint8_t  data[];   // flexible array member (compiler extension in C++)
+};
 
 #pragma pack(push, 1)
 struct ENetTCPFrameHeader {
-    uint32_t length;     // payload size (network byte order)
-    uint8_t  channelID;
-    uint8_t  flags;      // 
-} ENetTCPFrameHeader;
+   uint32_t length;     // payload size (network byte order)
+   uint8_t  channelID;
+   uint8_t  flags;
+};
 #pragma pack(pop)
 
-NetHost* net_host_create(uint16_t port, size_t maxPeers);
-void net_host_destroy(NetHost* host);
+MOSS_API int enet_transport_send_stream(ENetTransport* t, ENetTransportPeer* peer, const uint8_t* data, size_t len);
+MOSS_API int enet_transport_receive_stream(ENetTransport* t, ENetTransportPeer* peer, uint8_t* out, size_t capacity);
 
-void net_host_update(NetHost* host, float deltaTime);
-
-
-// TCP
-MOSS_API int enet_transport_send_stream(...);
-MOSS_API int enet_transport_receive_stream(...);
-
-// Websocket
-
-MOSS_API void enet_transport_ws_close(ENetTransportPeer*, int code);
-
-MOSS_API void enet_transport_webrtc_signal(ENetTransport*, ENetTransportPeer*, const ENetWebRTCSignal*);
-
-
-
-
-
-// WebRTC
-enum ENetWebRTCSignalType {
-    ENET_WEBRTC_SIGNAL_OFFER,
-    ENET_WEBRTC_SIGNAL_ANSWER,
-    ENET_WEBRTC_SIGNAL_ICE_CANDIDATE
-} ENetWebRTCSignalType;
+// ---- WebRTC signalling ----
+enum class ENetWebRTCSignalType : uint8_t { OFFER, ANSWER, ICE_CANDIDATE };
 
 struct ENetWebRTCSignal {
-    ENetWebRTCSignalType type;
-    const char* data;
-} ENetWebRTCSignal;
+   ENetWebRTCSignalType type;
+   const char* data;
+};
 
-void (*ENetWebRTCSignalCallback)(ENetHost*, ENetPeer*, const ENetWebRTCSignal*, void*);
+using ENetWebRTCSignalCallback = void (*)(ENetHost*, ENetPeer*, const ENetWebRTCSignal*, void*);
 
+MOSS_API void enet_transport_ws_close(ENetTransportPeer*, int code);
+MOSS_API void enet_transport_webrtc_signal(ENetTransport*, ENetTransportPeer*, const ENetWebRTCSignal*);
 MOSS_API void enet_host_set_webrtc_signal_callback(ENetHost*, ENetWebRTCSignalCallback, void*);
+MOSS_API int  enet_webrtc_handle_signal(ENetHost*, ENetPeer*, const ENetWebRTCSignal*);
 
-MOSS_API int enet_webrtc_handle_signal(ENetHost*, ENetPeer*, const ENetWebRTCSignal*);
-*/
+// ---- HTTP server (not planned for the client-focused first release) ----
+// Backends for login / matchmaking / store / leaderboards are normally separate services; a Moss dedicated server only needs
+// enet_websocket_accept() plus its own TCP listener.
+struct ENetHttpServer;
+struct ENetHttpServerRequest {
+   ENetHttpMethod method;
+   const ENetHttpHeader* headers;
+   size_t header_count;
+   const void* body;
+   size_t body_size;
+};
+struct ENetHttpServerResponse {
+   int status;
+   const ENetHttpHeader* headers;
+   size_t header_count;
+   const void* body;
+   size_t body_size;
+};
+using ENetHttpEndpointHandler = void (*)(const ENetHttpServerRequest* request, ENetHttpServerResponse* response, void* userData);
+using ENetConnectValidator = int (*)(ENetPeer* peer, const void* data, size_t dataLength);
+MOSS_API ENetHttpServer* enet_http_server_start(const char* bindAddress, uint16_t port);
+MOSS_API void            enet_http_server_stop(ENetHttpServer* server);
+MOSS_API void            enet_http_register_endpoint(ENetHttpServer* server, const char* path, ENetHttpEndpointHandler handler, void* userData);
+
+
+MOSS_API void enet_host_set_connect_validator(ENetHost* host, ENetConnectValidator validator);
+MOSS_API ENetHost* enet_host_create_secure(const ENetAddress* address, size_t peerCount, size_t channelLimit, uint32_t incomingBandwidth, uint32_t outgoingBandwidth, ENetTransportType transport, const ENetTransportSecurity* security);
+
 #endif // MOSS_NETWORK_H

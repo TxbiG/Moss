@@ -150,10 +150,10 @@ public:
 	MOSS_INLINE bool			operator != (const Vec3 inV2) const				{ return !(*this == inV2); }
 
 	/// Test if two vectors are close
-	MOSS_INLINE bool			IsClose(const Vec3 inV2, float inMaxDistSq = 1.0e-12f) const;
+	MOSS_INLINE bool			IsClose(const Vec3 inV2, float inMaxDistSq = MOSS_ZERO_EPSILON) const;
 
 	/// Test if vector is near zero
-	MOSS_INLINE bool			IsNearZero(float inMaxDistSq = 1.0e-12f) const;
+	MOSS_INLINE bool			IsNearZero(float inMaxDistSq = MOSS_ZERO_EPSILON) const;
 
 	/// Test if vector is normalized
 	MOSS_INLINE bool			IsNormalized(float inTolerance = 1.0e-6f) const;

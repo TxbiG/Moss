@@ -139,7 +139,7 @@ public:
 	///
 	/// @param inAIncludingConvexRadius Object A with convex radius
 	/// @param inBIncludingConvexRadius Object B with convex radius
-	/// @param inTolerance A factor that determines the accuracy of the result. If the change of the squared distance is less than inTolerance * current_penetration_depth^2 the algorithm will terminate. Should be bigger or equal to FLT_EPSILON.
+	/// @param inTolerance A factor that determines the accuracy of the result. If the change of the squared distance is less than inTolerance * current_penetration_depth^2 the algorithm will terminate. Should be bigger or equal to MOSS_FLOAT_EPSILON.
 	/// @param outV Direction to move B out of collision along the shortest path (magnitude is meaningless)
 	/// @param outPointA Position on A that has the least amount of penetration
 	/// @param outPointB Position on B that has the least amount of penetration
@@ -153,7 +153,7 @@ public:
 		MOSS_PROFILE_FUNCTION();
 
 		// Check that the tolerance makes sense (smaller value than this will just result in needless iterations)
-		MOSS_ASSERT(inTolerance >= FLT_EPSILON);
+		MOSS_ASSERT(inTolerance >= MOSS_FLOAT_EPSILON);
 
 		// Fetch the simplex from GJK algorithm
 		SupportPoints support_points;
@@ -510,7 +510,7 @@ public:
 	/// @param inStart Start position and orientation of the convex object
 	/// @param inDirection Direction of the sweep (ioLambda * inDirection determines length)
 	///	@param inCollisionTolerance The minimal distance between A and B before they are considered colliding
-	/// @param inPenetrationTolerance A factor that determines the accuracy of the result. If the change of the squared distance is less than inTolerance * current_penetration_depth^2 the algorithm will terminate. Should be bigger or equal to FLT_EPSILON.
+	/// @param inPenetrationTolerance A factor that determines the accuracy of the result. If the change of the squared distance is less than inTolerance * current_penetration_depth^2 the algorithm will terminate. Should be bigger or equal to MOSS_FLOAT_EPSILON.
 	/// @param inA The convex object A, must support the GetSupport(Vec3) function.
 	/// @param inB The convex object B, must support the GetSupport(Vec3) function.
 	/// @param inConvexRadiusA The convex radius of A, this will be added on all sides to pad A.

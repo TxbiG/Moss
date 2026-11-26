@@ -277,7 +277,7 @@ public:
 			}
 
 			// If v is very small compared to the length of y, we also consider this a collision
-			if (v_len_sq <= FLT_EPSILON * GetMaxYLengthSq())
+			if (v_len_sq <= MOSS_FLOAT_EPSILON * GetMaxYLengthSq())
 			{
 #ifdef MOSS_GJK_DEBUG
 				MOSS_TRACE("Machine precision reached");
@@ -292,7 +292,7 @@ public:
 
 			// If the squared length of v is not changing enough, we've converged and there is no collision
 			MOSS_ASSERT(prev_v_len_sq >= v_len_sq);
-			if (prev_v_len_sq - v_len_sq <= FLT_EPSILON * prev_v_len_sq)
+			if (prev_v_len_sq - v_len_sq <= MOSS_FLOAT_EPSILON * prev_v_len_sq)
 			{
 				// v is a separating axis
 #ifdef MOSS_GJK_DEBUG
@@ -437,9 +437,9 @@ public:
 
 			// If v is very small compared to the length of y, we also consider this a collision
 #ifdef MOSS_GJK_DEBUG
-			MOSS_TRACE("Check v small compared to y: %g <= %g", (double)v_len_sq, (double)(FLT_EPSILON * GetMaxYLengthSq()));
+			MOSS_TRACE("Check v small compared to y: %g <= %g", (double)v_len_sq, (double)(MOSS_FLOAT_EPSILON * GetMaxYLengthSq()));
 #endif
-			if (v_len_sq <= FLT_EPSILON * GetMaxYLengthSq())
+			if (v_len_sq <= MOSS_FLOAT_EPSILON * GetMaxYLengthSq())
 			{
 #ifdef MOSS_GJK_DEBUG
 				MOSS_TRACE("Machine precision reached");
@@ -455,10 +455,10 @@ public:
 
 			// If the squared length of v is not changing enough, we've converged and there is no collision
 #ifdef MOSS_GJK_DEBUG
-			MOSS_TRACE("Check v not changing enough: %g <= %g", (double)(prev_v_len_sq - v_len_sq), (double)(FLT_EPSILON * prev_v_len_sq));
+			MOSS_TRACE("Check v not changing enough: %g <= %g", (double)(prev_v_len_sq - v_len_sq), (double)(MOSS_FLOAT_EPSILON * prev_v_len_sq));
 #endif
 			MOSS_ASSERT(prev_v_len_sq >= v_len_sq);
-			if (prev_v_len_sq - v_len_sq <= FLT_EPSILON * prev_v_len_sq)
+			if (prev_v_len_sq - v_len_sq <= MOSS_FLOAT_EPSILON * prev_v_len_sq)
 			{
 				// v is a separating axis
 #ifdef MOSS_GJK_DEBUG

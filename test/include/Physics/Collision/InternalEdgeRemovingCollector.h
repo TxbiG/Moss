@@ -154,7 +154,7 @@ public:
 				Vec3 v2 = r.mShape2Face[v2_idx] - r.mContactPointOn2;
 				Vec3 v1_v2 = v2 - v1;
 				float denominator = v1_v2.LengthSq();
-				if (denominator < Square(FLT_EPSILON))
+				if (denominator < Square(MOSS_FLOAT_EPSILON))
 				{
 					// Degenerate, assume v1 is closest, v2 will be tested in a later iteration
 					float v1_len_sq = v1.LengthSq();

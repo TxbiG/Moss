@@ -6,7 +6,8 @@
 #define MOSS_HALF_PI
 #define MOSS_QUARTER_PI
 #define MOSS_TAU
-#define MOSS_FLT_EPSILON
+#define MOSS_EPSILON
+#define MOSS_ZERO_EPSILON
 #define MOSS_INF
 #define MOSS_E
 #define MOSS_LOG2E
